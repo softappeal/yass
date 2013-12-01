@@ -1,0 +1,101 @@
+defaultTasks 'clean', 'todo', 'build', 'compileTutorialJava', 'archive'
+
+apply plugin: 'java'
+
+version = '10.2'
+
+sourceCompatibility = '1.7'
+targetCompatibility = '1.7'
+
+repositories {
+  mavenCentral()
+}
+
+sourceSets {
+  tutorial {
+    java.srcDir file('src/tutorial/java')
+  }
+}
+
+dependencies {
+  testCompile 'junit:junit:4.11'
+  tutorialCompile sourceSets.main.output
+}
+
+tasks.withType(JavaCompile) {
+  options.compilerArgs << "-Xlint"
+}
+
+ext.sharedManifest = manifest {
+  attributes("Implementation-Title": project.name, "Implementation-Version": version)
+}
+
+jar {
+  from "license.txt"
+  manifest = project.manifest { from sharedManifest }
+}
+
+task packageSources(type: Jar) {
+  from sourceSets.main.allSource
+  from "license.txt"
+  manifest = project.manifest { from sharedManifest }
+  classifier = 'sources'
+}
+
+task packageJavadoc(type: Jar, dependsOn: 'javadoc') {
+  from javadoc.destinationDir
+  classifier = 'javadoc'
+}
+
+artifacts {
+  archives(packageJavadoc)
+  archives(packageSources)
+}
+
+task archive << {
+  ant.zip(destfile: "build/libs/tutorial.zip") {
+    fileset(dir: 'src/tutorial')
+  }
+  ant.zip(destfile: "build/${project.name}-${version}_dist.zip") {
+    fileset(dir: '.', includes: "readme.txt,license.txt,changes.txt")
+    fileset(dir: 'build/libs', excludes: "${project.name}-${version}-javadoc.jar")
+  }
+  ant.zip(destfile: "build/${project.name}-${version}_repo.zip") {
+    fileset(dir: '.', defaultexcludes: 'no', excludes: 'build/,.gradle/,.git/,.idea/workspace.xml')
+  }
+  ant.zip(destfile: "build/${project.name}-${version}_all.zip") {
+    fileset(dir: 'build', includes: "${project.name}-${version}_repo.zip,${project.name}-${version}_dist.zip")
+  }
+  println()
+  println("### check file 'changes.txt': build ${version}")
+}
+
+def searchMarker(tree, divider1, divider2, title, marker) {
+  println divider1
+  println "= search: " + title
+  tree.each { file ->
+    def found = false
+    def number = 0
+    file.eachLine { line ->
+      number++
+      if (line.toLowerCase().contains(marker)) {
+        if (!found) {
+          println divider2
+          println "+ " + file
+        }
+        found = true
+        println "- " + number + ": " + line
+      }
+    }
+  }
+}
+
+task todo << {
+  def divider1 = "========================================================================================================================"
+  def divider2 = "------------------------------------------------------------------------------------------------------------------------"
+  def searchTree = fileTree(dir: '.').exclude('build/').exclude('.gradle/').exclude('.git/')
+  searchMarker(searchTree, divider1, divider2, 'abort', '$' + '$$')  // abort, not allowed for building a release
+  searchMarker(searchTree, divider1, divider2, 'todo', '$' + 'todo') // under construction, yet a release can still be built
+  searchMarker(searchTree, divider1, divider2, 'note', '$' + 'note') // important comment
+  println divider1
+}

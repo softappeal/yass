@@ -1,0 +1,94 @@
+-20 (0): java.lang.Void
+-19 (1): ch.softappeal.yass.util.Reference
+-18 (2): java.util.List
+-17 (3): java.lang.Boolean
+-16 (4): java.lang.Byte
+-15 (5): java.lang.Short
+-14 (6): java.lang.Integer
+-13 (7): java.lang.Long
+-12 (8): java.lang.Character
+-11 (9): java.lang.Float
+-10 (10): java.lang.Double
+-9 (11): boolean[]
+-8 (12): byte[]
+-7 (13): short[]
+-6 (14): int[]
+-5 (15): long[]
+-4 (16): char[]
+-3 (17): float[]
+-2 (18): double[]
+-1 (19): java.lang.String
+0 (20): java.math.BigInteger
+1 (21): java.math.BigDecimal
+2 (22): ch.softappeal.yass.serialize.contract.Binary
+3 (23): ch.softappeal.yass.serialize.contract.LongClass
+10 (30): ch.softappeal.yass.serialize.contract.Color
+  0: RED
+  1: GREEN
+  2: BLUE
+20 (40): ch.softappeal.yass.serialize.contract.PrimitiveTypes
+  0 (1): public boolean ch.softappeal.yass.serialize.contract.PrimitiveTypes.booleanField
+  1 (2): public byte ch.softappeal.yass.serialize.contract.PrimitiveTypes.byteField
+  2 (3): public short ch.softappeal.yass.serialize.contract.PrimitiveTypes.shortField
+  3 (4): public int ch.softappeal.yass.serialize.contract.PrimitiveTypes.intField
+  4 (5): public long ch.softappeal.yass.serialize.contract.PrimitiveTypes.longField
+  5 (6): public char ch.softappeal.yass.serialize.contract.PrimitiveTypes.charField
+  6 (7): public float ch.softappeal.yass.serialize.contract.PrimitiveTypes.floatField
+  7 (8): public double ch.softappeal.yass.serialize.contract.PrimitiveTypes.doubleField
+  10 (11): public boolean[] ch.softappeal.yass.serialize.contract.PrimitiveTypes.booleanArrayField
+  11 (12): public byte[] ch.softappeal.yass.serialize.contract.PrimitiveTypes.byteArrayField
+  12 (13): public short[] ch.softappeal.yass.serialize.contract.PrimitiveTypes.shortArrayField
+  13 (14): public int[] ch.softappeal.yass.serialize.contract.PrimitiveTypes.intArrayField
+  14 (15): public long[] ch.softappeal.yass.serialize.contract.PrimitiveTypes.longArrayField
+  15 (16): public char[] ch.softappeal.yass.serialize.contract.PrimitiveTypes.charArrayField
+  16 (17): public float[] ch.softappeal.yass.serialize.contract.PrimitiveTypes.floatArrayField
+  17 (18): public double[] ch.softappeal.yass.serialize.contract.PrimitiveTypes.doubleArrayField
+  20 (21): public java.lang.Boolean ch.softappeal.yass.serialize.contract.PrimitiveTypes.booleanWrapperField
+  21 (22): public java.lang.Byte ch.softappeal.yass.serialize.contract.PrimitiveTypes.byteWrapperField
+  22 (23): public java.lang.Short ch.softappeal.yass.serialize.contract.PrimitiveTypes.shortWrapperField
+  23 (24): public java.lang.Integer ch.softappeal.yass.serialize.contract.PrimitiveTypes.intWrapperField
+  24 (25): public java.lang.Long ch.softappeal.yass.serialize.contract.PrimitiveTypes.longWrapperField
+  25 (26): public java.lang.Character ch.softappeal.yass.serialize.contract.PrimitiveTypes.charWrapperField
+  26 (27): public java.lang.Float ch.softappeal.yass.serialize.contract.PrimitiveTypes.floatWrapperField
+  27 (28): public java.lang.Double ch.softappeal.yass.serialize.contract.PrimitiveTypes.doubleWrapperField
+21 (41): ch.softappeal.yass.serialize.contract.nested.AllTypes
+  0 (1): public boolean ch.softappeal.yass.serialize.contract.PrimitiveTypes.booleanField
+  1 (2): public byte ch.softappeal.yass.serialize.contract.PrimitiveTypes.byteField
+  2 (3): public short ch.softappeal.yass.serialize.contract.PrimitiveTypes.shortField
+  3 (4): public int ch.softappeal.yass.serialize.contract.PrimitiveTypes.intField
+  4 (5): public long ch.softappeal.yass.serialize.contract.PrimitiveTypes.longField
+  5 (6): public char ch.softappeal.yass.serialize.contract.PrimitiveTypes.charField
+  6 (7): public float ch.softappeal.yass.serialize.contract.PrimitiveTypes.floatField
+  7 (8): public double ch.softappeal.yass.serialize.contract.PrimitiveTypes.doubleField
+  10 (11): public boolean[] ch.softappeal.yass.serialize.contract.PrimitiveTypes.booleanArrayField
+  11 (12): public byte[] ch.softappeal.yass.serialize.contract.PrimitiveTypes.byteArrayField
+  12 (13): public short[] ch.softappeal.yass.serialize.contract.PrimitiveTypes.shortArrayField
+  13 (14): public int[] ch.softappeal.yass.serialize.contract.PrimitiveTypes.intArrayField
+  14 (15): public long[] ch.softappeal.yass.serialize.contract.PrimitiveTypes.longArrayField
+  15 (16): public char[] ch.softappeal.yass.serialize.contract.PrimitiveTypes.charArrayField
+  16 (17): public float[] ch.softappeal.yass.serialize.contract.PrimitiveTypes.floatArrayField
+  17 (18): public double[] ch.softappeal.yass.serialize.contract.PrimitiveTypes.doubleArrayField
+  20 (21): public java.lang.Boolean ch.softappeal.yass.serialize.contract.PrimitiveTypes.booleanWrapperField
+  21 (22): public java.lang.Byte ch.softappeal.yass.serialize.contract.PrimitiveTypes.byteWrapperField
+  22 (23): public java.lang.Short ch.softappeal.yass.serialize.contract.PrimitiveTypes.shortWrapperField
+  23 (24): public java.lang.Integer ch.softappeal.yass.serialize.contract.PrimitiveTypes.intWrapperField
+  24 (25): public java.lang.Long ch.softappeal.yass.serialize.contract.PrimitiveTypes.longWrapperField
+  25 (26): public java.lang.Character ch.softappeal.yass.serialize.contract.PrimitiveTypes.charWrapperField
+  26 (27): public java.lang.Float ch.softappeal.yass.serialize.contract.PrimitiveTypes.floatWrapperField
+  27 (28): public java.lang.Double ch.softappeal.yass.serialize.contract.PrimitiveTypes.doubleWrapperField
+  100 (101): public java.lang.String ch.softappeal.yass.serialize.contract.nested.AllTypes.stringField
+  101 (102): public ch.softappeal.yass.serialize.contract.Color ch.softappeal.yass.serialize.contract.nested.AllTypes.colorField
+  102 (103): public java.math.BigDecimal ch.softappeal.yass.serialize.contract.nested.AllTypes.bigDecimalField
+  103 (104): public java.math.BigInteger ch.softappeal.yass.serialize.contract.nested.AllTypes.bigIntegerField
+  104 (105): public ch.softappeal.yass.serialize.contract.Binary ch.softappeal.yass.serialize.contract.nested.AllTypes.binaryField
+  105 (106): public ch.softappeal.yass.serialize.contract.LongClass ch.softappeal.yass.serialize.contract.nested.AllTypes.longClassField
+  106 (107): public ch.softappeal.yass.serialize.contract.PrimitiveTypes ch.softappeal.yass.serialize.contract.nested.AllTypes.primitiveTypesField
+  107 (108): public java.util.List ch.softappeal.yass.serialize.contract.nested.AllTypes.primitiveTypesListField
+  108 (109): public java.lang.Object ch.softappeal.yass.serialize.contract.nested.AllTypes.objectField
+  109 (110): public java.util.List ch.softappeal.yass.serialize.contract.nested.AllTypes.objectListField
+  110 (111): public java.lang.Throwable ch.softappeal.yass.serialize.contract.nested.AllTypes.throwable
+22 (42): ch.softappeal.yass.serialize.contract.IntException
+  0 (1): public int ch.softappeal.yass.serialize.contract.IntException.value
+30 (50): ch.softappeal.yass.serialize.contract.Node
+  0 (1): public int ch.softappeal.yass.serialize.contract.Node.id
+  1 (2): public ch.softappeal.yass.serialize.contract.Node ch.softappeal.yass.serialize.contract.Node.link

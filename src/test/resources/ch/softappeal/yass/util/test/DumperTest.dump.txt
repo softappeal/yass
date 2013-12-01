@@ -1,0 +1,139 @@
+null
+(char)31
+' '
+'~'
+(char)127
+20130-12-01 14:40:50
+AllTypes(
+  booleanField = false
+  byteField = 0
+  shortField = 0
+  intField = 0
+  longField = 0
+  charField = (char)0
+  floatField = 0.0
+  doubleField = 0.0
+) #0
+AllTypes(
+  stringField = "999"
+  colorField = BLUE
+  bigDecimalField = 98.7
+  bigIntegerField = 987
+  binaryField = [ 123 -99 ] #1
+  longClassField = LongClass(
+    value = 1234567890999988888
+  ) #2
+  primitiveTypesField = AllTypes(
+    stringField = "hello"
+    booleanField = false
+    byteField = 0
+    shortField = 0
+    intField = 0
+    longField = 0
+    charField = (char)0
+    floatField = 0.0
+    doubleField = 0.0
+  ) #3
+  primitiveTypesListField = [
+    PrimitiveTypes(
+      booleanField = false
+      byteField = 0
+      shortField = 0
+      intField = 999
+      longField = 0
+      charField = (char)0
+      floatField = 0.0
+      doubleField = 0.0
+    ) #4
+    AllTypes(
+      stringField = "world"
+      booleanField = false
+      byteField = 0
+      shortField = 0
+      intField = 0
+      longField = 0
+      charField = (char)0
+      floatField = 0.0
+      doubleField = 0.0
+    ) #5
+    null
+  ]
+  objectField = "bad"
+  objectListField = [
+    "good"
+    null
+    123
+  ]
+  throwable = IntException(
+    value = 123
+  ) #6
+  booleanField = false
+  byteField = 100
+  shortField = 101
+  intField = 102
+  longField = 103
+  charField = 'x'
+  floatField = 1.23
+  doubleField = 3.21
+  booleanArrayField = [
+    false
+    true
+    false
+  ]
+  byteArrayField = [
+    1
+    -2
+  ]
+  shortArrayField = [
+    -1
+    2
+  ]
+  intArrayField = [
+    1
+    -2
+  ]
+  longArrayField = [
+    -1
+    2
+  ]
+  charArrayField = [
+    'x'
+    'y'
+  ]
+  floatArrayField = [
+    -1.0
+    2.0
+  ]
+  doubleArrayField = [
+    1.0
+    -2.0
+  ]
+  booleanWrapperField = true
+  byteWrapperField = -100
+  shortWrapperField = -101
+  intWrapperField = -102
+  longWrapperField = -103
+  charWrapperField = 'y'
+  floatWrapperField = -1.23
+  doubleWrapperField = -3.21
+) #0
+Node(
+  id = 1
+  link = Node(
+    id = 2
+    link = Node(
+      id = 3
+      link = #1
+    ) #2
+  ) #1
+) #0
+[
+  "one"
+  "two"
+  "three"
+]
+{
+  1 -> "one"
+  2 -> null
+  3 -> "three"
+}
