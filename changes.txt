@@ -1,7 +1,0 @@
-Given a version MAJOR.MINOR: increment MAJOR on incompatible and MINOR on compatible changes.
-
-- build 10.2
-  - type of core.Invocation.context changed from Reference<Object> to Object
-
-- build 9.5
-  - start of log

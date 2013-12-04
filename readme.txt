@@ -17,3 +17,5 @@ yass (Yet Another Service Solution)
   * needs no third-party libraries
 
   * is Open Source (BSD-style license) -> https://github.com/softappeal/yass
+
+  * semantic of version MAJOR.MINOR: increment MAJOR on incompatible and MINOR on compatible changes

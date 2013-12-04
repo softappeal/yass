@@ -1,4 +1,5 @@
-.idea/workspace.xml
-
 .gradle/
+.idea/
 build/
+classes/
+yass.iml
