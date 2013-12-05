@@ -2,11 +2,13 @@ package ch.softappeal.yass.util;
 
 import org.junit.Assert;
 
-import java.io.ByteArrayOutputStream;
-import java.io.InputStream;
-import java.io.OutputStreamWriter;
+import java.io.BufferedReader;
+import java.io.CharArrayReader;
+import java.io.CharArrayWriter;
+import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.lang.Thread.UncaughtExceptionHandler;
+import java.nio.charset.StandardCharsets;
 
 public class TestUtils {
 
@@ -19,16 +21,28 @@ public class TestUtils {
       final PrintWriter writer = new PrintWriter(System.out);
       printer.print(writer);
       writer.flush();
-      final ByteArrayOutputStream buffer = new ByteArrayOutputStream();
-      try (PrintWriter out = new PrintWriter(new OutputStreamWriter(buffer))) {
+      final CharArrayWriter buffer = new CharArrayWriter();
+      try (PrintWriter out = new PrintWriter(buffer)) {
         printer.print(out);
       }
-      final byte[] outBuffer = buffer.toByteArray();
-      try (InputStream in = new ClassLoaderResource(TestUtils.class.getClassLoader(), fileResourcePath).create()) {
-        final byte[] inBuffer = new byte[outBuffer.length];
-        Assert.assertTrue(in.read(inBuffer) == inBuffer.length);
-        Assert.assertTrue(in.read() < 0);
-        Assert.assertArrayEquals(inBuffer, outBuffer);
+      final BufferedReader testReader = new BufferedReader(new CharArrayReader(buffer.toCharArray()));
+      try (
+        BufferedReader refReader = new BufferedReader(new InputStreamReader(
+          new ClassLoaderResource(TestUtils.class.getClassLoader(), fileResourcePath).create(),
+          StandardCharsets.UTF_8
+        ))
+      ) {
+        while (true) {
+          final String testLine = testReader.readLine();
+          final String refLine = refReader.readLine();
+          if ((testLine == null) && (refLine == null)) {
+            return;
+          }
+          if ((testLine == null) || (refLine == null)) {
+            throw new RuntimeException("files don't have same length");
+          }
+          Assert.assertEquals(testLine, refLine);
+        }
       }
     } catch (final Exception e) {
       throw Exceptions.wrap(e);
