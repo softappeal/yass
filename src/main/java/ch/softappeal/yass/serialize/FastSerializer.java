@@ -11,7 +11,7 @@ import java.util.List;
  * Use {@link SimpleFastSerializer} instead.
  */
 @Deprecated
-public final class FastSerializer implements Serializer { // $todo: remove later
+public final class FastSerializer implements Serializer {
 
   private final Serializer serializer;
 
