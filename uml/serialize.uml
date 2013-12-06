@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Diagram>
+  <ID>JAVA</ID>
+  <OriginalElement>ch.softappeal.yass.serialize.JavaSerializer</OriginalElement>
+  <nodes>
+    <node x="310.0" y="25.0">ch.softappeal.yass.serialize.Writer</node>
+    <node x="-133.0" y="23.0">ch.softappeal.yass.serialize.Reader</node>
+    <node x="209.0" y="-62.0">ch.softappeal.yass.serialize.Serializer</node>
+  </nodes>
+  <notes />
+  <edges />
+  <settings layout="Hierarchic Group" zoom="1.0" x="424.0" y="350.5" />
+  <SelectedNodes />
+  <Categories>
+    <Category>Fields</Category>
+    <Category>Inner Classes</Category>
+    <Category>Constructors</Category>
+    <Category>Methods</Category>
+  </Categories>
+  <SCOPE>All</SCOPE>
+  <VISIBILITY>private</VISIBILITY>
+</Diagram>
+

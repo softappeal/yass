@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Diagram>
+  <ID>JAVA</ID>
+  <OriginalElement>ch.softappeal.yass.core.Interceptor</OriginalElement>
+  <nodes>
+    <node x="-552.0" y="-131.0">ch.softappeal.yass.core.Interceptor</node>
+    <node x="-354.0" y="-132.0">ch.softappeal.yass.core.Invocation</node>
+    <node x="-90.5" y="-129.0">ch.softappeal.yass.core.Interceptors</node>
+  </nodes>
+  <notes />
+  <edges />
+  <settings layout="Hierarchic Group" zoom="1.0" x="45.0" y="34.0" />
+  <SelectedNodes />
+  <Categories>
+    <Category>Fields</Category>
+    <Category>Constructors</Category>
+    <Category>Methods</Category>
+    <Category>Inner Classes</Category>
+  </Categories>
+  <SCOPE>All</SCOPE>
+  <VISIBILITY>protected</VISIBILITY>
+</Diagram>
+

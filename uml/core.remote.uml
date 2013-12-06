@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Diagram>
+  <ID>JAVA</ID>
+  <OriginalElement>ch.softappeal.yass.core.remote.Client</OriginalElement>
+  <nodes>
+    <node x="131.0" y="394.6149858014729">ch.softappeal.yass.core.remote.Client</node>
+    <node x="289.9636027871769" y="669.9834453475821">ch.softappeal.yass.core.remote.Message</node>
+    <node x="784.0" y="885.6149858014729">ch.softappeal.yass.core.remote.MethodMapper.Mapping</node>
+    <node x="805.0" y="389.6149858014729">ch.softappeal.yass.core.remote.Server</node>
+    <node x="131.0" y="502.6149858014729">ch.softappeal.yass.core.remote.Invoker</node>
+    <node x="767.0" y="493.6149858014729">ch.softappeal.yass.core.remote.Service</node>
+    <node x="513.0" y="592.6149858014729">ch.softappeal.yass.core.remote.OneWay</node>
+    <node x="751.0" y="743.6149858014729">ch.softappeal.yass.core.remote.MethodMapper</node>
+    <node x="119.08853885526469" y="764.5287940705546">ch.softappeal.yass.core.remote.Request</node>
+    <node x="775.0" y="677.6149858014729">ch.softappeal.yass.core.remote.MethodMapper.Factory</node>
+    <node x="326.9813178694876" y="863.6149858014729">ch.softappeal.yass.core.remote.ValueReply</node>
+    <node x="493.0" y="864.0">ch.softappeal.yass.core.remote.ExceptionReply</node>
+    <node x="349.0" y="390.6149858014729">ch.softappeal.yass.core.remote.ContractId</node>
+    <node x="407.66436853065477" y="770.3243827879628">ch.softappeal.yass.core.remote.Reply</node>
+  </nodes>
+  <notes />
+  <edges>
+    <edge source="ch.softappeal.yass.core.remote.Request" target="ch.softappeal.yass.core.remote.Message">
+      <point x="0.0" y="0.0" />
+      <point x="0.0" y="0.0" />
+    </edge>
+    <edge source="ch.softappeal.yass.core.remote.ValueReply" target="ch.softappeal.yass.core.remote.Reply">
+      <point x="0.0" y="0.0" />
+      <point x="0.0" y="0.0" />
+    </edge>
+    <edge source="ch.softappeal.yass.core.remote.ExceptionReply" target="ch.softappeal.yass.core.remote.Reply">
+      <point x="0.0" y="0.0" />
+      <point x="0.0" y="0.0" />
+    </edge>
+    <edge source="ch.softappeal.yass.core.remote.Reply" target="ch.softappeal.yass.core.remote.Message">
+      <point x="0.0" y="0.0" />
+      <point x="0.0" y="0.0" />
+    </edge>
+  </edges>
+  <settings layout="Hierarchic Group" zoom="1.0" x="701.5" y="716.5" />
+  <SelectedNodes />
+  <Categories>
+    <Category>Constructors</Category>
+    <Category>Fields</Category>
+    <Category>Methods</Category>
+  </Categories>
+  <SCOPE>All</SCOPE>
+  <VISIBILITY>protected</VISIBILITY>
+</Diagram>
+

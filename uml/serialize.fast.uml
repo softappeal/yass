@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Diagram>
+  <ID>JAVA</ID>
+  <OriginalElement>ch.softappeal.yass.serialize.fast.AbstractFastSerializer</OriginalElement>
+  <nodes>
+    <node x="876.3004366812227" y="912.4200873362445">ch.softappeal.yass.serialize.fast.ClassTypeHandler</node>
+    <node x="1186.162952563454" y="533.722524037643">ch.softappeal.yass.serialize.fast.TaggedFastSerializer</node>
+    <node x="1181.6532751091704" y="915.3240921395377">ch.softappeal.yass.serialize.fast.FieldHandler</node>
+    <node x="1556.5589519650657" y="977.1380659386639">ch.softappeal.yass.serialize.fast.TypeConverterId</node>
+    <node x="519.6206543933192" y="912.1164105005248">ch.softappeal.yass.serialize.fast.BaseTypeHandler</node>
+    <node x="1218.8576419213978" y="724.3205986897558">ch.softappeal.yass.serialize.fast.Output</node>
+    <node x="1000.4358078602622" y="720.5625200871359">ch.softappeal.yass.serialize.fast.Input</node>
+    <node x="741.4009969474819" y="710.2930752956805">ch.softappeal.yass.serialize.fast.TypeHandler</node>
+    <node x="1187.945851528384" y="448.7230531486766">ch.softappeal.yass.serialize.fast.SimpleFastSerializer</node>
+    <node x="788.5418864153282" y="420.5446993036496">ch.softappeal.yass.serialize.fast.AbstractFastSerializer</node>
+    <node x="1528.833187772926" y="725.7843541482712">ch.softappeal.yass.serialize.fast.TypeHandlers</node>
+    <node x="531.7232699480664" y="497.9048781657383">ch.softappeal.yass.serialize.Serializer</node>
+  </nodes>
+  <notes />
+  <edges>
+    <edge source="ch.softappeal.yass.serialize.fast.AbstractFastSerializer" target="ch.softappeal.yass.serialize.Serializer">
+      <point x="0.0" y="0.0" />
+      <point x="0.0" y="0.0" />
+    </edge>
+    <edge source="ch.softappeal.yass.serialize.fast.ClassTypeHandler" target="ch.softappeal.yass.serialize.fast.TypeHandler">
+      <point x="0.0" y="0.0" />
+      <point x="0.0" y="0.0" />
+    </edge>
+    <edge source="ch.softappeal.yass.serialize.fast.BaseTypeHandler" target="ch.softappeal.yass.serialize.fast.TypeHandler">
+      <point x="0.0" y="0.0" />
+      <point x="0.0" y="0.0" />
+    </edge>
+    <edge source="ch.softappeal.yass.serialize.fast.SimpleFastSerializer" target="ch.softappeal.yass.serialize.fast.AbstractFastSerializer">
+      <point x="0.0" y="0.0" />
+      <point x="0.0" y="0.0" />
+    </edge>
+    <edge source="ch.softappeal.yass.serialize.fast.TaggedFastSerializer" target="ch.softappeal.yass.serialize.fast.AbstractFastSerializer">
+      <point x="0.0" y="0.0" />
+      <point x="0.0" y="0.0" />
+    </edge>
+  </edges>
+  <settings layout="Hierarchic Group" zoom="1.0" x="1266.5" y="944.5" />
+  <SelectedNodes />
+  <Categories>
+    <Category>Fields</Category>
+    <Category>Constructors</Category>
+    <Category>Methods</Category>
+    <Category>Inner Classes</Category>
+  </Categories>
+  <SCOPE>All</SCOPE>
+  <VISIBILITY>protected</VISIBILITY>
+</Diagram>
+

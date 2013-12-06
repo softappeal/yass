@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Diagram>
+  <ID>JAVA</ID>
+  <OriginalElement>ch.softappeal.yass.serialize.convert.BinaryTypeConverter</OriginalElement>
+  <nodes>
+    <node x="-16.704051385275193" y="663.0725047370569">ch.softappeal.yass.serialize.convert.TypeConverter.Visitor</node>
+    <node x="-123.92394623179848" y="850.082096069869">ch.softappeal.yass.serialize.convert.IntegerTypeConverter</node>
+    <node x="194.27376079163275" y="850.7329266679185">ch.softappeal.yass.serialize.convert.LongTypeConverter</node>
+    <node x="596.8864559096361" y="1075.6445044823854">ch.softappeal.yass.serialize.convert.StringValue</node>
+    <node x="389.34124943706206" y="671.6613477808935">ch.softappeal.yass.serialize.convert.TypeConverter</node>
+    <node x="477.7310043668123" y="854.8896342018429">ch.softappeal.yass.serialize.convert.BinaryTypeConverter</node>
+    <node x="791.387234442377" y="1086.2227253333672">ch.softappeal.yass.serialize.convert.StringValue.TypeConverter</node>
+    <node x="770.696361850682" y="857.7610563291257">ch.softappeal.yass.serialize.convert.StringTypeConverter</node>
+  </nodes>
+  <notes />
+  <edges>
+    <edge source="ch.softappeal.yass.serialize.convert.StringValue.TypeConverter" target="ch.softappeal.yass.serialize.convert.StringValue">
+      <point x="0.0" y="0.0" />
+      <point x="0.0" y="0.0" />
+    </edge>
+    <edge source="ch.softappeal.yass.serialize.convert.TypeConverter.Visitor" target="ch.softappeal.yass.serialize.convert.TypeConverter">
+      <point x="0.0" y="0.0" />
+      <point x="0.0" y="0.0" />
+    </edge>
+    <edge source="ch.softappeal.yass.serialize.convert.StringValue.TypeConverter" target="ch.softappeal.yass.serialize.convert.StringTypeConverter">
+      <point x="0.0" y="0.0" />
+      <point x="0.0" y="0.0" />
+    </edge>
+    <edge source="ch.softappeal.yass.serialize.convert.BinaryTypeConverter" target="ch.softappeal.yass.serialize.convert.TypeConverter">
+      <point x="0.0" y="0.0" />
+      <point x="0.0" y="0.0" />
+    </edge>
+    <edge source="ch.softappeal.yass.serialize.convert.LongTypeConverter" target="ch.softappeal.yass.serialize.convert.TypeConverter">
+      <point x="0.0" y="0.0" />
+      <point x="0.0" y="0.0" />
+    </edge>
+    <edge source="ch.softappeal.yass.serialize.convert.StringTypeConverter" target="ch.softappeal.yass.serialize.convert.TypeConverter">
+      <point x="0.0" y="0.0" />
+      <point x="0.0" y="0.0" />
+    </edge>
+    <edge source="ch.softappeal.yass.serialize.convert.IntegerTypeConverter" target="ch.softappeal.yass.serialize.convert.TypeConverter">
+      <point x="0.0" y="0.0" />
+      <point x="0.0" y="0.0" />
+    </edge>
+  </edges>
+  <settings layout="Hierarchic Group" zoom="1.0" x="540.5" y="972.5" />
+  <SelectedNodes />
+  <Categories>
+    <Category>Inner Classes</Category>
+    <Category>Fields</Category>
+    <Category>Constructors</Category>
+    <Category>Methods</Category>
+  </Categories>
+  <SCOPE>All</SCOPE>
+  <VISIBILITY>protected</VISIBILITY>
+</Diagram>
+

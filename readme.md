@@ -1,5 +1,4 @@
-yass (Yet Another Service Solution)
------------------------------------
+### yass (Yet Another Service Solution)
 
 * is a fast and small bidirectional messaging library
 
@@ -17,6 +16,8 @@ yass (Yet Another Service Solution)
 
 * needs no third-party libraries
 
-* is Open Source (BSD-style license) -> https://github.com/softappeal/yass
+* is Open Source (BSD-style license)
+  * Repository: https://github.com/softappeal/yass
+  * Wiki: https://github.com/softappeal/yass/wiki
 
 * semantic of version MAJOR.MINOR: increment MAJOR on incompatible and MINOR on compatible changes

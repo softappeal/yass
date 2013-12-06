@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Diagram>
+  <ID>JAVA</ID>
+  <OriginalElement>ch.softappeal.yass.serialize.reflect.Reflector</OriginalElement>
+  <nodes>
+    <node x="286.07875665709344" y="343.53926507504264">ch.softappeal.yass.serialize.reflect.FastReflector</node>
+    <node x="-64.0" y="241.43395825548606">ch.softappeal.yass.serialize.reflect.Reflector.Factory</node>
+    <node x="83.15842503980792" y="341.0">ch.softappeal.yass.serialize.reflect.SlowReflector</node>
+    <node x="435.8371538449619" y="232.93705867922827">ch.softappeal.yass.serialize.reflect.Reflector.Accessor</node>
+    <node x="184.2927962961129" y="231.8432821467213">ch.softappeal.yass.serialize.reflect.Reflector</node>
+  </nodes>
+  <notes />
+  <edges>
+    <edge source="ch.softappeal.yass.serialize.reflect.Reflector.Factory" target="ch.softappeal.yass.serialize.reflect.Reflector">
+      <point x="0.0" y="0.0" />
+      <point x="0.0" y="0.0" />
+    </edge>
+    <edge source="ch.softappeal.yass.serialize.reflect.SlowReflector" target="ch.softappeal.yass.serialize.reflect.Reflector">
+      <point x="0.0" y="0.0" />
+      <point x="0.0" y="0.0" />
+    </edge>
+    <edge source="ch.softappeal.yass.serialize.reflect.FastReflector" target="ch.softappeal.yass.serialize.reflect.Reflector">
+      <point x="0.0" y="0.0" />
+      <point x="0.0" y="0.0" />
+    </edge>
+    <edge source="ch.softappeal.yass.serialize.reflect.Reflector.Accessor" target="ch.softappeal.yass.serialize.reflect.Reflector">
+      <point x="0.0" y="0.0" />
+      <point x="0.0" y="0.0" />
+    </edge>
+  </edges>
+  <settings layout="Hierarchic Group" zoom="1.0" x="388.5" y="283.5" />
+  <SelectedNodes />
+  <Categories>
+    <Category>Fields</Category>
+    <Category>Constructors</Category>
+    <Category>Methods</Category>
+    <Category>Inner Classes</Category>
+  </Categories>
+  <SCOPE>All</SCOPE>
+  <VISIBILITY>protected</VISIBILITY>
+</Diagram>
+
