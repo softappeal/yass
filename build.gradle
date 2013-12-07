@@ -1,6 +1,7 @@
-defaultTasks 'clean', 'todo', 'build', 'compileTutorialJava', 'dist'
+defaultTasks 'clean', 'todo', 'build', 'compileTutorialJava', 'publishToMavenLocal', 'dist'
 
 apply plugin: 'java'
+apply plugin: 'maven-publish'
 
 sourceCompatibility = '1.7'
 targetCompatibility = '1.7'
@@ -25,30 +26,53 @@ tasks.withType(JavaCompile) {
 }
 
 jar {
-  from "readme.md"
   from "license.txt"
 }
 
-task packageSources(type: Jar) {
-  from "readme.md"
+task sourcesJar(type: Jar) {
   from "license.txt"
   from sourceSets.main.allSource
-  classifier = 'sources'
 }
 
-task packageJavadoc(type: Jar, dependsOn: 'javadoc') {
+task javadocJar(type: Jar, dependsOn: 'javadoc') {
   from javadoc.destinationDir
-  classifier = 'javadoc'
 }
 
-artifacts {
-  archives(packageJavadoc)
-  archives(packageSources)
+publishing {
+  publications {
+    maven(MavenPublication) {
+      groupId 'ch.softappeal'
+      pom.withXml {
+        asNode().children().last() + {
+          resolveStrategy = Closure.DELEGATE_FIRST
+          packaging 'jar'
+          name project.name
+          description 'Yet Another Service Solution'
+          url 'https://github.com/softappeal/yass'
+          licenses {
+            license { name 'The BSD 3-Clause License' }
+          }
+          scm { url 'https://github.com/softappeal/yass' }
+          organization { name 'softappeal GmbH Switzerland' }
+          developers {
+            developer { name 'Angelo Salvade' }
+          }
+        }
+      }
+      from components.java
+      artifact sourcesJar { classifier "sources" }
+      artifact javadocJar { classifier "javadoc" }
+    }
+  }
 }
 
 task dist << {
-  ant.zip(destfile: "build/${project.name}-${version}_dist.zip") {
-    fileset(dir: '.', includes: "readme.md,license.txt")
+  def name = "${project.name}-${version}"
+  ant.copy(file: 'build/publications/maven/pom-default.xml', tofile: "build/publications/maven/${name}.pom")
+  ant.zip(destfile: "build/${name}_dist.zip") {
+    fileset(file: 'readme.md')
+    fileset(file: 'license.txt')
+    fileset(file: "build/publications/maven/${name}.pom")
     fileset(dir: 'build/libs')
     zipfileset(dir: 'src/tutorial', prefix: 'tutorial')
   }
