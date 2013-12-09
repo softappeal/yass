@@ -1,7 +1,8 @@
-defaultTasks 'clean', 'todo', 'build', 'compileTutorialJava', 'publishToMavenLocal', 'dist'
+defaultTasks 'clean', 'todo', 'build', 'compileTutorialJava', 'createPom', 'dist'
 
 apply plugin: 'java'
-apply plugin: 'maven-publish'
+apply plugin: 'maven'
+apply plugin: 'signing'
 
 sourceCompatibility = '1.7'
 targetCompatibility = '1.7'
@@ -11,9 +12,7 @@ repositories {
 }
 
 sourceSets {
-  tutorial {
-    java.srcDir file('src/tutorial/java')
-  }
+  tutorial { java.srcDir file('src/tutorial/java') }
 }
 
 dependencies {
@@ -26,55 +25,66 @@ tasks.withType(JavaCompile) {
 }
 
 jar {
+  from "readme.md"
   from "license.txt"
 }
 
-task sourcesJar(type: Jar) {
+task packageSources(type: Jar) {
+  from "readme.md"
   from "license.txt"
   from sourceSets.main.allSource
+  classifier = 'sources'
 }
 
-task javadocJar(type: Jar, dependsOn: 'javadoc') {
+task packageJavadoc(type: Jar, dependsOn: 'javadoc') {
   from javadoc.destinationDir
+  classifier = 'javadoc'
 }
 
-publishing {
-  publications {
-    maven(MavenPublication) {
-      groupId 'ch.softappeal'
-      pom.withXml {
-        asNode().children().last() + {
-          resolveStrategy = Closure.DELEGATE_FIRST
-          packaging 'jar'
-          name project.name
-          description 'Yet Another Service Solution'
-          url 'https://github.com/softappeal/yass'
-          licenses {
-            license { name 'The BSD 3-Clause License' }
-          }
-          scm { url 'https://github.com/softappeal/yass' }
-          organization { name 'softappeal GmbH Switzerland' }
-          developers {
-            developer { name 'Angelo Salvade' }
-          }
-        }
+artifacts {
+  archives(packageSources)
+  archives(packageJavadoc)
+}
+
+task createPom << {
+  pom {
+    project {
+      groupId 'ch.softappeal.' + project.name
+      packaging 'jar'
+      name project.name
+      description 'Yet Another Service Solution'
+      url 'https://github.com/softappeal/yass'
+      licenses {
+        license { name 'The BSD 3-Clause License' }
       }
-      from components.java
-      artifact sourcesJar { classifier "sources" }
-      artifact javadocJar { classifier "javadoc" }
+      scm { url 'https://github.com/softappeal/yass' }
+      organization { name 'softappeal GmbH Switzerland' }
+      developers {
+        developer { name 'Angelo Salvade' }
+      }
     }
-  }
+  }.writeTo("build/libs/${project.name}-${version}.pom")
 }
 
 task dist << {
-  def name = "${project.name}-${version}"
-  ant.copy(file: 'build/publications/maven/pom-default.xml', tofile: "build/publications/maven/${name}.pom")
-  ant.zip(destfile: "build/${name}_dist.zip") {
+  if (project.hasProperty('signing.password')) {
+    def signPrefix = "build/libs/${project.name}-${version}"
+    signing.sign(file("${signPrefix}.pom"))
+    signing.sign(file("${signPrefix}.jar"))
+    signing.sign(file("${signPrefix}-sources.jar"))
+    signing.sign(file("${signPrefix}-javadoc.jar"))
+  }
+  ant.zip(destfile: "build/tutorial.zip") {
+    fileset(dir: 'src/tutorial')
+  }
+  ant.zip(destfile: "build/libs.zip") {
+    fileset(dir: 'build/libs')
+  }
+  ant.zip(destfile: "build/${project.name}-${version}_dist.zip") {
     fileset(file: 'readme.md')
     fileset(file: 'license.txt')
-    fileset(file: "build/publications/maven/${name}.pom")
-    fileset(dir: 'build/libs')
-    zipfileset(dir: 'src/tutorial', prefix: 'tutorial')
+    fileset(file: 'build/libs.zip')
+    fileset(file: 'build/tutorial.zip')
   }
 }
 

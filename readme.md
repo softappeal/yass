@@ -19,5 +19,6 @@
 * is Open Source (BSD-style license)
   * Repository: https://github.com/softappeal/yass
   * Wiki: https://github.com/softappeal/yass/wiki
+  * MavenCentral: groupId="ch.softappeal.yass", artifactId="yass"
 
 * semantic of version MAJOR.MINOR: increment MAJOR on incompatible and MINOR on compatible changes
