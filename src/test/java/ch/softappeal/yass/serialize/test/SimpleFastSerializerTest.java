@@ -1,11 +1,11 @@
 package ch.softappeal.yass.serialize.test;
 
 import ch.softappeal.yass.serialize.Serializer;
+import ch.softappeal.yass.serialize.SlowReflector;
 import ch.softappeal.yass.serialize.Writer;
 import ch.softappeal.yass.serialize.contract.Color;
 import ch.softappeal.yass.serialize.convert.TypeConverter;
 import ch.softappeal.yass.serialize.fast.SimpleFastSerializer;
-import ch.softappeal.yass.serialize.reflect.SlowReflector;
 import ch.softappeal.yass.util.Nullable;
 import ch.softappeal.yass.util.TestUtils;
 import org.junit.Assert;

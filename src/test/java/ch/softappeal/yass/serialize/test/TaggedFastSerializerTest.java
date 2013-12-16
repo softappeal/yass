@@ -1,5 +1,6 @@
 package ch.softappeal.yass.serialize.test;
 
+import ch.softappeal.yass.serialize.FastReflector;
 import ch.softappeal.yass.serialize.Reader;
 import ch.softappeal.yass.serialize.Serializer;
 import ch.softappeal.yass.serialize.Writer;
@@ -7,7 +8,6 @@ import ch.softappeal.yass.serialize.contract.V1;
 import ch.softappeal.yass.serialize.contract.V2;
 import ch.softappeal.yass.serialize.fast.TaggedFastSerializer;
 import ch.softappeal.yass.serialize.fast.TypeConverterId;
-import ch.softappeal.yass.serialize.reflect.FastReflector;
 import ch.softappeal.yass.util.Tag;
 import ch.softappeal.yass.util.TestUtils;
 import org.junit.Assert;

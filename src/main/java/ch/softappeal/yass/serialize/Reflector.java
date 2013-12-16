@@ -1,4 +1,4 @@
-package ch.softappeal.yass.serialize.reflect;
+package ch.softappeal.yass.serialize;
 
 import ch.softappeal.yass.util.Nullable;
 

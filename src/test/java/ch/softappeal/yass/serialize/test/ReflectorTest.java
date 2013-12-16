@@ -1,9 +1,9 @@
-package ch.softappeal.yass.serialize.reflect.test;
+package ch.softappeal.yass.serialize.test;
 
+import ch.softappeal.yass.serialize.FastReflector;
+import ch.softappeal.yass.serialize.Reflector;
+import ch.softappeal.yass.serialize.SlowReflector;
 import ch.softappeal.yass.serialize.contract.nested.AllTypes;
-import ch.softappeal.yass.serialize.reflect.FastReflector;
-import ch.softappeal.yass.serialize.reflect.Reflector;
-import ch.softappeal.yass.serialize.reflect.SlowReflector;
 import org.junit.Assert;
 import org.junit.Test;
 

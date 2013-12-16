@@ -1,7 +1,9 @@
 package ch.softappeal.yass.serialize.test;
 
+import ch.softappeal.yass.serialize.FastReflector;
 import ch.softappeal.yass.serialize.JavaSerializer;
 import ch.softappeal.yass.serialize.Serializer;
+import ch.softappeal.yass.serialize.SlowReflector;
 import ch.softappeal.yass.serialize.contract.Binary;
 import ch.softappeal.yass.serialize.contract.Color;
 import ch.softappeal.yass.serialize.contract.IntException;
@@ -15,8 +17,6 @@ import ch.softappeal.yass.serialize.fast.AbstractFastSerializer;
 import ch.softappeal.yass.serialize.fast.SimpleFastSerializer;
 import ch.softappeal.yass.serialize.fast.TaggedFastSerializer;
 import ch.softappeal.yass.serialize.fast.TypeConverterId;
-import ch.softappeal.yass.serialize.reflect.FastReflector;
-import ch.softappeal.yass.serialize.reflect.SlowReflector;
 import org.junit.Assert;
 import org.junit.Test;
 

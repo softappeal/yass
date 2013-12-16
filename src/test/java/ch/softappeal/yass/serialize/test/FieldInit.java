@@ -1,4 +1,4 @@
-package ch.softappeal.yass.serialize.reflect.test;
+package ch.softappeal.yass.serialize.test;
 
 public class FieldInit {
 

@@ -1,9 +1,9 @@
-package ch.softappeal.yass.serialize.reflect.test;
+package ch.softappeal.yass.serialize.test;
 
+import ch.softappeal.yass.serialize.FastReflector;
+import ch.softappeal.yass.serialize.Reflector;
+import ch.softappeal.yass.serialize.SlowReflector;
 import ch.softappeal.yass.serialize.contract.nested.AllTypes;
-import ch.softappeal.yass.serialize.reflect.FastReflector;
-import ch.softappeal.yass.serialize.reflect.Reflector;
-import ch.softappeal.yass.serialize.reflect.SlowReflector;
 import ch.softappeal.yass.util.PerformanceTask;
 import org.junit.Assert;
 import org.junit.Test;
@@ -11,7 +11,7 @@ import org.junit.Test;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
-public class PerformanceTest {
+public class ReflectorPerformanceTest {
 
   private static void test(final Reflector.Factory reflectorFactory) throws Exception {
     new PerformanceTask() {

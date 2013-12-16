@@ -1,9 +1,9 @@
 package ch.softappeal.yass.serialize.fast;
 
 import ch.softappeal.yass.serialize.Reader;
+import ch.softappeal.yass.serialize.Reflector;
 import ch.softappeal.yass.serialize.convert.IntegerTypeConverter;
 import ch.softappeal.yass.serialize.convert.TypeConverter;
-import ch.softappeal.yass.serialize.reflect.Reflector;
 import ch.softappeal.yass.util.Exceptions;
 
 import java.lang.reflect.Field;
