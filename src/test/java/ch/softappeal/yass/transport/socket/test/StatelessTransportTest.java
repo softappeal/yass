@@ -2,7 +2,7 @@ package ch.softappeal.yass.transport.socket.test;
 
 import ch.softappeal.yass.core.Interceptor;
 import ch.softappeal.yass.core.Invocation;
-import ch.softappeal.yass.core.remote.MethodMapper;
+import ch.softappeal.yass.core.remote.MethodMappers;
 import ch.softappeal.yass.core.remote.Server;
 import ch.softappeal.yass.core.remote.test.ContractIdTest;
 import ch.softappeal.yass.core.remote.test.RemoteTest;
@@ -47,7 +47,7 @@ public class StatelessTransportTest extends InvokeTest {
     try {
       new StatelessTransport(
         new Server(
-          MethodMapper.STRING_FACTORY,
+          MethodMappers.STRING_FACTORY,
           ContractIdTest.ID.service(new TestServiceImpl(), new SocketInterceptor("Server"), RemoteTest.CONTRACT_ID_CHECKER, SERVER_INTERCEPTOR)
         ),
         MessageSerializerTest.SERIALIZER,
@@ -56,7 +56,7 @@ public class StatelessTransportTest extends InvokeTest {
       ).start(executor, SocketListenerTest.ADDRESS);
       invoke(
         ContractIdTest.ID.invoker(StatelessTransport.client(
-          MethodMapper.STRING_FACTORY,
+          MethodMappers.STRING_FACTORY,
           MessageSerializerTest.SERIALIZER,
           SocketListenerTest.ADDRESS
         )).proxy(PRINTLN_AFTER, new SocketInterceptor("Client"), RemoteTest.CONTRACT_ID_CHECKER, CLIENT_INTERCEPTOR)

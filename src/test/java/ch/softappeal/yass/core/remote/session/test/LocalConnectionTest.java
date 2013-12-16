@@ -1,7 +1,7 @@
 package ch.softappeal.yass.core.remote.session.test;
 
 import ch.softappeal.yass.core.Interceptors;
-import ch.softappeal.yass.core.remote.MethodMapper;
+import ch.softappeal.yass.core.remote.MethodMappers;
 import ch.softappeal.yass.core.remote.Server;
 import ch.softappeal.yass.core.remote.session.Connection;
 import ch.softappeal.yass.core.remote.session.LocalConnection;
@@ -31,7 +31,7 @@ public class LocalConnectionTest extends InvokeTest {
   ) {
     return new SessionSetup(
       new Server(
-        MethodMapper.STRING_FACTORY,
+        MethodMappers.STRING_FACTORY,
         ContractIdTest.ID.service(
           new TestServiceImpl(),
           invoke ? RemoteTest.CONTRACT_ID_CHECKER : Interceptors.composite(RemoteTest.CONTRACT_ID_CHECKER, SERVER_INTERCEPTOR)

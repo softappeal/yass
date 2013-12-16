@@ -1,5 +1,0 @@
-0: delay
-1: divide
-2: nothing
-3: oneWay
-4: throwError

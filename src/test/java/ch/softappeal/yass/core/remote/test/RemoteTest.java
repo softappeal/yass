@@ -5,7 +5,7 @@ import ch.softappeal.yass.core.Interceptors;
 import ch.softappeal.yass.core.Invocation;
 import ch.softappeal.yass.core.remote.Client;
 import ch.softappeal.yass.core.remote.ContractId;
-import ch.softappeal.yass.core.remote.MethodMapper;
+import ch.softappeal.yass.core.remote.MethodMappers;
 import ch.softappeal.yass.core.remote.Reply;
 import ch.softappeal.yass.core.remote.Request;
 import ch.softappeal.yass.core.remote.Server;
@@ -37,7 +37,7 @@ public class RemoteTest extends InvokeTest {
   }
 
   private static Client client(final Server server) {
-    return new Client(MethodMapper.STRING_FACTORY) {
+    return new Client(MethodMappers.STRING_FACTORY) {
       @Override public Object invoke(final ClientInvocation clientInvocation) throws Throwable {
         return clientInvocation.invoke(
           Interceptors.composite(
@@ -85,7 +85,7 @@ public class RemoteTest extends InvokeTest {
       ContractIdTest.ID.invoker(
         client(
           new Server(
-            MethodMapper.STRING_FACTORY,
+            MethodMappers.STRING_FACTORY,
             ContractIdTest.ID.service(new TestServiceImpl(), CONTRACT_ID_CHECKER, stepInterceptor(4), SERVER_INTERCEPTOR)
           )
         )

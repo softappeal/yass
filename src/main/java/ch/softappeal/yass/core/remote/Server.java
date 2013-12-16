@@ -19,13 +19,13 @@ public final class Server extends Common {
   private final class ServerInvoker {
 
     private final ContractId<?> contractId;
-    final MethodMapper mapper;
+    final MethodMapper methodMapper;
     private final Object implementation;
     private final Interceptor serviceInterceptor;
 
     ServerInvoker(final Service service) {
       contractId = service.contractId;
-      mapper = methodMapper(contractId.contract);
+      methodMapper = methodMapper(contractId.contract);
       implementation = service.implementation;
       serviceInterceptor = service.interceptor;
     }
@@ -68,9 +68,9 @@ public final class Server extends Common {
     ServerInvocation(final ServerInvoker invoker, final Request request) {
       this.invoker = invoker;
       this.request = request;
-      final MethodMapper.Mapping mapping = invoker.mapper.mapMethodId(request.methodId);
-      oneWay = mapping.oneWay;
-      method = mapping.method;
+      final MethodMapper.Mapping methodMapping = invoker.methodMapper.mapId(request.methodId);
+      oneWay = methodMapping.oneWay;
+      method = methodMapping.method;
     }
 
     /**

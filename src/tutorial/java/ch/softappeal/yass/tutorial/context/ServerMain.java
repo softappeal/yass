@@ -5,6 +5,7 @@ import ch.softappeal.yass.core.Interceptor;
 import ch.softappeal.yass.core.Invocation;
 import ch.softappeal.yass.core.remote.ContractId;
 import ch.softappeal.yass.core.remote.MethodMapper;
+import ch.softappeal.yass.core.remote.MethodMappers;
 import ch.softappeal.yass.core.remote.Server;
 import ch.softappeal.yass.core.remote.Service;
 import ch.softappeal.yass.serialize.JavaSerializer;
@@ -39,7 +40,7 @@ public final class ServerMain {
 
   public static final SocketAddress ADDRESS = new InetSocketAddress("localhost", 28947);
   public static final Serializer SERIALIZER = new MessageSerializer(JavaSerializer.INSTANCE);
-  public static final MethodMapper.Factory METHOD_MAPPER_FACTORY = MethodMapper.STRING_FACTORY;
+  public static final MethodMapper.Factory METHOD_MAPPER_FACTORY = MethodMappers.STRING_FACTORY;
   public static final ContractId<Account> ACCOUNT_ID = ContractId.create(Account.class, "Account");
 
   public static void main(final String... args) {

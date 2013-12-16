@@ -13,7 +13,7 @@ public final class Request extends Message {
   public final Object serviceId;
 
   /**
-   * @see MethodMapper.Mapping#methodId
+   * @see MethodMapper.Mapping#id
    */
   public final Object methodId;
 

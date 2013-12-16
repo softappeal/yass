@@ -1,6 +1,7 @@
 package ch.softappeal.yass.tutorial.session.contract;
 
 import ch.softappeal.yass.core.remote.MethodMapper;
+import ch.softappeal.yass.core.remote.MethodMappers;
 import ch.softappeal.yass.serialize.FastReflector;
 import ch.softappeal.yass.serialize.Serializer;
 import ch.softappeal.yass.serialize.convert.StringTypeConverter;
@@ -31,6 +32,6 @@ public final class Config {
 
   public static final Dumper DUMPER = new Dumper(BigDecimal.class, DateTime.class);
 
-  public static final MethodMapper.Factory METHOD_MAPPER_FACTORY = MethodMapper.TAG_FACTORY;
+  public static final MethodMapper.Factory METHOD_MAPPER_FACTORY = MethodMappers.TAG_FACTORY;
 
 }
