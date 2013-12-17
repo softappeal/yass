@@ -2,7 +2,8 @@ package ch.softappeal.yass.serialize.fast;
 
 import ch.softappeal.yass.serialize.Reader;
 import ch.softappeal.yass.serialize.Reflector;
-import ch.softappeal.yass.serialize.convert.IntegerTypeConverter;
+import ch.softappeal.yass.serialize.TypeConverter;
+import ch.softappeal.yass.serialize.TypeConverters;
 import ch.softappeal.yass.util.Check;
 import ch.softappeal.yass.util.Exceptions;
 import ch.softappeal.yass.util.Nullable;
@@ -84,12 +85,11 @@ public final class TaggedFastSerializer extends AbstractFastSerializer {
   ) {
     for (final TypeConverterId typeConverterId : typeConverterIds) {
       checkTag(typeConverterId.id, typeConverterId.typeConverter.type);
-      addTypeHandler(typeHandler(typeConverterId.typeConverter, typeConverterId.id + TypeHandlers.SIZE));
+      addTypeHandler(typeHandler((TypeConverter)typeConverterId.typeConverter, typeConverterId.id + TypeHandlers.SIZE));
     }
     for (final Class<?> type : enumerations) {
       checkEnum(type);
-      //noinspection rawtypes
-      addTypeHandler(typeHandler(IntegerTypeConverter.forEnum((Class<Enum>)type), tag(type)));
+      addTypeHandler(typeHandler(TypeConverters.enumToInteger((Class)type), tag(type)));
     }
     try {
       for (final Class<?> type : concreteClasses) {

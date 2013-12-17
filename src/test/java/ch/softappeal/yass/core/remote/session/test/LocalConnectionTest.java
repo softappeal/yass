@@ -31,7 +31,7 @@ public class LocalConnectionTest extends InvokeTest {
   ) {
     return new SessionSetup(
       new Server(
-        MethodMappers.STRING_FACTORY,
+        MethodMappers.TAG_FACTORY,
         ContractIdTest.ID.service(
           new TestServiceImpl(),
           invoke ? RemoteTest.CONTRACT_ID_CHECKER : Interceptors.composite(RemoteTest.CONTRACT_ID_CHECKER, SERVER_INTERCEPTOR)

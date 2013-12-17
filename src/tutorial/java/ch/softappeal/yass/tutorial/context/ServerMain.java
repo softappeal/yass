@@ -40,7 +40,7 @@ public final class ServerMain {
 
   public static final SocketAddress ADDRESS = new InetSocketAddress("localhost", 28947);
   public static final Serializer SERIALIZER = new MessageSerializer(JavaSerializer.INSTANCE);
-  public static final MethodMapper.Factory METHOD_MAPPER_FACTORY = MethodMappers.STRING_FACTORY;
+  public static final MethodMapper.Factory METHOD_MAPPER_FACTORY = MethodMappers.TAG_FACTORY;
   public static final ContractId<Account> ACCOUNT_ID = ContractId.create(Account.class, "Account");
 
   public static void main(final String... args) {

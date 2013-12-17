@@ -11,14 +11,15 @@ import ch.softappeal.yass.core.remote.session.SessionFactory;
 import ch.softappeal.yass.core.remote.session.SessionSetup;
 import ch.softappeal.yass.serialize.FastReflector;
 import ch.softappeal.yass.serialize.Serializer;
-import ch.softappeal.yass.serialize.convert.TypeConverter;
-import ch.softappeal.yass.serialize.fast.SimpleFastSerializer;
+import ch.softappeal.yass.serialize.fast.TaggedFastSerializer;
+import ch.softappeal.yass.serialize.fast.TypeConverterId;
 import ch.softappeal.yass.transport.MessageSerializer;
 import ch.softappeal.yass.transport.PacketSerializer;
 import ch.softappeal.yass.transport.socket.SessionTransport;
 import ch.softappeal.yass.transport.socket.SocketConnection;
 import ch.softappeal.yass.util.NamedThreadFactory;
 import ch.softappeal.yass.util.Nullable;
+import ch.softappeal.yass.util.Tag;
 import ch.softappeal.yass.util.TestUtils;
 
 import java.net.InetSocketAddress;
@@ -32,20 +33,20 @@ import java.util.concurrent.atomic.AtomicInteger;
 public final class WriterExecutorTest {
 
   public interface StringListener {
-    @OneWay void newString(String value);
+    @Tag(1) @OneWay void newString(String value);
   }
 
   private static final ContractId<StringListener> StringListenerId = ContractId.create(StringListener.class, 0);
 
-  private static final Serializer PACKET_SERIALIZER = new PacketSerializer(new MessageSerializer(new SimpleFastSerializer(
+  private static final Serializer PACKET_SERIALIZER = new PacketSerializer(new MessageSerializer(new TaggedFastSerializer(
     FastReflector.FACTORY,
-    Arrays.<TypeConverter>asList(),
+    Arrays.<TypeConverterId>asList(),
     Arrays.<Class<?>>asList(),
     Arrays.<Class<?>>asList(),
     Arrays.<Class<?>>asList()
   )));
 
-  private static final MethodMapper.Factory METHOD_MAPPER_FACTORY = MethodMappers.STRING_FACTORY;
+  private static final MethodMapper.Factory METHOD_MAPPER_FACTORY = MethodMappers.TAG_FACTORY;
 
   private static final SocketAddress ADDRESS = new InetSocketAddress("localhost", 28947);
 

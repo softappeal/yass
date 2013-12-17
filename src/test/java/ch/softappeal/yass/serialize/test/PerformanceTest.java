@@ -93,10 +93,8 @@ public class PerformanceTest {
   }
 
   @Test public void test() throws Exception {
-    test("FastSimpleFast", SerializerTest.FAST_SIMPLE_FAST_SERIALIZER);
-    test("SlowSimpleFast", SerializerTest.SLOW_SIMPLE_FAST_SERIALIZER);
-    test("TaggedFast    ", SerializerTest.TAGGED_FAST_SERIALIZER);
-    test("Java          ", JavaSerializer.INSTANCE);
+    test("TaggedFast", SerializerTest.TAGGED_FAST_SERIALIZER);
+    test("Java      ", JavaSerializer.INSTANCE);
   }
 
 }

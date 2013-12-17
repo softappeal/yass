@@ -9,46 +9,15 @@ import java.util.Map;
 
 public final class MethodMappers {
 
-
   private MethodMappers() {
     // disable
   }
-
-
-  /**
-   * Uses {@link Method#getName()} as {@link Request#methodId}. Therefore, methods can't be overloaded!
-   * Uses {@link OneWay} for marking oneway methods.
-   */
-  public static final MethodMapper.Factory STRING_FACTORY = new MethodMapper.Factory() {
-
-    @Override public MethodMapper create(final Class<?> contract) {
-      final Method[] methods = contract.getMethods();
-      final Map<String, MethodMapper.Mapping> id2mapping = new HashMap<>(methods.length);
-      for (final Method method : methods) {
-        final String id = method.getName();
-        if (id2mapping.put(id, new MethodMapper.Mapping(method, id, method.getAnnotation(OneWay.class) != null)) != null) {
-          throw new IllegalArgumentException("method '" + method + "' is overloaded");
-        }
-      }
-      return new MethodMapper() {
-        @Override public MethodMapper.Mapping mapId(final Object id) {
-          return id2mapping.get(id);
-        }
-        @Override public MethodMapper.Mapping mapMethod(final Method method) {
-          return id2mapping.get(method.getName());
-        }
-      };
-    }
-
-  };
-
 
   /**
    * Uses {@link Tag} as {@link Request#methodId}.
    * Uses {@link OneWay} for marking oneway methods.
    */
   public static final MethodMapper.Factory TAG_FACTORY = new MethodMapper.Factory() {
-
     @Override public MethodMapper create(final Class<?> contract) {
       final Method[] methods = contract.getMethods();
       final Map<Integer, MethodMapper.Mapping> id2mapping = new HashMap<>(methods.length);
@@ -67,8 +36,6 @@ public final class MethodMappers {
         }
       };
     }
-
   };
-
 
 }

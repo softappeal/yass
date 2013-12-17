@@ -11,12 +11,12 @@ import org.junit.Test;
 
 public class ServerTest {
 
-  static final Client client = new Server(MethodMappers.STRING_FACTORY, ContractIdTest.ID.service(new InvokeTest.TestServiceImpl())).client;
+  static final Client client = new Server(MethodMappers.TAG_FACTORY, ContractIdTest.ID.service(new InvokeTest.TestServiceImpl())).client;
 
   @Test public void duplicatedService() {
     final Service service = ContractIdTest.ID.service(new InvokeTest.TestServiceImpl());
     try {
-      new Server(MethodMappers.STRING_FACTORY, service, service);
+      new Server(MethodMappers.TAG_FACTORY, service, service);
       Assert.fail();
     } catch (final IllegalArgumentException e) {
       Assert.assertEquals("serviceId 'TestService' already added", e.getMessage());
@@ -28,7 +28,7 @@ public class ServerTest {
       ContractId.create(InvokeTest.TestService.class, "xxx").invoker(client).proxy().nothing();
       Assert.fail();
     } catch (final RuntimeException e) {
-      Assert.assertEquals("no serviceId 'xxx' found (methodId 'nothing')", e.getMessage());
+      Assert.assertEquals("no serviceId 'xxx' found (methodId '0')", e.getMessage());
     }
   }
 

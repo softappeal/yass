@@ -1,6 +1,5 @@
 package ch.softappeal.yass.util.test;
 
-import ch.softappeal.yass.serialize.convert.test.DateTime;
 import ch.softappeal.yass.serialize.test.SerializerTest;
 import ch.softappeal.yass.util.Dumper;
 import ch.softappeal.yass.util.Nullable;
@@ -17,7 +16,7 @@ import java.util.Map;
 public class DumperTest {
 
   @Test public void test() {
-    final Dumper dumper = new Dumper(BigInteger.class, BigDecimal.class, DateTime.class);
+    final Dumper dumper = new Dumper(BigInteger.class, BigDecimal.class);
     TestUtils.compareFile("ch/softappeal/yass/util/test/DumperTest.dump.txt", new TestUtils.Printer() {
       void dump(final StringBuilder s, @Nullable final Object value) {
         s.append(dumper.toString(value)).append(Dumper.LINE_SEPARATOR);
@@ -29,7 +28,6 @@ public class DumperTest {
         dump(s, '\u0020');
         dump(s, '\u007E');
         dump(s, '\u007F');
-        dump(s, new DateTime("20130-12-01 14:40:50"));
         dump(s, SerializerTest.createNulls());
         dump(s, SerializerTest.createValues());
         dump(s, SerializerTest.createGraph());

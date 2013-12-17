@@ -5,8 +5,8 @@ import ch.softappeal.yass.core.remote.session.test.PerformanceTest;
 import ch.softappeal.yass.core.test.InvokeTest;
 import ch.softappeal.yass.serialize.FastReflector;
 import ch.softappeal.yass.serialize.Serializer;
-import ch.softappeal.yass.serialize.convert.TypeConverter;
-import ch.softappeal.yass.serialize.fast.SimpleFastSerializer;
+import ch.softappeal.yass.serialize.fast.TaggedFastSerializer;
+import ch.softappeal.yass.serialize.fast.TypeConverterId;
 import ch.softappeal.yass.transport.MessageSerializer;
 import ch.softappeal.yass.transport.PacketSerializer;
 import ch.softappeal.yass.transport.socket.SessionTransport;
@@ -31,9 +31,9 @@ public class SocketPerformanceTest extends InvokeTest {
 
   private static final int COUNTER = 1;
 
-  private static final Serializer FAST_SERIALIZER = new SimpleFastSerializer(
+  private static final Serializer FAST_SERIALIZER = new TaggedFastSerializer(
     FastReflector.FACTORY,
-    Arrays.<TypeConverter>asList(),
+    Arrays.<TypeConverterId>asList(),
     Arrays.<Class<?>>asList(),
     Arrays.<Class<?>>asList(),
     Arrays.<Class<?>>asList()

@@ -25,36 +25,6 @@ public class MethodMapperTest {
     @Tag(123) void test(String s);
   }
 
-  @Test public void stringOverloading() {
-    try {
-      MethodMappers.STRING_FACTORY.create(Overloading.class);
-      Assert.fail();
-    } catch (final IllegalArgumentException e) {
-      Assert.assertEquals("method 'public abstract void ch.softappeal.yass.core.remote.test.MethodMapperTest$Overloading.test(java.lang.String)' is overloaded", e.getMessage());
-    }
-  }
-
-  @Test public void stringFactory() throws NoSuchMethodException {
-    final MethodMapper mapper = MethodMappers.STRING_FACTORY.create(InvokeTest.TestService.class);
-    {
-      final Method method = InvokeTest.TestService.class.getMethod("nothing");
-      final MethodMapper.Mapping mapping = mapper.mapMethod(method);
-      Assert.assertEquals(method, mapping.method);
-      Assert.assertEquals(method.getName(), mapping.id);
-      Assert.assertFalse(mapping.oneWay);
-      Assert.assertFalse(mapper.mapMethod(method).oneWay);
-    }
-    {
-      final Method method = InvokeTest.TestService.class.getMethod("oneWay", int.class);
-      final MethodMapper.Mapping mapping = mapper.mapId(method.getName());
-      Assert.assertEquals(method, mapping.method);
-      Assert.assertEquals(method.getName(), mapping.id);
-      Assert.assertTrue(mapping.oneWay);
-      Assert.assertTrue(mapper.mapMethod(method).oneWay);
-    }
-    Assert.assertNull(mapper.mapId("xxx"));
-  }
-
   @Test public void tagOverloading() {
     try {
       MethodMappers.TAG_FACTORY.create(Overloading.class);

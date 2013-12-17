@@ -3,11 +3,14 @@ package ch.softappeal.yass.serialize.test;
 import ch.softappeal.yass.serialize.FastReflector;
 import ch.softappeal.yass.serialize.Reader;
 import ch.softappeal.yass.serialize.Serializer;
+import ch.softappeal.yass.serialize.SlowReflector;
 import ch.softappeal.yass.serialize.Writer;
+import ch.softappeal.yass.serialize.contract.Color;
 import ch.softappeal.yass.serialize.contract.V1;
 import ch.softappeal.yass.serialize.contract.V2;
 import ch.softappeal.yass.serialize.fast.TaggedFastSerializer;
 import ch.softappeal.yass.serialize.fast.TypeConverterId;
+import ch.softappeal.yass.util.Nullable;
 import ch.softappeal.yass.util.Tag;
 import ch.softappeal.yass.util.TestUtils;
 import org.junit.Assert;
@@ -19,6 +22,112 @@ import java.io.PrintWriter;
 import java.util.Arrays;
 
 public class TaggedFastSerializerTest {
+
+  @Test public void notEnumeration() {
+    try {
+      new TaggedFastSerializer(
+        SlowReflector.FACTORY,
+        Arrays.<TypeConverterId>asList(),
+        Arrays.<Class<?>>asList(String.class),
+        Arrays.<Class<?>>asList(),
+        Arrays.<Class<?>>asList()
+      );
+      Assert.fail();
+    } catch (final IllegalArgumentException e) {
+      Assert.assertEquals("type 'java.lang.String' is not an enumeration", e.getMessage());
+    }
+  }
+
+  @Test public void duplicatedClass() {
+    try {
+      new TaggedFastSerializer(
+        SlowReflector.FACTORY,
+        Arrays.<TypeConverterId>asList(),
+        Arrays.<Class<?>>asList(Color.class, Color.class),
+        Arrays.<Class<?>>asList(),
+        Arrays.<Class<?>>asList()
+      );
+      Assert.fail();
+    } catch (final IllegalArgumentException e) {
+      Assert.assertEquals("type 'ch.softappeal.yass.serialize.contract.Color' already added", e.getMessage());
+    }
+  }
+
+  @Test public void abstractClass() {
+    try {
+      new TaggedFastSerializer(
+        SlowReflector.FACTORY,
+        Arrays.<TypeConverterId>asList(),
+        Arrays.<Class<?>>asList(),
+        Arrays.<Class<?>>asList(Serializer.class),
+        Arrays.<Class<?>>asList()
+      );
+      Assert.fail();
+    } catch (final IllegalArgumentException e) {
+      Assert.assertEquals("type 'ch.softappeal.yass.serialize.Serializer' is abstract", e.getMessage());
+    }
+  }
+
+  @Test public void illegalInterface() {
+    try {
+      new TaggedFastSerializer(
+        SlowReflector.FACTORY,
+        Arrays.<TypeConverterId>asList(),
+        Arrays.<Class<?>>asList(),
+        Arrays.<Class<?>>asList(AutoCloseable.class),
+        Arrays.<Class<?>>asList()
+      );
+      Assert.fail();
+    } catch (final IllegalArgumentException e) {
+      Assert.assertEquals("type 'java.lang.AutoCloseable' is abstract", e.getMessage());
+    }
+  }
+
+  @Test public void illegalAnnotation() {
+    try {
+      new TaggedFastSerializer(
+        SlowReflector.FACTORY,
+        Arrays.<TypeConverterId>asList(),
+        Arrays.<Class<?>>asList(),
+        Arrays.<Class<?>>asList(Nullable.class),
+        Arrays.<Class<?>>asList()
+      );
+      Assert.fail();
+    } catch (final IllegalArgumentException e) {
+      Assert.assertEquals("type 'ch.softappeal.yass.util.Nullable' is abstract", e.getMessage());
+    }
+  }
+
+  @Test public void illegalEnumeration() {
+    try {
+      new TaggedFastSerializer(
+        SlowReflector.FACTORY,
+        Arrays.<TypeConverterId>asList(),
+        Arrays.<Class<?>>asList(),
+        Arrays.<Class<?>>asList(Color.class),
+        Arrays.<Class<?>>asList()
+      );
+      Assert.fail();
+    } catch (final IllegalArgumentException e) {
+      Assert.assertEquals("type 'ch.softappeal.yass.serialize.contract.Color' is an enumeration", e.getMessage());
+    }
+  }
+
+  @Test public void missingType() throws Exception {
+    final Serializer serializer = new TaggedFastSerializer(
+      SlowReflector.FACTORY,
+      Arrays.<TypeConverterId>asList(),
+      Arrays.<Class<?>>asList(),
+      Arrays.<Class<?>>asList(),
+      Arrays.<Class<?>>asList()
+    );
+    try {
+      JavaSerializerTest.copy(serializer, Color.BLUE);
+      Assert.fail();
+    } catch (final IllegalArgumentException e) {
+      Assert.assertEquals("missing type 'ch.softappeal.yass.serialize.contract.Color'", e.getMessage());
+    }
+  }
 
   @Test public void printNumbers() {
     TestUtils.compareFile("ch/softappeal/yass/serialize/test/TaggedFastSerializerTest.numbers.txt", new TestUtils.Printer() {
@@ -47,8 +156,12 @@ public class TaggedFastSerializerTest {
     });
   }
 
-  private static final Serializer V1_SERIALIZER = new TaggedFastSerializer(FastReflector.FACTORY, Arrays.<TypeConverterId>asList(), Arrays.<Class<?>>asList(), Arrays.<Class<?>>asList(V1.class), Arrays.<Class<?>>asList());
-  private static final Serializer V2_SERIALIZER = new TaggedFastSerializer(FastReflector.FACTORY, Arrays.<TypeConverterId>asList(), Arrays.<Class<?>>asList(), Arrays.<Class<?>>asList(V2.class), Arrays.<Class<?>>asList());
+  private static final Serializer V1_SERIALIZER = new TaggedFastSerializer(
+    FastReflector.FACTORY, Arrays.<TypeConverterId>asList(), Arrays.<Class<?>>asList(), Arrays.<Class<?>>asList(V1.class), Arrays.<Class<?>>asList()
+  );
+  private static final Serializer V2_SERIALIZER = new TaggedFastSerializer(
+    FastReflector.FACTORY, Arrays.<TypeConverterId>asList(), Arrays.<Class<?>>asList(), Arrays.<Class<?>>asList(V2.class), Arrays.<Class<?>>asList()
+  );
 
   private static V2 copy(final V1 v1) throws Exception {
     final ByteArrayOutputStream buffer = new ByteArrayOutputStream();

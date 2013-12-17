@@ -27,7 +27,7 @@ public class PerformanceTest extends InvokeTest {
 
   private static final int COUNTER = 100;
 
-  public static final MethodMapper.Factory METHOD_MAPPER_FACTORY = MethodMappers.STRING_FACTORY;
+  public static final MethodMapper.Factory METHOD_MAPPER_FACTORY = MethodMappers.TAG_FACTORY;
 
   public static final ContractId<TestService> CONTRACT_ID = ContractId.create(TestService.class, 0);
 

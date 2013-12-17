@@ -1,13 +1,9 @@
 package ch.softappeal.yass.serialize.fast;
 
 import ch.softappeal.yass.serialize.Serializer;
+import ch.softappeal.yass.serialize.TypeConverter;
 import ch.softappeal.yass.serialize.Writer;
-import ch.softappeal.yass.serialize.convert.BinaryTypeConverter;
-import ch.softappeal.yass.serialize.convert.IntegerTypeConverter;
-import ch.softappeal.yass.serialize.convert.LongTypeConverter;
-import ch.softappeal.yass.serialize.convert.StringTypeConverter;
-import ch.softappeal.yass.serialize.convert.TypeConverter;
-import ch.softappeal.yass.util.Reference;
+import ch.softappeal.yass.util.Check;
 
 import java.io.PrintWriter;
 import java.lang.reflect.Field;
@@ -93,56 +89,16 @@ public abstract class AbstractFastSerializer implements Serializer {
     return fields;
   }
 
-  static TypeHandler typeHandler(final TypeConverter typeConverter, final int id) {
-    final Reference<TypeHandler> typeHandler = Reference.create();
-    typeConverter.accept(new TypeConverter.Visitor() {
-
-      @Override public void visit(final IntegerTypeConverter typeConverter) {
-        typeHandler.set(new TypeHandler(typeConverter.type, id) {
-          @Override Object readNoId(final Input input) throws Exception {
-            return typeConverter.fromInteger((Integer)TypeHandlers.INTEGER.readNoId(input));
-          }
-          @Override void writeNoId(final Object value, final Output output) throws Exception {
-            TypeHandlers.INTEGER.writeNoId(typeConverter.toInteger(value), output);
-          }
-        });
+  final TypeHandler typeHandler(final TypeConverter<Object, Object> typeConverter, final int id) {
+    final TypeHandler serializableTypeHandler = Check.notNull(class2typeHandler.get(typeConverter.serializableType));
+    return new TypeHandler(typeConverter.type, id) {
+      @Override Object readNoId(Input input) throws Exception {
+        return typeConverter.from(serializableTypeHandler.readNoId(input));
       }
-
-      @Override public void visit(final LongTypeConverter typeConverter) {
-        typeHandler.set(new TypeHandler(typeConverter.type, id) {
-          @Override Object readNoId(final Input input) throws Exception {
-            return typeConverter.fromLong((Long)TypeHandlers.LONG.readNoId(input));
-          }
-          @Override void writeNoId(final Object value, final Output output) throws Exception {
-            TypeHandlers.LONG.writeNoId(typeConverter.toLong(value), output);
-          }
-        });
+      @Override void writeNoId(Object value, Output output) throws Exception {
+        serializableTypeHandler.writeNoId(typeConverter.to(value), output);
       }
-
-      @Override public void visit(final StringTypeConverter typeConverter) {
-        typeHandler.set(new TypeHandler(typeConverter.type, id) {
-          @Override Object readNoId(final Input input) throws Exception {
-            return typeConverter.fromString((String)TypeHandlers.STRING.readNoId(input));
-          }
-          @Override void writeNoId(final Object value, final Output output) throws Exception {
-            TypeHandlers.STRING.writeNoId(typeConverter.toString(value), output);
-          }
-        });
-      }
-
-      @Override public void visit(final BinaryTypeConverter typeConverter) {
-        typeHandler.set(new TypeHandler(typeConverter.type, id) {
-          @Override Object readNoId(final Input input) throws Exception {
-            return typeConverter.fromBinary((byte[])TypeHandlers.BYTE_ARRAY.readNoId(input));
-          }
-          @Override void writeNoId(final Object value, final Output output) throws Exception {
-            TypeHandlers.BYTE_ARRAY.writeNoId(typeConverter.toBinary(value), output);
-          }
-        });
-      }
-
-    });
-    return typeHandler.get();
+    };
   }
 
   public final void printNumbers(final PrintWriter printer) {

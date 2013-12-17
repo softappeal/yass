@@ -4,7 +4,7 @@ import ch.softappeal.yass.core.remote.MethodMapper;
 import ch.softappeal.yass.core.remote.MethodMappers;
 import ch.softappeal.yass.serialize.FastReflector;
 import ch.softappeal.yass.serialize.Serializer;
-import ch.softappeal.yass.serialize.convert.StringTypeConverter;
+import ch.softappeal.yass.serialize.TypeConverters;
 import ch.softappeal.yass.serialize.fast.AbstractFastSerializer;
 import ch.softappeal.yass.serialize.fast.TaggedFastSerializer;
 import ch.softappeal.yass.serialize.fast.TypeConverterId;
@@ -20,8 +20,8 @@ public final class Config {
   public static final AbstractFastSerializer CONTRACT_SERIALIZER = new TaggedFastSerializer(
     FastReflector.FACTORY,
     Arrays.<TypeConverterId>asList(
-      new TypeConverterId(StringTypeConverter.BIG_DECIMAL, 0),
-      new TypeConverterId(DateTime.TYPE_CONVERTER, 50)
+      new TypeConverterId(TypeConverters.BIGDECIMAL_TO_STRING, 0),
+      new TypeConverterId(DateTime.TO_STRING, 50)
     ),
     Arrays.<Class<?>>asList(PriceType.class),
     Arrays.<Class<?>>asList(Price.class, UnknownInstrumentsException.class),

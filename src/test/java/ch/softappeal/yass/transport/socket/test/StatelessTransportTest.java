@@ -47,7 +47,7 @@ public class StatelessTransportTest extends InvokeTest {
     try {
       new StatelessTransport(
         new Server(
-          MethodMappers.STRING_FACTORY,
+          MethodMappers.TAG_FACTORY,
           ContractIdTest.ID.service(new TestServiceImpl(), new SocketInterceptor("Server"), RemoteTest.CONTRACT_ID_CHECKER, SERVER_INTERCEPTOR)
         ),
         MessageSerializerTest.SERIALIZER,
@@ -56,7 +56,7 @@ public class StatelessTransportTest extends InvokeTest {
       ).start(executor, SocketListenerTest.ADDRESS);
       invoke(
         ContractIdTest.ID.invoker(StatelessTransport.client(
-          MethodMappers.STRING_FACTORY,
+          MethodMappers.TAG_FACTORY,
           MessageSerializerTest.SERIALIZER,
           SocketListenerTest.ADDRESS
         )).proxy(PRINTLN_AFTER, new SocketInterceptor("Client"), RemoteTest.CONTRACT_ID_CHECKER, CLIENT_INTERCEPTOR)

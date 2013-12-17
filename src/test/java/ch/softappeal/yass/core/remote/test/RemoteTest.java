@@ -37,7 +37,7 @@ public class RemoteTest extends InvokeTest {
   }
 
   private static Client client(final Server server) {
-    return new Client(MethodMappers.STRING_FACTORY) {
+    return new Client(MethodMappers.TAG_FACTORY) {
       @Override public Object invoke(final ClientInvocation clientInvocation) throws Throwable {
         return clientInvocation.invoke(
           Interceptors.composite(
@@ -55,7 +55,7 @@ public class RemoteTest extends InvokeTest {
           ),
           new Tunnel() {
             @Override public Reply invoke(final Request request) throws Exception {
-              Assert.assertTrue(InvokeTest.isOneWay((String)request.methodId) == clientInvocation.oneWay);
+              Assert.assertTrue(33 == (request.methodId) == clientInvocation.oneWay);
               final ServerInvocation serverInvocation = server.invocation(request);
               Assert.assertTrue(clientInvocation.oneWay == serverInvocation.oneWay);
               try {
@@ -85,7 +85,7 @@ public class RemoteTest extends InvokeTest {
       ContractIdTest.ID.invoker(
         client(
           new Server(
-            MethodMappers.STRING_FACTORY,
+            MethodMappers.TAG_FACTORY,
             ContractIdTest.ID.service(new TestServiceImpl(), CONTRACT_ID_CHECKER, stepInterceptor(4), SERVER_INTERCEPTOR)
           )
         )

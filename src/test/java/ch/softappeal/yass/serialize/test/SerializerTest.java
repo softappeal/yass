@@ -3,18 +3,13 @@ package ch.softappeal.yass.serialize.test;
 import ch.softappeal.yass.serialize.FastReflector;
 import ch.softappeal.yass.serialize.JavaSerializer;
 import ch.softappeal.yass.serialize.Serializer;
-import ch.softappeal.yass.serialize.SlowReflector;
-import ch.softappeal.yass.serialize.contract.Binary;
+import ch.softappeal.yass.serialize.TypeConverters;
 import ch.softappeal.yass.serialize.contract.Color;
 import ch.softappeal.yass.serialize.contract.IntException;
-import ch.softappeal.yass.serialize.contract.LongClass;
 import ch.softappeal.yass.serialize.contract.Node;
 import ch.softappeal.yass.serialize.contract.PrimitiveTypes;
 import ch.softappeal.yass.serialize.contract.nested.AllTypes;
-import ch.softappeal.yass.serialize.convert.StringTypeConverter;
-import ch.softappeal.yass.serialize.convert.TypeConverter;
 import ch.softappeal.yass.serialize.fast.AbstractFastSerializer;
-import ch.softappeal.yass.serialize.fast.SimpleFastSerializer;
 import ch.softappeal.yass.serialize.fast.TaggedFastSerializer;
 import ch.softappeal.yass.serialize.fast.TypeConverterId;
 import org.junit.Assert;
@@ -61,8 +56,6 @@ public class SerializerTest {
     Assert.assertNull(allTypes.colorField);
     Assert.assertNull(allTypes.bigDecimalField);
     Assert.assertNull(allTypes.bigIntegerField);
-    Assert.assertNull(allTypes.binaryField);
-    Assert.assertNull(allTypes.longClassField);
     Assert.assertNull(allTypes.primitiveTypesField);
     Assert.assertNull(allTypes.primitiveTypesListField);
     Assert.assertNull(allTypes.objectField);
@@ -100,8 +93,6 @@ public class SerializerTest {
     allTypes.colorField = Color.BLUE;
     allTypes.bigDecimalField = new BigDecimal("98.7");
     allTypes.bigIntegerField = new BigInteger("987");
-    allTypes.binaryField = new Binary(new byte[] {(byte)123, (byte)-99});
-    allTypes.longClassField = new LongClass(1234567890999988888L);
     allTypes.primitiveTypesField = new AllTypes("hello");
     allTypes.primitiveTypesListField = Arrays.asList(new PrimitiveTypes(999), new AllTypes("world"), null);
     allTypes.objectField = "bad";
@@ -140,8 +131,6 @@ public class SerializerTest {
     Assert.assertEquals(Color.BLUE, allTypes.colorField);
     Assert.assertEquals(new BigDecimal("98.7"), allTypes.bigDecimalField);
     Assert.assertEquals(new BigInteger("987"), allTypes.bigIntegerField);
-    Assert.assertArrayEquals(new byte[] {(byte)123, (byte)-99}, allTypes.binaryField.value());
-    Assert.assertTrue(1234567890999988888L == allTypes.longClassField.value);
     Assert.assertEquals("hello", ((AllTypes)allTypes.primitiveTypesField).stringField);
     final List<PrimitiveTypes> primitiveTypesListField = allTypes.primitiveTypesListField;
     Assert.assertTrue(primitiveTypesListField.size() == 3);
@@ -202,7 +191,6 @@ public class SerializerTest {
     Assert.assertEquals(Color.RED, JavaSerializerTest.copy(serializer, Color.RED));
     Assert.assertEquals(new BigInteger("123"), JavaSerializerTest.copy(serializer, new BigInteger("123")));
     Assert.assertEquals(new BigDecimal("1.23"), JavaSerializerTest.copy(serializer, new BigDecimal("1.23")));
-    Assert.assertArrayEquals(new byte[] {(byte)1, (byte)2}, JavaSerializerTest.copy(serializer, new Binary(new byte[] {(byte)1, (byte)2})).value());
     Assert.assertTrue(Arrays.equals(new boolean[] {true, false}, JavaSerializerTest.copy(serializer, new boolean[] {true, false})));
     Assert.assertArrayEquals(new byte[] {(byte)1, (byte)2}, JavaSerializerTest.copy(serializer, new byte[] {(byte)1, (byte)2}));
     Assert.assertArrayEquals(new short[] {(short)1, (short)2}, JavaSerializerTest.copy(serializer, new short[] {(short)1, (short)2}));
@@ -255,33 +243,15 @@ public class SerializerTest {
     test(JavaSerializer.INSTANCE);
   }
 
-  private static final List<TypeConverter> TYPE_CONVERTERS = Arrays.asList(StringTypeConverter.BIG_INTEGER, StringTypeConverter.BIG_DECIMAL, Binary.TYPE_CONVERTER, LongClass.TYPE_CONVERTER);
-  private static final List<Class<?>> ENUMERATIONS = Arrays.<Class<?>>asList(Color.class);
-  private static final List<Class<?>> CONCRETE_CLASSES = Arrays.<Class<?>>asList(PrimitiveTypes.class, AllTypes.class, IntException.class);
-  private static final List<Class<?>> REFERENCEABLE_CONCRETE_CLASSES = Arrays.<Class<?>>asList(Node.class);
-
-  static final AbstractFastSerializer FAST_SIMPLE_FAST_SERIALIZER = new SimpleFastSerializer(FastReflector.FACTORY, TYPE_CONVERTERS, ENUMERATIONS, CONCRETE_CLASSES, REFERENCEABLE_CONCRETE_CLASSES);
-  static final AbstractFastSerializer SLOW_SIMPLE_FAST_SERIALIZER = new SimpleFastSerializer(SlowReflector.FACTORY, TYPE_CONVERTERS, ENUMERATIONS, CONCRETE_CLASSES, REFERENCEABLE_CONCRETE_CLASSES);
-
-  @Test public void fastSimpleFast() throws Exception {
-    test(FAST_SIMPLE_FAST_SERIALIZER);
-  }
-
-  @Test public void slowSimpleFast() throws Exception {
-    test(SLOW_SIMPLE_FAST_SERIALIZER);
-  }
-
   static final AbstractFastSerializer TAGGED_FAST_SERIALIZER = new TaggedFastSerializer(
     FastReflector.FACTORY,
     Arrays.asList(
-      new TypeConverterId(StringTypeConverter.BIG_INTEGER, 0),
-      new TypeConverterId(StringTypeConverter.BIG_DECIMAL, 1),
-      new TypeConverterId(Binary.TYPE_CONVERTER, 2),
-      new TypeConverterId(LongClass.TYPE_CONVERTER, 3)
+      new TypeConverterId(TypeConverters.BIGINTEGER_TO_STRING, 0),
+      new TypeConverterId(TypeConverters.BIGDECIMAL_TO_STRING, 1)
     ),
-    ENUMERATIONS,
-    CONCRETE_CLASSES,
-    REFERENCEABLE_CONCRETE_CLASSES
+    Arrays.<Class<?>>asList(Color.class),
+    Arrays.<Class<?>>asList(PrimitiveTypes.class, AllTypes.class, IntException.class),
+    Arrays.<Class<?>>asList(Node.class)
   );
 
   @Test public void taggedFast() throws Exception {

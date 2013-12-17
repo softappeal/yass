@@ -1,8 +1,6 @@
 package ch.softappeal.yass.serialize.contract.nested;
 
-import ch.softappeal.yass.serialize.contract.Binary;
 import ch.softappeal.yass.serialize.contract.Color;
-import ch.softappeal.yass.serialize.contract.LongClass;
 import ch.softappeal.yass.serialize.contract.PrimitiveTypes;
 import ch.softappeal.yass.util.Tag;
 
@@ -20,8 +18,6 @@ import java.util.List;
 
   @Tag(102) public BigDecimal bigDecimalField;
   @Tag(103) public BigInteger bigIntegerField;
-  @Tag(104) public Binary binaryField;
-  @Tag(105) public LongClass longClassField;
 
   @Tag(106) public PrimitiveTypes primitiveTypesField;
   @Tag(107) public List<PrimitiveTypes> primitiveTypesListField;

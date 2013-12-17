@@ -20,8 +20,6 @@
 -1 (19): java.lang.String
 0 (20): java.math.BigInteger
 1 (21): java.math.BigDecimal
-2 (22): ch.softappeal.yass.serialize.contract.Binary
-3 (23): ch.softappeal.yass.serialize.contract.LongClass
 10 (30): ch.softappeal.yass.serialize.contract.Color
   0: RED
   1: GREEN
@@ -80,8 +78,6 @@
   101 (102): public ch.softappeal.yass.serialize.contract.Color ch.softappeal.yass.serialize.contract.nested.AllTypes.colorField
   102 (103): public java.math.BigDecimal ch.softappeal.yass.serialize.contract.nested.AllTypes.bigDecimalField
   103 (104): public java.math.BigInteger ch.softappeal.yass.serialize.contract.nested.AllTypes.bigIntegerField
-  104 (105): public ch.softappeal.yass.serialize.contract.Binary ch.softappeal.yass.serialize.contract.nested.AllTypes.binaryField
-  105 (106): public ch.softappeal.yass.serialize.contract.LongClass ch.softappeal.yass.serialize.contract.nested.AllTypes.longClassField
   106 (107): public ch.softappeal.yass.serialize.contract.PrimitiveTypes ch.softappeal.yass.serialize.contract.nested.AllTypes.primitiveTypesField
   107 (108): public java.util.List ch.softappeal.yass.serialize.contract.nested.AllTypes.primitiveTypesListField
   108 (109): public java.lang.Object ch.softappeal.yass.serialize.contract.nested.AllTypes.objectField

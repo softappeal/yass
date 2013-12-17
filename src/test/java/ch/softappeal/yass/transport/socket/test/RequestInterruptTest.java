@@ -31,7 +31,7 @@ public class RequestInterruptTest extends InvokeTest {
     final ExecutorService executor = Executors.newCachedThreadPool(new NamedThreadFactory("executor", Exceptions.STD_ERR));
     try {
       new SessionTransport(
-        new SessionSetup(new Server(MethodMappers.STRING_FACTORY, ContractIdTest.ID.service(new TestServiceImpl())), executor, new SessionFactory() {
+        new SessionSetup(new Server(MethodMappers.TAG_FACTORY, ContractIdTest.ID.service(new TestServiceImpl())), executor, new SessionFactory() {
           @Override public Session create(final SessionSetup setup, final Connection connection) {
             return new Session(setup, connection) {
               @Override public void closed(@Nullable final Exception exception) {
@@ -43,7 +43,7 @@ public class RequestInterruptTest extends InvokeTest {
         PacketSerializerTest.SERIALIZER, executor, executor, Exceptions.STD_ERR
       ).start(executor, SocketListenerTest.ADDRESS);
       new SessionTransport(
-        new SessionSetup(new Server(MethodMappers.STRING_FACTORY), executor, new SessionFactory() {
+        new SessionSetup(new Server(MethodMappers.TAG_FACTORY), executor, new SessionFactory() {
           @Override public Session create(final SessionSetup setup, final Connection connection) {
             return new Session(setup, connection) {
               @Override public void opened() {

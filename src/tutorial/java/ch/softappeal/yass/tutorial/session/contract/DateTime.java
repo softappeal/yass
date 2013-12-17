@@ -1,23 +1,33 @@
 package ch.softappeal.yass.tutorial.session.contract;
 
-import ch.softappeal.yass.serialize.convert.StringTypeConverter;
-import ch.softappeal.yass.serialize.convert.StringValue;
+import ch.softappeal.yass.serialize.TypeConverter;
+import ch.softappeal.yass.util.Check;
 
 /**
- * Shows how to use {@link StringTypeConverter}.
+ * Shows how to use {@link TypeConverter}.
  */
-public final class DateTime extends StringValue {
+public final class DateTime {
 
-  private static final long serialVersionUID = 1L;
+
+  public final String value;
 
   public DateTime(final String value) {
-    super(value);
+    this.value = Check.notNull(value);
   }
 
-  public static final TypeConverter TYPE_CONVERTER = new TypeConverter(DateTime.class) {
-    @Override public Object fromString(final String value) {
+  @Override public String toString() {
+    return value;
+  }
+
+
+  public static final TypeConverter<DateTime, String> TO_STRING = new TypeConverter<DateTime, String>(DateTime.class, String.class) {
+    @Override public String to(final DateTime value) {
+      return value.value;
+    }
+    @Override public DateTime from(final String value) {
       return new DateTime(value);
     }
   };
+
 
 }
