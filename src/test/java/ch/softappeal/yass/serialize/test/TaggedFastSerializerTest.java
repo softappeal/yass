@@ -4,6 +4,7 @@ import ch.softappeal.yass.serialize.FastReflector;
 import ch.softappeal.yass.serialize.Reader;
 import ch.softappeal.yass.serialize.Serializer;
 import ch.softappeal.yass.serialize.SlowReflector;
+import ch.softappeal.yass.serialize.TypeConverter;
 import ch.softappeal.yass.serialize.Writer;
 import ch.softappeal.yass.serialize.contract.Color;
 import ch.softappeal.yass.serialize.contract.V1;
@@ -19,6 +20,8 @@ import org.junit.Test;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.PrintWriter;
+import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.Arrays;
 
 public class TaggedFastSerializerTest {
@@ -132,7 +135,7 @@ public class TaggedFastSerializerTest {
   @Test public void printNumbers() {
     TestUtils.compareFile("ch/softappeal/yass/serialize/test/TaggedFastSerializerTest.numbers.txt", new TestUtils.Printer() {
       @Override public void print(final PrintWriter printer) {
-        SerializerTest.TAGGED_FAST_SERIALIZER.printNumbers(printer);
+        SerializerTest.TAGGED_FAST_SERIALIZER.printIds(printer);
       }
     });
   }
@@ -253,6 +256,56 @@ public class TaggedFastSerializerTest {
         "field tag '1' used for 'int ch.softappeal.yass.serialize.test.TaggedFastSerializerTest$DuplicatedFieldTag.i1' and 'int ch.softappeal.yass.serialize.test.TaggedFastSerializerTest$DuplicatedFieldTag.i2'".equals(e.getMessage()) ||
         "field tag '1' used for 'int ch.softappeal.yass.serialize.test.TaggedFastSerializerTest$DuplicatedFieldTag.i2' and 'int ch.softappeal.yass.serialize.test.TaggedFastSerializerTest$DuplicatedFieldTag.i1'".equals(e.getMessage())
       );
+    }
+  }
+
+  @Test public void missingSerializableType() {
+    try {
+      new TaggedFastSerializer(
+        FastReflector.FACTORY,
+        Arrays.<TypeConverterId>asList(new TypeConverterId(
+          new TypeConverter<BigInteger, BigDecimal>(BigInteger.class, BigDecimal.class) {
+            @Override public BigDecimal to(final BigInteger value) {
+              return null;
+            }
+            @Override public BigInteger from(final BigDecimal value) {
+              return null;
+            }
+          },
+          0
+        )),
+        Arrays.<Class<?>>asList(),
+        Arrays.<Class<?>>asList(),
+        Arrays.<Class<?>>asList()
+      );
+      Assert.fail();
+    } catch (final IllegalArgumentException e) {
+      Assert.assertEquals("type converter 'java.math.BigInteger': no serializable type 'java.math.BigDecimal'", e.getMessage());
+    }
+  }
+
+  @Test public void illegalSerializableType() {
+    try {
+      new TaggedFastSerializer(
+        FastReflector.FACTORY,
+        Arrays.<TypeConverterId>asList(new TypeConverterId(
+          new TypeConverter<BigInteger, Void>(BigInteger.class, Void.class) {
+            @Override public Void to(final BigInteger value) {
+              return null;
+            }
+            @Override public BigInteger from(final Void value) {
+              return null;
+            }
+          },
+          0
+        )),
+        Arrays.<Class<?>>asList(),
+        Arrays.<Class<?>>asList(),
+        Arrays.<Class<?>>asList()
+      );
+      Assert.fail();
+    } catch (final IllegalArgumentException e) {
+      Assert.assertEquals("type converter 'java.math.BigInteger': illegal serializable type 'java.lang.Void'", e.getMessage());
     }
   }
 

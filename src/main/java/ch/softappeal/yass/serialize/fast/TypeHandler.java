@@ -2,10 +2,10 @@ package ch.softappeal.yass.serialize.fast;
 
 import ch.softappeal.yass.util.Check;
 
-abstract class TypeHandler {
+public abstract class TypeHandler {
 
-  final Class<?> type;
-  final int id;
+  public final Class<?> type;
+  public final int id;
 
   TypeHandler(final Class<?> type, final int id) {
     this.type = Check.notNull(type);

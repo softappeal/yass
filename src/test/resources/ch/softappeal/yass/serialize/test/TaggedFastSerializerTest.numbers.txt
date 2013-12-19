@@ -18,13 +18,13 @@
 -3 (17): float[]
 -2 (18): double[]
 -1 (19): java.lang.String
-0 (20): java.math.BigInteger
-1 (21): java.math.BigDecimal
-10 (30): ch.softappeal.yass.serialize.contract.Color
+0 (20): java.math.BigInteger -> java.lang.String
+1 (21): java.math.BigDecimal -> java.lang.String
+10 (30): ch.softappeal.yass.serialize.contract.Color -> java.lang.Integer
   0: RED
   1: GREEN
   2: BLUE
-20 (40): ch.softappeal.yass.serialize.contract.PrimitiveTypes
+20 (40): ch.softappeal.yass.serialize.contract.PrimitiveTypes - referenceable: false
   0 (1): public boolean ch.softappeal.yass.serialize.contract.PrimitiveTypes.booleanField
   1 (2): public byte ch.softappeal.yass.serialize.contract.PrimitiveTypes.byteField
   2 (3): public short ch.softappeal.yass.serialize.contract.PrimitiveTypes.shortField
@@ -49,7 +49,7 @@
   25 (26): public java.lang.Character ch.softappeal.yass.serialize.contract.PrimitiveTypes.charWrapperField
   26 (27): public java.lang.Float ch.softappeal.yass.serialize.contract.PrimitiveTypes.floatWrapperField
   27 (28): public java.lang.Double ch.softappeal.yass.serialize.contract.PrimitiveTypes.doubleWrapperField
-21 (41): ch.softappeal.yass.serialize.contract.nested.AllTypes
+21 (41): ch.softappeal.yass.serialize.contract.nested.AllTypes - referenceable: false
   0 (1): public boolean ch.softappeal.yass.serialize.contract.PrimitiveTypes.booleanField
   1 (2): public byte ch.softappeal.yass.serialize.contract.PrimitiveTypes.byteField
   2 (3): public short ch.softappeal.yass.serialize.contract.PrimitiveTypes.shortField
@@ -83,8 +83,8 @@
   108 (109): public java.lang.Object ch.softappeal.yass.serialize.contract.nested.AllTypes.objectField
   109 (110): public java.util.List ch.softappeal.yass.serialize.contract.nested.AllTypes.objectListField
   110 (111): public java.lang.Throwable ch.softappeal.yass.serialize.contract.nested.AllTypes.throwable
-22 (42): ch.softappeal.yass.serialize.contract.IntException
+22 (42): ch.softappeal.yass.serialize.contract.IntException - referenceable: false
   0 (1): public int ch.softappeal.yass.serialize.contract.IntException.value
-30 (50): ch.softappeal.yass.serialize.contract.Node
+30 (50): ch.softappeal.yass.serialize.contract.Node - referenceable: true
   0 (1): public int ch.softappeal.yass.serialize.contract.Node.id
   1 (2): public ch.softappeal.yass.serialize.contract.Node ch.softappeal.yass.serialize.contract.Node.link

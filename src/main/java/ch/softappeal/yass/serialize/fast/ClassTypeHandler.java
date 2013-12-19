@@ -4,27 +4,39 @@ import ch.softappeal.yass.serialize.Reflector;
 import ch.softappeal.yass.util.Check;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Comparator;
 import java.util.IdentityHashMap;
 import java.util.Map;
 
-abstract class ClassTypeHandler extends TypeHandler {
+public abstract class ClassTypeHandler extends TypeHandler {
 
   private final Reflector reflector;
-  private final boolean referenceable;
-  final FieldHandler[] fieldHandlers;
+  public final boolean referenceable;
+  private final FieldHandler[] fieldHandlers;
 
-  ClassTypeHandler(
+  public final FieldHandler[] fieldHandlers() {
+    return fieldHandlers.clone();
+  }
+
+  protected ClassTypeHandler(
     final Class<?> type, final int id,
     final Reflector reflector, final boolean referenceable,
-    final FieldHandler[] fieldHandlers
+    final Collection<FieldHandler> fieldHandlers
   ) {
     super(type, id);
     this.reflector = Check.notNull(reflector);
     this.referenceable = referenceable;
-    this.fieldHandlers = Check.notNull(fieldHandlers);
+    this.fieldHandlers = fieldHandlers.toArray(new FieldHandler[fieldHandlers.size()]);
+    Arrays.sort(this.fieldHandlers, new Comparator<FieldHandler>() { // guarantees field order
+      @Override public int compare(final FieldHandler fieldHandler1, final FieldHandler fieldHandler2) {
+        return Integer.valueOf(fieldHandler1.id).compareTo(fieldHandler2.id);
+      }
+    });
   }
 
-  abstract FieldHandler fieldHandler(int id);
+  protected abstract FieldHandler fieldHandler(int id);
 
   @Override final Object readNoId(final Input input) throws Exception {
     final Object object = reflector.newInstance();

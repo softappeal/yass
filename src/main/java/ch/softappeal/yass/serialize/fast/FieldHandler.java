@@ -7,16 +7,16 @@ import ch.softappeal.yass.util.Nullable;
 import java.lang.reflect.Field;
 import java.util.Map;
 
-final class FieldHandler {
+public final class FieldHandler {
 
   static final int END_OF_FIELDS = 0;
-  static final int FIRST_FIELD = END_OF_FIELDS + 1;
+  public static final int FIRST_FIELD = END_OF_FIELDS + 1;
 
-  final Field field;
-  final int id;
+  public final Field field;
+  public final int id;
   private final Reflector.Accessor accessor;
 
-  FieldHandler(final Field field, final int id, final Reflector.Accessor accessor) {
+  public FieldHandler(final Field field, final int id, final Reflector.Accessor accessor) {
     this.field = Check.notNull(field);
     if (id <= END_OF_FIELDS) {
       // note: due to call to writeVarInt below
@@ -26,7 +26,9 @@ final class FieldHandler {
     this.accessor = Check.notNull(accessor);
   }
 
-  // note: null if ClassTypeHandler or type unknown (Object, Throwable, abstract classes, ...)
+  /**
+   * note: null if {@link ClassTypeHandler} or type not in class2typeHandler (Object, Throwable, abstract classes, ...)
+   */
   @SuppressWarnings("InstanceVariableMayNotBeInitialized") @Nullable private TypeHandler typeHandler;
 
   void fixup(final Map<Class<?>, TypeHandler> class2typeHandler) {

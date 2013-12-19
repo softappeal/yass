@@ -11,13 +11,13 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-final class TypeHandlers {
+public final class TypeHandlers {
 
   private TypeHandlers() {
     // disable
   }
 
-  static final TypeHandler NULL = new TypeHandler(Void.class, 0) {
+  public static final TypeHandler NULL = new TypeHandler(Void.class, 0) {
     @Override @Nullable Object readNoId(final Input input) {
       return null;
     }
@@ -26,7 +26,7 @@ final class TypeHandlers {
     }
   };
 
-  static final TypeHandler REFERENCE = new TypeHandler(Reference.class, 1) {
+  public static final TypeHandler REFERENCE = new TypeHandler(Reference.class, 1) {
     @Override Object readNoId(final Input input) throws Exception {
       return input.referenceableObjects.get(input.reader.readVarInt());
     }
@@ -35,7 +35,7 @@ final class TypeHandlers {
     }
   };
 
-  static final TypeHandler LIST = new TypeHandler(List.class, 2) {
+  public static final TypeHandler LIST = new TypeHandler(List.class, 2) {
     @Override Object readNoId(final Input input) throws Exception {
       int length = input.reader.readVarInt();
       final List<Object> list = new ArrayList<>(Math.min(length, 256)); // note: prevents out-of-memory attack
@@ -54,7 +54,7 @@ final class TypeHandlers {
     }
   };
 
-  private static final TypeHandler BOOLEAN = new BaseTypeHandler<Boolean>(Boolean.class, 3) {
+  public static final BaseTypeHandler<Boolean> BOOLEAN = new BaseTypeHandler<Boolean>(Boolean.class, 3) {
     @Override Boolean read(final Reader reader) throws Exception {
       return reader.readByte() != 0;
     }
@@ -63,7 +63,7 @@ final class TypeHandlers {
     }
   };
 
-  private static final TypeHandler BYTE = new BaseTypeHandler<Byte>(Byte.class, 4) {
+  public static final BaseTypeHandler<Byte> BYTE = new BaseTypeHandler<Byte>(Byte.class, 4) {
     @Override Byte read(final Reader reader) throws Exception {
       return reader.readByte();
     }
@@ -72,7 +72,7 @@ final class TypeHandlers {
     }
   };
 
-  private static final TypeHandler SHORT = new BaseTypeHandler<Short>(Short.class, 5) {
+  public static final BaseTypeHandler<Short> SHORT = new BaseTypeHandler<Short>(Short.class, 5) {
     @Override Short read(final Reader reader) throws Exception {
       //noinspection NumericCastThatLosesPrecision
       return (short)reader.readZigZagInt();
@@ -82,7 +82,7 @@ final class TypeHandlers {
     }
   };
 
-  static final TypeHandler INTEGER = new BaseTypeHandler<Integer>(Integer.class, 6) {
+  public static final BaseTypeHandler<Integer> INTEGER = new BaseTypeHandler<Integer>(Integer.class, 6) {
     @Override Integer read(final Reader reader) throws Exception {
       return reader.readZigZagInt();
     }
@@ -91,7 +91,7 @@ final class TypeHandlers {
     }
   };
 
-  static final TypeHandler LONG = new BaseTypeHandler<Long>(Long.class, 7) {
+  public static final BaseTypeHandler<Long> LONG = new BaseTypeHandler<Long>(Long.class, 7) {
     @Override Long read(final Reader reader) throws Exception {
       return reader.readZigZagLong();
     }
@@ -100,7 +100,7 @@ final class TypeHandlers {
     }
   };
 
-  private static final TypeHandler CHARACTER = new BaseTypeHandler<Character>(Character.class, 8) {
+  public static final BaseTypeHandler<Character> CHARACTER = new BaseTypeHandler<Character>(Character.class, 8) {
     @Override Character read(final Reader reader) throws Exception {
       return reader.readChar();
     }
@@ -109,7 +109,7 @@ final class TypeHandlers {
     }
   };
 
-  private static final TypeHandler FLOAT = new BaseTypeHandler<Float>(Float.class, 9) {
+  public static final BaseTypeHandler<Float> FLOAT = new BaseTypeHandler<Float>(Float.class, 9) {
     @Override Float read(final Reader reader) throws Exception {
       return reader.readFloat();
     }
@@ -118,7 +118,7 @@ final class TypeHandlers {
     }
   };
 
-  private static final TypeHandler DOUBLE = new BaseTypeHandler<Double>(Double.class, 10) {
+  public static final BaseTypeHandler<Double> DOUBLE = new BaseTypeHandler<Double>(Double.class, 10) {
     @Override Double read(final Reader reader) throws Exception {
       return reader.readDouble();
     }
@@ -127,7 +127,7 @@ final class TypeHandlers {
     }
   };
 
-  private static final TypeHandler BOOLEAN_ARRAY = new BaseTypeHandler<boolean[]>(boolean[].class, 11) {
+  public static final BaseTypeHandler<boolean[]> BOOLEAN_ARRAY = new BaseTypeHandler<boolean[]>(boolean[].class, 11) {
     @Override boolean[] read(final Reader reader) throws Exception {
       final int length = reader.readVarInt();
       boolean[] value = new boolean[Math.min(length, 1024)];
@@ -147,7 +147,7 @@ final class TypeHandlers {
     }
   };
 
-  static final BaseTypeHandler<byte[]> BYTE_ARRAY = new BaseTypeHandler<byte[]>(byte[].class, 12) {
+  public static final BaseTypeHandler<byte[]> BYTE_ARRAY = new BaseTypeHandler<byte[]>(byte[].class, 12) {
     @Override byte[] read(final Reader reader) throws Exception {
       final int length = reader.readVarInt();
       byte[] value = new byte[Math.min(length, 1024)];
@@ -165,7 +165,7 @@ final class TypeHandlers {
     }
   };
 
-  private static final TypeHandler SHORT_ARRAY = new BaseTypeHandler<short[]>(short[].class, 13) {
+  public static final BaseTypeHandler<short[]> SHORT_ARRAY = new BaseTypeHandler<short[]>(short[].class, 13) {
     @Override short[] read(final Reader reader) throws Exception {
       final int length = reader.readVarInt();
       short[] value = new short[Math.min(length, 512)];
@@ -186,7 +186,7 @@ final class TypeHandlers {
     }
   };
 
-  private static final TypeHandler INTEGER_ARRAY = new BaseTypeHandler<int[]>(int[].class, 14) {
+  public static final BaseTypeHandler<int[]> INTEGER_ARRAY = new BaseTypeHandler<int[]>(int[].class, 14) {
     @Override int[] read(final Reader reader) throws Exception {
       final int length = reader.readVarInt();
       int[] value = new int[Math.min(length, 256)];
@@ -206,7 +206,7 @@ final class TypeHandlers {
     }
   };
 
-  private static final TypeHandler LONG_ARRAY = new BaseTypeHandler<long[]>(long[].class, 15) {
+  public static final BaseTypeHandler<long[]> LONG_ARRAY = new BaseTypeHandler<long[]>(long[].class, 15) {
     @Override long[] read(final Reader reader) throws Exception {
       final int length = reader.readVarInt();
       long[] value = new long[Math.min(length, 128)];
@@ -226,7 +226,7 @@ final class TypeHandlers {
     }
   };
 
-  private static final TypeHandler CHARACTER_ARRAY = new BaseTypeHandler<char[]>(char[].class, 16) {
+  public static final BaseTypeHandler<char[]> CHARACTER_ARRAY = new BaseTypeHandler<char[]>(char[].class, 16) {
     @Override char[] read(final Reader reader) throws Exception {
       final int length = reader.readVarInt();
       char[] value = new char[Math.min(length, 512)];
@@ -246,7 +246,7 @@ final class TypeHandlers {
     }
   };
 
-  private static final TypeHandler FLOAT_ARRAY = new BaseTypeHandler<float[]>(float[].class, 17) {
+  public static final BaseTypeHandler<float[]> FLOAT_ARRAY = new BaseTypeHandler<float[]>(float[].class, 17) {
     @Override float[] read(final Reader reader) throws Exception {
       final int length = reader.readVarInt();
       float[] value = new float[Math.min(length, 256)];
@@ -266,7 +266,7 @@ final class TypeHandlers {
     }
   };
 
-  private static final TypeHandler DOUBLE_ARRAY = new BaseTypeHandler<double[]>(double[].class, 18) {
+  public static final BaseTypeHandler<double[]> DOUBLE_ARRAY = new BaseTypeHandler<double[]>(double[].class, 18) {
     @Override double[] read(final Reader reader) throws Exception {
       final int length = reader.readVarInt();
       double[] value = new double[Math.min(length, 128)];
@@ -286,7 +286,7 @@ final class TypeHandlers {
     }
   };
 
-  static final TypeHandler STRING = new BaseTypeHandler<String>(String.class, 19) {
+  public static final BaseTypeHandler<String> STRING = new BaseTypeHandler<String>(String.class, 19) {
     @Override String read(final Reader reader) throws Exception {
       return Utf8.string(BYTE_ARRAY.read(reader));
     }
@@ -296,25 +296,9 @@ final class TypeHandlers {
   };
 
   static final List<TypeHandler> ALL = Collections.unmodifiableList(Arrays.asList(
-    NULL,
-    REFERENCE,
-    LIST,
-    BOOLEAN,
-    BYTE,
-    SHORT,
-    INTEGER,
-    LONG,
-    CHARACTER,
-    FLOAT,
-    DOUBLE,
-    BOOLEAN_ARRAY,
-    BYTE_ARRAY,
-    SHORT_ARRAY,
-    INTEGER_ARRAY,
-    LONG_ARRAY,
-    CHARACTER_ARRAY,
-    FLOAT_ARRAY,
-    DOUBLE_ARRAY,
+    NULL, REFERENCE, LIST,
+    BOOLEAN, BYTE, SHORT, INTEGER, LONG, CHARACTER, FLOAT, DOUBLE,
+    BOOLEAN_ARRAY, BYTE_ARRAY, SHORT_ARRAY, INTEGER_ARRAY, LONG_ARRAY, CHARACTER_ARRAY, FLOAT_ARRAY, DOUBLE_ARRAY,
     STRING
   ));
 
@@ -328,6 +312,6 @@ final class TypeHandlers {
     }
   }
 
-  static final int SIZE = ALL.size();
+  public static final int SIZE = ALL.size();
 
 }

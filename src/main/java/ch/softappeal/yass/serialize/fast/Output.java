@@ -15,7 +15,7 @@ final class Output {
 
   Output(final Writer writer, final Map<Class<?>, TypeHandler> class2typeHandler) {
     this.writer = Check.notNull(writer);
-    this.class2typeHandler = Check.notNull(class2typeHandler);
+    this.class2typeHandler = class2typeHandler;
   }
 
   void writeWithId(@Nullable final Object value) throws Exception {

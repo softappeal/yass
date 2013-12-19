@@ -6,18 +6,18 @@ import ch.softappeal.yass.util.Nullable;
 
 import java.util.List;
 
-abstract class Input {
+public abstract class Input {
 
   final Reader reader;
   List<Object> referenceableObjects = null;
 
-  Input(final Reader reader) {
+  protected Input(final Reader reader) {
     this.reader = Check.notNull(reader);
   }
 
-  abstract TypeHandler typeHandler(int id);
+  protected abstract TypeHandler typeHandler(int id);
 
-  @Nullable final Object readWithId() throws Exception {
+  @Nullable public final Object readWithId() throws Exception {
     return typeHandler(reader.readVarInt()).readNoId(this);
   }
 

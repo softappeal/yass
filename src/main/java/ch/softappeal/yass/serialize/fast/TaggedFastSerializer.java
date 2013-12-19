@@ -2,7 +2,6 @@ package ch.softappeal.yass.serialize.fast;
 
 import ch.softappeal.yass.serialize.Reader;
 import ch.softappeal.yass.serialize.Reflector;
-import ch.softappeal.yass.serialize.TypeConverter;
 import ch.softappeal.yass.serialize.TypeConverters;
 import ch.softappeal.yass.util.Check;
 import ch.softappeal.yass.util.Exceptions;
@@ -11,9 +10,7 @@ import ch.softappeal.yass.util.Tag;
 
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Field;
-import java.util.Arrays;
 import java.util.Collection;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -37,27 +34,19 @@ public final class TaggedFastSerializer extends AbstractFastSerializer {
 
   private static ClassTypeHandler classTypeHandler(final Class<?> type, final int id, final Reflector reflector, final boolean referenceable) {
     final Map<Integer, FieldHandler> id2fieldHandler = new HashMap<>(16);
-    for (Class<?> t = type; (t != null) && (t != Throwable.class); t = t.getSuperclass()) {
-      for (final Field field : declaredFields(t)) {
-        final int tag = Check.tag(field);
-        checkTag(tag, field);
-        final FieldHandler fieldHandler = new FieldHandler(field, tag + FieldHandler.FIRST_FIELD, reflector.accessor(field));
-        @Nullable final FieldHandler oldFieldHandler = id2fieldHandler.put(fieldHandler.id, fieldHandler);
-        if (oldFieldHandler != null) {
-          throw new IllegalArgumentException(
-            "field tag '" + tag + "' used for '" + oldFieldHandler.field + "' and '" + fieldHandler.field + '\''
-          );
-        }
+    for (final Field field : fields(type)) {
+      final int tag = Check.tag(field);
+      checkTag(tag, field);
+      final FieldHandler fieldHandler = new FieldHandler(field, tag + FieldHandler.FIRST_FIELD, reflector.accessor(field));
+      @Nullable final FieldHandler oldFieldHandler = id2fieldHandler.put(fieldHandler.id, fieldHandler);
+      if (oldFieldHandler != null) {
+        throw new IllegalArgumentException(
+          "field tag '" + tag + "' used for '" + oldFieldHandler.field + "' and '" + fieldHandler.field + '\''
+        );
       }
     }
-    final FieldHandler[] fieldHandlers = id2fieldHandler.values().toArray(new FieldHandler[id2fieldHandler.size()]);
-    Arrays.sort(fieldHandlers, new Comparator<FieldHandler>() { // guarantees field order
-      @Override public int compare(final FieldHandler fieldHandler1, final FieldHandler fieldHandler2) {
-        return Integer.valueOf(fieldHandler1.id).compareTo(fieldHandler2.id);
-      }
-    });
-    return new ClassTypeHandler(type, id, reflector, referenceable, fieldHandlers) {
-      @Override FieldHandler fieldHandler(final int id) {
+    return new ClassTypeHandler(type, id, reflector, referenceable, id2fieldHandler.values()) {
+      @Override protected FieldHandler fieldHandler(final int id) {
         return id2fieldHandler.get(id);
       }
     };
@@ -85,11 +74,11 @@ public final class TaggedFastSerializer extends AbstractFastSerializer {
   ) {
     for (final TypeConverterId typeConverterId : typeConverterIds) {
       checkTag(typeConverterId.id, typeConverterId.typeConverter.type);
-      addTypeHandler(typeHandler((TypeConverter)typeConverterId.typeConverter, typeConverterId.id + TypeHandlers.SIZE));
+      addTypeHandler(new ConverterTypeHandler(typeConverterId.typeConverter, typeConverterId.id + TypeHandlers.SIZE, this));
     }
     for (final Class<?> type : enumerations) {
       checkEnum(type);
-      addTypeHandler(typeHandler(TypeConverters.enumToInteger((Class)type), tag(type)));
+      addTypeHandler(new ConverterTypeHandler(TypeConverters.enumToInteger((Class)type), tag(type), this));
     }
     try {
       for (final Class<?> type : concreteClasses) {
@@ -118,7 +107,7 @@ public final class TaggedFastSerializer extends AbstractFastSerializer {
 
   @Override public Object read(final Reader reader) throws Exception {
     return new Input(reader) {
-      @Override TypeHandler typeHandler(final int id) {
+      @Override protected TypeHandler typeHandler(final int id) {
         return id2typeHandler.get(id);
       }
     }.readWithId();

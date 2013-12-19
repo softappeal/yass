@@ -3,7 +3,7 @@ package ch.softappeal.yass.serialize.fast;
 import ch.softappeal.yass.serialize.Reader;
 import ch.softappeal.yass.serialize.Writer;
 
-abstract class BaseTypeHandler<V> extends TypeHandler {
+public abstract class BaseTypeHandler<V> extends TypeHandler {
 
   BaseTypeHandler(final Class<?> type, final int id) {
     super(type, id);

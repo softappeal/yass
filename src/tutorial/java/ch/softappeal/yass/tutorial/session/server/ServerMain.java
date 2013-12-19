@@ -12,7 +12,6 @@ import ch.softappeal.yass.util.ContextLocator;
 import ch.softappeal.yass.util.Exceptions;
 import ch.softappeal.yass.util.NamedThreadFactory;
 
-import java.io.PrintWriter;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.util.concurrent.Executor;
@@ -22,14 +21,7 @@ public final class ServerMain {
 
   public static final SocketAddress ADDRESS = new InetSocketAddress("localhost", 28947);
 
-  private static void printNumbers() {
-    final PrintWriter writer = new PrintWriter(System.out);
-    Config.CONTRACT_SERIALIZER.printNumbers(writer);
-    writer.flush();
-  }
-
   public static void main(final String... args) {
-    printNumbers();
     final Executor executor = Executors.newCachedThreadPool(new NamedThreadFactory("executor", Exceptions.STD_ERR));
     new SessionTransport(
       new SessionSetup(
