@@ -117,6 +117,7 @@ public abstract class AbstractFastSerializer implements Serializer {
           printer.println("  " + (fieldHandler.id - FieldHandler.FIRST_FIELD) + " (" + fieldHandler.id + "): " + fieldHandler.field);
         }
       }
+      printer.println();
     }
   }
 

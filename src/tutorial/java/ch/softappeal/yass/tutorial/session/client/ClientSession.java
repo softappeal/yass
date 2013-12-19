@@ -24,8 +24,8 @@ public final class ClientSession extends Session implements PriceListenerContext
   public ClientSession(final SessionSetup setup, final Connection connection) {
     super(setup, connection);
     System.out.println("create: " + hashCode() + ", " + ((SocketConnection)connection).socket);
-    priceEngine = ServerServices.PriceEngineId.invoker(this).proxy();
-    instrumentService = ServerServices.InstrumentServiceId.invoker(this).proxy();
+    priceEngine = ServerServices.PriceEngine.invoker(this).proxy();
+    instrumentService = ServerServices.InstrumentService.invoker(this).proxy();
   }
 
   private final Map<String, Instrument> id2instrument = Collections.synchronizedMap(new HashMap<String, Instrument>());

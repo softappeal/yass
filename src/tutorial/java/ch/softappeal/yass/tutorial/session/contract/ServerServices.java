@@ -7,7 +7,7 @@ import ch.softappeal.yass.core.remote.ContractId;
  */
 public final class ServerServices {
 
-  public static final ContractId<PriceEngine> PriceEngineId = ContractId.create(PriceEngine.class, 0);
-  public static final ContractId<InstrumentService> InstrumentServiceId = ContractId.create(InstrumentService.class, 1);
+  public static final ContractId<PriceEngine> PriceEngine = ContractId.create(PriceEngine.class, 0);
+  public static final ContractId<InstrumentService> InstrumentService = ContractId.create(InstrumentService.class, 1);
 
 }

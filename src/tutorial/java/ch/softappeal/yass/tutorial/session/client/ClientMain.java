@@ -24,7 +24,7 @@ public final class ClientMain {
       new SessionSetup(
         new Server(
           Config.METHOD_MAPPER_FACTORY,
-          ClientServices.PriceListenerId.service(
+          ClientServices.PriceListener.service(
             new PriceListenerImpl(
               new ContextLocator<PriceListenerContext>() {
                 @Override public PriceListenerContext context() {

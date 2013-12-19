@@ -12,6 +12,7 @@ import ch.softappeal.yass.util.ContextLocator;
 import ch.softappeal.yass.util.Exceptions;
 import ch.softappeal.yass.util.NamedThreadFactory;
 
+import java.io.PrintWriter;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.util.concurrent.Executor;
@@ -22,13 +23,16 @@ public final class ServerMain {
   public static final SocketAddress ADDRESS = new InetSocketAddress("localhost", 28947);
 
   public static void main(final String... args) {
+    final PrintWriter writer = new PrintWriter(System.out);
+    Config.CONTRACT_SERIALIZER.printIds(writer);
+    writer.flush();
     final Executor executor = Executors.newCachedThreadPool(new NamedThreadFactory("executor", Exceptions.STD_ERR));
     new SessionTransport(
       new SessionSetup(
         new Server(
           Config.METHOD_MAPPER_FACTORY,
-          ServerServices.InstrumentServiceId.service(new InstrumentServiceImpl(), Logger.SERVER),
-          ServerServices.PriceEngineId.service(
+          ServerServices.InstrumentService.service(new InstrumentServiceImpl(), Logger.SERVER),
+          ServerServices.PriceEngine.service(
             new PriceEngineImpl(
               new ContextLocator<PriceEngineContext>() {
                 @Override public PriceEngineContext context() {

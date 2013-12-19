@@ -3,6 +3,7 @@ package ch.softappeal.yass.tutorial.session.server;
 import ch.softappeal.yass.tutorial.session.contract.Config;
 import ch.softappeal.yass.tutorial.session.contract.Instrument;
 import ch.softappeal.yass.tutorial.session.contract.InstrumentService;
+import ch.softappeal.yass.tutorial.session.contract.instrument.Stock;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -21,7 +22,7 @@ public final class InstrumentServiceImpl implements InstrumentService {
     int index = 0;
     for (final String name : names) {
       final String id = String.valueOf(index++);
-      instruments.put(id, new Instrument(id, name));
+      instruments.put(id, new Stock(id, name, true));
     }
     INSTRUMENTS = Collections.unmodifiableMap(instruments);
     System.out.println(Config.DUMPER.toString(INSTRUMENTS.values()));

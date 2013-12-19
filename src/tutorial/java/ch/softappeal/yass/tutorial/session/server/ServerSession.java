@@ -28,7 +28,7 @@ public final class ServerSession extends Session implements PriceEngineContext {
   public ServerSession(final SessionSetup setup, final Connection connection) {
     super(setup, connection);
     System.out.println("create: " + hashCode() + ", " + ((SocketConnection)connection).socket);
-    priceListener = ClientServices.PriceListenerId.invoker(this).proxy(Logger.CLIENT);
+    priceListener = ClientServices.PriceListener.invoker(this).proxy(Logger.CLIENT);
   }
 
   private final Set<String> subscribedInstrumentIds = Collections.synchronizedSet(new HashSet<String>());
