@@ -7,12 +7,10 @@ import org.junit.Test;
 public class RequestTest {
 
   @Test public void test() {
-    final Object context = new Object();
     final Object serviceId = "abc";
     final String methodId = "xyz";
     final Object[] arguments = new Object[0];
-    final Request request = new Request(context, serviceId, methodId, arguments);
-    Assert.assertSame(context, request.context);
+    final Request request = new Request(serviceId, methodId, arguments);
     Assert.assertSame(serviceId, request.serviceId);
     Assert.assertSame(methodId, request.methodId);
     Assert.assertSame(arguments, request.arguments);

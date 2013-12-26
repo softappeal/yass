@@ -14,7 +14,9 @@ public final class Exceptions {
   }
 
   /**
-   * Prints to {@link System#err} and aborts if {@code !(e instanceof Exception)}.
+   * Prints to {@link System#err} and EXITS if {@code !(e instanceof Exception)}.
+   * <p/>
+   * Note: For productive code, this handler should be replaced with one that uses your logging framework!
    */
   public static final UncaughtExceptionHandler STD_ERR = new UncaughtExceptionHandler() {
     @SuppressWarnings("UseOfSystemOutOrSystemErr")

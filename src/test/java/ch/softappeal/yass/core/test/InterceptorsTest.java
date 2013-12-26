@@ -34,23 +34,19 @@ public class InterceptorsTest {
     }
 
     @Override @Nullable public Object invoke(final Invocation invocation) throws Throwable {
-      System.out.println("enter: begin=" + begin + " step=" + step + " context=" + invocation.context);
+      System.out.println("enter: begin=" + begin + " step=" + step);
       Assert.assertSame(InvocationTest.METHOD, invocation.method);
       Assert.assertSame(InvocationTest.ARGUMENTS, invocation.arguments);
       Assert.assertEquals(begin, step);
-      Assert.assertEquals(begin + 100, invocation.context);
       step++;
-      invocation.context = step + 100;
       final Object result = invocation.proceed();
-      System.out.println("exit : end  =" + end + " step=" + step + " context=" + invocation.context + " result=" + result);
+      System.out.println("exit : end  =" + end + " step=" + step + " result=" + result);
       Assert.assertSame(InvocationTest.METHOD, invocation.method);
       Assert.assertSame(InvocationTest.ARGUMENTS, invocation.arguments);
       Assert.assertEquals(end, step);
-      Assert.assertEquals(end + 100, invocation.context);
-      Assert.assertEquals(result, step + 200);
+      Assert.assertEquals(result, step + 100);
       step++;
-      invocation.context = step + 100;
-      return step + 200;
+      return step + 100;
     }
 
   }
@@ -61,23 +57,19 @@ public class InterceptorsTest {
       {
         Assert.assertSame(InvocationTest.METHOD, method);
         Assert.assertSame(InvocationTest.ARGUMENTS, arguments);
-        context = 100;
       }
       @Override public Object proceed() {
         Assert.assertSame(InvocationTest.METHOD, method);
         Assert.assertSame(InvocationTest.ARGUMENTS, arguments);
         Assert.assertEquals(step, interceptors);
-        Assert.assertEquals(interceptors + 100, context);
         step++;
-        context = step + 100;
-        return step + 200;
+        return step + 100;
       }
     };
-    Assert.assertEquals(interceptor.invoke(invocation), (2 * interceptors) + 201);
+    Assert.assertEquals(interceptor.invoke(invocation), (2 * interceptors) + 101);
     Assert.assertSame(InvocationTest.METHOD, invocation.method);
     Assert.assertSame(InvocationTest.ARGUMENTS, invocation.arguments);
     Assert.assertEquals(step, (2 * interceptors) + 1);
-    Assert.assertEquals(invocation.context, (2 * interceptors) + 101);
   }
 
   @Test public void composite() throws Throwable {

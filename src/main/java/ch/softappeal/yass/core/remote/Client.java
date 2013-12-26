@@ -42,13 +42,8 @@ public abstract class Client extends Common {
     @Nullable public Object invoke(final Interceptor interceptor, final Tunnel tunnel) throws Throwable {
       return Interceptors.composite(interceptor, invocationInterceptor).invoke(new Invocation(methodMapping.method, arguments) {
         @Override public Object proceed() throws Throwable {
-          final Reply reply = tunnel.invoke(new Request(context, serviceId, methodMapping.id, arguments));
-          if (oneWay) {
-            context = null;
-            return null;
-          }
-          context = reply.context;
-          return reply.process();
+          final Reply reply = tunnel.invoke(new Request(serviceId, methodMapping.id, arguments));
+          return oneWay ? null : reply.process();
         }
       });
     }

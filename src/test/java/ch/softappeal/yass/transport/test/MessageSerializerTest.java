@@ -24,8 +24,7 @@ public class MessageSerializerTest {
   @Test public void request() throws Exception {
     final Object serviceId = "abc";
     final String methodId = "xyz";
-    final Request request = copy(new Request(null, serviceId, methodId, new Object[0]));
-    Assert.assertNull(request.context);
+    final Request request = copy(new Request(serviceId, methodId, new Object[0]));
     Assert.assertEquals(serviceId, request.serviceId);
     Assert.assertEquals(methodId, request.methodId);
     Assert.assertTrue(request.arguments.length == 0);
@@ -33,14 +32,12 @@ public class MessageSerializerTest {
 
   @Test public void value() throws Exception {
     final String value = "xyz";
-    final ValueReply reply = copy(new ValueReply(null, value));
-    Assert.assertNull(reply.context);
+    final ValueReply reply = copy(new ValueReply(value));
     Assert.assertEquals(value, reply.value);
   }
 
   @Test public void exception() throws Exception {
-    final ExceptionReply reply = copy(new ExceptionReply(null, new EOFException()));
-    Assert.assertNull(reply.context);
+    final ExceptionReply reply = copy(new ExceptionReply(new EOFException()));
     Assert.assertTrue(reply.throwable instanceof EOFException);
   }
 

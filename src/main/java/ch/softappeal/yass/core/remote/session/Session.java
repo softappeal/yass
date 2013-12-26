@@ -132,7 +132,7 @@ public abstract class Session extends Client implements AutoCloseable {
 
   private Reply requestInterrupted(final int requestNumber) {
     requestNumber2replyQueue.remove(requestNumber);
-    return new ExceptionReply(null, new RequestInterruptedException());
+    return new ExceptionReply(new RequestInterruptedException());
   }
 
   private Reply writeRequestAndReadReply(final int requestNumber, final Request request) {

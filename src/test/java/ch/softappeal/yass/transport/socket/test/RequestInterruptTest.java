@@ -2,8 +2,8 @@ package ch.softappeal.yass.transport.socket.test;
 
 import ch.softappeal.yass.core.Interceptor;
 import ch.softappeal.yass.core.Invocation;
-import ch.softappeal.yass.core.remote.MethodMappers;
 import ch.softappeal.yass.core.remote.Server;
+import ch.softappeal.yass.core.remote.TaggedMethodMapper;
 import ch.softappeal.yass.core.remote.session.Connection;
 import ch.softappeal.yass.core.remote.session.RequestInterruptedException;
 import ch.softappeal.yass.core.remote.session.Session;
@@ -11,8 +11,8 @@ import ch.softappeal.yass.core.remote.session.SessionFactory;
 import ch.softappeal.yass.core.remote.session.SessionSetup;
 import ch.softappeal.yass.core.remote.test.ContractIdTest;
 import ch.softappeal.yass.core.test.InvokeTest;
-import ch.softappeal.yass.transport.socket.SessionTransport;
 import ch.softappeal.yass.transport.socket.SocketListenerTest;
+import ch.softappeal.yass.transport.socket.SocketTransport;
 import ch.softappeal.yass.transport.test.PacketSerializerTest;
 import ch.softappeal.yass.util.Exceptions;
 import ch.softappeal.yass.util.NamedThreadFactory;
@@ -30,8 +30,8 @@ public class RequestInterruptTest extends InvokeTest {
   public void test() throws InterruptedException {
     final ExecutorService executor = Executors.newCachedThreadPool(new NamedThreadFactory("executor", Exceptions.STD_ERR));
     try {
-      new SessionTransport(
-        new SessionSetup(new Server(MethodMappers.TAG_FACTORY, ContractIdTest.ID.service(new TestServiceImpl())), executor, new SessionFactory() {
+      new SocketTransport(
+        new SessionSetup(new Server(TaggedMethodMapper.FACTORY, ContractIdTest.ID.service(new TestServiceImpl())), executor, new SessionFactory() {
           @Override public Session create(final SessionSetup setup, final Connection connection) {
             return new Session(setup, connection) {
               @Override public void closed(@Nullable final Exception exception) {
@@ -42,8 +42,8 @@ public class RequestInterruptTest extends InvokeTest {
         }),
         PacketSerializerTest.SERIALIZER, executor, executor, Exceptions.STD_ERR
       ).start(executor, SocketListenerTest.ADDRESS);
-      new SessionTransport(
-        new SessionSetup(new Server(MethodMappers.TAG_FACTORY), executor, new SessionFactory() {
+      new SocketTransport(
+        new SessionSetup(new Server(TaggedMethodMapper.FACTORY), executor, new SessionFactory() {
           @Override public Session create(final SessionSetup setup, final Connection connection) {
             return new Session(setup, connection) {
               @Override public void opened() {

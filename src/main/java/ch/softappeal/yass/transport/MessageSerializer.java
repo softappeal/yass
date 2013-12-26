@@ -41,17 +41,14 @@ public final class MessageSerializer implements Serializer {
       return new Request(
         serializer.read(reader),
         serializer.read(reader),
-        serializer.read(reader),
         toArray((List)serializer.read(reader))
       );
     } else if (type == VALUE_REPLY) {
       return new ValueReply(
-        serializer.read(reader),
         serializer.read(reader)
       );
     } else {
       return new ExceptionReply(
-        serializer.read(reader),
         (Throwable)serializer.read(reader)
       );
     }
@@ -64,19 +61,16 @@ public final class MessageSerializer implements Serializer {
     if (message instanceof Request) {
       writer.writeByte(REQUEST);
       final Request request = (Request)message;
-      serializer.write(request.context, writer);
       serializer.write(request.serviceId, writer);
       serializer.write(request.methodId, writer);
       serializer.write((request.arguments == null) ? NO_ARGUMENTS : Arrays.asList(request.arguments), writer);
     } else if (message instanceof ValueReply) {
       writer.writeByte(VALUE_REPLY);
       final ValueReply reply = (ValueReply)message;
-      serializer.write(reply.context, writer);
       serializer.write(reply.value, writer);
     } else {
       writer.writeByte(EXCEPTION_REPLY);
       final ExceptionReply reply = (ExceptionReply)message;
-      serializer.write(reply.context, writer);
       serializer.write(reply.throwable, writer);
     }
   }

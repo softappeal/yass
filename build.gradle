@@ -24,19 +24,28 @@ tasks.withType(JavaCompile) {
   options.compilerArgs << "-Xlint"
 }
 
+ext.sharedManifest = manifest {
+  attributes("Implementation-Title": project.name, "Implementation-Version": version)
+}
+
 jar {
   from "readme.md"
   from "license.txt"
+  manifest = project.manifest { from sharedManifest }
 }
 
 task packageSources(type: Jar) {
   from "readme.md"
   from "license.txt"
+  manifest = project.manifest { from sharedManifest }
   from sourceSets.main.allSource
   classifier = 'sources'
 }
 
 task packageJavadoc(type: Jar, dependsOn: 'javadoc') {
+  from "readme.md"
+  from "license.txt"
+  manifest = project.manifest { from sharedManifest }
   from javadoc.destinationDir
   classifier = 'javadoc'
 }

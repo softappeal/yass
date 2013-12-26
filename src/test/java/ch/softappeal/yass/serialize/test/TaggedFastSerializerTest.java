@@ -135,7 +135,7 @@ public class TaggedFastSerializerTest {
   @Test public void printNumbers() {
     TestUtils.compareFile("ch/softappeal/yass/serialize/test/TaggedFastSerializerTest.numbers.txt", new TestUtils.Printer() {
       @Override public void print(final PrintWriter printer) {
-        SerializerTest.TAGGED_FAST_SERIALIZER.printIds(printer);
+        SerializerTest.TAGGED_FAST_SERIALIZER.print(printer);
       }
     });
   }

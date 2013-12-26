@@ -66,22 +66,11 @@ public final class Interceptors {
     }
     return new Interceptor() {
       @Override @Nullable public Object invoke(final Invocation invocation) throws Throwable {
-        final Invocation invocation2 = new Invocation(invocation.method, invocation.arguments) {
-          @Override public Object proceed() throws Throwable {
-            invocation.context = context;
-            try {
-              return interceptor2.invoke(invocation);
-            } finally {
-              context = invocation.context;
-            }
+        return interceptor1.invoke(new Invocation(invocation.method, invocation.arguments) {
+          @Override @Nullable public Object proceed() throws Throwable {
+            return interceptor2.invoke(invocation);
           }
-        };
-        invocation2.context = invocation.context;
-        try {
-          return interceptor1.invoke(invocation2);
-        } finally {
-          invocation.context = invocation2.context;
-        }
+        });
       }
     };
   }

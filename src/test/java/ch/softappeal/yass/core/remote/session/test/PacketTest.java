@@ -28,7 +28,7 @@ public class PacketTest extends InvokeTest {
   }
 
   @Test public void normal() {
-    final Message message = new ValueReply(null, null);
+    final Message message = new ValueReply(null);
     final Packet packet = new Packet(123, message);
     Assert.assertTrue(packet.requestNumber() == 123);
     Assert.assertSame(message, packet.message());

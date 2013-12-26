@@ -22,10 +22,10 @@ public class PacketSerializerTest {
   }
 
   @Test public void normal() throws Exception {
-    final Message message = new ValueReply(null, null);
+    final Message message = new ValueReply(null);
     final Packet packet = copy(new Packet(123, message));
     Assert.assertTrue(packet.requestNumber() == 123);
-    Assert.assertNull(packet.message().context);
+    Assert.assertNull(((ValueReply)packet.message()).value);
   }
 
 }

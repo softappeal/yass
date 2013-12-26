@@ -47,17 +47,17 @@ public class InvokeTest {
 
   }
 
-  public static void println(final String name, final String type, @Nullable final Object context, final Object message) {
+  public static void println(final String name, final String type, final Object message) {
     System.out.printf(
-      "%10s | %15s | %9s | %20s | %4s | %s\n",
-      System.nanoTime() / 1000000L, name, type, Thread.currentThread().getName(), context, message
+      "%10s | %15s | %9s | %20s | %s\n",
+      System.nanoTime() / 1000000L, name, type, Thread.currentThread().getName(), message
     );
   }
 
   public static final class TestServiceImpl implements TestService {
 
     @Override public void nothing() {
-      println("impl", "", "", "nothing");
+      println("impl", "", "nothing");
     }
 
     @Override public int divide(final int a, final int b) throws DivisionByZeroException {
@@ -75,7 +75,7 @@ public class InvokeTest {
       if (sleepMillis < 0) {
         return;
       }
-      println("impl", "", "", "oneWay(" + sleepMillis + ')');
+      println("impl", "", "oneWay(" + sleepMillis + ')');
       try {
         TimeUnit.MILLISECONDS.sleep(sleepMillis);
       } catch (final InterruptedException e) {
@@ -102,13 +102,13 @@ public class InvokeTest {
     }
 
     @Override public Object invoke(final Invocation invocation) throws Throwable {
-      println(name, "entry", invocation.context, invocation.method.getName() + ' ' + Arrays.deepToString(invocation.arguments));
+      println(name, "entry", invocation.method.getName() + ' ' + Arrays.deepToString(invocation.arguments));
       try {
         final Object result = invocation.proceed();
-        println(name, "exit", invocation.context, result);
+        println(name, "exit", result);
         return result;
       } catch (final Throwable t) {
-        println(name, "exception", invocation.context, t);
+        println(name, "exception", t);
         throw t;
       }
     }
@@ -150,13 +150,8 @@ public class InvokeTest {
         Assert.assertTrue(COUNTER.incrementAndGet() == 1);
         Assert.assertEquals(METHOD.get(), invocation.method);
         checkArguments(invocation);
-        Assert.assertNull(invocation.context);
-        invocation.context = ONE;
         final Object result = invocation.proceed();
         checkArguments(invocation);
-        if (!isOneWay(invocation.method.getName())) {
-          Assert.assertEquals(TWO, invocation.context);
-        }
         return result;
       }
     },
@@ -169,10 +164,7 @@ public class InvokeTest {
         Assert.assertTrue(COUNTER.incrementAndGet() == 2);
         Assert.assertEquals(METHOD.get(), invocation.method);
         checkArguments(invocation);
-        Assert.assertEquals(ONE, invocation.context);
         final Object result = invocation.proceed();
-        Assert.assertEquals(ONE, invocation.context);
-        invocation.context = TWO;
         return result;
       }
     },

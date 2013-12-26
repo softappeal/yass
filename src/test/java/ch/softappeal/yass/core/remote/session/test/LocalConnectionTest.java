@@ -1,8 +1,8 @@
 package ch.softappeal.yass.core.remote.session.test;
 
 import ch.softappeal.yass.core.Interceptors;
-import ch.softappeal.yass.core.remote.MethodMappers;
 import ch.softappeal.yass.core.remote.Server;
+import ch.softappeal.yass.core.remote.TaggedMethodMapper;
 import ch.softappeal.yass.core.remote.session.Connection;
 import ch.softappeal.yass.core.remote.session.LocalConnection;
 import ch.softappeal.yass.core.remote.session.Session;
@@ -31,7 +31,7 @@ public class LocalConnectionTest extends InvokeTest {
   ) {
     return new SessionSetup(
       new Server(
-        MethodMappers.TAG_FACTORY,
+        TaggedMethodMapper.FACTORY,
         ContractIdTest.ID.service(
           new TestServiceImpl(),
           invoke ? RemoteTest.CONTRACT_ID_CHECKER : Interceptors.composite(RemoteTest.CONTRACT_ID_CHECKER, SERVER_INTERCEPTOR)
@@ -45,13 +45,13 @@ public class LocalConnectionTest extends InvokeTest {
           }
           return new Session(setup, connection) {
             {
-              println(name, "create", "", hashCode());
+              println(name, "create", hashCode());
               if (invokeBeforeOpened) {
                 ContractIdTest.ID.invoker(this).proxy().nothing();
               }
             }
             @Override public void opened() throws Exception {
-              println(name, "opened", "", hashCode());
+              println(name, "opened", hashCode());
               if (openedException) {
                 throw new Exception("opened failed");
               }
@@ -69,7 +69,7 @@ public class LocalConnectionTest extends InvokeTest {
               if (invoke) {
                 Assert.assertNull(exception);
               }
-              println(name, "closed", "", hashCode() + " " + exception);
+              println(name, "closed", hashCode() + " " + exception);
             }
           };
         }

@@ -116,11 +116,17 @@ public abstract class SocketListener {
     }
   }
 
-  static void setTcpNoDelay(final Socket socket) throws IOException { // $note: forces immediate send
+  /**
+   * Forces immediate send.
+   */
+  static void setTcpNoDelay(final Socket socket) throws IOException {
     socket.setTcpNoDelay(true);
   }
 
-  static void flush(final ByteArrayOutputStream buffer, final OutputStream out) throws IOException { // $note: buffering of output is needed to prevent long delays due to Nagle's algorithm
+  /**
+   * Buffering of output is needed to prevent long delays due to Nagle's algorithm.
+   */
+  static void flush(final ByteArrayOutputStream buffer, final OutputStream out) throws IOException {
     buffer.writeTo(out);
     out.flush();
   }

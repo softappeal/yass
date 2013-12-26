@@ -2,8 +2,8 @@ package ch.softappeal.yass.transport.socket.test;
 
 import ch.softappeal.yass.core.remote.session.test.LocalConnectionTest;
 import ch.softappeal.yass.core.test.InvokeTest;
-import ch.softappeal.yass.transport.socket.SessionTransport;
 import ch.softappeal.yass.transport.socket.SocketListenerTest;
+import ch.softappeal.yass.transport.socket.SocketTransport;
 import ch.softappeal.yass.transport.test.PacketSerializerTest;
 import ch.softappeal.yass.util.Exceptions;
 import ch.softappeal.yass.util.NamedThreadFactory;
@@ -17,11 +17,11 @@ import java.util.concurrent.TimeUnit;
 
 public class SessionTransportTest extends InvokeTest {
 
-  private static SessionTransport createTransport(
+  private static SocketTransport createTransport(
     final boolean invoke, final String name, final Executor executor,
     final boolean createException, final boolean openedException, final boolean invokeBeforeOpened
   ) {
-    return new SessionTransport(
+    return new SocketTransport(
       LocalConnectionTest.createSetup(invoke, name, executor, createException, openedException, invokeBeforeOpened),
       PacketSerializerTest.SERIALIZER,
       executor, executor,

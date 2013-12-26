@@ -11,8 +11,7 @@ public final class ValueReply extends Reply {
 
   @Nullable public final Object value;
 
-  public ValueReply(@Nullable final Object context, @Nullable final Object value) {
-    super(context);
+  public ValueReply(@Nullable final Object value) {
     this.value = value;
   }
 

@@ -12,7 +12,6 @@ public abstract class Invocation {
 
   public final Method method;
   @Nullable public final Object[] arguments;
-  @SuppressWarnings("InstanceVariableMayNotBeInitialized") @Nullable public Object context;
 
   protected Invocation(final Method method, @Nullable final Object[] arguments) {
     this.method = method;

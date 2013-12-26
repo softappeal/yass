@@ -8,8 +8,8 @@ import ch.softappeal.yass.core.test.InvokeTest;
 import ch.softappeal.yass.transport.socket.SocketListenerTest;
 import ch.softappeal.yass.transport.socket.SslSetup;
 import ch.softappeal.yass.transport.socket.StatelessTransport;
+import ch.softappeal.yass.util.ClassLoaderResource;
 import ch.softappeal.yass.util.Exceptions;
-import ch.softappeal.yass.util.FileResource;
 import ch.softappeal.yass.util.NamedThreadFactory;
 import org.junit.Assert;
 import org.junit.Test;
@@ -55,7 +55,7 @@ public class SslTest extends InvokeTest {
   private static final char[] PASSWORD = "changeit".toCharArray();
 
   private static KeyStore readKeyStore(final String name) {
-    return SslSetup.readKeyStore(new FileResource("src/test/resources/ch/softappeal/yass/transport/socket/test/" + name + ".jks"), PASSWORD);
+    return SslSetup.readKeyStore(new ClassLoaderResource(SslTest.class.getClassLoader(), SslTest.class.getPackage().getName().replace('.', '/') + '/' + name + ".jks"), PASSWORD);
   }
 
   private static final KeyStore TEST = readKeyStore("Test");
@@ -67,7 +67,7 @@ public class SslTest extends InvokeTest {
   private static final String CIPHER = "TLS_RSA_WITH_AES_128_CBC_SHA";
 
   @Test public void clientAndServerAuthentication() throws Exception {
-    // System.setProperty("javax.net.debug", "ssl");
+    System.setProperty("javax.net.debug", "ssl");
     test(
       new SslSetup(PROTOCOL, CIPHER, TEST, PASSWORD, TEST_CA).serverSocketFactory,
       new SslSetup(PROTOCOL, CIPHER, TEST, PASSWORD, TEST_CA).socketFactory
@@ -75,6 +75,7 @@ public class SslTest extends InvokeTest {
   }
 
   @Test(expected = Exception.class) public void wrongServerCA() throws Exception {
+    System.setProperty("javax.net.debug", "ssl");
     test(
       new SslSetup(PROTOCOL, CIPHER, TEST, PASSWORD, OTHER_CA).serverSocketFactory,
       new SslSetup(PROTOCOL, CIPHER, TEST, PASSWORD, TEST_CA).socketFactory
@@ -82,6 +83,7 @@ public class SslTest extends InvokeTest {
   }
 
   @Test(expected = Exception.class) public void expiredServerCertificate() throws Exception {
+    System.setProperty("javax.net.debug", "ssl");
     test(
       new SslSetup(PROTOCOL, CIPHER, TEST, PASSWORD, TEST_CA).serverSocketFactory,
       new SslSetup(PROTOCOL, CIPHER, TEST_EXPIRED, PASSWORD, TEST_CA).socketFactory

@@ -26,7 +26,7 @@ public final class Check {
   /**
    * @throws IllegalArgumentException if missing {@link Tag}
    */
-  public static int tag(final AnnotatedElement element) throws IllegalArgumentException {
+  public static int hasTag(final AnnotatedElement element) throws IllegalArgumentException {
     final Tag annotation = element.getAnnotation(Tag.class);
     if (annotation == null) {
       throw new IllegalArgumentException("missing tag for '" + element + '\'');

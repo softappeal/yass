@@ -4,7 +4,7 @@
 
 * allows defining a contract in a typesafe and non-invasive way with services and POJOs
 
-* supports interceptors with context
+* supports interceptors
 
 * supports request/reply and oneway style method invocations
 
@@ -12,7 +12,7 @@
 
 * provides socket transport (including SSL/TLS)
 
-* has fast and compact binary serializers
+* has fast and compact binary serializer
 
 * needs no third-party libraries
 

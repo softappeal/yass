@@ -3,6 +3,7 @@ package ch.softappeal.yass.serialize.test;
 import ch.softappeal.yass.serialize.TypeConverter;
 import ch.softappeal.yass.serialize.TypeConverters;
 import ch.softappeal.yass.serialize.contract.Color;
+import ch.softappeal.yass.serialize.fast.AbstractFastSerializer;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -12,7 +13,7 @@ import java.math.BigInteger;
 public class TypeConvertersTest {
 
   @Test public void enumToInteger() throws Exception {
-    final TypeConverter<Color, Integer> typeConverter = TypeConverters.enumToInteger(Color.class);
+    final TypeConverter<Color, Integer> typeConverter = AbstractFastSerializer.enumToInteger(Color.class);
     Assert.assertSame(typeConverter.type, Color.class);
     Assert.assertSame(typeConverter.serializableType, Integer.class);
     Assert.assertSame(Color.RED, typeConverter.from(0));

@@ -2,8 +2,8 @@ package ch.softappeal.yass.core.remote.session.test;
 
 import ch.softappeal.yass.core.remote.ContractId;
 import ch.softappeal.yass.core.remote.MethodMapper;
-import ch.softappeal.yass.core.remote.MethodMappers;
 import ch.softappeal.yass.core.remote.Server;
+import ch.softappeal.yass.core.remote.TaggedMethodMapper;
 import ch.softappeal.yass.core.remote.session.Connection;
 import ch.softappeal.yass.core.remote.session.LocalConnection;
 import ch.softappeal.yass.core.remote.session.Session;
@@ -27,7 +27,7 @@ public class PerformanceTest extends InvokeTest {
 
   private static final int COUNTER = 100;
 
-  public static final MethodMapper.Factory METHOD_MAPPER_FACTORY = MethodMappers.TAG_FACTORY;
+  public static final MethodMapper.Factory METHOD_MAPPER_FACTORY = TaggedMethodMapper.FACTORY;
 
   public static final ContractId<TestService> CONTRACT_ID = ContractId.create(TestService.class, 0);
 

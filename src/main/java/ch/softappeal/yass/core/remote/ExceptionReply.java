@@ -1,7 +1,6 @@
 package ch.softappeal.yass.core.remote;
 
 import ch.softappeal.yass.util.Check;
-import ch.softappeal.yass.util.Nullable;
 
 /**
  * A remote exception reply.
@@ -12,8 +11,7 @@ public final class ExceptionReply extends Reply {
 
   public final Throwable throwable;
 
-  public ExceptionReply(@Nullable final Object context, final Throwable throwable) {
-    super(context);
+  public ExceptionReply(final Throwable throwable) {
     this.throwable = Check.notNull(throwable);
   }
 

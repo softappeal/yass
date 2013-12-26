@@ -5,11 +5,11 @@ import ch.softappeal.yass.core.Interceptors;
 import ch.softappeal.yass.core.Invocation;
 import ch.softappeal.yass.core.remote.Client;
 import ch.softappeal.yass.core.remote.ContractId;
-import ch.softappeal.yass.core.remote.MethodMappers;
 import ch.softappeal.yass.core.remote.Reply;
 import ch.softappeal.yass.core.remote.Request;
 import ch.softappeal.yass.core.remote.Server;
 import ch.softappeal.yass.core.remote.Server.ServerInvocation;
+import ch.softappeal.yass.core.remote.TaggedMethodMapper;
 import ch.softappeal.yass.core.remote.Tunnel;
 import ch.softappeal.yass.core.test.InvokeTest;
 import org.junit.Assert;
@@ -37,7 +37,7 @@ public class RemoteTest extends InvokeTest {
   }
 
   private static Client client(final Server server) {
-    return new Client(MethodMappers.TAG_FACTORY) {
+    return new Client(TaggedMethodMapper.FACTORY) {
       @Override public Object invoke(final ClientInvocation clientInvocation) throws Throwable {
         return clientInvocation.invoke(
           Interceptors.composite(
@@ -62,7 +62,7 @@ public class RemoteTest extends InvokeTest {
                 return serverInvocation.invoke(stepInterceptor(3));
               } catch (final Throwable t) {
                 if (serverInvocation.oneWay) {
-                  println("###", "", "", t);
+                  println("###", "", t);
                   return null;
                 }
                 throw t;
@@ -85,7 +85,7 @@ public class RemoteTest extends InvokeTest {
       ContractIdTest.ID.invoker(
         client(
           new Server(
-            MethodMappers.TAG_FACTORY,
+            TaggedMethodMapper.FACTORY,
             ContractIdTest.ID.service(new TestServiceImpl(), CONTRACT_ID_CHECKER, stepInterceptor(4), SERVER_INTERCEPTOR)
           )
         )

@@ -28,7 +28,6 @@ public class InvocationTest {
     };
     Assert.assertSame(METHOD, invocation.method);
     Assert.assertSame(ARGUMENTS, invocation.arguments);
-    Assert.assertNull(invocation.context);
   }
 
 }

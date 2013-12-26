@@ -2,7 +2,6 @@ package ch.softappeal.yass.serialize.fast;
 
 import ch.softappeal.yass.serialize.Reader;
 import ch.softappeal.yass.serialize.Reflector;
-import ch.softappeal.yass.serialize.TypeConverters;
 import ch.softappeal.yass.util.Check;
 import ch.softappeal.yass.util.Exceptions;
 import ch.softappeal.yass.util.Nullable;
@@ -18,7 +17,6 @@ import java.util.Map;
  * This serializer uses numbers for type and field id's from its {@link Tag}.
  * Tag values must be &gt;= 0.
  * Field numbers must be unique in the path to its super classes.
- * Enumeration constants are serialized with its ordinal number.
  * <p/>
  * There is support for contract versioning.
  * Deserialization of old classes to new classes with new {@link Nullable} fields is allowed. These fields will be set to {@code null}.
@@ -26,26 +24,26 @@ import java.util.Map;
  */
 public final class TaggedFastSerializer extends AbstractFastSerializer {
 
-  private static void checkTag(final int tag, final AnnotatedElement element) {
-    if (tag < 0) {
-      throw new IllegalArgumentException("tag '" + tag + "' for '" + element + "' must be >= 0");
+  private static void checkId(final int id, final AnnotatedElement element) {
+    if (id < 0) {
+      throw new IllegalArgumentException("tag '" + id + "' for '" + element + "' must be >= 0");
     }
   }
 
-  private static ClassTypeHandler classTypeHandler(final Class<?> type, final int id, final Reflector reflector, final boolean referenceable) {
+  private static ClassTypeHandler classTypeHandler(final Class<?> type, final int typeId, final Reflector reflector, final boolean referenceable) {
     final Map<Integer, FieldHandler> id2fieldHandler = new HashMap<>(16);
-    for (final Field field : fields(type)) {
-      final int tag = Check.tag(field);
-      checkTag(tag, field);
-      final FieldHandler fieldHandler = new FieldHandler(field, tag + FieldHandler.FIRST_FIELD, reflector.accessor(field));
+    for (final Field field : allFields(type)) {
+      final int fieldId = Check.hasTag(field);
+      checkId(fieldId, field);
+      final FieldHandler fieldHandler = new FieldHandler(field, fieldId + FieldHandler.FIRST_FIELD, reflector.accessor(field));
       @Nullable final FieldHandler oldFieldHandler = id2fieldHandler.put(fieldHandler.id, fieldHandler);
       if (oldFieldHandler != null) {
         throw new IllegalArgumentException(
-          "field tag '" + tag + "' used for '" + oldFieldHandler.field + "' and '" + fieldHandler.field + '\''
+          "field tag '" + fieldId + "' used for '" + oldFieldHandler.field + "' and '" + fieldHandler.field + '\''
         );
       }
     }
-    return new ClassTypeHandler(type, id, reflector, referenceable, id2fieldHandler.values()) {
+    return new ClassTypeHandler(type, typeId, reflector, referenceable, id2fieldHandler.values()) {
       @Override protected FieldHandler fieldHandler(final int id) {
         return id2fieldHandler.get(id);
       }
@@ -54,10 +52,10 @@ public final class TaggedFastSerializer extends AbstractFastSerializer {
 
   private final Map<Integer, TypeHandler> id2typeHandler;
 
-  private static int tag(final Class<?> type) {
-    final int tag = Check.tag(type);
-    checkTag(tag, type);
-    return tag + TypeHandlers.SIZE;
+  private static int typeId(final Class<?> type) {
+    final int id = Check.hasTag(type);
+    checkId(id, type);
+    return id + TypeHandlers.SIZE;
   }
 
   /**
@@ -73,21 +71,21 @@ public final class TaggedFastSerializer extends AbstractFastSerializer {
     final Collection<Class<?>> referenceableConcreteClasses
   ) {
     for (final TypeConverterId typeConverterId : typeConverterIds) {
-      checkTag(typeConverterId.id, typeConverterId.typeConverter.type);
+      checkId(typeConverterId.id, typeConverterId.typeConverter.type);
       addTypeHandler(new ConverterTypeHandler(typeConverterId.typeConverter, typeConverterId.id + TypeHandlers.SIZE, this));
     }
     for (final Class<?> type : enumerations) {
       checkEnum(type);
-      addTypeHandler(new ConverterTypeHandler(TypeConverters.enumToInteger((Class)type), tag(type), this));
+      addTypeHandler(new ConverterTypeHandler(enumToInteger((Class) type), typeId(type), this));
     }
     try {
       for (final Class<?> type : concreteClasses) {
         checkClass(type);
-        addTypeHandler(classTypeHandler(type, tag(type), reflectorFactory.create(type), false));
+        addTypeHandler(classTypeHandler(type, typeId(type), reflectorFactory.create(type), false));
       }
       for (final Class<?> type : referenceableConcreteClasses) {
         checkClass(type);
-        addTypeHandler(classTypeHandler(type, tag(type), reflectorFactory.create(type), true));
+        addTypeHandler(classTypeHandler(type, typeId(type), reflectorFactory.create(type), true));
       }
     } catch (final Exception e) {
       throw Exceptions.wrap(e);

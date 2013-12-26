@@ -26,10 +26,14 @@ public final class FieldHandler {
     this.accessor = Check.notNull(accessor);
   }
 
-  /**
-   * note: null if {@link ClassTypeHandler} or type not in class2typeHandler (Object, Throwable, abstract classes, ...)
-   */
   @SuppressWarnings("InstanceVariableMayNotBeInitialized") @Nullable private TypeHandler typeHandler;
+
+  /**
+   * Note: null if {@link ClassTypeHandler} or type not in class2typeHandler (Object, Throwable, abstract classes, ...).
+   */
+  public @Nullable TypeHandler typeHandler() {
+    return typeHandler;
+  }
 
   void fixup(final Map<Class<?>, TypeHandler> class2typeHandler) {
     typeHandler = class2typeHandler.get(

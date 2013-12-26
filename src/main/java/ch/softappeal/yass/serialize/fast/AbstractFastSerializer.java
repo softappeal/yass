@@ -8,7 +8,6 @@ import java.io.PrintWriter;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -22,7 +21,7 @@ import java.util.Map;
  * <li>all primitive types (including array and wrapper thereof)</li>
  * <li>{@link String}</li>
  * <li>{@link TypeConverter}</li>
- * <li>enumeration types</li>
+ * <li>enumeration types (an enumeration constant is serialized with its ordinal number)</li>
  * <li>{@link List} (deserialize creates an {@link ArrayList})</li>
  * <li>class hierarchies with all non-static and non-transient fields</li>
  * <li>exceptions (but without fields of {@link Throwable}; therefore, you should implement {@link Throwable#getMessage()})</li>
@@ -77,21 +76,39 @@ public abstract class AbstractFastSerializer implements Serializer {
     }
   }
 
-  protected static Collection<Field> fields(Class<?> type) {
-    final Collection<Field> fields = new ArrayList<>(16);
-    while ((type != null) && (type != Throwable.class)) {
-      for (final Field field : type.getDeclaredFields()) {
-        final int modifiers = field.getModifiers();
-        if (!(Modifier.isStatic(modifiers) || Modifier.isTransient(modifiers))) {
-          fields.add(field);
-        }
+  public static List<Field> ownFields(final Class<?> type) {
+    final List<Field> fields = new ArrayList<>(16);
+    for (final Field field : type.getDeclaredFields()) {
+      final int modifiers = field.getModifiers();
+      if (!(Modifier.isStatic(modifiers) || Modifier.isTransient(modifiers))) {
+        fields.add(field);
       }
+    }
+    return fields;
+  }
+
+  public static List<Field> allFields(Class<?> type) {
+    final List<Field> fields = new ArrayList<>(16);
+    while ((type != null) && (type != Throwable.class)) {
+      fields.addAll(ownFields(type));
       type = type.getSuperclass();
     }
     return fields;
   }
 
-  public final void printIds(final PrintWriter printer) {
+  public static <E extends Enum<E>> TypeConverter<E, Integer> enumToInteger(final Class<E> enumeration) {
+    final E[] constants = enumeration.getEnumConstants();
+    return new TypeConverter<E, Integer>(enumeration, Integer.class) {
+      @Override public Integer to(final E value) {
+        return value.ordinal();
+      }
+      @Override public E from(final Integer value) {
+        return constants[value];
+      }
+    };
+  }
+
+  public final void print(final PrintWriter printer) {
     final List<TypeHandler> typeHandlers = typeHandlers();
     Collections.sort(typeHandlers, new Comparator<TypeHandler>() {
       @Override public int compare(final TypeHandler typeHandler1, final TypeHandler typeHandler2) {
@@ -99,22 +116,27 @@ public abstract class AbstractFastSerializer implements Serializer {
       }
     });
     for (final TypeHandler typeHandler : typeHandlers) {
-      printer.print((typeHandler.id - TypeHandlers.SIZE) + " (" + typeHandler.id + "): " + typeHandler.type.getCanonicalName());
-      if (typeHandler instanceof ConverterTypeHandler) {
-        printer.print(" -> " + ((ConverterTypeHandler)typeHandler).serializableTypeHandler.type.getCanonicalName());
-      } else if (typeHandler instanceof ClassTypeHandler) {
-        printer.print(" - referenceable: " + ((ClassTypeHandler)typeHandler).referenceable);
+      if (typeHandler.id < TypeHandlers.SIZE) {
+        continue;
       }
-      printer.println();
-      if (typeHandler.type.isEnum()) {
-        final Object[] constants = typeHandler.type.getEnumConstants();
-        for (int c = 0; c < constants.length; c++) {
-          //noinspection rawtypes
-          printer.println("  " + c + ": " + ((Enum)constants[c]).name());
+      printer.print((typeHandler.id - TypeHandlers.SIZE) + ": " + typeHandler.type.getCanonicalName());
+      if (typeHandler instanceof ConverterTypeHandler) {
+        final ConverterTypeHandler converterTypeHandler = (ConverterTypeHandler)typeHandler;
+        if (converterTypeHandler.type.isEnum()) {
+          printer.println();
+          final Object[] constants = converterTypeHandler.type.getEnumConstants();
+          for (int c = 0; c < constants.length; c++) {
+            //noinspection rawtypes
+            printer.println("  " + c + ": " + ((Enum)constants[c]).name());
+          }
+        } else {
+          printer.println(" -> " + converterTypeHandler.serializableTypeHandler.type.getCanonicalName());
         }
-      } else if (typeHandler instanceof ClassTypeHandler) {
-        for (final FieldHandler fieldHandler : ((ClassTypeHandler)typeHandler).fieldHandlers()) {
-          printer.println("  " + (fieldHandler.id - FieldHandler.FIRST_FIELD) + " (" + fieldHandler.id + "): " + fieldHandler.field);
+      } else {
+        final ClassTypeHandler classTypeHandler = (ClassTypeHandler)typeHandler;
+        printer.println(" (referenceable=" + classTypeHandler.referenceable + ')');
+        for (final FieldHandler fieldHandler : classTypeHandler.fieldHandlers()) {
+          printer.println("  " + (fieldHandler.id - FieldHandler.FIRST_FIELD) + ": " + fieldHandler.field);
         }
       }
       printer.println();

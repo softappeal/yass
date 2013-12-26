@@ -2,9 +2,9 @@ package ch.softappeal.yass.transport.socket.test;
 
 import ch.softappeal.yass.core.remote.ContractId;
 import ch.softappeal.yass.core.remote.MethodMapper;
-import ch.softappeal.yass.core.remote.MethodMappers;
 import ch.softappeal.yass.core.remote.OneWay;
 import ch.softappeal.yass.core.remote.Server;
+import ch.softappeal.yass.core.remote.TaggedMethodMapper;
 import ch.softappeal.yass.core.remote.session.Connection;
 import ch.softappeal.yass.core.remote.session.Session;
 import ch.softappeal.yass.core.remote.session.SessionFactory;
@@ -15,8 +15,8 @@ import ch.softappeal.yass.serialize.fast.TaggedFastSerializer;
 import ch.softappeal.yass.serialize.fast.TypeConverterId;
 import ch.softappeal.yass.transport.MessageSerializer;
 import ch.softappeal.yass.transport.PacketSerializer;
-import ch.softappeal.yass.transport.socket.SessionTransport;
 import ch.softappeal.yass.transport.socket.SocketConnection;
+import ch.softappeal.yass.transport.socket.SocketTransport;
 import ch.softappeal.yass.util.NamedThreadFactory;
 import ch.softappeal.yass.util.Nullable;
 import ch.softappeal.yass.util.Tag;
@@ -46,7 +46,7 @@ public final class WriterExecutorTest {
     Arrays.<Class<?>>asList()
   )));
 
-  private static final MethodMapper.Factory METHOD_MAPPER_FACTORY = MethodMappers.TAG_FACTORY;
+  private static final MethodMapper.Factory METHOD_MAPPER_FACTORY = TaggedMethodMapper.FACTORY;
 
   private static final SocketAddress ADDRESS = new InetSocketAddress("localhost", 28947);
 
@@ -55,7 +55,7 @@ public final class WriterExecutorTest {
   }
 
   private static void server() {
-    new SessionTransport(
+    new SocketTransport(
       new SessionSetup(
         new Server(
           METHOD_MAPPER_FACTORY
@@ -101,7 +101,7 @@ public final class WriterExecutorTest {
   public static void main(final String... args) {
     server();
     final AtomicInteger counter = new AtomicInteger(0);
-    new SessionTransport(
+    new SocketTransport(
       new SessionSetup(
         new Server(
           METHOD_MAPPER_FACTORY,

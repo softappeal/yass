@@ -2,8 +2,8 @@ package ch.softappeal.yass.transport.socket.test;
 
 import ch.softappeal.yass.core.Interceptor;
 import ch.softappeal.yass.core.Invocation;
-import ch.softappeal.yass.core.remote.MethodMappers;
 import ch.softappeal.yass.core.remote.Server;
+import ch.softappeal.yass.core.remote.TaggedMethodMapper;
 import ch.softappeal.yass.core.remote.test.ContractIdTest;
 import ch.softappeal.yass.core.remote.test.RemoteTest;
 import ch.softappeal.yass.core.test.InvokeTest;
@@ -27,11 +27,11 @@ public class StatelessTransportTest extends InvokeTest {
       this.side = side;
     }
     @Override public Object invoke(final Invocation invocation) throws Throwable {
-      println(side, "entry", "", StatelessTransport.socket().getLocalPort());
+      println(side, "entry", StatelessTransport.socket().getLocalPort());
       try {
         return invocation.proceed();
       } finally {
-        println(side, "exit", "", StatelessTransport.socket().getLocalPort());
+        println(side, "exit", StatelessTransport.socket().getLocalPort());
       }
     }
   }
@@ -47,7 +47,7 @@ public class StatelessTransportTest extends InvokeTest {
     try {
       new StatelessTransport(
         new Server(
-          MethodMappers.TAG_FACTORY,
+          TaggedMethodMapper.FACTORY,
           ContractIdTest.ID.service(new TestServiceImpl(), new SocketInterceptor("Server"), RemoteTest.CONTRACT_ID_CHECKER, SERVER_INTERCEPTOR)
         ),
         MessageSerializerTest.SERIALIZER,
@@ -56,7 +56,7 @@ public class StatelessTransportTest extends InvokeTest {
       ).start(executor, SocketListenerTest.ADDRESS);
       invoke(
         ContractIdTest.ID.invoker(StatelessTransport.client(
-          MethodMappers.TAG_FACTORY,
+          TaggedMethodMapper.FACTORY,
           MessageSerializerTest.SERIALIZER,
           SocketListenerTest.ADDRESS
         )).proxy(PRINTLN_AFTER, new SocketInterceptor("Client"), RemoteTest.CONTRACT_ID_CHECKER, CLIENT_INTERCEPTOR)

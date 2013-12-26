@@ -45,12 +45,11 @@ public class JavaSerializerTest {
     final Packet packet = copy(
       new Packet(
         requestNumber,
-        new Request(null, serviceId, methodId, new Object[0])
+        new Request(serviceId, methodId, new Object[0])
       )
     );
     Assert.assertTrue(packet.requestNumber() == requestNumber);
     final Request request = (Request)packet.message();
-    Assert.assertNull(request.context);
     Assert.assertEquals(serviceId, request.serviceId);
     Assert.assertEquals(methodId, request.methodId);
     Assert.assertTrue(request.arguments.length == 0);
@@ -58,14 +57,12 @@ public class JavaSerializerTest {
 
   @Test public void value() throws Exception {
     final String value = "xyz";
-    final ValueReply reply = copy(new ValueReply(null, value));
-    Assert.assertNull(reply.context);
+    final ValueReply reply = copy(new ValueReply(value));
     Assert.assertEquals(value, reply.value);
   }
 
   @Test public void exception() throws Exception {
-    final ExceptionReply reply = copy(new ExceptionReply(null, new EOFException()));
-    Assert.assertNull(reply.context);
+    final ExceptionReply reply = copy(new ExceptionReply(new EOFException()));
     Assert.assertTrue(reply.throwable instanceof EOFException);
   }
 

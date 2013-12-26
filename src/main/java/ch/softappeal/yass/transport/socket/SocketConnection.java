@@ -141,7 +141,7 @@ public final class SocketConnection extends Connection {
     }
   }
 
-  static void create(final SessionTransport transport, final Socket adoptSocket) {
+  static void create(final SocketTransport transport, final Socket adoptSocket) {
     final SocketConnection connection;
     final Session session;
     try {

@@ -41,15 +41,14 @@ public final class Server extends Common {
           }
         }
       };
-      invocation.context = request.context;
       final Interceptor interceptor = Interceptors.composite(invokerInterceptor, serviceInterceptor);
       @Nullable final Object value;
       try {
         value = interceptor.invoke(invocation);
       } catch (final Throwable t) {
-        return new ExceptionReply(invocation.context, t);
+        return new ExceptionReply(t);
       }
-      return new ValueReply(invocation.context, value);
+      return new ValueReply(value);
     }
 
   }

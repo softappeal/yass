@@ -9,8 +9,8 @@ public abstract class Reply extends Message {
 
   private static final long serialVersionUID = 1L;
 
-  Reply(@Nullable final Object context) {
-    super(context);
+  Reply() {
+    // empty
   }
 
   @Nullable abstract Object process() throws Throwable;
