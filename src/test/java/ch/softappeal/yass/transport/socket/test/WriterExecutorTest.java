@@ -9,10 +9,8 @@ import ch.softappeal.yass.core.remote.session.Connection;
 import ch.softappeal.yass.core.remote.session.Session;
 import ch.softappeal.yass.core.remote.session.SessionFactory;
 import ch.softappeal.yass.core.remote.session.SessionSetup;
-import ch.softappeal.yass.serialize.FastReflector;
 import ch.softappeal.yass.serialize.Serializer;
-import ch.softappeal.yass.serialize.fast.TaggedFastSerializer;
-import ch.softappeal.yass.serialize.fast.TypeConverterId;
+import ch.softappeal.yass.serialize.test.SerializerTest;
 import ch.softappeal.yass.transport.MessageSerializer;
 import ch.softappeal.yass.transport.PacketSerializer;
 import ch.softappeal.yass.transport.socket.SocketConnection;
@@ -24,7 +22,6 @@ import ch.softappeal.yass.util.TestUtils;
 
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
-import java.util.Arrays;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -38,13 +35,7 @@ public final class WriterExecutorTest {
 
   private static final ContractId<StringListener> StringListenerId = ContractId.create(StringListener.class, 0);
 
-  private static final Serializer PACKET_SERIALIZER = new PacketSerializer(new MessageSerializer(new TaggedFastSerializer(
-    FastReflector.FACTORY,
-    Arrays.<TypeConverterId>asList(),
-    Arrays.<Class<?>>asList(),
-    Arrays.<Class<?>>asList(),
-    Arrays.<Class<?>>asList()
-  )));
+  private static final Serializer PACKET_SERIALIZER = new PacketSerializer(new MessageSerializer(SerializerTest.TAGGED_FAST_SERIALIZER));
 
   private static final MethodMapper.Factory METHOD_MAPPER_FACTORY = TaggedMethodMapper.FACTORY;
 

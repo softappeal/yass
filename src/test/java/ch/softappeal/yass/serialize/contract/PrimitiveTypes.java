@@ -4,11 +4,11 @@ import ch.softappeal.yass.util.Tag;
 
 import java.io.Serializable;
 
-@Tag(20) public class PrimitiveTypes implements Serializable {
+@Tag(40) public class PrimitiveTypes implements Serializable {
 
   private static final long serialVersionUID = 1L;
 
-  @Tag(0) public boolean booleanField;
+  @Tag(28) public boolean booleanField;
   @Tag(1) public byte byteField;
   @Tag(2) public short shortField;
   @Tag(3) public int intField;

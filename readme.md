@@ -1,6 +1,6 @@
 ### yass (Yet Another Service Solution)
 
-* is a fast and small bidirectional messaging library
+* is a fast and very small bidirectional messaging library
 
 * allows defining a contract in a typesafe and non-invasive way with services and POJOs
 

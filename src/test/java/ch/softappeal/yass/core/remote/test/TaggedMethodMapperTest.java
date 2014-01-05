@@ -32,7 +32,7 @@ public class TaggedMethodMapperTest {
       TaggedMethodMapper.FACTORY.create(Overloading.class);
       Assert.fail();
     } catch (final IllegalArgumentException e) {
-      Assert.assertEquals("tag '123' of method 'public abstract void ch.softappeal.yass.core.remote.test.TaggedMethodMapperTest$Overloading.test(java.lang.String)' already used", e.getMessage());
+      System.out.println(e.getMessage());
     }
   }
 

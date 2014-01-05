@@ -2,10 +2,8 @@ package ch.softappeal.yass.transport.socket.test;
 
 import ch.softappeal.yass.core.remote.session.test.PerformanceTest;
 import ch.softappeal.yass.core.test.InvokeTest;
-import ch.softappeal.yass.serialize.FastReflector;
 import ch.softappeal.yass.serialize.Serializer;
-import ch.softappeal.yass.serialize.fast.TaggedFastSerializer;
-import ch.softappeal.yass.serialize.fast.TypeConverterId;
+import ch.softappeal.yass.serialize.test.SerializerTest;
 import ch.softappeal.yass.transport.MessageSerializer;
 import ch.softappeal.yass.transport.PacketSerializer;
 import ch.softappeal.yass.transport.socket.SocketListenerTest;
@@ -15,7 +13,6 @@ import ch.softappeal.yass.util.Nullable;
 import ch.softappeal.yass.util.TestUtils;
 import org.junit.Test;
 
-import java.util.Arrays;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
@@ -26,15 +23,7 @@ public class SocketPerformanceTest extends InvokeTest {
 
   private static final int COUNTER = 1;
 
-  private static final Serializer FAST_SERIALIZER = new TaggedFastSerializer(
-    FastReflector.FACTORY,
-    Arrays.<TypeConverterId>asList(),
-    Arrays.<Class<?>>asList(),
-    Arrays.<Class<?>>asList(),
-    Arrays.<Class<?>>asList()
-  );
-
-  public static final Serializer MESSAGE_SERIALIZER = new MessageSerializer(FAST_SERIALIZER);
+  public static final Serializer MESSAGE_SERIALIZER = new MessageSerializer(SerializerTest.TAGGED_FAST_SERIALIZER);
 
   public static final Serializer PACKET_SERIALIZER = new PacketSerializer(MESSAGE_SERIALIZER);
 

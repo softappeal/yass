@@ -3,7 +3,7 @@ package ch.softappeal.yass.serialize.contract;
 import ch.softappeal.yass.util.Check;
 import ch.softappeal.yass.util.Tag;
 
-@Tag(10) public enum Color {
+@Tag(30) public enum Color {
 
   RED("red"),
   GREEN("green"),

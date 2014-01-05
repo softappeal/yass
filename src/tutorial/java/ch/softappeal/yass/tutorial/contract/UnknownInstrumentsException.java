@@ -6,11 +6,11 @@ import ch.softappeal.yass.util.Tag;
 
 import java.util.List;
 
-@Tag(3) public final class UnknownInstrumentsException extends Exception {
+@Tag(23) public final class UnknownInstrumentsException extends Exception {
 
   private static final long serialVersionUID = 1L;
 
-  @Tag(0) public final List<String> instrumentIds;
+  @Tag(1) public final List<String> instrumentIds;
 
   public UnknownInstrumentsException(final List<String> instrumentIds) {
     this.instrumentIds = Check.notNull(instrumentIds);

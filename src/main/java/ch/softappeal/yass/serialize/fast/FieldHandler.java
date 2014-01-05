@@ -9,53 +9,50 @@ import java.util.Map;
 
 public final class FieldHandler {
 
-  static final int END_OF_FIELDS = 0;
-  public static final int FIRST_FIELD = END_OF_FIELDS + 1;
+  static final int END_ID = 0;
+  public static final int FIRST_ID = END_ID + 1;
 
   public final Field field;
-  public final int id;
   private final Reflector.Accessor accessor;
 
-  public FieldHandler(final Field field, final int id, final Reflector.Accessor accessor) {
-    this.field = Check.notNull(field);
-    if (id <= END_OF_FIELDS) {
-      // note: due to call to writeVarInt below
-      throw new IllegalArgumentException("id " + id + " for field '" + field + "' must be > " + END_OF_FIELDS);
-    }
-    this.id = id;
-    this.accessor = Check.notNull(accessor);
-  }
-
   @SuppressWarnings("InstanceVariableMayNotBeInitialized") @Nullable private TypeHandler typeHandler;
-
   /**
-   * Note: null if {@link ClassTypeHandler} or type not in class2typeHandler (Object, Throwable, abstract classes, ...).
+   * Note: null if {@link ClassTypeHandler} or type not in class2typeDesc (Object, Throwable, abstract classes, ...).
    */
   public @Nullable TypeHandler typeHandler() {
     return typeHandler;
   }
 
-  void fixup(final Map<Class<?>, TypeHandler> class2typeHandler) {
-    typeHandler = class2typeHandler.get(
+  FieldHandler(final Field field, final Reflector.Accessor accessor) {
+    this.field = Check.notNull(field);
+    this.accessor = Check.notNull(accessor);
+  }
+
+  void fixup(final Map<Class<?>, TypeDesc> class2typeDesc) {
+    final TypeDesc typeDesc = class2typeDesc.get(
       primitiveWrapperType(field.getType()) // note: prevents that primitive types are written with type id
     );
+    typeHandler = (typeDesc == null) ? null : typeDesc.handler;
     if (typeHandler instanceof ClassTypeHandler) {
       typeHandler = null;
     }
   }
 
-  void readNoId(final Object object, final Input input) throws Exception {
-    accessor.set(object, (typeHandler == null) ? input.readWithId() : typeHandler.readNoId(input));
+  void read(final Object object, final Input input) throws Exception {
+    accessor.set(object, (typeHandler == null) ? input.read() : typeHandler.read(input));
   }
 
-  void writeWithId(final Object object, final Output output) throws Exception {
-    @Nullable final Object value = accessor.get(object);
+  /**
+   * @see ClassTypeHandler#read(Input)
+   */
+  void write(final int id, final Object object, final Output output) throws Exception {
+    final Object value = accessor.get(object);
     if (value != null) {
       output.writer.writeVarInt(id);
       if (typeHandler == null) {
-        output.writeWithId(value);
+        output.write(value);
       } else {
-        typeHandler.writeNoId(value, output);
+        typeHandler.write(value, output);
       }
     }
   }

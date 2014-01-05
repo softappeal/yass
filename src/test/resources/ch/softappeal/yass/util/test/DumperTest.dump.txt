@@ -18,6 +18,7 @@ AllTypes(
   colorField = BLUE
   bigDecimalField = 98.7
   bigIntegerField = 987
+  dateField = Fri Jan 02 11:17:36 CET 1970 #1
   primitiveTypesField = AllTypes(
     stringField = "hello"
     booleanField = false
@@ -28,7 +29,7 @@ AllTypes(
     charField = (char)0
     floatField = 0.0
     doubleField = 0.0
-  ) #1
+  ) #2
   primitiveTypesListField = [
     PrimitiveTypes(
       booleanField = false
@@ -39,7 +40,7 @@ AllTypes(
       charField = (char)0
       floatField = 0.0
       doubleField = 0.0
-    ) #2
+    ) #3
     AllTypes(
       stringField = "world"
       booleanField = false
@@ -50,7 +51,7 @@ AllTypes(
       charField = (char)0
       floatField = 0.0
       doubleField = 0.0
-    ) #3
+    ) #4
     null
   ]
   objectField = "bad"
@@ -61,7 +62,7 @@ AllTypes(
   ]
   throwable = IntException(
     value = 123
-  ) #4
+  ) #5
   booleanField = false
   byteField = 100
   shortField = 101

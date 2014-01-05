@@ -5,7 +5,7 @@ package ch.softappeal.yass.util;
  */
 public final class Stopwatch {
 
-  private boolean stopped = false;
+  private boolean stopped;
   private final long startNanos;
   @SuppressWarnings("InstanceVariableMayNotBeInitialized") private long endNanos;
 
@@ -14,10 +14,11 @@ public final class Stopwatch {
   }
 
   public void stop() {
+    final long endNanos = System.nanoTime();
     if (stopped) {
       throw new IllegalStateException("stopwatch is already stopped");
     }
-    endNanos = System.nanoTime();
+    this.endNanos = endNanos;
     stopped = true;
   }
 
@@ -25,19 +26,19 @@ public final class Stopwatch {
     if (!stopped) {
       throw new IllegalStateException("stopwatch is not yet stopped");
     }
-    return endNanos - startNanos;
+    return (endNanos - startNanos);
   }
 
   public long microSeconds() {
-    return nanoSeconds() / 1_000L;
+    return (nanoSeconds() / 1_000L);
   }
 
   public long milliSeconds() {
-    return nanoSeconds() / 1_000_000L;
+    return (nanoSeconds() / 1_000_000L);
   }
 
   public long seconds() {
-    return nanoSeconds() / 1_000_000_000L;
+    return (nanoSeconds() / 1_000_000_000L);
   }
 
 }

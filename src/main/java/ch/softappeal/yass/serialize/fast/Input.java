@@ -1,24 +1,26 @@
 package ch.softappeal.yass.serialize.fast;
 
 import ch.softappeal.yass.serialize.Reader;
-import ch.softappeal.yass.util.Check;
-import ch.softappeal.yass.util.Nullable;
 
 import java.util.List;
+import java.util.Map;
 
-public abstract class Input {
+final class Input {
 
   final Reader reader;
-  List<Object> referenceableObjects = null;
+  private final Map<Integer, TypeHandler> id2typeHandler;
+  List<Object> referenceableObjects;
 
-  protected Input(final Reader reader) {
-    this.reader = Check.notNull(reader);
+  Input(final Reader reader, final Map<Integer, TypeHandler> id2typeHandler) {
+    this.reader = reader;
+    this.id2typeHandler = id2typeHandler;
   }
 
-  protected abstract TypeHandler typeHandler(int id);
-
-  @Nullable public final Object readWithId() throws Exception {
-    return typeHandler(reader.readVarInt()).readNoId(this);
+  /**
+   * @see TypeHandler#write(int, Object, Output)
+   */
+  Object read() throws Exception {
+    return id2typeHandler.get(reader.readVarInt()).read(this);
   }
 
 }

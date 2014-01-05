@@ -1,65 +1,85 @@
 package ch.softappeal.yass.serialize.fast;
 
+import ch.softappeal.yass.serialize.Reader;
+import ch.softappeal.yass.serialize.Reflector;
 import ch.softappeal.yass.serialize.Serializer;
-import ch.softappeal.yass.serialize.TypeConverter;
 import ch.softappeal.yass.serialize.Writer;
+import ch.softappeal.yass.util.Check;
+import ch.softappeal.yass.util.Exceptions;
+import ch.softappeal.yass.util.Nullable;
 
 import java.io.PrintWriter;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.SortedMap;
+import java.util.TreeMap;
 
 /**
- * This fast and compact serializer (using numbers) supports the following types:
+ * This fast and compact serializer supports the following types (type id's must be &gt;= {@link TypeDesc#FIRST_ID}):
  * <ul>
  * <li>null</li>
- * <li>all primitive types (including array and wrapper thereof)</li>
- * <li>{@link String}</li>
- * <li>{@link TypeConverter}</li>
- * <li>enumeration types (an enumeration constant is serialized with its ordinal number)</li>
+ * <li>{@link BaseTypeHandler} (see {@link BaseTypeHandlers} for default implementations)</li>
  * <li>{@link List} (deserialize creates an {@link ArrayList})</li>
- * <li>class hierarchies with all non-static and non-transient fields</li>
+ * <li>enumeration types (an enumeration constant is serialized with its ordinal number)</li>
+ * <li>
+ *   class hierarchies with all non-static and non-transient fields
+ *   (field id's must be &gt;= {@link FieldHandler#FIRST_ID} and must be unique in the path to its super classes)
+ * </li>
  * <li>exceptions (but without fields of {@link Throwable}; therefore, you should implement {@link Throwable#getMessage()})</li>
  * <li>graphs with cycles</li>
  * </ul>
+ * There is support for contract versioning.
+ * Deserialization of old classes to new classes with new {@link Nullable} fields is allowed. These fields will be set to {@code null}.
+ * Default values for these fields could be implemented with a getter method checking for {@code null}.
  */
 public abstract class AbstractFastSerializer implements Serializer {
 
-  final Map<Class<?>, TypeHandler> class2typeHandler = new HashMap<>(16);
+  private final Reflector.Factory reflectorFactory;
 
-  protected final void addTypeHandler(final TypeHandler typeHandler) {
-    if (class2typeHandler.put(typeHandler.type, typeHandler) != null) {
-      throw new IllegalArgumentException("type '" + typeHandler.type.getCanonicalName() + "' already added");
+  private Reflector reflector(final Class<?> type) {
+    try {
+      return reflectorFactory.create(type);
+    } catch (final Exception e) {
+      throw Exceptions.wrap(e);
     }
   }
 
-  protected AbstractFastSerializer() {
-    for (final TypeHandler typeHandler : TypeHandlers.ALL) {
-      addTypeHandler(typeHandler);
+  private final Map<Class<?>, TypeDesc> class2typeDesc = new HashMap<>(64);
+  private final Map<Integer, TypeHandler> id2typeHandler = new HashMap<>(64);
+
+  private void addType(final TypeDesc typeDesc) {
+    if (class2typeDesc.put(typeDesc.handler.type, typeDesc) != null) {
+      throw new IllegalArgumentException("type '" + typeDesc.handler.type.getCanonicalName() + "' already added");
+    }
+    final TypeHandler oldTypeHandler = id2typeHandler.put(typeDesc.id, typeDesc.handler);
+    if (oldTypeHandler != null) {
+      throw new IllegalArgumentException(
+        "type id " + typeDesc.id + " used for '" + typeDesc.handler.type.getCanonicalName() + "' and '" +
+        oldTypeHandler.type.getCanonicalName() + '\''
+      );
     }
   }
 
-  public final List<TypeHandler> typeHandlers() {
-    return new ArrayList<>(class2typeHandler.values());
-  }
-
-  protected final void fixupFields() {
-    for (final TypeHandler typeHandler : class2typeHandler.values()) {
-      if (typeHandler instanceof ClassTypeHandler) {
-        for (final FieldHandler fieldHandler : ((ClassTypeHandler)typeHandler).fieldHandlers()) {
-          fieldHandler.fixup(class2typeHandler);
-        }
+  @SuppressWarnings("unchecked")
+  protected final void addEnum(final int id, final Class<?> type) {
+    if (!type.isEnum()) {
+      throw new IllegalArgumentException("type '" + type.getCanonicalName() + "' is not an enumeration");
+    }
+    final Class<Enum<?>> enumeration = (Class)type;
+    final Enum<?>[] constants = enumeration.getEnumConstants();
+    addType(new TypeDesc(id, new BaseTypeHandler<Enum<?>>(enumeration) {
+      @Override public Enum read(final Reader reader) throws Exception {
+        return constants[reader.readVarInt()];
       }
-    }
-  }
-
-  @Override public final void write(final Object value, final Writer writer) throws Exception {
-    new Output(writer, class2typeHandler).writeWithId(value);
+      @Override public void write(final Enum value, final Writer writer) throws Exception {
+        writer.writeVarInt(value.ordinal());
+      }
+    }));
   }
 
   protected static void checkClass(final Class<?> type) {
@@ -70,9 +90,77 @@ public abstract class AbstractFastSerializer implements Serializer {
     }
   }
 
-  protected static void checkEnum(final Class<?> type) {
-    if (!type.isEnum()) {
-      throw new IllegalArgumentException("type '" + type.getCanonicalName() + "' is not an enumeration");
+  protected final void addClass(final int id, final Class<?> type, final boolean referenceable, final Map<Integer, Field> id2field) {
+    final Reflector reflector = reflector(type);
+    final Map<Integer, FieldHandler> id2fieldHandler = new HashMap<>(id2field.size());
+    for (final Map.Entry<Integer, Field> entry : id2field.entrySet()) {
+      final Field field = entry.getValue();
+      id2fieldHandler.put(entry.getKey(), new FieldHandler(field, reflector.accessor(field)));
+    }
+    addType(new TypeDesc(id, new ClassTypeHandler(type, reflector, referenceable, id2fieldHandler)));
+  }
+
+  protected AbstractFastSerializer(final Reflector.Factory reflectorFactory, final Collection<TypeDesc> baseTypeDescs) {
+    this.reflectorFactory = Check.notNull(reflectorFactory);
+    addType(TypeDesc.NULL);
+    addType(TypeDesc.REFERENCE);
+    addType(TypeDesc.LIST);
+    for (final TypeDesc baseTypeDesc : baseTypeDescs) {
+      if (baseTypeDesc.handler.type.isEnum()) {
+        throw new IllegalArgumentException("base type '" + baseTypeDesc.handler.type.getCanonicalName() + "' is an enumeration");
+      }
+      addType(baseTypeDesc);
+    }
+  }
+
+  protected final void fixupFields() {
+    for (final TypeDesc typeDesc : class2typeDesc.values()) {
+      if (typeDesc.handler instanceof ClassTypeHandler) {
+        ((ClassTypeHandler)typeDesc.handler).fixupFields(class2typeDesc);
+      }
+    }
+  }
+
+  @Override public final Object read(final Reader reader) throws Exception {
+    return new Input(reader, id2typeHandler).read();
+  }
+
+  @Override public final void write(final Object value, final Writer writer) throws Exception {
+    new Output(writer, class2typeDesc).write(value);
+  }
+
+  public final SortedMap<Integer, TypeHandler> id2typeHandler() {
+    return new TreeMap<>(id2typeHandler);
+  }
+
+  public final void print(final PrintWriter printer) {
+    for (final Map.Entry<Integer,TypeHandler> entry : id2typeHandler().entrySet()) {
+      final int id = entry.getKey();
+      if (id < TypeDesc.FIRST_ID) {
+        continue;
+      }
+      final TypeHandler typeHandler = entry.getValue();
+      printer.print(id + ": " + typeHandler.type.getCanonicalName());
+      if (typeHandler instanceof BaseTypeHandler) {
+        final BaseTypeHandler<?> baseTypeHandler = (BaseTypeHandler)typeHandler;
+        if (baseTypeHandler.type.isEnum()) {
+          printer.println();
+          final Object[] constants = baseTypeHandler.type.getEnumConstants();
+          for (int c = 0; c < constants.length; c++) {
+            //noinspection rawtypes
+            printer.println("  " + c + ": " + ((Enum)constants[c]).name());
+          }
+        } else {
+          printer.println();
+        }
+      } else {
+        final ClassTypeHandler classTypeHandler = (ClassTypeHandler)typeHandler;
+        printer.println(" (referenceable=" + classTypeHandler.referenceable + ')');
+        for (final ClassTypeHandler.FieldDesc fieldDesc : classTypeHandler.fieldDescs()) {
+          printer.println("  " + fieldDesc.id + ": " + fieldDesc.handler.field);
+        }
+      }
+      printer.println();
     }
   }
 
@@ -94,53 +182,6 @@ public abstract class AbstractFastSerializer implements Serializer {
       type = type.getSuperclass();
     }
     return fields;
-  }
-
-  public static <E extends Enum<E>> TypeConverter<E, Integer> enumToInteger(final Class<E> enumeration) {
-    final E[] constants = enumeration.getEnumConstants();
-    return new TypeConverter<E, Integer>(enumeration, Integer.class) {
-      @Override public Integer to(final E value) {
-        return value.ordinal();
-      }
-      @Override public E from(final Integer value) {
-        return constants[value];
-      }
-    };
-  }
-
-  public final void print(final PrintWriter printer) {
-    final List<TypeHandler> typeHandlers = typeHandlers();
-    Collections.sort(typeHandlers, new Comparator<TypeHandler>() {
-      @Override public int compare(final TypeHandler typeHandler1, final TypeHandler typeHandler2) {
-        return Integer.valueOf(typeHandler1.id).compareTo(typeHandler2.id);
-      }
-    });
-    for (final TypeHandler typeHandler : typeHandlers) {
-      if (typeHandler.id < TypeHandlers.SIZE) {
-        continue;
-      }
-      printer.print((typeHandler.id - TypeHandlers.SIZE) + ": " + typeHandler.type.getCanonicalName());
-      if (typeHandler instanceof ConverterTypeHandler) {
-        final ConverterTypeHandler converterTypeHandler = (ConverterTypeHandler)typeHandler;
-        if (converterTypeHandler.type.isEnum()) {
-          printer.println();
-          final Object[] constants = converterTypeHandler.type.getEnumConstants();
-          for (int c = 0; c < constants.length; c++) {
-            //noinspection rawtypes
-            printer.println("  " + c + ": " + ((Enum)constants[c]).name());
-          }
-        } else {
-          printer.println(" -> " + converterTypeHandler.serializableTypeHandler.type.getCanonicalName());
-        }
-      } else {
-        final ClassTypeHandler classTypeHandler = (ClassTypeHandler)typeHandler;
-        printer.println(" (referenceable=" + classTypeHandler.referenceable + ')');
-        for (final FieldHandler fieldHandler : classTypeHandler.fieldHandlers()) {
-          printer.println("  " + (fieldHandler.id - FieldHandler.FIRST_FIELD) + ": " + fieldHandler.field);
-        }
-      }
-      printer.println();
-    }
   }
 
 }

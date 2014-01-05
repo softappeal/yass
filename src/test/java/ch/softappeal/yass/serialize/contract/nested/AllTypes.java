@@ -6,9 +6,10 @@ import ch.softappeal.yass.util.Tag;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.util.Date;
 import java.util.List;
 
-@Tag(21) public final class AllTypes extends PrimitiveTypes {
+@Tag(41) public final class AllTypes extends PrimitiveTypes {
 
   private static final long serialVersionUID = 1L;
 
@@ -18,6 +19,7 @@ import java.util.List;
 
   @Tag(102) public BigDecimal bigDecimalField;
   @Tag(103) public BigInteger bigIntegerField;
+  @Tag(104) public Date dateField;
 
   @Tag(106) public PrimitiveTypes primitiveTypesField;
   @Tag(107) public List<PrimitiveTypes> primitiveTypesListField;

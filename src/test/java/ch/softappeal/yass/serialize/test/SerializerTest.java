@@ -3,15 +3,14 @@ package ch.softappeal.yass.serialize.test;
 import ch.softappeal.yass.serialize.FastReflector;
 import ch.softappeal.yass.serialize.JavaSerializer;
 import ch.softappeal.yass.serialize.Serializer;
-import ch.softappeal.yass.serialize.TypeConverters;
 import ch.softappeal.yass.serialize.contract.Color;
 import ch.softappeal.yass.serialize.contract.IntException;
 import ch.softappeal.yass.serialize.contract.Node;
 import ch.softappeal.yass.serialize.contract.PrimitiveTypes;
 import ch.softappeal.yass.serialize.contract.nested.AllTypes;
-import ch.softappeal.yass.serialize.fast.AbstractFastSerializer;
+import ch.softappeal.yass.serialize.fast.BaseTypeHandlers;
 import ch.softappeal.yass.serialize.fast.TaggedFastSerializer;
-import ch.softappeal.yass.serialize.fast.TypeConverterId;
+import ch.softappeal.yass.serialize.fast.TypeDesc;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -19,6 +18,7 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 
 public class SerializerTest {
@@ -56,6 +56,7 @@ public class SerializerTest {
     Assert.assertNull(allTypes.colorField);
     Assert.assertNull(allTypes.bigDecimalField);
     Assert.assertNull(allTypes.bigIntegerField);
+    Assert.assertNull(allTypes.dateField);
     Assert.assertNull(allTypes.primitiveTypesField);
     Assert.assertNull(allTypes.primitiveTypesListField);
     Assert.assertNull(allTypes.objectField);
@@ -93,6 +94,7 @@ public class SerializerTest {
     allTypes.colorField = Color.BLUE;
     allTypes.bigDecimalField = new BigDecimal("98.7");
     allTypes.bigIntegerField = new BigInteger("987");
+    allTypes.dateField = new Date(123456789L);
     allTypes.primitiveTypesField = new AllTypes("hello");
     allTypes.primitiveTypesListField = Arrays.asList(new PrimitiveTypes(999), new AllTypes("world"), null);
     allTypes.objectField = "bad";
@@ -131,6 +133,7 @@ public class SerializerTest {
     Assert.assertEquals(Color.BLUE, allTypes.colorField);
     Assert.assertEquals(new BigDecimal("98.7"), allTypes.bigDecimalField);
     Assert.assertEquals(new BigInteger("987"), allTypes.bigIntegerField);
+    Assert.assertTrue(allTypes.dateField.getTime() == 123456789L);
     Assert.assertEquals("hello", ((AllTypes)allTypes.primitiveTypesField).stringField);
     final List<PrimitiveTypes> primitiveTypesListField = allTypes.primitiveTypesListField;
     Assert.assertTrue(primitiveTypesListField.size() == 3);
@@ -191,6 +194,7 @@ public class SerializerTest {
     Assert.assertEquals(Color.RED, JavaSerializerTest.copy(serializer, Color.RED));
     Assert.assertEquals(new BigInteger("123"), JavaSerializerTest.copy(serializer, new BigInteger("123")));
     Assert.assertEquals(new BigDecimal("1.23"), JavaSerializerTest.copy(serializer, new BigDecimal("1.23")));
+    Assert.assertEquals(new Date(9876543210L), JavaSerializerTest.copy(serializer, new Date(9876543210L)));
     Assert.assertTrue(Arrays.equals(new boolean[] {true, false}, JavaSerializerTest.copy(serializer, new boolean[] {true, false})));
     Assert.assertArrayEquals(new byte[] {(byte)1, (byte)2}, JavaSerializerTest.copy(serializer, new byte[] {(byte)1, (byte)2}));
     Assert.assertArrayEquals(new short[] {(short)1, (short)2}, JavaSerializerTest.copy(serializer, new short[] {(short)1, (short)2}));
@@ -243,11 +247,29 @@ public class SerializerTest {
     test(JavaSerializer.INSTANCE);
   }
 
-  static final AbstractFastSerializer TAGGED_FAST_SERIALIZER = new TaggedFastSerializer(
+  public static final TaggedFastSerializer TAGGED_FAST_SERIALIZER = new TaggedFastSerializer(
     FastReflector.FACTORY,
     Arrays.asList(
-      new TypeConverterId(TypeConverters.BIGINTEGER_TO_STRING, 0),
-      new TypeConverterId(TypeConverters.BIGDECIMAL_TO_STRING, 1)
+      new TypeDesc(3, BaseTypeHandlers.BOOLEAN),
+      new TypeDesc(4, BaseTypeHandlers.BYTE),
+      new TypeDesc(5, BaseTypeHandlers.SHORT),
+      new TypeDesc(6, BaseTypeHandlers.INTEGER),
+      new TypeDesc(7, BaseTypeHandlers.LONG),
+      new TypeDesc(8, BaseTypeHandlers.CHARACTER),
+      new TypeDesc(9, BaseTypeHandlers.FLOAT),
+      new TypeDesc(10, BaseTypeHandlers.DOUBLE),
+      new TypeDesc(11, BaseTypeHandlers.BOOLEAN_ARRAY),
+      new TypeDesc(12, BaseTypeHandlers.BYTE_ARRAY),
+      new TypeDesc(13, BaseTypeHandlers.SHORT_ARRAY),
+      new TypeDesc(14, BaseTypeHandlers.INTEGER_ARRAY),
+      new TypeDesc(15, BaseTypeHandlers.LONG_ARRAY),
+      new TypeDesc(16, BaseTypeHandlers.CHARACTER_ARRAY),
+      new TypeDesc(17, BaseTypeHandlers.FLOAT_ARRAY),
+      new TypeDesc(18, BaseTypeHandlers.DOUBLE_ARRAY),
+      new TypeDesc(19, BaseTypeHandlers.STRING),
+      new TypeDesc(20, BaseTypeHandlers.BIGINTEGER),
+      new TypeDesc(21, BaseTypeHandlers.BIGDECIMAL),
+      new TypeDesc(22, BaseTypeHandlers.DATE)
     ),
     Arrays.<Class<?>>asList(Color.class),
     Arrays.<Class<?>>asList(PrimitiveTypes.class, AllTypes.class, IntException.class),
