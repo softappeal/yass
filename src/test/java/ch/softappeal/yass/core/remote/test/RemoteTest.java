@@ -55,7 +55,7 @@ public class RemoteTest extends InvokeTest {
           ),
           new Tunnel() {
             @Override public Reply invoke(final Request request) throws Exception {
-              Assert.assertTrue(33 == (request.methodId) == clientInvocation.oneWay);
+              Assert.assertTrue((33 == (Integer)request.methodId) == clientInvocation.oneWay);
               final ServerInvocation serverInvocation = server.invocation(request);
               Assert.assertTrue(clientInvocation.oneWay == serverInvocation.oneWay);
               try {
