@@ -12,10 +12,12 @@ import ch.softappeal.yass.transport.socket.StatelessTransport;
 import ch.softappeal.yass.transport.test.MessageSerializerTest;
 import ch.softappeal.yass.util.Exceptions;
 import ch.softappeal.yass.util.NamedThreadFactory;
+import ch.softappeal.yass.util.Nullable;
 import ch.softappeal.yass.util.TestUtils;
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.lang.reflect.Method;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -26,7 +28,7 @@ public class StatelessTransportTest extends InvokeTest {
     SocketInterceptor(final String side) {
       this.side = side;
     }
-    @Override public Object invoke(final Invocation invocation) throws Throwable {
+    @Override public Object invoke(final Method method, @Nullable final Object[] arguments, final Invocation invocation) throws Throwable {
       println(side, "entry", StatelessTransport.socket().getLocalPort());
       try {
         return invocation.proceed();

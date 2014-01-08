@@ -30,8 +30,8 @@ public final class Server extends Common {
       serviceInterceptor = service.interceptor;
     }
 
-    Reply invoke(final Interceptor invokerInterceptor, final Request request, final Method method) {
-      final Invocation invocation = new Invocation(method, request.arguments) {
+    Reply invoke(final Interceptor invokerInterceptor, @Nullable final Object[] arguments, final Method method) {
+      final Invocation invocation = new Invocation() {
         @Override public Object proceed() throws Throwable {
           try {
             return method.invoke(implementation, arguments);
@@ -44,7 +44,7 @@ public final class Server extends Common {
       final Interceptor interceptor = Interceptors.composite(invokerInterceptor, serviceInterceptor);
       @Nullable final Object value;
       try {
-        value = interceptor.invoke(invocation);
+        value = interceptor.invoke(method, arguments, invocation);
       } catch (final Throwable t) {
         return new ExceptionReply(t);
       }
@@ -78,7 +78,7 @@ public final class Server extends Common {
     public Reply invoke(final Interceptor interceptor) {
       return invoker.invoke(
         Interceptors.composite(interceptor, Interceptors.threadLocal(ContractId.INSTANCE, invoker.contractId)),
-        request,
+        request.arguments,
         method
       );
     }

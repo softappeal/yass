@@ -29,7 +29,7 @@ public final class Interceptors {
     final Interceptor interceptor = composite(interceptors);
     return contract.cast(Proxy.newProxyInstance(contract.getClassLoader(), new Class<?>[] {contract}, new InvocationHandler() {
       @Override public Object invoke(final Object proxy, final Method method, final Object[] arguments) throws Throwable {
-        return interceptor.invoke(new Invocation(method, arguments) {
+        return interceptor.invoke(method, arguments, new Invocation() {
           @Override public Object proceed() throws Throwable {
             try {
               return method.invoke(implementation, arguments);
@@ -48,7 +48,7 @@ public final class Interceptors {
    * Calls {@link Invocation#proceed()}.
    */
   public static final Interceptor DIRECT = new Interceptor() {
-    @Override @Nullable public Object invoke(final Invocation invocation) throws Throwable {
+    @Override @Nullable public Object invoke(final Method method, @Nullable final Object[] arguments, final Invocation invocation) throws Throwable {
       return invocation.proceed();
     }
   };
@@ -65,10 +65,10 @@ public final class Interceptors {
       return interceptor1;
     }
     return new Interceptor() {
-      @Override @Nullable public Object invoke(final Invocation invocation) throws Throwable {
-        return interceptor1.invoke(new Invocation(invocation.method, invocation.arguments) {
+      @Override @Nullable public Object invoke(final Method method, @Nullable final Object[] arguments, final Invocation invocation) throws Throwable {
+        return interceptor1.invoke(method, arguments, new Invocation() {
           @Override @Nullable public Object proceed() throws Throwable {
-            return interceptor2.invoke(invocation);
+            return interceptor2.invoke(method, arguments, invocation);
           }
         });
       }
@@ -89,13 +89,13 @@ public final class Interceptors {
 
   /**
    * @param <T> the type of the {@link ThreadLocal}
-   * @return an interceptor that changes threadLocal to value during {@link Interceptor#invoke(Invocation)}
+   * @return an interceptor that changes threadLocal to value during {@link Interceptor#invoke(Method, Object[], Invocation)}
    */
   public static <T> Interceptor threadLocal(final ThreadLocal<T> threadLocal, final T value) {
     Check.notNull(threadLocal);
     Check.notNull(value);
     return new Interceptor() {
-      @Override @Nullable public Object invoke(final Invocation invocation) throws Throwable {
+      @Override @Nullable public Object invoke(final Method method, @Nullable final Object[] arguments, final Invocation invocation) throws Throwable {
         @Nullable final T oldValue = threadLocal.get();
         threadLocal.set(value);
         try {

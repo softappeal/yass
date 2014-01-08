@@ -20,6 +20,7 @@ import ch.softappeal.yass.util.Nullable;
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.lang.reflect.Method;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -48,7 +49,7 @@ public class RequestInterruptTest extends InvokeTest {
             return new Session(setup, connection) {
               @Override public void opened() {
                 final TestService testService = ContractIdTest.ID.invoker(this).proxy(new Interceptor() {
-                  @Override public Object invoke(final Invocation invocation) throws Throwable {
+                  @Override public Object invoke(final Method method, @Nullable final Object[] arguments, final Invocation invocation) throws Throwable {
                     System.out.println("before");
                     try {
                       final Object reply = invocation.proceed();

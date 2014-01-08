@@ -7,12 +7,26 @@ import ch.softappeal.yass.util.Nullable;
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.lang.reflect.Method;
+
 public class InterceptorsTest {
+
+  public static final Method METHOD;
+
+  static {
+    try {
+      METHOD = Object.class.getMethod("toString");
+    } catch (final NoSuchMethodException e) {
+      throw new RuntimeException(e);
+    }
+  }
+
+  private static final Object[] ARGUMENTS = new Object[0];
 
   @Test public void direct() throws Throwable {
     final Object result = new Object();
     Assert.assertSame(
-      Interceptors.DIRECT.invoke(new Invocation(InvocationTest.METHOD, InvocationTest.ARGUMENTS) {
+      Interceptors.DIRECT.invoke(null, null, new Invocation() {
         @Override public Object proceed() {
           return result;
         }
@@ -33,16 +47,16 @@ public class InterceptorsTest {
       this.end = end;
     }
 
-    @Override @Nullable public Object invoke(final Invocation invocation) throws Throwable {
+    @Override @Nullable public Object invoke(final Method method, @Nullable final Object[] arguments, final Invocation invocation) throws Throwable {
       System.out.println("enter: begin=" + begin + " step=" + step);
-      Assert.assertSame(InvocationTest.METHOD, invocation.method);
-      Assert.assertSame(InvocationTest.ARGUMENTS, invocation.arguments);
+      Assert.assertSame(METHOD, method);
+      Assert.assertSame(ARGUMENTS, arguments);
       Assert.assertEquals(begin, step);
       step++;
       final Object result = invocation.proceed();
       System.out.println("exit : end  =" + end + " step=" + step + " result=" + result);
-      Assert.assertSame(InvocationTest.METHOD, invocation.method);
-      Assert.assertSame(InvocationTest.ARGUMENTS, invocation.arguments);
+      Assert.assertSame(METHOD, method);
+      Assert.assertSame(ARGUMENTS, arguments);
       Assert.assertEquals(end, step);
       Assert.assertEquals(result, step + 100);
       step++;
@@ -53,22 +67,14 @@ public class InterceptorsTest {
 
   private void test(final Interceptor interceptor, final int interceptors) throws Throwable {
     step = 0;
-    final Invocation invocation = new Invocation(InvocationTest.METHOD, InvocationTest.ARGUMENTS) {
-      {
-        Assert.assertSame(InvocationTest.METHOD, method);
-        Assert.assertSame(InvocationTest.ARGUMENTS, arguments);
-      }
+    final Invocation invocation = new Invocation() {
       @Override public Object proceed() {
-        Assert.assertSame(InvocationTest.METHOD, method);
-        Assert.assertSame(InvocationTest.ARGUMENTS, arguments);
         Assert.assertEquals(step, interceptors);
         step++;
         return step + 100;
       }
     };
-    Assert.assertEquals(interceptor.invoke(invocation), (2 * interceptors) + 101);
-    Assert.assertSame(InvocationTest.METHOD, invocation.method);
-    Assert.assertSame(InvocationTest.ARGUMENTS, invocation.arguments);
+    Assert.assertEquals(interceptor.invoke(METHOD, ARGUMENTS, invocation), (2 * interceptors) + 101);
     Assert.assertEquals(step, (2 * interceptors) + 1);
   }
 
@@ -102,7 +108,7 @@ public class InterceptorsTest {
     final Object result = new Object();
     Assert.assertSame(
       result,
-      Interceptors.threadLocal(threadLocal, value).invoke(new Invocation(InvocationTest.METHOD, InvocationTest.ARGUMENTS) {
+      Interceptors.threadLocal(threadLocal, value).invoke(null, null, new Invocation() {
         @Override public Object proceed() {
           Assert.assertTrue(Interceptors.hasInvocation(threadLocal));
           Assert.assertSame(value, Interceptors.getInvocation(threadLocal));

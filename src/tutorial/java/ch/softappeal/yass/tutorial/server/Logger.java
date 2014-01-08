@@ -4,7 +4,9 @@ import ch.softappeal.yass.core.Interceptor;
 import ch.softappeal.yass.core.Invocation;
 import ch.softappeal.yass.core.remote.session.Session;
 import ch.softappeal.yass.util.Check;
+import ch.softappeal.yass.util.Nullable;
 
+import java.lang.reflect.Method;
 import java.util.Date;
 
 /**
@@ -18,8 +20,8 @@ public final class Logger implements Interceptor {
     this.side = Check.notNull(side);
   }
 
-  @Override public Object invoke(final Invocation invocation) throws Throwable {
-    System.out.println(new Date() + " - " + Session.get().hashCode() + " - " + side + ": " + invocation.method.getName());
+  @Override public Object invoke(final Method method, @Nullable final Object[] arguments, final Invocation invocation) throws Throwable {
+    System.out.println(new Date() + " - " + Session.get().hashCode() + " - " + side + ": " + method.getName());
     return invocation.proceed();
   }
 

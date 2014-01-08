@@ -2,7 +2,7 @@ package ch.softappeal.yass.core.remote.test;
 
 import ch.softappeal.yass.core.remote.MethodMapper;
 import ch.softappeal.yass.core.remote.TaggedMethodMapper;
-import ch.softappeal.yass.core.test.InvocationTest;
+import ch.softappeal.yass.core.test.InterceptorsTest;
 import ch.softappeal.yass.core.test.InvokeTest;
 import ch.softappeal.yass.util.Tag;
 import ch.softappeal.yass.util.TestUtils;
@@ -16,8 +16,8 @@ public class TaggedMethodMapperTest {
 
   @Test public void mapping() {
     final String methodId = "xyz";
-    final MethodMapper.Mapping mapping = new MethodMapper.Mapping(InvocationTest.METHOD, methodId, false);
-    Assert.assertSame(InvocationTest.METHOD, mapping.method);
+    final MethodMapper.Mapping mapping = new MethodMapper.Mapping(InterceptorsTest.METHOD, methodId, false);
+    Assert.assertSame(InterceptorsTest.METHOD, mapping.method);
     Assert.assertSame(methodId, mapping.id);
     Assert.assertFalse(mapping.oneWay);
   }

@@ -12,15 +12,18 @@ import ch.softappeal.yass.core.remote.Server.ServerInvocation;
 import ch.softappeal.yass.core.remote.TaggedMethodMapper;
 import ch.softappeal.yass.core.remote.Tunnel;
 import ch.softappeal.yass.core.test.InvokeTest;
+import ch.softappeal.yass.util.Nullable;
 import org.junit.Assert;
 import org.junit.Test;
+
+import java.lang.reflect.Method;
 
 public class RemoteTest extends InvokeTest {
 
   private static int COUNTER;
 
   public static final Interceptor CONTRACT_ID_CHECKER = new Interceptor() {
-    @Override public Object invoke(final Invocation invocation) throws Throwable {
+    @Override public Object invoke(final Method method, @Nullable final Object[] arguments, final Invocation invocation) throws Throwable {
       Assert.assertEquals(TestService.class.getSimpleName(), ContractId.get().id);
       Assert.assertSame(TestService.class, ContractId.get().contract);
       return invocation.proceed();
@@ -29,7 +32,7 @@ public class RemoteTest extends InvokeTest {
 
   private static Interceptor stepInterceptor(final int count) {
     return new Interceptor() {
-      @Override public Object invoke(final Invocation invocation) throws Throwable {
+      @Override public Object invoke(final Method method, @Nullable final Object[] arguments, final Invocation invocation) throws Throwable {
         Assert.assertTrue(++COUNTER == count);
         return invocation.proceed();
       }
@@ -42,12 +45,12 @@ public class RemoteTest extends InvokeTest {
         return clientInvocation.invoke(
           Interceptors.composite(
             new Interceptor() {
-              @Override public Object invoke(final ch.softappeal.yass.core.Invocation invocation) throws Throwable {
+              @Override public Object invoke(final Method method, @Nullable final Object[] arguments, final Invocation invocation) throws Throwable {
                 COUNTER = 0;
                 try {
                   return invocation.proceed();
                 } finally {
-                  Assert.assertTrue(InvokeTest.isOneWay(invocation.method.getName()) || (COUNTER == 4));
+                  Assert.assertTrue(InvokeTest.isOneWay(method.getName()) || (COUNTER == 4));
                 }
               }
             },

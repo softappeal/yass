@@ -2,6 +2,8 @@ package ch.softappeal.yass.core;
 
 import ch.softappeal.yass.util.Nullable;
 
+import java.lang.reflect.Method;
+
 /**
  * Intercepts a method invocation.
  * @see Interceptors
@@ -13,6 +15,6 @@ public interface Interceptor {
    * @return {@link Invocation#proceed()}
    * @throws Throwable exception of {@link Invocation#proceed()}
    */
-  @Nullable Object invoke(Invocation invocation) throws Throwable;
+  @Nullable Object invoke(Method method, @Nullable Object[] arguments, Invocation invocation) throws Throwable;
 
 }

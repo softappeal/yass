@@ -11,12 +11,14 @@ import ch.softappeal.yass.transport.socket.StatelessTransport;
 import ch.softappeal.yass.util.ClassLoaderResource;
 import ch.softappeal.yass.util.Exceptions;
 import ch.softappeal.yass.util.NamedThreadFactory;
+import ch.softappeal.yass.util.Nullable;
 import org.junit.Assert;
 import org.junit.Test;
 
 import javax.net.ServerSocketFactory;
 import javax.net.SocketFactory;
 import javax.net.ssl.SSLSocket;
+import java.lang.reflect.Method;
 import java.security.KeyStore;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -25,7 +27,7 @@ public class SslTest extends InvokeTest {
 
   private static void test(final ServerSocketFactory serverSocketFactory, final SocketFactory socketFactory) throws Exception {
     final Interceptor peerPrincipalChecker = new Interceptor() {
-      @Override public Object invoke(final Invocation invocation) throws Throwable {
+      @Override public Object invoke(final Method method, @Nullable final Object[] arguments, final Invocation invocation) throws Throwable {
         Assert.assertEquals("CN=Test", ((SSLSocket)StatelessTransport.socket()).getSession().getPeerPrincipal().getName());
         return invocation.proceed();
       }

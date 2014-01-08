@@ -101,8 +101,8 @@ public class InvokeTest {
       this.name = Check.notNull(name);
     }
 
-    @Override public Object invoke(final Invocation invocation) throws Throwable {
-      println(name, "entry", invocation.method.getName() + ' ' + Arrays.deepToString(invocation.arguments));
+    @Override public Object invoke(final Method method, @Nullable final Object[] arguments, final Invocation invocation) throws Throwable {
+      println(name, "entry", method.getName() + ' ' + Arrays.deepToString(arguments));
       try {
         final Object result = invocation.proceed();
         println(name, "exit", result);
@@ -115,9 +115,6 @@ public class InvokeTest {
 
   }
 
-  private static final Object ONE = "one";
-  private static final Object TWO = "two";
-
   private static final AtomicInteger COUNTER = new AtomicInteger();
   private static final AtomicReference<Method> METHOD = new AtomicReference<>();
   private static final AtomicReference<Object[]> ARGUMENTS = new AtomicReference<>();
@@ -127,7 +124,7 @@ public class InvokeTest {
   }
 
   public static final Interceptor PRINTLN_AFTER = new Interceptor() {
-    @Override public Object invoke(final Invocation invocation) throws Throwable {
+    @Override public Object invoke(final Method method, @Nullable final Object[] arguments, final Invocation invocation) throws Throwable {
       try {
         return invocation.proceed();
       } finally {
@@ -136,23 +133,21 @@ public class InvokeTest {
     }
   };
 
-  private static void checkArguments(final Invocation invocation) {
+  private static void checkArguments(@Nullable final Object[] arguments) {
     if (ARGUMENTS.get() == null) {
-      Assert.assertTrue((invocation.arguments == null) || (invocation.arguments.length == 0));
+      Assert.assertTrue((arguments == null) || (arguments.length == 0));
     } else {
-      Assert.assertArrayEquals(ARGUMENTS.get(), invocation.arguments);
+      Assert.assertArrayEquals(ARGUMENTS.get(), arguments);
     }
   }
 
   public static final Interceptor CLIENT_INTERCEPTOR = Interceptors.composite(
     new Interceptor() {
-      @Override public Object invoke(final Invocation invocation) throws Throwable {
+      @Override public Object invoke(final Method method, @Nullable final Object[] arguments, final Invocation invocation) throws Throwable {
         Assert.assertTrue(COUNTER.incrementAndGet() == 1);
-        Assert.assertEquals(METHOD.get(), invocation.method);
-        checkArguments(invocation);
-        final Object result = invocation.proceed();
-        checkArguments(invocation);
-        return result;
+        Assert.assertEquals(METHOD.get(), method);
+        checkArguments(arguments);
+        return invocation.proceed();
       }
     },
     new Logger("client")
@@ -160,12 +155,11 @@ public class InvokeTest {
 
   public static final Interceptor SERVER_INTERCEPTOR = Interceptors.composite(
     new Interceptor() {
-      @Override public Object invoke(final Invocation invocation) throws Throwable {
+      @Override public Object invoke(final Method method, @Nullable final Object[] arguments, final Invocation invocation) throws Throwable {
         Assert.assertTrue(COUNTER.incrementAndGet() == 2);
-        Assert.assertEquals(METHOD.get(), invocation.method);
-        checkArguments(invocation);
-        final Object result = invocation.proceed();
-        return result;
+        Assert.assertEquals(METHOD.get(), method);
+        checkArguments(arguments);
+        return invocation.proceed();
       }
     },
     new Logger("server")
