@@ -18,19 +18,17 @@ public final class Server extends Common {
 
   private final class ServerInvoker {
 
-    private final ContractId<?> contractId;
+    private final Interceptor invokerInterceptor;
     final MethodMapper methodMapper;
     private final Object implementation;
-    private final Interceptor serviceInterceptor;
 
     ServerInvoker(final Service service) {
-      contractId = service.contractId;
-      methodMapper = methodMapper(contractId.contract);
+      invokerInterceptor = Interceptors.composite(service.contractId.interceptor, service.interceptor);
+      methodMapper = methodMapper(service.contractId.contract);
       implementation = service.implementation;
-      serviceInterceptor = service.interceptor;
     }
 
-    Reply invoke(final Interceptor invokerInterceptor, @Nullable final Object[] arguments, final Method method) {
+    Reply invoke(final Interceptor invocationInterceptor, final Method method, @Nullable final Object[] arguments) {
       final Invocation invocation = new Invocation() {
         @Override public Object proceed() throws Throwable {
           try {
@@ -41,7 +39,7 @@ public final class Server extends Common {
           }
         }
       };
-      final Interceptor interceptor = Interceptors.composite(invokerInterceptor, serviceInterceptor);
+      final Interceptor interceptor = Interceptors.composite(invocationInterceptor, invokerInterceptor);
       @Nullable final Object value;
       try {
         value = interceptor.invoke(method, arguments, invocation);
@@ -76,11 +74,7 @@ public final class Server extends Common {
      * @param interceptor prepended to the interceptor chain
      */
     public Reply invoke(final Interceptor interceptor) {
-      return invoker.invoke(
-        Interceptors.composite(interceptor, Interceptors.threadLocal(ContractId.INSTANCE, invoker.contractId)),
-        request.arguments,
-        method
-      );
+      return invoker.invoke(interceptor, method, request.arguments);
     }
 
   }
@@ -105,20 +99,6 @@ public final class Server extends Common {
     }
     return new ServerInvocation(invoker, request);
   }
-
-
-  /**
-   * A {@link Client} for this server.
-   */
-  public final Client client = new Client(methodMapperFactory) {
-    @Override public Object invoke(final ClientInvocation invocation) throws Throwable {
-      return invocation.invoke(Interceptors.DIRECT, new Tunnel() {
-        @Override public Reply invoke(final Request request) {
-          return invocation(request).invoke(Interceptors.DIRECT);
-        }
-      });
-    }
-  };
 
 
 }

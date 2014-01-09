@@ -11,7 +11,7 @@ import ch.softappeal.yass.util.Check;
  */
 public final class ContractId<C> {
 
-  static final ThreadLocal<ContractId<?>> INSTANCE = new ThreadLocal<>();
+  private static final ThreadLocal<ContractId<?>> INSTANCE = new ThreadLocal<>();
 
   /**
    * @return {@link ContractId} of the active invocation
@@ -23,6 +23,8 @@ public final class ContractId<C> {
 
   public final Class<C> contract;
   public final Object id;
+  final Interceptor interceptor = Interceptors.threadLocal(INSTANCE, this);
+
 
   private ContractId(final Class<C> contract, final Object id) {
     this.contract = Check.notNull(contract);
