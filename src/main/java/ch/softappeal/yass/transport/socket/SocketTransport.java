@@ -19,11 +19,11 @@ import java.util.concurrent.Executor;
  * The semantic of the different executors is as follows:
  * <p/>
  * <table border = "1">
- *   <tr> <td>                  </td> <th> purpose             </th> <th> calls to execute </th> <th> terminates on      </th> </tr>
- *   <tr> <td> requestExecutor  </td> <td> executes request    </td> <td> for each request </td> <td> request executed   </td> </tr>
- *   <tr> <td> readerExecutor   </td> <td> reads from socket   </td> <td> once per session </td> <td> session.close()    </td> </tr>
- *   <tr> <td> writerExecutor   </td> <td> writes to socket    </td> <td> once per session </td> <td> session.close()    </td> </tr>
- *   <tr> <td> listenerExecutor </td> <td> accepts connections </td> <td> only once        </td> <td> thread.interrupt() </td> </tr>
+ * <tr> <td>                  </td> <th> purpose             </th> <th> calls to execute </th> <th> terminates on      </th> </tr>
+ * <tr> <td> requestExecutor  </td> <td> executes request    </td> <td> for each request </td> <td> request executed   </td> </tr>
+ * <tr> <td> readerExecutor   </td> <td> reads from socket   </td> <td> once per session </td> <td> session.close()    </td> </tr>
+ * <tr> <td> writerExecutor   </td> <td> writes to socket    </td> <td> once per session </td> <td> session.close()    </td> </tr>
+ * <tr> <td> listenerExecutor </td> <td> accepts connections </td> <td> only once        </td> <td> thread.interrupt() </td> </tr>
  * </table>
  * <p/>
  * <pre>

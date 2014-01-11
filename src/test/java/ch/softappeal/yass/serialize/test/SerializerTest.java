@@ -223,7 +223,7 @@ public class SerializerTest {
     Arrays.fill(ints, 12345678);
     Assert.assertArrayEquals(JavaSerializerTest.copy(serializer, ints), ints);
     final long[] longs = new long[10000];
-    Arrays.fill(longs,12345678901234585L);
+    Arrays.fill(longs, 12345678901234585L);
     Assert.assertArrayEquals(JavaSerializerTest.copy(serializer, longs), longs);
     final char[] chars = new char[10000];
     Arrays.fill(chars, 'x');

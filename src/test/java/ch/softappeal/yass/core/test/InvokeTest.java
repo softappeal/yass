@@ -28,7 +28,7 @@ public class InvokeTest {
     public final int value;
 
     @Override public String getMessage() {
-      return value +" / 0";
+      return value + " / 0";
     }
 
   }

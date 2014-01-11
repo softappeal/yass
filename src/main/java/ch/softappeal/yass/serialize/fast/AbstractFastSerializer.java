@@ -27,8 +27,8 @@ import java.util.TreeMap;
  * <li>{@link List} (deserialize creates an {@link ArrayList})</li>
  * <li>enumeration types (an enumeration constant is serialized with its ordinal number)</li>
  * <li>
- *   class hierarchies with all non-static and non-transient fields
- *   (field id's must be &gt;= {@link FieldHandler#FIRST_ID} and must be unique in the path to its super classes)
+ * class hierarchies with all non-static and non-transient fields
+ * (field id's must be &gt;= {@link FieldHandler#FIRST_ID} and must be unique in the path to its super classes)
  * </li>
  * <li>exceptions (but without fields of {@link Throwable}; therefore, you should implement {@link Throwable#getMessage()})</li>
  * <li>graphs with cycles</li>
@@ -134,7 +134,7 @@ public abstract class AbstractFastSerializer implements Serializer {
   }
 
   public final void print(final PrintWriter printer) {
-    for (final Map.Entry<Integer,TypeHandler> entry : id2typeHandler().entrySet()) {
+    for (final Map.Entry<Integer, TypeHandler> entry : id2typeHandler().entrySet()) {
       final int id = entry.getKey();
       if (id < TypeDesc.FIRST_ID) {
         continue;

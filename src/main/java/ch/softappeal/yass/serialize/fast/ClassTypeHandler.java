@@ -48,7 +48,7 @@ public final class ClassTypeHandler extends TypeHandler {
     this.id2fieldHandler = new HashMap<>(id2fieldHandler);
     Arrays.sort(fieldDescs, new Comparator<FieldDesc>() {
       @Override public int compare(final FieldDesc fieldDesc1, final FieldDesc fieldDesc2) {
-        return ((Integer) fieldDesc1.id).compareTo(fieldDesc2.id);
+        return ((Integer)fieldDesc1.id).compareTo(fieldDesc2.id);
       }
     });
   }

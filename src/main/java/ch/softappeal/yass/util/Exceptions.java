@@ -20,7 +20,7 @@ public final class Exceptions {
    */
   public static final UncaughtExceptionHandler STD_ERR = new UncaughtExceptionHandler() {
     @Override public void uncaughtException(final Thread t, final Throwable e) {
-      System.err.println("### " + new Date() + " - " + ((t == null) ? "<null>" :  t.getName()) + " - " + Exceptions.class.getName() + ':');
+      System.err.println("### " + new Date() + " - " + ((t == null) ? "<null>" : t.getName()) + " - " + Exceptions.class.getName() + ':');
       if (e == null) {
         System.err.println("throwable is null");
       } else {

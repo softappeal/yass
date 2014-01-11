@@ -211,9 +211,9 @@ public abstract class Session extends Client implements AutoCloseable {
     return invocation.invoke(sessionInterceptor, new Tunnel() {
       @Override public Reply invoke(final Request request) {
         int requestNumber;
-        do {
+        do { // we can't use END_REQUEST_NUMBER as regular requestNumber
           requestNumber = nextRequestNumber.incrementAndGet();
-        } while (requestNumber == Packet.END_REQUEST_NUMBER); // we can't use END_REQUEST_NUMBER as regular requestNumber
+        } while (requestNumber == Packet.END_REQUEST_NUMBER);
         if (invocation.oneWay) {
           write(requestNumber, request);
           return null;
