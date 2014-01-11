@@ -35,7 +35,6 @@ public final class BaseTypeHandlers {
 
   public static final BaseTypeHandler<Short> SHORT = new BaseTypeHandler<Short>(Short.class) {
     @Override public Short read(final Reader reader) throws Exception {
-      //noinspection NumericCastThatLosesPrecision
       return (short)reader.readZigZagInt();
     }
     @Override public void write(final Short value, final Writer writer) throws Exception {
@@ -134,7 +133,6 @@ public final class BaseTypeHandlers {
         if (i >= value.length) {
           value = Arrays.copyOf(value, Math.min(length, 2 * value.length)); // note: prevents out-of-memory attack
         }
-        //noinspection NumericCastThatLosesPrecision
         value[i] = (short)reader.readZigZagInt();
       }
       return value;

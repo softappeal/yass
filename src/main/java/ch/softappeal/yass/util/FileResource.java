@@ -9,7 +9,6 @@ public final class FileResource implements Resource {
 
   private final File file;
 
-  @SuppressWarnings("WeakerAccess")
   public FileResource(final File file) {
     this.file = Check.notNull(file);
   }

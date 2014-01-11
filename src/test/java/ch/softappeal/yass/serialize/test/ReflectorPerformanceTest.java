@@ -29,7 +29,7 @@ public class ReflectorPerformanceTest {
           Assert.assertEquals("xyz", stringField.get(allTypes));
         }
       }
-    }.run(100_000, TimeUnit.NANOSECONDS);
+    }.run(1, TimeUnit.NANOSECONDS);
   }
 
   @Test public void fast() throws Exception {
@@ -52,7 +52,7 @@ public class ReflectorPerformanceTest {
           Assert.assertEquals("xyz", allTypes.stringField);
         }
       }
-    }.run(10, TimeUnit.NANOSECONDS);
+    }.run(1, TimeUnit.NANOSECONDS);
   }
 
 }

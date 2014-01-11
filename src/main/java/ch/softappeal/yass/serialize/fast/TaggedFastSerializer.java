@@ -16,7 +16,7 @@ public final class TaggedFastSerializer extends AbstractFastSerializer {
 
   private void addClass(final Class<?> type, final boolean referenceable) {
     checkClass(type);
-    final Map<Integer, Field> id2field = new HashMap<>();
+    final Map<Integer, Field> id2field = new HashMap<>(16);
     for (final Field field : allFields(type)) {
       final int id = Check.hasTag(field);
       final Field oldField = id2field.put(id, field);

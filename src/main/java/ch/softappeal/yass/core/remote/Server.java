@@ -34,7 +34,6 @@ public final class Server extends Common {
           try {
             return method.invoke(implementation, arguments);
           } catch (final InvocationTargetException e) {
-            //noinspection ThrowInsideCatchBlockWhichIgnoresCaughtException
             throw e.getCause();
           }
         }

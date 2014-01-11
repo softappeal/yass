@@ -4,7 +4,7 @@ import ch.softappeal.yass.util.Exceptions;
 
 public final class LocalConnection extends Connection {
 
-  @SuppressWarnings("InstanceVariableMayNotBeInitialized") private Session other;
+  private Session other;
 
   private LocalConnection() {
     // disable

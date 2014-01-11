@@ -17,7 +17,7 @@ public final class Reference<T> {
   }
 
   public boolean isNull() {
-    return (value == null);
+    return value == null;
   }
 
   public void set(@Nullable final T value) {

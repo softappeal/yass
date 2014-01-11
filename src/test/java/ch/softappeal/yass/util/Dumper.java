@@ -10,6 +10,9 @@ import java.util.IdentityHashMap;
 import java.util.Map;
 import java.util.Set;
 
+/**
+ * Note: This implementation is not very efficient! It uses uncached reflection.
+ */
 public final class Dumper {
 
   private static final Set<Class<?>> PRIMITIVE_WRAPPER_CLASSES = new HashSet<>(
@@ -28,7 +31,6 @@ public final class Dumper {
     this.concreteValueClasses.addAll(PRIMITIVE_WRAPPER_CLASSES);
   }
 
-  @SuppressWarnings("WeakerAccess")
   public StringBuilder append(final StringBuilder s, @Nullable final Object value) {
     try {
       new Dump(s).dump(value);
@@ -124,7 +126,6 @@ public final class Dumper {
             }
           }
         }
-        //noinspection AssignmentToMethodParameter
         type = type.getSuperclass();
       }
     }

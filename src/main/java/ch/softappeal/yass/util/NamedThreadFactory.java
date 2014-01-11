@@ -31,7 +31,6 @@ public final class NamedThreadFactory implements ThreadFactory {
     final Thread thread = new Thread(r, name + '-' + number.getAndIncrement());
     thread.setUncaughtExceptionHandler(uncaughtExceptionHandler);
     if (thread.getPriority() != priority) {
-      //noinspection CallToThreadSetPriority
       thread.setPriority(priority);
     }
     if (thread.isDaemon() != daemon) {

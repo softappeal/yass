@@ -37,7 +37,6 @@ public final class SslSetup {
   private final String[] protocols;
   private final String[] cipherSuites;
 
-  @SuppressWarnings({"SameParameterValue", "WeakerAccess"})
   public SslSetup(
     final String protocol, final String cipher, final KeyStore keyStore, final char[] keyStorePwd, final KeyStore trustStore,
     @Nullable final SecureRandom random, final String keyManagerFactoryAlgorithm, final String trustManagerFactoryAlgorithm
@@ -67,7 +66,7 @@ public final class SslSetup {
         socket.setEnabledProtocols(protocols);
         socket.setEnabledCipherSuites(cipherSuites);
       } catch (final Exception e) {
-        SocketListener.closeWithAddSuppressed(socket, e);
+        SocketListener.close(socket, e);
         throw e;
       }
       return socket;
@@ -82,7 +81,7 @@ public final class SslSetup {
         serverSocket.setEnabledProtocols(protocols);
         serverSocket.setEnabledCipherSuites(cipherSuites);
       } catch (final Exception e) {
-        SocketListener.closeWithAddSuppressed(serverSocket, e);
+        SocketListener.close(serverSocket, e);
         throw e;
       }
       return serverSocket;

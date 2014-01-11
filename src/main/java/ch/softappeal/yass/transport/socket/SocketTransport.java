@@ -76,7 +76,6 @@ public final class SocketTransport extends SocketListener {
     });
   }
 
-  @SuppressWarnings("WeakerAccess")
   public void connect(final SocketFactory socketFactory, final SocketAddress socketAddress) {
     final Socket socket;
     try {

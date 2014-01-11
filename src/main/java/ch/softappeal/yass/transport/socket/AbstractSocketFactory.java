@@ -4,7 +4,6 @@ import javax.net.SocketFactory;
 import java.net.InetAddress;
 import java.net.Socket;
 
-@SuppressWarnings("WeakerAccess")
 public abstract class AbstractSocketFactory extends SocketFactory {
 
   @Override public final Socket createSocket(final String host, final int port) {

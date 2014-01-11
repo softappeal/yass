@@ -8,12 +8,12 @@ public final class Utf8 {
     // disable
   }
 
-  public static byte[] bytes(final String string) {
-    return string.getBytes(StandardCharsets.UTF_8);
+  public static byte[] bytes(final String value) {
+    return value.getBytes(StandardCharsets.UTF_8);
   }
 
-  public static String string(final byte[] bytes) {
-    return new String(bytes, StandardCharsets.UTF_8);
+  public static String string(final byte[] value) {
+    return new String(value, StandardCharsets.UTF_8);
   }
 
 }

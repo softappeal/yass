@@ -19,16 +19,13 @@ public final class Exceptions {
    * Note: For productive code, this handler should be replaced with one that uses your logging framework!
    */
   public static final UncaughtExceptionHandler STD_ERR = new UncaughtExceptionHandler() {
-    @SuppressWarnings("UseOfSystemOutOrSystemErr")
     @Override public void uncaughtException(final Thread t, final Throwable e) {
       System.err.println("### " + new Date() + " - " + ((t == null) ? "<null>" :  t.getName()) + " - " + Exceptions.class.getName() + ':');
       if (e == null) {
         System.err.println("throwable is null");
       } else {
-        //noinspection CallToPrintStackTrace
         e.printStackTrace();
         if (!(e instanceof Exception)) {
-          //noinspection CallToSystemExit
           System.exit(1);
         }
       }

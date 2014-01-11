@@ -21,7 +21,6 @@ public abstract class Reader {
    * @see Writer#writeShort(short)
    */
   public final short readShort() throws Exception {
-    //noinspection PointlessBitwiseExpression,NumericCastThatLosesPrecision
     return (short)(
       ((readByte() & 0b1111_1111) << 8) |
       ((readByte() & 0b1111_1111) << 0)
@@ -32,7 +31,6 @@ public abstract class Reader {
    * @see Writer#writeInt(int)
    */
   public final int readInt() throws Exception {
-    //noinspection PointlessBitwiseExpression
     return
       ((readByte() & 0b1111_1111) << 24) |
       ((readByte() & 0b1111_1111) << 16) |
@@ -44,7 +42,6 @@ public abstract class Reader {
    * @see Writer#writeLong(long)
    */
   public final long readLong() throws Exception {
-    //noinspection PointlessBitwiseExpression
     return
       ((readByte() & 0b1111_1111L) << 56) |
       ((readByte() & 0b1111_1111L) << 48) |
@@ -60,7 +57,6 @@ public abstract class Reader {
    * @see Writer#writeChar(char)
    */
   public final char readChar() throws Exception {
-    //noinspection PointlessBitwiseExpression,NumericCastThatLosesPrecision
     return (char)(
       ((readByte() & 0b1111_1111) << 8) |
       ((readByte() & 0b1111_1111) << 0)
@@ -84,7 +80,6 @@ public abstract class Reader {
   /**
    * @see Writer#writeVarInt(int)
    */
-  @SuppressWarnings("NestedAssignment")
   public final int readVarInt() throws Exception {
     byte b = readByte();
     if (b >= 0) {
@@ -174,7 +169,6 @@ public abstract class Reader {
         if (i < 0) {
           throw new EOFException();
         }
-        //noinspection NumericCastThatLosesPrecision
         return (byte)i;
       }
       @Override public void readBytes(final byte[] buffer, final int offset, final int length) throws IOException {

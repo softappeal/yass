@@ -1,6 +1,5 @@
 package ch.softappeal.yass;
 
-@SuppressWarnings("UnusedDeclaration")
 public final class Version {
 
   private Version() {

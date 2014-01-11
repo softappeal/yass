@@ -25,39 +25,37 @@ public final class MessageSerializer implements Serializer {
     this.serializer = Check.notNull(serializer);
   }
 
-  private static final byte REQUEST = 0;
-  private static final byte VALUE_REPLY = 1;
-  private static final byte EXCEPTION_REPLY = 2;
+  private static final byte REQUEST = (byte)0;
+  private static final byte VALUE_REPLY = (byte)1;
+  private static final byte EXCEPTION_REPLY = (byte)2;
 
   private static Object[] toArray(final List<Object> list) {
     return list.toArray(new Object[list.size()]);
   }
 
-  @SuppressWarnings({"unchecked", "IfMayBeConditional"})
+  @SuppressWarnings("unchecked")
   @Override public Message read(final Reader reader) throws Exception {
     final byte type = reader.readByte();
     if (type == REQUEST) {
-      //noinspection rawtypes
       return new Request(
         serializer.read(reader),
         serializer.read(reader),
         toArray((List)serializer.read(reader))
       );
-    } else if (type == VALUE_REPLY) {
+    }
+    if (type == VALUE_REPLY) {
       return new ValueReply(
         serializer.read(reader)
       );
-    } else {
-      return new ExceptionReply(
-        (Throwable)serializer.read(reader)
-      );
     }
+    return new ExceptionReply(
+      (Throwable)serializer.read(reader)
+    );
   }
 
   private static final List<?> NO_ARGUMENTS = Collections.emptyList();
 
   @Override public void write(final Object message, final Writer writer) throws Exception {
-    //noinspection ChainOfInstanceofChecks
     if (message instanceof Request) {
       writer.writeByte(REQUEST);
       final Request request = (Request)message;

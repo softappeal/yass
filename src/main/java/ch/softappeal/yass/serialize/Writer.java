@@ -19,7 +19,6 @@ public abstract class Writer {
   /**
    * Writes a short as 2 bytes, high byte first.
    */
-  @SuppressWarnings({"PointlessBitwiseExpression", "NumericCastThatLosesPrecision", "UnnecessaryExplicitNumericCast"})
   public final void writeShort(final short value) throws Exception {
     writeByte((byte)(value >> 8));
     writeByte((byte)(value >> 0));
@@ -28,7 +27,6 @@ public abstract class Writer {
   /**
    * Writes an int as 4 bytes, high byte first.
    */
-  @SuppressWarnings({"PointlessBitwiseExpression", "NumericCastThatLosesPrecision", "UnnecessaryExplicitNumericCast"})
   public final void writeInt(final int value) throws Exception {
     writeByte((byte)(value >> 24));
     writeByte((byte)(value >> 16));
@@ -39,7 +37,6 @@ public abstract class Writer {
   /**
    * Writes a long as 8 bytes, high byte first.
    */
-  @SuppressWarnings({"PointlessBitwiseExpression", "NumericCastThatLosesPrecision", "UnnecessaryExplicitNumericCast"})
   public final void writeLong(final long value) throws Exception {
     writeByte((byte)(value >> 56));
     writeByte((byte)(value >> 48));
@@ -54,7 +51,6 @@ public abstract class Writer {
   /**
    * Writes a char as 2 bytes, high byte first.
    */
-  @SuppressWarnings({"PointlessBitwiseExpression", "CharUsedInArithmeticContext", "NumericCastThatLosesPrecision", "UnnecessaryExplicitNumericCast"})
   public final void writeChar(final char value) throws Exception {
     writeByte((byte)(value >> 8));
     writeByte((byte)(value >> 0));
@@ -77,7 +73,6 @@ public abstract class Writer {
   /**
    * Writes an int with <a href="https://developers.google.com/protocol-buffers/docs/encoding#varints">variable length encoding</a>.
    */
-  @SuppressWarnings({"NumericCastThatLosesPrecision", "UnnecessaryExplicitNumericCast"})
   public final void writeVarInt(int value) throws Exception {
     while (true) {
       if ((value & ~0b0111_1111) == 0) {
@@ -85,7 +80,6 @@ public abstract class Writer {
         return;
       }
       writeByte((byte)((value & 0b0111_1111) | 0b1000_0000));
-      //noinspection AssignmentToMethodParameter
       value >>>= 7;
     }
   }
@@ -100,7 +94,6 @@ public abstract class Writer {
   /**
    * Writes a long with <a href="https://developers.google.com/protocol-buffers/docs/encoding#varints">variable length encoding</a>.
    */
-  @SuppressWarnings({"NumericCastThatLosesPrecision", "UnnecessaryExplicitNumericCast"})
   public final void writeVarLong(long value) throws Exception {
     while (true) {
       if ((value & ~0b0111_1111) == 0) {
@@ -108,7 +101,6 @@ public abstract class Writer {
         return;
       }
       writeByte((byte)((value & 0b0111_1111) | 0b1000_0000));
-      //noinspection AssignmentToMethodParameter
       value >>>= 7;
     }
   }
@@ -122,10 +114,9 @@ public abstract class Writer {
 
   public final OutputStream stream() {
     return new OutputStream() {
-      @Override public void write(final int b) {
+      @Override public void write(final int i) {
         try {
-          //noinspection NumericCastThatLosesPrecision,UnnecessaryExplicitNumericCast
-          writeByte((byte)b);
+          writeByte((byte)i);
         } catch (final Exception e) {
           throw Exceptions.wrap(e);
         }

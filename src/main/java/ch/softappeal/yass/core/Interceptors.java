@@ -23,7 +23,6 @@ public final class Interceptors {
    * @param <C> the contract type
    * @return a proxy for implementation using interceptors
    */
-  @SuppressWarnings("WeakerAccess")
   public static <C> C proxy(final Class<C> contract, final C implementation, final Interceptor... interceptors) {
     Check.notNull(implementation);
     final Interceptor interceptor = composite(interceptors);
@@ -34,7 +33,6 @@ public final class Interceptors {
             try {
               return method.invoke(implementation, arguments);
             } catch (final InvocationTargetException e) {
-              //noinspection ThrowInsideCatchBlockWhichIgnoresCaughtException
               throw e.getCause();
             }
           }
@@ -54,7 +52,6 @@ public final class Interceptors {
   };
 
 
-  @SuppressWarnings("ObjectEquality")
   public static Interceptor composite(final Interceptor interceptor1, final Interceptor interceptor2) {
     Check.notNull(interceptor1);
     Check.notNull(interceptor2);

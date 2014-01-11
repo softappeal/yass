@@ -15,11 +15,11 @@ public final class FieldHandler {
   public final Field field;
   private final Reflector.Accessor accessor;
 
-  @SuppressWarnings("InstanceVariableMayNotBeInitialized") @Nullable private TypeHandler typeHandler;
+  @Nullable private TypeHandler typeHandler;
   /**
    * Note: null if {@link ClassTypeHandler} or type not in class2typeDesc (Object, Throwable, abstract classes, ...).
    */
-  public @Nullable TypeHandler typeHandler() {
+  @Nullable public TypeHandler typeHandler() {
     return typeHandler;
   }
 
@@ -60,19 +60,26 @@ public final class FieldHandler {
   private static Class<?> primitiveWrapperType(final Class<?> type) {
     if (type == boolean.class) {
       return Boolean.class;
-    } else if (type == byte.class) {
+    }
+    if (type == byte.class) {
       return Byte.class;
-    } else if (type == short.class) {
+    }
+    if (type == short.class) {
       return Short.class;
-    } else if (type == int.class) {
+    }
+    if (type == int.class) {
       return Integer.class;
-    } else if (type == long.class) {
+    }
+    if (type == long.class) {
       return Long.class;
-    } else if (type == char.class) {
+    }
+    if (type == char.class) {
       return Character.class;
-    } else if (type == float.class) {
+    }
+    if (type == float.class) {
       return Float.class;
-    } else if (type == double.class) {
+    }
+    if (type == double.class) {
       return Double.class;
     }
     return type;

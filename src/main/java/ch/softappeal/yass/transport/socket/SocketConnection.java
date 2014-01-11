@@ -56,7 +56,6 @@ public final class SocketConnection extends Connection {
 
   private void notifyWriterQueueEmpty() {
     synchronized (writerQueueEmpty) {
-      //noinspection NakedNotify
       writerQueueEmpty.notifyAll();
     }
   }
@@ -68,14 +67,12 @@ public final class SocketConnection extends Connection {
         if (closed) {
           return;
         }
-        //noinspection ContinueStatement
         continue;
       }
       while (true) { // drain queue -> batching of packets
         final ByteArrayOutputStream buffer2 = writerQueue.poll();
         if (buffer2 == null) {
           notifyWriterQueueEmpty();
-          //noinspection BreakStatement
           break;
         }
         buffer2.writeTo(buffer);
@@ -84,15 +81,14 @@ public final class SocketConnection extends Connection {
     }
   }
 
-  private boolean isWriterQueueEmpty() {
-    return writerQueue.isEmpty();
+  private boolean writerQueueFull() {
+    return !writerQueue.isEmpty();
   }
 
   public void awaitWriterQueueEmpty() {
     try {
       synchronized (writerQueueEmpty) {
-        while (!isWriterQueueEmpty()) {
-          //noinspection WaitOrAwaitWithoutTimeout
+        while (writerQueueFull()) {
           writerQueueEmpty.wait();
         }
       }
@@ -128,7 +124,7 @@ public final class SocketConnection extends Connection {
   @Override protected void closed() throws Exception {
     try {
       try {
-        while (!isWriterQueueEmpty()) {
+        while (writerQueueFull()) {
           TimeUnit.MILLISECONDS.sleep(100L);
         }
         TimeUnit.MILLISECONDS.sleep(100L); // give the socket a chance to write the end packet
@@ -148,7 +144,7 @@ public final class SocketConnection extends Connection {
       connection = new SocketConnection(transport.packetSerializer, adoptSocket);
       session = transport.setup.createSession(connection);
     } catch (final Exception e) {
-      SocketListener.closeWithAddSuppressed(adoptSocket, e);
+      SocketListener.close(adoptSocket, e);
       transport.createSessionExceptionHandler.uncaughtException(Thread.currentThread(), e);
       return;
     }

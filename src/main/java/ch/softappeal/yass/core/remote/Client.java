@@ -30,7 +30,6 @@ public abstract class Client extends Common {
       this.invocationInterceptor = invocationInterceptor;
       this.serviceId = serviceId;
       this.methodMapping = methodMapping;
-      //noinspection AssignmentToCollectionOrArrayFieldFromParameter
       this.arguments = arguments;
       oneWay = methodMapping.oneWay;
     }

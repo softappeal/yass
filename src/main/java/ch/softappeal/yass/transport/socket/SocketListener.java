@@ -10,6 +10,7 @@ import java.lang.Thread.UncaughtExceptionHandler;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketAddress;
+import java.net.SocketException;
 import java.net.SocketTimeoutException;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
@@ -26,7 +27,7 @@ public abstract class SocketListener {
     try {
       executor.execute(runnable);
     } catch (final Exception e) {
-      closeWithAddSuppressed(adoptSocket, e);
+      close(adoptSocket, e);
       exceptionHandler.uncaughtException(Thread.currentThread(), e);
     }
   }
@@ -37,7 +38,6 @@ public abstract class SocketListener {
    * Starts a socket listener on the server side.
    * @param listenerExecutor must interrupt it's threads to terminate the socket listener (-> use {@link ExecutorService#shutdownNow()})
    */
-  @SuppressWarnings("WeakerAccess")
   public final void start(final Executor listenerExecutor, final ServerSocketFactory socketFactory, final SocketAddress socketAddress) {
     try {
       final ServerSocket serverSocket = socketFactory.createServerSocket();
@@ -46,20 +46,15 @@ public abstract class SocketListener {
         serverSocket.setSoTimeout(ACCEPT_TIMEOUT_MILLISECONDS);
         listenerExecutor.execute(new Runnable() {
 
-          @SuppressWarnings("BreakStatement")
           private void loop() throws IOException {
-            //noinspection LoopWithImplicitTerminationCondition
             while (true) {
               if (Thread.interrupted()) {
                 break;
               }
               final Socket socket;
-              //noinspection UnusedCatchParameter
               try {
-                //noinspection SocketOpenedButNotSafelyClosed
                 socket = serverSocket.accept();
               } catch (final SocketTimeoutException ignore) { // thrown if SoTimeout reached
-                //noinspection ContinueStatement
                 continue;
               } catch (final InterruptedIOException ignore) {
                 break; // needed because some VM's (for example: Sun Solaris) throw this exception if the thread gets interrupted
@@ -73,7 +68,7 @@ public abstract class SocketListener {
               try {
                 loop();
               } catch (final Exception e) {
-                closeWithAddSuppressed(serverSocket, e);
+                close(serverSocket, e);
                 throw e;
               }
               serverSocket.close();
@@ -84,7 +79,7 @@ public abstract class SocketListener {
 
         });
       } catch (final Exception e) {
-        closeWithAddSuppressed(serverSocket, e);
+        close(serverSocket, e);
         throw e;
       }
     } catch (final IOException e) {
@@ -100,7 +95,7 @@ public abstract class SocketListener {
     start(listenerExecutor, ServerSocketFactory.getDefault(), socketAddress);
   }
 
-  static void closeWithAddSuppressed(final ServerSocket serverSocket, final Exception e) {
+  static void close(final ServerSocket serverSocket, final Exception e) {
     try {
       serverSocket.close();
     } catch (final Exception e2) {
@@ -108,7 +103,7 @@ public abstract class SocketListener {
     }
   }
 
-  static void closeWithAddSuppressed(final Socket socket, final Exception e) {
+  static void close(final Socket socket, final Exception e) {
     try {
       socket.close();
     } catch (final Exception e2) {
@@ -119,7 +114,7 @@ public abstract class SocketListener {
   /**
    * Forces immediate send.
    */
-  static void setTcpNoDelay(final Socket socket) throws IOException {
+  static void setTcpNoDelay(final Socket socket) throws SocketException {
     socket.setTcpNoDelay(true);
   }
 
@@ -137,7 +132,7 @@ public abstract class SocketListener {
       socket.connect(socketAddress);
       return socket;
     } catch (final Exception e) {
-      closeWithAddSuppressed(socket, e);
+      close(socket, e);
       throw e;
     }
   }

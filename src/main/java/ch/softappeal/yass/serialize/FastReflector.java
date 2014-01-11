@@ -10,7 +10,6 @@ import java.lang.reflect.Field;
 /**
  * Even works if classes don't have a default constructor; uses {@link Unsafe}.
  */
-@SuppressWarnings("UseOfSunClasses")
 public final class FastReflector implements Reflector {
 
   private static Unsafe getUnsafe() {
@@ -41,7 +40,6 @@ public final class FastReflector implements Reflector {
     return UNSAFE.allocateInstance(type);
   }
 
-  @SuppressWarnings("IfMayBeConditional")
   @Override public Accessor accessor(final Field field) {
     final Class<?> type = field.getType();
     final long offset = UNSAFE.objectFieldOffset(field);
@@ -54,7 +52,8 @@ public final class FastReflector implements Reflector {
           UNSAFE.putObject(object, offset, value);
         }
       };
-    } else if (type == Boolean.TYPE) {
+    }
+    if (type == Boolean.TYPE) {
       return new Accessor() {
         @Override public Object get(final Object object) {
           return UNSAFE.getBoolean(object, offset);
@@ -63,7 +62,8 @@ public final class FastReflector implements Reflector {
           UNSAFE.putBoolean(object, offset, (Boolean)value);
         }
       };
-    } else if (type == Character.TYPE) {
+    }
+    if (type == Character.TYPE) {
       return new Accessor() {
         @Override public Object get(final Object object) {
           return UNSAFE.getChar(object, offset);
@@ -72,7 +72,8 @@ public final class FastReflector implements Reflector {
           UNSAFE.putChar(object, offset, (Character)value);
         }
       };
-    } else if (type == Byte.TYPE) {
+    }
+    if (type == Byte.TYPE) {
       return new Accessor() {
         @Override public Object get(final Object object) {
           return UNSAFE.getByte(object, offset);
@@ -81,7 +82,8 @@ public final class FastReflector implements Reflector {
           UNSAFE.putByte(object, offset, (Byte)value);
         }
       };
-    } else if (type == Short.TYPE) {
+    }
+    if (type == Short.TYPE) {
       return new Accessor() {
         @Override public Object get(final Object object) {
           return UNSAFE.getShort(object, offset);
@@ -90,7 +92,8 @@ public final class FastReflector implements Reflector {
           UNSAFE.putShort(object, offset, (Short)value);
         }
       };
-    } else if (type == Integer.TYPE) {
+    }
+    if (type == Integer.TYPE) {
       return new Accessor() {
         @Override public Object get(final Object object) {
           return UNSAFE.getInt(object, offset);
@@ -99,7 +102,8 @@ public final class FastReflector implements Reflector {
           UNSAFE.putInt(object, offset, (Integer)value);
         }
       };
-    } else if (type == Long.TYPE) {
+    }
+    if (type == Long.TYPE) {
       return new Accessor() {
         @Override public Object get(final Object object) {
           return UNSAFE.getLong(object, offset);
@@ -108,7 +112,8 @@ public final class FastReflector implements Reflector {
           UNSAFE.putLong(object, offset, (Long)value);
         }
       };
-    } else if (type == Float.TYPE) {
+    }
+    if (type == Float.TYPE) {
       return new Accessor() {
         @Override public Object get(final Object object) {
           return UNSAFE.getFloat(object, offset);
@@ -117,16 +122,16 @@ public final class FastReflector implements Reflector {
           UNSAFE.putFloat(object, offset, (Float)value);
         }
       };
-    } else { // Double.TYPE
-      return new Accessor() {
-        @Override public Object get(final Object object) {
-          return UNSAFE.getDouble(object, offset);
-        }
-        @Override public void set(final Object object, @Nullable final Object value) {
-          UNSAFE.putDouble(object, offset, (Double)value);
-        }
-      };
     }
+    // Double.TYPE
+    return new Accessor() {
+      @Override public Object get(final Object object) {
+        return UNSAFE.getDouble(object, offset);
+      }
+      @Override public void set(final Object object, @Nullable final Object value) {
+        UNSAFE.putDouble(object, offset, (Double)value);
+      }
+    };
   }
 
 }

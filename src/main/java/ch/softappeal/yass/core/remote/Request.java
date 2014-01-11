@@ -22,7 +22,6 @@ public final class Request extends Message {
   public Request(final Object serviceId, final Object methodId, @Nullable final Object[] arguments) {
     this.serviceId = Check.notNull(serviceId);
     this.methodId = Check.notNull(methodId);
-    //noinspection AssignmentToCollectionOrArrayFieldFromParameter
     this.arguments = arguments;
   }
 

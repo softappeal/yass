@@ -37,7 +37,7 @@ public abstract class Session extends Client implements AutoCloseable {
   private final SessionSetup setup;
   private final AtomicBoolean closed = new AtomicBoolean(false);
   public final Connection connection;
-  @SuppressWarnings("ThisEscapedInObjectConstruction") private final Interceptor sessionInterceptor = Interceptors.threadLocal(INSTANCE, this);
+  private final Interceptor sessionInterceptor = Interceptors.threadLocal(INSTANCE, this);
   private boolean opened = false;
 
   protected Session(final SessionSetup setup, final Connection connection) {
@@ -52,7 +52,6 @@ public abstract class Session extends Client implements AutoCloseable {
    * This implementation does nothing.
    * @throws Exception if an exception is thrown, {@link #closed(Exception)} will be called
    */
-  @SuppressWarnings("NoopMethodInAbstractClass")
   protected void opened() throws Exception {
     // empty
   }
