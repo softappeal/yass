@@ -1,13 +1,15 @@
 package ch.softappeal.yass.tutorial.contract;
 
 import ch.softappeal.yass.core.remote.MethodMapper;
+import ch.softappeal.yass.core.remote.SimpleMethodMapper;
 import ch.softappeal.yass.core.remote.TaggedMethodMapper;
 import ch.softappeal.yass.serialize.FastReflector;
 import ch.softappeal.yass.serialize.Serializer;
 import ch.softappeal.yass.serialize.fast.AbstractFastSerializer;
+import ch.softappeal.yass.serialize.fast.BaseTypeHandler;
 import ch.softappeal.yass.serialize.fast.BaseTypeHandlers;
+import ch.softappeal.yass.serialize.fast.SimpleFastSerializer;
 import ch.softappeal.yass.serialize.fast.TaggedFastSerializer;
-import ch.softappeal.yass.serialize.fast.TypeDesc;
 import ch.softappeal.yass.transport.MessageSerializer;
 import ch.softappeal.yass.transport.PacketSerializer;
 import ch.softappeal.yass.tutorial.contract.instrument.Bond;
@@ -18,15 +20,15 @@ import java.util.Arrays;
 public final class Config {
 
   /**
-   * @see AbstractFastSerializer
+   * @see TaggedFastSerializer
    */
-  public static final AbstractFastSerializer CONTRACT_SERIALIZER = new TaggedFastSerializer(
+  public static final AbstractFastSerializer CONTRACT_SERIALIZER = new SimpleFastSerializer(
     FastReflector.FACTORY,
-    Arrays.asList(
-      new TypeDesc(3, BaseTypeHandlers.BOOLEAN),
-      new TypeDesc(4, BaseTypeHandlers.INTEGER),
-      new TypeDesc(5, BaseTypeHandlers.STRING),
-      DateTime.TYPE_DESC
+    Arrays.<BaseTypeHandler<?>>asList(
+      BaseTypeHandlers.BOOLEAN,
+      BaseTypeHandlers.INTEGER,
+      BaseTypeHandlers.STRING,
+      DateTime.TYPE_HANDLER
     ),
     Arrays.<Class<?>>asList(PriceType.class),
     Arrays.<Class<?>>asList(Price.class, Trade.class, UnknownInstrumentsException.class),
@@ -35,6 +37,9 @@ public final class Config {
 
   public static final Serializer PACKET_SERIALIZER = new PacketSerializer(new MessageSerializer(CONTRACT_SERIALIZER));
 
-  public static final MethodMapper.Factory METHOD_MAPPER_FACTORY = TaggedMethodMapper.FACTORY;
+  /**
+   * @see TaggedMethodMapper
+   */
+  public static final MethodMapper.Factory METHOD_MAPPER_FACTORY = SimpleMethodMapper.FACTORY;
 
 }

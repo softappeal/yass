@@ -8,7 +8,10 @@ import ch.softappeal.yass.serialize.contract.IntException;
 import ch.softappeal.yass.serialize.contract.Node;
 import ch.softappeal.yass.serialize.contract.PrimitiveTypes;
 import ch.softappeal.yass.serialize.contract.nested.AllTypes;
+import ch.softappeal.yass.serialize.fast.AbstractFastSerializer;
+import ch.softappeal.yass.serialize.fast.BaseTypeHandler;
 import ch.softappeal.yass.serialize.fast.BaseTypeHandlers;
+import ch.softappeal.yass.serialize.fast.SimpleFastSerializer;
 import ch.softappeal.yass.serialize.fast.TaggedFastSerializer;
 import ch.softappeal.yass.serialize.fast.TypeDesc;
 import org.junit.Assert;
@@ -247,7 +250,7 @@ public class SerializerTest {
     test(JavaSerializer.INSTANCE);
   }
 
-  public static final TaggedFastSerializer TAGGED_FAST_SERIALIZER = new TaggedFastSerializer(
+  public static final AbstractFastSerializer TAGGED_FAST_SERIALIZER = new TaggedFastSerializer(
     FastReflector.FACTORY,
     Arrays.asList(
       new TypeDesc(3, BaseTypeHandlers.BOOLEAN),
@@ -278,6 +281,39 @@ public class SerializerTest {
 
   @Test public void taggedFast() throws Exception {
     test(TAGGED_FAST_SERIALIZER);
+  }
+
+  public static final AbstractFastSerializer SIMPLE_FAST_SERIALIZER = new SimpleFastSerializer(
+    FastReflector.FACTORY,
+    Arrays.<BaseTypeHandler<?>>asList(
+      BaseTypeHandlers.BOOLEAN,
+      BaseTypeHandlers.BYTE,
+      BaseTypeHandlers.SHORT,
+      BaseTypeHandlers.INTEGER,
+      BaseTypeHandlers.LONG,
+      BaseTypeHandlers.CHARACTER,
+      BaseTypeHandlers.FLOAT,
+      BaseTypeHandlers.DOUBLE,
+      BaseTypeHandlers.BOOLEAN_ARRAY,
+      BaseTypeHandlers.BYTE_ARRAY,
+      BaseTypeHandlers.SHORT_ARRAY,
+      BaseTypeHandlers.INTEGER_ARRAY,
+      BaseTypeHandlers.LONG_ARRAY,
+      BaseTypeHandlers.CHARACTER_ARRAY,
+      BaseTypeHandlers.FLOAT_ARRAY,
+      BaseTypeHandlers.DOUBLE_ARRAY,
+      BaseTypeHandlers.STRING,
+      BaseTypeHandlers.BIGINTEGER,
+      BaseTypeHandlers.BIGDECIMAL,
+      BaseTypeHandlers.DATE
+    ),
+    Arrays.<Class<?>>asList(Color.class),
+    Arrays.<Class<?>>asList(PrimitiveTypes.class, AllTypes.class, IntException.class),
+    Arrays.<Class<?>>asList(Node.class)
+  );
+
+  @Test public void simpleFast() throws Exception {
+    test(SIMPLE_FAST_SERIALIZER);
   }
 
 }

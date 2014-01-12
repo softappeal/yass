@@ -25,7 +25,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.PrintWriter;
 import java.util.Arrays;
 
-public class TaggedFastSerializerTest {
+public class AbstractFastSerializerTest {
 
   @Test public void baseEnumeration() {
     try {
@@ -155,10 +155,18 @@ public class TaggedFastSerializerTest {
     }
   }
 
-  @Test public void printNumbers() {
+  @Test public void taggedPrint() {
     TestUtils.compareFile("ch/softappeal/yass/serialize/test/TaggedFastSerializerTest.numbers.txt", new TestUtils.Printer() {
       @Override public void print(final PrintWriter printer) {
         SerializerTest.TAGGED_FAST_SERIALIZER.print(printer);
+      }
+    });
+  }
+
+  @Test public void simplePrints() {
+    TestUtils.compareFile("ch/softappeal/yass/serialize/test/SimpleFastSerializerTest.numbers.txt", new TestUtils.Printer() {
+      @Override public void print(final PrintWriter printer) {
+        SerializerTest.SIMPLE_FAST_SERIALIZER.print(printer);
       }
     });
   }
@@ -222,7 +230,7 @@ public class TaggedFastSerializerTest {
       );
       Assert.fail();
     } catch (final IllegalArgumentException e) {
-      Assert.assertEquals("missing tag for 'class ch.softappeal.yass.serialize.test.TaggedFastSerializerTest$MissingClassTag'", e.getMessage());
+      Assert.assertEquals("missing tag for 'class ch.softappeal.yass.serialize.test.AbstractFastSerializerTest$MissingClassTag'", e.getMessage());
     }
   }
 
@@ -256,7 +264,7 @@ public class TaggedFastSerializerTest {
       );
       Assert.fail();
     } catch (final IllegalArgumentException e) {
-      Assert.assertEquals("id -1 for type 'ch.softappeal.yass.serialize.test.TaggedFastSerializerTest.InvalidTypeTag' must be >= 0", e.getMessage());
+      Assert.assertEquals("id -1 for type 'ch.softappeal.yass.serialize.test.AbstractFastSerializerTest.InvalidTypeTag' must be >= 0", e.getMessage());
     }
   }
 
@@ -276,7 +284,7 @@ public class TaggedFastSerializerTest {
       Assert.fail();
     } catch (final IllegalArgumentException e) {
       Assert.assertEquals(
-        "id 0 for field 'int ch.softappeal.yass.serialize.test.TaggedFastSerializerTest$InvalidFieldTag.i' must be >= 1",
+        "id 0 for field 'int ch.softappeal.yass.serialize.test.AbstractFastSerializerTest$InvalidFieldTag.i' must be >= 1",
         e.getMessage()
       );
     }

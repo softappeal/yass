@@ -10,7 +10,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * This serializer uses numbers for type and field id's from its {@link Tag}.
+ * This serializer assigns type and field id's from its {@link Tag}.
  */
 public final class TaggedFastSerializer extends AbstractFastSerializer {
 
@@ -32,13 +32,13 @@ public final class TaggedFastSerializer extends AbstractFastSerializer {
    * @param referenceableConcreteClasses instances of these classes can be used in graphs
    */
   public TaggedFastSerializer(
-    final Reflector.Factory reflectorFactory,
-    final Collection<TypeDesc> baseTypeDescs,
-    final Collection<Class<?>> enumerations,
-    final Collection<Class<?>> concreteClasses,
-    final Collection<Class<?>> referenceableConcreteClasses
+    final Reflector.Factory reflectorFactory, final Collection<TypeDesc> baseTypeDescs, final Collection<Class<?>> enumerations,
+    final Collection<Class<?>> concreteClasses, final Collection<Class<?>> referenceableConcreteClasses
   ) {
-    super(reflectorFactory, baseTypeDescs);
+    super(reflectorFactory);
+    for (final TypeDesc typeDesc : baseTypeDescs) {
+      addBaseType(typeDesc);
+    }
     for (final Class<?> type : enumerations) {
       addEnum(Check.hasTag(type), type);
     }

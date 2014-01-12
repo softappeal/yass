@@ -31,6 +31,14 @@ public interface MethodMapper {
       this.method = Check.notNull(method);
       this.id = Check.notNull(id);
       this.oneWay = oneWay;
+      if (oneWay) {
+        if (method.getReturnType() != Void.TYPE) {
+          throw new IllegalArgumentException("oneway method '" + method + "' must return 'void'");
+        }
+        if (method.getExceptionTypes().length != 0) {
+          throw new IllegalArgumentException("oneway method '" + method + "' must not throw exceptions");
+        }
+      }
     }
 
   }

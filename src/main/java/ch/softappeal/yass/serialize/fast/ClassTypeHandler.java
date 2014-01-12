@@ -30,9 +30,7 @@ public final class ClassTypeHandler extends TypeHandler {
     return fieldDescs.clone();
   }
 
-  ClassTypeHandler(
-    final Class<?> type, final Reflector reflector, final boolean referenceable, final Map<Integer, FieldHandler> id2fieldHandler
-  ) {
+  ClassTypeHandler(final Class<?> type, final Reflector reflector, final boolean referenceable, final Map<Integer, FieldHandler> id2fieldHandler) {
     super(type);
     this.reflector = Check.notNull(reflector);
     this.referenceable = referenceable;

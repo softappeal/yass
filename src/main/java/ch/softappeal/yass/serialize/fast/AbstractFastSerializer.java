@@ -12,7 +12,6 @@ import java.io.PrintWriter;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -100,17 +99,18 @@ public abstract class AbstractFastSerializer implements Serializer {
     addType(new TypeDesc(id, new ClassTypeHandler(type, reflector, referenceable, id2fieldHandler)));
   }
 
-  protected AbstractFastSerializer(final Reflector.Factory reflectorFactory, final Collection<TypeDesc> baseTypeDescs) {
+  protected final void addBaseType(final TypeDesc typeDesc) {
+    if (typeDesc.handler.type.isEnum()) {
+      throw new IllegalArgumentException("base type '" + typeDesc.handler.type.getCanonicalName() + "' is an enumeration");
+    }
+    addType(typeDesc);
+  }
+
+  protected AbstractFastSerializer(final Reflector.Factory reflectorFactory) {
     this.reflectorFactory = Check.notNull(reflectorFactory);
     addType(TypeDesc.NULL);
     addType(TypeDesc.REFERENCE);
     addType(TypeDesc.LIST);
-    for (final TypeDesc baseTypeDesc : baseTypeDescs) {
-      if (baseTypeDesc.handler.type.isEnum()) {
-        throw new IllegalArgumentException("base type '" + baseTypeDesc.handler.type.getCanonicalName() + "' is an enumeration");
-      }
-      addType(baseTypeDesc);
-    }
   }
 
   protected final void fixupFields() {
