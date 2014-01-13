@@ -1,8 +1,11 @@
 defaultTasks 'clean', 'build', 'compileTutorialJava', 'createPom', 'dist'
 
 apply plugin: 'java'
+apply plugin: 'osgi'
 apply plugin: 'maven'
 apply plugin: 'signing'
+
+group = "ch.softappeal.yass"
 
 sourceCompatibility = '1.7'
 targetCompatibility = '1.7'
@@ -24,20 +27,15 @@ tasks.withType(JavaCompile) {
   options.compilerArgs << "-Xlint"
 }
 
-ext.sharedManifest = manifest {
-  attributes("Implementation-Title": project.name, "Implementation-Version": version)
-}
-
 jar {
   from "readme.md"
   from "license.txt"
-  manifest = project.manifest { from sharedManifest }
+  manifest { attributes("Implementation-Version": version) }
 }
 
 task packageSources(type: Jar) {
   from "readme.md"
   from "license.txt"
-  manifest = project.manifest { from sharedManifest }
   from sourceSets.main.allSource
   classifier = 'sources'
 }
@@ -45,7 +43,6 @@ task packageSources(type: Jar) {
 task packageJavadoc(type: Jar, dependsOn: 'javadoc') {
   from "readme.md"
   from "license.txt"
-  manifest = project.manifest { from sharedManifest }
   from javadoc.destinationDir
   classifier = 'javadoc'
 }
@@ -58,8 +55,6 @@ artifacts {
 task createPom << {
   pom {
     project {
-      groupId 'ch.softappeal.' + project.name
-      packaging 'jar'
       name project.name
       description 'Yet Another Service Solution'
       url 'https://github.com/softappeal/yass'
