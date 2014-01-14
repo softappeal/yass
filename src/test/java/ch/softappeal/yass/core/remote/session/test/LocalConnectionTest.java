@@ -1,6 +1,8 @@
 package ch.softappeal.yass.core.remote.session.test;
 
+import ch.softappeal.yass.core.Interceptor;
 import ch.softappeal.yass.core.Interceptors;
+import ch.softappeal.yass.core.Invocation;
 import ch.softappeal.yass.core.remote.Server;
 import ch.softappeal.yass.core.remote.TaggedMethodMapper;
 import ch.softappeal.yass.core.remote.session.Connection;
@@ -18,12 +20,24 @@ import ch.softappeal.yass.util.TestUtils;
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.lang.reflect.Method;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 public class LocalConnectionTest extends InvokeTest {
+
+  private static final Interceptor SESSION_CHECKER = Interceptors.composite(
+    new Interceptor() {
+      @Override public Object invoke(final Method method, @Nullable final Object[] arguments, final Invocation invocation) throws Throwable {
+        Session.get();
+        Assert.assertTrue(Session.hasInvocation());
+        return invocation.proceed();
+      }
+    },
+    RemoteTest.CONTRACT_ID_CHECKER
+  );
 
   public static SessionSetup createSetup(
     final boolean invoke, final String name, final Executor requestExecutor,
@@ -34,7 +48,7 @@ public class LocalConnectionTest extends InvokeTest {
         TaggedMethodMapper.FACTORY,
         ContractIdTest.ID.service(
           new TestServiceImpl(),
-          invoke ? RemoteTest.CONTRACT_ID_CHECKER : Interceptors.composite(RemoteTest.CONTRACT_ID_CHECKER, SERVER_INTERCEPTOR)
+          invoke ? SESSION_CHECKER : Interceptors.composite(SESSION_CHECKER, SERVER_INTERCEPTOR)
         )
       ),
       requestExecutor,
@@ -59,7 +73,7 @@ public class LocalConnectionTest extends InvokeTest {
                 try (Session session = this) {
                   InvokeTest.invoke(
                     ContractIdTest.ID.invoker(session).proxy(
-                      invoke ? Interceptors.composite(PRINTLN_AFTER, RemoteTest.CONTRACT_ID_CHECKER, CLIENT_INTERCEPTOR) : RemoteTest.CONTRACT_ID_CHECKER
+                      invoke ? Interceptors.composite(PRINTLN_AFTER, SESSION_CHECKER, CLIENT_INTERCEPTOR) : SESSION_CHECKER
                     )
                   );
                 }
@@ -84,6 +98,7 @@ public class LocalConnectionTest extends InvokeTest {
     } catch (final RuntimeException e) {
       Assert.assertEquals("no active invocation", e.getMessage());
     }
+    Assert.assertFalse(Session.hasInvocation());
     final ExecutorService executor = Executors.newCachedThreadPool(new NamedThreadFactory("executor", TestUtils.TERMINATE));
     try {
       LocalConnection.connect(createSetup(true, "client", executor, false, false, false), createSetup(false, "server", executor, false, false, false));

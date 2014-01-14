@@ -106,6 +106,7 @@ public final class Interceptors {
 
   /**
    * @return is there an active invocation ?
+   * @see #getInvocation(ThreadLocal)
    */
   public static boolean hasInvocation(final ThreadLocal<?> threadLocal) {
     return threadLocal.get() != null;

@@ -14,6 +14,13 @@ public final class ContractId<C> {
   private static final ThreadLocal<ContractId<?>> INSTANCE = new ThreadLocal<>();
 
   /**
+   * @see Interceptors#hasInvocation(ThreadLocal)
+   */
+  public static boolean hasInvocation() {
+    return Interceptors.hasInvocation(INSTANCE);
+  }
+
+  /**
    * @return {@link ContractId} of the active invocation
    * @see Interceptors#getInvocation(ThreadLocal)
    */

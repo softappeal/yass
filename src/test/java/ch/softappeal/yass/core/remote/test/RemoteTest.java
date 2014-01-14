@@ -25,6 +25,7 @@ public class RemoteTest extends InvokeTest {
   public static final Interceptor CONTRACT_ID_CHECKER = new Interceptor() {
     @Override public Object invoke(final Method method, @Nullable final Object[] arguments, final Invocation invocation) throws Throwable {
       Assert.assertEquals(TestService.class.getSimpleName(), ContractId.get().id);
+      Assert.assertTrue(ContractId.hasInvocation());
       Assert.assertSame(TestService.class, ContractId.get().contract);
       return invocation.proceed();
     }
@@ -84,6 +85,7 @@ public class RemoteTest extends InvokeTest {
     } catch (final IllegalStateException e) {
       // ignore
     }
+    Assert.assertFalse(ContractId.hasInvocation());
     invoke(
       ContractIdTest.ID.invoker(
         client(
