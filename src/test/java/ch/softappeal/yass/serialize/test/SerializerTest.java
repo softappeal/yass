@@ -106,7 +106,6 @@ public class SerializerTest {
     return allTypes;
   }
 
-  @SuppressWarnings("unchecked")
   private static void checkValues(final AllTypes allTypes) {
     Assert.assertTrue(allTypes.booleanField == false);
     Assert.assertTrue(allTypes.byteField == 100);

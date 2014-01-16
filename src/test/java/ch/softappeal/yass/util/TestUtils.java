@@ -52,7 +52,6 @@ public class TestUtils {
   public static final UncaughtExceptionHandler TERMINATE = new UncaughtExceptionHandler() {
     @Override public void uncaughtException(final Thread t, final Throwable e) {
       Exceptions.STD_ERR.uncaughtException(t, e);
-      //noinspection CallToSystemExit
       System.exit(1);
     }
   };

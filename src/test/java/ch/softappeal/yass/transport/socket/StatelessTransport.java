@@ -65,7 +65,6 @@ public final class StatelessTransport extends SocketListener {
   @Override void accept(final Socket adoptSocket) {
     execute(requestExecutor, acceptExceptionHandler, adoptSocket, new Runnable() {
       @Override public void run() {
-        //noinspection UnnecessaryLocalVariable
         try (Socket socket = adoptSocket) {
           setTcpNoDelay(socket);
           final ServerInvocation invocation = server.invocation((Request)read(socket, messageSerializer));
@@ -80,7 +79,6 @@ public final class StatelessTransport extends SocketListener {
     });
   }
 
-  @SuppressWarnings("WeakerAccess")
   public static Client client(
     final MethodMapper.Factory methodMapperFactory, final Serializer messageSerializer,
     final SocketFactory socketFactory, final SocketAddress socketAddress

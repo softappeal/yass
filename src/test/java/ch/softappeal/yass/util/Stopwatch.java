@@ -7,7 +7,7 @@ public final class Stopwatch {
 
   private boolean stopped;
   private final long startNanos;
-  @SuppressWarnings("InstanceVariableMayNotBeInitialized") private long endNanos;
+  private long endNanos;
 
   public Stopwatch() {
     startNanos = System.nanoTime();
