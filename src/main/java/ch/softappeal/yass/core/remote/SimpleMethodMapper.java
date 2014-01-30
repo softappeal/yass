@@ -27,12 +27,11 @@ public final class SimpleMethodMapper implements MethodMapper {
     int id = 0;
     for (final Method method : methods) {
       final Mapping mapping = new Mapping(method, id, method.getAnnotation(OneWay.class) != null);
-      mappings[id] = mapping;
       final Mapping oldMapping = name2mapping.put(method.getName(), mapping);
       if (oldMapping != null) {
         throw new IllegalArgumentException("methods '" + method + "' and '" + oldMapping.method + "' are overloaded");
       }
-      id++;
+      mappings[id++] = mapping;
     }
   }
 
