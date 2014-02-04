@@ -13,6 +13,9 @@ public final class Service {
   final Object implementation;
   final Interceptor interceptor;
 
+  /**
+   * @see ContractId#service(Object, Interceptor...)
+   */
   <C> Service(final ContractId<C> contractId, final C implementation, final Interceptor... interceptors) {
     this.contractId = Check.notNull(contractId);
     this.implementation = Check.notNull(implementation);

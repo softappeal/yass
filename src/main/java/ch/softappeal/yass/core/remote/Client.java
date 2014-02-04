@@ -55,6 +55,9 @@ public abstract class Client extends Common {
   }
 
 
+  /**
+   * @see ContractId#invoker(Client)
+   */
   final <C> Invoker<C> invoker(final ContractId<C> contractId) {
     final MethodMapper methodMapper = methodMapper(contractId.contract);
     return new Invoker<C>() {
