@@ -5,10 +5,12 @@ import ch.softappeal.yass.serialize.Reader;
 import ch.softappeal.yass.serialize.Serializer;
 import ch.softappeal.yass.serialize.SlowReflector;
 import ch.softappeal.yass.serialize.Writer;
+import ch.softappeal.yass.serialize.contract.C1;
+import ch.softappeal.yass.serialize.contract.C2;
 import ch.softappeal.yass.serialize.contract.Color;
+import ch.softappeal.yass.serialize.contract.E1;
+import ch.softappeal.yass.serialize.contract.E2;
 import ch.softappeal.yass.serialize.contract.PrimitiveTypes;
-import ch.softappeal.yass.serialize.contract.V1;
-import ch.softappeal.yass.serialize.contract.V2;
 import ch.softappeal.yass.serialize.fast.AbstractFastSerializer;
 import ch.softappeal.yass.serialize.fast.BaseTypeHandler;
 import ch.softappeal.yass.serialize.fast.BaseTypeHandlers;
@@ -191,28 +193,30 @@ public class AbstractFastSerializerTest {
   }
 
   private static final Serializer V1_SERIALIZER = new TaggedFastSerializer(
-    FastReflector.FACTORY, Arrays.asList(new TypeDesc(3, BaseTypeHandlers.INTEGER)), Arrays.<Class<?>>asList(), Arrays.<Class<?>>asList(V1.class), Arrays.<Class<?>>asList()
+    FastReflector.FACTORY, Arrays.asList(new TypeDesc(3, BaseTypeHandlers.INTEGER)), Arrays.<Class<?>>asList(E1.class), Arrays.<Class<?>>asList(C1.class), Arrays.<Class<?>>asList()
   );
   private static final Serializer V2_SERIALIZER = new TaggedFastSerializer(
-    FastReflector.FACTORY, Arrays.asList(new TypeDesc(3, BaseTypeHandlers.INTEGER)), Arrays.<Class<?>>asList(), Arrays.<Class<?>>asList(V2.class), Arrays.<Class<?>>asList()
+    FastReflector.FACTORY, Arrays.asList(new TypeDesc(3, BaseTypeHandlers.INTEGER)), Arrays.<Class<?>>asList(E2.class), Arrays.<Class<?>>asList(C2.class), Arrays.<Class<?>>asList()
   );
 
-  private static V2 copy(final V1 v1) throws Exception {
+  private static Object copy(final Object input) throws Exception {
     final ByteArrayOutputStream buffer = new ByteArrayOutputStream();
     final Writer writer = Writer.create(buffer);
-    V1_SERIALIZER.write(v1, writer);
+    V1_SERIALIZER.write(input, writer);
     writer.writeByte((byte)123); // write sentinel
     final Reader reader = Reader.create(new ByteArrayInputStream(buffer.toByteArray()));
-    final V2 v2 = (V2)V2_SERIALIZER.read(reader);
+    final Object output = V2_SERIALIZER.read(reader);
     Assert.assertTrue(reader.readByte() == 123); // check sentinel
-    return v2;
+    return output;
   }
 
   @Test public void versioning() throws Exception {
-    final V2 v2 = copy(new V1(42));
-    Assert.assertTrue(v2.i1 == 42);
-    Assert.assertNull(v2.i2);
-    Assert.assertTrue(v2.i2() == 13);
+    final C2 c2 = (C2)copy(new C1(42));
+    Assert.assertTrue(c2.i1 == 42);
+    Assert.assertNull(c2.i2);
+    Assert.assertTrue(c2.i2() == 13);
+    Assert.assertSame(copy(E1.c1), E2.c1);
+    Assert.assertSame(copy(E1.c2), E2.c2);
   }
 
   public static class MissingClassTag {
@@ -240,7 +244,7 @@ public class AbstractFastSerializerTest {
         FastReflector.FACTORY,
         Arrays.<TypeDesc>asList(),
         Arrays.<Class<?>>asList(),
-        Arrays.<Class<?>>asList(V1.class, V2.class),
+        Arrays.<Class<?>>asList(C1.class, C2.class),
         Arrays.<Class<?>>asList()
       );
       Assert.fail();
