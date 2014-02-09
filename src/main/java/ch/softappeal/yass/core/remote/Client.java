@@ -10,14 +10,11 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 
 /**
- * Client side factory for {@link Invoker}.
+ * Factory for {@link Invoker}.
  */
 public abstract class Client extends Common {
 
 
-  /**
-   * Client side invocation.
-   */
   public static final class ClientInvocation {
 
     public final boolean oneWay;

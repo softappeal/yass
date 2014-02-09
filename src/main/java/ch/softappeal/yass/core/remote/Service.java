@@ -4,9 +4,6 @@ import ch.softappeal.yass.core.Interceptor;
 import ch.softappeal.yass.core.Interceptors;
 import ch.softappeal.yass.util.Check;
 
-/**
- * Server side service.
- */
 public final class Service {
 
   final ContractId<?> contractId;

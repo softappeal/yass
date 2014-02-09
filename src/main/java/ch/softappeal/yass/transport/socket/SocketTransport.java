@@ -35,10 +35,10 @@ import java.util.concurrent.Executor;
  * );
  *
  * start:
- * - server side: transport.start(listenerExecutor, address);
- * - client side: transport.connect(address);
+ * - server: transport.start(listenerExecutor, address);
+ * - client: transport.connect(address);
  *
- * server side shutdown sequence:
+ * server shutdown sequence:
  * - shutdown listenerExecutor
  * - close all open sessions
  * - shutdown readerExecutor & writerExecutor

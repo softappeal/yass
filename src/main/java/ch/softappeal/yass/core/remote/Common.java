@@ -3,7 +3,7 @@ package ch.softappeal.yass.core.remote;
 import ch.softappeal.yass.util.Check;
 
 /**
- * Common base class for client and server side.
+ * Common base class for client and server.
  */
 public abstract class Common {
 

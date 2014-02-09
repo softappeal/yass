@@ -11,7 +11,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Server side container for {@link Service}.
+ * Container for {@link Service}.
  */
 public final class Server extends Common {
 
@@ -51,9 +51,6 @@ public final class Server extends Common {
   }
 
 
-  /**
-   * Server side invocation.
-   */
   public final class ServerInvocation {
 
     public final boolean oneWay;

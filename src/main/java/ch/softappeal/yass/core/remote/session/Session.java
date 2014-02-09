@@ -22,6 +22,10 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
+/**
+ * Once a session is established, the communication is symmetrical between the two peers.
+ * The only difference is that a client initiates a session and a server accepts sessions.
+ */
 public abstract class Session extends Client implements AutoCloseable {
 
   private static final ThreadLocal<Session> INSTANCE = new ThreadLocal<>();

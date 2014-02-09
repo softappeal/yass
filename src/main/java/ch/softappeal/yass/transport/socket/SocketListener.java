@@ -35,7 +35,7 @@ public abstract class SocketListener {
   static final int ACCEPT_TIMEOUT_MILLISECONDS = 100;
 
   /**
-   * Starts a socket listener on the server side.
+   * Starts a socket listener.
    * @param listenerExecutor must interrupt it's threads to terminate the socket listener (-> use {@link ExecutorService#shutdownNow()})
    */
   public final void start(final Executor listenerExecutor, final ServerSocketFactory socketFactory, final SocketAddress socketAddress) {
