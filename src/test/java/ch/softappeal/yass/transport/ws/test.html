@@ -1,0 +1,56 @@
+<!doctype html>
+<html>
+<head>
+  <script src="yass.js"></script>
+  <script src="generated/contract.js"></script>
+</head>
+<body>
+<script>
+
+  'use strict';
+
+  function assert(value) {
+    if (!value) {
+      throw "error";
+    }
+  }
+
+  var unknownInstrumentsException = new contract.UnknownInstrumentsException();
+  console.log(unknownInstrumentsException);
+
+  var stock = new contract.instrument.Stock();
+  stock.paysDividend = true;
+  stock.name = "BlaBli";
+  console.log(stock);
+  assert(stock instanceof contract.Instrument);
+  assert(stock instanceof contract.instrument.Stock);
+  assert(!(stock instanceof contract.instrument.Bond));
+
+  var trade = new contract.Trade();
+  console.log(trade);
+  assert(trade instanceof contract.Trade);
+  assert(!(trade instanceof contract.Instrument));
+
+  var price1 = new contract.Price();
+  price1.instrumentId = "IBM";
+  price1.value = 12.3;
+  price1.type = contract.PriceType.BID;
+
+  var price2 = new contract.Price();
+  price2.instrumentId = "Apple";
+  price2.value = 9.7;
+  price2.type = contract.PriceType.ASK;
+
+  var priceListener = new contract.PriceListener();
+  priceListener.newPrices = function (prices) {
+    console.log("newPrices:", prices);
+  };
+  priceListener.newPrices([price1, price2]);
+
+  var instrumentService = new contract.InstrumentService();
+  console.log(instrumentService.getInstruments());
+
+</script>
+yass
+</body>
+</html>

@@ -1,4 +1,4 @@
-defaultTasks 'clean', 'build', 'compileTutorialJava', 'createPom', 'dist'
+defaultTasks 'clean', 'todo', 'build', 'compileTutorialJava', 'createPom', 'dist'
 
 apply plugin: 'java'
 apply plugin: 'osgi'
@@ -20,9 +20,10 @@ sourceSets {
 
 dependencies {
   // compile 'javax.websocket:javax.websocket-api:1.0'
+  tutorialCompile sourceSets.main.output
   testCompile 'junit:junit:4.11'
   testCompile 'org.eclipse.jetty.websocket:javax-websocket-server-impl:9.1.2.v20140210'
-  tutorialCompile sourceSets.main.output
+  testCompile sourceSets.tutorial.output
 }
 
 tasks.withType(JavaCompile) {
@@ -83,4 +84,34 @@ task dist << {
   ant.zip(destfile: "build/${project.name}-${version}_artifacts.zip") {
     fileset(dir: 'build/libs')
   }
+}
+
+def searchMarker(tree, divider1, divider2, title, marker) {
+  println divider1
+  println "= search: " + title
+  tree.each { file ->
+    def found = false
+    def number = 0
+    file.eachLine { line ->
+      number++
+      if (line.toLowerCase().contains(marker)) {
+        if (!found) {
+          println divider2
+          println "+ " + file
+        }
+        found = true
+        println "- " + number + ": " + line
+      }
+    }
+  }
+}
+
+task todo << {
+  def divider1 = "========================================================================================================================"
+  def divider2 = "------------------------------------------------------------------------------------------------------------------------"
+  def searchTree = fileTree(dir: '.').exclude('.git/').exclude('.gradle/').exclude('.idea/').exclude('build/').exclude('classes/')
+  searchMarker(searchTree, divider1, divider2, 'abort', '$' + '$$')  // abort, not allowed for building a release
+  searchMarker(searchTree, divider1, divider2, 'todo', '$' + 'todo') // under construction, yet a release can still be built
+  searchMarker(searchTree, divider1, divider2, 'note', '$' + 'note') // important comment
+  println divider1
 }
