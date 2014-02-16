@@ -7,13 +7,11 @@ public final class Price {
   public final String instrumentId;
   public final int value;
   public final PriceType type;
-  public final DateTime timestamp;
 
-  public Price(final String instrumentId, final int value, final PriceType type, final DateTime timestamp) {
+  public Price(final String instrumentId, final int value, final PriceType type) {
     this.instrumentId = Check.notNull(instrumentId);
     this.value = value;
     this.type = Check.notNull(type);
-    this.timestamp = Check.notNull(timestamp);
   }
 
 }

@@ -3,7 +3,6 @@ package ch.softappeal.yass.tutorial.client;
 import ch.softappeal.yass.core.remote.session.Connection;
 import ch.softappeal.yass.core.remote.session.Session;
 import ch.softappeal.yass.core.remote.session.SessionSetup;
-import ch.softappeal.yass.transport.socket.SocketConnection;
 import ch.softappeal.yass.tutorial.contract.Instrument;
 import ch.softappeal.yass.tutorial.contract.InstrumentService;
 import ch.softappeal.yass.tutorial.contract.PriceEngine;
@@ -23,7 +22,7 @@ public final class ClientSession extends Session implements PriceListenerContext
 
   public ClientSession(final SessionSetup setup, final Connection connection) {
     super(setup, connection);
-    System.out.println("create: " + hashCode() + ", " + ((SocketConnection)connection).socket);
+    System.out.println("create: " + hashCode());
     priceEngine = ServerServices.PriceEngine.invoker(this).proxy();
     instrumentService = ServerServices.InstrumentService.invoker(this).proxy();
   }

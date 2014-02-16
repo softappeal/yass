@@ -3,9 +3,7 @@ package ch.softappeal.yass.tutorial.server;
 import ch.softappeal.yass.core.remote.session.Connection;
 import ch.softappeal.yass.core.remote.session.Session;
 import ch.softappeal.yass.core.remote.session.SessionSetup;
-import ch.softappeal.yass.transport.socket.SocketConnection;
 import ch.softappeal.yass.tutorial.contract.ClientServices;
-import ch.softappeal.yass.tutorial.contract.DateTime;
 import ch.softappeal.yass.tutorial.contract.Price;
 import ch.softappeal.yass.tutorial.contract.PriceListener;
 import ch.softappeal.yass.tutorial.contract.PriceType;
@@ -26,7 +24,7 @@ public final class ServerSession extends Session implements PriceEngineContext {
 
   public ServerSession(final SessionSetup setup, final Connection connection) {
     super(setup, connection);
-    System.out.println("create: " + hashCode() + ", " + ((SocketConnection)connection).socket);
+    System.out.println("create: " + hashCode());
     priceListener = ClientServices.PriceListener.invoker(this).proxy(Logger.CLIENT);
   }
 
@@ -39,7 +37,7 @@ public final class ServerSession extends Session implements PriceEngineContext {
     while (!closed.get()) {
       final List<Price> prices = new ArrayList<>();
       for (final String subscribedInstrumentId : subscribedInstrumentIds.toArray(new String[0])) {
-        prices.add(new Price(subscribedInstrumentId, random.nextInt(99) + 1, PriceType.ASK, new DateTime("20130-12-01 14:40:50")));
+        prices.add(new Price(subscribedInstrumentId, random.nextInt(99) + 1, PriceType.ASK));
       }
       priceListener.newPrices(prices);
       TimeUnit.SECONDS.sleep(1L);
