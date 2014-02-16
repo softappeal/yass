@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Diagram>
+  <ID>JAVA</ID>
+  <OriginalElement>javax.websocket.ClientEndpoint</OriginalElement>
+  <nodes>
+    <node x="142.625" y="612.0">javax.websocket.RemoteEndpoint</node>
+    <node x="104.125" y="1021.0">javax.websocket.MessageHandler</node>
+    <node x="644.0" y="612.0">javax.websocket.SendResult</node>
+    <node x="398.0" y="1021.0">javax.websocket.Endpoint</node>
+    <node x="164.0" y="1098.0">javax.websocket.MessageHandler.Partial</node>
+    <node x="0.0" y="1098.0">javax.websocket.MessageHandler.Whole</node>
+    <node x="921.0" y="337.0">javax.websocket.server.ServerContainer</node>
+    <node x="609.0" y="1021.0">javax.websocket.ContainerProvider</node>
+    <node x="0.0" y="1190.0">javax.websocket.server.ServerApplicationConfig</node>
+    <node x="793.0" y="0.0">javax.websocket.WebSocketContainer</node>
+    <node x="777.0" y="1190.0">javax.websocket.SendHandler</node>
+    <node x="0.0" y="0.0">javax.websocket.Session</node>
+    <node x="525.0" y="1190.0">javax.websocket.PongMessage</node>
+    <node x="297.0" y="789.0">javax.websocket.RemoteEndpoint.Async</node>
+    <node x="0.0" y="799.0">javax.websocket.RemoteEndpoint.Basic</node>
+  </nodes>
+  <notes />
+  <edges>
+    <edge source="javax.websocket.server.ServerContainer" target="javax.websocket.WebSocketContainer">
+      <point x="0.0" y="-33.5" />
+      <point x="0.0" y="143.5" />
+    </edge>
+    <edge source="javax.websocket.RemoteEndpoint.Async" target="javax.websocket.RemoteEndpoint">
+      <point x="-75.5" y="-93.5" />
+      <point x="372.5" y="764.0" />
+      <point x="327.0" y="764.0" />
+      <point x="36.875" y="63.5" />
+    </edge>
+    <edge source="javax.websocket.RemoteEndpoint.Basic" target="javax.websocket.RemoteEndpoint">
+      <point x="69.25" y="-83.5" />
+      <point x="207.75" y="764.0" />
+      <point x="253.25" y="764.0" />
+      <point x="-36.875" y="63.5" />
+    </edge>
+    <edge source="javax.websocket.MessageHandler.Whole" target="javax.websocket.MessageHandler">
+      <point x="-36.0" y="-23.5" />
+      <point x="36.0" y="1068.0" />
+      <point x="118.0" y="1068.0" />
+      <point x="-41.625" y="13.5" />
+    </edge>
+    <edge source="javax.websocket.MessageHandler.Partial" target="javax.websocket.MessageHandler">
+      <point x="-47.25" y="-23.5" />
+      <point x="211.25" y="1078.0" />
+      <point x="173.5" y="1078.0" />
+      <point x="13.875" y="13.5" />
+    </edge>
+  </edges>
+  <settings layout="Hierarchic Group" zoom="0.7494126859827721" x="629.5" y="633.1703239289446" />
+  <SelectedNodes />
+  <Categories>
+    <Category>Constructors</Category>
+    <Category>Fields</Category>
+    <Category>Methods</Category>
+    <Category>Inner Classes</Category>
+  </Categories>
+  <SCOPE>All</SCOPE>
+  <VISIBILITY>private</VISIBILITY>
+</Diagram>
+

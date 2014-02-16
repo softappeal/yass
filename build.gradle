@@ -19,7 +19,9 @@ sourceSets {
 }
 
 dependencies {
+  // compile 'javax.websocket:javax.websocket-api:1.0'
   testCompile 'junit:junit:4.11'
+  testCompile 'org.eclipse.jetty.websocket:javax-websocket-server-impl:9.1.2.v20140210'
   tutorialCompile sourceSets.main.output
 }
 
