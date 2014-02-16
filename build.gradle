@@ -18,11 +18,14 @@ sourceSets {
   tutorial { java.srcDir file('src/tutorial/java') }
 }
 
+def jetty_dep = 'org.eclipse.jetty.websocket:javax-websocket-server-impl:9.1.2.v20140210'
+
 dependencies {
-  // compile 'javax.websocket:javax.websocket-api:1.0'
+  compile 'javax.websocket:javax.websocket-api:1.0'
   tutorialCompile sourceSets.main.output
+  tutorialCompile jetty_dep
   testCompile 'junit:junit:4.11'
-  testCompile 'org.eclipse.jetty.websocket:javax-websocket-server-impl:9.1.2.v20140210'
+  testCompile jetty_dep
   testCompile sourceSets.tutorial.output
 }
 

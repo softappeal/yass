@@ -8,6 +8,7 @@ import ch.softappeal.yass.serialize.Serializer;
 import ch.softappeal.yass.serialize.fast.AbstractFastSerializer;
 import ch.softappeal.yass.serialize.fast.BaseTypeHandler;
 import ch.softappeal.yass.serialize.fast.BaseTypeHandlers;
+import ch.softappeal.yass.serialize.fast.JsFastSerializer;
 import ch.softappeal.yass.serialize.fast.SimpleFastSerializer;
 import ch.softappeal.yass.serialize.fast.TaggedFastSerializer;
 import ch.softappeal.yass.transport.MessageSerializer;
@@ -21,8 +22,19 @@ public final class Config {
 
   /**
    * @see TaggedFastSerializer
+   * @see SimpleFastSerializer
    */
-  public static final AbstractFastSerializer CONTRACT_SERIALIZER = new SimpleFastSerializer(
+  public static final JsFastSerializer CONTRACT_SERIALIZER = new JsFastSerializer(
+    FastReflector.FACTORY,
+    Arrays.<Class<?>>asList(PriceType.class),
+    Arrays.<Class<?>>asList(Price.class, Trade.class, UnknownInstrumentsException.class),
+    Arrays.<Class<?>>asList(Stock.class, Bond.class)
+  );
+
+  /**
+   * Shows how to configure a {@link SimpleFastSerializer}.
+   */
+  private static final AbstractFastSerializer CONTRACT_SERIALIZER_2 = new SimpleFastSerializer(
     FastReflector.FACTORY,
     Arrays.<BaseTypeHandler<?>>asList(
       BaseTypeHandlers.BOOLEAN,

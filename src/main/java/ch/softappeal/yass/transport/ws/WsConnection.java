@@ -17,7 +17,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-public final class WsConnection extends Connection { // $todo: under construction
+public final class WsConnection extends Connection { // $todo: review
 
   private final Serializer packetSerializer;
   public final javax.websocket.Session session;

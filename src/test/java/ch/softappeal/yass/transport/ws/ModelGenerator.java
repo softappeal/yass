@@ -1,11 +1,11 @@
-package ch.softappeal.yass.transport.ws.generate;
+package ch.softappeal.yass.transport.ws;
 
 import ch.softappeal.yass.Version;
 import ch.softappeal.yass.core.remote.ContractId;
 import ch.softappeal.yass.serialize.fast.AbstractFastSerializer;
 import ch.softappeal.yass.serialize.fast.ClassTypeHandler;
+import ch.softappeal.yass.serialize.fast.JsFastSerializer;
 import ch.softappeal.yass.serialize.fast.TypeHandler;
-import ch.softappeal.yass.transport.ws.JsSerializer;
 import ch.softappeal.yass.util.Check;
 
 import java.lang.reflect.Field;
@@ -166,7 +166,7 @@ public final class ModelGenerator extends Generator {
 
   @SuppressWarnings("unchecked")
   public ModelGenerator(
-    final Package rootPackage, final JsSerializer serializer, final String yassModule, final String modelModule, final String modelFile
+    final Package rootPackage, final JsFastSerializer serializer, final String yassModule, final String modelModule, final String modelFile
   ) throws Exception {
     super(modelFile);
     visitedPackages.add(rootPackage.getName());

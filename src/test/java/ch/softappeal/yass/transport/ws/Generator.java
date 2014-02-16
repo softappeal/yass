@@ -1,4 +1,4 @@
-package ch.softappeal.yass.transport.ws.generate;
+package ch.softappeal.yass.transport.ws;
 
 import java.io.IOException;
 import java.io.PrintWriter;

@@ -5,7 +5,7 @@ import javax.websocket.Endpoint;
 import javax.websocket.EndpointConfig;
 import javax.websocket.Session;
 
-public abstract class WsEndpoint extends Endpoint {
+public abstract class WsEndpoint extends Endpoint { // $todo: review
 
   private static final String CONNECTION = "xkj{{/&@]59QQw53";
 

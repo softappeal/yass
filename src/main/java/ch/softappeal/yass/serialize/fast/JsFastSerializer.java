@@ -1,10 +1,6 @@
-package ch.softappeal.yass.transport.ws;
+package ch.softappeal.yass.serialize.fast;
 
 import ch.softappeal.yass.serialize.Reflector;
-import ch.softappeal.yass.serialize.fast.AbstractFastSerializer;
-import ch.softappeal.yass.serialize.fast.BaseTypeHandlers;
-import ch.softappeal.yass.serialize.fast.FieldHandler;
-import ch.softappeal.yass.serialize.fast.TypeDesc;
 
 import java.lang.reflect.Field;
 import java.util.Collection;
@@ -18,7 +14,7 @@ import java.util.Map;
  * This is the Java implementation of the yass Javascript serializer.
  * This serializer assigns type and field id's automatically. Therefore, all peers must have the same version of the contract!
  */
-public final class JsSerializer extends AbstractFastSerializer {
+public final class JsFastSerializer extends AbstractFastSerializer { // $todo: review
 
   private void addClass(final int typeId, final Class<?> type, final boolean referenceable) {
     checkClass(type);
@@ -52,7 +48,7 @@ public final class JsSerializer extends AbstractFastSerializer {
    * @param concreteClasses instances of these classes can only be used in trees
    * @param referenceableConcreteClasses instances of these classes can be used in graphs
    */
-  public JsSerializer(
+  public JsFastSerializer(
     final Reflector.Factory reflectorFactory, final Collection<Class<?>> enumerations,
     final Collection<Class<?>> concreteClasses, final Collection<Class<?>> referenceableConcreteClasses
   ) {
