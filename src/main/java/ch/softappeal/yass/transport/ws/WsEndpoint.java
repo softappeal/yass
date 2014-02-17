@@ -5,9 +5,9 @@ import javax.websocket.Endpoint;
 import javax.websocket.EndpointConfig;
 import javax.websocket.Session;
 
-public abstract class WsEndpoint extends Endpoint { // $todo: review
+public abstract class WsEndpoint extends Endpoint {
 
-  private static final String CONNECTION = "xkj{{/&@]59QQw53";
+  private static final String CONNECTION = "]{*@+?'"; // should never clash ;-)
 
   protected abstract WsConnection createConnection(Session session);
 

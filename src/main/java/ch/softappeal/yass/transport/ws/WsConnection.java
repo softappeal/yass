@@ -16,13 +16,18 @@ import javax.websocket.RemoteEndpoint;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.nio.ByteBuffer;
 
-public final class WsConnection extends Connection { // $todo: review
+public final class WsConnection extends Connection {
 
+  private volatile Session session;
   private final Serializer packetSerializer;
-  public final javax.websocket.Session session;
+  public final javax.websocket.Session wsSession;
   private final RemoteEndpoint.Basic remoteEndpoint;
+
+  private static final boolean USE_STREAM = false; // $todo
 
   /**
    * @param createSessionExceptionHandler handles exceptions from {@link SessionFactory#create(SessionSetup, Connection)}
@@ -30,15 +35,15 @@ public final class WsConnection extends Connection { // $todo: review
   public WsConnection(
     final SessionSetup setup, final Serializer packetSerializer,
     final Thread.UncaughtExceptionHandler createSessionExceptionHandler,
-    final javax.websocket.Session session
+    final javax.websocket.Session wsSession
   ) {
+    // $todo: review
     this.packetSerializer = Check.notNull(packetSerializer);
     Check.notNull(createSessionExceptionHandler);
-    this.session = session;
-    remoteEndpoint = session.getBasicRemote();
-    final Session yassSession;
+    this.wsSession = wsSession;
+    remoteEndpoint = wsSession.getBasicRemote();
     try {
-      yassSession = setup.createSession(this);
+      session = setup.createSession(this);
     } catch (final Exception e) {
       try {
         // $todo session.close(CloseReason.CloseCodes.UNEXPECTED_CONDITION);
@@ -46,76 +51,80 @@ public final class WsConnection extends Connection { // $todo: review
         e.addSuppressed(e2);
       }
       createSessionExceptionHandler.uncaughtException(Thread.currentThread(), e);
+      session = null;
       return;
     }
-    /*
-    session.addMessageHandler(new MessageHandler.Whole<InputStream>() {
-      @Override public void onMessage(final InputStream in) {
-        try {
-          final Packet packet;
+    if (USE_STREAM) {
+      wsSession.addMessageHandler(new MessageHandler.Whole<InputStream>() {
+        @Override public void onMessage(final InputStream in) {
           try {
-            packet = (Packet)packetSerializer.read(Reader.create(in));
-          } catch (final Exception e) {
-            close(yassSession, e);
-            return;
+            final Packet packet;
+            try {
+              packet = (Packet)packetSerializer.read(Reader.create(in));
+            } catch (final Exception e) {
+              close(session, e);
+              return;
+            }
+            received(session, packet);
+            if (packet.isEnd()) {
+              wsSession.close();
+            }
+          } catch (final IOException e) {
+            throw new RuntimeException(e);
           }
-          received(yassSession, packet);
-          if (packet.isEnd()) {
-            session.close();
-          }
-        } catch (final IOException e) {
-          throw new RuntimeException(e);
         }
-      }
-    });
-    */
-    session.addMessageHandler(new MessageHandler.Whole<byte[]>(){
-      @Override public void onMessage(final byte[] in) {
-        try {
-          final Packet packet;
+      });
+    } else {
+      wsSession.addMessageHandler(new MessageHandler.Whole<byte[]>() {
+        @Override public void onMessage(final byte[] in) {
           try {
-            packet = (Packet)packetSerializer.read(Reader.create(new ByteArrayInputStream(in)));
-          } catch (final Exception e) {
-            close(yassSession, e);
-            return;
+            final Packet packet;
+            try {
+              packet = (Packet)packetSerializer.read(Reader.create(new ByteArrayInputStream(in)));
+            } catch (final Exception e) {
+              close(session, e);
+              return;
+            }
+            received(session, packet);
+            if (packet.isEnd()) {
+              wsSession.close();
+            }
+          } catch (final IOException e) {
+            throw new RuntimeException(e);
           }
-          received(yassSession, packet);
-          if (packet.isEnd()) {
-            session.close();
-          }
-        } catch (final IOException e) {
-          throw new RuntimeException(e);
-        }
 
-      }
-    });
-    open(yassSession); // $todo: check result
+        }
+      });
+    }
+    open(session); // $todo: check result
   }
 
   @Override protected void write(final Packet packet) throws Exception {
-    /*
-    try (OutputStream out = remoteEndpoint.getSendStream()) {
+    // $todo: review
+    if (USE_STREAM) {
+      try (OutputStream out = remoteEndpoint.getSendStream()) {
+        packetSerializer.write(packet, Writer.create(out));
+      }
+    } else {
+      final ByteArrayOutputStream out = new ByteArrayOutputStream(1024);
       packetSerializer.write(packet, Writer.create(out));
+      remoteEndpoint.sendBinary(ByteBuffer.wrap(out.toByteArray()));
     }
-    */
-    final ByteArrayOutputStream out = new ByteArrayOutputStream(1024);
-    packetSerializer.write(packet, Writer.create(out));
-    remoteEndpoint.sendBinary(ByteBuffer.wrap(out.toByteArray()));
+  }
+
+  @Override protected void closed() throws IOException {
+    wsSession.close();
   }
 
   /**
-   * Note: No more calls to {@link #write(Packet)} are accepted when this method is called due to implementation of {@link Session}.
+   * Note: On {@link Session#close()}, {@link Session#closed(Throwable) Session.closed(null)} will be called before this method.
    */
-  @Override protected void closed() throws Exception {
-    session.close();
-  }
-
   void onClose(final CloseReason closeReason) {
-    System.out.println("session '" + session.getId() + "' close: " + closeReason);
+    onError(new Exception((closeReason == null) ? "closeReason == null" : closeReason.toString()));
   }
 
   void onError(final Throwable throwable) {
-    System.out.println("session '" + session.getId() + "' error: " + throwable);
+    close(session, (throwable == null) ? new Exception("throwable == null") : throwable);
   }
 
 }

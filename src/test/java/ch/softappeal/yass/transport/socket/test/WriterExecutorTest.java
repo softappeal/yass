@@ -76,8 +76,8 @@ public final class WriterExecutorTest {
                   });
                 }
               }
-              @Override public void closed(@Nullable final Exception exception) {
-                TestUtils.TERMINATE.uncaughtException(null, exception);
+              @Override public void closed(@Nullable final Throwable throwable) {
+                TestUtils.TERMINATE.uncaughtException(null, throwable);
               }
             };
           }
@@ -108,8 +108,8 @@ public final class WriterExecutorTest {
         new SessionFactory() {
           @Override public Session create(final SessionSetup setup, final Connection connection) {
             return new Session(setup, connection) {
-              @Override public void closed(@Nullable final Exception exception) {
-                TestUtils.TERMINATE.uncaughtException(null, exception);
+              @Override public void closed(@Nullable final Throwable throwable) {
+                TestUtils.TERMINATE.uncaughtException(null, throwable);
               }
             };
           }

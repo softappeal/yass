@@ -10,10 +10,9 @@ import ch.softappeal.yass.util.NamedThreadFactory;
 import org.eclipse.jetty.websocket.jsr356.ClientContainer;
 
 import javax.websocket.Session;
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executors;
 
-public final class JettyClient { // $todo: review
+public final class JettyClient {
 
   private static final SessionSetup SESSION_SETUP = SocketClient.createSessionSetup(
     Executors.newCachedThreadPool(new NamedThreadFactory("requestExecutor", Exceptions.STD_ERR))
@@ -31,7 +30,6 @@ public final class JettyClient { // $todo: review
     container.connectToServer(new Endpoint(), null, JettyServer.THE_URI);// connect to node 1
     container.connectToServer(new Endpoint(), null, JettyServer.THE_URI);// connect to node 2 (simulated)
     System.out.println("started");
-    new CountDownLatch(1).await();
   }
 
 }

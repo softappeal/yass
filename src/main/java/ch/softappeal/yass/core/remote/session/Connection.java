@@ -14,8 +14,8 @@ public abstract class Connection {
    */
   protected abstract void write(Packet packet) throws Exception;
 
-  protected static void close(final Session session, final Exception e) {
-    session.close(e);
+  protected static void close(final Session session, final Throwable throwable) {
+    session.close(throwable);
   }
 
   protected static void received(final Session session, final Packet packet) {

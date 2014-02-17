@@ -7,6 +7,7 @@ import ch.softappeal.yass.tutorial.contract.ClientServices;
 import ch.softappeal.yass.tutorial.contract.Price;
 import ch.softappeal.yass.tutorial.contract.PriceListener;
 import ch.softappeal.yass.tutorial.contract.PriceType;
+import ch.softappeal.yass.util.Exceptions;
 import ch.softappeal.yass.util.Nullable;
 
 import java.util.ArrayList;
@@ -44,9 +45,12 @@ public final class ServerSession extends Session implements PriceEngineContext {
     }
   }
 
-  @Override public void closed(@Nullable final Exception exception) {
+  @Override public void closed(@Nullable final Throwable throwable) {
     closed.set(true);
-    System.out.println("closed: " + hashCode() + ", " + exception);
+    System.out.println("closed: " + hashCode() + ", " + throwable);
+    if (throwable instanceof Throwable) { // terminate on Throwable
+      Exceptions.STD_ERR.uncaughtException(Thread.currentThread(), throwable);
+    }
   }
 
   @Override public Set<String> subscribedInstrumentIds() {

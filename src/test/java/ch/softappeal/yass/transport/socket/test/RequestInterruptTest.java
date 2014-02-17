@@ -35,8 +35,8 @@ public class RequestInterruptTest extends InvokeTest {
         new SessionSetup(new Server(TaggedMethodMapper.FACTORY, ContractIdTest.ID.service(new TestServiceImpl())), executor, new SessionFactory() {
           @Override public Session create(final SessionSetup setup, final Connection connection) {
             return new Session(setup, connection) {
-              @Override public void closed(@Nullable final Exception exception) {
-                Exceptions.STD_ERR.uncaughtException(Thread.currentThread(), exception);
+              @Override public void closed(@Nullable final Throwable throwable) {
+                Exceptions.STD_ERR.uncaughtException(Thread.currentThread(), throwable);
               }
             };
           }
@@ -82,8 +82,8 @@ public class RequestInterruptTest extends InvokeTest {
                 }
                 testService.delay(10);
               }
-              @Override public void closed(@Nullable final Exception exception) {
-                Exceptions.STD_ERR.uncaughtException(Thread.currentThread(), exception);
+              @Override public void closed(@Nullable final Throwable throwable) {
+                Exceptions.STD_ERR.uncaughtException(Thread.currentThread(), throwable);
               }
             };
           }

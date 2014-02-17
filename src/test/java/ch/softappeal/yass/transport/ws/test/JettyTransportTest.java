@@ -7,7 +7,6 @@ import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.websocket.jsr356.ClientContainer;
 import org.eclipse.jetty.websocket.jsr356.server.deploy.WebSocketServerContainerInitializer;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import javax.websocket.ClientEndpointConfig;
@@ -15,7 +14,6 @@ import javax.websocket.server.ServerEndpointConfig;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
-@Ignore
 public class JettyTransportTest extends WsTransportTest { // $todo: review
 
   private static void run(
@@ -47,10 +45,8 @@ public class JettyTransportTest extends WsTransportTest { // $todo: review
     TimeUnit.MILLISECONDS.sleep(400L);
 
     container.stop();
-    TimeUnit.MILLISECONDS.sleep(400L);
     server.stop();
-    TimeUnit.MILLISECONDS.sleep(400L);
-
+    REQUEST_EXECUTOR.shutdown();
     REQUEST_EXECUTOR.awaitTermination(1, TimeUnit.DAYS);
   }
 

@@ -66,7 +66,7 @@ public class PerformanceTest extends InvokeTest {
               }
               latch.countDown();
             }
-            @Override public void closed(@Nullable final Exception exception) {
+            @Override public void closed(@Nullable final Throwable throwable) {
               // empty
             }
           };

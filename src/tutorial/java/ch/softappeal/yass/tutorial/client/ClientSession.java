@@ -8,6 +8,7 @@ import ch.softappeal.yass.tutorial.contract.InstrumentService;
 import ch.softappeal.yass.tutorial.contract.PriceEngine;
 import ch.softappeal.yass.tutorial.contract.ServerServices;
 import ch.softappeal.yass.tutorial.contract.UnknownInstrumentsException;
+import ch.softappeal.yass.util.Exceptions;
 import ch.softappeal.yass.util.Nullable;
 
 import java.util.ArrayList;
@@ -37,8 +38,11 @@ public final class ClientSession extends Session implements PriceListenerContext
     priceEngine.subscribe(new ArrayList<>(id2instrument.keySet()));
   }
 
-  @Override public void closed(@Nullable final Exception exception) {
-    System.out.println("closed: " + hashCode() + ", " + exception);
+  @Override public void closed(@Nullable final Throwable throwable) {
+    System.out.println("closed: " + hashCode() + ", " + throwable);
+    if (throwable instanceof Throwable) { // terminate on Throwable
+      Exceptions.STD_ERR.uncaughtException(Thread.currentThread(), throwable);
+    }
   }
 
   @Override public Instrument getInstrument(final String instrumentId) {

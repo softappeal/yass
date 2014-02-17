@@ -61,7 +61,7 @@ public abstract class Session extends Client implements AutoCloseable {
    * Called from {@link SessionSetup#requestExecutor} when {@link Session} is fully usable.
    * <p/>
    * This implementation does nothing.
-   * @throws Exception if an exception is thrown, {@link #closed(Exception)} will be called
+   * @throws Exception if an exception is thrown, {@link #closed(Throwable)} will be called
    */
   protected void opened() throws Exception {
     // empty
@@ -69,9 +69,9 @@ public abstract class Session extends Client implements AutoCloseable {
 
   /**
    * Called when the {@link Session} has been closed.
-   * @param exception null if regular close else reason for close
+   * @param throwable null if regular close else reason for close
    */
-  protected abstract void closed(@Nullable Exception exception);
+  protected abstract void closed(@Nullable Throwable throwable);
 
   /**
    * Must be called once immediately after calling {@link SessionSetup#createSession(Connection)}.
@@ -96,13 +96,13 @@ public abstract class Session extends Client implements AutoCloseable {
     return true;
   }
 
-  private void close(final boolean sendEnd, @Nullable final Exception exception) {
+  private void close(final boolean sendEnd, @Nullable final Throwable throwable) {
     try {
       if (closed.getAndSet(true)) {
         return;
       }
       try {
-        closed(exception);
+        closed(throwable);
         if (sendEnd) {
           connection.write(Packet.END);
         }
@@ -209,8 +209,8 @@ public abstract class Session extends Client implements AutoCloseable {
    * Must be called if communication has failed.
    * This method is idempotent.
    */
-  final void close(final Exception e) {
-    close(false, e);
+  final void close(final Throwable throwable) {
+    close(false, throwable);
   }
 
   private final AtomicInteger nextRequestNumber = new AtomicInteger(Packet.END_REQUEST_NUMBER);

@@ -16,7 +16,7 @@ import javax.websocket.server.ServerEndpointConfig;
 import java.net.URI;
 import java.util.concurrent.Executors;
 
-public final class JettyServer { // $todo: review
+public final class JettyServer {
 
   private static final int PORT = 9090;
   private static final String PATH = "/tutorial";
@@ -42,6 +42,7 @@ public final class JettyServer { // $todo: review
       ServerEndpointConfig.Builder.create(Endpoint.class, PATH).build()
     );
     server.start();
+    System.out.println("started");
   }
 
 }

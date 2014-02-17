@@ -71,12 +71,9 @@ public class UndertowTransportTest extends WsTransportTest { // $todo: review
     final ClientEndpointConfig config = ClientEndpointConfig.Builder.create().build();
 
     container.connectToServer(new ClientEndpoint(), config, THE_URI);
-    TimeUnit.MILLISECONDS.sleep(400L);
 
     TimeUnit.MILLISECONDS.sleep(400L);
-    TimeUnit.MILLISECONDS.sleep(400L);
-
-
+    REQUEST_EXECUTOR.shutdown();
     REQUEST_EXECUTOR.awaitTermination(1, TimeUnit.DAYS);
   }
 

@@ -79,11 +79,11 @@ public class LocalConnectionTest extends InvokeTest {
                 }
               }
             }
-            @Override public void closed(@Nullable final Exception exception) {
+            @Override public void closed(@Nullable final Throwable throwable) {
               if (invoke) {
-                Assert.assertNull(exception);
+                Assert.assertNull(throwable);
               }
-              println(name, "closed", hashCode() + " " + exception);
+              println(name, "closed", hashCode() + " " + throwable);
             }
           };
         }
