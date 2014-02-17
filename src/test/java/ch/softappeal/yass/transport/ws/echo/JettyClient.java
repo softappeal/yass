@@ -3,6 +3,7 @@ package ch.softappeal.yass.transport.ws.echo;
 import org.eclipse.jetty.websocket.jsr356.ClientContainer;
 
 import javax.websocket.CloseReason;
+import javax.websocket.RemoteEndpoint;
 import javax.websocket.Session;
 import java.util.concurrent.TimeUnit;
 
@@ -29,6 +30,15 @@ public final class JettyClient {
       session.getBasicRemote().sendText("error");
       TimeUnit.MILLISECONDS.sleep(100);
       System.out.println("isOpen: " + session.isOpen());
+    }
+    {
+      final Session session = container.connectToServer(new ClientEndpoint(), null, JettyServer.THE_URI);
+      final RemoteEndpoint.Basic remote = session.getBasicRemote();
+      int count = 0;
+      while (true) {
+        TimeUnit.MILLISECONDS.sleep(100);
+        session.getBasicRemote().sendText("message " + count++);
+      }
     }
   }
 

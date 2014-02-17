@@ -13,9 +13,10 @@ import ch.softappeal.yass.util.Check;
 import javax.websocket.CloseReason;
 import javax.websocket.MessageHandler;
 import javax.websocket.RemoteEndpoint;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.nio.ByteBuffer;
 
 public final class WsConnection extends Connection { // $todo: review
 
@@ -47,6 +48,7 @@ public final class WsConnection extends Connection { // $todo: review
       createSessionExceptionHandler.uncaughtException(Thread.currentThread(), e);
       return;
     }
+    /*
     session.addMessageHandler(new MessageHandler.Whole<InputStream>() {
       @Override public void onMessage(final InputStream in) {
         try {
@@ -66,20 +68,46 @@ public final class WsConnection extends Connection { // $todo: review
         }
       }
     });
-    open(yassSession);
+    */
+    session.addMessageHandler(new MessageHandler.Whole<byte[]>(){
+      @Override public void onMessage(final byte[] in) {
+        try {
+          final Packet packet;
+          try {
+            packet = (Packet)packetSerializer.read(Reader.create(new ByteArrayInputStream(in)));
+          } catch (final Exception e) {
+            close(yassSession, e);
+            return;
+          }
+          received(yassSession, packet);
+          if (packet.isEnd()) {
+            session.close();
+          }
+        } catch (final IOException e) {
+          throw new RuntimeException(e);
+        }
+
+      }
+    });
+    open(yassSession); // $todo: check result
   }
 
   @Override protected void write(final Packet packet) throws Exception {
+    /*
     try (OutputStream out = remoteEndpoint.getSendStream()) {
       packetSerializer.write(packet, Writer.create(out));
     }
+    */
+    final ByteArrayOutputStream out = new ByteArrayOutputStream(1024);
+    packetSerializer.write(packet, Writer.create(out));
+    remoteEndpoint.sendBinary(ByteBuffer.wrap(out.toByteArray()));
   }
 
   /**
    * Note: No more calls to {@link #write(Packet)} are accepted when this method is called due to implementation of {@link Session}.
    */
   @Override protected void closed() throws Exception {
-    // $todo session.close();
+    session.close();
   }
 
   void onClose(final CloseReason closeReason) {

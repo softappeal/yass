@@ -40,7 +40,7 @@ public final class ServerSession extends Session implements PriceEngineContext {
         prices.add(new Price(subscribedInstrumentId, random.nextInt(99) + 1, PriceType.ASK));
       }
       priceListener.newPrices(prices);
-      TimeUnit.SECONDS.sleep(1L);
+      TimeUnit.MILLISECONDS.sleep(1000L);
     }
   }
 
