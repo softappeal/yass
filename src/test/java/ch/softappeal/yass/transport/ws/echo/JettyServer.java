@@ -10,8 +10,8 @@ import java.net.URI;
 
 public final class JettyServer {
 
-  private static final int PORT = 8080;
-  private static final String PATH = "/echo";
+  public static final int PORT = 8080;
+  public static final String PATH = "/echo";
   public static final URI THE_URI = URI.create("ws://localhost:" + PORT + PATH);
 
   public static void main(final String... args) throws Exception {
