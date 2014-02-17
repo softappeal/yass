@@ -1,10 +1,10 @@
-package ch.softappeal.yass.transport.ws;
+package ch.softappeal.yass.js;
 
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.nio.charset.StandardCharsets;
 
-public abstract class Generator {
+public abstract class Generator { // $todo: review
 
   private final PrintWriter printer;
 

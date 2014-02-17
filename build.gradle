@@ -23,12 +23,12 @@ def undertow_dep = 'io.undertow:undertow-websockets-jsr:1.0.0.Final'
 
 dependencies {
   compile 'javax.websocket:javax.websocket-api:1.0'
+  // compile jetty_dep // $todo: needed due to IDEA bug
   tutorialCompile sourceSets.main.output
   tutorialCompile jetty_dep
   testCompile 'junit:junit:4.11'
   testCompile jetty_dep
   testCompile undertow_dep
-  testCompile sourceSets.tutorial.output
 }
 
 tasks.withType(JavaCompile) {

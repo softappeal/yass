@@ -1,4 +1,4 @@
-package ch.softappeal.yass.transport.ws;
+package ch.softappeal.yass.js;
 
 import ch.softappeal.yass.Version;
 import ch.softappeal.yass.core.remote.ContractId;
@@ -20,7 +20,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-public final class ModelGenerator extends Generator {
+public final class ModelGenerator extends Generator { // $todo: review
 
   private final String rootPackage;
   private final String yassModule;
@@ -194,7 +194,7 @@ public final class ModelGenerator extends Generator {
       final TypeHandler typeHandler = entry.getValue();
       final Class<?> type = typeHandler.type;
       if (type.isEnum()) {
-        generateEnum((Class)type);
+        generateEnum((Class<Enum<?>>)type);
       } else if (typeHandler instanceof ClassTypeHandler) {
         generateClass(type);
       }
