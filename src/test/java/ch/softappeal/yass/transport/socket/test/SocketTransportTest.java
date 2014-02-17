@@ -15,7 +15,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
-public class SessionTransportTest extends InvokeTest {
+public class SocketTransportTest extends InvokeTest {
 
   private static SocketTransport createTransport(
     final boolean invoke, final String name, final Executor executor,
