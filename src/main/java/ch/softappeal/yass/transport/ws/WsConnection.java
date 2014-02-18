@@ -55,19 +55,9 @@ public final class WsConnection extends Connection {
     wsSession.addMessageHandler(new MessageHandler.Whole<ByteBuffer>() {
       @Override public void onMessage(final ByteBuffer in) {
         try {
-          final Packet packet;
-          try {
-            packet = (Packet)packetSerializer.read(Reader.create(in));
-          } catch (final Exception e) {
-            close(session, e);
-            return;
-          }
-          received(session, packet);
-          if (packet.isEnd()) {
-            wsSession.close();
-          }
-        } catch (final IOException e) {
-          throw new RuntimeException(e);
+          received(session, (Packet)packetSerializer.read(Reader.create(in)));
+        } catch (final Exception e) {
+          close(session, e);
         }
       }
     });
@@ -81,11 +71,9 @@ public final class WsConnection extends Connection {
           @Override public void onResult(final SendResult result) {
             if (result == null) {
               onError(new Exception("result == null"));
-            } else {
+            } else if (!result.isOK()) {
               final Throwable throwable = result.getException();
-              if (throwable != null) {
-                onError(throwable);
-              }
+              onError((throwable == null) ? new Exception("throwable == null") : throwable);
             }
           }
         });

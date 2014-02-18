@@ -21,7 +21,7 @@ import java.util.concurrent.TimeUnit;
 
 public class SocketPerformanceTest extends InvokeTest {
 
-  private static final int COUNTER = 1;
+  public static final int COUNTER = 1;
 
   public static final Serializer MESSAGE_SERIALIZER = new MessageSerializer(SerializerTest.TAGGED_FAST_SERIALIZER);
 
@@ -36,7 +36,7 @@ public class SocketPerformanceTest extends InvokeTest {
     );
   }
 
-  @Test public void session() throws InterruptedException {
+  @Test public void test() throws InterruptedException {
     final ExecutorService executor = Executors.newCachedThreadPool(new NamedThreadFactory("executor", TestUtils.TERMINATE));
     try {
       createTransport(executor, null).start(executor, SocketListenerTest.ADDRESS);
