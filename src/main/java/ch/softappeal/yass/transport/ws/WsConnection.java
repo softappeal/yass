@@ -13,11 +13,10 @@ import ch.softappeal.yass.util.Check;
 import javax.websocket.CloseReason;
 import javax.websocket.MessageHandler;
 import javax.websocket.RemoteEndpoint;
-import java.io.ByteArrayInputStream;
+import javax.websocket.SendHandler;
+import javax.websocket.SendResult;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.nio.ByteBuffer;
 
 public final class WsConnection extends Connection {
@@ -25,9 +24,7 @@ public final class WsConnection extends Connection {
   private volatile Session session;
   private final Serializer packetSerializer;
   public final javax.websocket.Session wsSession;
-  private final RemoteEndpoint.Basic remoteEndpoint;
-
-  private static final boolean USE_STREAM = false; // $todo
+  private final RemoteEndpoint.Async remoteEndpoint;
 
   /**
    * @param createSessionExceptionHandler handles exceptions from {@link SessionFactory#create(SessionSetup, Connection)}
@@ -37,79 +34,63 @@ public final class WsConnection extends Connection {
     final Thread.UncaughtExceptionHandler createSessionExceptionHandler,
     final javax.websocket.Session wsSession
   ) {
-    // $todo: review
     this.packetSerializer = Check.notNull(packetSerializer);
     Check.notNull(createSessionExceptionHandler);
     this.wsSession = wsSession;
-    remoteEndpoint = wsSession.getBasicRemote();
+    remoteEndpoint = wsSession.getAsyncRemote(); // $todo: implement batching ? setting send timeout ?
     try {
       session = setup.createSession(this);
     } catch (final Exception e) {
       try {
-        // $todo session.close(CloseReason.CloseCodes.UNEXPECTED_CONDITION);
+        wsSession.close();
       } catch (final Exception e2) {
         e.addSuppressed(e2);
       }
       createSessionExceptionHandler.uncaughtException(Thread.currentThread(), e);
-      session = null;
       return;
     }
-    if (USE_STREAM) {
-      wsSession.addMessageHandler(new MessageHandler.Whole<InputStream>() {
-        @Override public void onMessage(final InputStream in) {
-          try {
-            final Packet packet;
-            try {
-              packet = (Packet)packetSerializer.read(Reader.create(in));
-            } catch (final Exception e) {
-              close(session, e);
-              return;
-            }
-            received(session, packet);
-            if (packet.isEnd()) {
-              wsSession.close();
-            }
-          } catch (final IOException e) {
-            throw new RuntimeException(e);
-          }
-        }
-      });
-    } else {
-      wsSession.addMessageHandler(new MessageHandler.Whole<byte[]>() {
-        @Override public void onMessage(final byte[] in) {
-          try {
-            final Packet packet;
-            try {
-              packet = (Packet)packetSerializer.read(Reader.create(new ByteArrayInputStream(in)));
-            } catch (final Exception e) {
-              close(session, e);
-              return;
-            }
-            received(session, packet);
-            if (packet.isEnd()) {
-              wsSession.close();
-            }
-          } catch (final IOException e) {
-            throw new RuntimeException(e);
-          }
-
-        }
-      });
+    if (!open(session)) {
+      return;
     }
-    open(session); // $todo: check result
+    wsSession.addMessageHandler(new MessageHandler.Whole<ByteBuffer>() {
+      @Override public void onMessage(final ByteBuffer in) {
+        try {
+          final Packet packet;
+          try {
+            packet = (Packet)packetSerializer.read(Reader.create(in));
+          } catch (final Exception e) {
+            close(session, e);
+            return;
+          }
+          received(session, packet);
+          if (packet.isEnd()) {
+            wsSession.close();
+          }
+        } catch (final IOException e) {
+          throw new RuntimeException(e);
+        }
+      }
+    });
   }
 
   @Override protected void write(final Packet packet) throws Exception {
-    // $todo: review
-    if (USE_STREAM) {
-      try (OutputStream out = remoteEndpoint.getSendStream()) {
-        packetSerializer.write(packet, Writer.create(out));
+    new ByteArrayOutputStream(1024) {
+      {
+        packetSerializer.write(packet, Writer.create(this));
+        remoteEndpoint.sendBinary(ByteBuffer.wrap(buf, 0, count), new SendHandler() {
+          @Override public void onResult(final SendResult result) {
+            if (result == null) {
+              onError(new Exception("result == null"));
+            } else {
+              final Throwable throwable = result.getException();
+              if (throwable != null) {
+                onError(throwable);
+              }
+            }
+          }
+        });
       }
-    } else {
-      final ByteArrayOutputStream out = new ByteArrayOutputStream(1024);
-      packetSerializer.write(packet, Writer.create(out));
-      remoteEndpoint.sendBinary(ByteBuffer.wrap(out.toByteArray()));
-    }
+    };
   }
 
   @Override protected void closed() throws IOException {
@@ -123,8 +104,13 @@ public final class WsConnection extends Connection {
     onError(new Exception((closeReason == null) ? "closeReason == null" : closeReason.toString()));
   }
 
+  /**
+   * Note: session null check is needed if {@link SessionSetup#createSession(Connection)} call in constructor fails.
+   */
   void onError(final Throwable throwable) {
-    close(session, (throwable == null) ? new Exception("throwable == null") : throwable);
+    if (session != null) {
+      close(session, (throwable == null) ? new Exception("throwable == null") : throwable);
+    }
   }
 
 }

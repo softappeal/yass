@@ -31,10 +31,10 @@ public class PerformanceTest extends InvokeTest {
 
   public static final ContractId<TestService> CONTRACT_ID = ContractId.create(TestService.class, 0);
 
-  public static SessionSetup createSetup(final Executor executor, @Nullable final CountDownLatch latch, final int samples) {
+  public static SessionSetup createSetup(final Executor requestExecutor, @Nullable final CountDownLatch latch, final int samples) {
     return new SessionSetup(
       new Server(METHOD_MAPPER_FACTORY, CONTRACT_ID.service(new TestServiceImpl())),
-      executor,
+      requestExecutor,
       new SessionFactory() {
         @Override public Session create(final SessionSetup setup, final Connection connection) {
           return new Session(setup, connection) {

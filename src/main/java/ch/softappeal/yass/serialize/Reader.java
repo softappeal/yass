@@ -6,6 +6,7 @@ import ch.softappeal.yass.util.Exceptions;
 import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.ByteBuffer;
 
 public abstract class Reader {
 
@@ -180,6 +181,18 @@ public abstract class Reader {
           }
           n += count;
         }
+      }
+    };
+  }
+
+  public static Reader create(final ByteBuffer in) {
+    Check.notNull(in);
+    return new Reader() {
+      @Override public byte readByte() {
+        return in.get();
+      }
+      @Override public void readBytes(final byte[] buffer, final int offset, final int length) {
+        in.get(buffer, offset, length);
       }
     };
   }
