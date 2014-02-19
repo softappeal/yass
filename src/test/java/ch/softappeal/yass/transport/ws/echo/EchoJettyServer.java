@@ -8,7 +8,7 @@ import org.eclipse.jetty.websocket.jsr356.server.deploy.WebSocketServerContainer
 import javax.websocket.server.ServerEndpointConfig;
 import java.net.URI;
 
-public final class JettyServer {
+public final class EchoJettyServer {
 
   public static final int PORT = 8080;
   public static final String PATH = "/echo";
@@ -21,7 +21,7 @@ public final class JettyServer {
     context.setContextPath("/");
     server.setHandler(context);
     WebSocketServerContainerInitializer.configureContext(context).addEndpoint(
-      ServerEndpointConfig.Builder.create(ServerEndpoint.class, PATH).build()
+      ServerEndpointConfig.Builder.create(EchoServerEndpoint.class, PATH).build()
     );
     server.start();
   }

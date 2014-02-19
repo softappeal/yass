@@ -8,7 +8,7 @@ import javax.websocket.RemoteEndpoint;
 import javax.websocket.Session;
 import java.io.IOException;
 
-public final class ServerEndpoint extends Endpoint {
+public final class EchoServerEndpoint extends Endpoint {
 
   @Override public void onOpen(final Session session, final EndpointConfig config) {
     System.out.println("session '" + session.getId() + "' opened");
