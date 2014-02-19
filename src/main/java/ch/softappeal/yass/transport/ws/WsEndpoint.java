@@ -16,11 +16,17 @@ public abstract class WsEndpoint extends Endpoint {
   }
 
   @Override public final void onClose(final Session session, final CloseReason closeReason) {
-    ((WsConnection)session.getUserProperties().get(CONNECTION)).onClose(closeReason);
+    final Object connection = session.getUserProperties().get(CONNECTION);
+    if (connection != null) {
+      ((WsConnection)connection).onClose(closeReason);
+    }
   }
 
   @Override public final void onError(final Session session, final Throwable throwable) {
-    ((WsConnection)session.getUserProperties().get(CONNECTION)).onError(throwable);
+    final Object connection = session.getUserProperties().get(CONNECTION);
+    if (connection != null) {
+      ((WsConnection)connection).onError(throwable);
+    }
   }
 
 }
