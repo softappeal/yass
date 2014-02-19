@@ -1,21 +1,14 @@
 <html>
 <body>
-<title>Web Socket JavaScript Echo Client</title>
+<title>Echo Test</title>
 <script language="javascript" type="text/javascript">
-
-  var wsUri = getRootUri() + "/echo";
-
-  function getRootUri() {
-    return "ws://" + (document.location.hostname == "" ? "localhost" : document.location.hostname) + ":" +
-      (document.location.port == "" ? "8080" : document.location.port);
-  }
 
   function init() {
     output = document.getElementById("output");
   }
 
   function send_echo() {
-    websocket = new WebSocket(wsUri);
+    websocket = new WebSocket("ws://localhost:8080/echo");
     websocket.onopen = function (evt) {
       onOpen(evt)
     };
