@@ -71,7 +71,7 @@ public final class SocketTransport extends SocketListener {
   @Override void accept(final Socket adoptSocket) {
     execute(readerExecutor, createSessionExceptionHandler, adoptSocket, new Runnable() {
       @Override public void run() {
-        SocketConnection.create(SocketTransport.this, adoptSocket);
+        new SocketConnection(SocketTransport.this, adoptSocket);
       }
     });
   }

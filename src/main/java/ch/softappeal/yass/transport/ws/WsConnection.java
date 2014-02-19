@@ -24,7 +24,7 @@ public final class WsConnection extends Connection {
   private volatile Session session;
   private final Serializer packetSerializer;
   public final javax.websocket.Session wsSession;
-  private final RemoteEndpoint.Async remoteEndpoint;
+  private volatile RemoteEndpoint.Async remoteEndpoint;
 
   /**
    * @param createSessionExceptionHandler handles exceptions from {@link SessionFactory#create(SessionSetup, Connection)}
@@ -36,9 +36,9 @@ public final class WsConnection extends Connection {
   ) {
     this.packetSerializer = Check.notNull(packetSerializer);
     Check.notNull(createSessionExceptionHandler);
-    this.wsSession = wsSession;
-    remoteEndpoint = wsSession.getAsyncRemote(); // $todo: implement batching ? setting send timeout ?
+    this.wsSession = Check.notNull(wsSession);
     try {
+      remoteEndpoint = wsSession.getAsyncRemote(); // $todo: implement batching ? setting send timeout ?
       session = setup.createSession(this);
     } catch (final Exception e) {
       try {
