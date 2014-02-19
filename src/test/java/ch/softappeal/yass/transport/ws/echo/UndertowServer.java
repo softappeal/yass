@@ -10,24 +10,24 @@ import org.xnio.XnioWorker;
 
 import javax.websocket.server.ServerEndpointConfig;
 
-public final class EchoUndertowServer {
+public final class UndertowServer {
 
   public static void main(final String... args) throws Exception {
     final Xnio xnio = Xnio.getInstance();
     final XnioWorker xnioWorker = xnio.createWorker(OptionMap.builder().getMap());
     final WebSocketDeploymentInfo webSockets = new WebSocketDeploymentInfo()
-      .addEndpoint(ServerEndpointConfig.Builder.create(EchoServerEndpoint.class, EchoJettyServer.PATH).build())
+      .addEndpoint(ServerEndpointConfig.Builder.create(ServerEndpoint.class, JettyServer.PATH).build())
       .setWorker(xnioWorker);
     final DeploymentManager deployment = Servlets.defaultContainer()
       .addDeployment(Servlets.deployment()
-        .setClassLoader(EchoUndertowServer.class.getClassLoader())
+        .setClassLoader(UndertowServer.class.getClassLoader())
         .setContextPath("/")
-        .setDeploymentName(EchoUndertowServer.class.getName())
+        .setDeploymentName(UndertowServer.class.getName())
         .addServletContextAttribute(WebSocketDeploymentInfo.ATTRIBUTE_NAME, webSockets)
       );
     deployment.deploy();
     Undertow.builder()
-      .addHttpListener(EchoJettyServer.PORT, "localhost")
+      .addHttpListener(JettyServer.PORT, "localhost")
       .setHandler(deployment.start())
       .build()
       .start();

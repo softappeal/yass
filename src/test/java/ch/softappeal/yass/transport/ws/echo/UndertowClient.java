@@ -14,7 +14,7 @@ import org.xnio.XnioWorker;
 import java.nio.ByteBuffer;
 import java.util.Collections;
 
-public final class EchoUndertowClient {
+public final class UndertowClient {
 
   public static void main(final String... args) throws Exception {
     final XnioWorker worker = Xnio.getInstance().createWorker(OptionMap.create(Options.THREAD_DAEMON, true));
@@ -22,7 +22,7 @@ public final class EchoUndertowClient {
     final ServerWebSocketContainer container = new ServerWebSocketContainer(
       DefaultClassIntrospector.INSTANCE, worker, buffers, new CompositeThreadSetupAction(Collections.<ThreadSetupAction>emptyList()), true
     );
-    EchoJettyClient.run(container);
+    JettyClient.run(container);
   }
 
 }
