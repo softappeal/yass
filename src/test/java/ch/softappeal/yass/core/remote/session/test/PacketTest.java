@@ -36,8 +36,8 @@ public class PacketTest extends InvokeTest {
     try {
       new Packet(123, null);
       Assert.fail();
-    } catch (final NullPointerException e) {
-      // ignore
+    } catch (final NullPointerException ignore) {
+      // empty
     }
     try {
       new Packet(Packet.END_REQUEST_NUMBER, message);

@@ -1,8 +1,8 @@
-package ch.softappeal.yass.tutorial.contract;
+package ch.softappeal.yass.js;
 
-import ch.softappeal.yass.js.ModelGenerator;
+import ch.softappeal.yass.tutorial.contract.Config;
 
-public final class GenerateJsContract { // $todo: review
+public final class GenerateContract {
 
   public static void main(final String... args) throws Exception {
     new ModelGenerator(

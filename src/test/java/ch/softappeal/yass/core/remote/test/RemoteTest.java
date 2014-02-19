@@ -82,8 +82,8 @@ public class RemoteTest extends InvokeTest {
     try {
       ContractId.get();
       Assert.fail();
-    } catch (final IllegalStateException e) {
-      // ignore
+    } catch (final IllegalStateException ignore) {
+      // empty
     }
     Assert.assertFalse(ContractId.hasInvocation());
     invoke(

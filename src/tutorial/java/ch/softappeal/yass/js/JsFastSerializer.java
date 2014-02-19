@@ -1,6 +1,10 @@
-package ch.softappeal.yass.serialize.fast;
+package ch.softappeal.yass.js;
 
 import ch.softappeal.yass.serialize.Reflector;
+import ch.softappeal.yass.serialize.fast.AbstractFastSerializer;
+import ch.softappeal.yass.serialize.fast.BaseTypeHandlers;
+import ch.softappeal.yass.serialize.fast.FieldHandler;
+import ch.softappeal.yass.serialize.fast.TypeDesc;
 
 import java.lang.reflect.Field;
 import java.util.Collection;
@@ -14,7 +18,7 @@ import java.util.Map;
  * This is the Java implementation of the yass Javascript serializer.
  * This serializer assigns type and field id's automatically. Therefore, all peers must have the same version of the contract!
  */
-public final class JsFastSerializer extends AbstractFastSerializer { // $todo: review
+public final class JsFastSerializer extends AbstractFastSerializer {
 
   private void addClass(final int typeId, final Class<?> type, final boolean referenceable) {
     checkClass(type);
