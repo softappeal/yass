@@ -44,6 +44,14 @@
     ws.send(new Uint8Array([2]));
   });
 
+  communicate(function (ws) {
+    ws.send(new Uint8Array([3]));
+    ws.send(new Uint8Array([99]));
+    setTimeout(function () {
+      ws.close();
+    }, 10000);
+  });
+
 </script>
 Echo Test
 </body>

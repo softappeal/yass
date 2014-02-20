@@ -37,6 +37,13 @@ public final class JettyClient {
       session.getBasicRemote().sendBinary(ByteBuffer.wrap(new byte[] {2}));
       TimeUnit.MILLISECONDS.sleep(100);
     }
+    {
+      final Session session = container.connectToServer(new ClientEndpoint(), config, JettyServer.THE_URI);
+      session.getBasicRemote().sendBinary(ByteBuffer.wrap(new byte[] {3}));
+      session.getBasicRemote().sendBinary(ByteBuffer.wrap(new byte[] {99}));
+      TimeUnit.SECONDS.sleep(10);
+      session.close();
+    }
   }
 
   public static void main(final String... args) throws Exception {
