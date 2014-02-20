@@ -46,7 +46,7 @@ public final class ServerEndpoint extends Endpoint {
                     throw new RuntimeException(e);
                   }
                 }
-              }, 5000, 100, TimeUnit.MILLISECONDS);
+              }, 0, 100, TimeUnit.MILLISECONDS);
             }
           } else {
             remote.sendBinary(ByteBuffer.wrap(message));
