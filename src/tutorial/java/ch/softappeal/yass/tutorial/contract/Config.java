@@ -3,7 +3,7 @@ package ch.softappeal.yass.tutorial.contract;
 import ch.softappeal.yass.core.remote.MethodMapper;
 import ch.softappeal.yass.core.remote.SimpleMethodMapper;
 import ch.softappeal.yass.core.remote.TaggedMethodMapper;
-import ch.softappeal.yass.js.JsFastSerializer;
+import ch.softappeal.yass.serialize.fast.JsFastSerializer;
 import ch.softappeal.yass.serialize.FastReflector;
 import ch.softappeal.yass.serialize.Serializer;
 import ch.softappeal.yass.serialize.fast.AbstractFastSerializer;

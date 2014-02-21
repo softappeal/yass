@@ -4,6 +4,7 @@ import ch.softappeal.yass.Version;
 import ch.softappeal.yass.core.remote.ContractId;
 import ch.softappeal.yass.serialize.fast.AbstractFastSerializer;
 import ch.softappeal.yass.serialize.fast.ClassTypeHandler;
+import ch.softappeal.yass.serialize.fast.JsFastSerializer;
 import ch.softappeal.yass.serialize.fast.TypeHandler;
 import ch.softappeal.yass.util.Check;
 
@@ -19,7 +20,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-public final class ModelGenerator extends Generator {
+public final class ModelGenerator extends Generator { // $todo: review
 
   private final String rootPackage;
   private final String yassModule;

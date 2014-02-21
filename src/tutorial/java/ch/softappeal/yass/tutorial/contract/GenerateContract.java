@@ -1,6 +1,6 @@
-package ch.softappeal.yass.js;
+package ch.softappeal.yass.tutorial.contract;
 
-import ch.softappeal.yass.tutorial.contract.Config;
+import ch.softappeal.yass.js.ModelGenerator;
 
 public final class GenerateContract {
 

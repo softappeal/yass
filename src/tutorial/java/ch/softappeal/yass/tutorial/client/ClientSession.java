@@ -32,6 +32,7 @@ public final class ClientSession extends Session implements PriceListenerContext
 
   @Override public void opened() throws UnknownInstrumentsException {
     System.out.println("opened: " + hashCode());
+    instrumentService.reload();
     for (final Instrument instrument : instrumentService.getInstruments()) {
       id2instrument.put(instrument.id, instrument);
     }

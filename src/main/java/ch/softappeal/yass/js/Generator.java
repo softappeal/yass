@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.nio.charset.StandardCharsets;
 
-abstract class Generator {
+abstract class Generator { // $todo: review
 
   private final PrintWriter printer;
 

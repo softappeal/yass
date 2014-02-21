@@ -15,6 +15,7 @@ contract.ServerServices = {
 
 contract.InstrumentService = function () {};
 contract.InstrumentService.prototype.getInstruments = function () {};
+contract.InstrumentService.prototype.reload = function () {};
 
 contract.PriceEngine = function () {};
 contract.PriceEngine.prototype.subscribe = function (param0) {};
