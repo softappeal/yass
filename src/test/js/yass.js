@@ -13,7 +13,7 @@ yass.inherits = function (child, parent) {
 yass.Writer = function (initialCapacity) {
   this.capacity = initialCapacity;
   this.position = 0;
-  this.array = new Uint8Array(this.capacity);
+  this.array = new Uint8Array(initialCapacity);
 };
 
 yass.Writer.prototype.getUint8Array = function () {
@@ -21,24 +21,26 @@ yass.Writer.prototype.getUint8Array = function () {
 };
 
 yass.Writer.prototype.needed = function (value) {
+  var oldPosition = this.position;
   var oldArray;
-  if ((this.position + value) > this.capacity) {
+  this.position += value;
+  if (this.position > this.capacity) {
     oldArray = this.array;
-    this.capacity = 2 * (this.capacity + value);
+    this.capacity = 2 * this.position;
     this.array = new Uint8Array(this.capacity);
     this.array.set(oldArray);
   }
+  return oldPosition;
 };
 
 yass.Writer.prototype.writeByte = function (value) {
-  this.needed(1);
-  this.array[this.position++] = value;
+  var position = this.needed(1);
+  this.array[position] = value;
 };
 
 yass.Writer.prototype.writeInt = function (value) {
-  this.needed(4);
-  new DataView(this.array.buffer).setInt32(this.position, value);
-  this.position += 4;
+  var position = this.needed(4);
+  new DataView(this.array.buffer).setInt32(position, value);
 };
 
 yass.Writer.prototype.writeVarInt = function (value) {
@@ -53,7 +55,7 @@ yass.Writer.prototype.writeVarInt = function (value) {
 };
 
 yass.Writer.prototype.writeZigZagInt = function (value) {
-  this.writeVarInt((((value |= 0) << 1) ^ (value >> 31)) >>> 0);
+  this.writeVarInt((value << 1) ^ (value >> 31));
 };
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -65,11 +67,15 @@ yass.Reader = function (arrayBuffer) {
   this.position = 0;
 };
 
+yass.Reader.prototype.isEmpty = function () {
+  return this.position >= this.length;
+};
+
 yass.Reader.prototype.needed = function (value) {
   var oldPosition = this.position;
   this.position += value;
   if (this.position > this.length) {
-    throw "reader buffer empty";
+    throw "reader buffer underflow";
   }
   return oldPosition;
 };
@@ -84,7 +90,7 @@ yass.Reader.prototype.readInt = function () {
 
 yass.Reader.prototype.readVarInt = function () {
   var shift = 0;
-  var value;
+  var value = 0;
   var b;
   while (shift < 32) {
     b = this.readByte();
@@ -99,7 +105,7 @@ yass.Reader.prototype.readVarInt = function () {
 
 yass.Reader.prototype.readZigZagInt = function () {
   var value = this.readVarInt();
-  return ((value >>> 1) ^ -(value & 1)) | 0;
+  return (value >>> 1) ^ -(value & 1);
 };
 
 //----------------------------------------------------------------------------------------------------------------------

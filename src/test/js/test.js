@@ -1,5 +1,7 @@
 'use strict';
 
+var yass;
+
 function assert(value) {
   if (!value) {
     throw "error";
@@ -21,9 +23,11 @@ function exception(action) {
 // Reader/Writer
 
 (function () {
+
   var arrayBuffer;
-  var intArray;
+  var byteArray;
   var reader;
+
   var writer = new yass.Writer(1);
   writer.writeByte(123);
   writer.writeByte(210);
@@ -48,10 +52,14 @@ function exception(action) {
   writer.writeZigZagInt(-344554);
   writer.writeZigZagInt(2147483647);
   writer.writeZigZagInt(-2147483648);
-  intArray = writer.getUint8Array();
-  arrayBuffer = new ArrayBuffer(intArray.length);
-  new Uint8Array(arrayBuffer).set(intArray);
+
+  byteArray = writer.getUint8Array();
+  assert(byteArray.byteLength === 74);
+  arrayBuffer = new ArrayBuffer(byteArray.length);
+  new Uint8Array(arrayBuffer).set(byteArray);
+
   reader = new yass.Reader(arrayBuffer);
+  assert(!reader.isEmpty());
   assert(reader.readByte() === 123);
   assert(reader.readByte() === 210);
   assert(reader.readInt() === 0);
@@ -75,9 +83,25 @@ function exception(action) {
   assert(reader.readZigZagInt() === -344554);
   assert(reader.readZigZagInt() === 2147483647);
   assert(reader.readZigZagInt() === -2147483648);
+  assert(reader.isEmpty());
   exception(function () {
     reader.readByte();
   });
+
+  writer = new yass.Writer(100);
+  writer.writeByte(128);
+  writer.writeByte(128);
+  writer.writeByte(128);
+  writer.writeByte(128);
+  writer.writeByte(128);
+  byteArray = writer.getUint8Array();
+  arrayBuffer = new ArrayBuffer(byteArray.length);
+  new Uint8Array(arrayBuffer).set(byteArray);
+  reader = new yass.Reader(byteArray);
+  exception(function () {
+    reader.readVarInt();
+  });
+
 })();
 
 //----------------------------------------------------------------------------------------------------------------------
