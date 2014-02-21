@@ -42,8 +42,7 @@ priceListener.newPrices = function (prices) { // oneway function
 };
 priceListener.newPrices([price, price]); // simulates server calling client
 
-// list all client services
-var server = [
+var server = [ // list all client services
   yass.service(contract.ClientServices.PriceListener, priceListener /* , interceptors...*/)
   // other services
 ];
@@ -57,14 +56,15 @@ var instrumentService = yass.proxy(session, contract.ServerServices.InstrumentSe
 
 // server service implementation fake
 instrumentService = new contract.InstrumentService();
-instrumentService.getInstruments = function () {
+instrumentService.reload = function () { // oneway function
+  console.log("reload");
+};
+instrumentService.getInstruments = function () { // rpc-style function
   return [stock, stock];
 };
 
-// rpc-style server service invocation
-yass.rpc(instrumentService.getInstruments(), function (result) {
+instrumentService.reload(); // oneway server service invocation
+
+yass.rpc(instrumentService.getInstruments(), function (result) { // rpc-style server service invocation
   console.log(result);
 });
-
-// oneway server service invocation
-// tradeService.sendTrade("bla"); // no such method in tutorial yet ...
