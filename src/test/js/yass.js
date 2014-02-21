@@ -16,7 +16,7 @@ yass.Writer = function (initialCapacity) {
   this.array = new Uint8Array(this.capacity);
 };
 
-yass.Writer.prototype.bytes = function () {
+yass.Writer.prototype.getUint8Array = function () {
   return this.array.subarray(0, this.position);
 };
 
@@ -24,7 +24,7 @@ yass.Writer.prototype.needed = function (value) {
   var oldArray;
   if ((this.position + value) > this.capacity) {
     oldArray = this.array;
-    this.capacity = 2 + (this.capacity + value);
+    this.capacity = 2 * (this.capacity + value);
     this.array = new Uint8Array(this.capacity);
     this.array.set(oldArray);
   }
@@ -59,28 +59,27 @@ yass.Writer.prototype.writeZigZagInt = function (value) {
 //----------------------------------------------------------------------------------------------------------------------
 // Reader
 
-yass.Reader = function (buffer) {
-  this.array = new Uint8Array(buffer);
-  this.length = this.array.length;
+yass.Reader = function (arrayBuffer) {
+  this.array = new Uint8Array(arrayBuffer);
+  this.length = arrayBuffer.byteLength;
   this.position = 0;
 };
 
 yass.Reader.prototype.needed = function (value) {
-  if ((this.position + value) >= this.length) {
+  var oldPosition = this.position;
+  this.position += value;
+  if (this.position > this.length) {
     throw "reader buffer empty";
   }
+  return oldPosition;
 };
 
 yass.Reader.prototype.readByte = function () {
-  this.needed(1);
-  return this.array[this.position++];
+  return this.array[this.needed(1)];
 };
 
 yass.Reader.prototype.readInt = function () {
-  var oldPosition = this.position;
-  this.needed(4);
-  this.position += 4;
-  return new DataView(this.array.buffer).getInt32(oldPosition);
+  return new DataView(this.array.buffer).getInt32(this.needed(4));
 };
 
 yass.Reader.prototype.readVarInt = function () {
@@ -100,7 +99,7 @@ yass.Reader.prototype.readVarInt = function () {
 
 yass.Reader.prototype.readZigZagInt = function () {
   var value = this.readVarInt();
-  return (value >>> 1) ^ -(value & 1);
+  return ((value >>> 1) ^ -(value & 1)) | 0;
 };
 
 //----------------------------------------------------------------------------------------------------------------------

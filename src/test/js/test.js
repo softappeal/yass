@@ -1,68 +1,83 @@
 'use strict';
 
-//----------------------------------------------------------------------------------------------------------------------
-// Writer
-
-function printWriter(writer) {
-  console.log(writer.bytes());
+function assert(value) {
+  if (!value) {
+    throw "error";
+  }
 }
 
-var writer = new yass.Writer(1);
-printWriter(writer);
-
-writer.writeByte(123);
-printWriter(writer);
-writer.writeByte(210);
-printWriter(writer);
-
-writer.writeInt(1);
-printWriter(writer);
-writer.writeInt(257);
-printWriter(writer);
-writer.writeInt(-1);
-printWriter(writer);
-
-writer.writeVarInt(1);
-printWriter(writer);
-writer.writeVarInt(127);
-printWriter(writer);
-writer.writeVarInt(128);
-printWriter(writer);
-writer.writeVarInt(129);
-printWriter(writer);
-writer.writeVarInt(-1);
-printWriter(writer);
-
-writer.writeZigZagInt(1);
-printWriter(writer);
-writer.writeZigZagInt(-1);
-printWriter(writer);
+function exception(action) {
+  var thrown = false;
+  try {
+    action();
+  } catch (e) {
+    thrown = true;
+    console.log(e);
+  }
+  assert(thrown);
+}
 
 //----------------------------------------------------------------------------------------------------------------------
-// Reader
+// Reader/Writer
 
-var reader = new yass.Reader(writer.bytes().buffer);
-
-console.log(reader.readByte());
-console.log(reader.readByte());
-
-console.log(reader.readInt());
-console.log(reader.readInt());
-console.log(reader.readInt());
-
-console.log(reader.readVarInt());
-console.log(reader.readVarInt());
-console.log(reader.readVarInt());
-console.log(reader.readVarInt());
-console.log(reader.readVarInt());
-
-console.log(reader.readZigZagInt());
-console.log(reader.readZigZagInt());
-
-try {
-  reader.readByte();
-} catch(exception) {
-  console.log(exception);
-}
+(function () {
+  var arrayBuffer;
+  var intArray;
+  var reader;
+  var writer = new yass.Writer(1);
+  writer.writeByte(123);
+  writer.writeByte(210);
+  writer.writeInt(0);
+  writer.writeInt(21);
+  writer.writeInt(25658);
+  writer.writeInt(-13);
+  writer.writeInt(-344554);
+  writer.writeInt(2147483647);
+  writer.writeInt(-2147483648);
+  writer.writeVarInt(0);
+  writer.writeVarInt(21);
+  writer.writeVarInt(25658);
+  writer.writeVarInt(-13);
+  writer.writeVarInt(-344554);
+  writer.writeVarInt(2147483647);
+  writer.writeVarInt(-2147483648);
+  writer.writeZigZagInt(0);
+  writer.writeZigZagInt(21);
+  writer.writeZigZagInt(25658);
+  writer.writeZigZagInt(-13);
+  writer.writeZigZagInt(-344554);
+  writer.writeZigZagInt(2147483647);
+  writer.writeZigZagInt(-2147483648);
+  intArray = writer.getUint8Array();
+  arrayBuffer = new ArrayBuffer(intArray.length);
+  new Uint8Array(arrayBuffer).set(intArray);
+  reader = new yass.Reader(arrayBuffer);
+  assert(reader.readByte() === 123);
+  assert(reader.readByte() === 210);
+  assert(reader.readInt() === 0);
+  assert(reader.readInt() === 21);
+  assert(reader.readInt() === 25658);
+  assert(reader.readInt() === -13);
+  assert(reader.readInt() === -344554);
+  assert(reader.readInt() === 2147483647);
+  assert(reader.readInt() === -2147483648);
+  assert(reader.readVarInt() === 0);
+  assert(reader.readVarInt() === 21);
+  assert(reader.readVarInt() === 25658);
+  assert(reader.readVarInt() === -13);
+  assert(reader.readVarInt() === -344554);
+  assert(reader.readVarInt() === 2147483647);
+  assert(reader.readVarInt() === -2147483648);
+  assert(reader.readZigZagInt() === 0);
+  assert(reader.readZigZagInt() === 21);
+  assert(reader.readZigZagInt() === 25658);
+  assert(reader.readZigZagInt() === -13);
+  assert(reader.readZigZagInt() === -344554);
+  assert(reader.readZigZagInt() === 2147483647);
+  assert(reader.readZigZagInt() === -2147483648);
+  exception(function () {
+    reader.readByte();
+  });
+})();
 
 //----------------------------------------------------------------------------------------------------------------------
