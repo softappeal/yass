@@ -50,8 +50,8 @@ public final class Config {
   public static final Serializer PACKET_SERIALIZER = new PacketSerializer(new MessageSerializer(CONTRACT_SERIALIZER));
 
   /**
-   * @see SimpleMethodMapper
+   * @see TaggedMethodMapper
    */
-  public static final MethodMapper.Factory METHOD_MAPPER_FACTORY = TaggedMethodMapper.FACTORY;
+  public static final MethodMapper.Factory METHOD_MAPPER_FACTORY = SimpleMethodMapper.FACTORY;
 
 }
