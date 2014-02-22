@@ -34,15 +34,6 @@ contract.Price = function () {
   this.value = null;
 };
 
-contract.Trade = function () {
-  this.amount = null;
-  this.instrument = null;
-};
-
-contract.UnknownInstrumentsException = function () {
-  this.instrumentIds = null;
-};
-
 contract.instrument = {};
 
 contract.Instrument = function () {
@@ -61,4 +52,8 @@ contract.instrument.Bond = function () {
   this.coupon = null;
 };
 yass.inherits(contract.instrument.Bond, contract.Instrument);
+
+contract.UnknownInstrumentsException = function () {
+  this.instrumentIds = null;
+};
 

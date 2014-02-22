@@ -27,8 +27,7 @@ public final class Config {
   public static final JsFastSerializer CONTRACT_SERIALIZER = new JsFastSerializer(
     FastReflector.FACTORY,
     Arrays.<Class<?>>asList(PriceType.class),
-    Arrays.<Class<?>>asList(Price.class, Trade.class, UnknownInstrumentsException.class),
-    Arrays.<Class<?>>asList(Stock.class, Bond.class)
+    Arrays.<Class<?>>asList(Price.class, Stock.class, Bond.class, UnknownInstrumentsException.class)
   );
 
   /**

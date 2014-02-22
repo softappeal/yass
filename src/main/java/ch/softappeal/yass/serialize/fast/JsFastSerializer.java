@@ -46,11 +46,10 @@ public final class JsFastSerializer extends AbstractFastSerializer { // $todo: r
 
   /**
    * @param concreteClasses instances of these classes can only be used in trees
-   * @param referenceableConcreteClasses instances of these classes can be used in graphs
    */
   public JsFastSerializer(
     final Reflector.Factory reflectorFactory, final Collection<Class<?>> enumerations,
-    final Collection<Class<?>> concreteClasses, final Collection<Class<?>> referenceableConcreteClasses
+    final Collection<Class<?>> concreteClasses
   ) {
     super(reflectorFactory);
     addBaseType(BOOLEAN_TYPEDESC);
@@ -62,9 +61,6 @@ public final class JsFastSerializer extends AbstractFastSerializer { // $todo: r
     }
     for (final Class<?> type : concreteClasses) {
       addClass(id++, type, false);
-    }
-    for (final Class<?> type : referenceableConcreteClasses) {
-      addClass(id++, type, true);
     }
     fixupFields();
   }
