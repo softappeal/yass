@@ -105,5 +105,31 @@ function exception(action) {
 })();
 
 //----------------------------------------------------------------------------------------------------------------------
+// Enum
 
-console.log(contract.PriceType.ASK);
+var Color = function (value, name) {
+  yass.Enum.call(this, value, name);
+};
+yass.inherits(Color, yass.Enum);
+Color.RED = new Color(0, "RED");
+Color.BLUE = new Color(2, "BLUE");
+Color.ID = 23;
+Color.VALUES = yass.Enum.values(Color);
+
+(function () {
+  var red = Color.RED;
+  console.log(red);
+  assert(red instanceof Color);
+  assert(red instanceof yass.Enum);
+  assert(!(red instanceof yass.TypeHandler));
+  assert(red.value === 0);
+  assert(red.name === "RED");
+  assert(red === Color.RED);
+  assert(red !== Color.BLUE);
+  assert(red.constructor.VALUES.length === 3);
+  assert(red.constructor.VALUES[0] === Color.RED);
+  assert(red.constructor.VALUES[1] === undefined);
+  assert(red.constructor.VALUES[2] === Color.BLUE);
+})();
+
+//----------------------------------------------------------------------------------------------------------------------

@@ -20,6 +20,25 @@ yass.rpc = function (result, callback) {
 };
 
 //----------------------------------------------------------------------------------------------------------------------
+// Enum
+
+yass.Enum = function (value, name) {
+  this.value = value;
+  this.name = name;
+};
+
+yass.Enum.values = function (constructor) {
+  var values = [];
+  Object.keys(constructor).forEach(function (property) {
+    var constant = constructor[property];
+    if (constant instanceof yass.Enum) {
+      values[constant.value] = constant;
+    }
+  });
+  return values;
+};
+
+//----------------------------------------------------------------------------------------------------------------------
 // Writer
 
 yass.Writer = function (initialCapacity) {
