@@ -20,6 +20,13 @@ yass.rpc = function (result, callback) {
 };
 
 //----------------------------------------------------------------------------------------------------------------------
+// Class
+
+yass.Class = function () {
+  // empty
+};
+
+//----------------------------------------------------------------------------------------------------------------------
 // Enum
 
 yass.Enum = function (value, name) {
@@ -106,20 +113,20 @@ yass.Writer.prototype.writeUtf8 = function (value) {
   }
 };
 
-yass.Writer.calcUtf8Length = function (value) {
-  var length = 0;
+yass.Writer.calcUtf8bytes = function (value) {
+  var bytes = 0;
   var code;
   for (var c = 0; c < value.length; c++) {
     code = value.charCodeAt(c);
     if (code < 0x80) {
-      length += 1;
+      bytes += 1;
     } else if (code < 0x800) {
-      length += 2;
+      bytes += 2;
     } else {
-      length += 3;
+      bytes += 3;
     }
   }
-  return length;
+  return bytes;
 };
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -172,11 +179,11 @@ yass.Reader.prototype.readZigZagInt = function () {
   return (value >>> 1) ^ -(value & 1);
 };
 
-yass.Reader.prototype.readUtf8 = function (length) {
+yass.Reader.prototype.readUtf8 = function (bytes) {
   var result = "";
   var b1, b2, b3;
   var code;
-  while (length-- > 0) {
+  while (bytes-- > 0) {
     b1 = this.readByte();
     if ((b1 & 0x80) === 0) { // 0xxx xxxx
       code = b1;
@@ -186,6 +193,7 @@ yass.Reader.prototype.readUtf8 = function (length) {
         throw new Error("malformed String input (1)");
       }
       code = ((b1 & 0x1F) << 6) | (b2 & 0x3F);
+      bytes--;
     } else if ((b1 & 0xF0) === 0xE0) { // 1110 xxxx  10xx xxxx  10xx xxxx
       b2 = this.readByte();
       b3 = this.readByte();
@@ -193,6 +201,7 @@ yass.Reader.prototype.readUtf8 = function (length) {
         throw new Error("malformed String input (2)");
       }
       code = ((b1 & 0x0F) << 12) | ((b2 & 0x3F) << 6) | (b3 & 0x3F);
+      bytes -= 2;
     } else {
       throw new Error("malformed String input (3)");
     }
@@ -348,42 +357,17 @@ yass.INTEGER.write = function (value, writer) {
 };
 
 //----------------------------------------------------------------------------------------------------------------------
-// BYTE_ARRAY
-
-yass.BYTE_ARRAY = new yass.BaseTypeHandler();
-
-yass.BYTE_ARRAY.read = function (reader) {
-  /* $todo
-  length = reader.readVarInt();
-  value = new byte[Math.min(length, 1024)];
-  for (i = 0; i < length; i++) {
-    if (i >= value.length) {
-      value = Arrays.copyOf(value, Math.min(length, 2 * value.length)); // note: prevents out-of-memory attack
-    }
-    value[i] = reader.readByte();
-  }
-  return value;
-  */
-};
-
-yass.BYTE_ARRAY.write = function (value, writer) {
-  /* $todo
-   writer.writeVarInt(value.length);
-   writer.writeBytes(value);
-   */
-};
-
-//----------------------------------------------------------------------------------------------------------------------
 // STRING
 
 yass.STRING = new yass.BaseTypeHandler();
 
 yass.STRING.read = function (reader) {
-  // $todo return Utf8.string(BYTE_ARRAY.read(reader));
+  return reader.readUtf8(reader.readVarInt());
 };
 
 yass.STRING.write = function (value, writer) {
-  // $todo BYTE_ARRAY.write(Utf8.bytes(value), writer);
+  writer.writeVarInt(yass.Writer.calcUtf8bytes(value));
+  writer.writeUtf8(value);
 };
 
 //----------------------------------------------------------------------------------------------------------------------

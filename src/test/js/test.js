@@ -97,21 +97,21 @@ function exception(action) {
   byteArray = writer.getUint8Array();
   arrayBuffer = new ArrayBuffer(byteArray.length);
   new Uint8Array(arrayBuffer).set(byteArray);
-  reader = new yass.Reader(byteArray);
+  reader = new yass.Reader(arrayBuffer);
   exception(function () {
     reader.readVarInt();
   });
 
-  function utf8(length, value) {
-    assert(yass.Writer.calcUtf8Length(value) === length);
+  function utf8(bytes, value) {
+    assert(yass.Writer.calcUtf8bytes(value) === bytes);
     writer = new yass.Writer(100);
     writer.writeUtf8(value);
     byteArray = writer.getUint8Array();
-    assert(byteArray.length === length);
+    assert(byteArray.length === bytes);
     arrayBuffer = new ArrayBuffer(byteArray.length);
     new Uint8Array(arrayBuffer).set(byteArray);
-    reader = new yass.Reader(byteArray);
-    assert(reader.readUtf8(value.length) === value);
+    reader = new yass.Reader(arrayBuffer);
+    assert(reader.readUtf8(bytes) === value);
     assert(reader.isEmpty());
   }
   utf8(2, "><");
@@ -137,10 +137,10 @@ var Color = function (value, name) {
 yass.inherits(Color, yass.Enum);
 Color.RED = new Color(0, "RED");
 Color.BLUE = new Color(2, "BLUE");
-Color.ID = 23;
-Color.VALUES = yass.Enum.values(Color);
+Color.TYPE_DESC = 123;
 
 (function () {
+  var values = yass.Enum.values(Color);
   var red = Color.RED;
   console.log(red);
   assert(red instanceof Color);
@@ -150,10 +150,43 @@ Color.VALUES = yass.Enum.values(Color);
   assert(red.name === "RED");
   assert(red === Color.RED);
   assert(red !== Color.BLUE);
-  assert(red.constructor.VALUES.length === 3);
-  assert(red.constructor.VALUES[0] === Color.RED);
-  assert(red.constructor.VALUES[1] === undefined);
-  assert(red.constructor.VALUES[2] === Color.BLUE);
+  assert(red.constructor.TYPE_DESC === 123);
+  assert(values.length === 3);
+  assert(values[0] === Color.RED);
+  assert(values[1] === undefined);
+  assert(values[2] === Color.BLUE);
+})();
+
+//----------------------------------------------------------------------------------------------------------------------
+// Class
+
+var Instrument = function () {
+  this.id = null;
+  this.name = null;
+};
+yass.inherits(Instrument, yass.Class);
+Instrument.TYPE_DESC = 30;
+
+var Stock = function () {
+  Instrument.call(this);
+  this.paysDividend = null;
+};
+yass.inherits(Stock, Instrument);
+Stock.TYPE_DESC = 31;
+
+(function () {
+  assert(Instrument.TYPE_DESC === 30);
+  assert(Stock.TYPE_DESC === 31);
+  var stock = new Stock();
+  stock.id = 123;
+  stock.name = "IBM";
+  stock.paysDividend = true;
+  console.log(stock);
+  assert(stock.constructor.TYPE_DESC === 31);
+  assert(stock instanceof yass.Class);
+  assert(stock instanceof Instrument);
+  assert(stock instanceof Stock);
+  assert(!(stock instanceof yass.TypeHandler));
 })();
 
 //----------------------------------------------------------------------------------------------------------------------
