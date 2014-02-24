@@ -131,16 +131,12 @@ function exception(action) {
 //----------------------------------------------------------------------------------------------------------------------
 // Enum
 
-var Color = function (value, name) {
-  yass.Enum.call(this, value, name);
-};
-yass.inherits(Color, yass.Enum);
+var Color = yass.enumConstructor();
 Color.RED = new Color(0, "RED");
 Color.BLUE = new Color(2, "BLUE");
-Color.TYPE_DESC = 123;
+yass.enumDesc(33, Color);
 
 (function () {
-  var values = yass.Enum.values(Color);
   var red = Color.RED;
   console.log(red);
   assert(red instanceof Color);
@@ -150,7 +146,9 @@ Color.TYPE_DESC = 123;
   assert(red.name === "RED");
   assert(red === Color.RED);
   assert(red !== Color.BLUE);
-  assert(red.constructor.TYPE_DESC === 123);
+  assert(red.constructor.TYPE_DESC.id === 33);
+  var values = red.constructor.TYPE_DESC.handler.values;
+  console.log(values);
   assert(values.length === 3);
   assert(values[0] === Color.RED);
   assert(values[1] === undefined);
