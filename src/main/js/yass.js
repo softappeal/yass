@@ -89,6 +89,39 @@ yass.Writer.prototype.writeZigZagInt = function (value) {
   this.writeVarInt((value << 1) ^ (value >> 31));
 };
 
+yass.Writer.prototype.writeUtf8 = function (value) {
+  var code;
+  for (var c = 0; c < value.length; c++) {
+    code = value.charCodeAt(c);
+    if (code < 0x80) { // 0xxx xxxx
+      this.writeByte(code);
+    } else if (code < 0x800) { // 110x xxxx  10xx xxxx
+      this.writeByte(0xC0 | ((code >> 6) & 0x1F));
+      this.writeByte(0x80 | (code & 0x3F));
+    } else { // 1110 xxxx  10xx xxxx  10xx xxxx
+      this.writeByte(0xE0 | ((code >> 12) & 0x0F));
+      this.writeByte(0x80 | ((code >> 6) & 0x3F));
+      this.writeByte(0x80 | (code & 0x3F));
+    }
+  }
+};
+
+yass.Writer.calcUtf8Length = function (value) {
+  var length = 0;
+  var code;
+  for (var c = 0; c < value.length; c++) {
+    code = value.charCodeAt(c);
+    if (code < 0x80) {
+      length += 1;
+    } else if (code < 0x800) {
+      length += 2;
+    } else {
+      length += 3;
+    }
+  }
+  return length;
+};
+
 //----------------------------------------------------------------------------------------------------------------------
 // Reader
 
@@ -106,7 +139,7 @@ yass.Reader.prototype.needed = function (value) {
   var oldPosition = this.position;
   this.position += value;
   if (this.position > this.length) {
-    throw "reader buffer underflow";
+    throw new Error("reader buffer underflow");
   }
   return oldPosition;
 };
@@ -131,12 +164,41 @@ yass.Reader.prototype.readVarInt = function () {
     }
     shift += 7;
   }
-  throw "malformed input";
+  throw new Error("malformed VarInt input");
 };
 
 yass.Reader.prototype.readZigZagInt = function () {
   var value = this.readVarInt();
   return (value >>> 1) ^ -(value & 1);
+};
+
+yass.Reader.prototype.readUtf8 = function (length) {
+  var result = "";
+  var b1, b2, b3;
+  var code;
+  while (length-- > 0) {
+    b1 = this.readByte();
+    if ((b1 & 0x80) === 0) { // 0xxx xxxx
+      code = b1;
+    } else if ((b1 & 0xE0) === 0xC0) { // 110x xxxx  10xx xxxx
+      b2 = this.readByte();
+      if ((b2 & 0xC0) !== 0x80) {
+        throw new Error("malformed String input (1)");
+      }
+      code = ((b1 & 0x1F) << 6) | (b2 & 0x3F);
+    } else if ((b1 & 0xF0) === 0xE0) { // 1110 xxxx  10xx xxxx  10xx xxxx
+      b2 = this.readByte();
+      b3 = this.readByte();
+      if (((b2 & 0xC0) !== 0x80) || ((b3 & 0xC0) !== 0x80)) {
+        throw new Error("malformed String input (2)");
+      }
+      code = ((b1 & 0x0F) << 12) | ((b2 & 0x3F) << 6) | (b3 & 0x3F);
+    } else {
+      throw new Error("malformed String input (3)");
+    }
+    result += String.fromCharCode(code);
+  }
+  return result;
 };
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -147,11 +209,11 @@ yass.TypeHandler = function () {
 };
 
 yass.TypeHandler.prototype.read = function (input) {
-  throw "abstract method";
+  throw new Error("abstract method called");
 };
 
 yass.TypeHandler.prototype.write = function (value, output) {
-  throw "abstract method";
+  throw new Error("abstract method called");
 };
 
 yass.TypeHandler.prototype.writeId = function (id, value, output) {
@@ -244,11 +306,11 @@ yass.BaseTypeHandler = function () {
 yass.inherits(yass.BaseTypeHandler, yass.TypeHandler);
 
 yass.BaseTypeHandler.prototype.read = function (reader) {
-  throw "abstract method";
+  throw new Error("abstract method called");
 };
 
 yass.BaseTypeHandler.prototype.write = function (value, writer) {
-  throw "abstract method";
+  throw new Error("abstract method called");
 };
 
 yass.BaseTypeHandler.prototype.read = function (input) {

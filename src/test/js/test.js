@@ -4,7 +4,7 @@ var yass;
 
 function assert(value) {
   if (!value) {
-    throw "error";
+    throw new Error("assert failed");
   }
 }
 
@@ -14,7 +14,7 @@ function exception(action) {
     action();
   } catch (e) {
     thrown = true;
-    console.log(e);
+    console.log("expected error caught:", e);
   }
   assert(thrown);
 }
@@ -101,6 +101,30 @@ function exception(action) {
   exception(function () {
     reader.readVarInt();
   });
+
+  function utf8(length, value) {
+    assert(yass.Writer.calcUtf8Length(value) === length);
+    writer = new yass.Writer(100);
+    writer.writeUtf8(value);
+    byteArray = writer.getUint8Array();
+    assert(byteArray.length === length);
+    arrayBuffer = new ArrayBuffer(byteArray.length);
+    new Uint8Array(arrayBuffer).set(byteArray);
+    reader = new yass.Reader(byteArray);
+    assert(reader.readUtf8(value.length) === value);
+    assert(reader.isEmpty());
+  }
+  utf8(2, "><");
+  utf8(3, ">\u0000<");
+  utf8(3, ">\u0001<");
+  utf8(3, ">\u0012<");
+  utf8(3, ">\u007F<");
+  utf8(4, ">\u0080<");
+  utf8(4, ">\u0234<");
+  utf8(4, ">\u07FF<");
+  utf8(5, ">\u0800<");
+  utf8(5, ">\u4321<");
+  utf8(5, ">\uFFFF<");
 
 })();
 
