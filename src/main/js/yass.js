@@ -83,80 +83,85 @@ yass.writer = function (initialCapacity) {
 //----------------------------------------------------------------------------------------------------------------------
 // Reader
 
-yass.Reader = function (arrayBuffer) {
-  this.array = new Uint8Array(arrayBuffer);
-  this.length = arrayBuffer.byteLength;
-  this.position = 0;
-};
+yass.reader = function (arrayBuffer) {
 
-yass.Reader.prototype.isEmpty = function () {
-  return this.position >= this.length;
-};
+  var array = new Uint8Array(arrayBuffer);
+  var length = arrayBuffer.byteLength;
+  var position = 0;
 
-yass.Reader.prototype.needed = function (value) {
-  var oldPosition = this.position;
-  this.position += value;
-  if (this.position > this.length) {
-    throw new Error("reader buffer underflow");
-  }
-  return oldPosition;
-};
-
-yass.Reader.prototype.readByte = function () {
-  return this.array[this.needed(1)];
-};
-
-yass.Reader.prototype.readInt = function () {
-  return new DataView(this.array.buffer).getInt32(this.needed(4));
-};
-
-yass.Reader.prototype.readVarInt = function () {
-  var shift = 0;
-  var value = 0;
-  while (shift < 32) {
-    var b = this.readByte();
-    value |= (b & 0x7F) << shift;
-    if ((b & 0x80) === 0) {
-      return value;
+  function needed(value) {
+    var oldPosition = position;
+    position += value;
+    if (position > length) {
+      throw new Error("reader buffer underflow");
     }
-    shift += 7;
+    return oldPosition;
   }
-  throw new Error("malformed VarInt input");
-};
 
-yass.Reader.prototype.readZigZagInt = function () {
-  var value = this.readVarInt();
-  return (value >>> 1) ^ -(value & 1);
-};
+  return {
 
-yass.Reader.prototype.readUtf8 = function (bytes) {
-  var result = "";
-  while (bytes-- > 0) {
-    var code;
-    var b1 = this.readByte();
-    if ((b1 & 0x80) === 0) { // 0xxx xxxx
-      code = b1;
-    } else if ((b1 & 0xE0) === 0xC0) { // 110x xxxx  10xx xxxx
-      var b2 = this.readByte();
-      if ((b2 & 0xC0) !== 0x80) {
-        throw new Error("malformed String input (1)");
+    isEmpty: function () {
+      return position >= length;
+    },
+
+    readByte: function () {
+      return array[needed(1)];
+    },
+
+    readInt: function () {
+      return new DataView(array.buffer).getInt32(needed(4));
+    },
+
+    readVarInt: function () {
+      var shift = 0;
+      var value = 0;
+      while (shift < 32) {
+        var b = this.readByte();
+        value |= (b & 0x7F) << shift;
+        if ((b & 0x80) === 0) {
+          return value;
+        }
+        shift += 7;
       }
-      code = ((b1 & 0x1F) << 6) | (b2 & 0x3F);
-      bytes--;
-    } else if ((b1 & 0xF0) === 0xE0) { // 1110 xxxx  10xx xxxx  10xx xxxx
-      var b2 = this.readByte();
-      var b3 = this.readByte();
-      if (((b2 & 0xC0) !== 0x80) || ((b3 & 0xC0) !== 0x80)) {
-        throw new Error("malformed String input (2)");
+      throw new Error("malformed VarInt input");
+    },
+
+    readZigZagInt: function () {
+      var value = this.readVarInt();
+      return (value >>> 1) ^ -(value & 1);
+    },
+
+    readUtf8: function (bytes) {
+      var result = "";
+      while (bytes-- > 0) {
+        var code;
+        var b1 = this.readByte();
+        if ((b1 & 0x80) === 0) { // 0xxx xxxx
+          code = b1;
+        } else if ((b1 & 0xE0) === 0xC0) { // 110x xxxx  10xx xxxx
+          var b2 = this.readByte();
+          if ((b2 & 0xC0) !== 0x80) {
+            throw new Error("malformed String input (1)");
+          }
+          code = ((b1 & 0x1F) << 6) | (b2 & 0x3F);
+          bytes--;
+        } else if ((b1 & 0xF0) === 0xE0) { // 1110 xxxx  10xx xxxx  10xx xxxx
+          var b2 = this.readByte();
+          var b3 = this.readByte();
+          if (((b2 & 0xC0) !== 0x80) || ((b3 & 0xC0) !== 0x80)) {
+            throw new Error("malformed String input (2)");
+          }
+          code = ((b1 & 0x0F) << 12) | ((b2 & 0x3F) << 6) | (b3 & 0x3F);
+          bytes -= 2;
+        } else {
+          throw new Error("malformed String input (3)");
+        }
+        result += String.fromCharCode(code);
       }
-      code = ((b1 & 0x0F) << 12) | ((b2 & 0x3F) << 6) | (b3 & 0x3F);
-      bytes -= 2;
-    } else {
-      throw new Error("malformed String input (3)");
+      return result;
     }
-    result += String.fromCharCode(code);
-  }
-  return result;
+
+  };
 };
 
 //----------------------------------------------------------------------------------------------------------------------

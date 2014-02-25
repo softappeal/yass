@@ -23,7 +23,7 @@ function writer2reader(writer) {
   var byteArray = writer.getUint8Array();
   var arrayBuffer = new ArrayBuffer(byteArray.length);
   new Uint8Array(arrayBuffer).set(byteArray);
-  return new yass.Reader(arrayBuffer);
+  return yass.reader(arrayBuffer);
 }
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -103,7 +103,6 @@ function writer2reader(writer) {
     writer.writeUtf8(value);
     assert(writer.getUint8Array().length === bytes);
     var reader = writer2reader(writer);
-    assert(reader.length == bytes);
     assert(reader.readUtf8(bytes) === value);
     assert(reader.isEmpty());
   }
