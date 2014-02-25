@@ -129,15 +129,41 @@ function exception(action) {
 })();
 
 //----------------------------------------------------------------------------------------------------------------------
-// Enum
+// Types
 
 var Color = yass.enumConstructor();
 Color.RED = new Color(0, "RED");
 Color.BLUE = new Color(2, "BLUE");
 yass.enumDesc(33, Color);
 
+var A = function () { // abstract
+  this.s = null;
+};
+yass.inherits(A, yass.Class);
+
+var B = function () {
+  A.call(this);
+  this.b = null;
+  this.i = null;
+  this.c = null;
+  this.l = null;
+  this.a = null;
+};
+yass.inherits(B, A);
+yass.classDesc(40, B);
+
+yass.classField(B, 10, "s", yass.STRING);
+yass.classField(B, 20, "b", yass.BOOLEAN);
+yass.classField(B, 30, "i", yass.INTEGER);
+yass.classField(B, 31, "c", Color);
+yass.classField(B, 50, "l", yass.LIST);
+yass.classField(B, 51, "a", null);
+
+var serializer = new yass.Serializer([B, Color]);
+
 (function () {
   var red = Color.RED;
+  var values = red.constructor.TYPE_DESC.handler.values;
   console.log(red);
   assert(red instanceof Color);
   assert(red instanceof yass.Enum);
@@ -147,44 +173,38 @@ yass.enumDesc(33, Color);
   assert(red === Color.RED);
   assert(red !== Color.BLUE);
   assert(red.constructor.TYPE_DESC.id === 33);
-  var values = red.constructor.TYPE_DESC.handler.values;
-  console.log(values);
   assert(values.length === 3);
   assert(values[0] === Color.RED);
   assert(values[1] === undefined);
   assert(values[2] === Color.BLUE);
-})();
 
-//----------------------------------------------------------------------------------------------------------------------
-// Class
+  var b2 = new B();
+  var b = new B();
+  b.s = "hello";
+  b.b = true;
+  b.i = 987;
+  b.c = Color.BLUE;
+  b.l = [b2, 3454];
+  b.a = b2;
+  console.log(b);
+  assert(b.constructor.TYPE_DESC.id === 40);
+  assert(b instanceof yass.Class);
+  assert(b instanceof A);
+  assert(b instanceof B);
+  assert(!(b instanceof yass.TypeHandler));
 
-var Instrument = function () {
-  this.id = null;
-  this.name = null;
-};
-yass.inherits(Instrument, yass.Class);
-Instrument.TYPE_DESC = 30;
+  console.log(serializer.id2typeHandler);
 
-var Stock = function () {
-  Instrument.call(this);
-  this.paysDividend = null;
-};
-yass.inherits(Stock, Instrument);
-Stock.TYPE_DESC = 31;
+  var writer = new yass.Writer(100);
+  serializer.write(b, writer);
+  var byteArray = writer.getUint8Array();
+  var arrayBuffer = new ArrayBuffer(byteArray.length);
+  new Uint8Array(arrayBuffer).set(byteArray);
+  var reader = new yass.Reader(arrayBuffer);
+  b = serializer.read(reader);
+  assert(reader.isEmpty());
+  console.log(b);
 
-(function () {
-  assert(Instrument.TYPE_DESC === 30);
-  assert(Stock.TYPE_DESC === 31);
-  var stock = new Stock();
-  stock.id = 123;
-  stock.name = "IBM";
-  stock.paysDividend = true;
-  console.log(stock);
-  assert(stock.constructor.TYPE_DESC === 31);
-  assert(stock instanceof yass.Class);
-  assert(stock instanceof Instrument);
-  assert(stock instanceof Stock);
-  assert(!(stock instanceof yass.TypeHandler));
 })();
 
 //----------------------------------------------------------------------------------------------------------------------

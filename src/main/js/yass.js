@@ -1,5 +1,3 @@
-// $todo: review
-
 'use strict';
 
 var yass = {};
@@ -7,31 +5,6 @@ var yass = {};
 yass.inherits = function (child, parent) {
   child.prototype = Object.create(parent.prototype);
   child.prototype.constructor = child;
-};
-
-yass.service = function (id, implementation /* , interceptors... */) {
-};
-
-yass.proxy = function (session, id /* , interceptors... */) {
-};
-
-yass.rpc = function (result, callback) {
-  callback(result);
-};
-
-//----------------------------------------------------------------------------------------------------------------------
-// Class
-
-yass.Class = function () {
-  // empty
-};
-
-//----------------------------------------------------------------------------------------------------------------------
-// Enum
-
-yass.Enum = function (value, name) {
-  this.value = value;
-  this.name = name;
 };
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -200,6 +173,21 @@ yass.Reader.prototype.readUtf8 = function (bytes) {
 };
 
 //----------------------------------------------------------------------------------------------------------------------
+// Class
+
+yass.Class = function () {
+  // empty
+};
+
+//----------------------------------------------------------------------------------------------------------------------
+// Enum
+
+yass.Enum = function (value, name) {
+  this.value = value;
+  this.name = name;
+};
+
+//----------------------------------------------------------------------------------------------------------------------
 // TypeHandler
 
 yass.TypeHandler = function () {
@@ -239,43 +227,43 @@ yass.BaseTypeHandler = function () {
 };
 yass.inherits(yass.BaseTypeHandler, yass.TypeHandler);
 
-yass.BaseTypeHandler.prototype.read = function (reader) {
+yass.BaseTypeHandler.prototype.readBase = function (reader) {
   throw new Error("abstract method called");
 };
 
-yass.BaseTypeHandler.prototype.write = function (value, writer) {
+yass.BaseTypeHandler.prototype.writeBase = function (value, writer) {
   throw new Error("abstract method called");
 };
 
 yass.BaseTypeHandler.prototype.read = function (input) {
-  return this.read(input.reader);
+  return this.readBase(input.reader);
 };
 
 yass.BaseTypeHandler.prototype.write = function (value, output) {
-  this.write(value, output.writer);
+  this.writeBase(value, output.writer);
 };
 
 //----------------------------------------------------------------------------------------------------------------------
 // NULL
 
-yass.NULL_HANDLER = new yass.TypeHandler();
+yass.NULL = new yass.TypeHandler();
 
-yass.NULL_HANDLER.read = function (input) {
+yass.NULL.read = function (input) {
   return null;
 };
 
-yass.NULL_HANDLER.write = function (value, output) {
+yass.NULL.write = function (value, output) {
   // empty
 };
 
-yass.NULL_DESC = new yass.TypeDesc(0, yass.NULL_HANDLER);
+yass.NULL.TYPE_DESC = new yass.TypeDesc(0, yass.NULL);
 
 //----------------------------------------------------------------------------------------------------------------------
 // LIST
 
-yass.LIST_HANDLER = new yass.TypeHandler();
+yass.LIST = new yass.TypeHandler();
 
-yass.LIST_HANDLER.read = function (input) {
+yass.LIST.read = function (input) {
   var list = [];
   var size = input.reader.readVarInt();
   while (size-- > 0) {
@@ -284,60 +272,60 @@ yass.LIST_HANDLER.read = function (input) {
   return list;
 };
 
-yass.LIST_HANDLER.write = function (value, output) {
+yass.LIST.write = function (value, output) {
   output.writer.writeVarInt(value.length)
   value.forEach(function (value) {
     output.write(value);
   });
 };
 
-yass.LIST_DESC = new yass.TypeDesc(2, yass.LIST_HANDLER);
+yass.LIST.TYPE_DESC = new yass.TypeDesc(2, yass.LIST);
 
 //----------------------------------------------------------------------------------------------------------------------
 // BOOLEAN
 
-yass.BOOLEAN_HANDLER = new yass.BaseTypeHandler();
+yass.BOOLEAN = new yass.BaseTypeHandler();
 
-yass.BOOLEAN_HANDLER.read = function (reader) {
+yass.BOOLEAN.readBase = function (reader) {
   return reader.readByte() !== 0;
 };
 
-yass.BOOLEAN_HANDLER.write = function (value, writer) {
+yass.BOOLEAN.writeBase = function (value, writer) {
   writer.writeByte(value ? 1 : 0);
 };
 
-yass.BOOLEAN_DESC = new yass.TypeDesc(3, yass.BOOLEAN_HANDLER);
+yass.BOOLEAN.TYPE_DESC = new yass.TypeDesc(3, yass.BOOLEAN);
 
 //----------------------------------------------------------------------------------------------------------------------
 // INTEGER
 
-yass.INTEGER_HANDLER = new yass.BaseTypeHandler();
+yass.INTEGER = new yass.BaseTypeHandler();
 
-yass.INTEGER_HANDLER.read = function (reader) {
+yass.INTEGER.readBase = function (reader) {
   return reader.readZigZagInt();
 };
 
-yass.INTEGER_HANDLER.write = function (value, writer) {
+yass.INTEGER.writeBase = function (value, writer) {
   writer.writeZigZagInt(value);
 };
 
-yass.INTEGER_DESC = new yass.TypeDesc(4, yass.INTEGER_HANDLER);
+yass.INTEGER.TYPE_DESC = new yass.TypeDesc(4, yass.INTEGER);
 
 //----------------------------------------------------------------------------------------------------------------------
 // STRING
 
-yass.STRING_HANDLER = new yass.BaseTypeHandler();
+yass.STRING = new yass.BaseTypeHandler();
 
-yass.STRING_HANDLER.read = function (reader) {
+yass.STRING.readBase = function (reader) {
   return reader.readUtf8(reader.readVarInt());
 };
 
-yass.STRING_HANDLER.write = function (value, writer) {
+yass.STRING.writeBase = function (value, writer) {
   writer.writeVarInt(yass.Writer.calcUtf8bytes(value));
   writer.writeUtf8(value);
 };
 
-yass.STRING_DESC = new yass.TypeDesc(5, yass.STRING_HANDLER);
+yass.STRING.TYPE_DESC = new yass.TypeDesc(5, yass.STRING);
 
 //----------------------------------------------------------------------------------------------------------------------
 // Input
@@ -360,15 +348,15 @@ yass.Output = function (writer) {
 
 yass.Output.prototype.write = function (value) {
   if (value === null) {
-    yass.NULL_DESC.write(null, this);
+    yass.NULL.TYPE_DESC.write(null, this);
   } else if (typeof value === "boolean") {
-    yass.BOOLEAN_DESC.write(value, this)
+    yass.BOOLEAN.TYPE_DESC.write(value, this)
   } else if (typeof value === "number") {
-    yass.INTEGER_DESC.write(value, this)
+    yass.INTEGER.TYPE_DESC.write(value, this)
   } else if (typeof value === "string") {
-    yass.STRING_DESC.write(value, this)
+    yass.STRING.TYPE_DESC.write(value, this)
   } else if (Array.isArray(value)) {
-    yass.LIST_DESC.write(value, this)
+    yass.LIST.TYPE_DESC.write(value, this)
   } else if (value instanceof yass.Enum) {
     value.constructor.TYPE_DESC.write(value, this);
   } else if (value instanceof yass.Class) {
@@ -376,6 +364,42 @@ yass.Output.prototype.write = function (value) {
   } else {
     throw new Error("unexpected value type");
   }
+};
+
+//----------------------------------------------------------------------------------------------------------------------
+// EnumTypeHandler
+
+yass.EnumTypeHandler = function (values) {
+  yass.BaseTypeHandler.call(this);
+  this.values = values;
+};
+yass.inherits(yass.EnumTypeHandler, yass.BaseTypeHandler);
+
+yass.EnumTypeHandler.prototype.readBase = function (reader) {
+  return this.values[reader.readVarInt()];
+};
+
+yass.EnumTypeHandler.prototype.writeBase = function (value, writer) {
+  writer.writeVarInt(value.value);
+};
+
+yass.enumConstructor = function () {
+  var type = function (value, name) {
+    yass.Enum.call(this, value, name);
+  };
+  yass.inherits(type, yass.Enum);
+  return type;
+};
+
+yass.enumDesc = function (id, constructor) {
+  var values = [];
+  Object.keys(constructor).forEach(function (property) {
+    var constant = constructor[property];
+    if (constant instanceof yass.Enum) {
+      values[constant.value] = constant;
+    }
+  });
+  constructor.TYPE_DESC = new yass.TypeDesc(id, new yass.EnumTypeHandler(values));
 };
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -405,10 +429,10 @@ yass.FieldHandler.prototype.write = function (id, object, output) {
 //----------------------------------------------------------------------------------------------------------------------
 // ClassTypeHandler
 
-yass.ClassTypeHandler = function (constructor, fieldId2handler) {
+yass.ClassTypeHandler = function (constructor) {
   yass.TypeHandler.call(this);
   this.constructor = constructor;
-  this.fieldId2handler = fieldId2handler;
+  this.fieldId2handler = [];
 };
 yass.inherits(yass.ClassTypeHandler, yass.TypeHandler);
 
@@ -431,55 +455,57 @@ yass.ClassTypeHandler.prototype.write = function (value, output) {
   output.writer.writeVarInt(0);
 };
 
-//----------------------------------------------------------------------------------------------------------------------
-// EnumTypeHandler
-
-yass.EnumTypeHandler = function (values) {
-  yass.BaseTypeHandler.call(this);
-  this.values = values;
-};
-yass.inherits(yass.EnumTypeHandler, yass.BaseTypeHandler);
-
-yass.EnumTypeHandler.prototype.read = function (reader) {
-  return this.values[reader.readVarInt()];
+yass.classDesc = function (id, constructor) {
+  constructor.TYPE_DESC = new yass.TypeDesc(id, new yass.ClassTypeHandler(constructor));
 };
 
-yass.EnumTypeHandler.prototype.write = function (value, writer) {
-  writer.writeVarInt(value.value);
-};
-
-yass.enumConstructor = function () {
-  var type = function (value, name) {
-    yass.Enum.call(this, value, name);
-  };
-  yass.inherits(type, yass.Enum);
-  return type;
-};
-
-yass.enumDesc = function (id, constructor) {
-  var values = [];
-  Object.keys(constructor).forEach(function (property) {
-    var constant = constructor[property];
-    if (constant instanceof yass.Enum) {
-      values[constant.value] = constant;
-    }
-  });
-  constructor.TYPE_DESC = new yass.TypeDesc(id, new yass.EnumTypeHandler(values));
+yass.classField = function (constructor, id, name, typeDescOwner) {
+  constructor.TYPE_DESC.handler.fieldId2handler[id] = new yass.FieldHandler(
+    name, (typeDescOwner === null) ? null : typeDescOwner.TYPE_DESC.handler
+  );
 };
 
 //----------------------------------------------------------------------------------------------------------------------
 // Serializer
 
-yass.Serializer = function (typeDescs) {
-  this.id2typeHandler = null;
+yass.Serializer = function (typeDescOwners) { // $todo: collect these automatically
+  var that = this;
+  this.id2typeHandler = [];
+  this.addHandler(yass.NULL);
+  this.addHandler(yass.LIST);
+  this.addHandler(yass.BOOLEAN);
+  this.addHandler(yass.INTEGER);
+  this.addHandler(yass.STRING);
+  typeDescOwners.forEach(function (typeDescOwner) {
+    that.addHandler(typeDescOwner);
+  });
+};
+
+yass.Serializer.prototype.addHandler = function (typeDescOwner) {
+  var typeDesc = typeDescOwner.TYPE_DESC;
+  this.id2typeHandler[typeDesc.id] = typeDesc.handler;
 };
 
 yass.Serializer.prototype.read = function (reader) {
   return new yass.Input(reader, this.id2typeHandler).read();
 };
 
-yass.Serializer.prototype.writer = function (value, writer) {
+yass.Serializer.prototype.write = function (value, writer) {
   new yass.Output(writer).write(value);
+};
+
+//----------------------------------------------------------------------------------------------------------------------
+
+// $todo
+
+yass.service = function (id, implementation /* , interceptors... */) {
+};
+
+yass.proxy = function (session, id /* , interceptors... */) {
+};
+
+yass.rpc = function (result, callback) {
+  callback(result);
 };
 
 //----------------------------------------------------------------------------------------------------------------------
