@@ -24,10 +24,9 @@ yass.Writer.prototype.getUint8Array = function () {
 
 yass.Writer.prototype.needed = function (value) {
   var oldPosition = this.position;
-  var oldArray;
   this.position += value;
   if (this.position > this.capacity) {
-    oldArray = this.array;
+    var oldArray = this.array;
     this.capacity = 2 * this.position;
     this.array = new Uint8Array(this.capacity);
     this.array.set(oldArray);
@@ -61,9 +60,8 @@ yass.Writer.prototype.writeZigZagInt = function (value) {
 };
 
 yass.Writer.prototype.writeUtf8 = function (value) {
-  var code;
   for (var c = 0; c < value.length; c++) {
-    code = value.charCodeAt(c);
+    var code = value.charCodeAt(c);
     if (code < 0x80) { // 0xxx xxxx
       this.writeByte(code);
     } else if (code < 0x800) { // 110x xxxx  10xx xxxx
@@ -79,9 +77,8 @@ yass.Writer.prototype.writeUtf8 = function (value) {
 
 yass.Writer.calcUtf8bytes = function (value) {
   var bytes = 0;
-  var code;
   for (var c = 0; c < value.length; c++) {
-    code = value.charCodeAt(c);
+    var code = value.charCodeAt(c);
     if (code < 0x80) {
       bytes += 1;
     } else if (code < 0x800) {
@@ -126,9 +123,8 @@ yass.Reader.prototype.readInt = function () {
 yass.Reader.prototype.readVarInt = function () {
   var shift = 0;
   var value = 0;
-  var b;
   while (shift < 32) {
-    b = this.readByte();
+    var b = this.readByte();
     value |= (b & 0x7F) << shift;
     if ((b & 0x80) === 0) {
       return value;
@@ -145,22 +141,21 @@ yass.Reader.prototype.readZigZagInt = function () {
 
 yass.Reader.prototype.readUtf8 = function (bytes) {
   var result = "";
-  var b1, b2, b3;
-  var code;
   while (bytes-- > 0) {
-    b1 = this.readByte();
+    var code;
+    var b1 = this.readByte();
     if ((b1 & 0x80) === 0) { // 0xxx xxxx
       code = b1;
     } else if ((b1 & 0xE0) === 0xC0) { // 110x xxxx  10xx xxxx
-      b2 = this.readByte();
+      var b2 = this.readByte();
       if ((b2 & 0xC0) !== 0x80) {
         throw new Error("malformed String input (1)");
       }
       code = ((b1 & 0x1F) << 6) | (b2 & 0x3F);
       bytes--;
     } else if ((b1 & 0xF0) === 0xE0) { // 1110 xxxx  10xx xxxx  10xx xxxx
-      b2 = this.readByte();
-      b3 = this.readByte();
+      var b2 = this.readByte();
+      var b3 = this.readByte();
       if (((b2 & 0xC0) !== 0x80) || ((b3 & 0xC0) !== 0x80)) {
         throw new Error("malformed String input (2)");
       }
@@ -190,7 +185,23 @@ yass.Enum = function (value, name) {
 };
 
 //----------------------------------------------------------------------------------------------------------------------
+// TypeDesc
+
+yass.typeDesc = function (id, handler) {
+  return {
+    id: id,
+    handler: handler,
+    write: function (value, output) {
+      output.writer.writeVarInt(id);
+      handler.write(value, output);
+    }
+  };
+};
+
+//----------------------------------------------------------------------------------------------------------------------
 // TypeHandler
+
+// $$$ start review here
 
 yass.TypeHandler = function () {
   // empty
@@ -202,23 +213,6 @@ yass.TypeHandler.prototype.read = function (input) {
 
 yass.TypeHandler.prototype.write = function (value, output) {
   throw new Error("abstract method called");
-};
-
-yass.TypeHandler.prototype.writeId = function (id, value, output) {
-  output.writer.writeVarInt(id);
-  this.write(value, output);
-};
-
-//----------------------------------------------------------------------------------------------------------------------
-// TypeDesc
-
-yass.TypeDesc = function (id, handler) {
-  this.id = id;
-  this.handler = handler;
-};
-
-yass.TypeDesc.prototype.write = function (value, output) {
-  this.handler.writeId(this.id, value, output);
 };
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -258,7 +252,7 @@ yass.NULL.write = function (value, output) {
   // empty
 };
 
-yass.NULL.TYPE_DESC = new yass.TypeDesc(0, yass.NULL);
+yass.NULL.TYPE_DESC = yass.typeDesc(0, yass.NULL);
 
 //----------------------------------------------------------------------------------------------------------------------
 // LIST
@@ -267,8 +261,7 @@ yass.LIST = new yass.TypeHandler();
 
 yass.LIST.read = function (input) {
   var list = [];
-  var size = input.reader.readVarInt();
-  while (size-- > 0) {
+  for (var size = input.reader.readVarInt(); size > 0; size--) {
     list.push(input.read());
   }
   return list;
@@ -281,7 +274,7 @@ yass.LIST.write = function (value, output) {
   });
 };
 
-yass.LIST.TYPE_DESC = new yass.TypeDesc(2, yass.LIST);
+yass.LIST.TYPE_DESC = yass.typeDesc(2, yass.LIST);
 
 //----------------------------------------------------------------------------------------------------------------------
 // BOOLEAN
@@ -296,7 +289,7 @@ yass.BOOLEAN.writeBase = function (value, writer) {
   writer.writeByte(value ? 1 : 0);
 };
 
-yass.BOOLEAN.TYPE_DESC = new yass.TypeDesc(3, yass.BOOLEAN);
+yass.BOOLEAN.TYPE_DESC = yass.typeDesc(3, yass.BOOLEAN);
 
 //----------------------------------------------------------------------------------------------------------------------
 // INTEGER
@@ -311,7 +304,7 @@ yass.INTEGER.writeBase = function (value, writer) {
   writer.writeZigZagInt(value);
 };
 
-yass.INTEGER.TYPE_DESC = new yass.TypeDesc(4, yass.INTEGER);
+yass.INTEGER.TYPE_DESC = yass.typeDesc(4, yass.INTEGER);
 
 //----------------------------------------------------------------------------------------------------------------------
 // STRING
@@ -327,7 +320,7 @@ yass.STRING.writeBase = function (value, writer) {
   writer.writeUtf8(value);
 };
 
-yass.STRING.TYPE_DESC = new yass.TypeDesc(5, yass.STRING);
+yass.STRING.TYPE_DESC = yass.typeDesc(5, yass.STRING);
 
 //----------------------------------------------------------------------------------------------------------------------
 // Input
@@ -401,7 +394,7 @@ yass.enumDesc = function (id, constructor) {
       values[constant.value] = constant;
     }
   });
-  constructor.TYPE_DESC = new yass.TypeDesc(id, new yass.EnumTypeHandler(values));
+  constructor.TYPE_DESC = yass.typeDesc(id, new yass.EnumTypeHandler(values));
 };
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -440,9 +433,8 @@ yass.inherits(yass.ClassTypeHandler, yass.TypeHandler);
 
 yass.ClassTypeHandler.prototype.read = function (input) {
   var object = new this.constructor();
-  var id;
   while (true) {
-    id = input.reader.readVarInt();
+    var id = input.reader.readVarInt();
     if (id === 0) {
       return object;
     }
@@ -458,7 +450,7 @@ yass.ClassTypeHandler.prototype.write = function (value, output) {
 };
 
 yass.classDesc = function (id, constructor) {
-  constructor.TYPE_DESC = new yass.TypeDesc(id, new yass.ClassTypeHandler(constructor));
+  constructor.TYPE_DESC = yass.typeDesc(id, new yass.ClassTypeHandler(constructor));
 };
 
 yass.classField = function (constructor, id, name, typeDescOwner) {
@@ -471,8 +463,8 @@ yass.classField = function (constructor, id, name, typeDescOwner) {
 // Serializer
 
 yass.Serializer = function (root) {
-  var that = this;
   this.id2typeHandler = [];
+  var that = this;
   function addHandler(typeDescOwner) {
     var typeDesc = typeDescOwner.TYPE_DESC;
     that.id2typeHandler[typeDesc.id] = typeDesc.handler;
@@ -483,16 +475,15 @@ yass.Serializer = function (root) {
   addHandler(yass.INTEGER);
   addHandler(yass.STRING);
   function addPackage(root) {
-    var p;
-    for (var property in root) {
-      if (!root.hasOwnProperty(property)) {
+    for (var name in root) {
+      if (!root.hasOwnProperty(name)) {
         continue;
       }
-      p = root[property];
-      if (p.hasOwnProperty("TYPE_DESC")) {
-        addHandler(p);
+      var property = root[name];
+      if (property.hasOwnProperty("TYPE_DESC")) {
+        addHandler(property);
       } else {
-        addPackage(p);
+        addPackage(property);
       }
     }
   }
