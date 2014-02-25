@@ -129,16 +129,11 @@ function writer2reader(writer) {
   console.log(ask);
   assert(ask instanceof contract.PriceType);
   assert(ask instanceof yass.Enum);
-  assert(!(ask instanceof yass.TypeHandler));
+  assert(!(ask instanceof yass.Class));
   assert(ask.value === 1);
   assert(ask.name === "ASK");
   assert(ask === contract.PriceType.ASK);
   assert(ask !== contract.PriceType.BID);
-  var values = ask.constructor.TYPE_DESC.handler.values;
-  assert(values.length === 2);
-  assert(values[0] === contract.PriceType.BID);
-  assert(values[1] === contract.PriceType.ASK);
-
 }());
 
 //----------------------------------------------------------------------------------------------------------------------
