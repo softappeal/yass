@@ -12,82 +12,72 @@ yass.inherits = function (child, parent) {
 //----------------------------------------------------------------------------------------------------------------------
 // Writer
 
-yass.Writer = function (initialCapacity) {
-  this.capacity = initialCapacity;
-  this.position = 0;
-  this.array = new Uint8Array(initialCapacity);
-};
+yass.writer = function (initialCapacity) {
 
-yass.Writer.prototype.getUint8Array = function () {
-  return this.array.subarray(0, this.position);
-};
+  var capacity = initialCapacity;
+  var position = 0;
+  var array = new Uint8Array(initialCapacity);
 
-yass.Writer.prototype.needed = function (value) {
-  var oldPosition = this.position;
-  this.position += value;
-  if (this.position > this.capacity) {
-    var oldArray = this.array;
-    this.capacity = 2 * this.position;
-    this.array = new Uint8Array(this.capacity);
-    this.array.set(oldArray);
-  }
-  return oldPosition;
-};
-
-yass.Writer.prototype.writeByte = function (value) {
-  var position = this.needed(1);
-  this.array[position] = value;
-};
-
-yass.Writer.prototype.writeInt = function (value) {
-  var position = this.needed(4);
-  new DataView(this.array.buffer).setInt32(position, value);
-};
-
-yass.Writer.prototype.writeVarInt = function (value) {
-  while (true) {
-    if ((value & ~0x7F) === 0) {
-      this.writeByte(value);
-      return;
+  function needed(value) {
+    var oldPosition = position;
+    position += value;
+    if (position > capacity) {
+      var oldArray = array;
+      capacity = 2 * position;
+      array = new Uint8Array(capacity);
+      array.set(oldArray);
     }
-    this.writeByte((value & 0x7F) | 0x80);
-    value >>>= 7;
+    return oldPosition;
   }
-};
 
-yass.Writer.prototype.writeZigZagInt = function (value) {
-  this.writeVarInt((value << 1) ^ (value >> 31));
-};
+  return {
 
-yass.Writer.prototype.writeUtf8 = function (value) {
-  for (var c = 0; c < value.length; c++) {
-    var code = value.charCodeAt(c);
-    if (code < 0x80) { // 0xxx xxxx
-      this.writeByte(code);
-    } else if (code < 0x800) { // 110x xxxx  10xx xxxx
-      this.writeByte(0xC0 | ((code >> 6) & 0x1F));
-      this.writeByte(0x80 | (code & 0x3F));
-    } else { // 1110 xxxx  10xx xxxx  10xx xxxx
-      this.writeByte(0xE0 | ((code >> 12) & 0x0F));
-      this.writeByte(0x80 | ((code >> 6) & 0x3F));
-      this.writeByte(0x80 | (code & 0x3F));
+    writeByte: function (value) {
+      var position = needed(1);
+      array[position] = value;
+    },
+
+    writeInt: function (value) {
+      var position = needed(4);
+      new DataView(array.buffer).setInt32(position, value);
+    },
+
+    writeVarInt: function (value) {
+      while (true) {
+        if ((value & ~0x7F) === 0) {
+          this.writeByte(value);
+          return;
+        }
+        this.writeByte((value & 0x7F) | 0x80);
+        value >>>= 7;
+      }
+    },
+
+    writeZigZagInt: function (value) {
+      this.writeVarInt((value << 1) ^ (value >> 31));
+    },
+
+    writeUtf8: function (value) {
+      for (var c = 0; c < value.length; c++) {
+        var code = value.charCodeAt(c);
+        if (code < 0x80) { // 0xxx xxxx
+          this.writeByte(code);
+        } else if (code < 0x800) { // 110x xxxx  10xx xxxx
+          this.writeByte(0xC0 | ((code >> 6) & 0x1F));
+          this.writeByte(0x80 | (code & 0x3F));
+        } else { // 1110 xxxx  10xx xxxx  10xx xxxx
+          this.writeByte(0xE0 | ((code >> 12) & 0x0F));
+          this.writeByte(0x80 | ((code >> 6) & 0x3F));
+          this.writeByte(0x80 | (code & 0x3F));
+        }
+      }
+    },
+
+    getUint8Array: function () {
+      return array.subarray(0, position);
     }
-  }
-};
 
-yass.Writer.calcUtf8bytes = function (value) {
-  var bytes = 0;
-  for (var c = 0; c < value.length; c++) {
-    var code = value.charCodeAt(c);
-    if (code < 0x80) {
-      bytes += 1;
-    } else if (code < 0x800) {
-      bytes += 2;
-    } else {
-      bytes += 3;
-    }
-  }
-  return bytes;
+  };
 };
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -316,7 +306,21 @@ yass.STRING.readBase = function (reader) {
 };
 
 yass.STRING.writeBase = function (value, writer) {
-  writer.writeVarInt(yass.Writer.calcUtf8bytes(value));
+  function calcUtf8bytes(value) {
+    var bytes = 0;
+    for (var c = 0; c < value.length; c++) {
+      var code = value.charCodeAt(c);
+      if (code < 0x80) {
+        bytes += 1;
+      } else if (code < 0x800) {
+        bytes += 2;
+      } else {
+        bytes += 3;
+      }
+    }
+    return bytes;
+  }
+  writer.writeVarInt(calcUtf8bytes(value));
   writer.writeUtf8(value);
 };
 
@@ -345,13 +349,13 @@ yass.Output.prototype.write = function (value) {
   if (value === null) {
     yass.NULL.TYPE_DESC.write(null, this);
   } else if (typeof value === "boolean") {
-    yass.BOOLEAN.TYPE_DESC.write(value, this)
+    yass.BOOLEAN.TYPE_DESC.write(value, this);
   } else if (typeof value === "number") {
-    yass.INTEGER.TYPE_DESC.write(value, this)
+    yass.INTEGER.TYPE_DESC.write(value, this);
   } else if (typeof value === "string") {
-    yass.STRING.TYPE_DESC.write(value, this)
+    yass.STRING.TYPE_DESC.write(value, this);
   } else if (Array.isArray(value)) {
-    yass.LIST.TYPE_DESC.write(value, this)
+    yass.LIST.TYPE_DESC.write(value, this);
   } else if (value instanceof yass.Enum) {
     value.constructor.TYPE_DESC.write(value, this);
   } else if (value instanceof yass.Class) {

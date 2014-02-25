@@ -31,7 +31,7 @@ function writer2reader(writer) {
 
 (function () {
 
-  var writer = new yass.Writer(1);
+  var writer = yass.writer(1);
   writer.writeByte(123);
   writer.writeByte(210);
   writer.writeInt(0);
@@ -55,7 +55,7 @@ function writer2reader(writer) {
   writer.writeZigZagInt(-344554);
   writer.writeZigZagInt(2147483647);
   writer.writeZigZagInt(-2147483648);
-  assert(writer.position === 74);
+  assert(writer.getUint8Array().length === 74);
 
   var reader = writer2reader(writer);
   assert(!reader.isEmpty());
@@ -87,7 +87,7 @@ function writer2reader(writer) {
     reader.readByte();
   });
 
-  writer = new yass.Writer(100);
+  writer = yass.writer(100);
   writer.writeByte(128);
   writer.writeByte(128);
   writer.writeByte(128);
@@ -99,11 +99,11 @@ function writer2reader(writer) {
   });
 
   function utf8(bytes, value) {
-    assert(yass.Writer.calcUtf8bytes(value) === bytes);
-    var writer = new yass.Writer(100);
+    var writer = yass.writer(100);
     writer.writeUtf8(value);
-    assert(writer.position === bytes);
+    assert(writer.getUint8Array().length === bytes);
     var reader = writer2reader(writer);
+    assert(reader.length == bytes);
     assert(reader.readUtf8(bytes) === value);
     assert(reader.isEmpty());
   }
@@ -163,7 +163,7 @@ function writer2reader(writer) {
 (function () {
 
   function copy(value) {
-    var writer = new yass.Writer(100);
+    var writer = yass.writer(100);
     contract.SERIALIZER.write(value, writer);
     var reader = writer2reader(writer);
     var result = contract.SERIALIZER.read(reader);
