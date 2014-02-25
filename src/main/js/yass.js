@@ -1,3 +1,5 @@
+// $todo: review
+
 'use strict';
 
 var yass = {};
@@ -468,22 +470,33 @@ yass.classField = function (constructor, id, name, typeDescOwner) {
 //----------------------------------------------------------------------------------------------------------------------
 // Serializer
 
-yass.Serializer = function (typeDescOwners) { // $todo: collect these automatically
+yass.Serializer = function (root) {
   var that = this;
   this.id2typeHandler = [];
-  this.addHandler(yass.NULL);
-  this.addHandler(yass.LIST);
-  this.addHandler(yass.BOOLEAN);
-  this.addHandler(yass.INTEGER);
-  this.addHandler(yass.STRING);
-  typeDescOwners.forEach(function (typeDescOwner) {
-    that.addHandler(typeDescOwner);
-  });
-};
-
-yass.Serializer.prototype.addHandler = function (typeDescOwner) {
-  var typeDesc = typeDescOwner.TYPE_DESC;
-  this.id2typeHandler[typeDesc.id] = typeDesc.handler;
+  function addHandler(typeDescOwner) {
+    var typeDesc = typeDescOwner.TYPE_DESC;
+    that.id2typeHandler[typeDesc.id] = typeDesc.handler;
+  }
+  addHandler(yass.NULL);
+  addHandler(yass.LIST);
+  addHandler(yass.BOOLEAN);
+  addHandler(yass.INTEGER);
+  addHandler(yass.STRING);
+  function addPackage(root) {
+    var p;
+    for (var property in root) {
+      if (!root.hasOwnProperty(property)) {
+        continue;
+      }
+      p = root[property];
+      if (p.hasOwnProperty("TYPE_DESC")) {
+        addHandler(p);
+      } else {
+        addPackage(p);
+      }
+    }
+  }
+  addPackage(root);
 };
 
 yass.Serializer.prototype.read = function (reader) {

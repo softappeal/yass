@@ -114,6 +114,7 @@ function exception(action) {
     assert(reader.readUtf8(bytes) === value);
     assert(reader.isEmpty());
   }
+
   utf8(2, "><");
   utf8(3, ">\u0000<");
   utf8(3, ">\u0001<");
@@ -129,82 +130,63 @@ function exception(action) {
 })();
 
 //----------------------------------------------------------------------------------------------------------------------
-// Types
-
-var Color = yass.enumConstructor();
-Color.RED = new Color(0, "RED");
-Color.BLUE = new Color(2, "BLUE");
-yass.enumDesc(33, Color);
-
-var A = function () { // abstract
-  this.s = null;
-};
-yass.inherits(A, yass.Class);
-
-var B = function () {
-  A.call(this);
-  this.b = null;
-  this.i = null;
-  this.c = null;
-  this.l = null;
-  this.a = null;
-};
-yass.inherits(B, A);
-yass.classDesc(40, B);
-
-yass.classField(B, 10, "s", yass.STRING);
-yass.classField(B, 20, "b", yass.BOOLEAN);
-yass.classField(B, 30, "i", yass.INTEGER);
-yass.classField(B, 31, "c", Color);
-yass.classField(B, 50, "l", yass.LIST);
-yass.classField(B, 51, "a", null);
-
-var serializer = new yass.Serializer([B, Color]);
+// Enum
 
 (function () {
-  var red = Color.RED;
-  var values = red.constructor.TYPE_DESC.handler.values;
-  console.log(red);
-  assert(red instanceof Color);
-  assert(red instanceof yass.Enum);
-  assert(!(red instanceof yass.TypeHandler));
-  assert(red.value === 0);
-  assert(red.name === "RED");
-  assert(red === Color.RED);
-  assert(red !== Color.BLUE);
-  assert(red.constructor.TYPE_DESC.id === 33);
-  assert(values.length === 3);
-  assert(values[0] === Color.RED);
-  assert(values[1] === undefined);
-  assert(values[2] === Color.BLUE);
+  var ask = contract.PriceType.ASK;
+  var values = ask.constructor.TYPE_DESC.handler.values;
+  console.log(ask);
+  assert(ask instanceof contract.PriceType);
+  assert(ask instanceof yass.Enum);
+  assert(!(ask instanceof yass.TypeHandler));
+  assert(ask.value === 1);
+  assert(ask.name === "ASK");
+  assert(ask === contract.PriceType.ASK);
+  assert(ask !== contract.PriceType.BID);
+  assert(ask.constructor.TYPE_DESC.id === 6);
+  assert(values.length === 2);
+  assert(values[0] === contract.PriceType.BID);
+  assert(values[1] === contract.PriceType.ASK);
 
-  var b2 = new B();
-  var b = new B();
-  b.s = "hello";
-  b.b = true;
-  b.i = 987;
-  b.c = Color.BLUE;
-  b.l = [b2, 3454];
-  b.a = b2;
-  console.log(b);
-  assert(b.constructor.TYPE_DESC.id === 40);
-  assert(b instanceof yass.Class);
-  assert(b instanceof A);
-  assert(b instanceof B);
-  assert(!(b instanceof yass.TypeHandler));
+})();
 
-  console.log(serializer.id2typeHandler);
+//----------------------------------------------------------------------------------------------------------------------
+// Class
 
-  var writer = new yass.Writer(100);
-  serializer.write(b, writer);
-  var byteArray = writer.getUint8Array();
-  var arrayBuffer = new ArrayBuffer(byteArray.length);
-  new Uint8Array(arrayBuffer).set(byteArray);
-  var reader = new yass.Reader(arrayBuffer);
-  b = serializer.read(reader);
-  assert(reader.isEmpty());
-  console.log(b);
+(function () {
+  var stock = new contract.instrument.Stock();
+  stock.id = "1344";
+  stock.name = "IBM";
+  stock.paysDividend = true;
+  console.log(stock);
+  assert(stock instanceof yass.Class);
+  assert(stock instanceof contract.Instrument);
+  assert(stock instanceof contract.instrument.Stock);
+  assert(!(stock instanceof contract.instrument.Bond));
+  assert(stock.constructor.TYPE_DESC.id === 8);
+})();
 
+//----------------------------------------------------------------------------------------------------------------------
+// Serializer
+
+(function () {
+  function copy(value) {
+    var writer = new yass.Writer(100);
+    contract.SERIALIZER.write(value, writer);
+    var byteArray = writer.getUint8Array();
+    var arrayBuffer = new ArrayBuffer(byteArray.length);
+    new Uint8Array(arrayBuffer).set(byteArray);
+    var reader = new yass.Reader(arrayBuffer);
+    var result = contract.SERIALIZER.read(reader);
+    assert(reader.isEmpty());
+    return result;
+  }
+
+  var stock = new contract.instrument.Stock();
+  stock.id = "1344";
+  stock.name = "IBM";
+  stock.paysDividend = true;
+  console.log(copy(stock));
 })();
 
 //----------------------------------------------------------------------------------------------------------------------

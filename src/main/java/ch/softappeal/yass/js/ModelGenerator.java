@@ -5,8 +5,10 @@ import ch.softappeal.yass.core.remote.ContractId;
 import ch.softappeal.yass.serialize.fast.AbstractFastSerializer;
 import ch.softappeal.yass.serialize.fast.ClassTypeHandler;
 import ch.softappeal.yass.serialize.fast.JsFastSerializer;
+import ch.softappeal.yass.serialize.fast.TypeDesc;
 import ch.softappeal.yass.serialize.fast.TypeHandler;
 import ch.softappeal.yass.util.Check;
+import ch.softappeal.yass.util.Nullable;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -25,6 +27,7 @@ public final class ModelGenerator extends Generator { // $todo: review
   private final String rootPackage;
   private final String yassModule;
   private final String modelModule;
+  private final Map<Integer, TypeHandler> id2typeHandler;
   private final Set<Class<?>> visitedClasses = new HashSet<>();
   private final Set<String> visitedPackages = new HashSet<>();
 
@@ -48,20 +51,12 @@ public final class ModelGenerator extends Generator { // $todo: review
   }
 
   private void generateEnum(final Class<? extends Enum<?>> type) {
-    tabs("%s = {", jsType(type));
-    inc();
-    boolean first = true;
+    final String jsType = jsType(type);
+    tabsln("%s = %s.enumConstructor();", jsType, yassModule);
     for (final Enum<?> e : type.getEnumConstants()) {
-      if (!first) {
-        print(",");
-      }
-      first = false;
-      println();
-      tabs("%s: %s", e.name(), e.ordinal());
+      tabsln("%s.%s = new %s(%s, \"%s\");", jsType, e.name(), jsType, e.ordinal(), e.name());
     }
-    dec();
-    println();
-    tabsln("};");
+    tabsln("%s.enumDesc(%s, %s);", yassModule, getId(type), jsType);
     println();
   }
 
@@ -82,7 +77,8 @@ public final class ModelGenerator extends Generator { // $todo: review
         return f1.getName().compareTo(f2.getName());
       }
     });
-    tabsln("%s = function () {", jsType(type));
+    final String jsType = jsType(type);
+    tabsln("%s = function () {", jsType);
     inc();
     for (final Field field : fields) {
       if (s != null) {
@@ -92,8 +88,35 @@ public final class ModelGenerator extends Generator { // $todo: review
     }
     dec();
     tabsln("};");
-    if (s != null) {
-      tabsln("%s.inherits(%s, %s);", yassModule, jsType(type), jsType(s));
+    tabsln("%s.inherits(%s, %s);", yassModule, jsType, (s == null) ? (yassModule + ".Class") : jsType(s));
+    final Integer id = getId(type);
+    if (id != null) {
+      tabsln("%s.classDesc(%s, %s);", yassModule, id, jsType);
+    }
+    println();
+  }
+
+  private void generateFields(final ClassTypeHandler typeHandler) {
+    for (final ClassTypeHandler.FieldDesc fieldDesc : typeHandler.fieldDescs()) {
+      final TypeHandler fieldHandler = fieldDesc.handler.typeHandler();
+      final String typeDescOwner;
+      if (TypeDesc.LIST.handler == fieldHandler) {
+        typeDescOwner = yassModule + ".LIST";
+      } else if (JsFastSerializer.BOOLEAN_TYPEDESC.handler == fieldHandler) {
+        typeDescOwner = yassModule + ".BOOLEAN";
+      } else if (JsFastSerializer.INTEGER_TYPEDESC.handler == fieldHandler) {
+        typeDescOwner = yassModule + ".INTEGER";
+      } else if (JsFastSerializer.STRING_TYPEDESC.handler == fieldHandler) {
+        typeDescOwner = yassModule + ".STRING";
+      } else if (fieldHandler == null) {
+        typeDescOwner = "null";
+      } else {
+        typeDescOwner = jsType(fieldHandler.type);
+      }
+      tabsln(
+        "%s.classField(%s, %s, \"%s\", %s);",
+        yassModule, jsType(typeHandler.type), fieldDesc.id, fieldDesc.handler.field.getName(), typeDescOwner
+      );
     }
     println();
   }
@@ -164,6 +187,15 @@ public final class ModelGenerator extends Generator { // $todo: review
     println();
   }
 
+  @Nullable private Integer getId(final Class<?> type) {
+    for (final Map.Entry<Integer, TypeHandler> entry : id2typeHandler.entrySet()) {
+      if (entry.getValue().type == type) {
+        return entry.getKey();
+      }
+    }
+    return null;
+  }
+
   @SuppressWarnings("unchecked")
   public ModelGenerator(
     final Package rootPackage, final JsFastSerializer serializer, final String yassModule, final String modelModule, final String modelFile
@@ -173,6 +205,7 @@ public final class ModelGenerator extends Generator { // $todo: review
     this.rootPackage = rootPackage.getName() + '.';
     this.yassModule = Check.notNull(yassModule);
     this.modelModule = Check.notNull(modelModule);
+    id2typeHandler = serializer.id2typeHandler();
     tabsln("// generated with yass %s", Version.VALUE);
     println();
     tabsln("'use strict';");
@@ -190,7 +223,7 @@ public final class ModelGenerator extends Generator { // $todo: review
     for (final Class<?> type : interfacesList) {
       generateInterface(type);
     }
-    for (final Map.Entry<Integer, TypeHandler> entry : serializer.id2typeHandler().entrySet()) {
+    for (final Map.Entry<Integer, TypeHandler> entry : id2typeHandler.entrySet()) {
       final TypeHandler typeHandler = entry.getValue();
       final Class<?> type = typeHandler.type;
       if (type.isEnum()) {
@@ -199,6 +232,13 @@ public final class ModelGenerator extends Generator { // $todo: review
         generateClass(type);
       }
     }
+    for (final Map.Entry<Integer, TypeHandler> entry : id2typeHandler.entrySet()) {
+      final TypeHandler typeHandler = entry.getValue();
+      if (typeHandler instanceof ClassTypeHandler) {
+        generateFields((ClassTypeHandler)typeHandler);
+      }
+    }
+    tabsln("%s.SERIALIZER = new %s.Serializer(%s);", modelModule, yassModule, modelModule);
     close();
   }
 

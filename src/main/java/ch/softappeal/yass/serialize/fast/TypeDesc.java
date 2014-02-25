@@ -26,7 +26,7 @@ public final class TypeDesc {
     handler.write(id, value, output);
   }
 
-  static final TypeDesc NULL = new TypeDesc(0, new TypeHandler(Void.class) {
+  public static final TypeDesc NULL = new TypeDesc(0, new TypeHandler(Void.class) {
     @Override Object read(final Input input) {
       return null;
     }
@@ -35,7 +35,7 @@ public final class TypeDesc {
     }
   });
 
-  static final TypeDesc REFERENCE = new TypeDesc(1, new TypeHandler(Reference.class) {
+  public static final TypeDesc REFERENCE = new TypeDesc(1, new TypeHandler(Reference.class) {
     @Override Object read(final Input input) throws Exception {
       return input.referenceableObjects.get(input.reader.readVarInt());
     }
@@ -44,7 +44,7 @@ public final class TypeDesc {
     }
   });
 
-  static final TypeDesc LIST = new TypeDesc(2, new TypeHandler(List.class) {
+  public static final TypeDesc LIST = new TypeDesc(2, new TypeHandler(List.class) {
     @Override Object read(final Input input) throws Exception {
       int length = input.reader.readVarInt();
       final List<Object> list = new ArrayList<>(Math.min(length, 256)); // note: prevents out-of-memory attack
