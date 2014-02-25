@@ -238,7 +238,7 @@ public final class ModelGenerator extends Generator { // $todo: review
         generateFields((ClassTypeHandler)typeHandler);
       }
     }
-    tabsln("%s.SERIALIZER = new %s.Serializer(%s);", modelModule, yassModule, modelModule);
+    tabsln("%s.SERIALIZER = %s.serializer(%s);", modelModule, yassModule, modelModule);
     close();
   }
 

@@ -80,4 +80,4 @@ yass.classField(contract.instrument.Bond, 3, "name", yass.STRING);
 yass.classField(contract.UnknownInstrumentsException, 1, "comment", null);
 yass.classField(contract.UnknownInstrumentsException, 2, "instrumentIds", yass.LIST);
 
-contract.SERIALIZER = new yass.Serializer(contract);
+contract.SERIALIZER = yass.serializer(contract);
