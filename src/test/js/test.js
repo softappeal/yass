@@ -220,5 +220,83 @@ function writer2reader(writer) {
 }());
 
 //----------------------------------------------------------------------------------------------------------------------
+// Interceptor
+
+(function () {
+
+  var calculator = {
+    add: function (a, b) {
+      return a + b;
+    },
+    divide: function (a, b) {
+      if (b === 0) {
+        throw new Error("division by 0");
+      }
+      return a / b;
+    }
+  };
+
+  function greeter(method, parameters, proceed) {
+    console.log("hello");
+    try {
+      var result = proceed();
+      console.log("see you again");
+      return result;
+    } catch (e) {
+      console.log("don't come back");
+      throw e;
+    }
+  }
+
+  function logger(method, parameters, proceed) {
+    console.log("entry:", method, parameters);
+    try {
+      var result = proceed();
+      console.log("exit:", method, result);
+      return result;
+    } catch (e) {
+      console.log("exception:", method, e);
+      throw e;
+    }
+  }
+
+  assert(
+    yass.direct(null, null, function () {
+      return 123;
+    }) === 123
+  );
+
+  assert(yass.composite(yass.direct, logger) === logger);
+  assert(yass.composite(logger, yass.direct) === logger);
+
+  function proxy(contract, invoke) {
+    var p = {};
+    function intercept(method) {
+      var original = contract[method];
+      p[method] = function () {
+        var parameters = arguments;
+        return invoke(method, parameters, function () {
+          return original.apply(contract, parameters);
+        });
+      };
+    }
+    for (var method in contract) {
+      if (contract.hasOwnProperty(method)) {
+        intercept(method);
+      }
+    }
+    return p;
+  }
+
+  var p = proxy(calculator, yass.composite(greeter, logger));
+  assert(p.add(2, 3) === 5);
+  assert(p.divide(6, 3) === 2);
+  exception(function () {
+    p.divide(6, 0);
+  });
+
+}());
+
+//----------------------------------------------------------------------------------------------------------------------
 
 console.log("done");

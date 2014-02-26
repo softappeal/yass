@@ -368,10 +368,7 @@ var yass = (function () {
   }
 
   function classField(constructor, id, name, typeDescOwner) {
-    constructor.TYPE_DESC.handler.addField(
-      id,
-      fieldHandler(name, (typeDescOwner === null) ? null : typeDescOwner.TYPE_DESC.handler)
-    );
+    constructor.TYPE_DESC.handler.addField(id, fieldHandler(name, typeDescOwner && typeDescOwner.TYPE_DESC.handler));
   }
 
   function serializer(root) {
@@ -406,6 +403,24 @@ var yass = (function () {
     };
   }
 
+  function direct(method, parameters, proceed) {
+    return proceed();
+  }
+
+  function composite(invoke1, invoke2) {
+    if (invoke1 === direct) {
+      return invoke2;
+    }
+    if (invoke2 === direct) {
+      return invoke1;
+    }
+    return function (method, parameters, proceed) {
+      return invoke1(method, parameters, function () {
+        return invoke2(method, parameters, proceed);
+      });
+    };
+  }
+
   return {
     writer: writer,
     reader: reader,
@@ -421,6 +436,8 @@ var yass = (function () {
     classDesc: classDesc,
     classField: classField,
     serializer: serializer,
+    direct: direct,
+    composite: composite,
     service: function (id, implementation /* , interceptors... */) { // $todo
     },
     proxy: function (session, id /* , interceptors... */) { // $todo
