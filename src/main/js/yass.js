@@ -472,6 +472,52 @@ var yass = (function () {
     };
   }
 
+  function methodMapping(method, id, oneWay) {
+    return {
+      method: method,
+      id: id,
+      oneWay: oneWay
+    };
+  }
+
+  function common(methodMapperFactory) {
+    return {
+      methodMapperFactory: methodMapperFactory,
+      methodMapper: function (contract) {
+        return methodMapperFactory.create(contract);
+      }
+    };
+  }
+
+  function clientInvocation(invocationIntercept, serviceId, methodMapping, parameters) {
+    return {
+      oneWay: methodMapping.oneWay,
+      invoke: function (intercept, tunnel) {
+        return composite(intercept, invocationIntercept)(methodMapping.method, parameters, function () {
+          var reply = tunnel(request(serviceId, methodMapping.id, parameters));
+          return this.oneWay ? null : reply.process();
+        });
+      }
+    };
+  }
+
+  function client(methodMapperFactory) { // $todo
+    return create(common(methodMapperFactory), {
+      invoke: function (clientInvocation) {
+        throw new Error("abstract method called");
+      },
+      invoker: function (contractId) {
+        var methodMapper = this.methodMapper(contractId.contract);
+        return function (proxyIntercept) {
+          var intercept = composite(contractId.intercept, proxyIntercept);
+          return this.invoke(clientInvocation(intercept, contractId.id, methodMapper.mapMethod(method), parameters));
+        };
+      }
+    });
+  }
+
+  var contractId = context(); // $todo
+
   return {
     writer: writer,
     reader: reader,
@@ -489,8 +535,8 @@ var yass = (function () {
     serializer: serializer,
     direct: direct,
     composite: composite,
-    context: context,
-    contextIntercept: contextIntercept,
+    contextIntercept: contextIntercept, // $todo remove
+    contractId: contractId, // $todo
     service: function (id, implementation /* , interceptors... */) { // $todo
     },
     proxy: function (session, id /* , interceptors... */) { // $todo

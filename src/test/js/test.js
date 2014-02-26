@@ -302,7 +302,7 @@ function writer2reader(writer) {
 
 (function () {
 
-  var context = yass.context();
+  var context = yass.contractId;
   assert(!context.hasInvocation());
   exception(function () {
     context.get();
