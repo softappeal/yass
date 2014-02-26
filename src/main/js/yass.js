@@ -407,17 +407,68 @@ var yass = (function () {
     return proceed();
   }
 
-  function composite(invoke1, invoke2) {
-    if (invoke1 === direct) {
-      return invoke2;
+  function composite(intercept1, intercept2) {
+    if (intercept1 === direct) {
+      return intercept2;
     }
-    if (invoke2 === direct) {
-      return invoke1;
+    if (intercept2 === direct) {
+      return intercept1;
     }
     return function (method, parameters, proceed) {
-      return invoke1(method, parameters, function () {
-        return invoke2(method, parameters, proceed);
+      return intercept1(method, parameters, function () {
+        return intercept2(method, parameters, proceed);
       });
+    };
+  }
+
+  function context() {
+    return {
+      value: null, // $todo: hide this somehow
+      hasInvocation: function () {
+        return this.value !== null;
+      },
+      get: function () {
+        if (this.value === null) {
+          throw new Error("no active invocation");
+        }
+        return this.value;
+      }
+    };
+  }
+
+  function contextIntercept(context, value) {
+    return function (method, parameters, proceed) {
+      var oldValue = context.value;
+      context.value = value;
+      try {
+        return proceed();
+      } finally {
+        context.value = oldValue;
+      }
+    };
+  }
+
+  function request(serviceId, methodId, parameters) {
+    return {
+      serviceId: serviceId,
+      methodId: methodId,
+      parameters: parameters
+    };
+  }
+
+  function valueReply(value) {
+    return {
+      process: function () {
+        return value;
+      }
+    };
+  }
+
+  function exceptionReply(throwable) {
+    return {
+      process: function () {
+        throw throwable;
+      }
     };
   }
 
@@ -438,6 +489,8 @@ var yass = (function () {
     serializer: serializer,
     direct: direct,
     composite: composite,
+    context: context,
+    contextIntercept: contextIntercept,
     service: function (id, implementation /* , interceptors... */) { // $todo
     },
     proxy: function (session, id /* , interceptors... */) { // $todo

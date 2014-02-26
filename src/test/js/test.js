@@ -236,7 +236,7 @@ function writer2reader(writer) {
     }
   };
 
-  function greeter(method, parameters, proceed) {
+  function greet(method, parameters, proceed) {
     console.log("hello");
     try {
       var result = proceed();
@@ -248,7 +248,7 @@ function writer2reader(writer) {
     }
   }
 
-  function logger(method, parameters, proceed) {
+  function log(method, parameters, proceed) {
     console.log("entry:", method, parameters);
     try {
       var result = proceed();
@@ -266,34 +266,58 @@ function writer2reader(writer) {
     }) === 123
   );
 
-  assert(yass.composite(yass.direct, logger) === logger);
-  assert(yass.composite(logger, yass.direct) === logger);
+  assert(yass.composite(yass.direct, log) === log);
+  assert(yass.composite(log, yass.direct) === log);
 
-  function proxy(contract, invoke) {
+  function proxy(contract, intercept) {
     var p = {};
-    function intercept(method) {
+    function delegate(method) {
       var original = contract[method];
       p[method] = function () {
         var parameters = arguments;
-        return invoke(method, parameters, function () {
+        return intercept(method, parameters, function () {
           return original.apply(contract, parameters);
         });
       };
     }
     for (var method in contract) {
       if (contract.hasOwnProperty(method)) {
-        intercept(method);
+        delegate(method);
       }
     }
     return p;
   }
 
-  var p = proxy(calculator, yass.composite(greeter, logger));
+  var p = proxy(calculator, yass.composite(greet, log));
   assert(p.add(2, 3) === 5);
   assert(p.divide(6, 3) === 2);
   exception(function () {
     p.divide(6, 0);
   });
+
+}());
+
+//----------------------------------------------------------------------------------------------------------------------
+// context interceptor
+
+(function () {
+
+  var context = yass.context();
+  assert(!context.hasInvocation());
+  exception(function () {
+    context.get();
+  });
+
+  var contextIntercept = yass.contextIntercept(context, 999);
+  assert(!context.hasInvocation());
+  var called = false;
+  contextIntercept(null, null, function () {
+    assert(context.hasInvocation());
+    assert(context.get() === 999);
+    called = true;
+  });
+  assert(called);
+  assert(!context.hasInvocation());
 
 }());
 
