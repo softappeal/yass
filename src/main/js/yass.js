@@ -3,21 +3,6 @@
 var yass = (function () {
   'use strict';
 
-  function create(proto, props) { // $todo: is there a better way ?
-    var o = Object.create(proto);
-    for (var p in props) {
-      if (props.hasOwnProperty(p)) {
-        o[p] = props[p];
-      }
-    }
-    return o;
-  }
-
-  function inherits(child, parent) { // $todo: is this ok ?
-    child.prototype = Object.create(parent.prototype);
-    child.prototype.constructor = child;
-  }
-
   function writer(initialCapacity) {
     var capacity = initialCapacity;
     var position = 0;
@@ -74,6 +59,21 @@ var yass = (function () {
         return array.subarray(0, position);
       }
     };
+  }
+
+  function calcUtf8bytes(value) {
+    var bytes = 0;
+    for (var c = 0; c < value.length; c++) {
+      var code = value.charCodeAt(c);
+      if (code < 0x80) {
+        bytes += 1;
+      } else if (code < 0x800) {
+        bytes += 2;
+      } else {
+        bytes += 3;
+      }
+    }
+    return bytes;
   }
 
   function reader(arrayBuffer) {
@@ -176,6 +176,16 @@ var yass = (function () {
     }
   };
 
+  function create(proto, props) { // $todo: is there a better way ?
+    var o = Object.create(proto);
+    for (var p in props) {
+      if (props.hasOwnProperty(p)) {
+        o[p] = props[p];
+      }
+    }
+    return o;
+  }
+
   var baseTypeHandler = create(typeHandler, {
     readBase: function (reader) {
       throw new Error("abstract method called");
@@ -240,21 +250,6 @@ var yass = (function () {
     }
   });
 
-  function calcUtf8bytes(value) {
-    var bytes = 0;
-    for (var c = 0; c < value.length; c++) {
-      var code = value.charCodeAt(c);
-      if (code < 0x80) {
-        bytes += 1;
-      } else if (code < 0x800) {
-        bytes += 2;
-      } else {
-        bytes += 3;
-      }
-    }
-    return bytes;
-  }
-
   var STRING = typeDescOwner(5, baseTypeHandler, {
     readBase: function (reader) {
       return reader.readUtf8(reader.readVarInt());
@@ -288,15 +283,18 @@ var yass = (function () {
           STRING.TYPE_DESC.write(value, this);
         } else if (Array.isArray(value)) {
           LIST.TYPE_DESC.write(value, this);
-        } else if (value instanceof Enum) {
-          value.constructor.TYPE_DESC.write(value, this);
-        } else if (value instanceof Class) {
+        } else if ((value instanceof Enum) || (value instanceof Class)) {
           value.constructor.TYPE_DESC.write(value, this);
         } else {
-          throw new Error("unexpected value type");
+          throw new Error("unexpected value");
         }
       }
     };
+  }
+
+  function inherits(child, parent) { // $todo: is this ok ?
+    child.prototype = Object.create(parent.prototype);
+    child.prototype.constructor = child;
   }
 
   function enumConstructor() {
@@ -382,11 +380,9 @@ var yass = (function () {
       var typeDesc = typeDescOwner.TYPE_DESC;
       id2typeHandler[typeDesc.id] = typeDesc.handler;
     }
-    addHandler(NULL);
-    addHandler(LIST);
-    addHandler(BOOLEAN);
-    addHandler(INTEGER);
-    addHandler(STRING);
+    [NULL, LIST, BOOLEAN, INTEGER, STRING].forEach(function (handler) {
+      addHandler(handler);
+    });
     function addPackage(root) {
       for (var name in root) {
         if (root.hasOwnProperty(name)) {
@@ -411,7 +407,6 @@ var yass = (function () {
   }
 
   return {
-    inherits: inherits,
     writer: writer,
     reader: reader,
     Class: Class,
@@ -420,6 +415,7 @@ var yass = (function () {
     BOOLEAN: BOOLEAN,
     INTEGER: INTEGER,
     STRING: STRING,
+    inherits: inherits,
     enumConstructor: enumConstructor,
     enumDesc: enumDesc,
     classDesc: classDesc,
