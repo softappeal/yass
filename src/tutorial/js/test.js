@@ -34,34 +34,54 @@ try {
 }
 
 //--------------------------------------------------------------------------------------------------------------------
+// logging interceptor
+
+function log(type) {
+  return function (method, parameters, proceed) {
+    function log(kind, data) {
+      console.log("log:", type, kind, yass.contractIdContext.get().id, method, data);
+    }
+    log("entry", parameters);
+    try {
+      var result = proceed();
+      log("exit", result);
+      return result;
+    } catch (e) {
+      log("exception", e);
+      throw e;
+    }
+  };
+}
+
+//--------------------------------------------------------------------------------------------------------------------
 // implement client services (note: rpc-style forbidden on client due to blocking [WebWorker?])
 
-var priceListener = new contract.PriceListener();
-priceListener.newPrices = function (prices) { // oneway function
-  console.log("newPrices:", prices);
-};
+var priceListener = yass.create(contract.PriceListener, {
+  newPrices: function (prices) { // oneway function
+    console.log("newPrices:", prices);
+  }
+});
 priceListener.newPrices([price, price]); // simulates server calling client
 
-var server = [ // list all client services
-  yass.service(contract.ClientServices.PriceListener, priceListener /* , interceptors...*/)
+var server = yass.server([ // list all client services
+  contract.ClientServices.PriceListener.service(priceListener, log("server"))
   // other services
-];
+]);
 
 //--------------------------------------------------------------------------------------------------------------------
 // create/use proxies for server services
 
-var session; // get session object from somewhere ...
-
-var instrumentService = yass.proxy(session, contract.ServerServices.InstrumentService /* , interceptors...*/);
+var instrumentService; // $todo = contract.ServerServices.InstrumentService.invoker(client)(yass.direct);
 
 // server service implementation fake
-instrumentService = new contract.InstrumentService();
-instrumentService.reload = function () { // oneway function
-  console.log("reload");
-};
-instrumentService.getInstruments = function () { // rpc-style function
-  return [stock, stock];
-};
+instrumentService = yass.create(contract.InstrumentService, {
+  reload: function () { // oneway function
+    console.log("reload");
+  },
+  getInstruments: function () { // rpc-style function
+    return [stock, stock];
+  }
+});
 
 instrumentService.reload(); // oneway server service invocation
 

@@ -302,7 +302,7 @@ function writer2reader(writer) {
 
 (function () {
 
-  var context = yass.contractId;
+  var context = yass.context();
   assert(!context.hasInvocation());
   exception(function () {
     context.get();
@@ -318,6 +318,85 @@ function writer2reader(writer) {
   });
   assert(called);
   assert(!context.hasInvocation());
+
+}());
+
+//----------------------------------------------------------------------------------------------------------------------
+// Client/Server
+
+(function () {
+
+  var client = function (server) {
+    return yass.create(yass.client(), {
+      invoke: function (clientInvocation) {
+        return clientInvocation.invoke(yass.direct, function (request) {
+          return server.invocation(request).invoke(yass.direct);
+        });
+      }
+    });
+  };
+
+  var throwException = false;
+
+  var instrumentServiceImpl = yass.create(contract.InstrumentService, {
+    reload: function (testBoolean, testInt) {
+      console.log("reload:", testBoolean, testInt);
+    },
+    getInstruments: function () {
+      if (throwException) {
+        throw new Error("error in getInstruments");
+      }
+      var stock = new contract.instrument.Stock();
+      stock.paysDividend = true;
+      stock.name = "IBM";
+      return [stock, stock];
+    }
+  });
+
+  var priceEngineImpl = yass.create(contract.PriceEngine, {
+    subscribe: function (instrumentIds) {
+      console.log("subscribe:", instrumentIds);
+    }
+  });
+
+  function log(type) {
+    return function (method, parameters, proceed) {
+      function log(kind, data) {
+        console.log("log:", type, kind, yass.contractIdContext.get().id, method, data);
+      }
+      log("entry", parameters);
+      try {
+        var result = proceed();
+        log("exit", result);
+        return result;
+      } catch (e) {
+        log("exception", e);
+        throw e;
+      }
+    };
+  }
+
+  var server = yass.server([
+    contract.ServerServices.InstrumentService.service(instrumentServiceImpl, log("server")),
+    contract.ServerServices.PriceEngine.service(priceEngineImpl, log("server"))
+  ]);
+
+  var session = client(server);
+
+  var instrumentService = contract.ServerServices.InstrumentService.invoker(session)(log("client"));
+  var priceEngine = contract.ServerServices.PriceEngine.invoker(session)(log("client"));
+
+  instrumentService.reload(true, 987654);
+  yass.rpc(instrumentService.getInstruments(), function (result) {
+    console.log("getInstruments:", result);
+  });
+
+  priceEngine.subscribe(["945", "4883"]);
+
+  throwException = true;
+  exception(function () {
+    instrumentService.getInstruments();
+  });
 
 }());
 

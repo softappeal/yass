@@ -4,25 +4,6 @@
 
 var contract = {};
 
-contract.ClientServices = {
-  PriceListener: 0 /* contract.PriceListener */
-};
-
-contract.ServerServices = {
-  PriceEngine: 0 /* contract.PriceEngine */,
-  InstrumentService: 1 /* contract.InstrumentService */
-};
-
-contract.InstrumentService = function () {};
-contract.InstrumentService.prototype.getInstruments = function () {};
-contract.InstrumentService.prototype.reload = function () {};
-
-contract.PriceEngine = function () {};
-contract.PriceEngine.prototype.subscribe = function (param0) {};
-
-contract.PriceListener = function () {};
-contract.PriceListener.prototype.newPrices = function (param0) {};
-
 contract.PriceType = yass.enumConstructor();
 contract.PriceType.BID = new contract.PriceType(0, "BID");
 contract.PriceType.ASK = new contract.PriceType(1, "ASK");
@@ -65,6 +46,41 @@ contract.UnknownInstrumentsException = function () {
 yass.inherits(contract.UnknownInstrumentsException, yass.Class);
 yass.classDesc(10, contract.UnknownInstrumentsException);
 
+contract.InstrumentService = {
+  getInstruments: function () {},
+  reload: function (param0, param1) {} // OneWay
+};
+
+contract.InstrumentService_MAPPER = yass.methodMapper(contract.InstrumentService, [
+  yass.methodMapping("getInstruments", 0, false),
+  yass.methodMapping("reload", 1, true)
+]);
+
+contract.PriceEngine = {
+  subscribe: function (param0) {}
+};
+
+contract.PriceEngine_MAPPER = yass.methodMapper(contract.PriceEngine, [
+  yass.methodMapping("subscribe", 0, false)
+]);
+
+contract.PriceListener = {
+  newPrices: function (param0) {} // OneWay
+};
+
+contract.PriceListener_MAPPER = yass.methodMapper(contract.PriceListener, [
+  yass.methodMapping("newPrices", 0, true)
+]);
+
+contract.ClientServices = {
+  PriceListener: yass.contractId(0, contract.PriceListener_MAPPER)
+};
+
+contract.ServerServices = {
+  PriceEngine: yass.contractId(0, contract.PriceEngine_MAPPER),
+  InstrumentService: yass.contractId(1, contract.InstrumentService_MAPPER)
+};
+
 yass.classField(contract.Price, 1, "instrumentId", yass.STRING);
 yass.classField(contract.Price, 2, "type", contract.PriceType);
 yass.classField(contract.Price, 3, "value", yass.INTEGER);
@@ -80,4 +96,10 @@ yass.classField(contract.instrument.Bond, 3, "name", yass.STRING);
 yass.classField(contract.UnknownInstrumentsException, 1, "comment", null);
 yass.classField(contract.UnknownInstrumentsException, 2, "instrumentIds", yass.LIST);
 
-contract.SERIALIZER = yass.serializer(contract);
+contract.SERIALIZER = yass.serializer([
+  contract.PriceType,
+  contract.Price,
+  contract.instrument.Stock,
+  contract.instrument.Bond,
+  contract.UnknownInstrumentsException
+]);

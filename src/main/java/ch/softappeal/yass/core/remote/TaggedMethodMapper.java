@@ -20,7 +20,7 @@ public final class TaggedMethodMapper implements MethodMapper {
     id2mapping = new HashMap<>(methods.length);
     for (final Method method : methods) {
       final int id = Check.hasTag(method);
-      final Mapping oldMapping = id2mapping.put(id, new Mapping(method, id, method.getAnnotation(OneWay.class) != null));
+      final Mapping oldMapping = id2mapping.put(id, new Mapping(method, id));
       if (oldMapping != null) {
         throw new IllegalArgumentException("tag " + id + " used for methods '" + method + "' and '" + oldMapping.method + '\'');
       }

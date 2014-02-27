@@ -51,7 +51,7 @@ public final class Server extends Common {
   }
 
 
-  public final class ServerInvocation {
+  public static final class ServerInvocation {
 
     public final boolean oneWay;
     private final ServerInvoker invoker;

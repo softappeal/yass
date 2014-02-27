@@ -167,15 +167,6 @@ var yass = (function () {
     };
   }
 
-  var typeHandler = {
-    read: function (input) {
-      throw new Error("abstract method called");
-    },
-    write: function (value, output) {
-      throw new Error("abstract method called");
-    }
-  };
-
   function create(proto, props) { // $todo: is there a better way ?
     var o = Object.create(proto);
     for (var p in props) {
@@ -186,28 +177,22 @@ var yass = (function () {
     return o;
   }
 
-  var baseTypeHandler = create(typeHandler, {
-    readBase: function (reader) {
-      throw new Error("abstract method called");
-    },
-    writeBase: function (value, writer) {
-      throw new Error("abstract method called");
-    },
+  var baseTypeHandler = {
     read: function (input) {
       return this.readBase(input.reader);
     },
     write: function (value, output) {
       this.writeBase(value, output.writer);
     }
-  });
+  };
 
   function typeDescOwner(id, proto, props) {
-    var o = create(proto, props);
+    var o = proto ? create(proto, props) : props;
     o.TYPE_DESC = typeDesc(id, o);
     return o;
   }
 
-  var NULL = typeDescOwner(0, typeHandler, {
+  var NULL = typeDescOwner(0, null, {
     read: function (input) {
       return null;
     },
@@ -216,7 +201,7 @@ var yass = (function () {
     }
   });
 
-  var LIST = typeDescOwner(2, typeHandler, {
+  var LIST = typeDescOwner(2, null, {
     read: function (input) {
       var list = [];
       for (var size = input.reader.readVarInt(); size > 0; size--) {
@@ -326,16 +311,16 @@ var yass = (function () {
   function fieldHandler(field, typeHandler) {
     return {
       read: function (object, input) {
-        object[field] = (typeHandler === null) ? input.read() : typeHandler.read(input);
+        object[field] = typeHandler ? typeHandler.read(input) : input.read();
       },
       write: function (id, object, output) {
         var value = object[field];
-        if (value !== null) {
+        if (value) {
           output.writer.writeVarInt(id);
-          if (typeHandler === null) {
-            output.write(value);
-          } else {
+          if (typeHandler) {
             typeHandler.write(value, output);
+          } else {
+            output.write(value);
           }
         }
       }
@@ -344,7 +329,7 @@ var yass = (function () {
 
   function classDesc(id, constructor) {
     var fieldId2handler = [];
-    constructor.TYPE_DESC = typeDesc(id, create(typeHandler, {
+    constructor.TYPE_DESC = typeDesc(id, {
       addField: function (id, handler) {
         fieldId2handler[id] = handler;
       },
@@ -364,35 +349,19 @@ var yass = (function () {
         });
         output.writer.writeVarInt(0);
       }
-    }));
+    });
   }
 
   function classField(constructor, id, name, typeDescOwner) {
     constructor.TYPE_DESC.handler.addField(id, fieldHandler(name, typeDescOwner && typeDescOwner.TYPE_DESC.handler));
   }
 
-  function serializer(root) {
+  function serializer(typeDescOwners) {
     var id2typeHandler = [];
-    function addHandler(typeDescOwner) {
+    [NULL, LIST, BOOLEAN, INTEGER, STRING].concat(typeDescOwners).forEach(function (typeDescOwner) {
       var typeDesc = typeDescOwner.TYPE_DESC;
       id2typeHandler[typeDesc.id] = typeDesc.handler;
-    }
-    [NULL, LIST, BOOLEAN, INTEGER, STRING].forEach(function (handler) {
-      addHandler(handler);
     });
-    function addPackage(root) {
-      for (var name in root) {
-        if (root.hasOwnProperty(name)) {
-          var property = root[name];
-          if (property.hasOwnProperty("TYPE_DESC")) {
-            addHandler(property);
-          } else {
-            addPackage(property);
-          }
-        }
-      }
-    }
-    addPackage(root);
     return {
       read: function (reader) {
         return new input(reader, id2typeHandler).read();
@@ -480,49 +449,152 @@ var yass = (function () {
     };
   }
 
-  function common(methodMapperFactory) {
+  function methodMapper(contract, methodMappings) {
+    var id2mapping = [];
+    var name2Mapping = {};
+    methodMappings.forEach(function (mapping) {
+      id2mapping[mapping.id] = mapping;
+      name2Mapping[mapping.method] = mapping;
+    });
     return {
-      methodMapperFactory: methodMapperFactory,
-      methodMapper: function (contract) {
-        return methodMapperFactory.create(contract);
+      mapId: function (id) {
+        return id2mapping[id];
+      },
+      mapMethod: function (method) {
+        return name2Mapping[method];
+      },
+      proxy: function (intercept) {
+        var stub = {};
+        function delegate(method) {
+          stub[method] = function () {
+            return intercept(method, arguments);
+          };
+        }
+        for (var method in name2Mapping) {
+          if (name2Mapping.hasOwnProperty(method)) {
+            delegate(method);
+          }
+        }
+        return stub;
       }
     };
+  }
+
+  var contractIdContext = context();
+
+  function contractId(id, methodMapper) {
+    var ci = {
+      methodMapper: methodMapper,
+      id: id,
+      service: function (implementation, intercept) {
+        return service(this, implementation, intercept);
+      },
+      invoker: function (client) {
+        return client.invoker(this);
+      }
+    };
+    ci.intercept = contextIntercept(contractIdContext, ci); // $todo: hide somehow
+    return ci;
   }
 
   function clientInvocation(invocationIntercept, serviceId, methodMapping, parameters) {
     return {
       oneWay: methodMapping.oneWay,
       invoke: function (intercept, tunnel) {
+        var that = this;
         return composite(intercept, invocationIntercept)(methodMapping.method, parameters, function () {
           var reply = tunnel(request(serviceId, methodMapping.id, parameters));
-          return this.oneWay ? null : reply.process();
+          return that.oneWay ? null : reply.process();
         });
       }
     };
   }
 
-  function client(methodMapperFactory) { // $todo
-    return create(common(methodMapperFactory), {
+  function client() {
+    return {
       invoke: function (clientInvocation) {
         throw new Error("abstract method called");
       },
       invoker: function (contractId) {
-        var methodMapper = this.methodMapper(contractId.contract);
+        var that = this;
         return function (proxyIntercept) {
           var intercept = composite(contractId.intercept, proxyIntercept);
-          return this.invoke(clientInvocation(intercept, contractId.id, methodMapper.mapMethod(method), parameters));
+          return contractId.methodMapper.proxy(function (method, parameters) {
+            return that.invoke(
+              clientInvocation(intercept, contractId.id, contractId.methodMapper.mapMethod(method), parameters)
+            );
+          });
         };
       }
-    });
+    };
   }
 
-  var contractId = context(); // $todo
+  function service(contractId, implementation, intercept) {
+    return {
+      contractId: contractId,
+      implementation: implementation,
+      intercept: intercept
+    };
+  }
+
+  function serverInvocation(serverInvoker, request) {
+    var methodMapping = serverInvoker.methodMapper.mapId(request.methodId);
+    var method = methodMapping.method;
+    return {
+      oneWay: methodMapping.oneWay,
+      invoke: function (intercept) {
+        return serverInvoker.invoke(intercept, method, request.parameters);
+      }
+    };
+  }
+
+  function serverInvoker(service) {
+    var invokerIntercept = composite(service.contractId.intercept, service.intercept);
+    var implementation = service.implementation;
+    return {
+      methodMapper: service.contractId.methodMapper,
+      invoke: function (invocationIntercept, method, parameters) {
+        var proceed = function () {
+          return implementation[method].apply(implementation, parameters);
+        };
+        var intercept = composite(invocationIntercept, invokerIntercept);
+        var value;
+        try {
+          value = intercept(method, parameters, proceed);
+        } catch (t) {
+          return exceptionReply(t);
+        }
+        return valueReply(value);
+      }
+    };
+  }
+
+  function server(services) {
+    var serviceId2invoker = [];
+    services.forEach(function (service) {
+      var id = service.contractId.id;
+      if (serviceId2invoker[id]) {
+        throw new Error("serviceId '" + id + "' already added");
+      }
+      serviceId2invoker[id] = serverInvoker(service);
+    });
+    return {
+      invocation: function (request) {
+        var invoker = serviceId2invoker[request.serviceId];
+        if (!invoker) {
+          throw new Error("no serviceId '" + request.serviceId + "' found (methodId '" + request.methodId + "')");
+        }
+        return serverInvocation(invoker, request);
+      }
+    };
+  }
 
   return {
     writer: writer,
     reader: reader,
     Class: Class,
     Enum: Enum,
+    create: create,
     LIST: LIST,
     BOOLEAN: BOOLEAN,
     INTEGER: INTEGER,
@@ -535,12 +607,15 @@ var yass = (function () {
     serializer: serializer,
     direct: direct,
     composite: composite,
-    contextIntercept: contextIntercept, // $todo remove
-    contractId: contractId, // $todo
-    service: function (id, implementation /* , interceptors... */) { // $todo
-    },
-    proxy: function (session, id /* , interceptors... */) { // $todo
-    },
+    context: context,
+    contextIntercept: contextIntercept,
+    contractId: contractId,
+    methodMapping: methodMapping,
+    methodMapper: methodMapper,
+    contractIdContext: contractIdContext,
+    server: server,
+    service: service,
+    client: client,
     rpc: function (result, callback) { // $todo
       callback(result);
     }

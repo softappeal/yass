@@ -41,6 +41,10 @@ public interface MethodMapper {
       }
     }
 
+    public Mapping(final Method method, final Object id) {
+      this(method, id, method.getAnnotation(OneWay.class) != null);
+    }
+
   }
 
 

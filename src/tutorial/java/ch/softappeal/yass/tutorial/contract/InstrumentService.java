@@ -8,6 +8,6 @@ public interface InstrumentService {
 
   List<Instrument> getInstruments();
 
-  @OneWay void reload();
+  @OneWay void reload(boolean testBoolean, int testInt);
 
 }
