@@ -95,13 +95,6 @@ public class InterceptorsTest {
 
   @Test public void threadLocal() throws Throwable {
     final ThreadLocal<String> threadLocal = new ThreadLocal<>();
-    try {
-      Interceptors.getInvocation(threadLocal);
-      Assert.fail();
-    } catch (final IllegalStateException e) {
-      Assert.assertEquals("no active invocation", e.getMessage());
-    }
-    Assert.assertFalse(Interceptors.hasInvocation(threadLocal));
     final String oldValue = "oldValue";
     threadLocal.set(oldValue);
     final String value = "value";
@@ -110,8 +103,7 @@ public class InterceptorsTest {
       result,
       Interceptors.threadLocal(threadLocal, value).invoke(null, null, new Invocation() {
         @Override public Object proceed() {
-          Assert.assertTrue(Interceptors.hasInvocation(threadLocal));
-          Assert.assertSame(value, Interceptors.getInvocation(threadLocal));
+          Assert.assertSame(value, threadLocal.get());
           return result;
         }
       })

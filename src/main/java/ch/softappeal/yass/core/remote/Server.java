@@ -18,12 +18,12 @@ public final class Server extends Common {
 
   private final class ServerInvoker {
 
-    private final Interceptor invokerInterceptor;
+    private final Interceptor serviceInterceptor;
     final MethodMapper methodMapper;
     private final Object implementation;
 
     ServerInvoker(final Service service) {
-      invokerInterceptor = Interceptors.composite(service.contractId.interceptor, service.interceptor);
+      serviceInterceptor = service.interceptor;
       methodMapper = methodMapper(service.contractId.contract);
       implementation = service.implementation;
     }
@@ -38,7 +38,7 @@ public final class Server extends Common {
           }
         }
       };
-      final Interceptor interceptor = Interceptors.composite(invocationInterceptor, invokerInterceptor);
+      final Interceptor interceptor = Interceptors.composite(invocationInterceptor, serviceInterceptor);
       @Nullable final Object value;
       try {
         value = interceptor.invoke(method, arguments, invocation);

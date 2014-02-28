@@ -104,26 +104,4 @@ public final class Interceptors {
     };
   }
 
-  /**
-   * @return is there an active invocation ?
-   * @see #getInvocation(ThreadLocal)
-   */
-  public static boolean hasInvocation(final ThreadLocal<?> threadLocal) {
-    return threadLocal.get() != null;
-  }
-
-  /**
-   * @return {@link ThreadLocal#get()} of the active invocation
-   * @throws IllegalStateException if there is no active invocation
-   * @see #hasInvocation(ThreadLocal)
-   */
-  public static <T> T getInvocation(final ThreadLocal<T> threadLocal) throws IllegalStateException {
-    @Nullable final T value = threadLocal.get();
-    if (value == null) {
-      throw new IllegalStateException("no active invocation");
-    }
-    return value;
-  }
-
-
 }

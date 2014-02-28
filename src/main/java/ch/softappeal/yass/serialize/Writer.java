@@ -112,6 +112,47 @@ public abstract class Writer {
     writeVarLong((value << 1) ^ (value >> 63));
   }
 
+  //  /**
+  //   * @return the length in bytes of an UTF-8 encoded {@link CharSequence}
+  //   */
+  //  public static int calculateUtf8Length(final CharSequence value) {
+  //    int utf8Length = 0;
+  //    final int length = value.length();
+  //    for (int i = 0; i < length; i++) {
+  //      final int c = value.charAt(i);
+  //      if (c <= 0b0111_1111) {
+  //        utf8Length++;
+  //      } else if (c <= 0b0111_1111_1111) {
+  //        utf8Length += 2;
+  //      } else {
+  //        utf8Length += 3;
+  //      }
+  //    }
+  //    return utf8Length;
+  //  }
+  //
+  //  /**
+  //   * Write a {@link CharSequence} with UTF-8 encoding.
+  //   * Note: This method seems to faster than String#getBytes(Charset) for short strings.
+  //   * @see #calculateUtf8Length(CharSequence)
+  //   */
+  //  public final void writeString(final CharSequence value) throws Exception {
+  //    final int length = value.length();
+  //    for (int i = 0; i < length; i++) {
+  //      final int c = value.charAt(i);
+  //      if (c <= 0b0111_1111) {
+  //        writeByte((byte)c);
+  //      } else if (c <= 0b0111_1111_1111) {
+  //        writeByte((byte)(0b1100_0000 | ((c >> 6) & 0b0001_1111)));
+  //        writeByte((byte)(0b1000_0000 | ((c >> 0) & 0b0011_1111)));
+  //      } else {
+  //        writeByte((byte)(0b1110_0000 | ((c >> 12) & 0b0000_1111)));
+  //        writeByte((byte)(0b1000_0000 | ((c >> 6) & 0b0011_1111)));
+  //        writeByte((byte)(0b1000_0000 | ((c >> 0) & 0b0011_1111)));
+  //      }
+  //    }
+  //  }
+
   public final OutputStream stream() {
     return new OutputStream() {
       @Override public void write(final int i) {

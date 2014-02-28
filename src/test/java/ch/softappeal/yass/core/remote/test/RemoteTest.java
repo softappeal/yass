@@ -4,7 +4,6 @@ import ch.softappeal.yass.core.Interceptor;
 import ch.softappeal.yass.core.Interceptors;
 import ch.softappeal.yass.core.Invocation;
 import ch.softappeal.yass.core.remote.Client;
-import ch.softappeal.yass.core.remote.ContractId;
 import ch.softappeal.yass.core.remote.Reply;
 import ch.softappeal.yass.core.remote.Request;
 import ch.softappeal.yass.core.remote.Server;
@@ -21,15 +20,6 @@ import java.lang.reflect.Method;
 public class RemoteTest extends InvokeTest {
 
   private static int COUNTER;
-
-  public static final Interceptor CONTRACT_ID_CHECKER = new Interceptor() {
-    @Override public Object invoke(final Method method, @Nullable final Object[] arguments, final Invocation invocation) throws Throwable {
-      Assert.assertEquals(TestService.class.getSimpleName(), ContractId.get().id);
-      Assert.assertTrue(ContractId.hasInvocation());
-      Assert.assertSame(TestService.class, ContractId.get().contract);
-      return invocation.proceed();
-    }
-  };
 
   private static Interceptor stepInterceptor(final int count) {
     return new Interceptor() {
@@ -79,22 +69,15 @@ public class RemoteTest extends InvokeTest {
   }
 
   @Test public void test() throws InterruptedException {
-    try {
-      ContractId.get();
-      Assert.fail();
-    } catch (final IllegalStateException ignore) {
-      // empty
-    }
-    Assert.assertFalse(ContractId.hasInvocation());
     invoke(
       ContractIdTest.ID.invoker(
         client(
           new Server(
             TaggedMethodMapper.FACTORY,
-            ContractIdTest.ID.service(new TestServiceImpl(), CONTRACT_ID_CHECKER, stepInterceptor(4), SERVER_INTERCEPTOR)
+            ContractIdTest.ID.service(new TestServiceImpl(), stepInterceptor(4), SERVER_INTERCEPTOR)
           )
         )
-      ).proxy(CONTRACT_ID_CHECKER, PRINTLN_AFTER, stepInterceptor(2), CLIENT_INTERCEPTOR)
+      ).proxy(PRINTLN_AFTER, stepInterceptor(2), CLIENT_INTERCEPTOR)
     );
   }
 

@@ -5,7 +5,6 @@ import ch.softappeal.yass.core.Invocation;
 import ch.softappeal.yass.core.remote.Server;
 import ch.softappeal.yass.core.remote.TaggedMethodMapper;
 import ch.softappeal.yass.core.remote.test.ContractIdTest;
-import ch.softappeal.yass.core.remote.test.RemoteTest;
 import ch.softappeal.yass.core.test.InvokeTest;
 import ch.softappeal.yass.transport.socket.SocketListenerTest;
 import ch.softappeal.yass.transport.socket.StatelessTransport;
@@ -39,18 +38,13 @@ public class StatelessTransportTest extends InvokeTest {
   }
 
   @Test public void test() throws Exception {
-    try {
-      StatelessTransport.socket();
-      Assert.fail();
-    } catch (final RuntimeException e) {
-      Assert.assertEquals("no active invocation", e.getMessage());
-    }
+    Assert.assertNull(StatelessTransport.socket());
     final ExecutorService executor = Executors.newCachedThreadPool(new NamedThreadFactory("executor", TestUtils.TERMINATE));
     try {
       new StatelessTransport(
         new Server(
           TaggedMethodMapper.FACTORY,
-          ContractIdTest.ID.service(new TestServiceImpl(), new SocketInterceptor("Server"), RemoteTest.CONTRACT_ID_CHECKER, SERVER_INTERCEPTOR)
+          ContractIdTest.ID.service(new TestServiceImpl(), new SocketInterceptor("Server"), SERVER_INTERCEPTOR)
         ),
         MessageSerializerTest.SERIALIZER,
         executor,
@@ -61,7 +55,7 @@ public class StatelessTransportTest extends InvokeTest {
           TaggedMethodMapper.FACTORY,
           MessageSerializerTest.SERIALIZER,
           SocketListenerTest.ADDRESS
-        )).proxy(PRINTLN_AFTER, new SocketInterceptor("Client"), RemoteTest.CONTRACT_ID_CHECKER, CLIENT_INTERCEPTOR)
+        )).proxy(PRINTLN_AFTER, new SocketInterceptor("Client"), CLIENT_INTERCEPTOR)
       );
 
     } finally {

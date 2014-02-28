@@ -36,10 +36,10 @@ try {
 //--------------------------------------------------------------------------------------------------------------------
 // logging interceptor
 
-function log(type) {
+function logger(type) {
   return function (method, parameters, proceed) {
     function log(kind, data) {
-      console.log("log:", type, kind, yass.contractIdContext.get().id, method, data);
+      console.log("logger:", type, kind, method, data);
     }
     log("entry", parameters);
     try {
@@ -64,7 +64,7 @@ var priceListener = yass.create(contract.PriceListener, {
 priceListener.newPrices([price, price]); // simulates server calling client
 
 var server = yass.server([ // list all client services
-  contract.ClientServices.PriceListener.service(priceListener, log("server"))
+  contract.ClientServices.PriceListener.service(priceListener, logger("server"))
   // other services
 ]);
 
@@ -85,6 +85,8 @@ instrumentService = yass.create(contract.InstrumentService, {
 
 instrumentService.reload(); // oneway server service invocation
 
+/* $$$
 yass.rpc(instrumentService.getInstruments(), function (result) { // rpc-style server service invocation
   console.log(result);
 });
+*/

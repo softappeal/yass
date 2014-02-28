@@ -3,7 +3,6 @@ package ch.softappeal.yass.js;
 import ch.softappeal.yass.Version;
 import ch.softappeal.yass.core.remote.ContractId;
 import ch.softappeal.yass.core.remote.MethodMapper;
-import ch.softappeal.yass.core.remote.SimpleMethodMapper;
 import ch.softappeal.yass.serialize.fast.AbstractFastSerializer;
 import ch.softappeal.yass.serialize.fast.ClassTypeHandler;
 import ch.softappeal.yass.serialize.fast.JsFastSerializer;
@@ -26,8 +25,6 @@ import java.util.Set;
 
 public final class ModelGenerator extends Generator { // $todo: review
 
-  // $todo: add fatal check vor ClientServices with rpc-style methods
-
   private final String rootPackage;
   private final String yassModule;
   private final String modelModule;
@@ -35,6 +32,7 @@ public final class ModelGenerator extends Generator { // $todo: review
   private final Set<Class<?>> visitedClasses = new HashSet<>();
   private final Set<String> visitedPackages = new HashSet<>();
   private final List<String> types = new ArrayList<>();
+  private final MethodMapper.Factory methodMapperFactory;
 
   private void generatePackage(final String aPackage) {
     if (visitedPackages.add(aPackage)) {
@@ -171,12 +169,13 @@ public final class ModelGenerator extends Generator { // $todo: review
     return methods;
   }
 
-  private void generateServices(final Class<?> services) throws Exception {
+  private void generateServices(final Class<?> services, final boolean client) throws Exception {
     final List<ServiceDesc> serviceDescs = getServiceDescs(services);
     tabs("%s = {", jsType(services));
     inc();
     boolean first = true;
     for (final ServiceDesc serviceDesc : serviceDescs) {
+      final Class<?> type = serviceDesc.contractId.contract;
       if (!first) {
         print(",");
       }
@@ -184,8 +183,17 @@ public final class ModelGenerator extends Generator { // $todo: review
       println();
       tabs(
         "%s: %s.contractId(%s, %s_MAPPER)",
-        serviceDesc.name, yassModule, serviceDesc.contractId.id, jsType(serviceDesc.contractId.contract)
+        serviceDesc.name, yassModule, serviceDesc.contractId.id, jsType(type)
       );
+      if (client) {
+        final MethodMapper methodMapper = methodMapperFactory.create(type);
+        for (final Method method : type.getMethods()) {
+          if (!methodMapper.mapMethod(method).oneWay) {
+            // $todo Note: This is a JavaScript restriction. rrpc-style forbidden on client due to blocking [WebWorker?].
+            throw new RuntimeException("method '" + method + "' of a server service must be oneway");
+          }
+        }
+      }
     }
     dec();
     println();
@@ -198,7 +206,7 @@ public final class ModelGenerator extends Generator { // $todo: review
     final Method[] methods = getMethods(type);
     tabs("%s = {", jsType(type));
     inc();
-    final MethodMapper methodMapper = SimpleMethodMapper.FACTORY.create(type);
+    final MethodMapper methodMapper = methodMapperFactory.create(type);
     boolean firstMethod = true;
     for (final Method method : methods) {
       if (firstMethod) {
@@ -252,14 +260,19 @@ public final class ModelGenerator extends Generator { // $todo: review
     return null;
   }
 
+  /**
+   * @param methodMapperFactory Note: You must provide a factory that doesn't allow overloading due to JavaScript restrictions!
+   */
   @SuppressWarnings("unchecked")
   public ModelGenerator(
-    final Package rootPackage, final JsFastSerializer serializer, final String yassModule, final String modelModule, final String modelFile
+    final Package rootPackage, final JsFastSerializer serializer, final MethodMapper.Factory methodMapperFactory,
+    final String yassModule, final String modelModule, final String modelFile
   ) throws Exception {
     super(modelFile);
     visitedPackages.add(rootPackage.getName());
     this.rootPackage = rootPackage.getName() + '.';
     this.yassModule = Check.notNull(yassModule);
+    this.methodMapperFactory = Check.notNull(methodMapperFactory);
     this.modelModule = Check.notNull(modelModule);
     id2typeHandler = serializer.id2typeHandler();
     tabsln("// generated with %s %s", yassModule, Version.VALUE);
@@ -290,8 +303,8 @@ public final class ModelGenerator extends Generator { // $todo: review
     for (final Class<?> type : interfacesList) {
       generateInterface(type);
     }
-    generateServices(clientServices);
-    generateServices(serverServices);
+    generateServices(clientServices, true);
+    generateServices(serverServices, false);
     for (final Map.Entry<Integer, TypeHandler> entry : id2typeHandler.entrySet()) {
       final TypeHandler typeHandler = entry.getValue();
       if (typeHandler instanceof ClassTypeHandler) {

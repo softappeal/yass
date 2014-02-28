@@ -31,18 +31,10 @@ public abstract class Session extends Client implements AutoCloseable {
   private static final ThreadLocal<Session> INSTANCE = new ThreadLocal<>();
 
   /**
-   * @see Interceptors#hasInvocation(ThreadLocal)
+   * @return the session of the active invocation or null if no active invocation
    */
-  public static boolean hasInvocation() {
-    return Interceptors.hasInvocation(INSTANCE);
-  }
-
-  /**
-   * @return the session of the active invocation
-   * @see Interceptors#getInvocation(ThreadLocal)
-   */
-  public static Session get() {
-    return Interceptors.getInvocation(INSTANCE);
+  @Nullable public static Session get() {
+    return INSTANCE.get();
   }
 
   private final SessionSetup setup;

@@ -11,7 +11,6 @@ import ch.softappeal.yass.core.remote.session.Session;
 import ch.softappeal.yass.core.remote.session.SessionFactory;
 import ch.softappeal.yass.core.remote.session.SessionSetup;
 import ch.softappeal.yass.core.remote.test.ContractIdTest;
-import ch.softappeal.yass.core.remote.test.RemoteTest;
 import ch.softappeal.yass.core.test.InvokeTest;
 import ch.softappeal.yass.transport.socket.SocketListenerTest;
 import ch.softappeal.yass.util.NamedThreadFactory;
@@ -28,16 +27,12 @@ import java.util.concurrent.TimeUnit;
 
 public class LocalConnectionTest extends InvokeTest {
 
-  private static final Interceptor SESSION_CHECKER = Interceptors.composite(
-    new Interceptor() {
-      @Override public Object invoke(final Method method, @Nullable final Object[] arguments, final Invocation invocation) throws Throwable {
-        Session.get();
-        Assert.assertTrue(Session.hasInvocation());
-        return invocation.proceed();
-      }
-    },
-    RemoteTest.CONTRACT_ID_CHECKER
-  );
+  private static final Interceptor SESSION_CHECKER = new Interceptor() {
+    @Override public Object invoke(final Method method, @Nullable final Object[] arguments, final Invocation invocation) throws Throwable {
+      Assert.assertNotNull(Session.get());
+      return invocation.proceed();
+    }
+  };
 
   public static SessionSetup createSetup(
     final boolean invoke, final String name, final Executor requestExecutor,
@@ -92,13 +87,7 @@ public class LocalConnectionTest extends InvokeTest {
   }
 
   @Test public void plain() throws InterruptedException {
-    try {
-      Session.get();
-      Assert.fail();
-    } catch (final RuntimeException e) {
-      Assert.assertEquals("no active invocation", e.getMessage());
-    }
-    Assert.assertFalse(Session.hasInvocation());
+    Assert.assertNull(Session.get());
     final ExecutorService executor = Executors.newCachedThreadPool(new NamedThreadFactory("executor", TestUtils.TERMINATE));
     try {
       LocalConnection.connect(createSetup(true, "client", executor, false, false, false), createSetup(false, "server", executor, false, false, false));

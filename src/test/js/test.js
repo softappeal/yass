@@ -224,19 +224,7 @@ function writer2reader(writer) {
 
 (function () {
 
-  var calculator = {
-    add: function (a, b) {
-      return a + b;
-    },
-    divide: function (a, b) {
-      if (b === 0) {
-        throw new Error("division by 0");
-      }
-      return a / b;
-    }
-  };
-
-  function greet(method, parameters, proceed) {
+  function greeter(method, parameters, proceed) {
     console.log("hello");
     try {
       var result = proceed();
@@ -248,7 +236,7 @@ function writer2reader(writer) {
     }
   }
 
-  function log(method, parameters, proceed) {
+  function logger(method, parameters, proceed) {
     console.log("entry:", method, parameters);
     try {
       var result = proceed();
@@ -266,58 +254,22 @@ function writer2reader(writer) {
     }) === 123
   );
 
-  assert(yass.composite(yass.direct, log) === log);
-  assert(yass.composite(log, yass.direct) === log);
+  assert(yass.composite(yass.direct, logger) === logger);
+  assert(yass.composite(logger, yass.direct) === logger);
 
-  function proxy(contract, intercept) {
-    var p = {};
-    function delegate(method) {
-      var original = contract[method];
-      p[method] = function () {
-        var parameters = arguments;
-        return intercept(method, parameters, function () {
-          return original.apply(contract, parameters);
-        });
-      };
-    }
-    for (var method in contract) {
-      if (contract.hasOwnProperty(method)) {
-        delegate(method);
-      }
-    }
-    return p;
-  }
+  var greeterLogger = yass.composite(greeter, logger);
 
-  var p = proxy(calculator, yass.composite(greet, log));
-  assert(p.add(2, 3) === 5);
-  assert(p.divide(6, 3) === 2);
+  assert(
+    greeterLogger(null, null, function () {
+      return 123;
+    }) === 123
+  );
+
   exception(function () {
-    p.divide(6, 0);
+    greeterLogger(null, null, function () {
+      throw new Error("greeterLogger");
+    });
   });
-
-}());
-
-//----------------------------------------------------------------------------------------------------------------------
-// context interceptor
-
-(function () {
-
-  var context = yass.context();
-  assert(!context.hasInvocation());
-  exception(function () {
-    context.get();
-  });
-
-  var contextIntercept = yass.contextIntercept(context, 999);
-  assert(!context.hasInvocation());
-  var called = false;
-  contextIntercept(null, null, function () {
-    assert(context.hasInvocation());
-    assert(context.get() === 999);
-    called = true;
-  });
-  assert(called);
-  assert(!context.hasInvocation());
 
 }());
 
@@ -329,8 +281,8 @@ function writer2reader(writer) {
   var client = function (server) {
     return yass.create(yass.client(), {
       invoke: function (clientInvocation) {
-        return clientInvocation.invoke(yass.direct, function (request) {
-          return server.invocation(request).invoke(yass.direct);
+        return clientInvocation.invoke(function (request, replyCallback) {
+          yass.processReply(server.invocation(request).invoke(), replyCallback);
         });
       }
     });
@@ -359,10 +311,10 @@ function writer2reader(writer) {
     }
   });
 
-  function log(type) {
+  function logger(type) {
     return function (method, parameters, proceed) {
       function log(kind, data) {
-        console.log("log:", type, kind, yass.contractIdContext.get().id, method, data);
+        console.log("logger:", type, kind, method, data);
       }
       log("entry", parameters);
       try {
@@ -377,26 +329,104 @@ function writer2reader(writer) {
   }
 
   var server = yass.server([
-    contract.ServerServices.InstrumentService.service(instrumentServiceImpl, log("server")),
-    contract.ServerServices.PriceEngine.service(priceEngineImpl, log("server"))
+    contract.ServerServices.InstrumentService.service(instrumentServiceImpl, logger("server")),
+    contract.ServerServices.PriceEngine.service(priceEngineImpl, logger("server"))
   ]);
 
   var session = client(server);
 
-  var instrumentService = contract.ServerServices.InstrumentService.invoker(session)(log("client"));
-  var priceEngine = contract.ServerServices.PriceEngine.invoker(session)(log("client"));
+  var instrumentService = contract.ServerServices.InstrumentService.invoker(session)(logger("client"));
+  var priceEngine = contract.ServerServices.PriceEngine.invoker(session)(logger("client"));
 
-  instrumentService.reload(true, 987654);
-  yass.rpc(instrumentService.getInstruments(), function (result) {
-    console.log("getInstruments:", result);
+  priceEngine.subscribe(["945", "4883"], function (reply) {
+    // $$$ note: reply must always be called even if no return type to get exceptions
+    console.log("callback subscribe", reply());
   });
 
-  priceEngine.subscribe(["945", "4883"]);
+  instrumentService.reload(true, 987654);
+
+  instrumentService.getInstruments(function (reply) {
+    console.log("callback getInstruments", reply());
+  });
 
   throwException = true;
   exception(function () {
-    instrumentService.getInstruments();
+    instrumentService.getInstruments(function (reply) {
+      reply(); // $$$ throws exception
+    });
   });
+  throwException = false;
+
+  function localConnection(setup1, setup2) {
+    function connection() {
+      return {
+        other: null,
+        write: function (packet) {
+          this.other.received(packet);
+        },
+        closed: function () {
+          this.other.close();
+        }
+      };
+    }
+    var connection1 = connection();
+    var connection2 = connection();
+    connection2.other = setup1.createSession(connection1);
+    try {
+      connection1.other = setup2.createSession(connection2);
+    } catch (exception) {
+      connection2.other.close(exception);
+      throw exception;
+    }
+    if (!(connection1.other.open() && connection2.other.open())) {
+      throw Error("open failed");
+    }
+  }
+
+  localConnection(
+    yass.sessionSetup(
+      yass.server([
+        contract.ClientServices.PriceListener.service(
+          yass.create(contract.PriceListener, {
+            newPrices: function (prices) {
+              console.log("newPrices:", prices);
+            }
+          }),
+          logger("client")
+        )
+      ]),
+      function (setup, connection) {
+        return yass.create(yass.session(setup, connection), {
+          closed: function (exception) {
+            console.log("client closed", exception);
+          },
+          opened: function () {
+            console.log("client opened");
+            var instrumentService = contract.ServerServices.InstrumentService.invoker(this)(logger("client"));
+            var priceEngine = contract.ServerServices.PriceEngine.invoker(this)(logger("client"));
+            instrumentService.reload(true, 987654);
+            instrumentService.getInstruments(function (reply) {
+              console.log("callback getInstruments", reply()); // $$$ does not work, because we don't have threads here
+            });
+            this.close();
+          }
+        });
+      }
+    ),
+    yass.sessionSetup(
+      server,
+      function (setup, connection) {
+        return yass.create(yass.session(setup, connection), {
+          closed: function (exception) {
+            console.log("server closed", exception);
+          },
+          opened: function () {
+            console.log("server opened");
+          }
+        });
+      }
+    )
+  );
 
 }());
 

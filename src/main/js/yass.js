@@ -376,44 +376,17 @@ var yass = (function () {
     return proceed();
   }
 
-  function composite(intercept1, intercept2) {
-    if (intercept1 === direct) {
-      return intercept2;
+  function composite(interceptor1, interceptor2) {
+    if (interceptor1 === direct) {
+      return interceptor2;
     }
-    if (intercept2 === direct) {
-      return intercept1;
+    if (interceptor2 === direct) {
+      return interceptor1;
     }
     return function (method, parameters, proceed) {
-      return intercept1(method, parameters, function () {
-        return intercept2(method, parameters, proceed);
+      return interceptor1(method, parameters, function () {
+        return interceptor2(method, parameters, proceed);
       });
-    };
-  }
-
-  function context() {
-    return {
-      value: null, // $todo: hide this somehow
-      hasInvocation: function () {
-        return this.value !== null;
-      },
-      get: function () {
-        if (this.value === null) {
-          throw new Error("no active invocation");
-        }
-        return this.value;
-      }
-    };
-  }
-
-  function contextIntercept(context, value) {
-    return function (method, parameters, proceed) {
-      var oldValue = context.value;
-      context.value = value;
-      try {
-        return proceed();
-      } finally {
-        context.value = oldValue;
-      }
     };
   }
 
@@ -433,10 +406,10 @@ var yass = (function () {
     };
   }
 
-  function exceptionReply(throwable) {
+  function exceptionReply(exception) {
     return {
       process: function () {
-        throw throwable;
+        throw exception;
       }
     };
   }
@@ -463,11 +436,11 @@ var yass = (function () {
       mapMethod: function (method) {
         return name2Mapping[method];
       },
-      proxy: function (intercept) {
+      proxy: function (interceptor) { // $todo: is there something like a java dynamic proxy ?
         var stub = {};
         function delegate(method) {
           stub[method] = function () {
-            return intercept(method, arguments);
+            return interceptor(method, arguments);
           };
         }
         for (var method in name2Mapping) {
@@ -480,31 +453,45 @@ var yass = (function () {
     };
   }
 
-  var contractIdContext = context();
-
   function contractId(id, methodMapper) {
-    var ci = {
+    return {
       methodMapper: methodMapper,
       id: id,
-      service: function (implementation, intercept) {
-        return service(this, implementation, intercept);
+      service: function (implementation, interceptor) { // $todo: 0..n interceptors
+        return service(this, implementation, interceptor);
       },
       invoker: function (client) {
         return client.invoker(this);
       }
     };
-    ci.intercept = contextIntercept(contractIdContext, ci); // $todo: hide somehow
-    return ci;
   }
 
-  function clientInvocation(invocationIntercept, serviceId, methodMapping, parameters) {
+  function processReply(reply, replyCallback) {
+    if (replyCallback) {
+      replyCallback(function () {
+        return reply.process();
+      });
+    }
+  }
+
+  function clientInvocation(interceptor, serviceId, methodMapping, parameters) {
     return {
-      oneWay: methodMapping.oneWay,
-      invoke: function (intercept, tunnel) {
-        var that = this;
-        return composite(intercept, invocationIntercept)(methodMapping.method, parameters, function () {
-          var reply = tunnel(request(serviceId, methodMapping.id, parameters));
-          return that.oneWay ? null : reply.process();
+      oneWay: methodMapping.oneWay, // $$$ needed in session ?
+      invoke: function (tunnel) {
+        var replyCallback = null;
+        if (!this.oneWay) {
+          replyCallback = parameters[parameters.length - 1];
+          if (typeof replyCallback !== "function") {
+            throw new Error("calling method '" + methodMapping.method + "' without callback");
+          }
+          var newParameters = [];
+          for (var i = parameters.length - 2; i >= 0; i--) { // $todo: is there a better way to copy the arguments ?
+            newParameters[i] = parameters[i];
+          }
+          parameters = newParameters;
+        }
+        return interceptor(methodMapping.method, parameters, function () {
+          tunnel(request(serviceId, methodMapping.id, parameters), replyCallback);
         });
       }
     };
@@ -512,16 +499,12 @@ var yass = (function () {
 
   function client() {
     return {
-      invoke: function (clientInvocation) {
-        throw new Error("abstract method called");
-      },
       invoker: function (contractId) {
         var that = this;
-        return function (proxyIntercept) {
-          var intercept = composite(contractId.intercept, proxyIntercept);
+        return function (interceptor) { // $todo: 0..n interceptors
           return contractId.methodMapper.proxy(function (method, parameters) {
             return that.invoke(
-              clientInvocation(intercept, contractId.id, contractId.methodMapper.mapMethod(method), parameters)
+              clientInvocation(interceptor, contractId.id, contractId.methodMapper.mapMethod(method), parameters)
             );
           });
         };
@@ -529,11 +512,11 @@ var yass = (function () {
     };
   }
 
-  function service(contractId, implementation, intercept) {
+  function service(contractId, implementation, interceptor) { // $todo: 0..n interceptors
     return {
       contractId: contractId,
       implementation: implementation,
-      intercept: intercept
+      interceptor: interceptor
     };
   }
 
@@ -541,28 +524,27 @@ var yass = (function () {
     var methodMapping = serverInvoker.methodMapper.mapId(request.methodId);
     var method = methodMapping.method;
     return {
-      oneWay: methodMapping.oneWay,
-      invoke: function (intercept) {
-        return serverInvoker.invoke(intercept, method, request.parameters);
+      oneWay: methodMapping.oneWay, // $$$ needed in session ?
+      invoke: function () {
+        return serverInvoker.invoke(method, request.parameters);
       }
     };
   }
 
   function serverInvoker(service) {
-    var invokerIntercept = composite(service.contractId.intercept, service.intercept);
+    var interceptor = service.interceptor;
     var implementation = service.implementation;
     return {
       methodMapper: service.contractId.methodMapper,
-      invoke: function (invocationIntercept, method, parameters) {
+      invoke: function (method, parameters) {
         var proceed = function () {
           return implementation[method].apply(implementation, parameters);
         };
-        var intercept = composite(invocationIntercept, invokerIntercept);
         var value;
         try {
-          value = intercept(method, parameters, proceed);
-        } catch (t) {
-          return exceptionReply(t);
+          value = interceptor(method, parameters, proceed);
+        } catch (exception) {
+          return exceptionReply(exception);
         }
         return valueReply(value);
       }
@@ -589,6 +571,124 @@ var yass = (function () {
     };
   }
 
+  function packet(requestNumber, message) {
+    return {
+      requestNumber: requestNumber,
+      message: message
+    };
+  }
+
+  var endPacket = packet(0, null);
+
+  function sessionSetup(server, sessionFactory) {
+    var factory = sessionFactory;
+    return {
+      server: server,
+      createSession: function (connection) {
+        return factory(this, connection);
+      }
+    };
+  }
+
+  // $$$ review from here below
+
+  function session(setup, connection) {
+    var isClosed = false;
+    var isOpened = false;
+    var nextRequestNumber = endPacket.requestNumber;
+    var requestNumber2replyCallback = [];
+    return create(client(), {
+      closed: function (exception) { // $todo: remove
+        throw new Error("abstract method called");
+      },
+      opened: function () {
+        // empty
+      },
+      open: function () {
+        isOpened = true;
+        try {
+          this.opened();
+        } catch (e) {
+          this.doClose(e);
+          return false;
+        }
+        return true;
+      },
+      doClose: function (exception) {
+        this.doCloseSend(false, exception);
+      },
+      doCloseSend: function (sendEnd, exception) {
+        if (isClosed) {
+          return;
+        }
+        isClosed = true;
+        try {
+          this.closed(exception);
+          if (sendEnd) {
+            connection.write(endPacket);
+          }
+        } finally {
+          connection.closed();
+        }
+      },
+      write: function (requestNumber, message) {
+        if (isClosed) {
+          throw Error("session is already closed");
+        }
+        try {
+          connection.write(packet(requestNumber, message));
+        } catch (exception) {
+          this.doClose(exception);
+        }
+      },
+      close: function () {
+        this.doCloseSend(true, null);
+      },
+      invoke: function (invocation) {
+        var that = this;
+        if (!isOpened) {
+          throw new Error("session is not yet opened");
+        }
+        return invocation.invoke(function (request, replyCallback) {
+          var requestNumber = ++nextRequestNumber;
+          /* $todo: implement 32bit signed int behaviour, and no end of packet
+           do { // we can't use END_REQUEST_NUMBER as regular requestNumber
+           requestNumber = nextRequestNumber.incrementAndGet();
+           } while (requestNumber === Packet.END_REQUEST_NUMBER);
+           */
+          that.write(requestNumber, request);
+          if (!invocation.oneWay) {
+            if (requestNumber2replyCallback[requestNumber]) {
+              throw new Error("already waiting for requestNumber " + requestNumber);
+            }
+            requestNumber2replyCallback[requestNumber] = replyCallback;
+          }
+        });
+      },
+      received: function (packet) {
+        try {
+          if (packet.requestNumber === endPacket.requestNumber) {
+            this.doClose(null);
+            return;
+          }
+          if (packet.message.serviceId) { // request // $todo better solution ?
+            var invocation = setup.server.invocation(packet.message);
+            if (!invocation.oneWay) {
+              throw new Error("an incoming request must be oneway");
+            }
+            invocation.invoke();
+          } else { // reply
+            var replyCallback = requestNumber2replyCallback[packet.requestNumber]; // $todo better solution ?
+            delete requestNumber2replyCallback[packet.requestNumber];
+            processReply(packet.message, replyCallback);
+          }
+        } catch (exception) {
+          this.doClose(exception);
+        }
+      }
+    });
+  }
+
   return {
     writer: writer,
     reader: reader,
@@ -607,17 +707,13 @@ var yass = (function () {
     serializer: serializer,
     direct: direct,
     composite: composite,
-    context: context,
-    contextIntercept: contextIntercept,
     contractId: contractId,
     methodMapping: methodMapping,
     methodMapper: methodMapper,
-    contractIdContext: contractIdContext,
+    processReply: processReply,
     server: server,
-    service: service,
     client: client,
-    rpc: function (result, callback) { // $todo
-      callback(result);
-    }
+    sessionSetup: sessionSetup,
+    session: session
   };
 }());

@@ -1,7 +1,6 @@
 package ch.softappeal.yass.core.remote;
 
 import ch.softappeal.yass.core.Interceptor;
-import ch.softappeal.yass.core.Interceptors;
 import ch.softappeal.yass.util.Check;
 
 /**
@@ -11,27 +10,8 @@ import ch.softappeal.yass.util.Check;
  */
 public final class ContractId<C> {
 
-  private static final ThreadLocal<ContractId<?>> INSTANCE = new ThreadLocal<>();
-
-  /**
-   * @see Interceptors#hasInvocation(ThreadLocal)
-   */
-  public static boolean hasInvocation() {
-    return Interceptors.hasInvocation(INSTANCE);
-  }
-
-  /**
-   * @return {@link ContractId} of the active invocation
-   * @see Interceptors#getInvocation(ThreadLocal)
-   */
-  public static ContractId<?> get() {
-    return Interceptors.getInvocation(INSTANCE);
-  }
-
   public final Class<C> contract;
   public final Object id;
-  final Interceptor interceptor = Interceptors.threadLocal(INSTANCE, this);
-
 
   private ContractId(final Class<C> contract, final Object id) {
     this.contract = Check.notNull(contract);

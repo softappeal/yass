@@ -14,6 +14,7 @@ import ch.softappeal.yass.serialize.Serializer;
 import ch.softappeal.yass.serialize.Writer;
 import ch.softappeal.yass.util.Check;
 import ch.softappeal.yass.util.Exceptions;
+import ch.softappeal.yass.util.Nullable;
 
 import javax.net.SocketFactory;
 import java.io.ByteArrayOutputStream;
@@ -30,11 +31,10 @@ public final class StatelessTransport extends SocketListener {
   private static final ThreadLocal<Socket> SOCKET = new ThreadLocal<>();
 
   /**
-   * @return the {@link Socket} of the active invocation
-   * @see Interceptors#getInvocation(ThreadLocal)
+   * @return the {@link Socket} of the active invocation or null if no active invocation
    */
-  public static Socket socket() {
-    return Interceptors.getInvocation(SOCKET);
+  @Nullable public static Socket socket() {
+    return SOCKET.get();
   }
 
   private static void write(final Message message, final Socket socket, final Serializer messageSerializer) throws Exception {

@@ -59,7 +59,7 @@ public abstract class Client extends Common {
     final MethodMapper methodMapper = methodMapper(contractId.contract);
     return new Invoker<C>() {
       @Override public C proxy(final Interceptor... interceptors) {
-        final Interceptor interceptor = Interceptors.composite(contractId.interceptor, Interceptors.composite(interceptors));
+        final Interceptor interceptor = Interceptors.composite(interceptors);
         return contractId.contract.cast(Proxy.newProxyInstance(contractId.contract.getClassLoader(), new Class<?>[] {contractId.contract}, new InvocationHandler() {
           @Override public Object invoke(final Object proxy, final Method method, final Object[] arguments) throws Throwable {
             return Client.this.invoke(new ClientInvocation(interceptor, contractId.id, methodMapper.mapMethod(method), arguments));
