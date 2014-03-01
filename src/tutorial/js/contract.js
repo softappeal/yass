@@ -65,11 +65,13 @@ contract.PriceEngine_MAPPER = yass.methodMapper(contract.PriceEngine, [
 ]);
 
 contract.PriceListener = {
+  echo: function (param0) {},
   newPrices: function (param0) {} // OneWay
 };
 
 contract.PriceListener_MAPPER = yass.methodMapper(contract.PriceListener, [
-  yass.methodMapping("newPrices", 0, true)
+  yass.methodMapping("echo", 0, false),
+  yass.methodMapping("newPrices", 1, true)
 ]);
 
 contract.ClientServices = {

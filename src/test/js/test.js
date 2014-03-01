@@ -278,15 +278,7 @@ function writer2reader(writer) {
 
 (function () {
 
-  var client = function (server) {
-    return yass.create(yass.client(), {
-      invoke: function (clientInvocation) {
-        return clientInvocation.invoke(function (request, replyCallback) {
-          yass.processReply(server.invocation(request).invoke(), replyCallback);
-        });
-      }
-    });
-  };
+  // $$$ review from here, move to tutorial
 
   var throwException = false;
 
@@ -296,7 +288,7 @@ function writer2reader(writer) {
     },
     getInstruments: function () {
       if (throwException) {
-        throw new Error("error in getInstruments");
+        throw new contract.UnknownInstrumentsException();
       }
       var stock = new contract.instrument.Stock();
       stock.paysDividend = true;
@@ -333,13 +325,13 @@ function writer2reader(writer) {
     contract.ServerServices.PriceEngine.service(priceEngineImpl, logger("server"))
   ]);
 
-  var session = client(server);
+  var session = yass.mockClient(server, contract.SERIALIZER);
 
   var instrumentService = contract.ServerServices.InstrumentService.invoker(session)(logger("client"));
   var priceEngine = contract.ServerServices.PriceEngine.invoker(session)(logger("client"));
 
   priceEngine.subscribe(["945", "4883"], function (reply) {
-    // $$$ note: reply must always be called even if no return type to get exceptions
+    // $todo note: reply must always be called even if no return type to get exceptions
     console.log("callback subscribe", reply());
   });
 
@@ -352,81 +344,68 @@ function writer2reader(writer) {
   throwException = true;
   exception(function () {
     instrumentService.getInstruments(function (reply) {
-      reply(); // $$$ throws exception
+      reply(); // $todo throws exception
     });
   });
   throwException = false;
 
-  function localConnection(setup1, setup2) {
-    function connection() {
-      return {
-        other: null,
-        write: function (packet) {
-          this.other.received(packet);
-        },
-        closed: function () {
-          this.other.close();
-        }
-      };
-    }
-    var connection1 = connection();
-    var connection2 = connection();
-    connection2.other = setup1.createSession(connection1);
-    try {
-      connection1.other = setup2.createSession(connection2);
-    } catch (exception) {
-      connection2.other.close(exception);
-      throw exception;
-    }
-    if (!(connection1.other.open() && connection2.other.open())) {
-      throw Error("open failed");
-    }
-  }
+  var sessionSetup = yass.sessionSetup(
+    yass.server([
+      contract.ClientServices.PriceListener.service(
+        yass.create(contract.PriceListener, {
+          newPrices: function (prices) {
+            console.log("newPrices:", prices);
+          },
+          echo: function (message) {
+            console.log("echo:", message);
+            return message;
+          }
+        }),
+        logger("client")
+      )
+    ]),
+    function (setup, connection) {
+      return yass.session(setup, connection, {
+        opened: function () {
+          var session = this;
 
-  localConnection(
-    yass.sessionSetup(
-      yass.server([
-        contract.ClientServices.PriceListener.service(
-          yass.create(contract.PriceListener, {
-            newPrices: function (prices) {
-              console.log("newPrices:", prices);
-            }
-          }),
-          logger("client")
-        )
-      ]),
-      function (setup, connection) {
-        return yass.create(yass.session(setup, connection), {
-          closed: function (exception) {
-            console.log("client closed", exception);
-          },
-          opened: function () {
-            console.log("client opened");
-            var instrumentService = contract.ServerServices.InstrumentService.invoker(this)(logger("client"));
-            var priceEngine = contract.ServerServices.PriceEngine.invoker(this)(logger("client"));
-            instrumentService.reload(true, 987654);
-            instrumentService.getInstruments(function (reply) {
-              console.log("callback getInstruments", reply()); // $$$ does not work, because we don't have threads here
+          console.log("client opened");
+          var instrumentService = contract.ServerServices.InstrumentService.invoker(session)(logger("client"));
+          var priceEngine = contract.ServerServices.PriceEngine.invoker(session)(logger("client"));
+          instrumentService.reload(true, 987654);
+
+          priceEngine.subscribe(["dkjjfkjkjf"], function (reply) {
+            exception(function () {
+              console.log("callback subscribe", reply());
             });
-            this.close();
-          }
-        });
-      }
-    ),
-    yass.sessionSetup(
-      server,
-      function (setup, connection) {
-        return yass.create(yass.session(setup, connection), {
-          closed: function (exception) {
-            console.log("server closed", exception);
-          },
-          opened: function () {
-            console.log("server opened");
-          }
-        });
-      }
-    )
+          });
+
+          instrumentService.getInstruments(function (reply) {
+            var instruments = reply();
+            console.log("callback getInstruments", instruments);
+            priceEngine.subscribe(
+              instruments.map(function (instrument) {
+                return instrument.id;
+              }),
+              function (reply) {
+                console.log("callback subscribe", reply());
+              });
+          });
+
+          setTimeout(function () {
+            session.close();
+          }, 10000);
+
+        },
+        closed: function (exception) {
+          console.log("client closed", exception);
+        },
+      });
+    }
   );
+
+  yass.connect("ws://localhost:9090/tutorial", contract.SERIALIZER, sessionSetup);
+  yass.connect("ws://localhost:9090/tutorial", contract.SERIALIZER, sessionSetup);
 
 }());
 

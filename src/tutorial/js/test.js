@@ -71,22 +71,8 @@ var server = yass.server([ // list all client services
 //--------------------------------------------------------------------------------------------------------------------
 // create/use proxies for server services
 
-var instrumentService; // $todo = contract.ServerServices.InstrumentService.invoker(client)(yass.direct);
+// $$$
 
-// server service implementation fake
-instrumentService = yass.create(contract.InstrumentService, {
-  reload: function () { // oneway function
-    console.log("reload");
-  },
-  getInstruments: function () { // rpc-style function
-    return [stock, stock];
-  }
-});
+// oneway server service invocation
 
-instrumentService.reload(); // oneway server service invocation
-
-/* $$$
-yass.rpc(instrumentService.getInstruments(), function (result) { // rpc-style server service invocation
-  console.log(result);
-});
-*/
+// rpc-style server service invocation

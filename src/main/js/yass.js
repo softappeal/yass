@@ -400,6 +400,7 @@ var yass = (function () {
 
   function valueReply(value) {
     return {
+      value: value,
       process: function () {
         return value;
       }
@@ -408,6 +409,7 @@ var yass = (function () {
 
   function exceptionReply(exception) {
     return {
+      exception: exception,
       process: function () {
         throw exception;
       }
@@ -475,25 +477,21 @@ var yass = (function () {
   }
 
   function clientInvocation(interceptor, serviceId, methodMapping, parameters) {
-    return {
-      oneWay: methodMapping.oneWay, // $$$ needed in session ?
-      invoke: function (tunnel) {
-        var replyCallback = null;
-        if (!this.oneWay) {
-          replyCallback = parameters[parameters.length - 1];
-          if (typeof replyCallback !== "function") {
-            throw new Error("calling method '" + methodMapping.method + "' without callback");
-          }
-          var newParameters = [];
-          for (var i = parameters.length - 2; i >= 0; i--) { // $todo: is there a better way to copy the arguments ?
-            newParameters[i] = parameters[i];
-          }
-          parameters = newParameters;
+    return function (tunnel) {
+      var replyCallback = null;
+      if (!methodMapping.oneWay) {
+        replyCallback = parameters[parameters.length - 1];
+        if (typeof replyCallback !== "function") {
+          throw new Error("calling method '" + methodMapping.method + "' without callback");
         }
-        return interceptor(methodMapping.method, parameters, function () {
-          tunnel(request(serviceId, methodMapping.id, parameters), replyCallback);
-        });
       }
+      var arrayParameters = []; // note: copy needed because parameters is instanceof Arguments and not a real array
+      for (var p = parameters.length - (replyCallback ? 2 : 1); p >= 0; p--) { // $todo: is there a better way to copy the arguments ?
+        arrayParameters[p] = parameters[p];
+      }
+      return interceptor(methodMapping.method, arrayParameters, function () {
+        return tunnel(request(serviceId, methodMapping.id, arrayParameters), replyCallback);
+      });
     };
   }
 
@@ -524,7 +522,7 @@ var yass = (function () {
     var methodMapping = serverInvoker.methodMapper.mapId(request.methodId);
     var method = methodMapping.method;
     return {
-      oneWay: methodMapping.oneWay, // $$$ needed in session ?
+      oneWay: methodMapping.oneWay,
       invoke: function () {
         return serverInvoker.invoke(method, request.parameters);
       }
@@ -538,7 +536,8 @@ var yass = (function () {
       methodMapper: service.contractId.methodMapper,
       invoke: function (method, parameters) {
         var proceed = function () {
-          return implementation[method].apply(implementation, parameters);
+          var result = implementation[method].apply(implementation, parameters);
+          return (typeof result === "undefined") ? null : result;
         };
         var value;
         try {
@@ -571,14 +570,97 @@ var yass = (function () {
     };
   }
 
+  var END_REQUESTNUMBER = 0;
+
   function packet(requestNumber, message) {
     return {
       requestNumber: requestNumber,
-      message: message
+      message: message,
+      isEnd: function () {
+        return this.requestNumber === END_REQUESTNUMBER;
+      }
     };
   }
 
-  var endPacket = packet(0, null);
+  var END_PACKET = packet(END_REQUESTNUMBER, null);
+
+  function messageSerializer(serializer) {
+    var REQUEST = 0;
+    var VALUE_REPLY = 1;
+    var EXCEPTION_REPLY = 2;
+    return {
+      read: function (reader) {
+        var type = reader.readByte();
+        if (type === REQUEST) {
+          return request(serializer.read(reader), serializer.read(reader), serializer.read(reader));
+        }
+        if (type === VALUE_REPLY) {
+          return valueReply(serializer.read(reader));
+        }
+        return exceptionReply(serializer.read(reader));
+      },
+      write: function (message, writer) {
+        if (message.hasOwnProperty("serviceId")) {// $todo is there a better solution ?
+          writer.writeByte(REQUEST);
+          serializer.write(message.serviceId, writer);
+          serializer.write(message.methodId, writer);
+          serializer.write(message.parameters, writer);
+        } else if (message.hasOwnProperty("value")) {// $todo is there a better solution ?
+          writer.writeByte(VALUE_REPLY);
+          serializer.write(message.value, writer);
+        } else {
+          writer.writeByte(EXCEPTION_REPLY);
+          serializer.write(message.exception, writer);
+        }
+      }
+    };
+  }
+
+  function packetSerializer(messageSerializer) {
+    return {
+      read: function (reader) {
+        var requestNumber = reader.readInt();
+        return (requestNumber === END_REQUESTNUMBER) ? END_PACKET : packet(requestNumber, messageSerializer.read(reader));
+      },
+      write: function (packet, writer) {
+        if (packet.isEnd()) {
+          writer.writeInt(END_REQUESTNUMBER);
+        } else {
+          writer.writeInt(packet.requestNumber);
+          messageSerializer.write(packet.message, writer);
+        }
+      }
+    };
+  }
+
+  function transportSerializer(serializer) {
+    return packetSerializer(messageSerializer(serializer));
+  }
+
+  function mockClient(server, serializer) {
+    serializer = messageSerializer(serializer);
+    function copy(value) {
+      var w = writer(1024);
+      serializer.write(value, w);
+      var r = reader(w.getUint8Array());
+      value = serializer.read(r);
+      if (!r.isEmpty()) {
+        throw new Error("reader is not empty");
+      }
+      return value;
+    }
+    return create(client(), {
+      invoke: function (invocation) {
+        return invocation(function (request, replyCallback) {
+          var reply = server.invocation(copy(request)).invoke();
+          if (replyCallback) {
+            processReply(copy(reply), replyCallback);
+          }
+          return null;
+        });
+      }
+    });
+  }
 
   function sessionSetup(server, sessionFactory) {
     var factory = sessionFactory;
@@ -590,29 +672,19 @@ var yass = (function () {
     };
   }
 
-  // $$$ review from here below
-
-  function session(setup, connection) {
+  function session(setup, connection, mySession) {
     var isClosed = false;
     var isOpened = false;
-    var nextRequestNumber = endPacket.requestNumber;
+    var nextRequestNumber = END_REQUESTNUMBER;
     var requestNumber2replyCallback = [];
-    return create(client(), {
-      closed: function (exception) { // $todo: remove
-        throw new Error("abstract method called");
-      },
-      opened: function () {
-        // empty
-      },
+    return create(create(client(), {
       open: function () {
         isOpened = true;
         try {
           this.opened();
         } catch (e) {
           this.doClose(e);
-          return false;
         }
-        return true;
       },
       doClose: function (exception) {
         this.doCloseSend(false, exception);
@@ -625,7 +697,7 @@ var yass = (function () {
         try {
           this.closed(exception);
           if (sendEnd) {
-            connection.write(endPacket);
+            connection.write(END_PACKET);
           }
         } finally {
           connection.closed();
@@ -645,40 +717,36 @@ var yass = (function () {
         this.doCloseSend(true, null);
       },
       invoke: function (invocation) {
-        var that = this;
         if (!isOpened) {
           throw new Error("session is not yet opened");
         }
-        return invocation.invoke(function (request, replyCallback) {
-          var requestNumber = ++nextRequestNumber;
-          /* $todo: implement 32bit signed int behaviour, and no end of packet
-           do { // we can't use END_REQUEST_NUMBER as regular requestNumber
-           requestNumber = nextRequestNumber.incrementAndGet();
-           } while (requestNumber === Packet.END_REQUEST_NUMBER);
-           */
+        var that = this;
+        return invocation(function (request, replyCallback) {
+          var requestNumber = ++nextRequestNumber; // $todo: implement 32bit signed int behaviour and skip END_REQUESTNUMBER
           that.write(requestNumber, request);
-          if (!invocation.oneWay) {
+          if (replyCallback) {
             if (requestNumber2replyCallback[requestNumber]) {
               throw new Error("already waiting for requestNumber " + requestNumber);
             }
             requestNumber2replyCallback[requestNumber] = replyCallback;
           }
+          return null;
         });
       },
       received: function (packet) {
         try {
-          if (packet.requestNumber === endPacket.requestNumber) {
+          if (packet.isEnd()) {
             this.doClose(null);
             return;
           }
-          if (packet.message.serviceId) { // request // $todo better solution ?
+          if (packet.message.hasOwnProperty("serviceId")) { // request // $todo is there a better solution ?
             var invocation = setup.server.invocation(packet.message);
+            var reply = invocation.invoke();
             if (!invocation.oneWay) {
-              throw new Error("an incoming request must be oneway");
+              this.write(packet.requestNumber, reply);
             }
-            invocation.invoke();
           } else { // reply
-            var replyCallback = requestNumber2replyCallback[packet.requestNumber]; // $todo better solution ?
+            var replyCallback = requestNumber2replyCallback[packet.requestNumber];
             delete requestNumber2replyCallback[packet.requestNumber];
             processReply(packet.message, replyCallback);
           }
@@ -686,7 +754,39 @@ var yass = (function () {
           this.doClose(exception);
         }
       }
-    });
+    }), mySession);
+  }
+
+  function connect(url, serializer, sessionSetup) {
+    serializer = transportSerializer(serializer);
+    var ws = new WebSocket(url);
+    ws.binaryType = "arraybuffer";
+    ws.onopen = function () {
+      var session = sessionSetup.createSession({
+        write: function (packet) {
+          var w = writer(1024);
+          serializer.write(packet, w);
+          ws.send(w.getUint8Array());
+        },
+        closed: function () {
+          ws.close();
+        }
+      });
+      ws.onmessage = function (evt) {
+        var r = reader(evt.data);
+        session.received(serializer.read(r));
+        if (!r.isEmpty()) {
+          throw new Error("reader is not empty");
+        }
+      };
+      ws.onerror = function (evt) {
+        session.doClose(new Error("onerror"));
+      };
+      ws.onclose = function () {
+        session.doClose(new Error("onclose"));
+      };
+      session.open();
+    };
   }
 
   return {
@@ -710,10 +810,10 @@ var yass = (function () {
     contractId: contractId,
     methodMapping: methodMapping,
     methodMapper: methodMapper,
-    processReply: processReply,
     server: server,
-    client: client,
     sessionSetup: sessionSetup,
-    session: session
+    mockClient: mockClient,
+    session: session,
+    connect: connect
   };
 }());

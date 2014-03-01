@@ -24,4 +24,9 @@ public final class PriceListenerImpl extends ContextService<PriceListenerContext
     System.out.println(s);
   }
 
+  @Override public String echo(final String message) {
+    System.out.println("echo: " + message);
+    return message;
+  }
+
 }

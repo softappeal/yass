@@ -34,13 +34,16 @@ public final class ServerSession extends Session implements PriceEngineContext {
 
   @Override public void opened() throws InterruptedException {
     System.out.println("opened: " + hashCode());
+    System.out.println(priceListener.echo("hello"));
     final Random random = new Random();
     while (!closed.get()) {
       final List<Price> prices = new ArrayList<>();
       for (final String subscribedInstrumentId : subscribedInstrumentIds.toArray(new String[0])) {
         prices.add(new Price(subscribedInstrumentId, random.nextInt(99) + 1, PriceType.ASK));
       }
-      priceListener.newPrices(prices);
+      if (!prices.isEmpty()) {
+        priceListener.newPrices(prices);
+      }
       TimeUnit.MILLISECONDS.sleep(1000L);
     }
   }

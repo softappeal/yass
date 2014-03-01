@@ -169,12 +169,11 @@ public final class ModelGenerator extends Generator { // $todo: review
     return methods;
   }
 
-  private void generateServices(final Class<?> services, final boolean client) throws Exception {
-    final List<ServiceDesc> serviceDescs = getServiceDescs(services);
+  private void generateServices(final Class<?> services) throws Exception {
     tabs("%s = {", jsType(services));
     inc();
     boolean first = true;
-    for (final ServiceDesc serviceDesc : serviceDescs) {
+    for (final ServiceDesc serviceDesc : getServiceDescs(services)) {
       final Class<?> type = serviceDesc.contractId.contract;
       if (!first) {
         print(",");
@@ -185,15 +184,6 @@ public final class ModelGenerator extends Generator { // $todo: review
         "%s: %s.contractId(%s, %s_MAPPER)",
         serviceDesc.name, yassModule, serviceDesc.contractId.id, jsType(type)
       );
-      if (client) {
-        final MethodMapper methodMapper = methodMapperFactory.create(type);
-        for (final Method method : type.getMethods()) {
-          if (!methodMapper.mapMethod(method).oneWay) {
-            // $todo Note: This is a JavaScript restriction. rrpc-style forbidden on client due to blocking [WebWorker?].
-            throw new RuntimeException("method '" + method + "' of a server service must be oneway");
-          }
-        }
-      }
     }
     dec();
     println();
@@ -303,8 +293,8 @@ public final class ModelGenerator extends Generator { // $todo: review
     for (final Class<?> type : interfacesList) {
       generateInterface(type);
     }
-    generateServices(clientServices, true);
-    generateServices(serverServices, false);
+    generateServices(clientServices);
+    generateServices(serverServices);
     for (final Map.Entry<Integer, TypeHandler> entry : id2typeHandler.entrySet()) {
       final TypeHandler typeHandler = entry.getValue();
       if (typeHandler instanceof ClassTypeHandler) {
