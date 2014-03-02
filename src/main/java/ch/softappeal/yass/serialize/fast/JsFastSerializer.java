@@ -11,7 +11,8 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * This is the Java implementation of the yass Javascript serializer.
+ * This is the Java implementation of the yass JavaScript serializer.
+ * Only the following base types are allowed: {@link Boolean}, {@link Integer} and {@link String}.
  * This serializer assigns type and field id's automatically. Therefore, all peers must have the same version of the contract!
  */
 public final class JsFastSerializer extends AbstractFastSerializer { // $todo: review
@@ -48,8 +49,7 @@ public final class JsFastSerializer extends AbstractFastSerializer { // $todo: r
    * @param concreteClasses instances of these classes can only be used in trees
    */
   public JsFastSerializer(
-    final Reflector.Factory reflectorFactory, final Collection<Class<?>> enumerations,
-    final Collection<Class<?>> concreteClasses
+    final Reflector.Factory reflectorFactory, final Collection<Class<?>> enumerations, final Collection<Class<?>> concreteClasses
   ) {
     super(reflectorFactory);
     addBaseType(BOOLEAN_TYPEDESC);

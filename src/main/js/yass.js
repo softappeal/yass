@@ -327,14 +327,14 @@ var yass = (function () {
     };
   }
 
-  function classDesc(id, constructor) {
+  function classDesc(id, Constructor) {
     var fieldId2handler = [];
-    constructor.TYPE_DESC = typeDesc(id, {
+    Constructor.TYPE_DESC = typeDesc(id, {
       addField: function (id, handler) {
         fieldId2handler[id] = handler;
       },
       read: function (input) {
-        var object = new constructor();
+        var object = new Constructor();
         while (true) {
           var id = input.reader.readVarInt();
           if (id === 0) {
@@ -356,37 +356,27 @@ var yass = (function () {
     constructor.TYPE_DESC.handler.addField(id, fieldHandler(name, typeDescOwner && typeDescOwner.TYPE_DESC.handler));
   }
 
+  function argsToArr(parameters) {
+    var arrayParameters = [];
+    for (var p = parameters.length - 1; p >= 0; p--) { // $todo: is there a better way to copy the arguments ?
+      arrayParameters[p] = parameters[p];
+    }
+    return arrayParameters;
+  }
+
   function serializer(typeDescOwners) {
     var id2typeHandler = [];
-    [NULL, LIST, BOOLEAN, INTEGER, STRING].concat(typeDescOwners).forEach(function (typeDescOwner) {
+    [NULL, LIST, BOOLEAN, INTEGER, STRING].concat(argsToArr(arguments)).forEach(function (typeDescOwner) {
       var typeDesc = typeDescOwner.TYPE_DESC;
       id2typeHandler[typeDesc.id] = typeDesc.handler;
     });
     return {
       read: function (reader) {
-        return new input(reader, id2typeHandler).read();
+        return input(reader, id2typeHandler).read();
       },
       write: function (value, writer) {
-        new output(writer).write(value);
+        output(writer).write(value);
       }
-    };
-  }
-
-  function direct(method, parameters, proceed) {
-    return proceed();
-  }
-
-  function composite(interceptor1, interceptor2) {
-    if (interceptor1 === direct) {
-      return interceptor2;
-    }
-    if (interceptor2 === direct) {
-      return interceptor1;
-    }
-    return function (method, parameters, proceed) {
-      return interceptor1(method, parameters, function () {
-        return interceptor2(method, parameters, proceed);
-      });
     };
   }
 
@@ -424,10 +414,35 @@ var yass = (function () {
     };
   }
 
-  function methodMapper(contract, methodMappings) {
+  function composite2(interceptor1, interceptor2) {
+    return function (method, parameters, proceed) {
+      return interceptor1(method, parameters, function () {
+        return interceptor2(method, parameters, proceed);
+      });
+    };
+  }
+
+  var DIRECT = function (method, parameters, proceed) {
+    return proceed();
+  };
+
+  function compositeSkip(start, interceptors) {
+    var i1 = DIRECT;
+    for (var i = start; i < interceptors.length; i++) {
+      var i2 = interceptors[i];
+      i1 = (i1 === DIRECT) ? i2 : ((i2 === DIRECT) ? i1 : composite2(i1, i2));
+    }
+    return i1;
+  }
+
+  function composite() {
+    return compositeSkip(0, arguments);
+  }
+
+  function methodMapper() {
     var id2mapping = [];
     var name2Mapping = {};
-    methodMappings.forEach(function (mapping) {
+    argsToArr(arguments).forEach(function (mapping) {
       id2mapping[mapping.id] = mapping;
       name2Mapping[mapping.method] = mapping;
     });
@@ -438,7 +453,7 @@ var yass = (function () {
       mapMethod: function (method) {
         return name2Mapping[method];
       },
-      proxy: function (interceptor) { // $todo: is there something like a java dynamic proxy ?
+      proxy: function (interceptor) {
         var stub = {};
         function delegate(method) {
           stub[method] = function () {
@@ -459,8 +474,12 @@ var yass = (function () {
     return {
       methodMapper: methodMapper,
       id: id,
-      service: function (implementation, interceptor) { // $todo: 0..n interceptors
-        return service(this, implementation, interceptor);
+      service: function () {
+        return {
+          contractId: this,
+          implementation: arguments[0],
+          interceptor: compositeSkip(1, arguments)
+        };
       },
       invoker: function (client) {
         return client.invoker(this);
@@ -499,7 +518,8 @@ var yass = (function () {
     return {
       invoker: function (contractId) {
         var that = this;
-        return function (interceptor) { // $todo: 0..n interceptors
+        return function () {
+          var interceptor = compositeSkip(0, arguments);
           return contractId.methodMapper.proxy(function (method, parameters) {
             return that.invoke(
               clientInvocation(interceptor, contractId.id, contractId.methodMapper.mapMethod(method), parameters)
@@ -507,14 +527,6 @@ var yass = (function () {
           });
         };
       }
-    };
-  }
-
-  function service(contractId, implementation, interceptor) { // $todo: 0..n interceptors
-    return {
-      contractId: contractId,
-      implementation: implementation,
-      interceptor: interceptor
     };
   }
 
@@ -550,9 +562,9 @@ var yass = (function () {
     };
   }
 
-  function server(services) {
+  function server() {
     var serviceId2invoker = [];
-    services.forEach(function (service) {
+    argsToArr(arguments).forEach(function (service) {
       var id = service.contractId.id;
       if (serviceId2invoker[id]) {
         throw new Error("serviceId '" + id + "' already added");
@@ -662,17 +674,7 @@ var yass = (function () {
     });
   }
 
-  function sessionSetup(server, sessionFactory) {
-    var factory = sessionFactory;
-    return {
-      server: server,
-      createSession: function (connection) {
-        return factory(this, connection);
-      }
-    };
-  }
-
-  function session(setup, connection, mySession) {
+  function createSession(server, session, connection) {
     var isClosed = false;
     var isOpened = false;
     var nextRequestNumber = END_REQUESTNUMBER;
@@ -705,7 +707,7 @@ var yass = (function () {
       },
       write: function (requestNumber, message) {
         if (isClosed) {
-          throw Error("session is already closed");
+          throw new Error("session is already closed");
         }
         try {
           connection.write(packet(requestNumber, message));
@@ -740,7 +742,7 @@ var yass = (function () {
             return;
           }
           if (packet.message.hasOwnProperty("serviceId")) { // request // $todo is there a better solution ?
-            var invocation = setup.server.invocation(packet.message);
+            var invocation = server.invocation(packet.message);
             var reply = invocation.invoke();
             if (!invocation.oneWay) {
               this.write(packet.requestNumber, reply);
@@ -754,15 +756,15 @@ var yass = (function () {
           this.doClose(exception);
         }
       }
-    }), mySession);
+    }), session);
   }
 
-  function connect(url, serializer, sessionSetup) {
+  function connect(url, serializer, server, sessionFactory) {
     serializer = transportSerializer(serializer);
     var ws = new WebSocket(url);
     ws.binaryType = "arraybuffer";
     ws.onopen = function () {
-      var session = sessionSetup.createSession({
+      var session = createSession(server, sessionFactory(), {
         write: function (packet) {
           var w = writer(1024);
           serializer.write(packet, w);
@@ -805,15 +807,12 @@ var yass = (function () {
     classDesc: classDesc,
     classField: classField,
     serializer: serializer,
-    direct: direct,
     composite: composite,
     contractId: contractId,
     methodMapping: methodMapping,
     methodMapper: methodMapper,
     server: server,
-    sessionSetup: sessionSetup,
     mockClient: mockClient,
-    session: session,
     connect: connect
   };
 }());

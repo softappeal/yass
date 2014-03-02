@@ -1,0 +1,258 @@
+<!doctype html>
+<html>
+<head>
+  <script src="../../../src/main/js/yass.js"></script>
+  <script src="contract.js"></script>
+</head>
+<body>
+Tutorial
+<script>
+
+'use strict';
+
+//----------------------------------------------------------------------------------------------------------------------
+// some utilities
+
+function log() {
+  console.log.apply(console, arguments);
+}
+
+function assert(value) {
+  if (!value) {
+    throw new Error("assert failed");
+  }
+}
+
+function assertThrown(action) {
+  var thrown = false;
+  try {
+    action();
+  } catch (e) {
+    thrown = true;
+    log("expected error caught:", e);
+  }
+  assert(thrown);
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+// interceptors (aspect oriented programming, around advice)
+
+// a greeter interceptor
+function greeter(method, parameters, proceed) {
+  log("hello");
+  try {
+    var result = proceed();
+    log("see you again");
+    return result;
+  } catch (e) {
+    log("don't come back");
+    throw e;
+  }
+}
+
+// a function creating logging interceptors
+function logger(type) {
+  return function (method, parameters, proceed) {
+    function doLog(kind, data) {
+      log("logger:", type, kind, method, data);
+    }
+    doLog("entry", parameters);
+    try {
+      var result = proceed();
+      doLog("exit", result);
+      return result;
+    } catch (e) {
+      doLog("exception", e);
+      throw e;
+    }
+  };
+}
+
+// interceptors can be chained
+var greeterLogger = yass.composite(greeter, logger("chained"));
+greeterLogger("divide", [6, 3], function () {
+  return 2;
+});
+assertThrown(function () {
+  greeterLogger("divide", [2, 0], function () {
+    throw new Error("division by 0");
+  });
+});
+
+//----------------------------------------------------------------------------------------------------------------------
+// DTO's
+
+// enumeration
+var PriceType = contract.PriceType;
+var priceType = PriceType.ASK;
+assert(priceType === PriceType.ASK);
+assert(priceType !== PriceType.BID);
+
+// class
+var price = new contract.Price();
+price.instrumentId = "5667"; // string type
+price.value = 123; // integer type
+price.type = contract.PriceType.BID; // enum type
+
+// class with inheritance and namespace
+var stock = new contract.instrument.Stock();
+stock.id = "123";
+stock.name = "IBM";
+stock.paysDividend = true; // boolean type
+
+// class with inheritance and namespace
+var bond = new contract.instrument.Bond();
+bond.id = "785";
+bond.name = "Google";
+bond.coupon = 5;
+
+// check inheritance
+assert(stock instanceof contract.Instrument);
+assert(stock instanceof contract.instrument.Stock);
+assert(!(stock instanceof contract.instrument.Bond));
+assert(bond instanceof contract.instrument.Bond);
+assert(!(bond instanceof contract.instrument.Stock));
+
+// exception
+assertThrown(function () {
+  var exception = new contract.UnknownInstrumentsException();
+  exception.instrumentIds = ["345", "533"]; // list type
+  throw exception;
+});
+
+//----------------------------------------------------------------------------------------------------------------------
+// now the interesting part begins: we start with the common stuff
+
+// implement ClientServices; these will be called asynchronously from the server
+var priceListenerImpl = yass.create(contract.PriceListener, {
+  newPrices: function (prices) { // OneWay
+    log("newPrices:", prices);
+  },
+  echo: function (message) {
+    log("echo:", message);
+    return message;
+  }
+});
+
+var clientLogger = logger("client");
+
+function communicateWithServer(session) {
+
+  // create proxy factories
+  var instrumentServiceProxyFactory = contract.ServerServices.InstrumentService.invoker(session);
+  var priceEngineProxyFactory = contract.ServerServices.PriceEngine.invoker(session);
+
+  // create proxies; you can add 0..n interceptors to each proxy
+  var instrumentService = instrumentServiceProxyFactory(clientLogger);
+  var priceEngine = priceEngineProxyFactory(clientLogger);
+
+  // oneway method call
+  instrumentService.reload(true, 987654);
+
+  function subscribe(instrumentIds) {
+    // rpc-style method call with asynchronous callback
+    priceEngine.subscribe(instrumentIds, function (reply) {
+      try {
+        reply(); // calling reply() returns the function result or throws its exception
+        log("callback: subscribe");
+      } catch (e) {
+        log("callback: subscribe with exception", e)
+      }
+    });
+  }
+
+  // rpc-style method call with asynchronous callback
+  instrumentService.getInstruments(function (reply) {
+    var instruments = reply();
+    subscribe(instruments.map(function (instrument) {
+      return instrument.id;
+    }))
+  });
+
+  // shows what happens if a rpc-style method call throws an exception
+  subscribe(["unknownId"]);
+
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+// browser only simulation; handy if we don't have/want a server
+
+function simulateServerCommunication() {
+
+  // implement ServerServices
+  var instrumentServiceImpl = yass.create(contract.InstrumentService, {
+    reload: function (testBoolean, testInt) { // OneWay
+      log("reload:", testBoolean, testInt);
+    },
+    getInstruments: function () { // rpc-style
+      log("getInstruments");
+      return [stock, bond];
+    }
+  });
+
+  // implement ServerServices
+  var priceEngineImpl = yass.create(contract.PriceEngine, {
+    subscribe: function (instrumentIds) { // rpc-style
+      log("subscribe:", instrumentIds);
+      instrumentIds.forEach(function (instrumentId) {
+        if (instrumentId === "unknownId") {
+          var exception = new contract.UnknownInstrumentsException();
+          exception.instrumentIds = [instrumentId];
+          throw exception;
+        }
+      });
+    }
+  });
+
+  var serverLogger = logger("server");
+
+  // create server for ServerServices; you can add 0..n interceptors to each service
+  var server = yass.server(
+    contract.ServerServices.InstrumentService.service(instrumentServiceImpl, serverLogger),
+    contract.ServerServices.PriceEngine.service(priceEngineImpl, serverLogger)
+  );
+
+  communicateWithServer(yass.mockClient(server, contract.SERIALIZER));
+}
+
+simulateServerCommunication();
+
+//----------------------------------------------------------------------------------------------------------------------
+// and now the real thing ...
+
+function realServerCommunication() {
+
+  function sessionFactory() {
+    return {
+      opened: function () {
+        // called if session has been opened
+        log("session opened");
+        var session = this;
+        communicateWithServer(session);
+        setTimeout(function () {
+          session.close(); // closes the session
+        }, 10000);
+      },
+      closed: function (exception) {
+        // called if session has been closed; exception is null if regular close else reason for close
+        log("session closed", exception);
+      }
+    };
+  }
+
+  // create server for ClientServices; you can add 0..n interceptors to each service
+  var server = yass.server(
+    contract.ClientServices.PriceListener.service(priceListenerImpl, clientLogger)
+  );
+
+  yass.connect("ws://localhost:9090/tutorial", contract.SERIALIZER, server, sessionFactory);
+
+}
+
+realServerCommunication();
+
+//----------------------------------------------------------------------------------------------------------------------
+
+</script>
+</body>
+</html>

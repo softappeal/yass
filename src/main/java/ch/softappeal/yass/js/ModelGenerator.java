@@ -26,8 +26,6 @@ import java.util.Set;
 public final class ModelGenerator extends Generator { // $todo: review
 
   private final String rootPackage;
-  private final String yassModule;
-  private final String modelModule;
   private final Map<Integer, TypeHandler> id2typeHandler;
   private final Set<Class<?>> visitedClasses = new HashSet<>();
   private final Set<String> visitedPackages = new HashSet<>();
@@ -37,7 +35,7 @@ public final class ModelGenerator extends Generator { // $todo: review
   private void generatePackage(final String aPackage) {
     if (visitedPackages.add(aPackage)) {
       generatePackage(aPackage.substring(0, aPackage.lastIndexOf('.')));
-      tabsln("%s.%s = {};", modelModule, aPackage.substring(rootPackage.length()));
+      tabsln("contract.%s = {};", aPackage.substring(rootPackage.length()));
       println();
     }
   }
@@ -50,16 +48,16 @@ public final class ModelGenerator extends Generator { // $todo: review
   }
 
   private String jsType(final Class<?> type) {
-    return modelModule + '.' + type.getCanonicalName().substring(rootPackage.length());
+    return "contract." + type.getCanonicalName().substring(rootPackage.length());
   }
 
   private void generateEnum(final Class<? extends Enum<?>> type) {
     final String jsType = jsType(type);
-    tabsln("%s = %s.enumConstructor();", jsType, yassModule);
+    tabsln("%s = yass.enumConstructor();", jsType);
     for (final Enum<?> e : type.getEnumConstants()) {
       tabsln("%s.%s = new %s(%s, \"%s\");", jsType, e.name(), jsType, e.ordinal(), e.name());
     }
-    tabsln("%s.enumDesc(%s, %s);", yassModule, getId(type), jsType);
+    tabsln("yass.enumDesc(%s, %s);", getId(type), jsType);
     types.add(jsType);
     println();
   }
@@ -92,10 +90,10 @@ public final class ModelGenerator extends Generator { // $todo: review
     }
     dec();
     tabsln("};");
-    tabsln("%s.inherits(%s, %s);", yassModule, jsType, (s == null) ? (yassModule + ".Class") : jsType(s));
+    tabsln("yass.inherits(%s, %s);", jsType, (s == null) ? "yass.Class" : jsType(s));
     final Integer id = getId(type);
     if (id != null) {
-      tabsln("%s.classDesc(%s, %s);", yassModule, id, jsType);
+      tabsln("yass.classDesc(%s, %s);", id, jsType);
       types.add(jsType);
     }
     println();
@@ -106,21 +104,21 @@ public final class ModelGenerator extends Generator { // $todo: review
       final TypeHandler fieldHandler = fieldDesc.handler.typeHandler();
       final String typeDescOwner;
       if (TypeDesc.LIST.handler == fieldHandler) {
-        typeDescOwner = yassModule + ".LIST";
+        typeDescOwner = "yass.LIST";
       } else if (JsFastSerializer.BOOLEAN_TYPEDESC.handler == fieldHandler) {
-        typeDescOwner = yassModule + ".BOOLEAN";
+        typeDescOwner = "yass.BOOLEAN";
       } else if (JsFastSerializer.INTEGER_TYPEDESC.handler == fieldHandler) {
-        typeDescOwner = yassModule + ".INTEGER";
+        typeDescOwner = "yass.INTEGER";
       } else if (JsFastSerializer.STRING_TYPEDESC.handler == fieldHandler) {
-        typeDescOwner = yassModule + ".STRING";
+        typeDescOwner = "yass.STRING";
       } else if (fieldHandler == null) {
         typeDescOwner = "null";
       } else {
         typeDescOwner = jsType(fieldHandler.type);
       }
       tabsln(
-        "%s.classField(%s, %s, \"%s\", %s);",
-        yassModule, jsType(typeHandler.type), fieldDesc.id, fieldDesc.handler.field.getName(), typeDescOwner
+        "yass.classField(%s, %s, \"%s\", %s);",
+        jsType(typeHandler.type), fieldDesc.id, fieldDesc.handler.field.getName(), typeDescOwner
       );
     }
     println();
@@ -180,10 +178,7 @@ public final class ModelGenerator extends Generator { // $todo: review
       }
       first = false;
       println();
-      tabs(
-        "%s: %s.contractId(%s, %s_MAPPER)",
-        serviceDesc.name, yassModule, serviceDesc.contractId.id, jsType(type)
-      );
+      tabs("%s: yass.contractId(%s, %s_MAPPER)", serviceDesc.name, serviceDesc.contractId.id, jsType(type));
     }
     dec();
     println();
@@ -222,8 +217,7 @@ public final class ModelGenerator extends Generator { // $todo: review
     dec();
     tabsln("};");
     println();
-    final String typeName = jsType(type);
-    tabs("%s_MAPPER = %s.methodMapper(%s, [", typeName, yassModule, typeName);
+    tabs("%s_MAPPER = yass.methodMapper(", jsType(type));
     inc();
     boolean first = true;
     for (final Method method : getMethods(type)) {
@@ -233,11 +227,11 @@ public final class ModelGenerator extends Generator { // $todo: review
       first = false;
       println();
       final MethodMapper.Mapping mapping = methodMapper.mapMethod(method);
-      tabs("%s.methodMapping(\"%s\", %s, %s)", yassModule, mapping.method.getName(), mapping.id, mapping.oneWay);
+      tabs("yass.methodMapping(\"%s\", %s, %s)", mapping.method.getName(), mapping.id, mapping.oneWay);
     }
     println();
     dec();
-    println("]);");
+    tabsln(");");
     println();
   }
 
@@ -256,20 +250,20 @@ public final class ModelGenerator extends Generator { // $todo: review
   @SuppressWarnings("unchecked")
   public ModelGenerator(
     final Package rootPackage, final JsFastSerializer serializer, final MethodMapper.Factory methodMapperFactory,
-    final String yassModule, final String modelModule, final String modelFile
+    final String modelModule, final String modelFile
   ) throws Exception {
     super(modelFile);
     visitedPackages.add(rootPackage.getName());
     this.rootPackage = rootPackage.getName() + '.';
-    this.yassModule = Check.notNull(yassModule);
     this.methodMapperFactory = Check.notNull(methodMapperFactory);
-    this.modelModule = Check.notNull(modelModule);
     id2typeHandler = serializer.id2typeHandler();
-    tabsln("// generated with %s %s", yassModule, Version.VALUE);
+    println("// This file has been generated by yass.");
     println();
+    tabsln("var %s = (function (yass) {", Check.notNull(modelModule));
+    inc();
     tabsln("'use strict';");
-    println();
-    tabsln("var %s = {};", modelModule);
+    tabsln("var contract = {};");
+    tabsln("contract.YASS_VERSION = '%s';", Version.VALUE);
     println();
     for (final Map.Entry<Integer, TypeHandler> entry : id2typeHandler.entrySet()) {
       final TypeHandler typeHandler = entry.getValue();
@@ -301,7 +295,7 @@ public final class ModelGenerator extends Generator { // $todo: review
         generateFields((ClassTypeHandler)typeHandler);
       }
     }
-    tabs("%s.SERIALIZER = %s.serializer([", modelModule, yassModule);
+    tabs("contract.SERIALIZER = yass.serializer(");
     inc();
     boolean first = true;
     for (final String type : types) {
@@ -314,7 +308,11 @@ public final class ModelGenerator extends Generator { // $todo: review
     }
     println();
     dec();
-    tabsln("]);");
+    tabsln(");");
+    println();
+    tabsln("return contract;");
+    dec();
+    tabsln("}(yass));");
     close();
   }
 

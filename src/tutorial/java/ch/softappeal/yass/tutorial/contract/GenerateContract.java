@@ -7,7 +7,7 @@ public final class GenerateContract {
   public static void main(final String... args) throws Exception {
     new ModelGenerator(
       Config.class.getPackage(), Config.CONTRACT_SERIALIZER, Config.METHOD_MAPPER_FACTORY,
-      "yass", "contract", "src/tutorial/js/contract.js"
+      "contract", "src/tutorial/js/contract.js"
     );
   }
 
