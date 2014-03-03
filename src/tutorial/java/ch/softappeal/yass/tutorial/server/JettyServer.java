@@ -16,14 +16,13 @@ import org.eclipse.jetty.websocket.jsr356.server.deploy.WebSocketServerContainer
 
 import javax.websocket.Session;
 import javax.websocket.server.ServerEndpointConfig;
-import java.net.URI;
 import java.util.concurrent.Executors;
 
 public final class JettyServer {
 
-  private static final int PORT = 9090;
-  private static final String PATH = "/tutorial";
-  public static final URI THE_URI = URI.create("ws://localhost:" + PORT + PATH);
+  public static final String HOST = "localhost";
+  public static final int PORT = 9090;
+  public static final String PATH = "/tutorial";
 
   private static final SessionSetup SESSION_SETUP = SocketServer.createSessionSetup(
     Executors.newCachedThreadPool(new NamedThreadFactory("requestExecutor", Exceptions.STD_ERR))

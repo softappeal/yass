@@ -9,7 +9,10 @@ import ch.softappeal.yass.util.Exceptions;
 import ch.softappeal.yass.util.NamedThreadFactory;
 import org.eclipse.jetty.websocket.jsr356.ClientContainer;
 
+import javax.websocket.ClientEndpointConfig;
 import javax.websocket.Session;
+import javax.websocket.WebSocketContainer;
+import java.net.URI;
 import java.util.concurrent.Executors;
 
 public final class JettyClient {
@@ -24,12 +27,19 @@ public final class JettyClient {
     }
   }
 
+  private static final URI THE_URI = URI.create("ws://" + JettyServer.HOST + ":" + JettyServer.PORT + JettyServer.PATH);
+
+  public static void run(final WebSocketContainer container) throws Exception {
+    final ClientEndpointConfig config = ClientEndpointConfig.Builder.create().build();
+    container.connectToServer(new Endpoint(), config, THE_URI);// connect to node 1
+    container.connectToServer(new Endpoint(), config, THE_URI);// connect to node 2 (simulated)
+    System.out.println("started");
+  }
+
   public static void main(final String... args) throws Exception {
     final ClientContainer container = new ClientContainer();
     container.start();
-    container.connectToServer(new Endpoint(), null, JettyServer.THE_URI);// connect to node 1
-    container.connectToServer(new Endpoint(), null, JettyServer.THE_URI);// connect to node 2 (simulated)
-    System.out.println("started");
+    run(container);
   }
 
 }
