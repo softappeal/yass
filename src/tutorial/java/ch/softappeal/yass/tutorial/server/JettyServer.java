@@ -6,8 +6,11 @@ import ch.softappeal.yass.transport.ws.WsEndpoint;
 import ch.softappeal.yass.tutorial.contract.Config;
 import ch.softappeal.yass.util.Exceptions;
 import ch.softappeal.yass.util.NamedThreadFactory;
+import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
+import org.eclipse.jetty.server.handler.HandlerList;
+import org.eclipse.jetty.server.handler.ResourceHandler;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.websocket.jsr356.server.deploy.WebSocketServerContainerInitializer;
 
@@ -35,12 +38,22 @@ public final class JettyServer {
   public static void main(final String... args) throws Exception {
     final Server server = new Server(PORT);
     server.addConnector(new ServerConnector(server));
-    final ServletContextHandler context = new ServletContextHandler(ServletContextHandler.SESSIONS);
-    context.setContextPath("/");
-    server.setHandler(context);
-    WebSocketServerContainerInitializer.configureContext(context).addEndpoint(
+
+    final ServletContextHandler webSocketHandler = new ServletContextHandler(ServletContextHandler.SESSIONS);
+    webSocketHandler.setContextPath("/");
+
+    final ResourceHandler resourceHandler = new ResourceHandler();
+    resourceHandler.setDirectoriesListed(true);
+    resourceHandler.setResourceBase(".");
+
+    final HandlerList handlers = new HandlerList();
+    handlers.setHandlers(new Handler[] {resourceHandler, webSocketHandler});
+    server.setHandler(handlers);
+
+    WebSocketServerContainerInitializer.configureContext(webSocketHandler).addEndpoint(
       ServerEndpointConfig.Builder.create(Endpoint.class, PATH).build()
     );
+
     server.start();
     System.out.println("started");
   }
