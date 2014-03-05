@@ -168,13 +168,11 @@ var yass = (function () {
   }
 
   function create(proto, props) { // $todo: is there a better way ?
-    var o = Object.create(proto);
-    for (var p in props) {
-      if (props.hasOwnProperty(p)) {
-        o[p] = props[p];
-      }
-    }
-    return o;
+    var newObject = Object.create(proto);
+    Object.keys(props).forEach(function (property) {
+      newObject[property] = props[property];
+    });
+    return newObject;
   }
 
   var baseTypeHandler = {
@@ -211,8 +209,8 @@ var yass = (function () {
     },
     write: function (value, output) {
       output.writer.writeVarInt(value.length);
-      value.forEach(function (value) {
-        output.write(value);
+      value.forEach(function (element) {
+        output.write(element);
       });
     }
   });
@@ -260,11 +258,11 @@ var yass = (function () {
       write: function (value) {
         if (value === null) {
           NULL.TYPE_DESC.write(null, this);
-        } else if (typeof value === "boolean") {
+        } else if (typeof(value) === "boolean") {
           BOOLEAN.TYPE_DESC.write(value, this);
-        } else if (typeof value === "number") {
+        } else if (typeof(value) === "number") {
           INTEGER.TYPE_DESC.write(value, this);
-        } else if (typeof value === "string") {
+        } else if (typeof(value) === "string") {
           STRING.TYPE_DESC.write(value, this);
         } else if (Array.isArray(value)) {
           LIST.TYPE_DESC.write(value, this);
@@ -356,20 +354,21 @@ var yass = (function () {
     constructor.TYPE_DESC.handler.addField(id, fieldHandler(name, typeDescOwner && typeDescOwner.TYPE_DESC.handler));
   }
 
-  function argsToArr(parameters) {
-    var arrayParameters = [];
-    for (var p = parameters.length - 1; p >= 0; p--) { // $todo: is there a better way to copy the arguments ?
-      arrayParameters[p] = parameters[p];
+  function forEach(arrayLike, visitElement) { // $todo: does Array.prototype.forEach always work on arrayLike ?
+    var length = arrayLike.length;
+    for (var e = 0; e < length; e++) {
+      visitElement(arrayLike[e]);
     }
-    return arrayParameters;
   }
 
-  function serializer(typeDescOwners) {
+  function serializer() {
     var id2typeHandler = [];
-    [NULL, LIST, BOOLEAN, INTEGER, STRING].concat(argsToArr(arguments)).forEach(function (typeDescOwner) {
+    function add(typeDescOwner) {
       var typeDesc = typeDescOwner.TYPE_DESC;
       id2typeHandler[typeDesc.id] = typeDesc.handler;
-    });
+    }
+    [NULL, LIST, BOOLEAN, INTEGER, STRING].forEach(add);
+    forEach(arguments, add);
     return {
       read: function (reader) {
         return input(reader, id2typeHandler).read();
@@ -442,7 +441,7 @@ var yass = (function () {
   function methodMapper() {
     var id2mapping = [];
     var name2Mapping = {};
-    argsToArr(arguments).forEach(function (mapping) {
+    forEach(arguments, function (mapping) {
       id2mapping[mapping.id] = mapping;
       name2Mapping[mapping.method] = mapping;
     });
@@ -460,11 +459,9 @@ var yass = (function () {
             return interceptor(method, arguments);
           };
         }
-        for (var method in name2Mapping) {
-          if (name2Mapping.hasOwnProperty(method)) {
-            delegate(method);
-          }
-        }
+        Object.keys(name2Mapping).forEach(function (method) {
+          delegate(method);
+        });
         return stub;
       }
     };
@@ -500,12 +497,12 @@ var yass = (function () {
       var replyCallback = null;
       if (!methodMapping.oneWay) {
         replyCallback = parameters[parameters.length - 1];
-        if (typeof replyCallback !== "function") {
+        if (typeof(replyCallback) !== "function") {
           throw new Error("calling method '" + methodMapping.method + "' without callback");
         }
       }
-      var arrayParameters = []; // note: copy needed because parameters is instanceof Arguments and not a real array
-      for (var p = parameters.length - (replyCallback ? 2 : 1); p >= 0; p--) { // $todo: is there a better way to copy the arguments ?
+      var arrayParameters = []; // note: copy needed because parameters is instanceof "Arguments" and not a real array
+      for (var p = parameters.length - (replyCallback ? 2 : 1); p >= 0; p--) { // $todo: is there a way preventing to copy the arguments ?
         arrayParameters[p] = parameters[p];
       }
       return interceptor(methodMapping.method, arrayParameters, function () {
@@ -549,7 +546,7 @@ var yass = (function () {
       invoke: function (method, parameters) {
         var proceed = function () {
           var result = implementation[method].apply(implementation, parameters);
-          return (typeof result === "undefined") ? null : result;
+          return (typeof(result) === "undefined") ? null : result;
         };
         var value;
         try {
@@ -564,7 +561,7 @@ var yass = (function () {
 
   function server() {
     var serviceId2invoker = [];
-    argsToArr(arguments).forEach(function (service) {
+    forEach(arguments, function (service) {
       var id = service.contractId.id;
       if (serviceId2invoker[id]) {
         throw new Error("serviceId '" + id + "' already added");
@@ -768,7 +765,7 @@ var yass = (function () {
         write: function (packet) {
           var w = writer(1024);
           serializer.write(packet, w);
-          ws.send(w.getUint8Array());
+          ws.send(w.getUint8Array()); // $todo: implement batching ?
         },
         closed: function () {
           ws.close();
@@ -777,7 +774,7 @@ var yass = (function () {
       ws.onmessage = function (evt) {
         var r = reader(evt.data);
         session.received(serializer.read(r));
-        if (!r.isEmpty()) {
+        if (!r.isEmpty()) { // $todo: implement batching ?
           throw new Error("reader is not empty");
         }
       };
