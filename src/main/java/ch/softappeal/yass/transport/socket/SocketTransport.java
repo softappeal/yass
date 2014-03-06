@@ -3,11 +3,14 @@ package ch.softappeal.yass.transport.socket;
 import ch.softappeal.yass.core.remote.session.Connection;
 import ch.softappeal.yass.core.remote.session.SessionFactory;
 import ch.softappeal.yass.core.remote.session.SessionSetup;
+import ch.softappeal.yass.serialize.Reader;
 import ch.softappeal.yass.serialize.Serializer;
 import ch.softappeal.yass.util.Check;
+import ch.softappeal.yass.util.Exceptions;
 
 import javax.net.SocketFactory;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.lang.Thread.UncaughtExceptionHandler;
 import java.net.Socket;
 import java.net.SocketAddress;
@@ -71,7 +74,17 @@ public final class SocketTransport extends SocketListener {
   @Override void accept(final Socket adoptSocket) {
     execute(readerExecutor, createSessionExceptionHandler, adoptSocket, new Runnable() {
       @Override public void run() {
-        new SocketConnection(SocketTransport.this, adoptSocket);
+        final Reader reader;
+        final OutputStream outputStream;
+        try {
+          setTcpNoDelay(adoptSocket);
+          reader = Reader.create(adoptSocket.getInputStream());
+          outputStream = adoptSocket.getOutputStream();
+        } catch (final Exception e) {
+          close(adoptSocket, e);
+          throw Exceptions.wrap(e);
+        }
+        new SocketConnection(SocketTransport.this, adoptSocket, reader, outputStream);
       }
     });
   }

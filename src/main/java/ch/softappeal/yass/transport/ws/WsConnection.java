@@ -56,6 +56,9 @@ public final class WsConnection extends Connection {
       @Override public void onMessage(final ByteBuffer in) {
         try {
           received(session, (Packet)packetSerializer.read(Reader.create(in)));
+          if (in.hasRemaining()) {
+            throw new RuntimeException("input buffer is not empty");
+          }
         } catch (final Exception e) {
           close(session, e);
         }

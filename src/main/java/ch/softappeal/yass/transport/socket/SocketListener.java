@@ -19,7 +19,6 @@ public abstract class SocketListener {
 
   /**
    * Should not block for long.
-   * @param adoptSocket must be closed by this method
    */
   abstract void accept(Socket adoptSocket);
 

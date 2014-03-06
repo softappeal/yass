@@ -22,14 +22,11 @@ public final class SocketConnection extends Connection {
   private final BlockingQueue<ByteArrayOutputStream> writerQueue = new LinkedBlockingQueue<>(); // unbounded queue
   private final Object writerQueueEmpty = new Object();
 
-  SocketConnection(final SocketTransport transport, final Socket adoptSocket) {
+  SocketConnection(final SocketTransport transport, final Socket adoptSocket, final Reader reader, final OutputStream outputStream) {
     packetSerializer = transport.packetSerializer;
     socket = adoptSocket;
-    final Reader reader;
     final Session session;
     try {
-      SocketListener.setTcpNoDelay(socket);
-      reader = Reader.create(socket.getInputStream());
       session = transport.setup.createSession(this);
     } catch (final Exception e) {
       SocketListener.close(adoptSocket, e);
@@ -43,7 +40,7 @@ public final class SocketConnection extends Connection {
       transport.writerExecutor.execute(new Runnable() {
         @Override public void run() {
           try {
-            write(socket.getOutputStream());
+            write(outputStream);
           } catch (final Exception e) {
             close(session, e);
           }
