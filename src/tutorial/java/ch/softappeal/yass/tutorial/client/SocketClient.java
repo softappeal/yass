@@ -5,6 +5,7 @@ import ch.softappeal.yass.core.remote.session.Connection;
 import ch.softappeal.yass.core.remote.session.Session;
 import ch.softappeal.yass.core.remote.session.SessionFactory;
 import ch.softappeal.yass.core.remote.session.SessionSetup;
+import ch.softappeal.yass.transport.StringPathSerializer;
 import ch.softappeal.yass.transport.socket.SocketTransport;
 import ch.softappeal.yass.tutorial.contract.ClientServices;
 import ch.softappeal.yass.tutorial.contract.Config;
@@ -46,8 +47,8 @@ public final class SocketClient {
     final SocketTransport transport = new SocketTransport(
       createSessionSetup(executor), Config.PACKET_SERIALIZER, executor, executor, Exceptions.STD_ERR
     );
-    transport.connect(SocketServer.ADDRESS); // connect to node 1
-    transport.connect(SocketServer.ADDRESS); // connect to node 2 (simulated)
+    transport.connect(SocketServer.ADDRESS, StringPathSerializer.INSTANCE, SocketServer.PATH); // connect to node 1
+    transport.connect(SocketServer.ADDRESS, StringPathSerializer.INSTANCE, SocketServer.PATH); // connect to node 2 (simulated)
     System.out.println("started");
   }
 

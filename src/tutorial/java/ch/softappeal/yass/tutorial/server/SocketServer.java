@@ -5,6 +5,8 @@ import ch.softappeal.yass.core.remote.session.Connection;
 import ch.softappeal.yass.core.remote.session.Session;
 import ch.softappeal.yass.core.remote.session.SessionFactory;
 import ch.softappeal.yass.core.remote.session.SessionSetup;
+import ch.softappeal.yass.transport.StringPathSerializer;
+import ch.softappeal.yass.transport.socket.PathResolver;
 import ch.softappeal.yass.transport.socket.SocketTransport;
 import ch.softappeal.yass.tutorial.contract.Config;
 import ch.softappeal.yass.tutorial.contract.ServerServices;
@@ -45,11 +47,20 @@ public final class SocketServer {
   }
 
   public static final SocketAddress ADDRESS = new InetSocketAddress("localhost", 28947);
+  public static final String PATH = "tutorial";
 
   public static void main(final String... args) {
     final Executor executor = Executors.newCachedThreadPool(new NamedThreadFactory("executor", Exceptions.STD_ERR));
-    new SocketTransport(
-      createSessionSetup(executor), Config.PACKET_SERIALIZER, executor, executor, Exceptions.STD_ERR
+    SocketTransport.listener(
+      StringPathSerializer.INSTANCE,
+      new PathResolver(
+        PATH,
+        new SocketTransport(
+          createSessionSetup(executor), Config.PACKET_SERIALIZER, executor, executor, Exceptions.STD_ERR
+        )
+      ),
+      executor,
+      Exceptions.STD_ERR
     ).start(executor, ADDRESS);
     System.out.println("started");
   }

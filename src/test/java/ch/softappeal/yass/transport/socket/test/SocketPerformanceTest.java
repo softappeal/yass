@@ -6,6 +6,8 @@ import ch.softappeal.yass.serialize.Serializer;
 import ch.softappeal.yass.serialize.test.SerializerTest;
 import ch.softappeal.yass.transport.MessageSerializer;
 import ch.softappeal.yass.transport.PacketSerializer;
+import ch.softappeal.yass.transport.StringPathSerializer;
+import ch.softappeal.yass.transport.socket.PathResolver;
 import ch.softappeal.yass.transport.socket.SocketListenerTest;
 import ch.softappeal.yass.transport.socket.SocketTransport;
 import ch.softappeal.yass.util.NamedThreadFactory;
@@ -39,9 +41,9 @@ public class SocketPerformanceTest extends InvokeTest {
   @Test public void test() throws InterruptedException {
     final ExecutorService executor = Executors.newCachedThreadPool(new NamedThreadFactory("executor", TestUtils.TERMINATE));
     try {
-      createTransport(executor, null).start(executor, SocketListenerTest.ADDRESS);
+      SocketTransport.listener(StringPathSerializer.INSTANCE, new PathResolver(SocketTransportTest.PATH, createTransport(executor, null)), executor, TestUtils.TERMINATE).start(executor, SocketListenerTest.ADDRESS);
       final CountDownLatch latch = new CountDownLatch(1);
-      createTransport(executor, latch).connect(SocketListenerTest.ADDRESS);
+      createTransport(executor, latch).connect(SocketListenerTest.ADDRESS, StringPathSerializer.INSTANCE, SocketTransportTest.PATH);
       latch.await();
       TimeUnit.MILLISECONDS.sleep(100L);
     } finally {

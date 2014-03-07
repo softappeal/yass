@@ -43,7 +43,7 @@ public final class UndertowServer {
             fileHandler.handleRequest(exchange);
           }
         }
-       })
+      })
       .build()
       .start();
     System.out.println("started");

@@ -11,12 +11,15 @@ import ch.softappeal.yass.core.remote.session.SessionFactory;
 import ch.softappeal.yass.core.remote.session.SessionSetup;
 import ch.softappeal.yass.core.remote.test.ContractIdTest;
 import ch.softappeal.yass.core.test.InvokeTest;
+import ch.softappeal.yass.transport.StringPathSerializer;
+import ch.softappeal.yass.transport.socket.PathResolver;
 import ch.softappeal.yass.transport.socket.SocketListenerTest;
 import ch.softappeal.yass.transport.socket.SocketTransport;
 import ch.softappeal.yass.transport.test.PacketSerializerTest;
 import ch.softappeal.yass.util.Exceptions;
 import ch.softappeal.yass.util.NamedThreadFactory;
 import ch.softappeal.yass.util.Nullable;
+import ch.softappeal.yass.util.TestUtils;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -31,17 +34,25 @@ public class RequestInterruptTest extends InvokeTest {
   public void test() throws InterruptedException {
     final ExecutorService executor = Executors.newCachedThreadPool(new NamedThreadFactory("executor", Exceptions.STD_ERR));
     try {
-      new SocketTransport(
-        new SessionSetup(new Server(TaggedMethodMapper.FACTORY, ContractIdTest.ID.service(new TestServiceImpl())), executor, new SessionFactory() {
-          @Override public Session create(final SessionSetup setup, final Connection connection) {
-            return new Session(setup, connection) {
-              @Override public void closed(@Nullable final Throwable throwable) {
-                Exceptions.STD_ERR.uncaughtException(Thread.currentThread(), throwable);
+      SocketTransport.listener(
+        StringPathSerializer.INSTANCE,
+        new PathResolver(
+          SocketTransportTest.PATH,
+          new SocketTransport(
+            new SessionSetup(new Server(TaggedMethodMapper.FACTORY, ContractIdTest.ID.service(new TestServiceImpl())), executor, new SessionFactory() {
+              @Override public Session create(final SessionSetup setup, final Connection connection) {
+                return new Session(setup, connection) {
+                  @Override public void closed(@Nullable final Throwable throwable) {
+                    Exceptions.STD_ERR.uncaughtException(Thread.currentThread(), throwable);
+                  }
+                };
               }
-            };
-          }
-        }),
-        PacketSerializerTest.SERIALIZER, executor, executor, Exceptions.STD_ERR
+            }),
+            PacketSerializerTest.SERIALIZER, executor, executor, Exceptions.STD_ERR
+          )
+        ),
+        executor,
+        TestUtils.TERMINATE
       ).start(executor, SocketListenerTest.ADDRESS);
       new SocketTransport(
         new SessionSetup(new Server(TaggedMethodMapper.FACTORY), executor, new SessionFactory() {
@@ -89,7 +100,7 @@ public class RequestInterruptTest extends InvokeTest {
           }
         }),
         PacketSerializerTest.SERIALIZER, executor, executor, Exceptions.STD_ERR
-      ).connect(SocketListenerTest.ADDRESS);
+      ).connect(SocketListenerTest.ADDRESS, StringPathSerializer.INSTANCE, SocketTransportTest.PATH);
       TimeUnit.SECONDS.sleep(1L);
     } finally {
       SocketListenerTest.shutdown(executor);
