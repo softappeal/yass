@@ -51,13 +51,22 @@ public final class ModelGenerator extends Generator { // $todo: review
     return "contract." + type.getCanonicalName().substring(rootPackage.length());
   }
 
+  @Nullable private Integer getTypeId(final Class<?> type) {
+    for (final Map.Entry<Integer, TypeHandler> entry : id2typeHandler.entrySet()) {
+      if (entry.getValue().type == type) {
+        return entry.getKey();
+      }
+    }
+    return null;
+  }
+
   private void generateEnum(final Class<? extends Enum<?>> type) {
     final String jsType = jsType(type);
     tabsln("%s = yass.enumConstructor();", jsType);
     for (final Enum<?> e : type.getEnumConstants()) {
       tabsln("%s.%s = new %s(%s, \"%s\");", jsType, e.name(), jsType, e.ordinal(), e.name());
     }
-    tabsln("yass.enumDesc(%s, %s);", getId(type), jsType);
+    tabsln("yass.enumDesc(%s, %s);", getTypeId(type), jsType);
     types.add(jsType);
     println();
   }
@@ -91,7 +100,7 @@ public final class ModelGenerator extends Generator { // $todo: review
     dec();
     tabsln("};");
     tabsln("yass.inherits(%s, %s);", jsType, (s == null) ? "yass.Class" : jsType(s));
-    final Integer id = getId(type);
+    final Integer id = getTypeId(type);
     if (id != null) {
       tabsln("yass.classDesc(%s, %s);", id, jsType);
       types.add(jsType);
@@ -157,16 +166,6 @@ public final class ModelGenerator extends Generator { // $todo: review
     return interfaces;
   }
 
-  private static Method[] getMethods(final Class<?> type) {
-    final Method[] methods = type.getMethods();
-    Arrays.sort(methods, new Comparator<Method>() {
-      @Override public int compare(final Method method1, final Method method2) {
-        return method1.getName().compareTo(method2.getName());
-      }
-    });
-    return methods;
-  }
-
   private void generateServices(final Class<?> services) throws Exception {
     tabs("%s = {", jsType(services));
     inc();
@@ -184,6 +183,16 @@ public final class ModelGenerator extends Generator { // $todo: review
     println();
     tabsln("};");
     println();
+  }
+
+  private static Method[] getMethods(final Class<?> type) {
+    final Method[] methods = type.getMethods();
+    Arrays.sort(methods, new Comparator<Method>() {
+      @Override public int compare(final Method method1, final Method method2) {
+        return method1.getName().compareTo(method2.getName());
+      }
+    });
+    return methods;
   }
 
   private void generateInterface(final Class<?> type) {
@@ -205,15 +214,6 @@ public final class ModelGenerator extends Generator { // $todo: review
     dec();
     tabsln(");");
     println();
-  }
-
-  @Nullable private Integer getId(final Class<?> type) {
-    for (final Map.Entry<Integer, TypeHandler> entry : id2typeHandler.entrySet()) {
-      if (entry.getValue().type == type) {
-        return entry.getKey();
-      }
-    }
-    return null;
   }
 
   /**

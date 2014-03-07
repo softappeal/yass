@@ -15,7 +15,7 @@ import java.util.Map;
  * Only the following base types are allowed: {@link Boolean}, {@link Integer} and {@link String}.
  * This serializer assigns type and field id's automatically. Therefore, all peers must have the same version of the contract!
  */
-public final class JsFastSerializer extends AbstractFastSerializer { // $todo: review
+public final class JsFastSerializer extends AbstractFastSerializer {
 
   private void addClass(final int typeId, final Class<?> type, final boolean referenceable) {
     checkClass(type);
