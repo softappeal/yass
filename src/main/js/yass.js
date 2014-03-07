@@ -1,5 +1,3 @@
-// $todo: review
-
 var yass = (function () {
   'use strict';
 
@@ -252,20 +250,26 @@ var yass = (function () {
     };
   }
 
+  var nullWrite = NULL.TYPE_DESC.write;
+  var booleanWrite = BOOLEAN.TYPE_DESC.write;
+  var integerWrite = INTEGER.TYPE_DESC.write;
+  var stringWrite = STRING.TYPE_DESC.write;
+  var listWrite = LIST.TYPE_DESC.write;
+
   function output(writer) {
     return {
       writer: writer,
       write: function (value) {
         if (value === null) {
-          NULL.TYPE_DESC.write(null, this);
+          nullWrite(null, this);
         } else if (typeof(value) === "boolean") {
-          BOOLEAN.TYPE_DESC.write(value, this);
+          booleanWrite(value, this);
         } else if (typeof(value) === "number") {
-          INTEGER.TYPE_DESC.write(value, this);
+          integerWrite(value, this);
         } else if (typeof(value) === "string") {
-          STRING.TYPE_DESC.write(value, this);
+          stringWrite(value, this);
         } else if (Array.isArray(value)) {
-          LIST.TYPE_DESC.write(value, this);
+          listWrite(value, this);
         } else if ((value instanceof Enum) || (value instanceof Class)) {
           value.constructor.TYPE_DESC.write(value, this);
         } else {
@@ -354,7 +358,7 @@ var yass = (function () {
     constructor.TYPE_DESC.handler.addField(id, fieldHandler(name, typeDescOwner && typeDescOwner.TYPE_DESC.handler));
   }
 
-  function forEach(arrayLike, visitElement) { // $todo: does Array.prototype.forEach always work on arrayLike ?
+  function forEach(arrayLike, visitElement) { // $todo: does Array.prototype.forEach everywhere work on arrayLike ?
     var length = arrayLike.length;
     for (var e = 0; e < length; e++) {
       visitElement(arrayLike[e]);
