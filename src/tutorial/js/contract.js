@@ -47,41 +47,27 @@ var contract = (function (yass) {
   yass.inherits(contract.UnknownInstrumentsException, yass.Class);
   yass.classDesc(10, contract.UnknownInstrumentsException);
 
-  contract.InstrumentService = {
-    getInstruments: function () {},
-    reload: function (param0, param1) {} // OneWay
-  };
-
-  contract.InstrumentService_MAPPER = yass.methodMapper(
+  contract.InstrumentService = yass.methodMapper(
     yass.methodMapping("getInstruments", 0, false),
     yass.methodMapping("reload", 1, true)
   );
 
-  contract.PriceEngine = {
-    subscribe: function (param0) {}
-  };
-
-  contract.PriceEngine_MAPPER = yass.methodMapper(
+  contract.PriceEngine = yass.methodMapper(
     yass.methodMapping("subscribe", 0, false)
   );
 
-  contract.PriceListener = {
-    echo: function (param0) {},
-    newPrices: function (param0) {} // OneWay
-  };
-
-  contract.PriceListener_MAPPER = yass.methodMapper(
+  contract.PriceListener = yass.methodMapper(
     yass.methodMapping("echo", 0, false),
     yass.methodMapping("newPrices", 1, true)
   );
 
   contract.ClientServices = {
-    PriceListener: yass.contractId(0, contract.PriceListener_MAPPER)
+    PriceListener: yass.contractId(0, contract.PriceListener)
   };
 
   contract.ServerServices = {
-    PriceEngine: yass.contractId(0, contract.PriceEngine_MAPPER),
-    InstrumentService: yass.contractId(1, contract.InstrumentService_MAPPER)
+    PriceEngine: yass.contractId(0, contract.PriceEngine),
+    InstrumentService: yass.contractId(1, contract.InstrumentService)
   };
 
   yass.classField(contract.Price, 1, "instrumentId", yass.STRING);

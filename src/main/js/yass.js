@@ -797,7 +797,6 @@ var yass = (function () {
     reader: reader,
     Class: Class,
     Enum: Enum,
-    create: create,
     LIST: LIST,
     BOOLEAN: BOOLEAN,
     INTEGER: INTEGER,

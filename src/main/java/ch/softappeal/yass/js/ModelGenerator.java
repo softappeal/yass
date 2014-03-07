@@ -178,7 +178,7 @@ public final class ModelGenerator extends Generator { // $todo: review
       }
       first = false;
       println();
-      tabs("%s: yass.contractId(%s, %s_MAPPER)", serviceDesc.name, serviceDesc.contractId.id, jsType(type));
+      tabs("%s: yass.contractId(%s, %s)", serviceDesc.name, serviceDesc.contractId.id, jsType(type));
     }
     dec();
     println();
@@ -188,36 +188,8 @@ public final class ModelGenerator extends Generator { // $todo: review
 
   private void generateInterface(final Class<?> type) {
     checkType(type);
-    final Method[] methods = getMethods(type);
-    tabs("%s = {", jsType(type));
-    inc();
     final MethodMapper methodMapper = methodMapperFactory.create(type);
-    boolean firstMethod = true;
-    for (final Method method : methods) {
-      if (firstMethod) {
-        firstMethod = false;
-      } else {
-        print(",");
-      }
-      println();
-      tabs("%s: function (", method.getName());
-      int param = 0; // $todo: use Parameter.getName() in Java 8
-      for (final Class<?> paramType : method.getParameterTypes()) {
-        if (param != 0) {
-          print(", ");
-        }
-        print("param%s", param++);
-      }
-      print(") {}");
-      if (methodMapper.mapMethod(method).oneWay) {
-        print(" // OneWay");
-      }
-    }
-    println();
-    dec();
-    tabsln("};");
-    println();
-    tabs("%s_MAPPER = yass.methodMapper(", jsType(type));
+    tabs("%s = yass.methodMapper(", jsType(type));
     inc();
     boolean first = true;
     for (final Method method : getMethods(type)) {

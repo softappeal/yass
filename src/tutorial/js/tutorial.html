@@ -124,7 +124,7 @@ assertThrown(function () {
 // now the interesting part begins: we start with the common stuff
 
 // implement ClientServices; these will be called asynchronously from the server
-var priceListenerImpl = yass.create(contract.PriceListener, {
+var priceListenerImpl = {
   newPrices: function (prices) { // OneWay
     log("newPrices:", prices);
   },
@@ -132,7 +132,7 @@ var priceListenerImpl = yass.create(contract.PriceListener, {
     log("echo:", message);
     return message;
   }
-});
+};
 
 var clientLogger = logger("client");
 
@@ -180,7 +180,7 @@ function communicateWithServer(session) {
 function simulateServerCommunication() {
 
   // implement ServerServices
-  var instrumentServiceImpl = yass.create(contract.InstrumentService, {
+  var instrumentServiceImpl = {
     reload: function (testBoolean, testInt) { // OneWay
       log("reload:", testBoolean, testInt);
     },
@@ -188,10 +188,10 @@ function simulateServerCommunication() {
       log("getInstruments");
       return [stock, bond];
     }
-  });
+  };
 
   // implement ServerServices
-  var priceEngineImpl = yass.create(contract.PriceEngine, {
+  var priceEngineImpl = {
     subscribe: function (instrumentIds) { // rpc-style
       log("subscribe:", instrumentIds);
       instrumentIds.forEach(function (instrumentId) {
@@ -202,7 +202,7 @@ function simulateServerCommunication() {
         }
       });
     }
-  });
+  };
 
   var serverLogger = logger("server");
 
