@@ -23,7 +23,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-public final class ModelGenerator extends Generator { // $todo: review
+public final class ModelGenerator extends Generator {
 
   private final String rootPackage;
   private final Map<Integer, TypeHandler> id2typeHandler;
