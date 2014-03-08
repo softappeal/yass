@@ -65,7 +65,7 @@ public class SslTest extends InvokeTest {
   private static final KeyStore TEST_CA = readKeyStore("TestCA");
   private static final KeyStore OTHER_CA = readKeyStore("OtherCA");
 
-  private static final String PROTOCOL = "TLSv1.2";
+  private static final String PROTOCOL = "TLSv1";
   private static final String CIPHER = "TLS_RSA_WITH_AES_128_CBC_SHA";
 
   @Test public void clientAndServerAuthentication() throws Exception {

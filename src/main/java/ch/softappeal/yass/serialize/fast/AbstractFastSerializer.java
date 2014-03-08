@@ -55,8 +55,8 @@ public abstract class AbstractFastSerializer implements Serializer {
     }
   }
 
-  private final Map<Class<?>, TypeDesc> class2typeDesc = new HashMap<>(64);
-  private final Map<Integer, TypeHandler> id2typeHandler = new HashMap<>(64);
+  private final Map<Class<?>, TypeDesc> class2typeDesc = new HashMap<Class<?>, TypeDesc>(64);
+  private final Map<Integer, TypeHandler> id2typeHandler = new HashMap<Integer, TypeHandler>(64);
 
   private void addType(final TypeDesc typeDesc) {
     if (class2typeDesc.put(typeDesc.handler.type, typeDesc) != null) {
@@ -98,7 +98,7 @@ public abstract class AbstractFastSerializer implements Serializer {
 
   protected final void addClass(final int id, final Class<?> type, final boolean referenceable, final Map<Integer, Field> id2field) {
     final Reflector reflector = reflector(type);
-    final Map<Integer, FieldHandler> id2fieldHandler = new HashMap<>(id2field.size());
+    final Map<Integer, FieldHandler> id2fieldHandler = new HashMap<Integer, FieldHandler>(id2field.size());
     for (final Map.Entry<Integer, Field> entry : id2field.entrySet()) {
       final Field field = entry.getValue();
       id2fieldHandler.put(entry.getKey(), new FieldHandler(field, reflector.accessor(field)));
@@ -137,7 +137,7 @@ public abstract class AbstractFastSerializer implements Serializer {
   }
 
   public final SortedMap<Integer, TypeHandler> id2typeHandler() {
-    return new TreeMap<>(id2typeHandler);
+    return new TreeMap<Integer, TypeHandler>(id2typeHandler);
   }
 
   public final void print(final PrintWriter printer) {
@@ -171,7 +171,7 @@ public abstract class AbstractFastSerializer implements Serializer {
   }
 
   public static List<Field> ownFields(final Class<?> type) {
-    final List<Field> fields = new ArrayList<>(16);
+    final List<Field> fields = new ArrayList<Field>(16);
     for (final Field field : type.getDeclaredFields()) {
       final int modifiers = field.getModifiers();
       if (!(Modifier.isStatic(modifiers) || Modifier.isTransient(modifiers))) {
@@ -182,7 +182,7 @@ public abstract class AbstractFastSerializer implements Serializer {
   }
 
   public static List<Field> allFields(Class<?> type) {
-    final List<Field> fields = new ArrayList<>(16);
+    final List<Field> fields = new ArrayList<Field>(16);
     while ((type != null) && (type != Throwable.class)) {
       fields.addAll(ownFields(type));
       type = type.getSuperclass();

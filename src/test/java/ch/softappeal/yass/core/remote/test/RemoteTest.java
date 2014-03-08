@@ -59,7 +59,7 @@ public class RemoteTest extends InvokeTest {
                   println("###", "", t);
                   return null;
                 }
-                throw t;
+                throw new Exception(t);
               }
             }
           }

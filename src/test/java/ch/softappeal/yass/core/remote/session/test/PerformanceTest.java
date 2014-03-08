@@ -42,7 +42,8 @@ public class PerformanceTest extends InvokeTest {
               if (latch == null) {
                 return;
               }
-              try (Session clientSession = this) {
+              final Session clientSession = this;
+              try {
                 final TestService testService = CONTRACT_ID.invoker(clientSession).proxy();
                 System.out.println("*** rpc");
                 new PerformanceTask() {
@@ -62,7 +63,8 @@ public class PerformanceTest extends InvokeTest {
                     }
                   }
                 }.run(samples, TimeUnit.MICROSECONDS);
-
+              } finally {
+                clientSession.close();
               }
               latch.countDown();
             }

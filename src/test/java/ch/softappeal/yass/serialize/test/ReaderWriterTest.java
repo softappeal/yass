@@ -35,11 +35,11 @@ public class ReaderWriterTest {
     Assert.assertTrue(buffer[3] == m100);
     Assert.assertTrue(buffer[4] == m128);
     final InputStream reader = Reader.create(new ByteArrayInputStream(buffer)).stream();
-    Assert.assertTrue(reader.read() == (p0 & 0b1111_1111));
-    Assert.assertTrue(reader.read() == (p100 & 0b1111_1111));
-    Assert.assertTrue(reader.read() == (p127 & 0b1111_1111));
-    Assert.assertTrue(reader.read() == (m100 & 0b1111_1111));
-    Assert.assertTrue(reader.read() == (m128 & 0b1111_1111));
+    Assert.assertTrue(reader.read() == (p0 & 0x0FF));
+    Assert.assertTrue(reader.read() == (p100 & 0x0FF));
+    Assert.assertTrue(reader.read() == (p127 & 0x0FF));
+    Assert.assertTrue(reader.read() == (m100 & 0x0FF));
+    Assert.assertTrue(reader.read() == (m128 & 0x0FF));
     try {
       reader.read();
       Assert.fail();

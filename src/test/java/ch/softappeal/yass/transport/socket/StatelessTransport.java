@@ -28,7 +28,7 @@ import java.util.concurrent.Executor;
  */
 public final class StatelessTransport extends SocketListener {
 
-  private static final ThreadLocal<Socket> SOCKET = new ThreadLocal<>();
+  private static final ThreadLocal<Socket> SOCKET = new ThreadLocal<Socket>();
 
   /**
    * @return the {@link Socket} of the active invocation or null if no active invocation
@@ -65,12 +65,17 @@ public final class StatelessTransport extends SocketListener {
   @Override void accept(final Socket adoptSocket) {
     execute(requestExecutor, acceptExceptionHandler, adoptSocket, new Runnable() {
       @Override public void run() {
-        try (Socket socket = adoptSocket) {
-          setTcpNoDelay(socket);
-          final ServerInvocation invocation = server.invocation((Request)read(socket, messageSerializer));
-          final Reply reply = invocation.invoke(Interceptors.threadLocal(SOCKET, socket));
-          if (!invocation.oneWay) {
-            write(reply, socket, messageSerializer);
+        final Socket socket = adoptSocket;
+        try {
+          try {
+            setTcpNoDelay(socket);
+            final ServerInvocation invocation = server.invocation((Request)read(socket, messageSerializer));
+            final Reply reply = invocation.invoke(Interceptors.threadLocal(SOCKET, socket));
+            if (!invocation.oneWay) {
+              write(reply, socket, messageSerializer);
+            }
+          } finally {
+            socket.close();
           }
         } catch (final Exception e) {
           throw Exceptions.wrap(e);
@@ -88,7 +93,8 @@ public final class StatelessTransport extends SocketListener {
     Check.notNull(socketAddress);
     return new Client(methodMapperFactory) {
       @Override protected Object invoke(final ClientInvocation invocation) throws Throwable {
-        try (Socket socket = connectSocket(socketFactory, socketAddress)) {
+        final Socket socket = connectSocket(socketFactory, socketAddress);
+        try {
           return invocation.invoke(Interceptors.threadLocal(SOCKET, socket), new Tunnel() {
             @Override public Reply invoke(final Request request) throws Exception {
               setTcpNoDelay(socket);
@@ -96,6 +102,8 @@ public final class StatelessTransport extends SocketListener {
               return invocation.oneWay ? null : (Reply)read(socket, messageSerializer);
             }
           });
+        } finally {
+          socket.close();
         }
       }
     };

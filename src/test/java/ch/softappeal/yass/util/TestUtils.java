@@ -8,7 +8,7 @@ import java.io.CharArrayWriter;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.lang.Thread.UncaughtExceptionHandler;
-import java.nio.charset.StandardCharsets;
+import java.nio.charset.Charset;
 
 public class TestUtils {
 
@@ -22,16 +22,18 @@ public class TestUtils {
       printer.print(writer);
       writer.flush();
       final CharArrayWriter buffer = new CharArrayWriter();
-      try (PrintWriter out = new PrintWriter(buffer)) {
+      final PrintWriter out = new PrintWriter(buffer);
+      try {
         printer.print(out);
+      } finally {
+        out.close();
       }
       final BufferedReader testReader = new BufferedReader(new CharArrayReader(buffer.toCharArray()));
-      try (
-        BufferedReader refReader = new BufferedReader(new InputStreamReader(
-          new ClassLoaderResource(TestUtils.class.getClassLoader(), fileResourcePath).create(),
-          StandardCharsets.UTF_8
-        ))
-      ) {
+      final BufferedReader refReader = new BufferedReader(new InputStreamReader(
+        new ClassLoaderResource(TestUtils.class.getClassLoader(), fileResourcePath).create(),
+        Charset.forName("UTF-8")
+      ));
+      try {
         while (true) {
           final String testLine = testReader.readLine();
           final String refLine = refReader.readLine();
@@ -43,6 +45,8 @@ public class TestUtils {
           }
           Assert.assertEquals(testLine, refLine);
         }
+      } finally {
+        refReader.close();
       }
     } catch (final Exception e) {
       throw Exceptions.wrap(e);

@@ -18,19 +18,9 @@ sourceSets {
   tutorial { java.srcDir file('src/tutorial/java') }
 }
 
-def jetty_dep = 'org.eclipse.jetty.websocket:javax-websocket-server-impl:9.1.2.v20140210'
-def undertow_dep = 'io.undertow:undertow-websockets-jsr:1.0.0.Final'
-
 dependencies {
-  compile 'javax.websocket:javax.websocket-api:1.0'
-  // compile jetty_dep    // $todo: needed due to IDEA bug
-  // compile undertow_dep // $todo: needed due to IDEA bug
   tutorialCompile sourceSets.main.output
-  tutorialCompile jetty_dep
-  tutorialCompile undertow_dep
   testCompile 'junit:junit:4.11'
-  testCompile jetty_dep
-  testCompile undertow_dep
 }
 
 tasks.withType(JavaCompile) {

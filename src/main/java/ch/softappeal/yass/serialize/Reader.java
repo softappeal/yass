@@ -23,8 +23,8 @@ public abstract class Reader {
    */
   public final short readShort() throws Exception {
     return (short)(
-      ((readByte() & 0b1111_1111) << 8) |
-      ((readByte() & 0b1111_1111) << 0)
+      ((readByte() & 0xFF) << 8) |
+      ((readByte() & 0xFF) << 0)
     );
   }
 
@@ -33,10 +33,10 @@ public abstract class Reader {
    */
   public final int readInt() throws Exception {
     return
-      ((readByte() & 0b1111_1111) << 24) |
-      ((readByte() & 0b1111_1111) << 16) |
-      ((readByte() & 0b1111_1111) << 8) |
-      ((readByte() & 0b1111_1111) << 0);
+      ((readByte() & 0xFF) << 24) |
+      ((readByte() & 0xFF) << 16) |
+      ((readByte() & 0xFF) << 8) |
+      ((readByte() & 0xFF) << 0);
   }
 
   /**
@@ -44,14 +44,14 @@ public abstract class Reader {
    */
   public final long readLong() throws Exception {
     return
-      ((readByte() & 0b1111_1111L) << 56) |
-      ((readByte() & 0b1111_1111L) << 48) |
-      ((readByte() & 0b1111_1111L) << 40) |
-      ((readByte() & 0b1111_1111L) << 32) |
-      ((readByte() & 0b1111_1111L) << 24) |
-      ((readByte() & 0b1111_1111L) << 16) |
-      ((readByte() & 0b1111_1111L) << 8) |
-      ((readByte() & 0b1111_1111L) << 0);
+      ((readByte() & 0xFFL) << 56) |
+      ((readByte() & 0xFFL) << 48) |
+      ((readByte() & 0xFFL) << 40) |
+      ((readByte() & 0xFFL) << 32) |
+      ((readByte() & 0xFFL) << 24) |
+      ((readByte() & 0xFFL) << 16) |
+      ((readByte() & 0xFFL) << 8) |
+      ((readByte() & 0xFFL) << 0);
   }
 
   /**
@@ -59,8 +59,8 @@ public abstract class Reader {
    */
   public final char readChar() throws Exception {
     return (char)(
-      ((readByte() & 0b1111_1111) << 8) |
-      ((readByte() & 0b1111_1111) << 0)
+      ((readByte() & 0xFF) << 8) |
+      ((readByte() & 0xFF) << 0)
     );
   }
 
@@ -86,19 +86,19 @@ public abstract class Reader {
     if (b >= 0) {
       return b;
     }
-    int value = b & 0b0111_1111;
+    int value = b & 0x7F;
     if ((b = readByte()) >= 0) {
       value |= b << 7;
     } else {
-      value |= (b & 0b0111_1111) << 7;
+      value |= (b & 0x7F) << 7;
       if ((b = readByte()) >= 0) {
         value |= b << 14;
       } else {
-        value |= (b & 0b0111_1111) << 14;
+        value |= (b & 0x7F) << 14;
         if ((b = readByte()) >= 0) {
           value |= b << 21;
         } else {
-          value |= (b & 0b0111_1111) << 21;
+          value |= (b & 0x7F) << 21;
           value |= (b = readByte()) << 28;
           if (b < 0) {
             throw new RuntimeException("malformed input");
@@ -125,8 +125,8 @@ public abstract class Reader {
     long value = 0;
     while (shift < 64) {
       final byte b = readByte();
-      value |= (long)(b & 0b0111_1111) << shift;
-      if ((b & 0b1000_0000) == 0) {
+      value |= (long)(b & 0x7F) << shift;
+      if ((b & 0x80) == 0) {
         return value;
       }
       shift += 7;
@@ -146,7 +146,7 @@ public abstract class Reader {
     return new InputStream() {
       @Override public int read() {
         try {
-          return readByte() & 0b1111_1111;
+          return readByte() & 0xFF;
         } catch (final Exception e) {
           throw Exceptions.wrap(e);
         }

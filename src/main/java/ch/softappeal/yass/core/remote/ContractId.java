@@ -31,7 +31,7 @@ public final class ContractId<C> {
   }
 
   public static <C> ContractId<C> create(final Class<C> contract, final Object id) {
-    return new ContractId<>(contract, id);
+    return new ContractId<C>(contract, id);
   }
 
 }

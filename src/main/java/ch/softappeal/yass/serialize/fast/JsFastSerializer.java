@@ -20,7 +20,7 @@ public final class JsFastSerializer extends AbstractFastSerializer {
   private void addClass(final int typeId, final Class<?> type, final boolean referenceable) {
     checkClass(type);
     final List<Field> fields = allFields(type);
-    final Map<String, Field> name2field = new HashMap<>(fields.size());
+    final Map<String, Field> name2field = new HashMap<String, Field>(fields.size());
     for (final Field field : fields) {
       final Field oldField = name2field.put(field.getName(), field);
       if (oldField != null) {
@@ -32,7 +32,7 @@ public final class JsFastSerializer extends AbstractFastSerializer {
         return field1.getName().compareTo(field2.getName());
       }
     });
-    final Map<Integer, Field> id2field = new HashMap<>(fields.size());
+    final Map<Integer, Field> id2field = new HashMap<Integer, Field>(fields.size());
     int fieldId = FieldHandler.FIRST_ID;
     for (final Field field : fields) {
       id2field.put(fieldId++, field);

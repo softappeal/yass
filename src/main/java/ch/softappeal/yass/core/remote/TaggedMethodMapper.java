@@ -17,7 +17,7 @@ public final class TaggedMethodMapper implements MethodMapper {
 
   private TaggedMethodMapper(final Class<?> contract) {
     final Method[] methods = contract.getMethods();
-    id2mapping = new HashMap<>(methods.length);
+    id2mapping = new HashMap<Integer, Mapping>(methods.length);
     for (final Method method : methods) {
       final int id = Check.hasTag(method);
       final Mapping oldMapping = id2mapping.put(id, new Mapping(method, id));

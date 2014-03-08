@@ -29,7 +29,7 @@ public class ReflectorTest {
 
   static Map<String, Reflector.Accessor> name2accessor(final Reflector.Factory reflectorFactory, Class<?> type) throws Exception {
     final Reflector reflector = reflectorFactory.create(type);
-    final Map<String, Reflector.Accessor> name2accessor = new HashMap<>();
+    final Map<String, Reflector.Accessor> name2accessor = new HashMap<String, Reflector.Accessor>();
     while (type != null) {
       for (final Field field : type.getDeclaredFields()) {
         final int modifiers = field.getModifiers();

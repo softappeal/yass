@@ -18,7 +18,7 @@ public final class PriceEngineImpl extends ContextService<PriceEngineContext> im
 
   @Override public void subscribe(final List<String> instrumentIds) throws UnknownInstrumentsException {
     final Set<String> subscribedInstrumentIds = context().subscribedInstrumentIds();
-    final Set<String> unknownInstrumentIds = new HashSet<>();
+    final Set<String> unknownInstrumentIds = new HashSet<String>();
     for (final String instrumentId : instrumentIds) {
       if (InstrumentServiceImpl.INSTRUMENTS.containsKey(instrumentId)) {
         subscribedInstrumentIds.add(instrumentId);
@@ -27,7 +27,7 @@ public final class PriceEngineImpl extends ContextService<PriceEngineContext> im
       }
     }
     if (!unknownInstrumentIds.isEmpty()) {
-      throw new UnknownInstrumentsException(new ArrayList<>(unknownInstrumentIds));
+      throw new UnknownInstrumentsException(new ArrayList<String>(unknownInstrumentIds));
     }
   }
 

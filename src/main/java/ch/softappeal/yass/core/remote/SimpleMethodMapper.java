@@ -23,7 +23,7 @@ public final class SimpleMethodMapper implements MethodMapper {
       }
     });
     mappings = new Mapping[methods.length];
-    name2mapping = new HashMap<>(methods.length);
+    name2mapping = new HashMap<String, Mapping>(methods.length);
     int id = 0;
     for (final Method method : methods) {
       final Mapping mapping = new Mapping(method, id);

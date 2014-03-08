@@ -37,7 +37,7 @@ public final class ServerSession extends Session implements PriceEngineContext {
     System.out.println(priceListener.echo("hello"));
     final Random random = new Random();
     while (!closed.get()) {
-      final List<Price> prices = new ArrayList<>();
+      final List<Price> prices = new ArrayList<Price>();
       for (final String subscribedInstrumentId : subscribedInstrumentIds.toArray(new String[0])) {
         prices.add(new Price(subscribedInstrumentId, random.nextInt(99) + 1, PriceType.ASK));
       }

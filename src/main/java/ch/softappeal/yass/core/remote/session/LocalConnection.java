@@ -32,7 +32,7 @@ public final class LocalConnection extends Connection {
         try {
           connection2.other.close(e);
         } catch (final Exception e2) {
-          e.addSuppressed(e2);
+          // e.addSuppressed(e2);
         }
         throw e;
       }

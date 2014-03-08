@@ -32,7 +32,7 @@ public class DumperTest {
         dump(s, SerializerTest.createValues());
         dump(s, SerializerTest.createGraph());
         dump(s, Arrays.asList("one", "two", "three").toArray());
-        final Map<Integer, String> int2string = new LinkedHashMap<>();
+        final Map<Integer, String> int2string = new LinkedHashMap<Integer, String>();
         int2string.put(1, "one");
         int2string.put(2, null);
         int2string.put(3, "three");

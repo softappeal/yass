@@ -1,6 +1,6 @@
 package ch.softappeal.yass.serialize;
 
-import java.nio.charset.StandardCharsets;
+import java.nio.charset.Charset;
 
 public final class Utf8 {
 
@@ -8,12 +8,14 @@ public final class Utf8 {
     // disable
   }
 
-  public static byte[] bytes(final String value) {
-    return value.getBytes(StandardCharsets.UTF_8);
+  private static final Charset CHARSET = Charset.forName("UTF-8");
+
+  public static byte[] bytes(final String string) {
+    return string.getBytes(CHARSET);
   }
 
-  public static String string(final byte[] value) {
-    return new String(value, StandardCharsets.UTF_8);
+  public static String string(final byte[] bytes) {
+    return new String(bytes, CHARSET);
   }
 
 }

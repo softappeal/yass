@@ -65,12 +65,15 @@ public class LocalConnectionTest extends InvokeTest {
                 throw new Exception("opened failed");
               }
               if (invoke) {
-                try (Session session = this) {
+                final Session session = this;
+                try {
                   InvokeTest.invoke(
                     ContractIdTest.ID.invoker(session).proxy(
                       invoke ? Interceptors.composite(PRINTLN_AFTER, SESSION_CHECKER, CLIENT_INTERCEPTOR) : SESSION_CHECKER
                     )
                   );
+                } finally {
+                  session.close();
                 }
               }
             }

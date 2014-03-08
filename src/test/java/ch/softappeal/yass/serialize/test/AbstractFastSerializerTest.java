@@ -24,6 +24,7 @@ import org.junit.Test;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.Closeable;
 import java.io.PrintWriter;
 import java.util.Arrays;
 
@@ -102,12 +103,12 @@ public class AbstractFastSerializerTest {
         SlowReflector.FACTORY,
         Arrays.<TypeDesc>asList(),
         Arrays.<Class<?>>asList(),
-        Arrays.<Class<?>>asList(AutoCloseable.class),
+        Arrays.<Class<?>>asList(Closeable.class),
         Arrays.<Class<?>>asList()
       );
       Assert.fail();
     } catch (final IllegalArgumentException e) {
-      Assert.assertEquals("type 'java.lang.AutoCloseable' is abstract", e.getMessage());
+      Assert.assertEquals("type 'java.io.Closeable' is abstract", e.getMessage());
     }
   }
 

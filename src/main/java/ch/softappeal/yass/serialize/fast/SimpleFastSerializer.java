@@ -17,7 +17,7 @@ public final class SimpleFastSerializer extends AbstractFastSerializer {
 
   private void addClass(final int typeId, final Class<?> type, final boolean referenceable) {
     checkClass(type);
-    final Map<Integer, Field> id2field = new HashMap<>(16);
+    final Map<Integer, Field> id2field = new HashMap<Integer, Field>(16);
     int fieldId = FieldHandler.FIRST_ID;
     for (Class<?> t = type; (t != null) && (t != Throwable.class); t = t.getSuperclass()) {
       final List<Field> fields = ownFields(t);

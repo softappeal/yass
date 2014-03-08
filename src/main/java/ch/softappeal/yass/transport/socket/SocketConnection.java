@@ -19,7 +19,7 @@ public final class SocketConnection extends Connection {
   private final Serializer packetSerializer;
   public final Socket socket;
   private volatile boolean closed = false;
-  private final BlockingQueue<ByteArrayOutputStream> writerQueue = new LinkedBlockingQueue<>(); // unbounded queue
+  private final BlockingQueue<ByteArrayOutputStream> writerQueue = new LinkedBlockingQueue<ByteArrayOutputStream>(); // unbounded queue
   private final Object writerQueueEmpty = new Object();
 
   SocketConnection(final SocketTransport transport, final Socket adoptSocket, final Reader reader, final OutputStream outputStream) {

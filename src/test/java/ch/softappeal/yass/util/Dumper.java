@@ -15,7 +15,7 @@ import java.util.Set;
  */
 public final class Dumper {
 
-  private static final Set<Class<?>> PRIMITIVE_WRAPPER_CLASSES = new HashSet<>(
+  private static final Set<Class<?>> PRIMITIVE_WRAPPER_CLASSES = new HashSet<Class<?>>(
     Arrays.<Class<?>>asList(
       Boolean.class, Character.class, Byte.class, Short.class, Integer.class, Long.class, Float.class, Double.class
     )
@@ -27,7 +27,7 @@ public final class Dumper {
    * @param concreteValueClasses should implement {@link Object#toString()}
    */
   public Dumper(final Class<?>... concreteValueClasses) {
-    this.concreteValueClasses = new HashSet<>(Arrays.asList(concreteValueClasses));
+    this.concreteValueClasses = new HashSet<Class<?>>(Arrays.asList(concreteValueClasses));
     this.concreteValueClasses.addAll(PRIMITIVE_WRAPPER_CLASSES);
   }
 
@@ -130,7 +130,7 @@ public final class Dumper {
       }
     }
 
-    private final Map<Object, Integer> alreadyDumpedObjects = new IdentityHashMap<>(16);
+    private final Map<Object, Integer> alreadyDumpedObjects = new IdentityHashMap<Object, Integer>(16);
 
     private void dumpClass(final Class<?> type, final Object object) throws Exception {
       final Integer reference = alreadyDumpedObjects.get(object);

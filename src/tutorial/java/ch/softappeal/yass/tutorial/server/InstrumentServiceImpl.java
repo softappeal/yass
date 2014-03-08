@@ -17,7 +17,7 @@ public final class InstrumentServiceImpl implements InstrumentService {
 
   static {
     final List<String> names = Arrays.asList("IBM", "Google", "Apple", "Microsoft");
-    final Map<String, Instrument> instruments = new HashMap<>(names.size());
+    final Map<String, Instrument> instruments = new HashMap<String, Instrument>(names.size());
     int index = 0;
     for (final String name : names) {
       final String id = String.valueOf(index++);
@@ -27,7 +27,7 @@ public final class InstrumentServiceImpl implements InstrumentService {
   }
 
   @Override public List<Instrument> getInstruments() {
-    return new ArrayList<>(INSTRUMENTS.values());
+    return new ArrayList<Instrument>(INSTRUMENTS.values());
   }
 
   @Override public void reload(final boolean testBoolean, final int testInt) {

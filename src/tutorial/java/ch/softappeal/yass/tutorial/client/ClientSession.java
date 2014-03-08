@@ -36,7 +36,7 @@ public final class ClientSession extends Session implements PriceListenerContext
     for (final Instrument instrument : instrumentService.getInstruments()) {
       id2instrument.put(instrument.id, instrument);
     }
-    priceEngine.subscribe(new ArrayList<>(id2instrument.keySet()));
+    priceEngine.subscribe(new ArrayList<String>(id2instrument.keySet()));
   }
 
   @Override public void closed(@Nullable final Throwable throwable) {

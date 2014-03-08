@@ -94,7 +94,7 @@ public class InterceptorsTest {
   }
 
   @Test public void threadLocal() throws Throwable {
-    final ThreadLocal<String> threadLocal = new ThreadLocal<>();
+    final ThreadLocal<String> threadLocal = new ThreadLocal<String>();
     final String oldValue = "oldValue";
     threadLocal.set(oldValue);
     final String value = "value";

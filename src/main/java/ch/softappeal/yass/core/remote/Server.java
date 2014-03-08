@@ -80,7 +80,7 @@ public final class Server extends Common {
 
   public Server(final MethodMapper.Factory methodMapperFactory, final Service... services) {
     super(methodMapperFactory);
-    serviceId2invoker = new HashMap<>(services.length);
+    serviceId2invoker = new HashMap<Object, ServerInvoker>(services.length);
     for (final Service service : services) {
       if (serviceId2invoker.put(service.contractId.id, new ServerInvoker(service)) != null) {
         throw new IllegalArgumentException("serviceId '" + service.contractId.id + "' already added");

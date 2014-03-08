@@ -13,7 +13,6 @@ import java.net.Socket;
 import java.net.SocketAddress;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.TimeUnit;
 
 public class SocketListenerTest {
@@ -60,7 +59,7 @@ public class SocketListenerTest {
     try {
       LISTENER.start(RejectExecutor.INSTANCE, ADDRESS);
       Assert.fail();
-    } catch (final RejectedExecutionException e) {
+    } catch (final RuntimeException e) {
       System.out.println(e);
     }
   }

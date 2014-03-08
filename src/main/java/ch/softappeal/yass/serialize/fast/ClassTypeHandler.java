@@ -43,7 +43,7 @@ public final class ClassTypeHandler extends TypeHandler {
       }
       fieldDescs[fd++] = fieldDesc;
     }
-    this.id2fieldHandler = new HashMap<>(id2fieldHandler);
+    this.id2fieldHandler = new HashMap<Integer, FieldHandler>(id2fieldHandler);
     Arrays.sort(fieldDescs, new Comparator<FieldDesc>() {
       @Override public int compare(final FieldDesc fieldDesc1, final FieldDesc fieldDesc2) {
         return ((Integer)fieldDesc1.id).compareTo(fieldDesc2.id);
@@ -64,7 +64,7 @@ public final class ClassTypeHandler extends TypeHandler {
     final Object object = reflector.newInstance();
     if (referenceable) {
       if (input.referenceableObjects == null) {
-        input.referenceableObjects = new ArrayList<>(16);
+        input.referenceableObjects = new ArrayList<Object>(16);
       }
       input.referenceableObjects.add(object);
     }
@@ -80,7 +80,7 @@ public final class ClassTypeHandler extends TypeHandler {
   @Override void write(final int id, final Object value, final Output output) throws Exception {
     if (referenceable) {
       if (output.object2reference == null) {
-        output.object2reference = new IdentityHashMap<>(16);
+        output.object2reference = new IdentityHashMap<Object, Integer>(16);
       }
       final Map<Object, Integer> object2reference = output.object2reference;
       final Integer reference = object2reference.get(value);

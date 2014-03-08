@@ -30,15 +30,15 @@ public final class Stopwatch {
   }
 
   public long microSeconds() {
-    return (nanoSeconds() / 1_000L);
+    return (nanoSeconds() / 1000L);
   }
 
   public long milliSeconds() {
-    return (nanoSeconds() / 1_000_000L);
+    return (nanoSeconds() / 1000000L);
   }
 
   public long seconds() {
-    return (nanoSeconds() / 1_000_000_000L);
+    return (nanoSeconds() / 1000000000L);
   }
 
 }

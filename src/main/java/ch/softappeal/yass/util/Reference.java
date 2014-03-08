@@ -33,14 +33,14 @@ public final class Reference<T> {
   }
 
   public static <T> Reference<T> create(@Nullable final T value) {
-    return new Reference<>(value);
+    return new Reference<T>(value);
   }
 
   /**
    * Creates a null reference.
    */
   public static <T> Reference<T> create() {
-    return new Reference<>(null);
+    return new Reference<T>(null);
   }
 
 }

@@ -116,8 +116,8 @@ public class InvokeTest {
   }
 
   private static final AtomicInteger COUNTER = new AtomicInteger();
-  private static final AtomicReference<Method> METHOD = new AtomicReference<>();
-  private static final AtomicReference<Object[]> ARGUMENTS = new AtomicReference<>();
+  private static final AtomicReference<Method> METHOD = new AtomicReference<Method>();
+  private static final AtomicReference<Object[]> ARGUMENTS = new AtomicReference<Object[]>();
 
   public static boolean isOneWay(final String method) {
     return "oneWay".equals(method);

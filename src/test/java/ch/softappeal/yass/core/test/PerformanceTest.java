@@ -22,11 +22,11 @@ public class PerformanceTest extends InvokeTest {
   }
 
   @Test public void direct() {
-    task(new TestServiceImpl()).run(100_000, TimeUnit.NANOSECONDS);
+    task(new TestServiceImpl()).run(100000, TimeUnit.NANOSECONDS);
   }
 
   @Test public void proxy() {
-    task(Interceptors.proxy(TestService.class, new TestServiceImpl())).run(10_000, TimeUnit.NANOSECONDS);
+    task(Interceptors.proxy(TestService.class, new TestServiceImpl())).run(10000, TimeUnit.NANOSECONDS);
   }
 
 }

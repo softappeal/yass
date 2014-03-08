@@ -26,8 +26,8 @@ public class StopwatchTest {
     }
     Assert.assertTrue(stopwatch.seconds() == 0L);
     Assert.assertTrue(stopwatch.milliSeconds() >= 10L);
-    Assert.assertTrue(stopwatch.microSeconds() >= 10_000L);
-    Assert.assertTrue(stopwatch.nanoSeconds() >= 10_000_000L);
+    Assert.assertTrue(stopwatch.microSeconds() >= 10000L);
+    Assert.assertTrue(stopwatch.nanoSeconds() >= 10000000L);
   }
 
 }

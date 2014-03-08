@@ -68,7 +68,7 @@ public abstract class SocketListener {
                 loop();
               } catch (final Exception e) {
                 close(serverSocket, e);
-                throw e;
+                throw new IOException(e);
               }
               serverSocket.close();
             } catch (final IOException e) {
@@ -79,7 +79,7 @@ public abstract class SocketListener {
         });
       } catch (final Exception e) {
         close(serverSocket, e);
-        throw e;
+        throw new IOException(e);
       }
     } catch (final IOException e) {
       throw new RuntimeException(e);
@@ -98,7 +98,7 @@ public abstract class SocketListener {
     try {
       serverSocket.close();
     } catch (final Exception e2) {
-      e.addSuppressed(e2);
+      // e.addSuppressed(e2);
     }
   }
 
@@ -106,7 +106,7 @@ public abstract class SocketListener {
     try {
       socket.close();
     } catch (final Exception e2) {
-      e.addSuppressed(e2);
+      // e.addSuppressed(e2);
     }
   }
 
@@ -132,7 +132,7 @@ public abstract class SocketListener {
       return socket;
     } catch (final Exception e) {
       close(socket, e);
-      throw e;
+      throw new IOException(e);
     }
   }
 

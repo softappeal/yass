@@ -105,7 +105,7 @@ public class SocketTransportTest extends InvokeTest {
     final ExecutorService executor = Executors.newCachedThreadPool(new NamedThreadFactory("executor", TestUtils.TERMINATE));
     final String path1 = "path1";
     final String path2 = "path2";
-    final Map<String, SocketTransport> pathMappings = new HashMap<>(2);
+    final Map<String, SocketTransport> pathMappings = new HashMap<String, SocketTransport>(2);
     pathMappings.put(path1, createTransport(true, "server1", executor, false, false, false));
     pathMappings.put(path2, createTransport(true, "server2", executor, false, false, false));
     try {

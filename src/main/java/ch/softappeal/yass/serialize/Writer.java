@@ -75,11 +75,11 @@ public abstract class Writer {
    */
   public final void writeVarInt(int value) throws Exception {
     while (true) {
-      if ((value & ~0b0111_1111) == 0) {
+      if ((value & ~0x7F) == 0) {
         writeByte((byte)value);
         return;
       }
-      writeByte((byte)((value & 0b0111_1111) | 0b1000_0000));
+      writeByte((byte)((value & 0x7F) | 0x80));
       value >>>= 7;
     }
   }
@@ -96,11 +96,11 @@ public abstract class Writer {
    */
   public final void writeVarLong(long value) throws Exception {
     while (true) {
-      if ((value & ~0b0111_1111) == 0) {
+      if ((value & ~0x7F) == 0) {
         writeByte((byte)value);
         return;
       }
-      writeByte((byte)((value & 0b0111_1111) | 0b1000_0000));
+      writeByte((byte)((value & 0x7F) | 0x80));
       value >>>= 7;
     }
   }
@@ -155,9 +155,9 @@ public abstract class Writer {
 
   public final OutputStream stream() {
     return new OutputStream() {
-      @Override public void write(final int i) {
+      @Override public void write(final int b) {
         try {
-          writeByte((byte)i);
+          writeByte((byte)b);
         } catch (final Exception e) {
           throw Exceptions.wrap(e);
         }

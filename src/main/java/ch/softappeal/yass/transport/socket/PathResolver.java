@@ -10,7 +10,7 @@ import java.util.Map;
  */
 public final class PathResolver {
 
-  private final Map<Object, SocketTransport> pathMappings = new HashMap<>(16);
+  private final Map<Object, SocketTransport> pathMappings = new HashMap<Object, SocketTransport>(16);
 
   public PathResolver(final Map<?, SocketTransport> pathMappings) {
     for (final Map.Entry<?, SocketTransport> pathMapping : pathMappings.entrySet()) {
