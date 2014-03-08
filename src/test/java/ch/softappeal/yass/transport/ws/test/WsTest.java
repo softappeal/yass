@@ -1,14 +1,12 @@
 package ch.softappeal.yass.transport.ws.test;
 
-import ch.softappeal.yass.core.remote.session.SessionSetup;
 import ch.softappeal.yass.core.remote.session.test.LocalConnectionTest;
 import ch.softappeal.yass.core.remote.session.test.PerformanceTest;
-import ch.softappeal.yass.serialize.Serializer;
+import ch.softappeal.yass.transport.TransportSetup;
 import ch.softappeal.yass.transport.socket.test.SocketPerformanceTest;
 import ch.softappeal.yass.transport.test.PacketSerializerTest;
 import ch.softappeal.yass.transport.ws.WsConnection;
 import ch.softappeal.yass.transport.ws.WsEndpoint;
-import ch.softappeal.yass.util.Exceptions;
 import ch.softappeal.yass.util.NamedThreadFactory;
 import ch.softappeal.yass.util.TestUtils;
 import org.junit.After;
@@ -41,19 +39,18 @@ public abstract class WsTest {
     REQUEST_EXECUTOR.shutdown();
   }
 
-  private static volatile SessionSetup SESSION_SETUP_CLIENT;
-  private static volatile SessionSetup SESSION_SETUP_SERVER;
-  private static volatile Serializer PACKET_SERIALIZER;
+  private static volatile TransportSetup TRANSPORT_SETUP_CLIENT;
+  private static volatile TransportSetup TRANSPORT_SETUP_SERVER;
 
   public static final class ClientEndpoint extends WsEndpoint {
-    @Override protected WsConnection createConnection(final Session session) {
-      return new WsConnection(SESSION_SETUP_CLIENT, PACKET_SERIALIZER, Exceptions.STD_ERR, session);
+    @Override protected WsConnection createConnection(final Session session) throws Exception {
+      return new WsConnection(TRANSPORT_SETUP_CLIENT, session);
     }
   }
 
   public static final class ServerEndpoint extends WsEndpoint {
-    @Override protected WsConnection createConnection(final Session session) {
-      return new WsConnection(SESSION_SETUP_SERVER, PACKET_SERIALIZER, Exceptions.STD_ERR, session);
+    @Override protected WsConnection createConnection(final Session session) throws Exception {
+      return new WsConnection(TRANSPORT_SETUP_SERVER, session);
     }
   }
 
@@ -61,15 +58,13 @@ public abstract class WsTest {
     final boolean serverInvoke, final boolean serverCreateException, final boolean serverOpenedException, final boolean serverInvokeBeforeOpened,
     final boolean clientInvoke, final boolean clientCreateException, final boolean clientOpenedException, final boolean clientInvokeBeforeOpened
   ) {
-    PACKET_SERIALIZER = PacketSerializerTest.SERIALIZER;
-    SESSION_SETUP_SERVER = LocalConnectionTest.createSetup(serverInvoke, "server", REQUEST_EXECUTOR, serverCreateException, serverOpenedException, serverInvokeBeforeOpened);
-    SESSION_SETUP_CLIENT = LocalConnectionTest.createSetup(clientInvoke, "client", REQUEST_EXECUTOR, clientCreateException, clientOpenedException, clientInvokeBeforeOpened);
+    TRANSPORT_SETUP_SERVER = new TransportSetup(LocalConnectionTest.createSetup(serverInvoke, "server", REQUEST_EXECUTOR, serverCreateException, serverOpenedException, serverInvokeBeforeOpened), PacketSerializerTest.SERIALIZER);
+    TRANSPORT_SETUP_CLIENT = new TransportSetup(LocalConnectionTest.createSetup(clientInvoke, "client", REQUEST_EXECUTOR, clientCreateException, clientOpenedException, clientInvokeBeforeOpened), PacketSerializerTest.SERIALIZER);
   }
 
   protected static void setPerformanceSetup(final CountDownLatch latch) {
-    PACKET_SERIALIZER = SocketPerformanceTest.PACKET_SERIALIZER;
-    SESSION_SETUP_SERVER = PerformanceTest.createSetup(REQUEST_EXECUTOR, null, SocketPerformanceTest.COUNTER);
-    SESSION_SETUP_CLIENT = PerformanceTest.createSetup(REQUEST_EXECUTOR, latch, SocketPerformanceTest.COUNTER);
+    TRANSPORT_SETUP_SERVER = new TransportSetup(PerformanceTest.createSetup(REQUEST_EXECUTOR, null, SocketPerformanceTest.COUNTER), SocketPerformanceTest.PACKET_SERIALIZER);
+    TRANSPORT_SETUP_CLIENT = new TransportSetup(PerformanceTest.createSetup(REQUEST_EXECUTOR, latch, SocketPerformanceTest.COUNTER), SocketPerformanceTest.PACKET_SERIALIZER);
   }
 
   protected static void connect(final WebSocketContainer container, final CountDownLatch latch) throws Exception {

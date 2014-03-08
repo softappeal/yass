@@ -3,11 +3,11 @@ package ch.softappeal.yass.transport.ws;
 import ch.softappeal.yass.core.remote.session.Connection;
 import ch.softappeal.yass.core.remote.session.Packet;
 import ch.softappeal.yass.core.remote.session.Session;
-import ch.softappeal.yass.core.remote.session.SessionFactory;
 import ch.softappeal.yass.core.remote.session.SessionSetup;
 import ch.softappeal.yass.serialize.Reader;
 import ch.softappeal.yass.serialize.Serializer;
 import ch.softappeal.yass.serialize.Writer;
+import ch.softappeal.yass.transport.TransportSetup;
 import ch.softappeal.yass.util.Check;
 
 import javax.websocket.CloseReason;
@@ -26,16 +26,8 @@ public final class WsConnection extends Connection {
   public final javax.websocket.Session wsSession;
   private volatile RemoteEndpoint.Async remoteEndpoint;
 
-  /**
-   * @param createSessionExceptionHandler handles exceptions from {@link SessionFactory#create(SessionSetup, Connection)}
-   */
-  public WsConnection(
-    final SessionSetup setup, final Serializer packetSerializer,
-    final Thread.UncaughtExceptionHandler createSessionExceptionHandler,
-    final javax.websocket.Session wsSession
-  ) {
-    this.packetSerializer = Check.notNull(packetSerializer);
-    Check.notNull(createSessionExceptionHandler);
+  public WsConnection(final TransportSetup setup, final javax.websocket.Session wsSession) throws Exception {
+    packetSerializer = setup.packetSerializer;
     this.wsSession = Check.notNull(wsSession);
     try {
       remoteEndpoint = wsSession.getAsyncRemote(); // $todo: implement batching ? setting send timeout ?
@@ -46,8 +38,7 @@ public final class WsConnection extends Connection {
       } catch (final Exception e2) {
         e.addSuppressed(e2);
       }
-      createSessionExceptionHandler.uncaughtException(Thread.currentThread(), e);
-      return;
+      throw e;
     }
     if (!open(session)) {
       return;

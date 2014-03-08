@@ -613,15 +613,15 @@ var yass = (function () {
         return exceptionReply(serializer.read(reader));
       },
       write: function (message, writer) {
-        if (message.hasOwnProperty("serviceId")) {// $todo is there a better solution ?
+        if (message.hasOwnProperty("serviceId")) { // request // $todo is there a better solution ?
           writer.writeByte(REQUEST);
           serializer.write(message.serviceId, writer);
           serializer.write(message.methodId, writer);
           serializer.write(message.parameters, writer);
-        } else if (message.hasOwnProperty("value")) {// $todo is there a better solution ?
+        } else if (message.hasOwnProperty("value")) { // valueReply // $todo is there a better solution ?
           writer.writeByte(VALUE_REPLY);
           serializer.write(message.value, writer);
-        } else {
+        } else { // exceptionReply
           writer.writeByte(EXCEPTION_REPLY);
           serializer.write(message.exception, writer);
         }
@@ -793,8 +793,7 @@ var yass = (function () {
   }
 
   return {
-    writer: writer,
-    reader: reader,
+    writer: writer, reader: reader, // $todo: remove, only needed for testing
     Class: Class,
     Enum: Enum,
     LIST: LIST,

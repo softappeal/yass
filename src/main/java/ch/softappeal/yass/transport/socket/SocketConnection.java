@@ -6,11 +6,14 @@ import ch.softappeal.yass.core.remote.session.Session;
 import ch.softappeal.yass.serialize.Reader;
 import ch.softappeal.yass.serialize.Serializer;
 import ch.softappeal.yass.serialize.Writer;
+import ch.softappeal.yass.transport.TransportSetup;
 
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.OutputStream;
 import java.net.Socket;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.Executor;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
@@ -22,22 +25,17 @@ public final class SocketConnection extends Connection {
   private final BlockingQueue<ByteArrayOutputStream> writerQueue = new LinkedBlockingQueue<>(); // unbounded queue
   private final Object writerQueueEmpty = new Object();
 
-  SocketConnection(final SocketTransport transport, final Socket adoptSocket, final Reader reader, final OutputStream outputStream) {
-    packetSerializer = transport.packetSerializer;
-    socket = adoptSocket;
-    final Session session;
-    try {
-      session = transport.setup.createSession(this);
-    } catch (final Exception e) {
-      SocketListener.close(adoptSocket, e);
-      transport.createSessionExceptionHandler.uncaughtException(Thread.currentThread(), e);
-      return;
-    }
+  SocketConnection(
+    final TransportSetup setup, final Socket socket, final Reader reader, final OutputStream outputStream, final Executor writerExecutor
+  ) throws Exception {
+    packetSerializer = setup.packetSerializer;
+    this.socket = socket;
+    final Session session = setup.createSession(this);
     if (!open(session)) {
       return;
     }
     try {
-      transport.writerExecutor.execute(new Runnable() {
+      writerExecutor.execute(new Runnable() {
         @Override public void run() {
           try {
             write(outputStream);
@@ -81,6 +79,14 @@ public final class SocketConnection extends Connection {
     }
   }
 
+  /**
+   * Buffering of output is needed to prevent long delays due to Nagle's algorithm.
+   */
+  private static void flush(final ByteArrayOutputStream buffer, final OutputStream out) throws IOException {
+    buffer.writeTo(out);
+    out.flush();
+  }
+
   private void write(final OutputStream out) throws Exception {
     while (true) {
       final ByteArrayOutputStream buffer = writerQueue.poll(100L, TimeUnit.MILLISECONDS);
@@ -98,7 +104,7 @@ public final class SocketConnection extends Connection {
         }
         buffer2.writeTo(buffer);
       }
-      SocketListener.flush(buffer, out);
+      flush(buffer, out);
     }
   }
 

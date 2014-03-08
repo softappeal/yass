@@ -1,9 +1,8 @@
 package ch.softappeal.yass.tutorial.server;
 
-import ch.softappeal.yass.core.remote.session.SessionSetup;
+import ch.softappeal.yass.transport.TransportSetup;
 import ch.softappeal.yass.transport.ws.WsConnection;
 import ch.softappeal.yass.transport.ws.WsEndpoint;
-import ch.softappeal.yass.tutorial.contract.Config;
 import ch.softappeal.yass.util.Exceptions;
 import ch.softappeal.yass.util.NamedThreadFactory;
 import org.eclipse.jetty.server.Handler;
@@ -24,13 +23,13 @@ public final class JettyServer {
   public static final int PORT = 9090;
   public static final String PATH = "/tutorial";
 
-  private static final SessionSetup SESSION_SETUP = SocketServer.createSessionSetup(
+  private static final TransportSetup TRANSPORT_SETUP = SocketServer.createTransportSetup(
     Executors.newCachedThreadPool(new NamedThreadFactory("requestExecutor", Exceptions.STD_ERR))
   );
 
   public static final class Endpoint extends WsEndpoint {
-    @Override protected WsConnection createConnection(final Session session) {
-      return new WsConnection(SESSION_SETUP, Config.PACKET_SERIALIZER, Exceptions.STD_ERR, session);
+    @Override protected WsConnection createConnection(final Session session) throws Exception {
+      return new WsConnection(TRANSPORT_SETUP, session);
     }
   }
 

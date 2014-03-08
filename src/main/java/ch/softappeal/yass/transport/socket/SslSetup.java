@@ -66,7 +66,7 @@ public final class SslSetup {
         socket.setEnabledProtocols(protocols);
         socket.setEnabledCipherSuites(cipherSuites);
       } catch (final Exception e) {
-        SocketListener.close(socket, e);
+        SocketTransport.close(socket, e);
         throw e;
       }
       return socket;
