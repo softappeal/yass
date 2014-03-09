@@ -13,9 +13,11 @@ import ch.softappeal.yass.serialize.Serializer;
 import ch.softappeal.yass.serialize.test.SerializerTest;
 import ch.softappeal.yass.transport.MessageSerializer;
 import ch.softappeal.yass.transport.PacketSerializer;
+import ch.softappeal.yass.transport.PathResolver;
 import ch.softappeal.yass.transport.StringPathSerializer;
-import ch.softappeal.yass.transport.socket.PathResolver;
+import ch.softappeal.yass.transport.TransportSetup;
 import ch.softappeal.yass.transport.socket.SocketConnection;
+import ch.softappeal.yass.transport.socket.SocketExecutor;
 import ch.softappeal.yass.transport.socket.SocketTransport;
 import ch.softappeal.yass.util.NamedThreadFactory;
 import ch.softappeal.yass.util.Nullable;
@@ -52,58 +54,50 @@ public final class WriterExecutorTest {
       StringPathSerializer.INSTANCE,
       new PathResolver(
         SocketTransportTest.PATH,
-        new SocketTransport(
-          new SessionSetup(
-            new Server(
-              METHOD_MAPPER_FACTORY
-            ),
-            executor("server-request"),
-            new SessionFactory() {
-              @Override public Session create(final SessionSetup setup, final Connection connection) {
-                return new Session(setup, connection) {
-                  @Override public void opened() {
-                    final SocketConnection socketConnection = (SocketConnection)connection;
-                    final StringListener stringListener = StringListenerId.invoker(this).proxy();
-                    socketConnection.awaitWriterQueueEmpty();
-                    final Executor worker = executor("server-worker");
-                    final String s = "hello";
-                    for (int i = 0; i < 20; i++) {
-                      worker.execute(new Runnable() {
-                        @Override public void run() {
-                          while (true) {
-                            stringListener.newString(s);
-                            try {
-                              TimeUnit.MILLISECONDS.sleep(1);
-                            } catch (final InterruptedException e) {
-                              throw new RuntimeException(e);
-                            }
+        new TransportSetup(
+          new Server(METHOD_MAPPER_FACTORY),
+          PACKET_SERIALIZER,
+          executor("server-request"),
+          new SessionFactory() {
+            @Override public Session create(final SessionSetup setup, final Connection connection) {
+              return new Session(setup, connection) {
+                @Override public void opened() {
+                  final SocketConnection socketConnection = (SocketConnection)connection;
+                  final StringListener stringListener = StringListenerId.invoker(this).proxy();
+                  socketConnection.awaitWriterQueueEmpty();
+                  final Executor worker = executor("server-worker");
+                  final String s = "hello";
+                  for (int i = 0; i < 20; i++) {
+                    worker.execute(new Runnable() {
+                      @Override public void run() {
+                        while (true) {
+                          stringListener.newString(s);
+                          try {
+                            TimeUnit.MILLISECONDS.sleep(1);
+                          } catch (final InterruptedException e) {
+                            throw new RuntimeException(e);
                           }
                         }
-                      });
-                    }
+                      }
+                    });
                   }
-                  @Override public void closed(@Nullable final Throwable throwable) {
-                    TestUtils.TERMINATE.uncaughtException(null, throwable);
-                  }
-                };
-              }
+                }
+                @Override public void closed(@Nullable final Throwable throwable) {
+                  TestUtils.TERMINATE.uncaughtException(null, throwable);
+                }
+              };
             }
-          ),
-          PACKET_SERIALIZER,
-          executor("server-reader"), executor("server-writer"),
-          TestUtils.TERMINATE
+          }
         )
-      ),
-      executor("pathResolver"),
-      TestUtils.TERMINATE
-    ).start(executor("server-listener"), ADDRESS);
+      )
+    ).start(executor("server-listener"), new SocketExecutor(executor("server-socket"), TestUtils.TERMINATE), ADDRESS);
   }
 
   public static void main(final String... args) {
     server();
     final AtomicInteger counter = new AtomicInteger(0);
-    new SocketTransport(
-      new SessionSetup(
+    SocketTransport.connect(
+      new TransportSetup(
         new Server(
           METHOD_MAPPER_FACTORY,
           StringListenerId.service(
@@ -114,6 +108,7 @@ public final class WriterExecutorTest {
             }
           )
         ),
+        PACKET_SERIALIZER,
         executor("client-request"),
         new SessionFactory() {
           @Override public Session create(final SessionSetup setup, final Connection connection) {
@@ -125,10 +120,9 @@ public final class WriterExecutorTest {
           }
         }
       ),
-      PACKET_SERIALIZER,
-      executor("client-reader"), executor("client-writer"),
-      TestUtils.TERMINATE
-    ).connect(ADDRESS, StringPathSerializer.INSTANCE, SocketTransportTest.PATH);
+      new SocketExecutor(executor("client-socket"), TestUtils.TERMINATE),
+      StringPathSerializer.INSTANCE, SocketTransportTest.PATH, ADDRESS
+    );
     Executors.newScheduledThreadPool(1).scheduleAtFixedRate(
       new Runnable() {
         @Override public void run() {

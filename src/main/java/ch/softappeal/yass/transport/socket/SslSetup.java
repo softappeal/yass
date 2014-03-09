@@ -24,11 +24,8 @@ public final class SslSetup {
   public static KeyStore readKeyStore(final Resource keyStoreResource, @Nullable final char[] keyStorePwd) {
     try {
       final KeyStore keyStore = KeyStore.getInstance("JKS");
-      final InputStream in = keyStoreResource.create();
-      try {
+      try (InputStream in = keyStoreResource.create()) {
         keyStore.load(in, keyStorePwd);
-      } finally {
-        in.close();
       }
       return keyStore;
     } catch (final Exception e) {
@@ -69,8 +66,8 @@ public final class SslSetup {
         socket.setEnabledProtocols(protocols);
         socket.setEnabledCipherSuites(cipherSuites);
       } catch (final Exception e) {
-        SocketListener.close(socket, e);
-        throw new IOException(e);
+        SocketTransport.close(socket, e);
+        throw e;
       }
       return socket;
     }
@@ -85,7 +82,7 @@ public final class SslSetup {
         serverSocket.setEnabledCipherSuites(cipherSuites);
       } catch (final Exception e) {
         SocketListener.close(serverSocket, e);
-        throw new IOException(e);
+        throw e;
       }
       return serverSocket;
     }

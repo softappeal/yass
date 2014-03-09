@@ -13,6 +13,7 @@ import ch.softappeal.yass.serialize.fast.SimpleFastSerializer;
 import ch.softappeal.yass.serialize.fast.TaggedFastSerializer;
 import ch.softappeal.yass.transport.MessageSerializer;
 import ch.softappeal.yass.transport.PacketSerializer;
+import ch.softappeal.yass.transport.StringPathSerializer;
 import ch.softappeal.yass.tutorial.contract.instrument.Bond;
 import ch.softappeal.yass.tutorial.contract.instrument.Stock;
 
@@ -52,5 +53,7 @@ public final class Config {
    * @see TaggedMethodMapper
    */
   public static final MethodMapper.Factory METHOD_MAPPER_FACTORY = SimpleMethodMapper.FACTORY;
+
+  public static final Serializer PATH_SERIALIZER = StringPathSerializer.INSTANCE;
 
 }

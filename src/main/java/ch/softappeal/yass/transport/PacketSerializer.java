@@ -12,7 +12,7 @@ import ch.softappeal.yass.util.Check;
  */
 public final class PacketSerializer implements Serializer {
 
-  private final Serializer messageSerializer;
+  public final Serializer messageSerializer;
 
   public PacketSerializer(final Serializer messageSerializer) {
     this.messageSerializer = Check.notNull(messageSerializer);

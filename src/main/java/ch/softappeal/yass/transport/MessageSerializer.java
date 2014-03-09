@@ -14,15 +14,15 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * Adapts a {@link Serializer} for {@link Object} to one for {@link Message}.
+ * Adapts a contract {@link Serializer} to one for {@link Message}.
  * Note: {@link Request#arguments} is serialized as a {@link List}.
  */
 public final class MessageSerializer implements Serializer {
 
-  private final Serializer serializer;
+  public final Serializer contractSerializer;
 
-  public MessageSerializer(final Serializer serializer) {
-    this.serializer = Check.notNull(serializer);
+  public MessageSerializer(final Serializer contractSerializer) {
+    this.contractSerializer = Check.notNull(contractSerializer);
   }
 
   private static final byte REQUEST = (byte)0;
@@ -38,18 +38,18 @@ public final class MessageSerializer implements Serializer {
     final byte type = reader.readByte();
     if (type == REQUEST) {
       return new Request(
-        serializer.read(reader),
-        serializer.read(reader),
-        toArray((List)serializer.read(reader))
+        contractSerializer.read(reader),
+        contractSerializer.read(reader),
+        toArray((List)contractSerializer.read(reader))
       );
     }
     if (type == VALUE_REPLY) {
       return new ValueReply(
-        serializer.read(reader)
+        contractSerializer.read(reader)
       );
     }
     return new ExceptionReply(
-      (Throwable)serializer.read(reader)
+      (Throwable)contractSerializer.read(reader)
     );
   }
 
@@ -59,17 +59,17 @@ public final class MessageSerializer implements Serializer {
     if (message instanceof Request) {
       writer.writeByte(REQUEST);
       final Request request = (Request)message;
-      serializer.write(request.serviceId, writer);
-      serializer.write(request.methodId, writer);
-      serializer.write((request.arguments == null) ? NO_ARGUMENTS : Arrays.asList(request.arguments), writer);
+      contractSerializer.write(request.serviceId, writer);
+      contractSerializer.write(request.methodId, writer);
+      contractSerializer.write((request.arguments == null) ? NO_ARGUMENTS : Arrays.asList(request.arguments), writer);
     } else if (message instanceof ValueReply) {
       writer.writeByte(VALUE_REPLY);
       final ValueReply reply = (ValueReply)message;
-      serializer.write(reply.value, writer);
+      contractSerializer.write(reply.value, writer);
     } else {
       writer.writeByte(EXCEPTION_REPLY);
       final ExceptionReply reply = (ExceptionReply)message;
-      serializer.write(reply.throwable, writer);
+      contractSerializer.write(reply.throwable, writer);
     }
   }
 
