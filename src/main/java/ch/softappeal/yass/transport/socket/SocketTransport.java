@@ -63,7 +63,7 @@ public final class SocketTransport {
     try {
       socket.close();
     } catch (final Exception e2) {
-      e.addSuppressed(e2);
+      // e.addSuppressed(e2);
     }
   }
 
@@ -74,7 +74,7 @@ public final class SocketTransport {
       return socket;
     } catch (final Exception e) {
       close(socket, e);
-      throw e;
+      throw new IOException(e);
     }
   }
 

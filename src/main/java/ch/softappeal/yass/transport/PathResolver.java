@@ -10,7 +10,7 @@ import java.util.Map;
  */
 public final class PathResolver {
 
-  private final Map<Object, TransportSetup> pathMappings = new HashMap<>(16);
+  private final Map<Object, TransportSetup> pathMappings = new HashMap<Object, TransportSetup>(16);
 
   public PathResolver(final Map<?, TransportSetup> pathMappings) {
     for (final Map.Entry<?, TransportSetup> pathMapping : pathMappings.entrySet()) {
