@@ -1,8 +1,8 @@
 package ch.softappeal.yass.tutorial.server;
 
 import ch.softappeal.yass.tutorial.contract.Instrument;
-import ch.softappeal.yass.tutorial.contract.InstrumentService;
-import ch.softappeal.yass.tutorial.contract.instrument.Stock;
+import ch.softappeal.yass.tutorial.contract.instrument.InstrumentService;
+import ch.softappeal.yass.tutorial.contract.instrument.stock.Stock;
 
 import java.util.ArrayList;
 import java.util.Arrays;

@@ -1,29 +1,20 @@
-<!doctype html>
-<html>
-<head>
-  <script src="../../../src/main/js/yass.js"></script>
-  <script src="../../../src/tutorial/js/contract.js"></script>
-</head>
-<body>
-Test
-<script>
-
-'use strict';
+import yass = require("../../main/ts/yass");
+import contract = require("../../tutorial/ts/contract");
 
 //----------------------------------------------------------------------------------------------------------------------
 // utilities
 
-function log() {
-  console.log.apply(console, arguments);
+function log(...args: any[]): void {
+  console.log.apply(console, args);
 }
 
-function assert(value) {
+function assert(value: boolean): void {
   if (!value) {
     throw new Error("assert failed");
   }
 }
 
-function assertThrown(action) {
+function assertThrown(action: ()=>void): void {
   var thrown = false;
   try {
     action();
@@ -40,30 +31,28 @@ try {
 } catch (e) {
   log(e);
 }
-assertThrown(function () {
-  throw new Error("test");
+assertThrown(() => {
+  throw new Error("test")
 });
 try {
-  assertThrown(function () {
-    // empty
-  });
+  assertThrown(() => 123);
 } catch (e) {
   log(e);
-}
-
-function writer2reader(writer) {
-  var byteArray = writer.getUint8Array();
-  var arrayBuffer = new ArrayBuffer(byteArray.length);
-  new Uint8Array(arrayBuffer).set(byteArray);
-  return yass.reader(arrayBuffer);
 }
 
 //----------------------------------------------------------------------------------------------------------------------
 // Reader/Writer
 
-(function () {
+function writer2reader(writer: yass.Writer): yass.Reader {
+  var byteArray = writer.getUint8Array();
+  var arrayBuffer = new ArrayBuffer(byteArray.length);
+  new Uint8Array(arrayBuffer).set(byteArray);
+  return new yass.Reader(arrayBuffer);
+}
 
-  var writer = yass.writer(1);
+(function (): void {
+
+  var writer = new yass.Writer(1);
   writer.writeByte(123);
   writer.writeByte(210);
   writer.writeInt(0);
@@ -119,7 +108,7 @@ function writer2reader(writer) {
     reader.readByte();
   });
 
-  writer = yass.writer(100);
+  writer = new yass.Writer(100);
   writer.writeByte(128);
   writer.writeByte(128);
   writer.writeByte(128);
@@ -130,8 +119,8 @@ function writer2reader(writer) {
     reader.readVarInt();
   });
 
-  function utf8(bytes, value) {
-    var writer = yass.writer(100);
+  function utf8(bytes: number, value: string): void {
+    var writer = new yass.Writer(100);
     writer.writeUtf8(value);
     assert(writer.getUint8Array().length === bytes);
     var reader = writer2reader(writer);
@@ -156,12 +145,9 @@ function writer2reader(writer) {
 //----------------------------------------------------------------------------------------------------------------------
 // Enum
 
-(function () {
+(function (): void {
   var ask = contract.PriceType.ASK;
   log(ask);
-  assert(ask instanceof contract.PriceType);
-  assert(ask instanceof yass.Enum);
-  assert(!(ask instanceof yass.Class));
   assert(ask.value === 1);
   assert(ask.name === "ASK");
   assert(ask === contract.PriceType.ASK);
@@ -171,25 +157,26 @@ function writer2reader(writer) {
 //----------------------------------------------------------------------------------------------------------------------
 // Class
 
-(function () {
-  var stock = new contract.instrument.Stock();
+(function (): void {
+  var stock = new contract.instrument.stock.Stock();
   stock.id = "1344";
   stock.name = "IBM";
   stock.paysDividend = true;
   log(stock);
-  assert(stock instanceof yass.Class);
   assert(stock instanceof contract.Instrument);
-  assert(stock instanceof contract.instrument.Stock);
+  assert(stock instanceof contract.instrument.stock.Stock);
   assert(!(stock instanceof contract.instrument.Bond));
+  var exception = new contract.UnknownInstrumentsException();
+  exception.instrumentIds = ["23", "454"];
 }());
 
 //----------------------------------------------------------------------------------------------------------------------
 // Serializer
 
-(function () {
+(function (): void {
 
-  function copy(value) {
-    var writer = yass.writer(100);
+  function copy(value: any): any {
+    var writer = new yass.Writer(100);
     contract.SERIALIZER.write(value, writer);
     var reader = writer2reader(writer);
     var result = contract.SERIALIZER.read(reader);
@@ -204,8 +191,10 @@ function writer2reader(writer) {
   assert(copy(-1234567) === -1234567);
   assert(copy("") === "");
   assert(copy("blabli") === "blabli");
+  assert(copy(contract.PriceType.ASK) === contract.PriceType.ASK);
+  assert(copy(contract.PriceType.BID) === contract.PriceType.BID);
 
-  function compare(array1, array2) {
+  function compare(array1: any[], array2: any[]): boolean {
     if (array1.length !== array2.length) {
       return false;
     }
@@ -222,7 +211,7 @@ function writer2reader(writer) {
   assert(compare(copy([12]), [12]));
   assert(compare(copy([12, true, "bla"]), [12, true, "bla"]));
 
-  var stock = new contract.instrument.Stock();
+  var stock = new contract.instrument.stock.Stock();
   stock.id = "1344";
   stock.name = "IBM";
   stock.paysDividend = true;
@@ -235,7 +224,7 @@ function writer2reader(writer) {
   assert(!stock.paysDividend);
   stock.paysDividend = null;
   stock = copy(stock);
-  assert(stock.paysDividend === null);
+  assert(stock.paysDividend === undefined);
 
   var bond = new contract.instrument.Bond();
   bond.coupon = 1234;
@@ -249,6 +238,15 @@ function writer2reader(writer) {
   assert(compare(e.instrumentIds, ["a", "b"]));
   assert(e.comment.coupon === 1234);
 
+  var price = new contract.Price();
+  price.instrumentId = "123";
+  price.type = contract.PriceType.ASK;
+  price.value = 999;
+  price = copy(price);
+  assert(price.instrumentId === "123");
+  assert(price.type === contract.PriceType.ASK);
+  assert(price.value === 999);
+
 }());
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -256,35 +254,61 @@ function writer2reader(writer) {
 
 (function () {
 
-  function i(id) {
-    return function (method, parameters, proceed) {
+  function i(id: number): yass.Interceptor {
+    return function (method: string, parameters: any[], proceed: () => any): any {
       log("id", id);
       parameters[0] = (parameters[0] * 10) + id;
       return proceed();
     };
   }
 
-  function invoke() {
+  function invoke(...interceptors: yass.Interceptor[]): number {
     var parameters = [0];
-    yass.composite.apply(null, arguments)(null, parameters, function () {
-      return "fkjskfjksjfl";
-    });
+    yass.composite.apply(null, interceptors)(null, parameters, () => "fkjskfjksjfl");
     return parameters[0];
   }
 
-  var direct = yass.composite();
+  assert(yass.composite() === yass.DIRECT);
 
   assert(invoke() === 0);
-  assert(invoke(direct) === 0);
+  assert(invoke(yass.DIRECT) === 0);
   assert(invoke(i(123)) === 123);
-  assert(invoke(direct, i(123)) === 123);
-  assert(invoke(i(123), direct) === 123);
+  assert(invoke(yass.DIRECT, i(123)) === 123);
+  assert(invoke(i(123), yass.DIRECT) === 123);
   assert(invoke(i(9), i(8), i(7)) === 987);
 
 }());
 
 //----------------------------------------------------------------------------------------------------------------------
+// Promise
 
-</script>
-</body>
-</html>
+(function () {
+
+  var promise = new yass.Promise<string>();
+  promise.then(result => log(result()));
+  promise.settle(() => "hello")
+
+  var promise = new yass.Promise<string>();
+  promise.settle(() => "world")
+  promise.then(result => log(result()));
+
+  assertThrown(() => promise.then(result => 123));
+
+  assertThrown(() => new yass.Promise<string>().then(null));
+
+  promise = new yass.Promise<string>();
+  promise.settle(function (): string {
+    throw new Error("settle");
+  });
+  assertThrown(() => promise.then(result => result()));
+
+}());
+
+//----------------------------------------------------------------------------------------------------------------------
+// run tutorial
+
+log("run tutorial");
+import tutorial = require("../../tutorial/ts/tutorial");
+tutorial.run();
+
+//----------------------------------------------------------------------------------------------------------------------

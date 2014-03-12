@@ -30,10 +30,10 @@ public abstract class UndertowTest extends WsTest {
       .setWorker(xnioWorker);
     final DeploymentManager deployment = Servlets.defaultContainer()
       .addDeployment(Servlets.deployment()
-        .setClassLoader(UndertowTest.class.getClassLoader())
-        .setContextPath("/")
-        .setDeploymentName(UndertowTest.class.getName())
-        .addServletContextAttribute(WebSocketDeploymentInfo.ATTRIBUTE_NAME, webSockets)
+          .setClassLoader(UndertowTest.class.getClassLoader())
+          .setContextPath("/")
+          .setDeploymentName(UndertowTest.class.getName())
+          .addServletContextAttribute(WebSocketDeploymentInfo.ATTRIBUTE_NAME, webSockets)
       );
     deployment.deploy();
     final Undertow server = Undertow.builder()

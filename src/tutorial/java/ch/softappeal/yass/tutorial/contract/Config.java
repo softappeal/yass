@@ -15,7 +15,7 @@ import ch.softappeal.yass.transport.MessageSerializer;
 import ch.softappeal.yass.transport.PacketSerializer;
 import ch.softappeal.yass.transport.StringPathSerializer;
 import ch.softappeal.yass.tutorial.contract.instrument.Bond;
-import ch.softappeal.yass.tutorial.contract.instrument.Stock;
+import ch.softappeal.yass.tutorial.contract.instrument.stock.Stock;
 
 import java.util.Arrays;
 

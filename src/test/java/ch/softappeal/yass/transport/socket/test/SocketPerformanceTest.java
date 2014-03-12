@@ -12,9 +12,9 @@ import ch.softappeal.yass.transport.TransportSetup;
 import ch.softappeal.yass.transport.socket.SocketExecutor;
 import ch.softappeal.yass.transport.socket.SocketListenerTest;
 import ch.softappeal.yass.transport.socket.SocketTransport;
+import ch.softappeal.yass.util.Exceptions;
 import ch.softappeal.yass.util.NamedThreadFactory;
 import ch.softappeal.yass.util.Nullable;
-import ch.softappeal.yass.util.TestUtils;
 import org.junit.Test;
 
 import java.util.concurrent.CountDownLatch;
@@ -36,14 +36,14 @@ public class SocketPerformanceTest extends InvokeTest {
   }
 
   @Test public void test() throws InterruptedException {
-    final ExecutorService executor = Executors.newCachedThreadPool(new NamedThreadFactory("executor", TestUtils.TERMINATE));
+    final ExecutorService executor = Executors.newCachedThreadPool(new NamedThreadFactory("executor", Exceptions.TERMINATE));
     try {
       SocketTransport.listener(
         StringPathSerializer.INSTANCE, new PathResolver(SocketTransportTest.PATH, createSetup(executor, null))
-      ).start(executor, new SocketExecutor(executor, TestUtils.TERMINATE), SocketListenerTest.ADDRESS);
+      ).start(executor, new SocketExecutor(executor, Exceptions.TERMINATE), SocketListenerTest.ADDRESS);
       final CountDownLatch latch = new CountDownLatch(1);
       SocketTransport.connect(
-        createSetup(executor, latch), new SocketExecutor(executor, TestUtils.TERMINATE),
+        createSetup(executor, latch), new SocketExecutor(executor, Exceptions.TERMINATE),
         StringPathSerializer.INSTANCE, SocketTransportTest.PATH, SocketListenerTest.ADDRESS
       );
       latch.await();

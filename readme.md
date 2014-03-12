@@ -2,7 +2,7 @@
 
 * is a fast and very small bidirectional messaging library
 
-* for Java and JavaScript
+* for Java and TypeScript/JavaScript
 
 * allows defining a contract in a typesafe and non-invasive way with services and POJOs
 

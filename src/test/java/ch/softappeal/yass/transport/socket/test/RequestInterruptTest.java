@@ -20,7 +20,6 @@ import ch.softappeal.yass.transport.test.PacketSerializerTest;
 import ch.softappeal.yass.util.Exceptions;
 import ch.softappeal.yass.util.NamedThreadFactory;
 import ch.softappeal.yass.util.Nullable;
-import ch.softappeal.yass.util.TestUtils;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -52,7 +51,7 @@ public class RequestInterruptTest extends InvokeTest {
             }
           }
         )
-      ).start(executor, new SocketExecutor(executor, TestUtils.TERMINATE), SocketListenerTest.ADDRESS);
+      ).start(executor, new SocketExecutor(executor, Exceptions.TERMINATE), SocketListenerTest.ADDRESS);
       SocketTransport.connect(
         new TransportSetup(
           new Server(TaggedMethodMapper.FACTORY),
@@ -102,7 +101,7 @@ public class RequestInterruptTest extends InvokeTest {
             };
           }
         },
-        new SocketExecutor(executor, TestUtils.TERMINATE), StringPathSerializer.INSTANCE, SocketTransportTest.PATH, SocketListenerTest.ADDRESS
+        new SocketExecutor(executor, Exceptions.TERMINATE), StringPathSerializer.INSTANCE, SocketTransportTest.PATH, SocketListenerTest.ADDRESS
       );
       TimeUnit.SECONDS.sleep(1L);
     } finally {

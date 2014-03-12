@@ -25,10 +25,10 @@ public final class UndertowServer {
       .setWorker(xnioWorker);
     final DeploymentManager deployment = Servlets.defaultContainer()
       .addDeployment(Servlets.deployment()
-        .setClassLoader(UndertowServer.class.getClassLoader())
-        .setContextPath("/")
-        .setDeploymentName(UndertowServer.class.getName())
-        .addServletContextAttribute(WebSocketDeploymentInfo.ATTRIBUTE_NAME, webSockets)
+          .setClassLoader(UndertowServer.class.getClassLoader())
+          .setContextPath("/")
+          .setDeploymentName(UndertowServer.class.getName())
+          .addServletContextAttribute(WebSocketDeploymentInfo.ATTRIBUTE_NAME, webSockets)
       );
     deployment.deploy();
     final HttpHandler webSocketHandler = deployment.start();

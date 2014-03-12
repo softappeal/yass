@@ -11,10 +11,10 @@ import ch.softappeal.yass.core.remote.session.SessionClient;
 import ch.softappeal.yass.core.test.InvokeTest;
 import ch.softappeal.yass.transport.TransportSetup;
 import ch.softappeal.yass.transport.socket.test.SocketPerformanceTest;
+import ch.softappeal.yass.util.Exceptions;
 import ch.softappeal.yass.util.NamedThreadFactory;
 import ch.softappeal.yass.util.Nullable;
 import ch.softappeal.yass.util.PerformanceTask;
-import ch.softappeal.yass.util.TestUtils;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -75,7 +75,7 @@ public class PerformanceTest extends InvokeTest {
   }
 
   @Test public void test() throws InterruptedException {
-    final ExecutorService executor = Executors.newCachedThreadPool(new NamedThreadFactory("executor", TestUtils.TERMINATE));
+    final ExecutorService executor = Executors.newCachedThreadPool(new NamedThreadFactory("executor", Exceptions.TERMINATE));
     try {
       final CountDownLatch latch = new CountDownLatch(1);
       LocalConnection.connect(createSetup(executor, latch, COUNTER), createSetup(executor, null, COUNTER));

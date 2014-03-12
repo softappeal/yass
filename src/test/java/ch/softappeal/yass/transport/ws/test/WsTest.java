@@ -6,8 +6,8 @@ import ch.softappeal.yass.transport.TransportSetup;
 import ch.softappeal.yass.transport.socket.test.SocketPerformanceTest;
 import ch.softappeal.yass.transport.ws.WsConnection;
 import ch.softappeal.yass.transport.ws.WsEndpoint;
+import ch.softappeal.yass.util.Exceptions;
 import ch.softappeal.yass.util.NamedThreadFactory;
-import ch.softappeal.yass.util.TestUtils;
 import org.junit.After;
 import org.junit.Before;
 
@@ -29,7 +29,7 @@ public abstract class WsTest {
   private static volatile ExecutorService REQUEST_EXECUTOR;
 
   @Before public void startRequestExecutor() {
-    REQUEST_EXECUTOR = Executors.newCachedThreadPool(new NamedThreadFactory("requestExecutor", TestUtils.TERMINATE));
+    REQUEST_EXECUTOR = Executors.newCachedThreadPool(new NamedThreadFactory("requestExecutor", Exceptions.TERMINATE));
   }
 
   @After public void stopRequestExecutor() {

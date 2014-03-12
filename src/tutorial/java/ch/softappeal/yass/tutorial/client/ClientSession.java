@@ -3,10 +3,10 @@ package ch.softappeal.yass.tutorial.client;
 import ch.softappeal.yass.core.remote.session.Session;
 import ch.softappeal.yass.core.remote.session.SessionClient;
 import ch.softappeal.yass.tutorial.contract.Instrument;
-import ch.softappeal.yass.tutorial.contract.InstrumentService;
 import ch.softappeal.yass.tutorial.contract.PriceEngine;
 import ch.softappeal.yass.tutorial.contract.ServerServices;
 import ch.softappeal.yass.tutorial.contract.UnknownInstrumentsException;
+import ch.softappeal.yass.tutorial.contract.instrument.InstrumentService;
 import ch.softappeal.yass.util.Exceptions;
 import ch.softappeal.yass.util.Nullable;
 

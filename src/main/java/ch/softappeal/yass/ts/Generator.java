@@ -1,4 +1,4 @@
-package ch.softappeal.yass.js;
+package ch.softappeal.yass.ts;
 
 import java.io.IOException;
 import java.io.PrintWriter;

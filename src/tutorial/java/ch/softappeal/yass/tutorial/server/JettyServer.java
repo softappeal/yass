@@ -15,6 +15,7 @@ import org.eclipse.jetty.websocket.jsr356.server.deploy.WebSocketServerContainer
 
 import javax.websocket.Session;
 import javax.websocket.server.ServerEndpointConfig;
+import java.net.InetSocketAddress;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
@@ -35,7 +36,7 @@ public final class JettyServer {
   }
 
   public static void main(final String... args) throws Exception {
-    final Server server = new Server(PORT);
+    final Server server = new Server(new InetSocketAddress(HOST, PORT));
     server.addConnector(new ServerConnector(server));
 
     final ServletContextHandler webSocketHandler = new ServletContextHandler(ServletContextHandler.SESSIONS);

@@ -18,10 +18,10 @@ import ch.softappeal.yass.transport.TransportSetup;
 import ch.softappeal.yass.transport.socket.SocketConnection;
 import ch.softappeal.yass.transport.socket.SocketExecutor;
 import ch.softappeal.yass.transport.socket.SocketTransport;
+import ch.softappeal.yass.util.Exceptions;
 import ch.softappeal.yass.util.NamedThreadFactory;
 import ch.softappeal.yass.util.Nullable;
 import ch.softappeal.yass.util.Tag;
-import ch.softappeal.yass.util.TestUtils;
 
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
@@ -45,7 +45,7 @@ public final class WriterExecutorTest {
   private static final SocketAddress ADDRESS = new InetSocketAddress("localhost", 28947);
 
   private static Executor executor(final String name) {
-    return Executors.newCachedThreadPool(new NamedThreadFactory(name, TestUtils.TERMINATE));
+    return Executors.newCachedThreadPool(new NamedThreadFactory(name, Exceptions.TERMINATE));
   }
 
   private static void server() {
@@ -82,13 +82,13 @@ public final class WriterExecutorTest {
                 }
               }
               @Override public void closed(@Nullable final Throwable throwable) {
-                TestUtils.TERMINATE.uncaughtException(null, throwable);
+                Exceptions.TERMINATE.uncaughtException(null, throwable);
               }
             };
           }
         }
       )
-    ).start(executor("server-listener"), new SocketExecutor(executor("server-socket"), TestUtils.TERMINATE), ADDRESS);
+    ).start(executor("server-listener"), new SocketExecutor(executor("server-socket"), Exceptions.TERMINATE), ADDRESS);
   }
 
   public static void main(final String... args) {
@@ -113,12 +113,12 @@ public final class WriterExecutorTest {
         @Override public Session createSession(final SessionClient sessionClient) {
           return new Session(sessionClient) {
             @Override public void closed(@Nullable final Throwable throwable) {
-              TestUtils.TERMINATE.uncaughtException(null, throwable);
+              Exceptions.TERMINATE.uncaughtException(null, throwable);
             }
           };
         }
       },
-      new SocketExecutor(executor("client-socket"), TestUtils.TERMINATE),
+      new SocketExecutor(executor("client-socket"), Exceptions.TERMINATE),
       StringPathSerializer.INSTANCE, SocketTransportTest.PATH, ADDRESS
     );
     Executors.newScheduledThreadPool(1).scheduleAtFixedRate(

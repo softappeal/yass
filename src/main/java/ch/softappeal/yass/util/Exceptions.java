@@ -34,4 +34,16 @@ public final class Exceptions {
     }
   };
 
+  /**
+   * Prints to {@link System#err} and EXITS.
+   * <p/>
+   * Note: For productive code, this handler should be replaced with one that uses your logging framework!
+   */
+  public static final UncaughtExceptionHandler TERMINATE = new UncaughtExceptionHandler() {
+    @Override public void uncaughtException(final Thread thread, final Throwable throwable) {
+      STD_ERR.uncaughtException(thread, throwable);
+      System.exit(1);
+    }
+  };
+
 }
