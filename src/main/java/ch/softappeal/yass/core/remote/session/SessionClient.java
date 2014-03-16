@@ -26,7 +26,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * Once a session is established, the communication is symmetrical between the two peers.
  * The only difference is that a client initiates a session and a server accepts sessions.
  */
-public final class SessionClient extends Client implements AutoCloseable {
+public final class SessionClient extends Client {
 
   private final SessionSetup setup;
   private final AtomicBoolean closed = new AtomicBoolean(false);
@@ -65,7 +65,7 @@ public final class SessionClient extends Client implements AutoCloseable {
         try {
           connection.closed();
         } catch (final Exception e2) {
-          e.addSuppressed(e2);
+          // e.addSuppressed(e2);
         }
         throw e;
       }
@@ -101,7 +101,7 @@ public final class SessionClient extends Client implements AutoCloseable {
   }
 
   private Reply writeRequestAndReadReply(final int requestNumber, final Request request) {
-    final BlockingQueue<Reply> replyQueue = new ArrayBlockingQueue<>(1, false); // we use unfair for speed
+    final BlockingQueue<Reply> replyQueue = new ArrayBlockingQueue<Reply>(1, false); // we use unfair for speed
     if (requestNumber2replyQueue.put(requestNumber, replyQueue) != null) {
       throw new RuntimeException("already waiting for requestNumber " + requestNumber);
     }
@@ -189,7 +189,7 @@ public final class SessionClient extends Client implements AutoCloseable {
   /**
    * This method is idempotent.
    */
-  @Override public void close() {
+  public void close() {
     close(true, null);
   }
 

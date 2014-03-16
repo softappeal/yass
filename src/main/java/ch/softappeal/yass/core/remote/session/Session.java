@@ -5,7 +5,7 @@ import ch.softappeal.yass.util.Nullable;
 
 public abstract class Session {
 
-  static final ThreadLocal<Session> INSTANCE = new ThreadLocal<>();
+  static final ThreadLocal<Session> INSTANCE = new ThreadLocal<Session>();
 
   /**
    * @return the session of the active invocation or null if no active invocation

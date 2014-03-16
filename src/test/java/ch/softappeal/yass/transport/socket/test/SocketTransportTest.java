@@ -93,7 +93,7 @@ public class SocketTransportTest extends InvokeTest {
     final ExecutorService executor = Executors.newCachedThreadPool(new NamedThreadFactory("executor", TestUtils.TERMINATE));
     final String path1 = "path1";
     final String path2 = "path2";
-    final Map<String, TransportSetup> pathMappings = new HashMap<>(2);
+    final Map<String, TransportSetup> pathMappings = new HashMap<String, TransportSetup>(2);
     pathMappings.put(path1, LocalConnectionTest.createSetup(true, executor, false));
     pathMappings.put(path2, LocalConnectionTest.createSetup(true, executor, false));
     try {
