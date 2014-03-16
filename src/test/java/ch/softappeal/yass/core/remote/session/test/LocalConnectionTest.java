@@ -5,14 +5,14 @@ import ch.softappeal.yass.core.Interceptors;
 import ch.softappeal.yass.core.Invocation;
 import ch.softappeal.yass.core.remote.Server;
 import ch.softappeal.yass.core.remote.TaggedMethodMapper;
-import ch.softappeal.yass.core.remote.session.Connection;
 import ch.softappeal.yass.core.remote.session.LocalConnection;
 import ch.softappeal.yass.core.remote.session.Session;
-import ch.softappeal.yass.core.remote.session.SessionFactory;
-import ch.softappeal.yass.core.remote.session.SessionSetup;
+import ch.softappeal.yass.core.remote.session.SessionClient;
 import ch.softappeal.yass.core.remote.test.ContractIdTest;
 import ch.softappeal.yass.core.test.InvokeTest;
+import ch.softappeal.yass.transport.TransportSetup;
 import ch.softappeal.yass.transport.socket.SocketListenerTest;
+import ch.softappeal.yass.transport.test.PacketSerializerTest;
 import ch.softappeal.yass.util.NamedThreadFactory;
 import ch.softappeal.yass.util.Nullable;
 import ch.softappeal.yass.util.TestUtils;
@@ -34,11 +34,8 @@ public class LocalConnectionTest extends InvokeTest {
     }
   };
 
-  public static SessionSetup createSetup(
-    final boolean invoke, final String name, final Executor requestExecutor,
-    final boolean createException, final boolean openedException, final boolean invokeBeforeOpened
-  ) {
-    return new SessionSetup(
+  private static TransportSetup createSetup(final boolean invoke, final Executor requestExecutor, final boolean createException, final boolean openedException, final boolean invokeBeforeOpened) {
+    return new TransportSetup(
       new Server(
         TaggedMethodMapper.FACTORY,
         ContractIdTest.ID.service(
@@ -47,56 +44,54 @@ public class LocalConnectionTest extends InvokeTest {
         )
       ),
       requestExecutor,
-      new SessionFactory() {
-        @Override public Session create(final SessionSetup setup, final Connection connection) throws Exception {
-          if (createException) {
-            throw new Exception("create failed");
-          }
-          return new Session(setup, connection) {
-            {
-              println(name, "create", hashCode());
-              if (invokeBeforeOpened) {
-                ContractIdTest.ID.invoker(this).proxy().nothing();
-              }
-            }
-            @Override public void opened() throws Exception {
-              println(name, "opened", hashCode());
-              if (openedException) {
-                throw new Exception("opened failed");
-              }
-              if (invoke) {
-                final Session session = this;
-                try {
-                  InvokeTest.invoke(
-                    ContractIdTest.ID.invoker(session).proxy(
-                      invoke ? Interceptors.composite(PRINTLN_AFTER, SESSION_CHECKER, CLIENT_INTERCEPTOR) : SESSION_CHECKER
-                    )
-                  );
-                } finally {
-                  session.close();
-                }
-              }
-            }
-            @Override public void closed(@Nullable final Throwable throwable) {
-              if (invoke) {
-                Assert.assertNull(throwable);
-              }
-              println(name, "closed", hashCode() + " " + throwable);
-            }
-          };
+      PacketSerializerTest.SERIALIZER
+    ) {
+      @Override public Session createSession(final SessionClient sessionClient) throws Exception {
+        if (createException) {
+          throw new Exception("create failed");
         }
+        if (invokeBeforeOpened) {
+          ContractIdTest.ID.invoker(sessionClient).proxy().nothing();
+        }
+        return new Session(sessionClient) {
+          @Override public void opened() throws Exception {
+            println("", "opened", hashCode());
+            if (openedException) {
+              throw new Exception("opened failed");
+            }
+            if (invoke) {
+              try (SessionClient client = sessionClient) {
+                InvokeTest.invoke(
+                  ContractIdTest.ID.invoker(client).proxy(
+                    invoke ? Interceptors.composite(PRINTLN_AFTER, SESSION_CHECKER, CLIENT_INTERCEPTOR) : SESSION_CHECKER
+                  )
+                );
+              }
+            }
+          }
+          @Override public void closed(@Nullable final Throwable throwable) {
+            if (invoke) {
+              Assert.assertNull(throwable);
+            }
+            println("", "closed", hashCode() + " " + throwable);
+          }
+        };
       }
-    );
+    };
+  }
+
+  public static TransportSetup createSetup(final boolean invoke, final Executor requestExecutor, final boolean createException) {
+    return createSetup(invoke, requestExecutor, createException, false, false);
   }
 
   @Test public void plain() throws InterruptedException {
     Assert.assertNull(Session.get());
     final ExecutorService executor = Executors.newCachedThreadPool(new NamedThreadFactory("executor", TestUtils.TERMINATE));
     try {
-      LocalConnection.connect(createSetup(true, "client", executor, false, false, false), createSetup(false, "server", executor, false, false, false));
+      LocalConnection.connect(createSetup(true, executor, false), createSetup(false, executor, false));
       TimeUnit.MILLISECONDS.sleep(400L);
       System.out.println();
-      LocalConnection.connect(createSetup(false, "client", executor, false, false, false), createSetup(true, "server", executor, false, false, false));
+      LocalConnection.connect(createSetup(false, executor, false), createSetup(true, executor, false));
       TimeUnit.MILLISECONDS.sleep(400L);
     } finally {
       executor.shutdownNow();
@@ -107,7 +102,7 @@ public class LocalConnectionTest extends InvokeTest {
     final ExecutorService executor = Executors.newCachedThreadPool(new NamedThreadFactory("executor", TestUtils.TERMINATE));
     try {
       try {
-        LocalConnection.connect(createSetup(false, "client", executor, false, false, false), createSetup(false, "server", executor, true, false, false));
+        LocalConnection.connect(createSetup(false, executor, false), createSetup(false, executor, true));
         Assert.fail();
       } catch (final RuntimeException e) {
         Assert.assertEquals(e.getMessage(), "java.lang.Exception: create failed");
@@ -117,25 +112,25 @@ public class LocalConnectionTest extends InvokeTest {
     }
   }
 
-  @Test public void invokeBeforeOpened() throws InterruptedException {
+  @Test public void openedException() throws InterruptedException {
     final ExecutorService executor = Executors.newCachedThreadPool(new NamedThreadFactory("executor", TestUtils.TERMINATE));
     try {
-      try {
-        LocalConnection.connect(createSetup(false, "client", executor, false, false, false), createSetup(false, "server", executor, false, false, true));
-        Assert.fail();
-      } catch (final RuntimeException e) {
-        Assert.assertEquals(e.getMessage(), "session is not yet opened");
-      }
+      LocalConnection.connect(createSetup(false, executor, false, false, false), createSetup(false, executor, false, true, false));
+      TimeUnit.MILLISECONDS.sleep(100L);
     } finally {
       SocketListenerTest.shutdown(executor);
     }
   }
 
-  @Test public void openedException() throws InterruptedException {
+  @Test public void invokeBeforeOpened() throws InterruptedException {
     final ExecutorService executor = Executors.newCachedThreadPool(new NamedThreadFactory("executor", TestUtils.TERMINATE));
     try {
-      LocalConnection.connect(createSetup(false, "client", executor, false, true, false), createSetup(false, "server", executor, false, true, false));
-      TimeUnit.MILLISECONDS.sleep(100L);
+      try {
+        LocalConnection.connect(createSetup(true, executor, false, false, true), createSetup(false, executor, false));
+        Assert.fail();
+      } catch (final NullPointerException e) {
+        e.printStackTrace();
+      }
     } finally {
       SocketListenerTest.shutdown(executor);
     }

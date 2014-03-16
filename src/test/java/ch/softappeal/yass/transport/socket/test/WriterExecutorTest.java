@@ -5,10 +5,8 @@ import ch.softappeal.yass.core.remote.MethodMapper;
 import ch.softappeal.yass.core.remote.OneWay;
 import ch.softappeal.yass.core.remote.Server;
 import ch.softappeal.yass.core.remote.TaggedMethodMapper;
-import ch.softappeal.yass.core.remote.session.Connection;
 import ch.softappeal.yass.core.remote.session.Session;
-import ch.softappeal.yass.core.remote.session.SessionFactory;
-import ch.softappeal.yass.core.remote.session.SessionSetup;
+import ch.softappeal.yass.core.remote.session.SessionClient;
 import ch.softappeal.yass.serialize.Serializer;
 import ch.softappeal.yass.serialize.test.SerializerTest;
 import ch.softappeal.yass.transport.MessageSerializer;
@@ -56,39 +54,38 @@ public final class WriterExecutorTest {
         SocketTransportTest.PATH,
         new TransportSetup(
           new Server(METHOD_MAPPER_FACTORY),
-          PACKET_SERIALIZER,
           executor("server-request"),
-          new SessionFactory() {
-            @Override public Session create(final SessionSetup setup, final Connection connection) {
-              return new Session(setup, connection) {
-                @Override public void opened() {
-                  final SocketConnection socketConnection = (SocketConnection)connection;
-                  final StringListener stringListener = StringListenerId.invoker(this).proxy();
-                  socketConnection.awaitWriterQueueEmpty();
-                  final Executor worker = executor("server-worker");
-                  final String s = "hello";
-                  for (int i = 0; i < 20; i++) {
-                    worker.execute(new Runnable() {
-                      @Override public void run() {
-                        while (true) {
-                          stringListener.newString(s);
-                          try {
-                            TimeUnit.MILLISECONDS.sleep(1);
-                          } catch (final InterruptedException e) {
-                            throw new RuntimeException(e);
-                          }
+          PACKET_SERIALIZER
+        ) {
+          @Override public Session createSession(final SessionClient sessionClient) {
+            return new Session(sessionClient) {
+              @Override public void opened() {
+                final SocketConnection socketConnection = (SocketConnection)sessionClient.connection;
+                final StringListener stringListener = StringListenerId.invoker(sessionClient).proxy();
+                socketConnection.awaitWriterQueueEmpty();
+                final Executor worker = executor("server-worker");
+                final String s = "hello";
+                for (int i = 0; i < 20; i++) {
+                  worker.execute(new Runnable() {
+                    @Override public void run() {
+                      while (true) {
+                        stringListener.newString(s);
+                        try {
+                          TimeUnit.MILLISECONDS.sleep(1);
+                        } catch (final InterruptedException e) {
+                          throw new RuntimeException(e);
                         }
                       }
-                    });
-                  }
+                    }
+                  });
                 }
-                @Override public void closed(@Nullable final Throwable throwable) {
-                  TestUtils.TERMINATE.uncaughtException(null, throwable);
-                }
-              };
-            }
+              }
+              @Override public void closed(@Nullable final Throwable throwable) {
+                TestUtils.TERMINATE.uncaughtException(null, throwable);
+              }
+            };
           }
-        )
+        }
       )
     ).start(executor("server-listener"), new SocketExecutor(executor("server-socket"), TestUtils.TERMINATE), ADDRESS);
   }
@@ -108,18 +105,17 @@ public final class WriterExecutorTest {
             }
           )
         ),
-        PACKET_SERIALIZER,
         executor("client-request"),
-        new SessionFactory() {
-          @Override public Session create(final SessionSetup setup, final Connection connection) {
-            return new Session(setup, connection) {
-              @Override public void closed(@Nullable final Throwable throwable) {
-                TestUtils.TERMINATE.uncaughtException(null, throwable);
-              }
-            };
-          }
+        PACKET_SERIALIZER
+      ) {
+        @Override public Session createSession(final SessionClient sessionClient) {
+          return new Session(sessionClient) {
+            @Override public void closed(@Nullable final Throwable throwable) {
+              TestUtils.TERMINATE.uncaughtException(null, throwable);
+            }
+          };
         }
-      ),
+      },
       new SocketExecutor(executor("client-socket"), TestUtils.TERMINATE),
       StringPathSerializer.INSTANCE, SocketTransportTest.PATH, ADDRESS
     );

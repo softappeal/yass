@@ -32,15 +32,20 @@ public class SocketPerformanceTest extends InvokeTest {
   public static final Serializer PACKET_SERIALIZER = new PacketSerializer(MESSAGE_SERIALIZER);
 
   private static TransportSetup createSetup(final Executor executor, @Nullable final CountDownLatch latch) {
-    return new TransportSetup(PerformanceTest.createSetup(executor, latch, COUNTER), PACKET_SERIALIZER);
+    return PerformanceTest.createSetup(executor, latch, COUNTER);
   }
 
   @Test public void test() throws InterruptedException {
     final ExecutorService executor = Executors.newCachedThreadPool(new NamedThreadFactory("executor", TestUtils.TERMINATE));
     try {
-      SocketTransport.listener(StringPathSerializer.INSTANCE, new PathResolver(SocketTransportTest.PATH, createSetup(executor, null))).start(executor, new SocketExecutor(executor, TestUtils.TERMINATE), SocketListenerTest.ADDRESS);
+      SocketTransport.listener(
+        StringPathSerializer.INSTANCE, new PathResolver(SocketTransportTest.PATH, createSetup(executor, null))
+      ).start(executor, new SocketExecutor(executor, TestUtils.TERMINATE), SocketListenerTest.ADDRESS);
       final CountDownLatch latch = new CountDownLatch(1);
-      SocketTransport.connect(createSetup(executor, latch), new SocketExecutor(executor, TestUtils.TERMINATE), StringPathSerializer.INSTANCE, SocketTransportTest.PATH, SocketListenerTest.ADDRESS);
+      SocketTransport.connect(
+        createSetup(executor, latch), new SocketExecutor(executor, TestUtils.TERMINATE),
+        StringPathSerializer.INSTANCE, SocketTransportTest.PATH, SocketListenerTest.ADDRESS
+      );
       latch.await();
       TimeUnit.MILLISECONDS.sleep(100L);
     } finally {

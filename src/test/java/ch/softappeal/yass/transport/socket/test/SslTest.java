@@ -1,12 +1,8 @@
 package ch.softappeal.yass.transport.socket.test;
 
-import ch.softappeal.yass.core.Interceptor;
-import ch.softappeal.yass.core.Invocation;
 import ch.softappeal.yass.core.remote.Server;
-import ch.softappeal.yass.core.remote.session.Connection;
 import ch.softappeal.yass.core.remote.session.Session;
-import ch.softappeal.yass.core.remote.session.SessionFactory;
-import ch.softappeal.yass.core.remote.session.SessionSetup;
+import ch.softappeal.yass.core.remote.session.SessionClient;
 import ch.softappeal.yass.core.remote.session.test.PerformanceTest;
 import ch.softappeal.yass.core.test.InvokeTest;
 import ch.softappeal.yass.transport.PathResolver;
@@ -19,7 +15,6 @@ import ch.softappeal.yass.transport.socket.SslSetup;
 import ch.softappeal.yass.util.ClassLoaderResource;
 import ch.softappeal.yass.util.Exceptions;
 import ch.softappeal.yass.util.NamedThreadFactory;
-import ch.softappeal.yass.util.Nullable;
 import ch.softappeal.yass.util.TestUtils;
 import org.junit.Assert;
 import org.junit.Test;
@@ -27,7 +22,6 @@ import org.junit.Test;
 import javax.net.ServerSocketFactory;
 import javax.net.SocketFactory;
 import javax.net.ssl.SSLSocket;
-import java.lang.reflect.Method;
 import java.security.KeyStore;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -35,13 +29,11 @@ import java.util.concurrent.TimeUnit;
 
 public class SslTest extends InvokeTest {
 
+  private static void checkName(final SessionClient sessionClient) throws Exception {
+    Assert.assertEquals("CN=Test", ((SSLSocket)((SocketConnection)sessionClient.connection).socket).getSession().getPeerPrincipal().getName());
+  }
+
   private static void test(final ServerSocketFactory serverSocketFactory, final SocketFactory socketFactory) throws Exception {
-    final Interceptor peerPrincipalChecker = new Interceptor() {
-      @Override public Object invoke(final Method method, @Nullable final Object[] arguments, final Invocation invocation) throws Throwable {
-        Assert.assertEquals("CN=Test", ((SSLSocket)((SocketConnection)Session.get().connection).socket).getSession().getPeerPrincipal().getName());
-        return invocation.proceed();
-      }
-    };
     final ExecutorService executor = Executors.newCachedThreadPool(new NamedThreadFactory("executor", Exceptions.STD_ERR));
     try {
       SocketTransport.listener(
@@ -51,37 +43,14 @@ public class SslTest extends InvokeTest {
           new TransportSetup(
             new Server(
               PerformanceTest.METHOD_MAPPER_FACTORY,
-              PerformanceTest.CONTRACT_ID.service(new TestServiceImpl(), peerPrincipalChecker)
+              PerformanceTest.CONTRACT_ID.service(new TestServiceImpl())
             ),
-            SocketPerformanceTest.PACKET_SERIALIZER,
             executor,
-            new SessionFactory() {
-              @Override public Session create(SessionSetup setup, Connection connection) throws Exception {
-                return new Session(setup, connection) {
-                  @Override protected void closed(final Throwable throwable) {
-                    if (throwable != null) {
-                      TestUtils.TERMINATE.uncaughtException(null, throwable);
-                    }
-                  }
-                };
-              }
-            }
-          )
-        )
-      ).start(executor, new SocketExecutor(executor, TestUtils.TERMINATE), serverSocketFactory, SocketListenerTest.ADDRESS);
-      SocketTransport.connect(
-        new TransportSetup(
-          new Server(PerformanceTest.METHOD_MAPPER_FACTORY),
-          SocketPerformanceTest.PACKET_SERIALIZER,
-          executor,
-          new SessionFactory() {
-            @Override public Session create(final SessionSetup setup, final Connection connection) {
-              return new Session(setup, connection) {
-                @Override protected void opened() throws Exception {
-                  final TestService testService = PerformanceTest.CONTRACT_ID.invoker(this).proxy(peerPrincipalChecker);
-                  Assert.assertTrue(testService.divide(12, 4) == 3);
-                  close();
-                }
+            SocketPerformanceTest.PACKET_SERIALIZER
+          ) {
+            @Override public Session createSession(final SessionClient sessionClient) throws Exception {
+              checkName(sessionClient);
+              return new Session(sessionClient) {
                 @Override protected void closed(final Throwable throwable) {
                   if (throwable != null) {
                     TestUtils.TERMINATE.uncaughtException(null, throwable);
@@ -90,7 +59,30 @@ public class SslTest extends InvokeTest {
               };
             }
           }
-        ),
+        )
+      ).start(executor, new SocketExecutor(executor, TestUtils.TERMINATE), serverSocketFactory, SocketListenerTest.ADDRESS);
+      SocketTransport.connect(
+        new TransportSetup(
+          new Server(PerformanceTest.METHOD_MAPPER_FACTORY),
+          executor,
+          SocketPerformanceTest.PACKET_SERIALIZER
+        ) {
+          @Override public Session createSession(final SessionClient sessionClient) throws Exception {
+            checkName(sessionClient);
+            return new Session(sessionClient) {
+              @Override protected void opened() throws Exception {
+                final TestService testService = PerformanceTest.CONTRACT_ID.invoker(sessionClient).proxy();
+                Assert.assertTrue(testService.divide(12, 4) == 3);
+                sessionClient.close();
+              }
+              @Override protected void closed(final Throwable throwable) {
+                if (throwable != null) {
+                  TestUtils.TERMINATE.uncaughtException(null, throwable);
+                }
+              }
+            };
+          }
+        },
         new SocketExecutor(executor, TestUtils.TERMINATE),
         SocketTransportTest.PATH_SERIALIZER, SocketTransportTest.PATH,
         socketFactory, SocketListenerTest.ADDRESS
