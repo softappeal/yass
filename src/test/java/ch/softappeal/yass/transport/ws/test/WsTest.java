@@ -4,7 +4,6 @@ import ch.softappeal.yass.core.remote.session.test.LocalConnectionTest;
 import ch.softappeal.yass.core.remote.session.test.PerformanceTest;
 import ch.softappeal.yass.transport.TransportSetup;
 import ch.softappeal.yass.transport.socket.test.SocketPerformanceTest;
-import ch.softappeal.yass.transport.test.PacketSerializerTest;
 import ch.softappeal.yass.transport.ws.WsConnection;
 import ch.softappeal.yass.transport.ws.WsEndpoint;
 import ch.softappeal.yass.util.NamedThreadFactory;
@@ -29,13 +28,11 @@ public abstract class WsTest {
 
   private static volatile ExecutorService REQUEST_EXECUTOR;
 
-  @Before
-  public void startRequestExecutor() {
+  @Before public void startRequestExecutor() {
     REQUEST_EXECUTOR = Executors.newCachedThreadPool(new NamedThreadFactory("requestExecutor", TestUtils.TERMINATE));
   }
 
-  @After
-  public void stopRequestExecutor() {
+  @After public void stopRequestExecutor() {
     REQUEST_EXECUTOR.shutdown();
   }
 
@@ -55,16 +52,16 @@ public abstract class WsTest {
   }
 
   protected static void setTransportSetup(
-    final boolean serverInvoke, final boolean serverCreateException, final boolean serverOpenedException, final boolean serverInvokeBeforeOpened,
-    final boolean clientInvoke, final boolean clientCreateException, final boolean clientOpenedException, final boolean clientInvokeBeforeOpened
+    final boolean serverInvoke, final boolean serverCreateException,
+    final boolean clientInvoke, final boolean clientCreateException
   ) {
-    TRANSPORT_SETUP_SERVER = new TransportSetup(LocalConnectionTest.createSetup(serverInvoke, "server", REQUEST_EXECUTOR, serverCreateException, serverOpenedException, serverInvokeBeforeOpened), PacketSerializerTest.SERIALIZER);
-    TRANSPORT_SETUP_CLIENT = new TransportSetup(LocalConnectionTest.createSetup(clientInvoke, "client", REQUEST_EXECUTOR, clientCreateException, clientOpenedException, clientInvokeBeforeOpened), PacketSerializerTest.SERIALIZER);
+    TRANSPORT_SETUP_SERVER = LocalConnectionTest.createSetup(serverInvoke, REQUEST_EXECUTOR, serverCreateException);
+    TRANSPORT_SETUP_CLIENT = LocalConnectionTest.createSetup(clientInvoke, REQUEST_EXECUTOR, clientCreateException);
   }
 
   protected static void setPerformanceSetup(final CountDownLatch latch) {
-    TRANSPORT_SETUP_SERVER = new TransportSetup(PerformanceTest.createSetup(REQUEST_EXECUTOR, null, SocketPerformanceTest.COUNTER), SocketPerformanceTest.PACKET_SERIALIZER);
-    TRANSPORT_SETUP_CLIENT = new TransportSetup(PerformanceTest.createSetup(REQUEST_EXECUTOR, latch, SocketPerformanceTest.COUNTER), SocketPerformanceTest.PACKET_SERIALIZER);
+    TRANSPORT_SETUP_SERVER = PerformanceTest.createSetup(REQUEST_EXECUTOR, null, SocketPerformanceTest.COUNTER);
+    TRANSPORT_SETUP_CLIENT = PerformanceTest.createSetup(REQUEST_EXECUTOR, latch, SocketPerformanceTest.COUNTER);
   }
 
   protected static void connect(final WebSocketContainer container, final CountDownLatch latch) throws Exception {

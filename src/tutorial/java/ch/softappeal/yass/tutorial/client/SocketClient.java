@@ -1,10 +1,8 @@
 package ch.softappeal.yass.tutorial.client;
 
 import ch.softappeal.yass.core.remote.Server;
-import ch.softappeal.yass.core.remote.session.Connection;
 import ch.softappeal.yass.core.remote.session.Session;
-import ch.softappeal.yass.core.remote.session.SessionFactory;
-import ch.softappeal.yass.core.remote.session.SessionSetup;
+import ch.softappeal.yass.core.remote.session.SessionClient;
 import ch.softappeal.yass.transport.TransportSetup;
 import ch.softappeal.yass.transport.socket.SocketExecutor;
 import ch.softappeal.yass.transport.socket.SocketTransport;
@@ -27,17 +25,17 @@ public final class SocketClient {
     }
   });
 
-  private static final Server SERVER = new Server(
+  public static final Server SERVER = new Server(
     Config.METHOD_MAPPER_FACTORY,
     ClientServices.PriceListener.service(PRICE_LISTENER)
   );
 
   public static TransportSetup createTransportSetup(final Executor requestExecutor) {
-    return new TransportSetup(SERVER, Config.PACKET_SERIALIZER, requestExecutor, new SessionFactory() {
-      @Override public Session create(final SessionSetup setup, final Connection connection) {
-        return new ClientSession(setup, connection);
+    return new TransportSetup(SERVER, requestExecutor, Config.PACKET_SERIALIZER) {
+      @Override public Session createSession(final SessionClient sessionClient) {
+        return new ClientSession(sessionClient);
       }
-    });
+    };
   }
 
   public static void main(final String... args) {

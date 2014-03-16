@@ -14,16 +14,12 @@ public abstract class Connection {
    */
   protected abstract void write(Packet packet) throws Exception;
 
-  protected static void close(final Session session, final Throwable throwable) {
-    session.close(throwable);
+  protected static void close(final SessionClient sessionClient, final Throwable throwable) {
+    sessionClient.close(throwable);
   }
 
-  protected static void received(final Session session, final Packet packet) {
-    session.received(packet);
-  }
-
-  protected static boolean open(final Session session) {
-    return session.open();
+  protected static void received(final SessionClient sessionClient, final Packet packet) {
+    sessionClient.received(packet);
   }
 
 }

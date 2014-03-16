@@ -2,7 +2,7 @@ package ch.softappeal.yass.transport.socket;
 
 import ch.softappeal.yass.core.remote.session.Connection;
 import ch.softappeal.yass.core.remote.session.Packet;
-import ch.softappeal.yass.core.remote.session.Session;
+import ch.softappeal.yass.core.remote.session.SessionClient;
 import ch.softappeal.yass.serialize.Reader;
 import ch.softappeal.yass.serialize.Serializer;
 import ch.softappeal.yass.serialize.Writer;
@@ -30,25 +30,22 @@ public final class SocketConnection extends Connection {
   ) throws Exception {
     packetSerializer = setup.packetSerializer;
     this.socket = socket;
-    final Session session = setup.createSession(this);
-    if (!open(session)) {
-      return;
-    }
+    final SessionClient sessionClient = new SessionClient(setup, this);
     try {
       writerExecutor.execute(new Runnable() {
         @Override public void run() {
           try {
             write(outputStream);
           } catch (final Exception e) {
-            close(session, e);
+            close(sessionClient, e);
           }
         }
       });
     } catch (final Exception e) {
-      close(session, e);
+      close(sessionClient, e);
       return;
     }
-    read(session, reader);
+    read(sessionClient, reader);
   }
 
   @Override protected void write(final Packet packet) throws Exception {
@@ -57,16 +54,16 @@ public final class SocketConnection extends Connection {
     writerQueue.put(buffer);
   }
 
-  private void read(final Session session, final Reader reader) {
+  private void read(final SessionClient sessionClient, final Reader reader) {
     while (true) {
       final Packet packet;
       try {
         packet = (Packet)packetSerializer.read(reader);
       } catch (final Exception e) {
-        close(session, e);
+        close(sessionClient, e);
         return;
       }
-      received(session, packet);
+      received(sessionClient, packet);
       if (packet.isEnd()) {
         return;
       }
@@ -125,7 +122,7 @@ public final class SocketConnection extends Connection {
   }
 
   /**
-   * Note: No more calls to {@link #write(Packet)} are accepted when this method is called due to implementation of {@link Session}.
+   * Note: No more calls to {@link #write(Packet)} are accepted when this method is called due to implementation of {@link SessionClient}.
    */
   @Override protected void closed() throws Exception {
     try {

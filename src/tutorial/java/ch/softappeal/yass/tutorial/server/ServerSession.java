@@ -1,8 +1,7 @@
 package ch.softappeal.yass.tutorial.server;
 
-import ch.softappeal.yass.core.remote.session.Connection;
 import ch.softappeal.yass.core.remote.session.Session;
-import ch.softappeal.yass.core.remote.session.SessionSetup;
+import ch.softappeal.yass.core.remote.session.SessionClient;
 import ch.softappeal.yass.tutorial.contract.ClientServices;
 import ch.softappeal.yass.tutorial.contract.Price;
 import ch.softappeal.yass.tutorial.contract.PriceListener;
@@ -21,16 +20,16 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 public final class ServerSession extends Session implements PriceEngineContext {
 
-  private final PriceListener priceListener;
-
-  public ServerSession(final SessionSetup setup, final Connection connection) {
-    super(setup, connection);
-    System.out.println("create: " + hashCode());
-    priceListener = ClientServices.PriceListener.invoker(this).proxy(Logger.CLIENT);
-  }
-
   private final Set<String> subscribedInstrumentIds = Collections.synchronizedSet(new HashSet<String>());
   private final AtomicBoolean closed = new AtomicBoolean(false);
+
+  private final PriceListener priceListener;
+
+  public ServerSession(final SessionClient sessionClient) {
+    super(sessionClient);
+    System.out.println("create: " + hashCode());
+    priceListener = ClientServices.PriceListener.invoker(sessionClient).proxy(Logger.CLIENT);
+  }
 
   @Override public void opened() throws InterruptedException {
     System.out.println("opened: " + hashCode());

@@ -1,10 +1,8 @@
 package ch.softappeal.yass.tutorial.server;
 
 import ch.softappeal.yass.core.remote.Server;
-import ch.softappeal.yass.core.remote.session.Connection;
 import ch.softappeal.yass.core.remote.session.Session;
-import ch.softappeal.yass.core.remote.session.SessionFactory;
-import ch.softappeal.yass.core.remote.session.SessionSetup;
+import ch.softappeal.yass.core.remote.session.SessionClient;
 import ch.softappeal.yass.transport.PathResolver;
 import ch.softappeal.yass.transport.TransportSetup;
 import ch.softappeal.yass.transport.socket.SocketExecutor;
@@ -36,11 +34,11 @@ public final class SocketServer {
   );
 
   public static TransportSetup createTransportSetup(final Executor requestExecutor) {
-    return new TransportSetup(SERVER, Config.PACKET_SERIALIZER, requestExecutor, new SessionFactory() {
-      @Override public Session create(final SessionSetup setup, final Connection connection) {
-        return new ServerSession(setup, connection);
+    return new TransportSetup(SERVER, requestExecutor, Config.PACKET_SERIALIZER) {
+      @Override public Session createSession(final SessionClient sessionClient) {
+        return new ServerSession(sessionClient);
       }
-    });
+    };
   }
 
   public static final SocketAddress ADDRESS = new InetSocketAddress("localhost", 28947);

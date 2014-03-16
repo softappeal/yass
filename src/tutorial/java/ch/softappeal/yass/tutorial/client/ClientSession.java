@@ -1,8 +1,7 @@
 package ch.softappeal.yass.tutorial.client;
 
-import ch.softappeal.yass.core.remote.session.Connection;
 import ch.softappeal.yass.core.remote.session.Session;
-import ch.softappeal.yass.core.remote.session.SessionSetup;
+import ch.softappeal.yass.core.remote.session.SessionClient;
 import ch.softappeal.yass.tutorial.contract.Instrument;
 import ch.softappeal.yass.tutorial.contract.InstrumentService;
 import ch.softappeal.yass.tutorial.contract.PriceEngine;
@@ -18,17 +17,17 @@ import java.util.Map;
 
 public final class ClientSession extends Session implements PriceListenerContext {
 
+  private final Map<String, Instrument> id2instrument = Collections.synchronizedMap(new HashMap<String, Instrument>());
+
   private final PriceEngine priceEngine;
   private final InstrumentService instrumentService;
 
-  public ClientSession(final SessionSetup setup, final Connection connection) {
-    super(setup, connection);
+  public ClientSession(final SessionClient sessionClient) {
+    super(sessionClient);
     System.out.println("create: " + hashCode());
-    priceEngine = ServerServices.PriceEngine.invoker(this).proxy();
-    instrumentService = ServerServices.InstrumentService.invoker(this).proxy();
+    priceEngine = ServerServices.PriceEngine.invoker(sessionClient).proxy();
+    instrumentService = ServerServices.InstrumentService.invoker(sessionClient).proxy();
   }
-
-  private final Map<String, Instrument> id2instrument = Collections.synchronizedMap(new HashMap<String, Instrument>());
 
   @Override public void opened() throws UnknownInstrumentsException {
     System.out.println("opened: " + hashCode());

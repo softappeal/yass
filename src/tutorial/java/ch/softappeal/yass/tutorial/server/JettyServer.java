@@ -15,6 +15,7 @@ import org.eclipse.jetty.websocket.jsr356.server.deploy.WebSocketServerContainer
 
 import javax.websocket.Session;
 import javax.websocket.server.ServerEndpointConfig;
+import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
 public final class JettyServer {
@@ -23,9 +24,9 @@ public final class JettyServer {
   public static final int PORT = 9090;
   public static final String PATH = "/tutorial";
 
-  private static final TransportSetup TRANSPORT_SETUP = SocketServer.createTransportSetup(
-    Executors.newCachedThreadPool(new NamedThreadFactory("requestExecutor", Exceptions.STD_ERR))
-  );
+  public static final Executor REQUEST_EXECUTOR = Executors.newCachedThreadPool(new NamedThreadFactory("requestExecutor", Exceptions.STD_ERR));
+
+  private static final TransportSetup TRANSPORT_SETUP = SocketServer.createTransportSetup(REQUEST_EXECUTOR);
 
   public static final class Endpoint extends WsEndpoint {
     @Override protected WsConnection createConnection(final Session session) throws Exception {
