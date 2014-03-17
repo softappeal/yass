@@ -28,7 +28,7 @@ public final class ServerSession extends Session implements PriceEngineContext {
   public ServerSession(final SessionClient sessionClient) {
     super(sessionClient);
     System.out.println("create: " + hashCode());
-    priceListener = ClientServices.PriceListener.invoker(sessionClient).proxy(Logger.CLIENT);
+    priceListener = ClientServices.PriceListener.invoker(this).proxy(Logger.CLIENT);
   }
 
   @Override public void opened() throws InterruptedException {

@@ -2,7 +2,7 @@ package ch.softappeal.yass.core.remote.session;
 
 import ch.softappeal.yass.util.Exceptions;
 
-public final class LocalConnection extends Connection {
+public final class LocalConnection implements Connection {
 
   private SessionClient sessionClient;
 
@@ -10,11 +10,11 @@ public final class LocalConnection extends Connection {
     // disable
   }
 
-  @Override protected void write(final Packet packet) {
-    received(sessionClient, packet);
+  @Override public void write(final Packet packet) {
+    sessionClient.received(packet);
   }
 
-  @Override protected void closed() {
+  @Override public void closed() {
     sessionClient.close();
   }
 

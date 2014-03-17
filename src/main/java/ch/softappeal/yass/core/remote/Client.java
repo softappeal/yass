@@ -12,7 +12,7 @@ import java.lang.reflect.Proxy;
 /**
  * Factory for {@link Invoker}.
  */
-public abstract class Client extends Common {
+public abstract class Client extends Common implements InvokerFactory {
 
 
   public static final class ClientInvocation {
@@ -53,9 +53,9 @@ public abstract class Client extends Common {
 
 
   /**
-   * @see ContractId#invoker(Client)
+   * @see ContractId#invoker(InvokerFactory)
    */
-  final <C> Invoker<C> invoker(final ContractId<C> contractId) {
+  public final <C> Invoker<C> invoker(final ContractId<C> contractId) {
     final MethodMapper methodMapper = methodMapper(contractId.contract);
     return new Invoker<C>() {
       @Override public C proxy(final Interceptor... interceptors) {

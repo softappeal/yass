@@ -1,9 +1,12 @@
 package ch.softappeal.yass.core.remote.session;
 
+import ch.softappeal.yass.core.remote.ContractId;
+import ch.softappeal.yass.core.remote.Invoker;
+import ch.softappeal.yass.core.remote.InvokerFactory;
 import ch.softappeal.yass.util.Check;
 import ch.softappeal.yass.util.Nullable;
 
-public abstract class Session {
+public abstract class Session implements AutoCloseable, InvokerFactory {
 
   static final ThreadLocal<Session> INSTANCE = new ThreadLocal<>();
 
@@ -14,7 +17,7 @@ public abstract class Session {
     return INSTANCE.get();
   }
 
-  public final SessionClient sessionClient;
+  private final SessionClient sessionClient;
 
   protected Session(final SessionClient sessionClient) {
     this.sessionClient = Check.notNull(sessionClient);
@@ -35,5 +38,16 @@ public abstract class Session {
    * @param throwable null if regular close else reason for close
    */
   protected abstract void closed(@Nullable Throwable throwable);
+
+  /**
+   * This method is idempotent.
+   */
+  @Override public void close() {
+    sessionClient.close();
+  }
+
+  @Override public final <C> Invoker<C> invoker(final ContractId<C> contractId) {
+    return sessionClient.invoker(contractId);
+  }
 
 }

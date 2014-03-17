@@ -19,7 +19,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
-public final class WsConnection extends Connection {
+public final class WsConnection implements Connection {
 
   private final SessionClient sessionClient;
   private final Serializer packetSerializer;
@@ -43,18 +43,18 @@ public final class WsConnection extends Connection {
     session.addMessageHandler(new MessageHandler.Whole<ByteBuffer>() {
       @Override public void onMessage(final ByteBuffer in) {
         try {
-          received(sessionClient, (Packet)packetSerializer.read(Reader.create(in)));
+          sessionClient.received((Packet)packetSerializer.read(Reader.create(in)));
           if (in.hasRemaining()) {
             throw new RuntimeException("input buffer is not empty");
           }
         } catch (final Exception e) {
-          close(sessionClient, e);
+          sessionClient.close(e);
         }
       }
     });
   }
 
-  @Override protected void write(final Packet packet) throws Exception {
+  @Override public void write(final Packet packet) throws Exception {
     new ByteArrayOutputStream(1024) {
       {
         packetSerializer.write(packet, Writer.create(this));
@@ -72,7 +72,7 @@ public final class WsConnection extends Connection {
     };
   }
 
-  @Override protected void closed() throws IOException {
+  @Override public void closed() throws IOException {
     session.close();
   }
 
@@ -81,7 +81,7 @@ public final class WsConnection extends Connection {
   }
 
   void onError(final Throwable throwable) {
-    close(sessionClient, (throwable == null) ? new Exception("throwable == null") : throwable);
+    sessionClient.close((throwable == null) ? new Exception("throwable == null") : throwable);
   }
 
 }

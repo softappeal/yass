@@ -61,7 +61,7 @@ public final class WriterExecutorTest {
             return new Session(sessionClient) {
               @Override public void opened() {
                 final SocketConnection socketConnection = (SocketConnection)sessionClient.connection;
-                final StringListener stringListener = StringListenerId.invoker(sessionClient).proxy();
+                final StringListener stringListener = StringListenerId.invoker(this).proxy();
                 socketConnection.awaitWriterQueueEmpty();
                 final Executor worker = executor("server-worker");
                 final String s = "hello";

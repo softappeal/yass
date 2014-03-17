@@ -26,8 +26,8 @@ public final class ContractId<C> {
     return new Service(this, implementation, interceptors);
   }
 
-  public Invoker<C> invoker(final Client client) {
-    return client.invoker(this);
+  public Invoker<C> invoker(final InvokerFactory invokerFactory) {
+    return invokerFactory.invoker(this);
   }
 
   public static <C> ContractId<C> create(final Class<C> contract, final Object id) {

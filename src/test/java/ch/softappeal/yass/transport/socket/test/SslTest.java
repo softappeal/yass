@@ -71,9 +71,9 @@ public class SslTest extends InvokeTest {
             checkName(sessionClient);
             return new Session(sessionClient) {
               @Override protected void opened() throws Exception {
-                final TestService testService = PerformanceTest.CONTRACT_ID.invoker(sessionClient).proxy();
+                final TestService testService = PerformanceTest.CONTRACT_ID.invoker(this).proxy();
                 Assert.assertTrue(testService.divide(12, 4) == 3);
-                sessionClient.close();
+                close();
               }
               @Override protected void closed(final Throwable throwable) {
                 if (throwable != null) {
