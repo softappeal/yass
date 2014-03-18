@@ -11,9 +11,10 @@ public final class Service {
   final Interceptor interceptor;
 
   /**
-   * @see ContractId#service(Object, Interceptor...)
+   * Note: It's a good idea to add an interceptor that handles unexpected exceptions
+   * (this is especially useful for oneway methods where these are ignored and NOT passed to the client).
    */
-  <C> Service(final ContractId<C> contractId, final C implementation, final Interceptor... interceptors) {
+  public <C> Service(final ContractId<C> contractId, final C implementation, final Interceptor... interceptors) {
     this.contractId = Check.notNull(contractId);
     this.implementation = Check.notNull(implementation);
     interceptor = Interceptors.composite(interceptors);

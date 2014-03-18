@@ -1,6 +1,5 @@
 package ch.softappeal.yass.core.remote;
 
-import ch.softappeal.yass.core.Interceptor;
 import ch.softappeal.yass.util.Check;
 
 /**
@@ -16,18 +15,6 @@ public final class ContractId<C> {
   private ContractId(final Class<C> contract, final Object id) {
     this.contract = Check.notNull(contract);
     this.id = Check.notNull(id);
-  }
-
-  /**
-   * Note: It's a good idea to add an interceptor that handles unexpected exceptions
-   * (this is especially useful for oneway methods where these are ignored and NOT passed to the client).
-   */
-  public Service service(final C implementation, final Interceptor... interceptors) {
-    return new Service(this, implementation, interceptors);
-  }
-
-  public Invoker<C> invoker(final InvokerFactory invokerFactory) {
-    return invokerFactory.invoker(this);
   }
 
   public static <C> ContractId<C> create(final Class<C> contract, final Object id) {

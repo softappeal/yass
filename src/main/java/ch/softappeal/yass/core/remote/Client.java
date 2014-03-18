@@ -52,9 +52,6 @@ public abstract class Client extends Common implements InvokerFactory {
   }
 
 
-  /**
-   * @see ContractId#invoker(InvokerFactory)
-   */
   public final <C> Invoker<C> invoker(final ContractId<C> contractId) {
     final MethodMapper methodMapper = methodMapper(contractId.contract);
     return new Invoker<C>() {

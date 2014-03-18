@@ -1,6 +1,7 @@
 package ch.softappeal.yass.tutorial.client;
 
 import ch.softappeal.yass.core.remote.Server;
+import ch.softappeal.yass.core.remote.Service;
 import ch.softappeal.yass.core.remote.session.Session;
 import ch.softappeal.yass.core.remote.session.SessionClient;
 import ch.softappeal.yass.transport.TransportSetup;
@@ -27,7 +28,7 @@ public final class SocketClient {
 
   public static final Server SERVER = new Server(
     Config.METHOD_MAPPER_FACTORY,
-    ClientServices.PriceListener.service(PRICE_LISTENER)
+    new Service(ClientServices.PriceListener, PRICE_LISTENER)
   );
 
   public static TransportSetup createTransportSetup(final Executor requestExecutor) {

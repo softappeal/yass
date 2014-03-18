@@ -3,6 +3,7 @@ package ch.softappeal.yass.transport.socket.test;
 import ch.softappeal.yass.core.Interceptor;
 import ch.softappeal.yass.core.Invocation;
 import ch.softappeal.yass.core.remote.Server;
+import ch.softappeal.yass.core.remote.Service;
 import ch.softappeal.yass.core.remote.TaggedMethodMapper;
 import ch.softappeal.yass.core.remote.session.RequestInterruptedException;
 import ch.softappeal.yass.core.remote.session.Session;
@@ -38,7 +39,7 @@ public class RequestInterruptTest extends InvokeTest {
         new PathResolver(
           SocketTransportTest.PATH,
           new TransportSetup(
-            new Server(TaggedMethodMapper.FACTORY, ContractIdTest.ID.service(new TestServiceImpl())),
+            new Server(TaggedMethodMapper.FACTORY, new Service(ContractIdTest.ID, new TestServiceImpl())),
             executor,
             PacketSerializerTest.SERIALIZER
           ) {
@@ -61,7 +62,7 @@ public class RequestInterruptTest extends InvokeTest {
           @Override public Session createSession(final SessionClient sessionClient) {
             return new Session(sessionClient) {
               @Override public void opened() {
-                final TestService testService = ContractIdTest.ID.invoker(this).proxy(new Interceptor() {
+                final TestService testService = invoker(ContractIdTest.ID).proxy(new Interceptor() {
                   @Override public Object invoke(final Method method, @Nullable final Object[] arguments, final Invocation invocation) throws Throwable {
                     System.out.println("before");
                     try {

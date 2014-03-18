@@ -4,6 +4,7 @@ import ch.softappeal.yass.core.Interceptor;
 import ch.softappeal.yass.core.Interceptors;
 import ch.softappeal.yass.core.Invocation;
 import ch.softappeal.yass.core.remote.Server;
+import ch.softappeal.yass.core.remote.Service;
 import ch.softappeal.yass.core.remote.TaggedMethodMapper;
 import ch.softappeal.yass.core.remote.session.LocalConnection;
 import ch.softappeal.yass.core.remote.session.Session;
@@ -38,7 +39,8 @@ public class LocalConnectionTest extends InvokeTest {
     return new TransportSetup(
       new Server(
         TaggedMethodMapper.FACTORY,
-        ContractIdTest.ID.service(
+        new Service(
+          ContractIdTest.ID,
           new TestServiceImpl(),
           invoke ? SESSION_CHECKER : Interceptors.composite(SESSION_CHECKER, SERVER_INTERCEPTOR)
         )
@@ -51,7 +53,7 @@ public class LocalConnectionTest extends InvokeTest {
           throw new Exception("create failed");
         }
         if (invokeBeforeOpened) {
-          ContractIdTest.ID.invoker(sessionClient).proxy().nothing();
+          sessionClient.invoker(ContractIdTest.ID).proxy().nothing();
         }
         return new Session(sessionClient) {
           @Override public void opened() throws Exception {
@@ -62,7 +64,7 @@ public class LocalConnectionTest extends InvokeTest {
             if (invoke) {
               try (Session session = this) {
                 InvokeTest.invoke(
-                  ContractIdTest.ID.invoker(session).proxy(
+                  session.invoker(ContractIdTest.ID).proxy(
                     invoke ? Interceptors.composite(PRINTLN_AFTER, SESSION_CHECKER, CLIENT_INTERCEPTOR) : SESSION_CHECKER
                   )
                 );

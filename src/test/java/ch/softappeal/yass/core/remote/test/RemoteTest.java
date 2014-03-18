@@ -8,6 +8,7 @@ import ch.softappeal.yass.core.remote.Reply;
 import ch.softappeal.yass.core.remote.Request;
 import ch.softappeal.yass.core.remote.Server;
 import ch.softappeal.yass.core.remote.Server.ServerInvocation;
+import ch.softappeal.yass.core.remote.Service;
 import ch.softappeal.yass.core.remote.TaggedMethodMapper;
 import ch.softappeal.yass.core.remote.Tunnel;
 import ch.softappeal.yass.core.test.InvokeTest;
@@ -70,14 +71,12 @@ public class RemoteTest extends InvokeTest {
 
   @Test public void test() throws InterruptedException {
     invoke(
-      ContractIdTest.ID.invoker(
-        client(
-          new Server(
-            TaggedMethodMapper.FACTORY,
-            ContractIdTest.ID.service(new TestServiceImpl(), stepInterceptor(4), SERVER_INTERCEPTOR)
-          )
+      client(
+        new Server(
+          TaggedMethodMapper.FACTORY,
+          new Service(ContractIdTest.ID, new TestServiceImpl(), stepInterceptor(4), SERVER_INTERCEPTOR)
         )
-      ).proxy(PRINTLN_AFTER, stepInterceptor(2), CLIENT_INTERCEPTOR)
+      ).invoker(ContractIdTest.ID).proxy(PRINTLN_AFTER, stepInterceptor(2), CLIENT_INTERCEPTOR)
     );
   }
 
