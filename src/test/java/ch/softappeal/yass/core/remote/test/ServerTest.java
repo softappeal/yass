@@ -20,7 +20,7 @@ public class ServerTest {
       return invocation.invoke(Interceptors.DIRECT, new Tunnel() {
         @Override public Reply invoke(final Request request) {
           return new Server(
-            TaggedMethodMapper.FACTORY, ContractIdTest.ID.service(new InvokeTest.TestServiceImpl())
+            TaggedMethodMapper.FACTORY, new Service(ContractIdTest.ID, new InvokeTest.TestServiceImpl())
           ).invocation(request).invoke(Interceptors.DIRECT);
         }
       });
@@ -28,7 +28,7 @@ public class ServerTest {
   };
 
   @Test public void duplicatedService() {
-    final Service service = ContractIdTest.ID.service(new InvokeTest.TestServiceImpl());
+    final Service service = new Service(ContractIdTest.ID, new InvokeTest.TestServiceImpl());
     try {
       new Server(TaggedMethodMapper.FACTORY, service, service);
       Assert.fail();
@@ -39,7 +39,7 @@ public class ServerTest {
 
   @Test public void noService() {
     try {
-      ContractId.create(InvokeTest.TestService.class, "xxx").invoker(client).proxy().nothing();
+      client.invoker(ContractId.create(InvokeTest.TestService.class, "xxx")).proxy().nothing();
       Assert.fail();
     } catch (final RuntimeException e) {
       Assert.assertEquals("no serviceId 'xxx' found (methodId '0')", e.getMessage());

@@ -3,10 +3,10 @@ package ch.softappeal.yass.tutorial.client;
 import ch.softappeal.yass.core.remote.session.Session;
 import ch.softappeal.yass.core.remote.session.SessionClient;
 import ch.softappeal.yass.tutorial.contract.Instrument;
-import ch.softappeal.yass.tutorial.contract.InstrumentService;
 import ch.softappeal.yass.tutorial.contract.PriceEngine;
 import ch.softappeal.yass.tutorial.contract.ServerServices;
 import ch.softappeal.yass.tutorial.contract.UnknownInstrumentsException;
+import ch.softappeal.yass.tutorial.contract.instrument.InstrumentService;
 import ch.softappeal.yass.util.Exceptions;
 import ch.softappeal.yass.util.Nullable;
 
@@ -25,8 +25,8 @@ public final class ClientSession extends Session implements PriceListenerContext
   public ClientSession(final SessionClient sessionClient) {
     super(sessionClient);
     System.out.println("create: " + hashCode());
-    priceEngine = ServerServices.PriceEngine.invoker(sessionClient).proxy();
-    instrumentService = ServerServices.InstrumentService.invoker(sessionClient).proxy();
+    priceEngine = invoker(ServerServices.PriceEngine).proxy();
+    instrumentService = invoker(ServerServices.InstrumentService).proxy();
   }
 
   @Override public void opened() throws UnknownInstrumentsException {

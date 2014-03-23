@@ -17,7 +17,7 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
-public final class SocketConnection extends Connection {
+public final class SocketConnection implements Connection {
 
   private final Serializer packetSerializer;
   public final Socket socket;
@@ -37,18 +37,18 @@ public final class SocketConnection extends Connection {
           try {
             write(outputStream);
           } catch (final Exception e) {
-            close(sessionClient, e);
+            sessionClient.close(e);
           }
         }
       });
     } catch (final Exception e) {
-      close(sessionClient, e);
+      sessionClient.close(e);
       return;
     }
     read(sessionClient, reader);
   }
 
-  @Override protected void write(final Packet packet) throws Exception {
+  @Override public void write(final Packet packet) throws Exception {
     final ByteArrayOutputStream buffer = new ByteArrayOutputStream(1024);
     packetSerializer.write(packet, Writer.create(buffer));
     writerQueue.put(buffer);
@@ -60,10 +60,10 @@ public final class SocketConnection extends Connection {
       try {
         packet = (Packet)packetSerializer.read(reader);
       } catch (final Exception e) {
-        close(sessionClient, e);
+        sessionClient.close(e);
         return;
       }
-      received(sessionClient, packet);
+      sessionClient.received(packet);
       if (packet.isEnd()) {
         return;
       }
@@ -124,7 +124,7 @@ public final class SocketConnection extends Connection {
   /**
    * Note: No more calls to {@link #write(Packet)} are accepted when this method is called due to implementation of {@link SessionClient}.
    */
-  @Override protected void closed() throws Exception {
+  @Override public void closed() throws Exception {
     try {
       try {
         while (writerQueueFull()) {

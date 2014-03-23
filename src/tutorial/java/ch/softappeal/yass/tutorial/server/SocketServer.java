@@ -1,6 +1,7 @@
 package ch.softappeal.yass.tutorial.server;
 
 import ch.softappeal.yass.core.remote.Server;
+import ch.softappeal.yass.core.remote.Service;
 import ch.softappeal.yass.core.remote.session.Session;
 import ch.softappeal.yass.core.remote.session.SessionClient;
 import ch.softappeal.yass.transport.PathResolver;
@@ -29,8 +30,8 @@ public final class SocketServer {
 
   private static final Server SERVER = new Server(
     Config.METHOD_MAPPER_FACTORY,
-    ServerServices.InstrumentService.service(new InstrumentServiceImpl(), Logger.SERVER),
-    ServerServices.PriceEngine.service(PRICE_ENGINE, Logger.SERVER)
+    new Service(ServerServices.InstrumentService, new InstrumentServiceImpl(), Logger.SERVER),
+    new Service(ServerServices.PriceEngine, PRICE_ENGINE, Logger.SERVER)
   );
 
   public static TransportSetup createTransportSetup(final Executor requestExecutor) {

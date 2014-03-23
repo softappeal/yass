@@ -3,6 +3,7 @@ package ch.softappeal.yass.core.remote.session.test;
 import ch.softappeal.yass.core.remote.ContractId;
 import ch.softappeal.yass.core.remote.MethodMapper;
 import ch.softappeal.yass.core.remote.Server;
+import ch.softappeal.yass.core.remote.Service;
 import ch.softappeal.yass.core.remote.TaggedMethodMapper;
 import ch.softappeal.yass.core.remote.session.LocalConnection;
 import ch.softappeal.yass.core.remote.session.Session;
@@ -10,10 +11,10 @@ import ch.softappeal.yass.core.remote.session.SessionClient;
 import ch.softappeal.yass.core.test.InvokeTest;
 import ch.softappeal.yass.transport.TransportSetup;
 import ch.softappeal.yass.transport.socket.test.SocketPerformanceTest;
+import ch.softappeal.yass.util.Exceptions;
 import ch.softappeal.yass.util.NamedThreadFactory;
 import ch.softappeal.yass.util.Nullable;
 import ch.softappeal.yass.util.PerformanceTask;
-import ch.softappeal.yass.util.TestUtils;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -33,7 +34,7 @@ public class PerformanceTest extends InvokeTest {
 
   public static TransportSetup createSetup(final Executor requestExecutor, @Nullable final CountDownLatch latch, final int samples) {
     return new TransportSetup(
-      new Server(METHOD_MAPPER_FACTORY, CONTRACT_ID.service(new TestServiceImpl())), requestExecutor, SocketPerformanceTest.PACKET_SERIALIZER
+      new Server(METHOD_MAPPER_FACTORY, new Service(CONTRACT_ID, new TestServiceImpl())), requestExecutor, SocketPerformanceTest.PACKET_SERIALIZER
     ) {
       @Override public Session createSession(final SessionClient sessionClient) {
         return new Session(sessionClient) {
@@ -42,7 +43,7 @@ public class PerformanceTest extends InvokeTest {
               return;
             }
             try {
-              final TestService testService = CONTRACT_ID.invoker(sessionClient).proxy();
+              final TestService testService = sessionClient.invoker(CONTRACT_ID).proxy();
               System.out.println("*** rpc");
               new PerformanceTask() {
                 @Override protected void run(final int count) throws DivisionByZeroException {
@@ -75,7 +76,7 @@ public class PerformanceTest extends InvokeTest {
   }
 
   @Test public void test() throws InterruptedException {
-    final ExecutorService executor = Executors.newCachedThreadPool(new NamedThreadFactory("executor", TestUtils.TERMINATE));
+    final ExecutorService executor = Executors.newCachedThreadPool(new NamedThreadFactory("executor", Exceptions.TERMINATE));
     try {
       final CountDownLatch latch = new CountDownLatch(1);
       LocalConnection.connect(createSetup(executor, latch, COUNTER), createSetup(executor, null, COUNTER));

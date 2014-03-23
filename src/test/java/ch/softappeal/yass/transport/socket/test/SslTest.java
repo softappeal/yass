@@ -1,6 +1,7 @@
 package ch.softappeal.yass.transport.socket.test;
 
 import ch.softappeal.yass.core.remote.Server;
+import ch.softappeal.yass.core.remote.Service;
 import ch.softappeal.yass.core.remote.session.Session;
 import ch.softappeal.yass.core.remote.session.SessionClient;
 import ch.softappeal.yass.core.remote.session.test.PerformanceTest;
@@ -15,7 +16,6 @@ import ch.softappeal.yass.transport.socket.SslSetup;
 import ch.softappeal.yass.util.ClassLoaderResource;
 import ch.softappeal.yass.util.Exceptions;
 import ch.softappeal.yass.util.NamedThreadFactory;
-import ch.softappeal.yass.util.TestUtils;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -43,7 +43,7 @@ public class SslTest extends InvokeTest {
           new TransportSetup(
             new Server(
               PerformanceTest.METHOD_MAPPER_FACTORY,
-              PerformanceTest.CONTRACT_ID.service(new TestServiceImpl())
+              new Service(PerformanceTest.CONTRACT_ID, new TestServiceImpl())
             ),
             executor,
             SocketPerformanceTest.PACKET_SERIALIZER
@@ -53,14 +53,14 @@ public class SslTest extends InvokeTest {
               return new Session(sessionClient) {
                 @Override protected void closed(final Throwable throwable) {
                   if (throwable != null) {
-                    TestUtils.TERMINATE.uncaughtException(null, throwable);
+                    Exceptions.TERMINATE.uncaughtException(null, throwable);
                   }
                 }
               };
             }
           }
         )
-      ).start(executor, new SocketExecutor(executor, TestUtils.TERMINATE), serverSocketFactory, SocketListenerTest.ADDRESS);
+      ).start(executor, new SocketExecutor(executor, Exceptions.TERMINATE), serverSocketFactory, SocketListenerTest.ADDRESS);
       SocketTransport.connect(
         new TransportSetup(
           new Server(PerformanceTest.METHOD_MAPPER_FACTORY),
@@ -71,19 +71,19 @@ public class SslTest extends InvokeTest {
             checkName(sessionClient);
             return new Session(sessionClient) {
               @Override protected void opened() throws Exception {
-                final TestService testService = PerformanceTest.CONTRACT_ID.invoker(sessionClient).proxy();
+                final TestService testService = invoker(PerformanceTest.CONTRACT_ID).proxy();
                 Assert.assertTrue(testService.divide(12, 4) == 3);
-                sessionClient.close();
+                close();
               }
               @Override protected void closed(final Throwable throwable) {
                 if (throwable != null) {
-                  TestUtils.TERMINATE.uncaughtException(null, throwable);
+                  Exceptions.TERMINATE.uncaughtException(null, throwable);
                 }
               }
             };
           }
         },
-        new SocketExecutor(executor, TestUtils.TERMINATE),
+        new SocketExecutor(executor, Exceptions.TERMINATE),
         SocketTransportTest.PATH_SERIALIZER, SocketTransportTest.PATH,
         socketFactory, SocketListenerTest.ADDRESS
       );

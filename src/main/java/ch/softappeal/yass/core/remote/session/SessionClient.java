@@ -143,7 +143,7 @@ public final class SessionClient extends Client {
    * Must be called if a packet has been received.
    * It must also be called if {@link Packet#isEnd()}; however, it must not be called again after that.
    */
-  void received(final Packet packet) {
+  public void received(final Packet packet) {
     try {
       if (packet.isEnd()) {
         close(null);
@@ -164,7 +164,7 @@ public final class SessionClient extends Client {
    * Must be called if communication has failed.
    * This method is idempotent.
    */
-  void close(final Throwable throwable) {
+  public void close(final Throwable throwable) {
     close(false, throwable);
   }
 
@@ -189,7 +189,7 @@ public final class SessionClient extends Client {
   /**
    * This method is idempotent.
    */
-  public void close() {
+  void close() {
     close(true, null);
   }
 

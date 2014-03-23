@@ -7,7 +7,6 @@ import java.io.CharArrayReader;
 import java.io.CharArrayWriter;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
-import java.lang.Thread.UncaughtExceptionHandler;
 import java.nio.charset.Charset;
 
 public class TestUtils {
@@ -52,12 +51,5 @@ public class TestUtils {
       throw Exceptions.wrap(e);
     }
   }
-
-  public static final UncaughtExceptionHandler TERMINATE = new UncaughtExceptionHandler() {
-    @Override public void uncaughtException(final Thread t, final Throwable e) {
-      Exceptions.STD_ERR.uncaughtException(t, e);
-      System.exit(1);
-    }
-  };
 
 }

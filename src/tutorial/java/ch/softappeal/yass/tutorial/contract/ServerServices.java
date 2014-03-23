@@ -1,6 +1,7 @@
 package ch.softappeal.yass.tutorial.contract;
 
 import ch.softappeal.yass.core.remote.ContractId;
+import ch.softappeal.yass.tutorial.contract.instrument.InstrumentService;
 
 /**
  * Services to be implemented by server.

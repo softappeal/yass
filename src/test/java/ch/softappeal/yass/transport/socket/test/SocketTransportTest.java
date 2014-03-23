@@ -11,7 +11,6 @@ import ch.softappeal.yass.transport.socket.SocketListenerTest;
 import ch.softappeal.yass.transport.socket.SocketTransport;
 import ch.softappeal.yass.util.Exceptions;
 import ch.softappeal.yass.util.NamedThreadFactory;
-import ch.softappeal.yass.util.TestUtils;
 import org.junit.Test;
 
 import java.util.HashMap;
@@ -30,9 +29,9 @@ public class SocketTransportTest extends InvokeTest {
     try {
       SocketTransport.listener(
         PATH_SERIALIZER, new PathResolver(PATH, LocalConnectionTest.createSetup(false, executor, false))
-      ).start(executor, new SocketExecutor(executor, TestUtils.TERMINATE), SocketListenerTest.ADDRESS);
+      ).start(executor, new SocketExecutor(executor, Exceptions.TERMINATE), SocketListenerTest.ADDRESS);
       SocketTransport.connect(
-        LocalConnectionTest.createSetup(false, executor, true), new SocketExecutor(executor, TestUtils.TERMINATE),
+        LocalConnectionTest.createSetup(false, executor, true), new SocketExecutor(executor, Exceptions.TERMINATE),
         PATH_SERIALIZER, PATH, SocketListenerTest.ADDRESS
       );
       TimeUnit.MILLISECONDS.sleep(200L);
@@ -42,13 +41,13 @@ public class SocketTransportTest extends InvokeTest {
   }
 
   @Test public void clientInvoke() throws InterruptedException {
-    final ExecutorService executor = Executors.newCachedThreadPool(new NamedThreadFactory("executor", TestUtils.TERMINATE));
+    final ExecutorService executor = Executors.newCachedThreadPool(new NamedThreadFactory("executor", Exceptions.TERMINATE));
     try {
       SocketTransport.listener(
         PATH_SERIALIZER, new PathResolver(PATH, LocalConnectionTest.createSetup(false, executor, false))
-      ).start(executor, new SocketExecutor(executor, TestUtils.TERMINATE), SocketListenerTest.ADDRESS);
+      ).start(executor, new SocketExecutor(executor, Exceptions.TERMINATE), SocketListenerTest.ADDRESS);
       SocketTransport.connect(
-        LocalConnectionTest.createSetup(true, executor, false), new SocketExecutor(executor, TestUtils.TERMINATE),
+        LocalConnectionTest.createSetup(true, executor, false), new SocketExecutor(executor, Exceptions.TERMINATE),
         PATH_SERIALIZER, PATH, SocketListenerTest.ADDRESS
       );
       TimeUnit.MILLISECONDS.sleep(400L);
@@ -58,13 +57,13 @@ public class SocketTransportTest extends InvokeTest {
   }
 
   @Test public void serverInvoke() throws InterruptedException {
-    final ExecutorService executor = Executors.newCachedThreadPool(new NamedThreadFactory("executor", TestUtils.TERMINATE));
+    final ExecutorService executor = Executors.newCachedThreadPool(new NamedThreadFactory("executor", Exceptions.TERMINATE));
     try {
       SocketTransport.listener(
         PATH_SERIALIZER, new PathResolver(PATH, LocalConnectionTest.createSetup(true, executor, false))
-      ).start(executor, new SocketExecutor(executor, TestUtils.TERMINATE), SocketListenerTest.ADDRESS);
+      ).start(executor, new SocketExecutor(executor, Exceptions.TERMINATE), SocketListenerTest.ADDRESS);
       SocketTransport.connect(
-        LocalConnectionTest.createSetup(false, executor, false), new SocketExecutor(executor, TestUtils.TERMINATE),
+        LocalConnectionTest.createSetup(false, executor, false), new SocketExecutor(executor, Exceptions.TERMINATE),
         PATH_SERIALIZER, PATH, SocketListenerTest.ADDRESS
       );
       TimeUnit.MILLISECONDS.sleep(400L);
@@ -78,9 +77,9 @@ public class SocketTransportTest extends InvokeTest {
     try {
       SocketTransport.listener(
         PATH_SERIALIZER, new PathResolver(PATH, LocalConnectionTest.createSetup(true, executor, false))
-      ).start(executor, new SocketExecutor(executor, TestUtils.TERMINATE), SocketListenerTest.ADDRESS);
+      ).start(executor, new SocketExecutor(executor, Exceptions.TERMINATE), SocketListenerTest.ADDRESS);
       SocketTransport.connect(
-        LocalConnectionTest.createSetup(false, executor, false), new SocketExecutor(executor, TestUtils.TERMINATE),
+        LocalConnectionTest.createSetup(false, executor, false), new SocketExecutor(executor, Exceptions.TERMINATE),
         PATH_SERIALIZER, "wrongPath", SocketListenerTest.ADDRESS
       );
       TimeUnit.MILLISECONDS.sleep(400L);
@@ -90,7 +89,7 @@ public class SocketTransportTest extends InvokeTest {
   }
 
   @Test public void multiplePathes() throws InterruptedException {
-    final ExecutorService executor = Executors.newCachedThreadPool(new NamedThreadFactory("executor", TestUtils.TERMINATE));
+    final ExecutorService executor = Executors.newCachedThreadPool(new NamedThreadFactory("executor", Exceptions.TERMINATE));
     final String path1 = "path1";
     final String path2 = "path2";
     final Map<String, TransportSetup> pathMappings = new HashMap<String, TransportSetup>(2);
@@ -99,14 +98,14 @@ public class SocketTransportTest extends InvokeTest {
     try {
       SocketTransport.listener(
         PATH_SERIALIZER, new PathResolver(pathMappings)
-      ).start(executor, new SocketExecutor(executor, TestUtils.TERMINATE), SocketListenerTest.ADDRESS);
+      ).start(executor, new SocketExecutor(executor, Exceptions.TERMINATE), SocketListenerTest.ADDRESS);
       SocketTransport.connect(
-        LocalConnectionTest.createSetup(false, executor, false), new SocketExecutor(executor, TestUtils.TERMINATE),
+        LocalConnectionTest.createSetup(false, executor, false), new SocketExecutor(executor, Exceptions.TERMINATE),
         PATH_SERIALIZER, path1, SocketListenerTest.ADDRESS
       );
       TimeUnit.MILLISECONDS.sleep(400L);
       SocketTransport.connect(
-        LocalConnectionTest.createSetup(false, executor, false), new SocketExecutor(executor, TestUtils.TERMINATE),
+        LocalConnectionTest.createSetup(false, executor, false), new SocketExecutor(executor, Exceptions.TERMINATE),
         PATH_SERIALIZER, path2, SocketListenerTest.ADDRESS
       );
       TimeUnit.MILLISECONDS.sleep(400L);

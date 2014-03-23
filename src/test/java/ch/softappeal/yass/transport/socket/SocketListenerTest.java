@@ -2,7 +2,6 @@ package ch.softappeal.yass.transport.socket;
 
 import ch.softappeal.yass.util.Exceptions;
 import ch.softappeal.yass.util.NamedThreadFactory;
-import ch.softappeal.yass.util.TestUtils;
 import ch.softappeal.yass.util.test.RejectExecutor;
 import org.junit.Assert;
 import org.junit.Test;
@@ -44,25 +43,25 @@ public class SocketListenerTest {
       System.out.println(e);
     }
     ExecutorService executor;
-    executor = Executors.newCachedThreadPool(new NamedThreadFactory("executor", TestUtils.TERMINATE));
-    LISTENER.start(executor, new SocketExecutor(executor, TestUtils.TERMINATE), ADDRESS);
+    executor = Executors.newCachedThreadPool(new NamedThreadFactory("executor", Exceptions.TERMINATE));
+    LISTENER.start(executor, new SocketExecutor(executor, Exceptions.TERMINATE), ADDRESS);
     Socket socket = SocketTransport.connectSocket(SocketFactory.getDefault(), ADDRESS);
     socket.close();
     try {
-      LISTENER.start(executor, new SocketExecutor(executor, TestUtils.TERMINATE), ADDRESS);
+      LISTENER.start(executor, new SocketExecutor(executor, Exceptions.TERMINATE), ADDRESS);
       Assert.fail();
     } catch (final RuntimeException e) {
       System.out.println(e);
     }
     TimeUnit.MILLISECONDS.sleep(100);
     shutdown(executor);
-    executor = Executors.newCachedThreadPool(new NamedThreadFactory("executor", TestUtils.TERMINATE));
+    executor = Executors.newCachedThreadPool(new NamedThreadFactory("executor", Exceptions.TERMINATE));
     LISTENER.start(executor, new SocketExecutor(RejectExecutor.INSTANCE, Exceptions.STD_ERR), ADDRESS);
     socket = SocketTransport.connectSocket(SocketFactory.getDefault(), ADDRESS);
     socket.close();
     shutdown(executor);
     try {
-      LISTENER.start(RejectExecutor.INSTANCE, new SocketExecutor(executor, TestUtils.TERMINATE), ADDRESS);
+      LISTENER.start(RejectExecutor.INSTANCE, new SocketExecutor(executor, Exceptions.TERMINATE), ADDRESS);
       Assert.fail();
     } catch (final RuntimeException e) {
       System.out.println(e);
