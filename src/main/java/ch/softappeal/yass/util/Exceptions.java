@@ -13,23 +13,25 @@ public final class Exceptions {
     return (e instanceof RuntimeException) ? (RuntimeException)e : new RuntimeException(Check.notNull(e));
   }
 
+  public static void uncaughtException(final UncaughtExceptionHandler uncaughtExceptionHandler, final Throwable throwable) {
+    uncaughtExceptionHandler.uncaughtException(Thread.currentThread(), throwable);
+  }
+
   /**
-   * Prints to {@link System#err} and EXITS if {@code !(e instanceof Exception)}.
+   * Prints to {@link System#err} and EXITS if {@code !(throwable instanceof Exception)}.
    * <p/>
    * Note: For productive code, this handler should be replaced with one that uses your logging framework!
    */
-  public static final UncaughtExceptionHandler STD_ERR = new UncaughtExceptionHandler() {
-    @Override public void uncaughtException(final Thread thread, final Throwable throwable) {
-      System.err.println(
-        "### " + new Date() + " - " + ((thread == null) ? "<null>" : thread.getName()) + " - " + Exceptions.class.getName() + ':'
-      );
-      if (throwable == null) {
-        System.err.println("throwable is null");
-      } else {
-        throwable.printStackTrace();
-        if (!(throwable instanceof Exception)) {
-          System.exit(1);
-        }
+  public static final UncaughtExceptionHandler STD_ERR = (thread, throwable) -> {
+    System.err.println(
+      "### " + new Date() + " - " + ((thread == null) ? "<null>" : thread.getName()) + " - " + Exceptions.class.getName() + ':'
+    );
+    if (throwable == null) {
+      System.err.println("throwable is null");
+    } else {
+      throwable.printStackTrace();
+      if (!(throwable instanceof Exception)) {
+        System.exit(1);
       }
     }
   };
@@ -39,11 +41,9 @@ public final class Exceptions {
    * <p/>
    * Note: For productive code, this handler should be replaced with one that uses your logging framework!
    */
-  public static final UncaughtExceptionHandler TERMINATE = new UncaughtExceptionHandler() {
-    @Override public void uncaughtException(final Thread thread, final Throwable throwable) {
-      STD_ERR.uncaughtException(thread, throwable);
-      System.exit(1);
-    }
+  public static final UncaughtExceptionHandler TERMINATE = (thread, throwable) -> {
+    STD_ERR.uncaughtException(thread, throwable);
+    System.exit(1);
   };
 
 }

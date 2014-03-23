@@ -29,13 +29,11 @@ public final class Server extends Common {
     }
 
     Reply invoke(final Interceptor invocationInterceptor, final Method method, @Nullable final Object[] arguments) {
-      final Invocation invocation = new Invocation() {
-        @Override public Object proceed() throws Throwable {
-          try {
-            return method.invoke(implementation, arguments);
-          } catch (final InvocationTargetException e) {
-            throw e.getCause();
-          }
+      final Invocation invocation = () -> {
+        try {
+          return method.invoke(implementation, arguments);
+        } catch (final InvocationTargetException e) {
+          throw e.getCause();
         }
       };
       final Interceptor interceptor = Interceptors.composite(invocationInterceptor, serviceInterceptor);

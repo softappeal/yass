@@ -2,7 +2,6 @@ package ch.softappeal.yass.core.remote;
 
 import java.lang.reflect.Method;
 import java.util.Arrays;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -17,11 +16,7 @@ public final class SimpleMethodMapper implements MethodMapper {
 
   private SimpleMethodMapper(final Class<?> contract) {
     final Method[] methods = contract.getMethods();
-    Arrays.sort(methods, new Comparator<Method>() {
-      @Override public int compare(final Method method1, final Method method2) {
-        return method1.getName().compareTo(method2.getName());
-      }
-    });
+    Arrays.sort(methods, (method1, method2) -> method1.getName().compareTo(method2.getName()));
     mappings = new Mapping[methods.length];
     name2mapping = new HashMap<>(methods.length);
     int id = 0;
@@ -43,10 +38,6 @@ public final class SimpleMethodMapper implements MethodMapper {
     return name2mapping.get(method.getName());
   }
 
-  public static final Factory FACTORY = new Factory() {
-    @Override public MethodMapper create(final Class<?> contract) {
-      return new SimpleMethodMapper(contract);
-    }
-  };
+  public static final Factory FACTORY = SimpleMethodMapper::new;
 
 }

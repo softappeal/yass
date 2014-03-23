@@ -11,11 +11,7 @@ import java.lang.reflect.Modifier;
  */
 public final class SlowReflector implements Reflector {
 
-  public static final Factory FACTORY = new Factory() {
-    @Override public Reflector create(final Class<?> type) throws NoSuchMethodException {
-      return new SlowReflector(type);
-    }
-  };
+  public static final Factory FACTORY = SlowReflector::new;
 
   private SlowReflector(final Class<?> type) throws NoSuchMethodException {
     constructor = type.getDeclaredConstructor();

@@ -11,7 +11,6 @@ import ch.softappeal.yass.tutorial.contract.ClientServices;
 import ch.softappeal.yass.tutorial.contract.Config;
 import ch.softappeal.yass.tutorial.contract.PriceListener;
 import ch.softappeal.yass.tutorial.server.SocketServer;
-import ch.softappeal.yass.util.ContextLocator;
 import ch.softappeal.yass.util.Exceptions;
 import ch.softappeal.yass.util.NamedThreadFactory;
 
@@ -20,11 +19,7 @@ import java.util.concurrent.Executors;
 
 public final class SocketClient {
 
-  private static final PriceListener PRICE_LISTENER = new PriceListenerImpl(new ContextLocator<PriceListenerContext>() {
-    @Override public PriceListenerContext context() {
-      return (PriceListenerContext)Session.get();
-    }
-  });
+  private static final PriceListener PRICE_LISTENER = new PriceListenerImpl(() -> (PriceListenerContext)Session.get());
 
   public static final Server SERVER = new Server(
     Config.METHOD_MAPPER_FACTORY,

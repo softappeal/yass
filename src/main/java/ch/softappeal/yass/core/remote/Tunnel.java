@@ -5,6 +5,7 @@ import ch.softappeal.yass.util.Nullable;
 /**
  * Invokes a remote method.
  */
+@FunctionalInterface
 public interface Tunnel {
 
   /**

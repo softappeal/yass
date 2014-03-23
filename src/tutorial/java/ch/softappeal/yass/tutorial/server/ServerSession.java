@@ -20,7 +20,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 public final class ServerSession extends Session implements PriceEngineContext {
 
-  private final Set<String> subscribedInstrumentIds = Collections.synchronizedSet(new HashSet<String>());
+  private final Set<String> subscribedInstrumentIds = Collections.synchronizedSet(new HashSet<>());
   private final AtomicBoolean closed = new AtomicBoolean(false);
 
   private final PriceListener priceListener;
@@ -49,9 +49,9 @@ public final class ServerSession extends Session implements PriceEngineContext {
 
   @Override public void closed(@Nullable final Throwable throwable) {
     closed.set(true);
-    System.out.println("closed: " + hashCode() + ", " + throwable);
-    if (throwable instanceof Throwable) { // terminate on Throwable
-      Exceptions.STD_ERR.uncaughtException(Thread.currentThread(), throwable);
+    System.out.println("closed: " + hashCode());
+    if (throwable != null) {
+      Exceptions.uncaughtException(Exceptions.STD_ERR, throwable);
     }
   }
 

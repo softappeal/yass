@@ -17,7 +17,7 @@ import java.util.Map;
 
 public final class ClientSession extends Session implements PriceListenerContext {
 
-  private final Map<String, Instrument> id2instrument = Collections.synchronizedMap(new HashMap<String, Instrument>());
+  private final Map<String, Instrument> id2instrument = Collections.synchronizedMap(new HashMap<>());
 
   private final PriceEngine priceEngine;
   private final InstrumentService instrumentService;
@@ -39,9 +39,9 @@ public final class ClientSession extends Session implements PriceListenerContext
   }
 
   @Override public void closed(@Nullable final Throwable throwable) {
-    System.out.println("closed: " + hashCode() + ", " + throwable);
-    if (throwable instanceof Throwable) { // terminate on Throwable
-      Exceptions.STD_ERR.uncaughtException(Thread.currentThread(), throwable);
+    System.out.println("closed: " + hashCode());
+    if (throwable != null) {
+      Exceptions.uncaughtException(Exceptions.STD_ERR, throwable);
     }
   }
 

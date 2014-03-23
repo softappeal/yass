@@ -6,6 +6,7 @@ import ch.softappeal.yass.util.Nullable;
  * Represents a method invocation.
  * @see Interceptor
  */
+@FunctionalInterface
 public interface Invocation {
 
   /**
