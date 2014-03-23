@@ -63,7 +63,7 @@ public class PerformanceTest extends InvokeTest {
                 }
               }.run(samples, TimeUnit.MICROSECONDS);
             } finally {
-              sessionClient.close();
+              close();
             }
             latch.countDown();
           }

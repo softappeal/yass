@@ -69,7 +69,7 @@ public class LocalConnectionTest extends InvokeTest {
                   )
                 );
               } finally {
-                sessionClient.close();
+                close();
               }
             }
           }

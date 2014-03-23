@@ -5,7 +5,7 @@ import ch.softappeal.yass.core.remote.Invoker;
 import ch.softappeal.yass.core.remote.InvokerFactory;
 import ch.softappeal.yass.util.Nullable;
 
-public abstract class Session implements AutoCloseable, InvokerFactory {
+public abstract class Session implements InvokerFactory {
 
   static final ThreadLocal<Session> INSTANCE = new ThreadLocal<Session>();
 
@@ -43,7 +43,7 @@ public abstract class Session implements AutoCloseable, InvokerFactory {
   /**
    * This method is idempotent.
    */
-  @Override public void close() {
+  public void close() {
     sessionClient.close();
   }
 
