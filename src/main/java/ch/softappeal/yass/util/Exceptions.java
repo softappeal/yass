@@ -13,8 +13,12 @@ public final class Exceptions {
     return (e instanceof RuntimeException) ? (RuntimeException)e : new RuntimeException(Check.notNull(e));
   }
 
+  public static void uncaughtException(final UncaughtExceptionHandler uncaughtExceptionHandler, final Throwable throwable) {
+    uncaughtExceptionHandler.uncaughtException(Thread.currentThread(), throwable);
+  }
+
   /**
-   * Prints to {@link System#err} and EXITS if {@code !(e instanceof Exception)}.
+   * Prints to {@link System#err} and EXITS if {@code !(throwable instanceof Exception)}.
    * <p/>
    * Note: For productive code, this handler should be replaced with one that uses your logging framework!
    */

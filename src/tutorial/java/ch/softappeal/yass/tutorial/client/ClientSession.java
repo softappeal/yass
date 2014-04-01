@@ -39,9 +39,9 @@ public final class ClientSession extends Session implements PriceListenerContext
   }
 
   @Override public void closed(@Nullable final Throwable throwable) {
-    System.out.println("closed: " + hashCode() + ", " + throwable);
-    if (throwable instanceof Throwable) { // terminate on Throwable
-      Exceptions.STD_ERR.uncaughtException(Thread.currentThread(), throwable);
+    System.out.println("closed: " + hashCode());
+    if (throwable != null) {
+      Exceptions.uncaughtException(Exceptions.STD_ERR, throwable);
     }
   }
 
