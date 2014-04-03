@@ -38,7 +38,7 @@ public final class SocketExecutor {
       });
     } catch (final Exception e) {
       SocketTransport.close(socket, e);
-      exceptionHandler.uncaughtException(Thread.currentThread(), e);
+      Exceptions.uncaughtException(exceptionHandler, e);
     }
   }
 

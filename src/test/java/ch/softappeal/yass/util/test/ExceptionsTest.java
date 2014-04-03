@@ -14,7 +14,7 @@ public class ExceptionsTest {
     try {
       throw new Exception("Test");
     } catch (final Exception e) {
-      Exceptions.STD_ERR.uncaughtException(Thread.currentThread(), e);
+      Exceptions.uncaughtException(Exceptions.STD_ERR, e);
     }
   }
 
