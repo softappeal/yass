@@ -2,4 +2,6 @@
 .idea/
 build/
 classes/
-yass.iml
+*.iml
+*.js
+*.js.map

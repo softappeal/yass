@@ -50,7 +50,7 @@ function simulateServerCallingClient(invokerFactory: yass.InvokerFactory): void 
   // rpc-style method calls
   var promiseValue = priceListener.echo("hello");
   var promiseException = priceListener.echo("throw");
-  var callback = result => {
+  var callback = (result: any) => {
     try {
       log("promiseValue:", result()) // calling result() returns the function result or throws its exception
     } catch (e) {

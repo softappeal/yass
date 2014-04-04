@@ -45,7 +45,7 @@ public class RequestInterruptTest extends InvokeTest {
             @Override public Session createSession(final SessionClient sessionClient) {
               return new Session(sessionClient) {
                 @Override public void closed(@Nullable final Throwable throwable) {
-                  Exceptions.STD_ERR.uncaughtException(Thread.currentThread(), throwable);
+                  Exceptions.uncaughtException(Exceptions.STD_ERR, throwable);
                 }
               };
             }
@@ -96,7 +96,7 @@ public class RequestInterruptTest extends InvokeTest {
                 testService.delay(10);
               }
               @Override public void closed(@Nullable final Throwable throwable) {
-                Exceptions.STD_ERR.uncaughtException(Thread.currentThread(), throwable);
+                Exceptions.uncaughtException(Exceptions.STD_ERR, throwable);
               }
             };
           }

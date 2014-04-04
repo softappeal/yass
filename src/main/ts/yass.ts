@@ -1,7 +1,4 @@
-// $todo: use set/get accessors for properties ?
-// $todo: add node js implementation
-// $todo: add own basetypes
-// $todo: add properties constructor for generated classes
+// $todo: add properties constructor for generated classes ?
 
 export class Writer {
   private capacity: number;
