@@ -691,7 +691,7 @@ interface Connection {
 
 class SessionClient extends Client implements SessionInvokerFactory {
   private closed = false;
-  private nextRequestNumber = Packet.END_REQUESTNUMBER;
+  private requestNumber = Packet.END_REQUESTNUMBER;
   private requestNumber2promise: Promise<any>[] = [];
   private session: Session = null;
   constructor(private server: Server, sessionFactory: SessionFactory, private connection: Connection) {
@@ -700,13 +700,16 @@ class SessionClient extends Client implements SessionInvokerFactory {
         if (!this.session) {
           throw new Error("session is not yet opened");
         }
-        var requestNumber = ++this.nextRequestNumber; // $todo: implement 32bit signed int behaviour and skip END_REQUESTNUMBER
-        this.write(requestNumber, request);
+        if (this.requestNumber === 2147483647) {
+          this.requestNumber = Packet.END_REQUESTNUMBER;
+        }
+        this.requestNumber++;
+        this.write(this.requestNumber, request);
         if (promise) {
-          if (this.requestNumber2promise[requestNumber]) {
-            throw new Error("already waiting for requestNumber " + requestNumber);
+          if (this.requestNumber2promise[this.requestNumber]) {
+            throw new Error("already waiting for requestNumber " + this.requestNumber);
           }
-          this.requestNumber2promise[requestNumber] = promise;
+          this.requestNumber2promise[this.requestNumber] = promise;
         }
         return null;
       });
