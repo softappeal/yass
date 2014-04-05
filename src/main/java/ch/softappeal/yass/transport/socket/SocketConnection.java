@@ -32,13 +32,11 @@ public final class SocketConnection implements Connection {
     this.socket = socket;
     final SessionClient sessionClient = new SessionClient(setup, this);
     try {
-      writerExecutor.execute(new Runnable() {
-        @Override public void run() {
-          try {
-            write(outputStream);
-          } catch (final Exception e) {
-            sessionClient.close(e);
-          }
+      writerExecutor.execute(() -> {
+        try {
+          write(outputStream);
+        } catch (final Exception e) {
+          sessionClient.close(e);
         }
       });
     } catch (final Exception e) {

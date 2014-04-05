@@ -18,13 +18,13 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.SortedMap;
+import java.util.stream.Collectors;
 
 public final class ContractGenerator extends Generator {
 
@@ -66,17 +66,15 @@ public final class ContractGenerator extends Generator {
   }
 
   private void generateEnum(final Class<? extends Enum<?>> type) {
-    generateType(type, new TypeGenerator() {
-      @Override public void generateType(final String name) {
-        tabsln("export class %s extends yass.Enum {", name);
-        inc();
-        for (final Enum<?> e : type.getEnumConstants()) {
-          tabsln("static %s = new %s(%s, '%s');", e.name(), name, e.ordinal(), e.name());
-        }
-        tabsln("static TYPE_DESC = yass.enumDesc(%s, %s);", type2id.get(type), name);
-        dec();
-        tabsln("}");
+    generateType(type, name -> {
+      tabsln("export class %s extends yass.Enum {", name);
+      inc();
+      for (final Enum<?> e : type.getEnumConstants()) {
+        tabsln("static %s = new %s(%s, '%s');", e.name(), name, e.ordinal(), e.name());
       }
+      tabsln("static TYPE_DESC = yass.enumDesc(%s, %s);", type2id.get(type), name);
+      dec();
+      tabsln("}");
     });
   }
 
@@ -133,34 +131,28 @@ public final class ContractGenerator extends Generator {
       generateClass(sc);
     }
     final Class<?> superClass = sc;
-    generateType(type, new TypeGenerator() {
-      @Override public void generateType(final String name) {
-        final List<Field> fields = AbstractFastSerializer.ownFields(type);
-        Collections.sort(fields, new Comparator<Field>() {
-          @Override public int compare(final Field f1, final Field f2) {
-            return f1.getName().compareTo(f2.getName());
-          }
-        });
-        tabsln("export class %s extends %s {", name, (superClass == null) ? "yass.Class" : jsType(superClass));
-        inc();
-        for (final Field field : fields) {
-          tabsln("%s: %s;", field.getName(), type(field.getGenericType()));
-        }
-        final Integer id = type2id.get(type);
-        if (id != null) {
-          tabs("static TYPE_DESC = yass.classDesc(%s, %s", id, name);
-          inc();
-          for (final ClassTypeHandler.FieldDesc fieldDesc : ((ClassTypeHandler)id2typeHandler.get(type2id.get(type))).fieldDescs()) {
-            println(",");
-            tabs("new yass.FieldDesc(%s, '%s', %s)", fieldDesc.id, fieldDesc.handler.field.getName(), typeDescOwner(fieldDesc));
-          }
-          println();
-          dec();
-          tabsln(");");
-        }
-        dec();
-        tabsln("}");
+    generateType(type, name -> {
+      final List<Field> fields = AbstractFastSerializer.ownFields(type);
+      Collections.sort(fields, (f1, f2) -> f1.getName().compareTo(f2.getName()));
+      tabsln("export class %s extends %s {", name, (superClass == null) ? "yass.Class" : jsType(superClass));
+      inc();
+      for (final Field field : fields) {
+        tabsln("%s: %s;", field.getName(), type(field.getGenericType()));
       }
+      final Integer id = type2id.get(type);
+      if (id != null) {
+        tabs("static TYPE_DESC = yass.classDesc(%s, %s", id, name);
+        inc();
+        for (final ClassTypeHandler.FieldDesc fieldDesc : ((ClassTypeHandler)id2typeHandler.get(type2id.get(type))).fieldDescs()) {
+          println(",");
+          tabs("new yass.FieldDesc(%s, '%s', %s)", fieldDesc.id, fieldDesc.handler.field.getName(), typeDescOwner(fieldDesc));
+        }
+        println();
+        dec();
+        tabsln(");");
+      }
+      dec();
+      tabsln("}");
     });
   }
 
@@ -180,30 +172,20 @@ public final class ContractGenerator extends Generator {
         serviceDescs.add(new ServiceDesc(field.getName(), (ContractId<?>)field.get(null)));
       }
     }
-    Collections.sort(serviceDescs, new Comparator<ServiceDesc>() {
-      @Override public int compare(final ServiceDesc serviceDesc1, final ServiceDesc serviceDesc2) {
-        return ((Integer)serviceDesc1.contractId.id).compareTo((Integer)serviceDesc2.contractId.id);
-      }
-    });
+    Collections.sort(
+      serviceDescs,
+      (serviceDesc1, serviceDesc2) -> ((Integer)serviceDesc1.contractId.id).compareTo((Integer)serviceDesc2.contractId.id)
+    );
     return serviceDescs;
   }
 
   private static Set<Class<?>> getInterfaces(final Class<?> services) throws Exception {
-    final List<ServiceDesc> serviceDescs = getServiceDescs(services);
-    final Set<Class<?>> interfaces = new HashSet<>();
-    for (final ServiceDesc serviceDesc : serviceDescs) {
-      interfaces.add(serviceDesc.contractId.contract);
-    }
-    return interfaces;
+    return getServiceDescs(services).stream().map(serviceDesc -> serviceDesc.contractId.contract).collect(Collectors.toSet());
   }
 
   private static Method[] getMethods(final Class<?> type) {
     final Method[] methods = type.getMethods();
-    Arrays.sort(methods, new Comparator<Method>() {
-      @Override public int compare(final Method method1, final Method method2) {
-        return method1.getName().compareTo(method2.getName());
-      }
-    });
+    Arrays.sort(methods, (method1, method2) -> method1.getName().compareTo(method2.getName()));
     return methods;
   }
 
@@ -311,11 +293,7 @@ public final class ContractGenerator extends Generator {
     final Set<Class<?>> interfaceSet = getInterfaces(clientServices);
     interfaceSet.addAll(getInterfaces(serverServices));
     final List<Class<?>> interfaceList = new ArrayList<>(interfaceSet);
-    Collections.sort(interfaceList, new Comparator<Class<?>>() {
-      @Override public int compare(final Class<?> type1, final Class<?> type2) {
-        return type1.getCanonicalName().compareTo(type2.getCanonicalName());
-      }
-    });
+    Collections.sort(interfaceList, (type1, type2) -> type1.getCanonicalName().compareTo(type2.getCanonicalName()));
     for (final Class<?> type : interfaceList) {
       generateInterface(type);
     }

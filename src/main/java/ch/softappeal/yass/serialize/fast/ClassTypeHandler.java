@@ -5,7 +5,6 @@ import ch.softappeal.yass.util.Check;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.IdentityHashMap;
 import java.util.Map;
@@ -44,11 +43,7 @@ public final class ClassTypeHandler extends TypeHandler {
       fieldDescs[fd++] = fieldDesc;
     }
     this.id2fieldHandler = new HashMap<>(id2fieldHandler);
-    Arrays.sort(fieldDescs, new Comparator<FieldDesc>() {
-      @Override public int compare(final FieldDesc fieldDesc1, final FieldDesc fieldDesc2) {
-        return ((Integer)fieldDesc1.id).compareTo(fieldDesc2.id);
-      }
-    });
+    Arrays.sort(fieldDescs, (fieldDesc1, fieldDesc2) -> ((Integer)fieldDesc1.id).compareTo(fieldDesc2.id));
   }
 
   void fixupFields(final Map<Class<?>, TypeDesc> class2typeDesc) {

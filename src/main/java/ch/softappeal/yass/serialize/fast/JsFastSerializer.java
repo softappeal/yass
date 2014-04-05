@@ -5,7 +5,6 @@ import ch.softappeal.yass.serialize.Reflector;
 import java.lang.reflect.Field;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -27,11 +26,7 @@ public final class JsFastSerializer extends AbstractFastSerializer {
         throw new IllegalArgumentException("duplicated fields '" + field + "' and '" + oldField + "' in class hierarchy");
       }
     }
-    Collections.sort(fields, new Comparator<Field>() {
-      @Override public int compare(final Field field1, final Field field2) {
-        return field1.getName().compareTo(field2.getName());
-      }
-    });
+    Collections.sort(fields, (field1, field2) -> field1.getName().compareTo(field2.getName()));
     final Map<Integer, Field> id2field = new HashMap<>(fields.size());
     int fieldId = FieldHandler.FIRST_ID;
     for (final Field field : fields) {

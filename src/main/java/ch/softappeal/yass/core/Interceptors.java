@@ -3,7 +3,6 @@ package ch.softappeal.yass.core;
 import ch.softappeal.yass.util.Check;
 import ch.softappeal.yass.util.Nullable;
 
-import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
@@ -26,30 +25,24 @@ public final class Interceptors {
   public static <C> C proxy(final Class<C> contract, final C implementation, final Interceptor... interceptors) {
     Check.notNull(implementation);
     final Interceptor interceptor = composite(interceptors);
-    return contract.cast(Proxy.newProxyInstance(contract.getClassLoader(), new Class<?>[] {contract}, new InvocationHandler() {
-      @Override public Object invoke(final Object proxy, final Method method, final Object[] arguments) throws Throwable {
-        return interceptor.invoke(method, arguments, new Invocation() {
-          @Override public Object proceed() throws Throwable {
-            try {
-              return method.invoke(implementation, arguments);
-            } catch (final InvocationTargetException e) {
-              throw e.getCause();
-            }
-          }
-        });
-      }
-    }));
+    return contract.cast(Proxy.newProxyInstance(
+      contract.getClassLoader(),
+      new Class<?>[] {contract},
+      (proxy, method, arguments) -> interceptor.invoke(method, arguments, () -> {
+        try {
+          return method.invoke(implementation, arguments);
+        } catch (final InvocationTargetException e) {
+          throw e.getCause();
+        }
+      })
+    ));
   }
 
 
   /**
    * Calls {@link Invocation#proceed()}.
    */
-  public static final Interceptor DIRECT = new Interceptor() {
-    @Override @Nullable public Object invoke(final Method method, @Nullable final Object[] arguments, final Invocation invocation) throws Throwable {
-      return invocation.proceed();
-    }
-  };
+  public static final Interceptor DIRECT = (method, arguments, invocation) -> invocation.proceed();
 
 
   public static Interceptor composite(final Interceptor interceptor1, final Interceptor interceptor2) {
@@ -61,15 +54,9 @@ public final class Interceptors {
     if (interceptor2 == DIRECT) {
       return interceptor1;
     }
-    return new Interceptor() {
-      @Override @Nullable public Object invoke(final Method method, @Nullable final Object[] arguments, final Invocation invocation) throws Throwable {
-        return interceptor1.invoke(method, arguments, new Invocation() {
-          @Override @Nullable public Object proceed() throws Throwable {
-            return interceptor2.invoke(method, arguments, invocation);
-          }
-        });
-      }
-    };
+    return (method, arguments, invocation) -> interceptor1.invoke(
+      method, arguments, () -> interceptor2.invoke(method, arguments, invocation)
+    );
   }
 
   /**
@@ -91,15 +78,13 @@ public final class Interceptors {
   public static <T> Interceptor threadLocal(final ThreadLocal<T> threadLocal, final T value) {
     Check.notNull(threadLocal);
     Check.notNull(value);
-    return new Interceptor() {
-      @Override @Nullable public Object invoke(final Method method, @Nullable final Object[] arguments, final Invocation invocation) throws Throwable {
-        @Nullable final T oldValue = threadLocal.get();
-        threadLocal.set(value);
-        try {
-          return invocation.proceed();
-        } finally {
-          threadLocal.set(oldValue);
-        }
+    return (method, arguments, invocation) -> {
+      @Nullable final T oldValue = threadLocal.get();
+      threadLocal.set(value);
+      try {
+        return invocation.proceed();
+      } finally {
+        threadLocal.set(oldValue);
       }
     };
   }

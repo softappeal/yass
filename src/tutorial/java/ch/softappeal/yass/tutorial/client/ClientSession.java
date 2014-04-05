@@ -17,7 +17,7 @@ import java.util.Map;
 
 public final class ClientSession extends Session implements PriceListenerContext {
 
-  private final Map<String, Instrument> id2instrument = Collections.synchronizedMap(new HashMap<String, Instrument>());
+  private final Map<String, Instrument> id2instrument = Collections.synchronizedMap(new HashMap<>());
 
   private final PriceEngine priceEngine;
   private final InstrumentService instrumentService;

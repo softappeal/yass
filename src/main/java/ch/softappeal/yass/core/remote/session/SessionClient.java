@@ -8,7 +8,6 @@ import ch.softappeal.yass.core.remote.Message;
 import ch.softappeal.yass.core.remote.Reply;
 import ch.softappeal.yass.core.remote.Request;
 import ch.softappeal.yass.core.remote.Server.ServerInvocation;
-import ch.softappeal.yass.core.remote.Tunnel;
 import ch.softappeal.yass.util.Check;
 import ch.softappeal.yass.util.Exceptions;
 import ch.softappeal.yass.util.Nullable;
@@ -40,13 +39,11 @@ public final class SessionClient extends Client {
     this.connection = Check.notNull(connection);
     session = Check.notNull(setup.createSession(this));
     sessionInterceptor = Interceptors.threadLocal(Session.INSTANCE, session);
-    setup.requestExecutor.execute(new Runnable() {
-      @Override public void run() {
-        try {
-          session.opened();
-        } catch (final Exception e) {
-          close(e);
-        }
+    setup.requestExecutor.execute(() -> {
+      try {
+        session.opened();
+      } catch (final Exception e) {
+        close(e);
       }
     });
   }
@@ -86,7 +83,7 @@ public final class SessionClient extends Client {
     }
   }
 
-  private final Map<Integer, BlockingQueue<Reply>> requestNumber2replyQueue = Collections.synchronizedMap(new HashMap<Integer, BlockingQueue<Reply>>(16));
+  private final Map<Integer, BlockingQueue<Reply>> requestNumber2replyQueue = Collections.synchronizedMap(new HashMap<>(16));
 
   private void writeReply(final int requestNumber, final Reply reply) throws InterruptedException {
     @Nullable final BlockingQueue<Reply> replyQueue = requestNumber2replyQueue.remove(requestNumber);
@@ -124,17 +121,15 @@ public final class SessionClient extends Client {
   }
 
   private void serverInvoke(final int requestNumber, final Request request) {
-    setup.requestExecutor.execute(new Runnable() {
-      @Override public void run() {
-        try {
-          final ServerInvocation invocation = setup.server.invocation(request);
-          final Reply reply = invocation.invoke(sessionInterceptor);
-          if (!invocation.oneWay) {
-            write(requestNumber, reply);
-          }
-        } catch (final Exception e) {
-          close(e);
+    setup.requestExecutor.execute(() -> {
+      try {
+        final ServerInvocation invocation = setup.server.invocation(request);
+        final Reply reply = invocation.invoke(sessionInterceptor);
+        if (!invocation.oneWay) {
+          write(requestNumber, reply);
         }
+      } catch (final Exception e) {
+        close(e);
       }
     });
   }
@@ -171,18 +166,16 @@ public final class SessionClient extends Client {
   private final AtomicInteger nextRequestNumber = new AtomicInteger(Packet.END_REQUEST_NUMBER);
 
   @Override protected Object invoke(final ClientInvocation invocation) throws Throwable {
-    return invocation.invoke(sessionInterceptor, new Tunnel() {
-      @Override public Reply invoke(final Request request) {
-        int requestNumber;
-        do { // we can't use END_REQUEST_NUMBER as regular requestNumber
-          requestNumber = nextRequestNumber.incrementAndGet();
-        } while (requestNumber == Packet.END_REQUEST_NUMBER);
-        if (invocation.oneWay) {
-          write(requestNumber, request);
-          return null;
-        }
-        return writeRequestAndReadReply(requestNumber, request);
+    return invocation.invoke(sessionInterceptor, request -> {
+      int requestNumber;
+      do { // we can't use END_REQUEST_NUMBER as regular requestNumber
+        requestNumber = nextRequestNumber.incrementAndGet();
+      } while (requestNumber == Packet.END_REQUEST_NUMBER);
+      if (invocation.oneWay) {
+        write(requestNumber, request);
+        return null;
       }
+      return writeRequestAndReadReply(requestNumber, request);
     });
   }
 

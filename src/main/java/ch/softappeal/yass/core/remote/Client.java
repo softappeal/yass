@@ -2,11 +2,8 @@ package ch.softappeal.yass.core.remote;
 
 import ch.softappeal.yass.core.Interceptor;
 import ch.softappeal.yass.core.Interceptors;
-import ch.softappeal.yass.core.Invocation;
 import ch.softappeal.yass.util.Nullable;
 
-import java.lang.reflect.InvocationHandler;
-import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 
 /**
@@ -36,11 +33,9 @@ public abstract class Client extends Common implements InvokerFactory {
      * @see Client#invoke(ClientInvocation)
      */
     @Nullable public Object invoke(final Interceptor interceptor, final Tunnel tunnel) throws Throwable {
-      return Interceptors.composite(interceptor, invocationInterceptor).invoke(methodMapping.method, arguments, new Invocation() {
-        @Override public Object proceed() throws Throwable {
-          final Reply reply = tunnel.invoke(new Request(serviceId, methodMapping.id, arguments));
-          return oneWay ? null : reply.process();
-        }
+      return Interceptors.composite(interceptor, invocationInterceptor).invoke(methodMapping.method, arguments, () -> {
+        final Reply reply = tunnel.invoke(new Request(serviceId, methodMapping.id, arguments));
+        return oneWay ? null : reply.process();
       });
     }
 
@@ -52,17 +47,15 @@ public abstract class Client extends Common implements InvokerFactory {
   }
 
 
-  public final <C> Invoker<C> invoker(final ContractId<C> contractId) {
+  @Override public final <C> Invoker<C> invoker(final ContractId<C> contractId) {
     final MethodMapper methodMapper = methodMapper(contractId.contract);
-    return new Invoker<C>() {
-      @Override public C proxy(final Interceptor... interceptors) {
-        final Interceptor interceptor = Interceptors.composite(interceptors);
-        return contractId.contract.cast(Proxy.newProxyInstance(contractId.contract.getClassLoader(), new Class<?>[] {contractId.contract}, new InvocationHandler() {
-          @Override public Object invoke(final Object proxy, final Method method, final Object[] arguments) throws Throwable {
-            return Client.this.invoke(new ClientInvocation(interceptor, contractId.id, methodMapper.mapMethod(method), arguments));
-          }
-        }));
-      }
+    return interceptors -> {
+      final Interceptor interceptor = Interceptors.composite(interceptors);
+      return contractId.contract.cast(Proxy.newProxyInstance(
+        contractId.contract.getClassLoader(),
+        new Class<?>[] {contractId.contract},
+        (proxy, method, arguments) -> invoke(new ClientInvocation(interceptor, contractId.id, methodMapper.mapMethod(method), arguments))
+      ));
     };
   }
 

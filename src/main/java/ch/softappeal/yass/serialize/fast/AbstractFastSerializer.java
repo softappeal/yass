@@ -121,11 +121,9 @@ public abstract class AbstractFastSerializer implements Serializer {
   }
 
   protected final void fixupFields() {
-    for (final TypeDesc typeDesc : class2typeDesc.values()) {
-      if (typeDesc.handler instanceof ClassTypeHandler) {
-        ((ClassTypeHandler)typeDesc.handler).fixupFields(class2typeDesc);
-      }
-    }
+    class2typeDesc.values().stream().filter(typeDesc -> typeDesc.handler instanceof ClassTypeHandler).forEach(
+      typeDesc -> ((ClassTypeHandler)typeDesc.handler).fixupFields(class2typeDesc)
+    );
   }
 
   @Override public final Object read(final Reader reader) throws Exception {

@@ -11,7 +11,6 @@ import ch.softappeal.yass.transport.socket.SocketTransport;
 import ch.softappeal.yass.tutorial.contract.Config;
 import ch.softappeal.yass.tutorial.contract.PriceEngine;
 import ch.softappeal.yass.tutorial.contract.ServerServices;
-import ch.softappeal.yass.util.ContextLocator;
 import ch.softappeal.yass.util.Exceptions;
 import ch.softappeal.yass.util.NamedThreadFactory;
 
@@ -22,11 +21,7 @@ import java.util.concurrent.Executors;
 
 public final class SocketServer {
 
-  private static final PriceEngine PRICE_ENGINE = new PriceEngineImpl(new ContextLocator<PriceEngineContext>() {
-    @Override public PriceEngineContext context() {
-      return (PriceEngineContext)Session.get();
-    }
-  });
+  private static final PriceEngine PRICE_ENGINE = new PriceEngineImpl(() -> (PriceEngineContext)Session.get());
 
   private static final Server SERVER = new Server(
     Config.METHOD_MAPPER_FACTORY,

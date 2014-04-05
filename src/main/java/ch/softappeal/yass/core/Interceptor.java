@@ -8,6 +8,7 @@ import java.lang.reflect.Method;
  * Intercepts a method invocation.
  * @see Interceptors
  */
+@FunctionalInterface
 public interface Interceptor {
 
   /**

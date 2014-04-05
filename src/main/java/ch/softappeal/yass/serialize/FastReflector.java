@@ -24,11 +24,7 @@ public final class FastReflector implements Reflector {
 
   private static final Unsafe UNSAFE = getUnsafe();
 
-  public static final Factory FACTORY = new Factory() {
-    @Override public Reflector create(final Class<?> type) {
-      return new FastReflector(type);
-    }
-  };
+  public static final Factory FACTORY = FastReflector::new;
 
   private FastReflector(final Class<?> type) {
     this.type = Check.notNull(type);
