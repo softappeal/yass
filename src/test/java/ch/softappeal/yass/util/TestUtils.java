@@ -11,6 +11,7 @@ import java.nio.charset.StandardCharsets;
 
 public class TestUtils {
 
+  @FunctionalInterface
   public interface Printer {
     void print(PrintWriter printer) throws Exception;
   }
