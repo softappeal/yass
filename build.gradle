@@ -35,6 +35,10 @@ tasks.withType(JavaCompile) {
   options.compilerArgs << "-Xlint"
 }
 
+tasks.withType(Javadoc) {
+  options.addStringOption('Xdoclint:all,-missing', '-quiet')
+}
+
 jar {
   from "readme.md"
   from "license.txt"
