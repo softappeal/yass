@@ -56,22 +56,22 @@ export class UnknownInstrumentsException extends yass.Class {
 }
 
 export interface PriceEngine {
-  subscribe(param0: string[]): void;
+  subscribe(instrumentIds: string[]): void;
 }
 export interface PriceEngine_PROXY {
-  subscribe(param0: string[]): yass.Promise<void>;
+  subscribe(instrumentIds: string[]): yass.Promise<void>;
 }
 export var PriceEngine_MAPPER = new yass.MethodMapper<PriceEngine>(
   new yass.MethodMapping('subscribe', 0, false)
 );
 
 export interface PriceListener {
-  echo(param0: string): string;
-  newPrices(param0: Price[]): void;
+  echo(message: string): string;
+  newPrices(prices: Price[]): void;
 }
 export interface PriceListener_PROXY {
-  echo(param0: string): yass.Promise<string>;
-  newPrices(param0: Price[]): void;
+  echo(message: string): yass.Promise<string>;
+  newPrices(prices: Price[]): void;
 }
 export var PriceListener_MAPPER = new yass.MethodMapper<PriceListener>(
   new yass.MethodMapping('echo', 0, false),
@@ -81,11 +81,11 @@ export var PriceListener_MAPPER = new yass.MethodMapper<PriceListener>(
 export module instrument {
   export interface InstrumentService {
     getInstruments(): Instrument[];
-    reload(param0: boolean, param1: number): void;
+    reload(testBoolean: boolean, testInt: number): void;
   }
   export interface InstrumentService_PROXY {
     getInstruments(): yass.Promise<Instrument[]>;
-    reload(param0: boolean, param1: number): void;
+    reload(testBoolean: boolean, testInt: number): void;
   }
   export var InstrumentService_MAPPER = new yass.MethodMapper<InstrumentService>(
     new yass.MethodMapping('getInstruments', 0, false),

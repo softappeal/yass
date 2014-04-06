@@ -13,6 +13,7 @@ import ch.softappeal.yass.util.Check;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.lang.reflect.Parameter;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
@@ -26,6 +27,9 @@ import java.util.Set;
 import java.util.SortedMap;
 import java.util.stream.Collectors;
 
+/**
+ * Note: You must use the -parameters option for javac to get the real method parameter names.
+ */
 public final class ContractGenerator extends Generator {
 
   private final String rootPackage;
@@ -199,12 +203,13 @@ public final class ContractGenerator extends Generator {
         inc();
         for (final Method method : methods) {
           tabs("%s(", method.getName());
-          int param = 0; // $todo: use Parameter.getName() in Java 8
-          for (final Type paramType : method.getGenericParameterTypes()) {
-            if (param != 0) {
+          boolean first = true;
+          for (final Parameter parameter : method.getParameters()) {
+            if (!first) {
               print(", ");
             }
-            print("param%s: %s", param++, type(paramType));
+            first = false;
+            print("%s: %s", parameter.getName(), type(parameter.getParameterizedType()));
           }
           print("): ");
           if (methodMapper.mapMethod(method).oneWay) {
