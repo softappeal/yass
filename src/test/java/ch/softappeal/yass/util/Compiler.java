@@ -1,6 +1,5 @@
 package ch.softappeal.yass.util;
 
-import javax.tools.Diagnostic;
 import javax.tools.DiagnosticCollector;
 import javax.tools.FileObject;
 import javax.tools.ForwardingJavaFileManager;
@@ -182,9 +181,7 @@ public final class Compiler {
     final StringWriter writer = new StringWriter();
     final PrintWriter printer = new PrintWriter(writer);
     printer.println(reason);
-    for (final Diagnostic<? extends JavaFileObject> diagnostic : diagnostics.getDiagnostics()) {
-      printer.println(diagnostic);
-    }
+    diagnostics.getDiagnostics().forEach(printer::println);
     return writer.toString();
   }
 

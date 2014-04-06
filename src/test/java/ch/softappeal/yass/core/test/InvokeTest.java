@@ -154,13 +154,11 @@ public class InvokeTest {
   );
 
   public static final Interceptor SERVER_INTERCEPTOR = Interceptors.composite(
-    new Interceptor() {
-      @Override public Object invoke(final Method method, @Nullable final Object[] arguments, final Invocation invocation) throws Throwable {
-        Assert.assertTrue(COUNTER.incrementAndGet() == 2);
-        Assert.assertEquals(METHOD.get(), method);
-        checkArguments(arguments);
-        return invocation.proceed();
-      }
+    (method, arguments, invocation) -> {
+      Assert.assertTrue(COUNTER.incrementAndGet() == 2);
+      Assert.assertEquals(METHOD.get(), method);
+      checkArguments(arguments);
+      return invocation.proceed();
     },
     new Logger("server")
   );
@@ -185,44 +183,34 @@ public class InvokeTest {
    * @param testService must use {@link #CLIENT_INTERCEPTOR} and {@link #SERVER_INTERCEPTOR}
    */
   public static void invoke(final TestService testService) throws InterruptedException {
-    invoke("nothing", new Class<?>[] {}, null, new Runnable() {
-      @Override public void run() {
-        testService.nothing();
+    invoke("nothing", new Class<?>[] {}, null, () -> {
+      testService.nothing();
+    });
+    invoke("divide", new Class<?>[] {int.class, int.class}, new Object[] {12, 3}, () -> {
+      try {
+        Assert.assertTrue(testService.divide(12, 3) == 4);
+      } catch (final DivisionByZeroException e) {
+        Assert.fail();
       }
     });
-    invoke("divide", new Class<?>[] {int.class, int.class}, new Object[] {12, 3}, new Runnable() {
-      @Override public void run() {
-        try {
-          Assert.assertTrue(testService.divide(12, 3) == 4);
-        } catch (final DivisionByZeroException e) {
-          Assert.fail();
-        }
+    invoke("divide", new Class<?>[] {int.class, int.class}, new Object[] {123, 0}, () -> {
+      try {
+        testService.divide(123, 0);
+        Assert.fail();
+      } catch (final DivisionByZeroException e) {
+        Assert.assertTrue(e.value == 123);
       }
     });
-    invoke("divide", new Class<?>[] {int.class, int.class}, new Object[] {123, 0}, new Runnable() {
-      @Override public void run() {
-        try {
-          testService.divide(123, 0);
-          Assert.fail();
-        } catch (final DivisionByZeroException e) {
-          Assert.assertTrue(e.value == 123);
-        }
+    invoke("throwError", new Class<?>[] {}, null, () -> {
+      try {
+        testService.throwError();
+        Assert.fail();
+      } catch (final Error e) {
+        Assert.assertEquals("throwError", e.getMessage());
       }
     });
-    invoke("throwError", new Class<?>[] {}, null, new Runnable() {
-      @Override public void run() {
-        try {
-          testService.throwError();
-          Assert.fail();
-        } catch (final Error e) {
-          Assert.assertEquals("throwError", e.getMessage());
-        }
-      }
-    });
-    invoke("oneWay", new Class<?>[] {int.class}, new Object[] {100}, new Runnable() {
-      @Override public void run() {
-        testService.oneWay(100);
-      }
+    invoke("oneWay", new Class<?>[] {int.class}, new Object[] {100}, () -> {
+      testService.oneWay(100);
     });
     TimeUnit.MILLISECONDS.sleep(200L);
   }

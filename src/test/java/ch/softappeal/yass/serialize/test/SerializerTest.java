@@ -205,9 +205,9 @@ public class SerializerTest {
     Assert.assertArrayEquals(new char[] {'a', 'b'}, JavaSerializerTest.copy(serializer, new char[] {'a', 'b'}));
     Assert.assertArrayEquals(new float[] {1f, 2f}, JavaSerializerTest.copy(serializer, new float[] {1f, 2f}), 0f);
     Assert.assertArrayEquals(new double[] {1d, 2d}, JavaSerializerTest.copy(serializer, new double[] {1d, 2d}), 0d);
-    Assert.assertEquals(new ArrayList<Object>(), JavaSerializerTest.copy(serializer, new ArrayList<Object>()));
+    Assert.assertEquals(new ArrayList<>(), JavaSerializerTest.copy(serializer, new ArrayList<>()));
     Assert.assertEquals(Arrays.asList(1, null, "2"), JavaSerializerTest.copy(serializer, Arrays.asList(1, null, "2")));
-    Assert.assertEquals(new ArrayList<String>(), JavaSerializerTest.copy(serializer, new ArrayList<String>()));
+    Assert.assertEquals(new ArrayList<>(), JavaSerializerTest.copy(serializer, new ArrayList<>()));
     Assert.assertEquals(Arrays.<String>asList("1", null, "2"), JavaSerializerTest.copy(serializer, Arrays.<String>asList("1", null, "2")));
     Assert.assertTrue(JavaSerializerTest.copy(serializer, new AllTypes()).getClass() == AllTypes.class);
     Assert.assertTrue(JavaSerializerTest.copy(serializer, new PrimitiveTypes()).getClass() == PrimitiveTypes.class);
