@@ -26,7 +26,7 @@ public abstract class Session implements AutoCloseable, InvokerFactory {
 
   /**
    * Called from {@link SessionSetup#requestExecutor}.
-   * <p/>
+   * <p>
    * This implementation does nothing.
    * @throws Exception if an exception is thrown, {@link #closed(Throwable)} will be called
    */

@@ -20,7 +20,7 @@ public abstract class SocketListener {
 
   /**
    * Starts a socket listener.
-   * @param listenerExecutor must interrupt it's threads to terminate the socket listener (-> use {@link ExecutorService#shutdownNow()})
+   * @param listenerExecutor must interrupt it's threads to terminate the socket listener (use {@link ExecutorService#shutdownNow()})
    */
   public final void start(
     final Executor listenerExecutor, final SocketExecutor socketExecutor,
