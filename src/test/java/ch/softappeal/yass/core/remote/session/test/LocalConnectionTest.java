@@ -2,7 +2,6 @@ package ch.softappeal.yass.core.remote.session.test;
 
 import ch.softappeal.yass.core.Interceptor;
 import ch.softappeal.yass.core.Interceptors;
-import ch.softappeal.yass.core.Invocation;
 import ch.softappeal.yass.core.remote.Server;
 import ch.softappeal.yass.core.remote.Service;
 import ch.softappeal.yass.core.remote.TaggedMethodMapper;
@@ -20,7 +19,6 @@ import ch.softappeal.yass.util.Nullable;
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.lang.reflect.Method;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -28,11 +26,9 @@ import java.util.concurrent.TimeUnit;
 
 public class LocalConnectionTest extends InvokeTest {
 
-  private static final Interceptor SESSION_CHECKER = new Interceptor() {
-    @Override public Object invoke(final Method method, @Nullable final Object[] arguments, final Invocation invocation) throws Throwable {
-      Assert.assertNotNull(Session.get());
-      return invocation.proceed();
-    }
+  private static final Interceptor SESSION_CHECKER = (method, arguments, invocation) -> {
+    Assert.assertNotNull(Session.get());
+    return invocation.proceed();
   };
 
   private static TransportSetup createSetup(final boolean invoke, final Executor requestExecutor, final boolean createException, final boolean openedException, final boolean invokeBeforeOpened) {

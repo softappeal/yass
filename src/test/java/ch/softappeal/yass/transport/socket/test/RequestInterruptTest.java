@@ -1,7 +1,5 @@
 package ch.softappeal.yass.transport.socket.test;
 
-import ch.softappeal.yass.core.Interceptor;
-import ch.softappeal.yass.core.Invocation;
 import ch.softappeal.yass.core.remote.Server;
 import ch.softappeal.yass.core.remote.Service;
 import ch.softappeal.yass.core.remote.TaggedMethodMapper;
@@ -23,7 +21,6 @@ import ch.softappeal.yass.util.Nullable;
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.lang.reflect.Method;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -61,18 +58,16 @@ public class RequestInterruptTest extends InvokeTest {
           @Override public Session createSession(final SessionClient sessionClient) {
             return new Session(sessionClient) {
               @Override public void opened() {
-                final TestService testService = invoker(ContractIdTest.ID).proxy(new Interceptor() {
-                  @Override public Object invoke(final Method method, @Nullable final Object[] arguments, final Invocation invocation) throws Throwable {
-                    System.out.println("before");
-                    try {
-                      final Object reply = invocation.proceed();
-                      System.out.println("after");
-                      return reply;
-                    } catch (final Throwable throwable) {
-                      System.out.println("after exception");
-                      throwable.printStackTrace(System.out);
-                      throw throwable;
-                    }
+                final TestService testService = invoker(ContractIdTest.ID).proxy((method, arguments, invocation) -> {
+                  System.out.println("before");
+                  try {
+                    final Object reply = invocation.proceed();
+                    System.out.println("after");
+                    return reply;
+                  } catch (final Throwable throwable) {
+                    System.out.println("after exception");
+                    throwable.printStackTrace(System.out);
+                    throw throwable;
                   }
                 });
                 final Thread testThread = Thread.currentThread();

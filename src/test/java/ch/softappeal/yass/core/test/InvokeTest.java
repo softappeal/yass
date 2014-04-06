@@ -123,13 +123,11 @@ public class InvokeTest {
     return "oneWay".equals(method);
   }
 
-  public static final Interceptor PRINTLN_AFTER = new Interceptor() {
-    @Override public Object invoke(final Method method, @Nullable final Object[] arguments, final Invocation invocation) throws Throwable {
-      try {
-        return invocation.proceed();
-      } finally {
-        System.out.println();
-      }
+  public static final Interceptor PRINTLN_AFTER = (method, arguments, invocation) -> {
+    try {
+      return invocation.proceed();
+    } finally {
+      System.out.println();
     }
   };
 
@@ -142,13 +140,11 @@ public class InvokeTest {
   }
 
   public static final Interceptor CLIENT_INTERCEPTOR = Interceptors.composite(
-    new Interceptor() {
-      @Override public Object invoke(final Method method, @Nullable final Object[] arguments, final Invocation invocation) throws Throwable {
-        Assert.assertTrue(COUNTER.incrementAndGet() == 1);
-        Assert.assertEquals(METHOD.get(), method);
-        checkArguments(arguments);
-        return invocation.proceed();
-      }
+    (method, arguments, invocation) -> {
+      Assert.assertTrue(COUNTER.incrementAndGet() == 1);
+      Assert.assertEquals(METHOD.get(), method);
+      checkArguments(arguments);
+      return invocation.proceed();
     },
     new Logger("client")
   );

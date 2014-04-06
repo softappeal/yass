@@ -67,15 +67,13 @@ public final class WriterExecutorTest {
                 final Executor worker = executor("server-worker");
                 final String s = "hello";
                 for (int i = 0; i < 20; i++) {
-                  worker.execute(new Runnable() {
-                    @Override public void run() {
-                      while (true) {
-                        stringListener.newString(s);
-                        try {
-                          TimeUnit.MILLISECONDS.sleep(1);
-                        } catch (final InterruptedException e) {
-                          throw new RuntimeException(e);
-                        }
+                  worker.execute(() -> {
+                    while (true) {
+                      stringListener.newString(s);
+                      try {
+                        TimeUnit.MILLISECONDS.sleep(1);
+                      } catch (final InterruptedException e) {
+                        throw new RuntimeException(e);
                       }
                     }
                   });
@@ -100,10 +98,8 @@ public final class WriterExecutorTest {
           METHOD_MAPPER_FACTORY,
           new Service(
             StringListenerId,
-            new StringListener() {
-              @Override public void newString(final String value) {
-                counter.incrementAndGet();
-              }
+            value -> {
+              counter.incrementAndGet();
             }
           )
         ),
@@ -122,10 +118,8 @@ public final class WriterExecutorTest {
       StringPathSerializer.INSTANCE, SocketTransportTest.PATH, ADDRESS
     );
     Executors.newScheduledThreadPool(1).scheduleAtFixedRate(
-      new Runnable() {
-        @Override public void run() {
-          System.out.println(counter.get());
-        }
+      () -> {
+        System.out.println(counter.get());
       },
       0,
       1,
