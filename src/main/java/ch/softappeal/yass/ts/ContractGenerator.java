@@ -299,9 +299,7 @@ public final class ContractGenerator extends Generator {
     interfaceSet.addAll(getInterfaces(serverServices));
     final List<Class<?>> interfaceList = new ArrayList<>(interfaceSet);
     Collections.sort(interfaceList, (type1, type2) -> type1.getCanonicalName().compareTo(type2.getCanonicalName()));
-    for (final Class<?> type : interfaceList) {
-      generateInterface(type);
-    }
+    interfaceList.forEach(this::generateInterface);
     generateServices(clientServices);
     generateServices(serverServices);
     tabs("export var SERIALIZER = new yass.JsFastSerializer(");

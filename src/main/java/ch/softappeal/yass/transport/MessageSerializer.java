@@ -40,7 +40,7 @@ public final class MessageSerializer implements Serializer {
       return new Request(
         contractSerializer.read(reader),
         contractSerializer.read(reader),
-        toArray((List)contractSerializer.read(reader))
+        toArray((List<Object>)contractSerializer.read(reader))
       );
     }
     if (type == VALUE_REPLY) {

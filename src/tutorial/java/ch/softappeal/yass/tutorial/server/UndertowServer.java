@@ -3,7 +3,6 @@ package ch.softappeal.yass.tutorial.server;
 import io.undertow.Handlers;
 import io.undertow.Undertow;
 import io.undertow.server.HttpHandler;
-import io.undertow.server.HttpServerExchange;
 import io.undertow.server.handlers.resource.FileResourceManager;
 import io.undertow.servlet.Servlets;
 import io.undertow.servlet.api.DeploymentManager;
@@ -35,13 +34,11 @@ public final class UndertowServer {
     final HttpHandler fileHandler = Handlers.resource(new FileResourceManager(new File("."), 100));
     Undertow.builder()
       .addHttpListener(JettyServer.PORT, JettyServer.HOST)
-      .setHandler(new HttpHandler() {
-        @Override public void handleRequest(final HttpServerExchange exchange) throws Exception {
-          if (JettyServer.PATH.equals(exchange.getRequestPath())) {
-            webSocketHandler.handleRequest(exchange);
-          } else {
-            fileHandler.handleRequest(exchange);
-          }
+      .setHandler(exchange -> {
+        if (JettyServer.PATH.equals(exchange.getRequestPath())) {
+          webSocketHandler.handleRequest(exchange);
+        } else {
+          fileHandler.handleRequest(exchange);
         }
       })
       .build()

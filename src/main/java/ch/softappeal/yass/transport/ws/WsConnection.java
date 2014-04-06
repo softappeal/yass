@@ -12,8 +12,6 @@ import ch.softappeal.yass.util.Check;
 import javax.websocket.CloseReason;
 import javax.websocket.MessageHandler;
 import javax.websocket.RemoteEndpoint;
-import javax.websocket.SendHandler;
-import javax.websocket.SendResult;
 import javax.websocket.Session;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -40,7 +38,7 @@ public final class WsConnection implements Connection {
       }
       throw e;
     }
-    session.addMessageHandler(new MessageHandler.Whole<ByteBuffer>() {
+    session.addMessageHandler(new MessageHandler.Whole<ByteBuffer>() { // $$$
       @Override public void onMessage(final ByteBuffer in) {
         try {
           sessionClient.received((Packet)packetSerializer.read(Reader.create(in)));
@@ -58,14 +56,12 @@ public final class WsConnection implements Connection {
     new ByteArrayOutputStream(1024) {
       {
         packetSerializer.write(packet, Writer.create(this));
-        remoteEndpoint.sendBinary(ByteBuffer.wrap(buf, 0, count), new SendHandler() {
-          @Override public void onResult(final SendResult result) {
-            if (result == null) {
-              onError(new Exception("result == null"));
-            } else if (!result.isOK()) {
-              final Throwable throwable = result.getException();
-              onError((throwable == null) ? new Exception("throwable == null") : throwable);
-            }
+        remoteEndpoint.sendBinary(ByteBuffer.wrap(buf, 0, count), result -> {
+          if (result == null) {
+            onError(new Exception("result == null"));
+          } else if (!result.isOK()) {
+            final Throwable throwable = result.getException();
+            onError((throwable == null) ? new Exception("throwable == null") : throwable);
           }
         });
       }
