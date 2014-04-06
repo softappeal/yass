@@ -38,7 +38,7 @@ public final class WsConnection implements Connection {
       }
       throw e;
     }
-    session.addMessageHandler(new MessageHandler.Whole<ByteBuffer>() { // $$$
+    session.addMessageHandler(new MessageHandler.Whole<ByteBuffer>() {
       @Override public void onMessage(final ByteBuffer in) {
         try {
           sessionClient.received((Packet)packetSerializer.read(Reader.create(in)));
