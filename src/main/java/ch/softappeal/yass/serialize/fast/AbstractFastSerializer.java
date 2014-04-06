@@ -76,13 +76,13 @@ public abstract class AbstractFastSerializer implements Serializer {
     if (!type.isEnum()) {
       throw new IllegalArgumentException("type '" + type.getCanonicalName() + "' is not an enumeration");
     }
-    final Class<Enum<?>> enumeration = (Class)type;
+    final Class<Enum<?>> enumeration = (Class<Enum<?>>)type;
     final Enum<?>[] constants = enumeration.getEnumConstants();
     addType(new TypeDesc(id, new BaseTypeHandler<Enum<?>>(enumeration) {
-      @Override public Enum read(final Reader reader) throws Exception {
+      @Override public Enum<?> read(final Reader reader) throws Exception {
         return constants[reader.readVarInt()];
       }
-      @Override public void write(final Enum value, final Writer writer) throws Exception {
+      @Override public void write(final Enum<?> value, final Writer writer) throws Exception {
         writer.writeVarInt(value.ordinal());
       }
     }));
