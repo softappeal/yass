@@ -137,7 +137,7 @@ public final class ContractGenerator extends Generator {
     final Class<?> superClass = sc;
     generateType(type, name -> {
       final List<Field> fields = AbstractFastSerializer.ownFields(type);
-      Collections.sort(fields, (f1, f2) -> f1.getName().compareTo(f2.getName()));
+      Collections.sort(fields, (field1, field2) -> field1.getName().compareTo(field2.getName()));
       tabsln("export class %s extends %s {", name, (superClass == null) ? "yass.Class" : jsType(superClass));
       inc();
       for (final Field field : fields) {
