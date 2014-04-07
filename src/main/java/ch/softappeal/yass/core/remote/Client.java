@@ -1,7 +1,6 @@
 package ch.softappeal.yass.core.remote;
 
 import ch.softappeal.yass.core.Interceptor;
-import ch.softappeal.yass.core.Interceptors;
 import ch.softappeal.yass.util.Nullable;
 
 import java.lang.reflect.Proxy;
@@ -33,7 +32,7 @@ public abstract class Client extends Common implements InvokerFactory {
      * @see Client#invoke(ClientInvocation)
      */
     @Nullable public Object invoke(final Interceptor interceptor, final Tunnel tunnel) throws Throwable {
-      return Interceptors.composite(interceptor, invocationInterceptor).invoke(methodMapping.method, arguments, () -> {
+      return Interceptor.composite(interceptor, invocationInterceptor).invoke(methodMapping.method, arguments, () -> {
         final Reply reply = tunnel.invoke(new Request(serviceId, methodMapping.id, arguments));
         return oneWay ? null : reply.process();
       });
@@ -50,7 +49,7 @@ public abstract class Client extends Common implements InvokerFactory {
   @Override public final <C> Invoker<C> invoker(final ContractId<C> contractId) {
     final MethodMapper methodMapper = methodMapper(contractId.contract);
     return interceptors -> {
-      final Interceptor interceptor = Interceptors.composite(interceptors);
+      final Interceptor interceptor = Interceptor.composite(interceptors);
       return contractId.contract.cast(Proxy.newProxyInstance(
         contractId.contract.getClassLoader(),
         new Class<?>[] {contractId.contract},

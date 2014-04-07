@@ -1,7 +1,6 @@
 package ch.softappeal.yass.core.remote.session;
 
 import ch.softappeal.yass.core.Interceptor;
-import ch.softappeal.yass.core.Interceptors;
 import ch.softappeal.yass.core.remote.Client;
 import ch.softappeal.yass.core.remote.ExceptionReply;
 import ch.softappeal.yass.core.remote.Message;
@@ -38,7 +37,7 @@ public final class SessionClient extends Client {
     this.setup = setup;
     this.connection = Check.notNull(connection);
     session = Check.notNull(setup.createSession(this));
-    sessionInterceptor = Interceptors.threadLocal(Session.INSTANCE, session);
+    sessionInterceptor = Interceptor.threadLocal(Session.INSTANCE, session);
     setup.requestExecutor.execute(() -> {
       try {
         session.opened();

@@ -1,7 +1,6 @@
 package ch.softappeal.yass.core.test;
 
 import ch.softappeal.yass.core.Interceptor;
-import ch.softappeal.yass.core.Interceptors;
 import ch.softappeal.yass.core.Invocation;
 import ch.softappeal.yass.util.Nullable;
 import org.junit.Assert;
@@ -26,7 +25,7 @@ public class InterceptorsTest {
   @Test public void direct() throws Throwable {
     final Object result = new Object();
     Assert.assertSame(
-      Interceptors.DIRECT.invoke(null, null, () -> result),
+      Interceptor.DIRECT.invoke(null, null, () -> result),
       result
     );
   }
@@ -74,10 +73,10 @@ public class InterceptorsTest {
 
   @Test public void composite() throws Throwable {
     final Interceptor stepInterceptor = new StepInterceptor(0, 0);
-    Assert.assertSame(stepInterceptor, Interceptors.composite(stepInterceptor, Interceptors.DIRECT));
-    Assert.assertSame(stepInterceptor, Interceptors.composite(Interceptors.DIRECT, stepInterceptor));
+    Assert.assertSame(stepInterceptor, Interceptor.composite(stepInterceptor, Interceptor.DIRECT));
+    Assert.assertSame(stepInterceptor, Interceptor.composite(Interceptor.DIRECT, stepInterceptor));
     test(
-      Interceptors.composite(
+      Interceptor.composite(
         new StepInterceptor(0, 8),
         new StepInterceptor(1, 7),
         new StepInterceptor(2, 6),
@@ -95,7 +94,7 @@ public class InterceptorsTest {
     final Object result = new Object();
     Assert.assertSame(
       result,
-      Interceptors.threadLocal(threadLocal, value).invoke(null, null, () -> {
+      Interceptor.threadLocal(threadLocal, value).invoke(null, null, () -> {
         Assert.assertSame(value, threadLocal.get());
         return result;
       })

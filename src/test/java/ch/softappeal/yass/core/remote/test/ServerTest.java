@@ -1,6 +1,6 @@
 package ch.softappeal.yass.core.remote.test;
 
-import ch.softappeal.yass.core.Interceptors;
+import ch.softappeal.yass.core.Interceptor;
 import ch.softappeal.yass.core.remote.Client;
 import ch.softappeal.yass.core.remote.ContractId;
 import ch.softappeal.yass.core.remote.Server;
@@ -14,9 +14,9 @@ public class ServerTest {
 
   static final Client client = new Client(TaggedMethodMapper.FACTORY) {
     @Override public Object invoke(final ClientInvocation invocation) throws Throwable {
-      return invocation.invoke(Interceptors.DIRECT, request -> new Server(
+      return invocation.invoke(Interceptor.DIRECT, request -> new Server(
         TaggedMethodMapper.FACTORY, new Service(ContractIdTest.ID, new InvokeTest.TestServiceImpl())
-      ).invocation(request).invoke(Interceptors.DIRECT));
+      ).invocation(request).invoke(Interceptor.DIRECT));
     }
   };
 

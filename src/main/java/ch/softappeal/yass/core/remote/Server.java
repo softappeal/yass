@@ -1,7 +1,6 @@
 package ch.softappeal.yass.core.remote;
 
 import ch.softappeal.yass.core.Interceptor;
-import ch.softappeal.yass.core.Interceptors;
 import ch.softappeal.yass.core.Invocation;
 import ch.softappeal.yass.util.Nullable;
 
@@ -36,7 +35,7 @@ public final class Server extends Common {
           throw e.getCause();
         }
       };
-      final Interceptor interceptor = Interceptors.composite(invocationInterceptor, serviceInterceptor);
+      final Interceptor interceptor = Interceptor.composite(invocationInterceptor, serviceInterceptor);
       @Nullable final Object value;
       try {
         value = interceptor.invoke(method, arguments, invocation);

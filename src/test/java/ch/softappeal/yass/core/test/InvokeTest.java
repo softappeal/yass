@@ -1,7 +1,6 @@
 package ch.softappeal.yass.core.test;
 
 import ch.softappeal.yass.core.Interceptor;
-import ch.softappeal.yass.core.Interceptors;
 import ch.softappeal.yass.core.Invocation;
 import ch.softappeal.yass.core.remote.OneWay;
 import ch.softappeal.yass.util.Check;
@@ -139,7 +138,7 @@ public class InvokeTest {
     }
   }
 
-  public static final Interceptor CLIENT_INTERCEPTOR = Interceptors.composite(
+  public static final Interceptor CLIENT_INTERCEPTOR = Interceptor.composite(
     (method, arguments, invocation) -> {
       Assert.assertTrue(COUNTER.incrementAndGet() == 1);
       Assert.assertEquals(METHOD.get(), method);
@@ -149,7 +148,7 @@ public class InvokeTest {
     new Logger("client")
   );
 
-  public static final Interceptor SERVER_INTERCEPTOR = Interceptors.composite(
+  public static final Interceptor SERVER_INTERCEPTOR = Interceptor.composite(
     (method, arguments, invocation) -> {
       Assert.assertTrue(COUNTER.incrementAndGet() == 2);
       Assert.assertEquals(METHOD.get(), method);

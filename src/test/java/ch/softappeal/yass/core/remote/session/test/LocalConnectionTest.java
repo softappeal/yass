@@ -1,7 +1,6 @@
 package ch.softappeal.yass.core.remote.session.test;
 
 import ch.softappeal.yass.core.Interceptor;
-import ch.softappeal.yass.core.Interceptors;
 import ch.softappeal.yass.core.remote.Server;
 import ch.softappeal.yass.core.remote.Service;
 import ch.softappeal.yass.core.remote.TaggedMethodMapper;
@@ -38,7 +37,7 @@ public class LocalConnectionTest extends InvokeTest {
         new Service(
           ContractIdTest.ID,
           new TestServiceImpl(),
-          invoke ? SESSION_CHECKER : Interceptors.composite(SESSION_CHECKER, SERVER_INTERCEPTOR)
+          invoke ? SESSION_CHECKER : Interceptor.composite(SESSION_CHECKER, SERVER_INTERCEPTOR)
         )
       ),
       requestExecutor,
@@ -61,7 +60,7 @@ public class LocalConnectionTest extends InvokeTest {
               try (Session session = this) {
                 InvokeTest.invoke(
                   session.invoker(ContractIdTest.ID).proxy(
-                    invoke ? Interceptors.composite(PRINTLN_AFTER, SESSION_CHECKER, CLIENT_INTERCEPTOR) : SESSION_CHECKER
+                    invoke ? Interceptor.composite(PRINTLN_AFTER, SESSION_CHECKER, CLIENT_INTERCEPTOR) : SESSION_CHECKER
                   )
                 );
               }
