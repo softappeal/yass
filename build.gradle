@@ -4,6 +4,7 @@ apply plugin: 'java'
 apply plugin: 'osgi'
 apply plugin: 'maven'
 apply plugin: 'signing'
+apply plugin: 'idea'
 
 group = "ch.softappeal.yass"
 
@@ -123,4 +124,14 @@ task todo << {
   searchMarker(searchTree, divider1, divider2, 'todo', '$' + 'todo') // under construction, yet a release can still be built
   searchMarker(searchTree, divider1, divider2, 'note', '$' + 'note') // important comment
   println divider1
+}
+
+idea {
+  project {
+    jdkName = '1.8'
+    languageLevel = '1.8'
+  }
+  module {
+    testSourceDirs += sourceSets.tutorial.java.srcDirs
+  }
 }
