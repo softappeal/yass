@@ -148,7 +148,7 @@ function writer2reader(writer: yass.Writer): yass.Reader {
 (function (): void {
   var ask = contract.PriceType.ASK;
   log(ask);
-  assert(ask.value === 1);
+  assert(ask.number === 1);
   assert(ask.name === "ASK");
   assert(ask === contract.PriceType.ASK);
   assert(ask !== contract.PriceType.BID);

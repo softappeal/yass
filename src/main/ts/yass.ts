@@ -156,7 +156,7 @@ export class Class extends Type {
 }
 
 export class Enum extends Type {
-  constructor(public value: number, public name: string) {
+  constructor(public number: number, public name: string) {
     super();
   }
 }
@@ -240,7 +240,7 @@ class EnumTypeHandler implements TypeHandler {
     return this.values[input.reader.readVarInt()];
   }
   write(value: Enum, output: Output): void {
-    output.writer.writeVarInt(value.value);
+    output.writer.writeVarInt(value.number);
   }
 }
 
@@ -358,9 +358,9 @@ export function classDesc(id: number, Type: any, ...fieldDescs: FieldDesc[]): Ty
 export function enumDesc(id: number, Type: any): TypeDesc {
   var values: Enum[] = [];
   Object.keys(Type).forEach((property: any) => {
-    var constant = Type[property];
-    if (constant instanceof Enum) {
-      values[constant.value] = constant;
+    var value = Type[property];
+    if (value instanceof Enum) {
+      values[value.number] = value;
     }
   });
   return new TypeDesc(id, new EnumTypeHandler(values));
