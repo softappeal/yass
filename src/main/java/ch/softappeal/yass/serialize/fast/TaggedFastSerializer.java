@@ -37,15 +37,9 @@ public final class TaggedFastSerializer extends AbstractFastSerializer {
   ) {
     super(reflectorFactory);
     baseTypeDescs.forEach(this::addBaseType);
-    for (final Class<?> type : enumerations) {
-      addEnum(Check.hasTag(type), type);
-    }
-    for (final Class<?> type : concreteClasses) {
-      addClass(type, false);
-    }
-    for (final Class<?> type : referenceableConcreteClasses) {
-      addClass(type, true);
-    }
+    enumerations.forEach(type -> addEnum(Check.hasTag(type), type));
+    concreteClasses.forEach(type -> addClass(type, false));
+    referenceableConcreteClasses.forEach(type -> addClass(type, true));
     fixupFields();
   }
 

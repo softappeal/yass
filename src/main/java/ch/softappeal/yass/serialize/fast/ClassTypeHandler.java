@@ -47,9 +47,7 @@ public final class ClassTypeHandler extends TypeHandler {
   }
 
   void fixupFields(final Map<Class<?>, TypeDesc> class2typeDesc) {
-    for (final FieldHandler fieldHandler : id2fieldHandler.values()) {
-      fieldHandler.fixup(class2typeDesc);
-    }
+    id2fieldHandler.values().forEach(fieldHandler -> fieldHandler.fixup(class2typeDesc));
   }
 
   /**
