@@ -161,7 +161,7 @@ export class Enum extends Type {
 
 export interface TypeHandler {
   write(value: any, writer: Writer): void;
-  read (input: Input): any;
+  read (reader: Reader, id2typeHandler?: TypeHandler[]): any;
 }
 
 export class TypeDesc {
@@ -175,7 +175,7 @@ export class TypeDesc {
 }
 
 class NullTypeHandler implements TypeHandler {
-  read(input: Input): any {
+  read(reader: Reader): any {
     return null;
   }
   write(value: any, writer: Writer): void {
@@ -185,10 +185,10 @@ class NullTypeHandler implements TypeHandler {
 var NULL = new TypeDesc(0, new NullTypeHandler());
 
 class ListTypeHandler implements TypeHandler {
-  read(input: Input): any[] {
+  read(reader: Reader, id2typeHandler: TypeHandler[]): any[] {
     var list: any[] = [];
-    for (var size = input.reader.readVarInt(); size > 0; size--) {
-      list.push(input.read());
+    for (var size = reader.readVarInt(); size > 0; size--) {
+      list.push(read(reader, id2typeHandler));
     }
     return list;
   }
@@ -200,8 +200,8 @@ class ListTypeHandler implements TypeHandler {
 export var LIST = new TypeDesc(2, new ListTypeHandler());
 
 class BooleanTypeHandler implements TypeHandler {
-  read(input: Input): boolean {
-    return input.reader.readByte() !== 0;
+  read(reader: Reader): boolean {
+    return reader.readByte() !== 0;
   }
   write(value: boolean, writer: Writer): void {
     writer.writeByte(value ? 1 : 0);
@@ -210,8 +210,8 @@ class BooleanTypeHandler implements TypeHandler {
 export var BOOLEAN = new TypeDesc(3, new BooleanTypeHandler());
 
 class IntegerTypeHandler implements TypeHandler {
-  read(input: Input): number {
-    return input.reader.readZigZagInt();
+  read(reader: Reader): number {
+    return reader.readZigZagInt();
   }
   write(value: number, writer: Writer): void {
     writer.writeZigZagInt(value);
@@ -220,8 +220,8 @@ class IntegerTypeHandler implements TypeHandler {
 export var INTEGER = new TypeDesc(4, new IntegerTypeHandler());
 
 class StringTypeHandler implements TypeHandler {
-  read(input: Input): string {
-    return input.reader.readUtf8(input.reader.readVarInt());
+  read(reader: Reader): string {
+    return reader.readUtf8(reader.readVarInt());
   }
   write(value: string, writer: Writer): void {
     writer.writeVarInt(Writer.calcUtf8bytes(value));
@@ -234,21 +234,16 @@ class EnumTypeHandler implements TypeHandler {
   constructor(private values: Enum[]) {
     // empty
   }
-  read(input: Input): Enum {
-    return this.values[input.reader.readVarInt()];
+  read(reader: Reader): Enum {
+    return this.values[reader.readVarInt()];
   }
   write(value: Enum, writer: Writer): void {
     writer.writeVarInt(value.number);
   }
 }
 
-export class Input {
-  constructor(public reader: Reader, private id2typeHandler: TypeHandler[]) {
-    // empty
-  }
-  read(): any {
-    return this.id2typeHandler[this.reader.readVarInt()].read(this);
-  }
+function read(reader: Reader, id2typeHandler: TypeHandler[]): any {
+  return id2typeHandler[reader.readVarInt()].read(reader, id2typeHandler);
 }
 
 function write(value: any, writer: Writer): void {
@@ -273,8 +268,8 @@ class FieldHandler {
   constructor(private field: string, private typeHandler: TypeHandler) {
     // empty
   }
-  read(object: any, input: Input): any {
-    object[this.field] = this.typeHandler ? this.typeHandler.read(input) : input.read();
+  read(object: any, reader: Reader, id2typeHandler: TypeHandler[]): any {
+    object[this.field] = this.typeHandler ? this.typeHandler.read(reader, id2typeHandler) : read(reader, id2typeHandler);
   }
   write(id: number, object: any, writer: Writer) {
     var value = object[this.field];
@@ -297,14 +292,14 @@ class ClassTypeHandler implements TypeHandler {
   addField(id: number, handler: FieldHandler): void {
     this.fieldId2handler[id] = handler;
   }
-  read(input: Input): any {
+  read(reader: Reader, id2typeHandler: TypeHandler[]): any {
     var object = new this.Constructor();
     while (true) {
-      var id = input.reader.readVarInt();
+      var id = reader.readVarInt();
       if (id === 0) {
         return object;
       }
-      this.fieldId2handler[id].read(object, input);
+      this.fieldId2handler[id].read(object, reader, id2typeHandler);
     }
   }
   write(value: any, writer: Writer): void {
@@ -326,7 +321,7 @@ export class JsFastSerializer implements Serializer {
     Types.forEach((Type: any)=> add(Type.TYPE_DESC));
   }
   read(reader: Reader): any {
-    return new Input(reader, this.id2typeHandler).read();
+    return read(reader, this.id2typeHandler);
   }
   write(value: any, writer: Writer): void {
     write(value, writer);
