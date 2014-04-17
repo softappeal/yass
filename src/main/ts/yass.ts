@@ -159,13 +159,13 @@ export class Enum extends Type {
   }
 }
 
-export interface TypeHandler {
-  write(value: any, writer: Writer): void;
-  read (reader: Reader, id2typeHandler?: TypeHandler[]): any;
+export interface TypeHandler<T> {
+  write(value: T, writer: Writer): void;
+  read (reader: Reader, id2typeHandler?: TypeHandler<any>[]): T;
 }
 
 export class TypeDesc {
-  constructor(public id: number, public handler: TypeHandler) {
+  constructor(public id: number, public handler: TypeHandler<any>) {
     // empty
   }
   write(value: any, writer: Writer): void {
@@ -174,7 +174,7 @@ export class TypeDesc {
   }
 }
 
-class NullTypeHandler implements TypeHandler {
+class NullTypeHandler implements TypeHandler<any> {
   read(reader: Reader): any {
     return null;
   }
@@ -184,8 +184,8 @@ class NullTypeHandler implements TypeHandler {
 }
 var NULL = new TypeDesc(0, new NullTypeHandler());
 
-class ListTypeHandler implements TypeHandler {
-  read(reader: Reader, id2typeHandler: TypeHandler[]): any[] {
+class ListTypeHandler implements TypeHandler<any[]> {
+  read(reader: Reader, id2typeHandler: TypeHandler<any>[]): any[] {
     var list: any[] = [];
     for (var size = reader.readVarInt(); size > 0; size--) {
       list.push(read(reader, id2typeHandler));
@@ -199,7 +199,7 @@ class ListTypeHandler implements TypeHandler {
 }
 export var LIST = new TypeDesc(2, new ListTypeHandler());
 
-class BooleanTypeHandler implements TypeHandler {
+class BooleanTypeHandler implements TypeHandler<boolean> {
   read(reader: Reader): boolean {
     return reader.readByte() !== 0;
   }
@@ -209,7 +209,7 @@ class BooleanTypeHandler implements TypeHandler {
 }
 export var BOOLEAN = new TypeDesc(3, new BooleanTypeHandler());
 
-class IntegerTypeHandler implements TypeHandler {
+class IntegerTypeHandler implements TypeHandler<number> {
   read(reader: Reader): number {
     return reader.readZigZagInt();
   }
@@ -219,7 +219,7 @@ class IntegerTypeHandler implements TypeHandler {
 }
 export var INTEGER = new TypeDesc(4, new IntegerTypeHandler());
 
-class StringTypeHandler implements TypeHandler {
+class StringTypeHandler implements TypeHandler<string> {
   read(reader: Reader): string {
     return reader.readUtf8(reader.readVarInt());
   }
@@ -230,7 +230,7 @@ class StringTypeHandler implements TypeHandler {
 }
 export var STRING = new TypeDesc(5, new StringTypeHandler());
 
-class EnumTypeHandler implements TypeHandler {
+class EnumTypeHandler implements TypeHandler<Enum> {
   constructor(private values: Enum[]) {
     // empty
   }
@@ -242,7 +242,7 @@ class EnumTypeHandler implements TypeHandler {
   }
 }
 
-function read(reader: Reader, id2typeHandler: TypeHandler[]): any {
+function read(reader: Reader, id2typeHandler: TypeHandler<any>[]): any {
   return id2typeHandler[reader.readVarInt()].read(reader, id2typeHandler);
 }
 
@@ -265,10 +265,10 @@ function write(value: any, writer: Writer): void {
 }
 
 class FieldHandler {
-  constructor(private field: string, private typeHandler: TypeHandler) {
+  constructor(private field: string, private typeHandler: TypeHandler<any>) {
     // empty
   }
-  read(object: any, reader: Reader, id2typeHandler: TypeHandler[]): any {
+  read(object: any, reader: Reader, id2typeHandler: TypeHandler<any>[]): any {
     object[this.field] = this.typeHandler ? this.typeHandler.read(reader, id2typeHandler) : read(reader, id2typeHandler);
   }
   write(id: number, object: any, writer: Writer) {
@@ -284,7 +284,7 @@ class FieldHandler {
   }
 }
 
-class ClassTypeHandler implements TypeHandler {
+class ClassTypeHandler implements TypeHandler<any> {
   private fieldId2handler: FieldHandler[] = [];
   constructor(private Constructor: any) {
     // empty
@@ -292,7 +292,7 @@ class ClassTypeHandler implements TypeHandler {
   addField(id: number, handler: FieldHandler): void {
     this.fieldId2handler[id] = handler;
   }
-  read(reader: Reader, id2typeHandler: TypeHandler[]): any {
+  read(reader: Reader, id2typeHandler: TypeHandler<any>[]): any {
     var object = new this.Constructor();
     while (true) {
       var id = reader.readVarInt();
@@ -314,7 +314,7 @@ export interface Serializer {
 }
 
 export class JsFastSerializer implements Serializer {
-  private id2typeHandler: TypeHandler[] = [];
+  private id2typeHandler: TypeHandler<any>[] = [];
   constructor(...Types: any[]) {
     var add = (typeDesc: TypeDesc) => this.id2typeHandler[typeDesc.id] = typeDesc.handler;
     [NULL, LIST, BOOLEAN, INTEGER, STRING].forEach(add);
