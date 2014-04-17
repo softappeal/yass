@@ -28,7 +28,7 @@ public final class WsConnection implements Connection {
     packetSerializer = setup.packetSerializer;
     this.session = Check.notNull(session);
     try {
-      remoteEndpoint = session.getAsyncRemote(); // $todo: implement batching ? setting send timeout ?
+      remoteEndpoint = session.getAsyncRemote();
       sessionClient = new SessionClient(setup, this);
     } catch (final Exception e) {
       try {

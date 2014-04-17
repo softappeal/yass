@@ -1,5 +1,3 @@
-// $todo: add properties constructor for generated classes ?
-
 export class Writer {
   private capacity: number;
   private position = 0;
@@ -40,7 +38,7 @@ export class Writer {
   writeZigZagInt(value: number): void {
     this.writeVarInt((value << 1) ^ (value >> 31));
   }
-  writeUtf8(value: string): void { // $todo: is there a built-in way ?
+  writeUtf8(value: string): void {
     for (var c = 0; c < value.length; c++) {
       var code = value.charCodeAt(c);
       if (code < 0x80) { // 0xxx xxxx
@@ -58,7 +56,7 @@ export class Writer {
   getUint8Array(): Uint8Array {
     return this.array.subarray(0, this.position);
   }
-  static calcUtf8bytes(value: string): number { // $todo: is there a built-in way ?
+  static calcUtf8bytes(value: string): number {
     var bytes = 0;
     for (var c = 0; c < value.length; c++) {
       var code = value.charCodeAt(c);
@@ -116,7 +114,7 @@ export class Reader {
     var value = this.readVarInt();
     return (value >>> 1) ^ -(value & 1);
   }
-  readUtf8(bytes: number): string { // $todo: is there a built-in way ?
+  readUtf8(bytes: number): string {
     var result = "";
     while (bytes-- > 0) {
       var code: number;
@@ -472,7 +470,7 @@ export class MethodMapper<C> {
   mapMethod(method: string): MethodMapping {
     return this.name2Mapping[method];
   }
-  proxy(interceptor: (method: string, parameters: any[]) => any): C { // $todo: is there something like a dynamic proxy ?
+  proxy(interceptor: (method: string, parameters: any[]) => any): C {
     var stub: any = {};
     var delegate = (method: string): void => {
       stub[method] = (...parameters: any[]) => interceptor(method, parameters);
@@ -482,7 +480,7 @@ export class MethodMapper<C> {
   }
 }
 
-export class Promise<R> { // $todo: replace with ES6 Promise ?
+export class Promise<R> {
   private callback: (result: () => R) => void = null;
   private result: () => R = null;
   then(callback: (result: () => R) => void): void {
@@ -779,7 +777,7 @@ export function connect(url: string, serializer: Serializer, server: Server, ses
       write: function (packet) {
         var writer = new Writer(1024);
         serializer.write(packet, writer);
-        ws.send(writer.getUint8Array()); // $todo: implement batching ?
+        ws.send(writer.getUint8Array());
       },
       closed: function () {
         ws.close();
@@ -788,7 +786,7 @@ export function connect(url: string, serializer: Serializer, server: Server, ses
     ws.onmessage = function (evt) {
       var reader = new Reader(evt.data);
       sessionClient.received(serializer.read(reader));
-      if (!reader.isEmpty()) { // $todo: implement batching ?
+      if (!reader.isEmpty()) {
         throw new Error("reader is not empty");
       }
     };
