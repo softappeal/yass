@@ -6,7 +6,7 @@ export class Writer {
     this.capacity = initialCapacity;
     this.array = new Uint8Array(initialCapacity);
   }
-  private needed(value: number): number {
+  needed(value: number): number {
     var oldPosition = this.position;
     this.position += value;
     if (this.position > this.capacity) {
@@ -21,9 +21,12 @@ export class Writer {
     var position = this.needed(1);
     this.array[position] = value;
   }
+  dataView(): DataView {
+    return new DataView(this.array.buffer);
+  }
   writeInt(value: number): void {
     var position = this.needed(4);
-    new DataView(this.array.buffer).setInt32(position, value);
+    this.dataView().setInt32(position, value);
   }
   writeVarInt(value: number): void {
     while (true) {
@@ -53,7 +56,7 @@ export class Writer {
       }
     }
   }
-  getUint8Array(): Uint8Array {
+  getArray(): Uint8Array {
     return this.array.subarray(0, this.position);
   }
   static calcUtf8bytes(value: string): number {
@@ -80,7 +83,7 @@ export class Reader {
     this.array = new Uint8Array(arrayBuffer);
     this.length = arrayBuffer.byteLength;
   }
-  private needed(value: number): number {
+  needed(value: number): number {
     var oldPosition = this.position;
     this.position += value;
     if (this.position > this.length) {
@@ -94,8 +97,11 @@ export class Reader {
   readByte(): number {
     return this.array[this.needed(1)];
   }
+  dataView(): DataView {
+    return new DataView(this.array.buffer);
+  }
   readInt(): number {
-    return new DataView(this.array.buffer).getInt32(this.needed(4));
+    return this.dataView().getInt32(this.needed(4));
   }
   readVarInt(): number {
     var shift = 0;
@@ -611,7 +617,7 @@ export class MockInvokerFactory extends Client {
     function copy(value: any): any {
       var writer = new Writer(1024);
       serializer.write(value, writer);
-      var reader = new Reader(writer.getUint8Array());
+      var reader = new Reader(writer.getArray());
       value = serializer.read(reader);
       if (!reader.isEmpty()) {
         throw new Error("reader is not empty");
@@ -767,7 +773,7 @@ export function connect(url: string, serializer: Serializer, server: Server, ses
       write: function (packet) {
         var writer = new Writer(1024);
         serializer.write(packet, writer);
-        ws.send(writer.getUint8Array());
+        ws.send(writer.getArray());
       },
       closed: function () {
         ws.close();

@@ -44,7 +44,7 @@ try {
 // Reader/Writer
 
 function writer2reader(writer: yass.Writer): yass.Reader {
-  var byteArray = writer.getUint8Array();
+  var byteArray = writer.getArray();
   var arrayBuffer = new ArrayBuffer(byteArray.length);
   new Uint8Array(arrayBuffer).set(byteArray);
   return new yass.Reader(arrayBuffer);
@@ -76,7 +76,7 @@ function writer2reader(writer: yass.Writer): yass.Reader {
   writer.writeZigZagInt(-344554);
   writer.writeZigZagInt(2147483647);
   writer.writeZigZagInt(-2147483648);
-  assert(writer.getUint8Array().length === 74);
+  assert(writer.getArray().length === 74);
 
   var reader = writer2reader(writer);
   assert(!reader.isEmpty());
@@ -122,7 +122,7 @@ function writer2reader(writer: yass.Writer): yass.Reader {
   function utf8(bytes: number, value: string): void {
     var writer = new yass.Writer(100);
     writer.writeUtf8(value);
-    assert(writer.getUint8Array().length === bytes);
+    assert(writer.getArray().length === bytes);
     var reader = writer2reader(writer);
     assert(reader.readUtf8(bytes) === value);
     assert(reader.isEmpty());
