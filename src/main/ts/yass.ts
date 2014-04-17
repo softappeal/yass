@@ -155,10 +155,6 @@ export class Type {
   // empty
 }
 
-export class Class extends Type {
-  // empty
-}
-
 export class Enum extends Type {
   constructor(public number: number, public name: string) {
     super();

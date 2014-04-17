@@ -8,7 +8,7 @@ export class PriceType extends yass.Enum {
   static TYPE_DESC = yass.enumDesc(6, PriceType);
 }
 
-export class Price extends yass.Class {
+export class Price extends yass.Type {
   instrumentId: string;
   type: PriceType;
   value: number;
@@ -19,7 +19,7 @@ export class Price extends yass.Class {
   );
 }
 
-export class Instrument extends yass.Class {
+export class Instrument extends yass.Type {
   id: string;
   name: string;
 }
@@ -46,7 +46,7 @@ export module instrument {
   }
 }
 
-export class UnknownInstrumentsException extends yass.Class {
+export class UnknownInstrumentsException extends yass.Type {
   comment: any;
   instrumentIds: string[];
   static TYPE_DESC = yass.classDesc(10, UnknownInstrumentsException,
