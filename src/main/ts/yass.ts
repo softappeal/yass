@@ -160,7 +160,7 @@ export class Enum extends Type {
 }
 
 export interface TypeHandler {
-  write(value: any, output: Output): void;
+  write(value: any, writer: Writer): void;
   read (input: Input): any;
 }
 
@@ -168,9 +168,9 @@ export class TypeDesc {
   constructor(public id: number, public handler: TypeHandler) {
     // empty
   }
-  write(value: any, output: Output): void {
-    output.writer.writeVarInt(this.id);
-    this.handler.write(value, output);
+  write(value: any, writer: Writer): void {
+    writer.writeVarInt(this.id);
+    this.handler.write(value, writer);
   }
 }
 
@@ -178,7 +178,7 @@ class NullTypeHandler implements TypeHandler {
   read(input: Input): any {
     return null;
   }
-  write(value: any, output: Output): void {
+  write(value: any, writer: Writer): void {
     // empty
   }
 }
@@ -192,9 +192,9 @@ class ListTypeHandler implements TypeHandler {
     }
     return list;
   }
-  write(value: any[], output: Output): void {
-    output.writer.writeVarInt(value.length);
-    value.forEach((element: any) => output.write(element));
+  write(value: any[], writer: Writer): void {
+    writer.writeVarInt(value.length);
+    value.forEach((element: any) => write(element, writer));
   }
 }
 export var LIST = new TypeDesc(2, new ListTypeHandler());
@@ -203,8 +203,8 @@ class BooleanTypeHandler implements TypeHandler {
   read(input: Input): boolean {
     return input.reader.readByte() !== 0;
   }
-  write(value: boolean, output: Output): void {
-    output.writer.writeByte(value ? 1 : 0);
+  write(value: boolean, writer: Writer): void {
+    writer.writeByte(value ? 1 : 0);
   }
 }
 export var BOOLEAN = new TypeDesc(3, new BooleanTypeHandler());
@@ -213,8 +213,8 @@ class IntegerTypeHandler implements TypeHandler {
   read(input: Input): number {
     return input.reader.readZigZagInt();
   }
-  write(value: number, output: Output): void {
-    output.writer.writeZigZagInt(value);
+  write(value: number, writer: Writer): void {
+    writer.writeZigZagInt(value);
   }
 }
 export var INTEGER = new TypeDesc(4, new IntegerTypeHandler());
@@ -223,9 +223,9 @@ class StringTypeHandler implements TypeHandler {
   read(input: Input): string {
     return input.reader.readUtf8(input.reader.readVarInt());
   }
-  write(value: string, output: Output): void {
-    output.writer.writeVarInt(Writer.calcUtf8bytes(value));
-    output.writer.writeUtf8(value);
+  write(value: string, writer: Writer): void {
+    writer.writeVarInt(Writer.calcUtf8bytes(value));
+    writer.writeUtf8(value);
   }
 }
 export var STRING = new TypeDesc(5, new StringTypeHandler());
@@ -237,8 +237,8 @@ class EnumTypeHandler implements TypeHandler {
   read(input: Input): Enum {
     return this.values[input.reader.readVarInt()];
   }
-  write(value: Enum, output: Output): void {
-    output.writer.writeVarInt(value.number);
+  write(value: Enum, writer: Writer): void {
+    writer.writeVarInt(value.number);
   }
 }
 
@@ -251,26 +251,21 @@ export class Input {
   }
 }
 
-export class Output {
-  constructor(public writer: Writer) {
-    // empty
-  }
-  write(value: any): void {
-    if (value === null) {
-      NULL.write(null, this);
-    } else if (typeof(value) === "boolean") {
-      BOOLEAN.write(value, this);
-    } else if (typeof(value) === "number") {
-      INTEGER.write(value, this);
-    } else if (typeof(value) === "string") {
-      STRING.write(value, this);
-    } else if (Array.isArray(value)) {
-      LIST.write(value, this);
-    } else if (value instanceof Type) {
-      value.constructor.TYPE_DESC.write(value, this);
-    } else {
-      throw new Error("unexpected value'" + value + "'");
-    }
+function write(value: any, writer: Writer): void {
+  if (value === null) {
+    NULL.write(null, writer);
+  } else if (typeof(value) === "boolean") {
+    BOOLEAN.write(value, writer);
+  } else if (typeof(value) === "number") {
+    INTEGER.write(value, writer);
+  } else if (typeof(value) === "string") {
+    STRING.write(value, writer);
+  } else if (Array.isArray(value)) {
+    LIST.write(value, writer);
+  } else if (value instanceof Type) {
+    value.constructor.TYPE_DESC.write(value, writer);
+  } else {
+    throw new Error("unexpected value'" + value + "'");
   }
 }
 
@@ -281,14 +276,14 @@ class FieldHandler {
   read(object: any, input: Input): any {
     object[this.field] = this.typeHandler ? this.typeHandler.read(input) : input.read();
   }
-  write(id: number, object: any, output: Output) {
+  write(id: number, object: any, writer: Writer) {
     var value = object[this.field];
     if (value) {
-      output.writer.writeVarInt(id);
+      writer.writeVarInt(id);
       if (this.typeHandler) {
-        this.typeHandler.write(value, output);
+        this.typeHandler.write(value, writer);
       } else {
-        output.write(value);
+        write(value, writer);
       }
     }
   }
@@ -312,9 +307,9 @@ class ClassTypeHandler implements TypeHandler {
       this.fieldId2handler[id].read(object, input);
     }
   }
-  write(value: any, output: Output): void {
-    this.fieldId2handler.forEach((handler: FieldHandler, id: number) => handler.write(id, value, output));
-    output.writer.writeVarInt(0);
+  write(value: any, writer: Writer): void {
+    this.fieldId2handler.forEach((handler: FieldHandler, id: number) => handler.write(id, value, writer));
+    writer.writeVarInt(0);
   }
 }
 
@@ -334,7 +329,7 @@ export class JsFastSerializer implements Serializer {
     return new Input(reader, this.id2typeHandler).read();
   }
   write(value: any, writer: Writer): void {
-    new Output(writer).write(value);
+    write(value, writer);
   }
 }
 
