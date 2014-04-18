@@ -158,7 +158,7 @@ function writer2reader(writer: yass.Writer): yass.Reader {
 // Class
 
 (function (): void {
-  var stock = new contract.instrument.stock.Stock();
+  var stock = new contract.instrument.stock.Stock;
   stock.id = "1344";
   stock.name = "IBM";
   stock.paysDividend = true;
@@ -166,7 +166,7 @@ function writer2reader(writer: yass.Writer): yass.Reader {
   assert(stock instanceof contract.Instrument);
   assert(stock instanceof contract.instrument.stock.Stock);
   assert(!(stock instanceof contract.instrument.Bond));
-  var exception = new contract.UnknownInstrumentsException();
+  var exception = new contract.UnknownInstrumentsException;
   exception.instrumentIds = ["23", "454"];
 }());
 
@@ -211,7 +211,7 @@ function writer2reader(writer: yass.Writer): yass.Reader {
   assert(compare(copy([12]), [12]));
   assert(compare(copy([12, true, "bla"]), [12, true, "bla"]));
 
-  var stock = new contract.instrument.stock.Stock();
+  var stock = new contract.instrument.stock.Stock;
   stock.id = "1344";
   stock.name = "IBM";
   stock.paysDividend = true;
@@ -226,19 +226,19 @@ function writer2reader(writer: yass.Writer): yass.Reader {
   stock = copy(stock);
   assert(stock.paysDividend === undefined);
 
-  var bond = new contract.instrument.Bond();
+  var bond = new contract.instrument.Bond;
   bond.coupon = 1234;
   bond = copy(bond);
   assert(bond.coupon === 1234);
 
-  var e = new contract.UnknownInstrumentsException();
+  var e = new contract.UnknownInstrumentsException;
   e.instrumentIds = ["a", "b"];
   e.comment = bond;
   e = copy(e);
   assert(compare(e.instrumentIds, ["a", "b"]));
   assert(e.comment.coupon === 1234);
 
-  var price = new contract.Price();
+  var price = new contract.Price;
   price.instrumentId = "123";
   price.type = contract.PriceType.ASK;
   price.value = 999;

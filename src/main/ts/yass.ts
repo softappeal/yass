@@ -1,7 +1,7 @@
 export class Writer {
   private capacity: number;
   private position = 0;
-  private array: Uint8Array;
+  array: Uint8Array;
   constructor(initialCapacity: number) {
     this.capacity = initialCapacity;
     this.array = new Uint8Array(initialCapacity);
@@ -21,12 +21,9 @@ export class Writer {
     var position = this.needed(1);
     this.array[position] = value;
   }
-  dataView(): DataView {
-    return new DataView(this.array.buffer);
-  }
   writeInt(value: number): void {
     var position = this.needed(4);
-    this.dataView().setInt32(position, value);
+    new DataView(this.array.buffer).setInt32(position, value);
   }
   writeVarInt(value: number): void {
     while (true) {
@@ -76,7 +73,7 @@ export class Writer {
 }
 
 export class Reader {
-  private array: Uint8Array;
+  array: Uint8Array;
   private length: number;
   private position = 0;
   constructor(arrayBuffer: ArrayBuffer) {
@@ -97,11 +94,8 @@ export class Reader {
   readByte(): number {
     return this.array[this.needed(1)];
   }
-  dataView(): DataView {
-    return new DataView(this.array.buffer);
-  }
   readInt(): number {
-    return this.dataView().getInt32(this.needed(4));
+    return new DataView(this.array.buffer).getInt32(this.needed(4));
   }
   readVarInt(): number {
     var shift = 0;
@@ -184,9 +178,9 @@ class NullTypeHandler implements TypeHandler<any> {
     // empty
   }
 }
-var NULL_DESC = new TypeDesc(0, new NullTypeHandler());
+var NULL_DESC = new TypeDesc(0, new NullTypeHandler);
 
-export class ListTypeHandler implements TypeHandler<any[]> {
+class ListTypeHandler implements TypeHandler<any[]> {
   read(reader: Reader, id2typeHandler: TypeHandler<any>[]): any[] {
     var list: any[] = [];
     for (var size = reader.readVarInt(); size > 0; size--) {
@@ -199,10 +193,9 @@ export class ListTypeHandler implements TypeHandler<any[]> {
     value.forEach(element => write(element, writer));
   }
 }
-export var LIST_HANDLER = new ListTypeHandler();
-var LIST_DESC = new TypeDesc(2, LIST_HANDLER);
+export var LIST_DESC = new TypeDesc(2, new ListTypeHandler);
 
-export class BooleanTypeHandler implements TypeHandler<boolean> {
+class BooleanTypeHandler implements TypeHandler<boolean> {
   read(reader: Reader): boolean {
     return reader.readByte() !== 0;
   }
@@ -210,10 +203,9 @@ export class BooleanTypeHandler implements TypeHandler<boolean> {
     writer.writeByte(value ? 1 : 0);
   }
 }
-export var BOOLEAN_HANDLER = new BooleanTypeHandler();
-var BOOLEAN_DESC = new TypeDesc(3, BOOLEAN_HANDLER);
+export var BOOLEAN_DESC = new TypeDesc(3, new BooleanTypeHandler);
 
-export class IntegerTypeHandler implements TypeHandler<number> {
+class IntegerTypeHandler implements TypeHandler<number> {
   read(reader: Reader): number {
     return reader.readZigZagInt();
   }
@@ -221,10 +213,9 @@ export class IntegerTypeHandler implements TypeHandler<number> {
     writer.writeZigZagInt(value);
   }
 }
-export var INTEGER_HANDLER = new IntegerTypeHandler();
-var INTEGER_DESC = new TypeDesc(4, INTEGER_HANDLER);
+export var INTEGER_DESC = new TypeDesc(4, new IntegerTypeHandler);
 
-export class StringTypeHandler implements TypeHandler<string> {
+class StringTypeHandler implements TypeHandler<string> {
   read(reader: Reader): string {
     return reader.readUtf8(reader.readVarInt());
   }
@@ -233,8 +224,7 @@ export class StringTypeHandler implements TypeHandler<string> {
     writer.writeUtf8(value);
   }
 }
-export var STRING_HANDLER = new StringTypeHandler();
-var STRING_DESC = new TypeDesc(5, STRING_HANDLER);
+export var STRING_DESC = new TypeDesc(5, new StringTypeHandler);
 
 class EnumTypeHandler implements TypeHandler<Enum> {
   constructor(private values: Enum[]) {
@@ -255,12 +245,12 @@ function read(reader: Reader, id2typeHandler: TypeHandler<any>[]): any {
 function write(value: any, writer: Writer): void {
   if (value === null) {
     NULL_DESC.write(null, writer);
-  } else if (typeof(value) === "boolean") {
-    BOOLEAN_DESC.write(value, writer);
   } else if (typeof(value) === "number") {
     INTEGER_DESC.write(value, writer);
   } else if (typeof(value) === "string") {
     STRING_DESC.write(value, writer);
+  } else if (typeof(value) === "boolean") {
+    BOOLEAN_DESC.write(value, writer);
   } else if (Array.isArray(value)) {
     LIST_DESC.write(value, writer);
   } else if (value instanceof Type) {
@@ -299,7 +289,7 @@ class ClassTypeHandler implements TypeHandler<any> {
     this.fieldId2handler[id] = handler;
   }
   read(reader: Reader, id2typeHandler: TypeHandler<any>[]): any {
-    var object = new this.Constructor();
+    var object = new this.Constructor;
     while (true) {
       var id = reader.readVarInt();
       if (id === 0) {
@@ -322,7 +312,12 @@ export interface Serializer {
 export class JsFastSerializer implements Serializer {
   private id2typeHandler: TypeHandler<any>[] = [];
   constructor(...Types: any[]) {
-    var add = (typeDesc: TypeDesc) => this.id2typeHandler[typeDesc.id] = typeDesc.handler;
+    var add = (typeDesc: TypeDesc) => {
+      if (this.id2typeHandler[typeDesc.id]) {
+        throw new Error("TypeDesc with id " + typeDesc.id + " already added");
+      }
+      this.id2typeHandler[typeDesc.id] = typeDesc.handler;
+    };
     [NULL_DESC, LIST_DESC, BOOLEAN_DESC, INTEGER_DESC, STRING_DESC].forEach(add);
     Types.forEach(Type => add(Type.TYPE_DESC));
   }
@@ -335,14 +330,17 @@ export class JsFastSerializer implements Serializer {
 }
 
 export class FieldDesc {
-  constructor(public id: number, public name: string, public typeHandler: TypeHandler<any>) {
+  constructor(public id: number, public name: string, public typeDesc: TypeDesc) {
     //empty
   }
 }
 
 export function classDesc(id: number, Type: any, ...fieldDescs: FieldDesc[]): TypeDesc {
   var handler = new ClassTypeHandler(Type);
-  fieldDescs.forEach(fd => handler.addField(fd.id, new FieldHandler(fd.name, fd.typeHandler)));
+  fieldDescs.forEach(fieldDesc => {
+    var typeDesc = fieldDesc.typeDesc;
+    handler.addField(fieldDesc.id, new FieldHandler(fieldDesc.name, typeDesc && typeDesc.handler))
+  });
   return new TypeDesc(id, handler);
 }
 

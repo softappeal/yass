@@ -13,9 +13,9 @@ export class Price extends yass.Type {
   type: PriceType;
   value: number;
   static TYPE_DESC = yass.classDesc(7, Price,
-    new yass.FieldDesc(1, 'instrumentId', yass.STRING_HANDLER),
-    new yass.FieldDesc(2, 'type', PriceType.TYPE_DESC.handler),
-    new yass.FieldDesc(3, 'value', yass.INTEGER_HANDLER)
+    new yass.FieldDesc(1, 'instrumentId', yass.STRING_DESC),
+    new yass.FieldDesc(2, 'type', PriceType.TYPE_DESC),
+    new yass.FieldDesc(3, 'value', yass.INTEGER_DESC)
   );
 }
 
@@ -28,9 +28,9 @@ export module instrument.stock {
   export class Stock extends Instrument {
     paysDividend: boolean;
     static TYPE_DESC = yass.classDesc(8, Stock,
-      new yass.FieldDesc(1, 'id', yass.STRING_HANDLER),
-      new yass.FieldDesc(2, 'name', yass.STRING_HANDLER),
-      new yass.FieldDesc(3, 'paysDividend', yass.BOOLEAN_HANDLER)
+      new yass.FieldDesc(1, 'id', yass.STRING_DESC),
+      new yass.FieldDesc(2, 'name', yass.STRING_DESC),
+      new yass.FieldDesc(3, 'paysDividend', yass.BOOLEAN_DESC)
     );
   }
 }
@@ -39,9 +39,9 @@ export module instrument {
   export class Bond extends Instrument {
     coupon: number;
     static TYPE_DESC = yass.classDesc(9, Bond,
-      new yass.FieldDesc(1, 'coupon', yass.INTEGER_HANDLER),
-      new yass.FieldDesc(2, 'id', yass.STRING_HANDLER),
-      new yass.FieldDesc(3, 'name', yass.STRING_HANDLER)
+      new yass.FieldDesc(1, 'coupon', yass.INTEGER_DESC),
+      new yass.FieldDesc(2, 'id', yass.STRING_DESC),
+      new yass.FieldDesc(3, 'name', yass.STRING_DESC)
     );
   }
 }
@@ -51,7 +51,7 @@ export class UnknownInstrumentsException extends yass.Type {
   instrumentIds: string[];
   static TYPE_DESC = yass.classDesc(10, UnknownInstrumentsException,
     new yass.FieldDesc(1, 'comment', null),
-    new yass.FieldDesc(2, 'instrumentIds', yass.LIST_HANDLER)
+    new yass.FieldDesc(2, 'instrumentIds', yass.LIST_DESC)
   );
 }
 

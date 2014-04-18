@@ -42,7 +42,7 @@ var PRICE_LISTENER = new PriceListenerImpl;
 
 function simulateServerCallingClient(invokerFactory: yass.InvokerFactory): void {
   var priceListener = invokerFactory.invoker(contract.ClientServices.PriceListener)(clientLogger);
-  var price = new contract.Price();
+  var price = new contract.Price;
   price.instrumentId = "123";
   price.type = contract.PriceType.ASK;
   price.value = 999;
