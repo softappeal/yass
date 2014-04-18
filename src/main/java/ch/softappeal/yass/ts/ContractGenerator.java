@@ -111,17 +111,17 @@ public final class ContractGenerator extends Generator {
   private String typeDescOwner(final ClassTypeHandler.FieldDesc fieldDesc) {
     final TypeHandler fieldHandler = fieldDesc.handler.typeHandler();
     if (TypeDesc.LIST.handler == fieldHandler) {
-      return "yass.LIST";
+      return "yass.LIST_HANDLER";
     } else if (JsFastSerializer.BOOLEAN_TYPEDESC.handler == fieldHandler) {
-      return "yass.BOOLEAN";
+      return "yass.BOOLEAN_HANDLER";
     } else if (JsFastSerializer.INTEGER_TYPEDESC.handler == fieldHandler) {
-      return "yass.INTEGER";
+      return "yass.INTEGER_HANDLER";
     } else if (JsFastSerializer.STRING_TYPEDESC.handler == fieldHandler) {
-      return "yass.STRING";
+      return "yass.STRING_HANDLER";
     } else if (fieldHandler == null) {
       return "null";
     }
-    return jsType(fieldHandler.type) + ".TYPE_DESC";
+    return jsType(fieldHandler.type) + ".TYPE_DESC.handler";
   }
 
   private void generateClass(final Class<?> type) {

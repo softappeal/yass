@@ -184,9 +184,9 @@ class NullTypeHandler implements TypeHandler<any> {
     // empty
   }
 }
-var NULL = new TypeDesc(0, new NullTypeHandler());
+var NULL_DESC = new TypeDesc(0, new NullTypeHandler());
 
-class ListTypeHandler implements TypeHandler<any[]> {
+export class ListTypeHandler implements TypeHandler<any[]> {
   read(reader: Reader, id2typeHandler: TypeHandler<any>[]): any[] {
     var list: any[] = [];
     for (var size = reader.readVarInt(); size > 0; size--) {
@@ -196,12 +196,13 @@ class ListTypeHandler implements TypeHandler<any[]> {
   }
   write(value: any[], writer: Writer): void {
     writer.writeVarInt(value.length);
-    value.forEach((element: any) => write(element, writer));
+    value.forEach(element => write(element, writer));
   }
 }
-export var LIST = new TypeDesc(2, new ListTypeHandler());
+export var LIST_HANDLER = new ListTypeHandler();
+var LIST_DESC = new TypeDesc(2, LIST_HANDLER);
 
-class BooleanTypeHandler implements TypeHandler<boolean> {
+export class BooleanTypeHandler implements TypeHandler<boolean> {
   read(reader: Reader): boolean {
     return reader.readByte() !== 0;
   }
@@ -209,9 +210,10 @@ class BooleanTypeHandler implements TypeHandler<boolean> {
     writer.writeByte(value ? 1 : 0);
   }
 }
-export var BOOLEAN = new TypeDesc(3, new BooleanTypeHandler());
+export var BOOLEAN_HANDLER = new BooleanTypeHandler();
+var BOOLEAN_DESC = new TypeDesc(3, BOOLEAN_HANDLER);
 
-class IntegerTypeHandler implements TypeHandler<number> {
+export class IntegerTypeHandler implements TypeHandler<number> {
   read(reader: Reader): number {
     return reader.readZigZagInt();
   }
@@ -219,9 +221,10 @@ class IntegerTypeHandler implements TypeHandler<number> {
     writer.writeZigZagInt(value);
   }
 }
-export var INTEGER = new TypeDesc(4, new IntegerTypeHandler());
+export var INTEGER_HANDLER = new IntegerTypeHandler();
+var INTEGER_DESC = new TypeDesc(4, INTEGER_HANDLER);
 
-class StringTypeHandler implements TypeHandler<string> {
+export class StringTypeHandler implements TypeHandler<string> {
   read(reader: Reader): string {
     return reader.readUtf8(reader.readVarInt());
   }
@@ -230,7 +233,8 @@ class StringTypeHandler implements TypeHandler<string> {
     writer.writeUtf8(value);
   }
 }
-export var STRING = new TypeDesc(5, new StringTypeHandler());
+export var STRING_HANDLER = new StringTypeHandler();
+var STRING_DESC = new TypeDesc(5, STRING_HANDLER);
 
 class EnumTypeHandler implements TypeHandler<Enum> {
   constructor(private values: Enum[]) {
@@ -250,15 +254,15 @@ function read(reader: Reader, id2typeHandler: TypeHandler<any>[]): any {
 
 function write(value: any, writer: Writer): void {
   if (value === null) {
-    NULL.write(null, writer);
+    NULL_DESC.write(null, writer);
   } else if (typeof(value) === "boolean") {
-    BOOLEAN.write(value, writer);
+    BOOLEAN_DESC.write(value, writer);
   } else if (typeof(value) === "number") {
-    INTEGER.write(value, writer);
+    INTEGER_DESC.write(value, writer);
   } else if (typeof(value) === "string") {
-    STRING.write(value, writer);
+    STRING_DESC.write(value, writer);
   } else if (Array.isArray(value)) {
-    LIST.write(value, writer);
+    LIST_DESC.write(value, writer);
   } else if (value instanceof Type) {
     value.constructor.TYPE_DESC.write(value, writer);
   } else {
@@ -305,7 +309,7 @@ class ClassTypeHandler implements TypeHandler<any> {
     }
   }
   write(value: any, writer: Writer): void {
-    this.fieldId2handler.forEach((handler: FieldHandler, id: number) => handler.write(id, value, writer));
+    this.fieldId2handler.forEach((handler, id) => handler.write(id, value, writer));
     writer.writeVarInt(0);
   }
 }
@@ -319,8 +323,8 @@ export class JsFastSerializer implements Serializer {
   private id2typeHandler: TypeHandler<any>[] = [];
   constructor(...Types: any[]) {
     var add = (typeDesc: TypeDesc) => this.id2typeHandler[typeDesc.id] = typeDesc.handler;
-    [NULL, LIST, BOOLEAN, INTEGER, STRING].forEach(add);
-    Types.forEach((Type: any)=> add(Type.TYPE_DESC));
+    [NULL_DESC, LIST_DESC, BOOLEAN_DESC, INTEGER_DESC, STRING_DESC].forEach(add);
+    Types.forEach(Type => add(Type.TYPE_DESC));
   }
   read(reader: Reader): any {
     return read(reader, this.id2typeHandler);
@@ -331,23 +335,20 @@ export class JsFastSerializer implements Serializer {
 }
 
 export class FieldDesc {
-  constructor(public id: number, public name: string, public typeDesc: TypeDesc) {
+  constructor(public id: number, public name: string, public typeHandler: TypeHandler<any>) {
     //empty
   }
 }
 
 export function classDesc(id: number, Type: any, ...fieldDescs: FieldDesc[]): TypeDesc {
   var handler = new ClassTypeHandler(Type);
-  fieldDescs.forEach((fieldDesc: FieldDesc) => {
-    var typeDesc = fieldDesc.typeDesc;
-    handler.addField(fieldDesc.id, new FieldHandler(fieldDesc.name, typeDesc && typeDesc.handler));
-  });
+  fieldDescs.forEach(fd => handler.addField(fd.id, new FieldHandler(fd.name, fd.typeHandler)));
   return new TypeDesc(id, handler);
 }
 
 export function enumDesc(id: number, Type: any): TypeDesc {
   var values: Enum[] = [];
-  Object.keys(Type).forEach((property: any) => {
+  Object.keys(Type).forEach(property => {
     var value = Type[property];
     if (value instanceof Enum) {
       values[value.number] = value;
