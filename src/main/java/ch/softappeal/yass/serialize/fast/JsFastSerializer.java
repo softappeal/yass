@@ -11,7 +11,7 @@ import java.util.Map;
 
 /**
  * This is the Java implementation of the yass JavaScript serializer.
- * Only the following base types are allowed: {@link Boolean}, {@link Integer} and {@link String}.
+ * Only the following base types are allowed: {@link Boolean}, {@link Integer}, {@link String} and byte[].
  * This serializer assigns type and field id's automatically. Therefore, all peers must have the same version of the contract!
  */
 public final class JsFastSerializer extends AbstractFastSerializer {
@@ -38,19 +38,25 @@ public final class JsFastSerializer extends AbstractFastSerializer {
   public static final TypeDesc BOOLEAN_TYPEDESC = new TypeDesc(TypeDesc.FIRST_ID, BaseTypeHandlers.BOOLEAN);
   public static final TypeDesc INTEGER_TYPEDESC = new TypeDesc(TypeDesc.FIRST_ID + 1, BaseTypeHandlers.INTEGER);
   public static final TypeDesc STRING_TYPEDESC = new TypeDesc(TypeDesc.FIRST_ID + 2, BaseTypeHandlers.STRING);
-  private static final int FIRST_ID = TypeDesc.FIRST_ID + 3;
+  public static final TypeDesc BYTES_TYPEDESC = new TypeDesc(TypeDesc.FIRST_ID + 3, BaseTypeHandlers.BYTE_ARRAY);
+  public static final int FIRST_ID = TypeDesc.FIRST_ID + 4;
 
   /**
    * @param concreteClasses instances of these classes can only be used in trees
    */
   public JsFastSerializer(
-    final Reflector.Factory reflectorFactory, final Collection<Class<?>> enumerations, final Collection<Class<?>> concreteClasses
+    final Reflector.Factory reflectorFactory, final Collection<BaseTypeHandler<?>> baseTypeHandlers,
+    final Collection<Class<?>> enumerations, final Collection<Class<?>> concreteClasses
   ) {
     super(reflectorFactory);
     addBaseType(BOOLEAN_TYPEDESC);
     addBaseType(INTEGER_TYPEDESC);
     addBaseType(STRING_TYPEDESC);
+    addBaseType(BYTES_TYPEDESC);
     int id = FIRST_ID;
+    for (final BaseTypeHandler<?> typeHandler : baseTypeHandlers) {
+      addBaseType(new TypeDesc(id++, typeHandler));
+    }
     for (final Class<?> type : enumerations) {
       addEnum(id++, type);
     }

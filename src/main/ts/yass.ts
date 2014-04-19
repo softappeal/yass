@@ -226,6 +226,19 @@ class StringTypeHandler implements TypeHandler<string> {
 }
 export var STRING_DESC = new TypeDesc(5, new StringTypeHandler);
 
+class BytesTypeHandler implements TypeHandler<Uint8Array> {
+  read(reader: Reader): Uint8Array {
+    var length = reader.readVarInt();
+    return new Uint8Array(reader.array.buffer, reader.needed(length), length);
+  }
+  write(value: Uint8Array, writer: Writer): void {
+    writer.writeVarInt(value.length);
+    var position = writer.needed(value.length);
+    writer.array.set(value, position);
+  }
+}
+export var BYTES_DESC = new TypeDesc(6, new BytesTypeHandler);
+
 class EnumTypeHandler implements TypeHandler<Enum> {
   constructor(private values: Enum[]) {
     // empty
@@ -255,6 +268,8 @@ function write(value: any, writer: Writer): void {
     LIST_DESC.write(value, writer);
   } else if (value instanceof Type) {
     value.constructor.TYPE_DESC.write(value, writer);
+  } else if (value instanceof Uint8Array) {
+    BYTES_DESC.write(value, writer);
   } else {
     throw new Error("unexpected value'" + value + "'");
   }
@@ -318,7 +333,7 @@ export class JsFastSerializer implements Serializer {
       }
       this.id2typeHandler[typeDesc.id] = typeDesc.handler;
     };
-    [NULL_DESC, LIST_DESC, BOOLEAN_DESC, INTEGER_DESC, STRING_DESC].forEach(add);
+    [NULL_DESC, LIST_DESC, BOOLEAN_DESC, INTEGER_DESC, STRING_DESC, BYTES_DESC].forEach(add);
     Types.forEach(Type => add(Type.TYPE_DESC));
   }
   read(reader: Reader): any {

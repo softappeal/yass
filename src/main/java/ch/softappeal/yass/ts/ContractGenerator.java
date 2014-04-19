@@ -9,7 +9,10 @@ import ch.softappeal.yass.serialize.fast.JsFastSerializer;
 import ch.softappeal.yass.serialize.fast.TypeDesc;
 import ch.softappeal.yass.serialize.fast.TypeHandler;
 import ch.softappeal.yass.util.Check;
+import ch.softappeal.yass.util.Nullable;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -100,6 +103,8 @@ public final class ContractGenerator extends Generator {
       return "boolean";
     } else if (type == String.class) {
       return "string";
+    } else if (type == byte[].class) {
+      return "Uint8Array";
     } else if (ROOT_CLASSES.contains(type)) {
       return "any";
     } else if (type == void.class) {
@@ -109,19 +114,21 @@ public final class ContractGenerator extends Generator {
   }
 
   private String typeDescOwner(final ClassTypeHandler.FieldDesc fieldDesc) {
-    final TypeHandler fieldHandler = fieldDesc.handler.typeHandler();
-    if (TypeDesc.LIST.handler == fieldHandler) {
+    final TypeHandler typeHandler = fieldDesc.handler.typeHandler();
+    if (TypeDesc.LIST.handler == typeHandler) {
       return "yass.LIST_DESC";
-    } else if (JsFastSerializer.BOOLEAN_TYPEDESC.handler == fieldHandler) {
+    } else if (JsFastSerializer.BOOLEAN_TYPEDESC.handler == typeHandler) {
       return "yass.BOOLEAN_DESC";
-    } else if (JsFastSerializer.INTEGER_TYPEDESC.handler == fieldHandler) {
+    } else if (JsFastSerializer.INTEGER_TYPEDESC.handler == typeHandler) {
       return "yass.INTEGER_DESC";
-    } else if (JsFastSerializer.STRING_TYPEDESC.handler == fieldHandler) {
+    } else if (JsFastSerializer.STRING_TYPEDESC.handler == typeHandler) {
       return "yass.STRING_DESC";
-    } else if (fieldHandler == null) {
+    } else if (JsFastSerializer.BYTES_TYPEDESC.handler == typeHandler) {
+      return "yass.BYTES_DESC";
+    } else if (typeHandler == null) {
       return "null";
     }
-    return jsType(fieldHandler.type) + ".TYPE_DESC";
+    return jsType(typeHandler.type) + ".TYPE_DESC";
   }
 
   private void generateClass(final Class<?> type) {
@@ -147,7 +154,7 @@ public final class ContractGenerator extends Generator {
       if (id != null) {
         tabs("static TYPE_DESC = yass.classDesc(%s, %s", id, name);
         inc();
-        for (final ClassTypeHandler.FieldDesc fieldDesc : ((ClassTypeHandler)id2typeHandler.get(type2id.get(type))).fieldDescs()) {
+        for (final ClassTypeHandler.FieldDesc fieldDesc : ((ClassTypeHandler)id2typeHandler.get(id)).fieldDescs()) {
           println(",");
           tabs("new yass.FieldDesc(%s, '%s', %s)", fieldDesc.id, fieldDesc.handler.field.getName(), typeDescOwner(fieldDesc));
         }
@@ -267,29 +274,44 @@ public final class ContractGenerator extends Generator {
   @SuppressWarnings("unchecked")
   public ContractGenerator(
     final Package rootPackage, final JsFastSerializer serializer, final MethodMapper.Factory methodMapperFactory,
-    final String yassModulePath, final String contractFilePath
+    final String yassModulePath, final String contractFilePath, @Nullable final String baseTypesFilePath
   ) throws Exception {
     super(contractFilePath);
     this.rootPackage = rootPackage.getName() + '.';
     this.methodMapperFactory = Check.notNull(methodMapperFactory);
     id2typeHandler = serializer.id2typeHandler();
     for (final Map.Entry<Integer, TypeHandler> entry : id2typeHandler.entrySet()) {
-      final TypeHandler typeHandler = entry.getValue();
-      final Class<?> type = typeHandler.type;
-      if (type.isEnum() || (typeHandler instanceof ClassTypeHandler)) {
-        type2id.put(type, entry.getKey());
+      final int id = entry.getKey();
+      if (id >= JsFastSerializer.FIRST_ID) {
+        type2id.put(entry.getValue().type, id);
       }
     }
     tabsln("import yass = require('%s');", Check.notNull(yassModulePath));
     println();
     tabsln("export var GENERATED_BY_YASS_VERSION = '%s';", Version.VALUE);
     println();
+    if (baseTypesFilePath != null) {
+      try (BufferedReader baseTypes = new BufferedReader(new FileReader(baseTypesFilePath))) {
+        while (true) {
+          final String line = baseTypes.readLine();
+          if (line == null) {
+            break;
+          }
+          println(line);
+        }
+      }
+      println();
+    }
+    for (final Map.Entry<Integer, TypeHandler> entry : id2typeHandler.entrySet()) {
+      final Class<?> type = entry.getValue().type;
+      if (type.isEnum()) {
+        generateEnum((Class<Enum<?>>)type);
+      }
+    }
     for (final Map.Entry<Integer, TypeHandler> entry : id2typeHandler.entrySet()) {
       final TypeHandler typeHandler = entry.getValue();
       final Class<?> type = typeHandler.type;
-      if (type.isEnum()) {
-        generateEnum((Class<Enum<?>>)type);
-      } else if (typeHandler instanceof ClassTypeHandler) {
+      if (typeHandler instanceof ClassTypeHandler) {
         generateClass(type);
       }
     }
