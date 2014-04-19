@@ -1,14 +1,19 @@
 package ch.softappeal.yass.tutorial.contract.instrument;
 
+import ch.softappeal.yass.tutorial.contract.Expiration;
 import ch.softappeal.yass.tutorial.contract.Instrument;
+import ch.softappeal.yass.tutorial.contract.instrument.stock.JsDouble;
+import ch.softappeal.yass.util.Check;
 
 public final class Bond extends Instrument {
 
-  public final int coupon;
+  public final JsDouble coupon;
+  public final Expiration expiration;
 
-  public Bond(final String id, final String name, final int coupon) {
+  public Bond(final String id, final String name, final double coupon, final Expiration expiration) {
     super(id, name);
-    this.coupon = coupon;
+    this.coupon = new JsDouble(coupon);
+    this.expiration = Check.notNull(expiration);
   }
 
 }

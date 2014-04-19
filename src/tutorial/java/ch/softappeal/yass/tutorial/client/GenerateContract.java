@@ -8,7 +8,7 @@ public final class GenerateContract {
   public static void main(final String... args) throws Exception {
     new ContractGenerator(
       Config.class.getPackage(), Config.CONTRACT_SERIALIZER, Config.METHOD_MAPPER_FACTORY,
-      "../../main/ts/yass", "src/tutorial/ts/contract.ts"
+      "../../main/ts/yass", "src/tutorial/ts/contract.ts", "src/tutorial/ts/baseTypes.ts"
     );
   }
 

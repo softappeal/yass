@@ -15,6 +15,7 @@ import ch.softappeal.yass.transport.MessageSerializer;
 import ch.softappeal.yass.transport.PacketSerializer;
 import ch.softappeal.yass.transport.StringPathSerializer;
 import ch.softappeal.yass.tutorial.contract.instrument.Bond;
+import ch.softappeal.yass.tutorial.contract.instrument.stock.JsDouble;
 import ch.softappeal.yass.tutorial.contract.instrument.stock.Stock;
 
 import java.util.Arrays;
@@ -27,8 +28,9 @@ public final class Config {
    */
   public static final JsFastSerializer CONTRACT_SERIALIZER = new JsFastSerializer(
     FastReflector.FACTORY,
+    Arrays.<BaseTypeHandler<?>>asList(Expiration.TYPE_HANDLER, JsDouble.TYPE_HANDLER),
     Arrays.<Class<?>>asList(PriceType.class),
-    Arrays.<Class<?>>asList(Price.class, Stock.class, Bond.class, UnknownInstrumentsException.class)
+    Arrays.<Class<?>>asList(Price.class, Stock.class, Bond.class, UnknownInstrumentsException.class, Trade.class)
   );
 
   /**
@@ -40,7 +42,8 @@ public final class Config {
       BaseTypeHandlers.BOOLEAN,
       BaseTypeHandlers.INTEGER,
       BaseTypeHandlers.STRING,
-      DateTime.TYPE_HANDLER
+      Expiration.TYPE_HANDLER,
+      JsDouble.TYPE_HANDLER
     ),
     Arrays.<Class<?>>asList(PriceType.class),
     Arrays.<Class<?>>asList(Price.class, Trade.class, UnknownInstrumentsException.class),

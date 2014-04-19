@@ -28,28 +28,32 @@ class PriceListenerImpl implements contract.PriceListener {
   newPrices(prices: contract.Price[]): void {
     log("newPrices:", prices);
   }
-  echo(message: string): string {
-    log("echo:", message);
-    if (message === "throw") {
+}
+var PRICE_LISTENER = new PriceListenerImpl;
+
+class EchoServiceImpl implements contract.EchoService {
+  echo(value: any): any {
+    if (value === "throw") {
       var e = new contract.UnknownInstrumentsException;
       e.comment = "exception from echo";
       throw e;
     }
-    return message;
+    return value;
   }
 }
-var PRICE_LISTENER = new PriceListenerImpl;
+var ECHO_SERVICE = new EchoServiceImpl;
 
 function simulateServerCallingClient(invokerFactory: yass.InvokerFactory): void {
   var priceListener = invokerFactory.invoker(contract.ClientServices.PriceListener)(clientLogger);
+  var echoService = invokerFactory.invoker(contract.ClientServices.EchoService)(clientLogger);
   var price = new contract.Price;
   price.instrumentId = "123";
   price.type = contract.PriceType.ASK;
   price.value = 999;
   priceListener.newPrices([price, price]); // oneway method call
   // rpc-style method calls
-  var promiseValue = priceListener.echo("hello");
-  var promiseException = priceListener.echo("throw");
+  var promiseValue = echoService.echo("hello");
+  var promiseException = echoService.echo("throw");
   var callback = (result: any) => {
     try {
       log("promiseValue:", result()); // calling result() returns the function result or throws its exception
@@ -101,10 +105,11 @@ function sessionFactory(sessionInvokerFactory: yass.SessionInvokerFactory): yass
 }
 
 export function run() {
-  log(PRICE_LISTENER.echo("hello"));
+  log(ECHO_SERVICE.echo("echo"));
   simulateServerCallingClient(new yass.MockInvokerFactory(
     yass.server(
-      new yass.Service(contract.ClientServices.PriceListener, PRICE_LISTENER, serverLogger)
+      new yass.Service(contract.ClientServices.PriceListener, PRICE_LISTENER, serverLogger),
+      new yass.Service(contract.ClientServices.EchoService, ECHO_SERVICE, serverLogger)
     ),
     contract.SERIALIZER
   ));
@@ -113,7 +118,8 @@ export function run() {
     "ws://" + host + "/tutorial",
     contract.SERIALIZER,
     yass.server( // create server for ClientServices; you can add 0..n interceptors to each service
-      new yass.Service(contract.ClientServices.PriceListener, PRICE_LISTENER, serverLogger)
+      new yass.Service(contract.ClientServices.PriceListener, PRICE_LISTENER, serverLogger),
+      new yass.Service(contract.ClientServices.EchoService, ECHO_SERVICE, serverLogger)
     ),
     sessionFactory
   );

@@ -193,6 +193,8 @@ function writer2reader(writer: yass.Writer): yass.Reader {
   assert(copy("blabli") === "blabli");
   assert(copy(contract.PriceType.ASK) === contract.PriceType.ASK);
   assert(copy(contract.PriceType.BID) === contract.PriceType.BID);
+  assert(copy(new contract.instrument.stock.JsDouble(123.456e98)).d === 123.456e98);
+  assert(copy(new contract.instrument.stock.JsDouble(-9.384762637432E-12)).d === -9.384762637432E-12);
 
   function compare(array1: any[], array2: any[]): boolean {
     if (array1.length !== array2.length) {
@@ -227,16 +229,22 @@ function writer2reader(writer: yass.Writer): yass.Reader {
   assert(stock.paysDividend === undefined);
 
   var bond = new contract.instrument.Bond;
-  bond.coupon = 1234;
+  bond.coupon = new contract.instrument.stock.JsDouble(3.5);
+  bond.expiration = new contract.Expiration(2013, 2, 20);
   bond = copy(bond);
-  assert(bond.coupon === 1234);
+  assert(bond.coupon.d === 3.5);
+  assert(bond.expiration.year === 2013);
+  assert(bond.expiration.month === 2);
+  assert(bond.expiration.day === 20);
 
   var e = new contract.UnknownInstrumentsException;
   e.instrumentIds = ["a", "b"];
   e.comment = bond;
+  e.dump = new yass.Writer(100).getArray();
   e = copy(e);
   assert(compare(e.instrumentIds, ["a", "b"]));
-  assert(e.comment.coupon === 1234);
+  assert(e.comment.coupon.d === 3.5);
+  assert(new yass.Reader(e.dump).isEmpty());
 
   var price = new contract.Price;
   price.instrumentId = "123";
@@ -247,6 +255,68 @@ function writer2reader(writer: yass.Writer): yass.Reader {
   assert(price.type === contract.PriceType.ASK);
   assert(price.value === 999);
 
+  var writer = new yass.Writer(1);
+  writer.writeByte(123);
+  writer.writeByte(0);
+  writer.writeByte(210);
+  var reader = new yass.Reader(copy(writer.getArray()));
+  assert(reader.readByte() === 123);
+  assert(reader.readByte() === 0);
+  assert(reader.readByte() === 210);
+  assert(reader.isEmpty());
+
+  assert(new yass.Reader(copy(new yass.Writer(1).getArray())).isEmpty());
+
+}());
+
+(function () {
+  function sessionFactory(sessionInvokerFactory: yass.SessionInvokerFactory): yass.Session {
+    return {
+      opened: function () {
+        log("session opened");
+        var echoService = sessionInvokerFactory.invoker(contract.ServerServices.EchoService)();
+        echoService.echo(new contract.instrument.stock.JsDouble(123.456e98)).then(result => {
+          assert((<contract.instrument.stock.JsDouble>result()).d === 123.456e98);
+        });
+        echoService.echo(new contract.instrument.stock.JsDouble(-9.384762637432E-12)).then(result => {
+          assert((<contract.instrument.stock.JsDouble>result()).d === -9.384762637432E-12);
+        });
+        echoService.echo(new contract.Expiration(9, 8, 7)).then(result => {
+          var expiration = <contract.Expiration>result();
+          assert(expiration.year === 9);
+          assert(expiration.month === 8);
+          assert(expiration.day === 7);
+        });
+        var writer = new yass.Writer(1);
+        writer.writeByte(123);
+        writer.writeByte(0);
+        writer.writeByte(210);
+        echoService.echo(writer.getArray()).then(result => {
+          var reader = new yass.Reader(<Uint8Array>result());
+          assert(reader.readByte() === 123);
+          assert(reader.readByte() === 0);
+          assert(reader.readByte() === 210);
+          assert(reader.isEmpty());
+        });
+        setTimeout(() => sessionInvokerFactory.close(), 5000);
+      },
+      closed: function (exception) {
+        log("session closed", exception);
+        if (exception) {
+          throw exception;
+        }
+      }
+    };
+  }
+  var host = location.host || "localhost:9090";
+  yass.connect(
+    "ws://" + host + "/tutorial",
+    contract.SERIALIZER,
+    yass.server(
+      new yass.Service(contract.ClientServices.EchoService, { echo: (value: any) => value})
+    ),
+    sessionFactory
+  );
 }());
 
 //----------------------------------------------------------------------------------------------------------------------

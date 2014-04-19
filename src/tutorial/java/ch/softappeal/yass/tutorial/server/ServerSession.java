@@ -3,6 +3,7 @@ package ch.softappeal.yass.tutorial.server;
 import ch.softappeal.yass.core.remote.session.Session;
 import ch.softappeal.yass.core.remote.session.SessionClient;
 import ch.softappeal.yass.tutorial.contract.ClientServices;
+import ch.softappeal.yass.tutorial.contract.EchoService;
 import ch.softappeal.yass.tutorial.contract.Price;
 import ch.softappeal.yass.tutorial.contract.PriceListener;
 import ch.softappeal.yass.tutorial.contract.PriceType;
@@ -24,16 +25,18 @@ public final class ServerSession extends Session implements PriceEngineContext {
   private final AtomicBoolean closed = new AtomicBoolean(false);
 
   private final PriceListener priceListener;
+  private final EchoService echoService;
 
   public ServerSession(final SessionClient sessionClient) {
     super(sessionClient);
     System.out.println("create: " + hashCode());
     priceListener = invoker(ClientServices.PriceListener).proxy(Logger.CLIENT);
+    echoService = invoker(ClientServices.EchoService).proxy();
   }
 
   @Override public void opened() throws InterruptedException {
     System.out.println("opened: " + hashCode());
-    System.out.println(priceListener.echo("hello"));
+    System.out.println(echoService.echo("echo"));
     final Random random = new Random();
     while (!closed.get()) {
       final List<Price> prices = new ArrayList<>();

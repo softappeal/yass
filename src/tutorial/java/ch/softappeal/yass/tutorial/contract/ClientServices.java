@@ -8,5 +8,6 @@ import ch.softappeal.yass.core.remote.ContractId;
 public final class ClientServices {
 
   public static final ContractId<PriceListener> PriceListener = ContractId.create(PriceListener.class, 0);
+  public static final ContractId<EchoService> EchoService = ContractId.create(EchoService.class, 1);
 
 }

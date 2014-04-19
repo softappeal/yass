@@ -9,6 +9,7 @@ import ch.softappeal.yass.transport.TransportSetup;
 import ch.softappeal.yass.transport.socket.SocketExecutor;
 import ch.softappeal.yass.transport.socket.SocketTransport;
 import ch.softappeal.yass.tutorial.contract.Config;
+import ch.softappeal.yass.tutorial.contract.EchoServiceImpl;
 import ch.softappeal.yass.tutorial.contract.PriceEngine;
 import ch.softappeal.yass.tutorial.contract.ServerServices;
 import ch.softappeal.yass.util.Exceptions;
@@ -26,7 +27,8 @@ public final class SocketServer {
   private static final Server SERVER = new Server(
     Config.METHOD_MAPPER_FACTORY,
     new Service(ServerServices.InstrumentService, new InstrumentServiceImpl(), Logger.SERVER),
-    new Service(ServerServices.PriceEngine, PRICE_ENGINE, Logger.SERVER)
+    new Service(ServerServices.PriceEngine, PRICE_ENGINE, Logger.SERVER),
+    new Service(ServerServices.EchoService, new EchoServiceImpl())
   );
 
   public static TransportSetup createTransportSetup(final Executor requestExecutor) {

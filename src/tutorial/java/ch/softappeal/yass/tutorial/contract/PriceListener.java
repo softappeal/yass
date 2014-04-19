@@ -8,6 +8,4 @@ public interface PriceListener {
 
   @OneWay void newPrices(List<Price> prices);
 
-  String echo(String message);
-
 }

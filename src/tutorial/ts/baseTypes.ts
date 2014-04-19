@@ -1,18 +1,26 @@
-import yass = require('../../main/ts/yass');
+// shows how to use new base types
 
-class DateTime_HANDLER implements yass.TypeHandler<DateTime> {
-  read(reader: yass.Reader): DateTime {
-    return new DateTime(yass.STRING_DESC.handler.read(reader));
+// import yass = require('../../main/ts/yass');
+
+class Expiration_HANDLER implements yass.TypeHandler<Expiration> {
+  read(reader: yass.Reader): Expiration {
+    return new Expiration(
+      yass.INTEGER_DESC.handler.read(reader),
+      yass.INTEGER_DESC.handler.read(reader),
+      yass.INTEGER_DESC.handler.read(reader)
+    );
   }
-  write(value: DateTime, writer: yass.Writer): void {
-    yass.STRING_DESC.handler.write(value.dt, writer);
+  write(value: Expiration, writer: yass.Writer): void {
+    yass.INTEGER_DESC.handler.write(value.year, writer);
+    yass.INTEGER_DESC.handler.write(value.month, writer);
+    yass.INTEGER_DESC.handler.write(value.day, writer);
   }
 }
-export class DateTime extends yass.Type {
-  constructor(public dt: string) {
+export class Expiration extends yass.Type {
+  constructor(public year: number, public month: number, public day: number) {
     super();
   }
-  static TYPE_DESC = new yass.TypeDesc(100, new DateTime_HANDLER);
+  static TYPE_DESC = new yass.TypeDesc(7, new Expiration_HANDLER);
 }
 
 export module instrument.stock {
@@ -29,6 +37,6 @@ export module instrument.stock {
     constructor(public d: number) {
       super();
     }
-    static TYPE_DESC = new yass.TypeDesc(101, new JsDouble_HANDLER);
+    static TYPE_DESC = new yass.TypeDesc(8, new JsDouble_HANDLER);
   }
 }

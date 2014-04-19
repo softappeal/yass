@@ -12,6 +12,7 @@ public final class UnknownInstrumentsException extends Exception {
 
   public final List<String> instrumentIds;
   @Nullable public Object comment;
+  @Nullable public byte[] dump;
 
   public UnknownInstrumentsException(final List<String> instrumentIds) {
     this.instrumentIds = Check.notNull(instrumentIds);
