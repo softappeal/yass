@@ -354,7 +354,7 @@ export function classDesc(id: number, Type: any, ...fieldDescs: FieldDesc[]): Ty
   var handler = new ClassTypeHandler(Type);
   fieldDescs.forEach(fieldDesc => {
     var typeDesc = fieldDesc.typeDesc;
-    handler.addField(fieldDesc.id, new FieldHandler(fieldDesc.name, typeDesc && typeDesc.handler))
+    handler.addField(fieldDesc.id, new FieldHandler(fieldDesc.name, typeDesc && typeDesc.handler));
   });
   return new TypeDesc(id, handler);
 }

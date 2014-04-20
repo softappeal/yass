@@ -275,6 +275,12 @@ function writer2reader(writer: yass.Writer): yass.Reader {
       opened: function () {
         log("session opened");
         var echoService = sessionInvokerFactory.invoker(contract.ServerServices.EchoService)();
+        echoService.echo(12345678).then(result => {
+          assert(result() === 12345678);
+        });
+        echoService.echo(-87654321).then(result => {
+          assert(result() === -87654321);
+        });
         echoService.echo(new contract.instrument.stock.JsDouble(123.456e98)).then(result => {
           assert((<contract.instrument.stock.JsDouble>result()).d === 123.456e98);
         });
