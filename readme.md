@@ -4,7 +4,7 @@
   * Java
   * TypeScript/JavaScript
 
-* allows defining a contract in a typesafe and non-invasive way with services and POJOs
+* allows defining a contract in a typesafe and non-invasive way with services and DTOs
 
 * supports request/reply and oneway style method invocations
 
