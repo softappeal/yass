@@ -1,8 +1,5 @@
-import yass = require("../../main/ts/yass");
-import contract = require("../../tutorial/ts/contract");
-
-//----------------------------------------------------------------------------------------------------------------------
-// utilities
+// runs tutorial
+/// <reference path="../../tutorial/ts/tutorial"/>
 
 function log(...args: any[]): void {
   console.log.apply(console, args);
@@ -40,9 +37,6 @@ try {
   log(e);
 }
 
-//----------------------------------------------------------------------------------------------------------------------
-// Reader/Writer
-
 function writer2reader(writer: yass.Writer): yass.Reader {
   var byteArray = writer.getArray();
   var arrayBuffer = new ArrayBuffer(byteArray.length);
@@ -50,7 +44,7 @@ function writer2reader(writer: yass.Writer): yass.Reader {
   return new yass.Reader(arrayBuffer);
 }
 
-(function (): void {
+module ioTest {
 
   var writer = new yass.Writer(1);
   writer.writeByte(123);
@@ -140,24 +134,25 @@ function writer2reader(writer: yass.Writer): yass.Reader {
   utf8(5, ">\u4321<");
   utf8(5, ">\uFFFF<");
 
-}());
+  log("ioTest done");
 
-//----------------------------------------------------------------------------------------------------------------------
-// Enum
+}
 
-(function (): void {
+module enumTest {
+
   var ask = contract.PriceType.ASK;
   log(ask);
   assert(ask.number === 1);
   assert(ask.name === "ASK");
   assert(ask === contract.PriceType.ASK);
   assert(ask !== contract.PriceType.BID);
-}());
 
-//----------------------------------------------------------------------------------------------------------------------
-// Class
+  log("enumTest done");
 
-(function (): void {
+}
+
+module classTest {
+
   var stock = new contract.instrument.stock.Stock;
   stock.id = "1344";
   stock.name = "IBM";
@@ -168,12 +163,12 @@ function writer2reader(writer: yass.Writer): yass.Reader {
   assert(!(stock instanceof contract.instrument.Bond));
   var exception = new contract.UnknownInstrumentsException;
   exception.instrumentIds = ["23", "454"];
-}());
 
-//----------------------------------------------------------------------------------------------------------------------
-// Serializer
+  log("classTest done");
 
-(function (): void {
+}
+
+module localSerializerTest {
 
   function copy(value: any): any {
     var writer = new yass.Writer(100);
@@ -267,9 +262,12 @@ function writer2reader(writer: yass.Writer): yass.Reader {
 
   assert(new yass.Reader(copy(new yass.Writer(1).getArray())).isEmpty());
 
-}());
+  log("localSerializerTest done");
 
-(function () {
+}
+
+module remoteSerializerTest {
+
   function sessionFactory(sessionInvokerFactory: yass.SessionInvokerFactory): yass.Session {
     return {
       opened: function () {
@@ -314,21 +312,21 @@ function writer2reader(writer: yass.Writer): yass.Reader {
       }
     };
   }
-  var host = location.host || "localhost:9090";
+
   yass.connect(
-    "ws://" + host + "/tutorial",
+    "ws://localhost:9090/tutorial",
     contract.SERIALIZER,
     yass.server(
       new yass.Service(contract.ClientServices.EchoService, { echo: (value: any) => value})
     ),
     sessionFactory
   );
-}());
 
-//----------------------------------------------------------------------------------------------------------------------
-// interceptors (aspect oriented programming, around advice)
+  log("remoteSerializerTest done");
 
-(function () {
+}
+
+module interceptorTest {
 
   function i(id: number): yass.Interceptor {
     return function (method: string, parameters: any[], proceed: () => any): any {
@@ -353,12 +351,11 @@ function writer2reader(writer: yass.Writer): yass.Reader {
   assert(invoke(i(123), yass.DIRECT) === 123);
   assert(invoke(i(9), i(8), i(7)) === 987);
 
-}());
+  log("interceptorTest done");
 
-//----------------------------------------------------------------------------------------------------------------------
-// Promise
+}
 
-(function () {
+module promiseTest {
 
   var promise = new yass.Promise<string>();
   promise.then(result => log(result()));
@@ -378,13 +375,6 @@ function writer2reader(writer: yass.Writer): yass.Reader {
   });
   assertThrown(() => promise.then(result => result()));
 
-}());
+  log("promiseTest done");
 
-//----------------------------------------------------------------------------------------------------------------------
-// run tutorial
-
-log("run tutorial");
-import tutorial = require("../../tutorial/ts/tutorial");
-tutorial.run();
-
-//----------------------------------------------------------------------------------------------------------------------
+}

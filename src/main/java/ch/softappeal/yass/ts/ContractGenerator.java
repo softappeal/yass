@@ -9,10 +9,7 @@ import ch.softappeal.yass.serialize.fast.JsFastSerializer;
 import ch.softappeal.yass.serialize.fast.TypeDesc;
 import ch.softappeal.yass.serialize.fast.TypeHandler;
 import ch.softappeal.yass.util.Check;
-import ch.softappeal.yass.util.Nullable;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -274,7 +271,7 @@ public final class ContractGenerator extends Generator {
   @SuppressWarnings("unchecked")
   public ContractGenerator(
     final Package rootPackage, final JsFastSerializer serializer, final MethodMapper.Factory methodMapperFactory,
-    final String yassModulePath, final String contractFilePath, @Nullable final String baseTypesFilePath
+    final String baseTypesModulePath, final String contractModuleName, final String contractFilePath
   ) throws Exception {
     super(contractFilePath);
     this.rootPackage = rootPackage.getName() + '.';
@@ -286,22 +283,13 @@ public final class ContractGenerator extends Generator {
         type2id.put(entry.getValue().type, id);
       }
     }
-    tabsln("import yass = require('%s');", Check.notNull(yassModulePath));
+    tabsln("/// <reference path='%s'/>", Check.notNull(baseTypesModulePath));
     println();
+    tabsln("module %s {", Check.notNull(contractModuleName));
+    println();
+    inc();
     tabsln("export var GENERATED_BY_YASS_VERSION = '%s';", Version.VALUE);
     println();
-    if (baseTypesFilePath != null) {
-      try (BufferedReader baseTypes = new BufferedReader(new FileReader(baseTypesFilePath))) {
-        while (true) {
-          final String line = baseTypes.readLine();
-          if (line == null) {
-            break;
-          }
-          println(line);
-        }
-      }
-      println();
-    }
     for (final Map.Entry<Integer, TypeHandler> entry : id2typeHandler.entrySet()) {
       final Class<?> type = entry.getValue().type;
       if (type.isEnum()) {
@@ -338,6 +326,9 @@ public final class ContractGenerator extends Generator {
     println();
     dec();
     tabsln(");");
+    dec();
+    println();
+    tabsln("}");
     close();
   }
 
