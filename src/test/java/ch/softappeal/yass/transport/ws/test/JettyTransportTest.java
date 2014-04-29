@@ -19,8 +19,8 @@ public class JettyTransportTest extends JettyTest {
 
   @Test public void createException() throws Exception {
     run(
-      false, false,
-      false, true
+      false, true,
+      false, false
     );
   }
 
