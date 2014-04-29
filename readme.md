@@ -13,7 +13,7 @@
 * supports sessions
 
 * provides transports for
-  + socket (including SSL/TLS)
+  * socket (including SSL/TLS)
   * WebSocket
 
 * has a fast and compact binary serializer
