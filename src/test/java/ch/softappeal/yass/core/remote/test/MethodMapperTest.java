@@ -4,7 +4,7 @@ import ch.softappeal.yass.core.remote.MethodMapper;
 import ch.softappeal.yass.core.remote.OneWay;
 import ch.softappeal.yass.core.remote.SimpleMethodMapper;
 import ch.softappeal.yass.core.remote.TaggedMethodMapper;
-import ch.softappeal.yass.core.test.InterceptorsTest;
+import ch.softappeal.yass.core.test.InterceptorTest;
 import ch.softappeal.yass.core.test.InvokeTest;
 import ch.softappeal.yass.util.Tag;
 import org.junit.Assert;
@@ -16,8 +16,8 @@ public class MethodMapperTest {
 
   @Test public void mapping() {
     final String methodId = "xyz";
-    final MethodMapper.Mapping mapping = new MethodMapper.Mapping(InterceptorsTest.METHOD, methodId, false);
-    Assert.assertSame(InterceptorsTest.METHOD, mapping.method);
+    final MethodMapper.Mapping mapping = new MethodMapper.Mapping(InterceptorTest.METHOD, methodId, false);
+    Assert.assertSame(InterceptorTest.METHOD, mapping.method);
     Assert.assertSame(methodId, mapping.id);
     Assert.assertFalse(mapping.oneWay);
   }

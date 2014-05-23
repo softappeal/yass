@@ -24,8 +24,7 @@ public interface Reflector {
   Accessor accessor(Field field);
 
 
-  @FunctionalInterface
-  interface Factory {
+  @FunctionalInterface interface Factory {
 
     Reflector create(Class<?> type) throws Exception;
 

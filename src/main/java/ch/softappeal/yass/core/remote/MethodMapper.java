@@ -56,8 +56,7 @@ public interface MethodMapper {
   /**
    * Creates a {@link MethodMapper} for a contract.
    */
-  @FunctionalInterface
-  interface Factory {
+  @FunctionalInterface interface Factory {
 
     MethodMapper create(Class<?> contract);
 

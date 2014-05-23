@@ -31,7 +31,7 @@ public class RemoteTest extends InvokeTest {
               try {
                 return invocation.proceed();
               } finally {
-                Assert.assertTrue(InvokeTest.isOneWay(method.getName()) || (COUNTER == 4));
+                Assert.assertTrue(COUNTER == 4);
               }
             },
             stepInterceptor(1)
@@ -40,15 +40,7 @@ public class RemoteTest extends InvokeTest {
             Assert.assertTrue((33 == (Integer)request.methodId) == clientInvocation.oneWay);
             final ServerInvocation serverInvocation = server.invocation(request);
             Assert.assertTrue(clientInvocation.oneWay == serverInvocation.oneWay);
-            try {
-              return serverInvocation.invoke(stepInterceptor(3));
-            } catch (final Throwable t) {
-              if (serverInvocation.oneWay) {
-                println("###", "", t);
-                return null;
-              }
-              throw t;
-            }
+            return serverInvocation.invoke(stepInterceptor(3));
           }
         );
       }
