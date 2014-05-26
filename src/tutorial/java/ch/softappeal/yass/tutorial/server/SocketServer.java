@@ -1,17 +1,9 @@
 package ch.softappeal.yass.tutorial.server;
 
-import ch.softappeal.yass.core.remote.Server;
-import ch.softappeal.yass.core.remote.Service;
-import ch.softappeal.yass.core.remote.session.Session;
-import ch.softappeal.yass.core.remote.session.SessionClient;
 import ch.softappeal.yass.transport.PathResolver;
-import ch.softappeal.yass.transport.TransportSetup;
 import ch.softappeal.yass.transport.socket.SocketExecutor;
 import ch.softappeal.yass.transport.socket.SocketTransport;
 import ch.softappeal.yass.tutorial.contract.Config;
-import ch.softappeal.yass.tutorial.contract.EchoServiceImpl;
-import ch.softappeal.yass.tutorial.contract.PriceEngine;
-import ch.softappeal.yass.tutorial.contract.ServerServices;
 import ch.softappeal.yass.util.Exceptions;
 import ch.softappeal.yass.util.NamedThreadFactory;
 
@@ -20,24 +12,7 @@ import java.net.SocketAddress;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
-public final class SocketServer {
-
-  private static final PriceEngine PRICE_ENGINE = new PriceEngineImpl(() -> (PriceEngineContext)Session.get());
-
-  private static final Server SERVER = new Server(
-    Config.METHOD_MAPPER_FACTORY,
-    new Service(ServerServices.InstrumentService, new InstrumentServiceImpl(), Logger.SERVER),
-    new Service(ServerServices.PriceEngine, PRICE_ENGINE, Logger.SERVER),
-    new Service(ServerServices.EchoService, new EchoServiceImpl())
-  );
-
-  public static TransportSetup createTransportSetup(final Executor requestExecutor) {
-    return new TransportSetup(SERVER, requestExecutor, Config.PACKET_SERIALIZER) {
-      @Override public Session createSession(final SessionClient sessionClient) {
-        return new ServerSession(sessionClient);
-      }
-    };
-  }
+public final class SocketServer extends ServerSetup {
 
   public static final SocketAddress ADDRESS = new InetSocketAddress("localhost", 28947);
   public static final String PATH = "tutorial";

@@ -9,7 +9,6 @@ import ch.softappeal.yass.serialize.contract.Node;
 import ch.softappeal.yass.serialize.contract.PrimitiveTypes;
 import ch.softappeal.yass.serialize.contract.nested.AllTypes;
 import ch.softappeal.yass.serialize.fast.AbstractFastSerializer;
-import ch.softappeal.yass.serialize.fast.BaseTypeHandler;
 import ch.softappeal.yass.serialize.fast.BaseTypeHandlers;
 import ch.softappeal.yass.serialize.fast.SimpleFastSerializer;
 import ch.softappeal.yass.serialize.fast.TaggedFastSerializer;
@@ -101,7 +100,7 @@ public class SerializerTest {
     allTypes.primitiveTypesField = new AllTypes("hello");
     allTypes.primitiveTypesListField = Arrays.asList(new PrimitiveTypes(999), new AllTypes("world"), null);
     allTypes.objectField = "bad";
-    allTypes.objectListField = Arrays.<Object>asList("good", null, 123);
+    allTypes.objectListField = Arrays.asList("good", null, 123);
     allTypes.throwable = new IntException(123);
     return allTypes;
   }
@@ -208,7 +207,7 @@ public class SerializerTest {
     Assert.assertEquals(new ArrayList<>(), JavaSerializerTest.copy(serializer, new ArrayList<>()));
     Assert.assertEquals(Arrays.asList(1, null, "2"), JavaSerializerTest.copy(serializer, Arrays.asList(1, null, "2")));
     Assert.assertEquals(new ArrayList<>(), JavaSerializerTest.copy(serializer, new ArrayList<>()));
-    Assert.assertEquals(Arrays.<String>asList("1", null, "2"), JavaSerializerTest.copy(serializer, Arrays.<String>asList("1", null, "2")));
+    Assert.assertEquals(Arrays.asList("1", null, "2"), JavaSerializerTest.copy(serializer, Arrays.asList("1", null, "2")));
     Assert.assertTrue(JavaSerializerTest.copy(serializer, new AllTypes()).getClass() == AllTypes.class);
     Assert.assertTrue(JavaSerializerTest.copy(serializer, new PrimitiveTypes()).getClass() == PrimitiveTypes.class);
     Assert.assertTrue(JavaSerializerTest.copy(serializer, new IntException(123)).value == 123);
@@ -273,9 +272,9 @@ public class SerializerTest {
       new TypeDesc(21, BaseTypeHandlers.BIGDECIMAL),
       new TypeDesc(22, BaseTypeHandlers.DATE)
     ),
-    Arrays.<Class<?>>asList(Color.class),
-    Arrays.<Class<?>>asList(PrimitiveTypes.class, AllTypes.class, IntException.class),
-    Arrays.<Class<?>>asList(Node.class)
+    Arrays.asList(Color.class),
+    Arrays.asList(PrimitiveTypes.class, AllTypes.class, IntException.class),
+    Arrays.asList(Node.class)
   );
 
   @Test public void taggedFast() throws Exception {
@@ -284,7 +283,7 @@ public class SerializerTest {
 
   public static final AbstractFastSerializer SIMPLE_FAST_SERIALIZER = new SimpleFastSerializer(
     FastReflector.FACTORY,
-    Arrays.<BaseTypeHandler<?>>asList(
+    Arrays.asList(
       BaseTypeHandlers.BOOLEAN,
       BaseTypeHandlers.BYTE,
       BaseTypeHandlers.SHORT,
@@ -306,9 +305,9 @@ public class SerializerTest {
       BaseTypeHandlers.BIGDECIMAL,
       BaseTypeHandlers.DATE
     ),
-    Arrays.<Class<?>>asList(Color.class),
-    Arrays.<Class<?>>asList(PrimitiveTypes.class, AllTypes.class, IntException.class),
-    Arrays.<Class<?>>asList(Node.class)
+    Arrays.asList(Color.class),
+    Arrays.asList(PrimitiveTypes.class, AllTypes.class, IntException.class),
+    Arrays.asList(Node.class)
   );
 
   @Test public void simpleFast() throws Exception {

@@ -6,6 +6,8 @@ module tutorial {
     console.log.apply(console, args);
   }
 
+  log("running tutorial ...");
+
   function logger(type: string): yass.Interceptor {
     return function (method: string, parameters: any[], proceed: () => any): any {
       function doLog(kind: string, data: any): void {

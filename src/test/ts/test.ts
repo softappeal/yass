@@ -5,6 +5,8 @@ function log(...args: any[]): void {
   console.log.apply(console, args);
 }
 
+log("running tests ...");
+
 function assert(value: boolean): void {
   if (!value) {
     throw new Error("assert failed");

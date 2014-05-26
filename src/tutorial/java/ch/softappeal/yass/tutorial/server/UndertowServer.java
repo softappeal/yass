@@ -14,16 +14,17 @@ import org.xnio.XnioWorker;
 import javax.websocket.server.ServerEndpointConfig;
 import java.io.File;
 
-public final class UndertowServer {
+public final class UndertowServer extends WsServerSetup {
 
   public static void main(final String... args) throws Exception {
     final Xnio xnio = Xnio.getInstance();
     final XnioWorker xnioWorker = xnio.createWorker(OptionMap.builder().getMap());
     final WebSocketDeploymentInfo webSockets = new WebSocketDeploymentInfo()
-      .addEndpoint(ServerEndpointConfig.Builder.create(JettyServer.Endpoint.class, JettyServer.PATH).build())
+      .addEndpoint(ServerEndpointConfig.Builder.create(Endpoint.class, PATH).build())
       .setWorker(xnioWorker);
     final DeploymentManager deployment = Servlets.defaultContainer()
-      .addDeployment(Servlets.deployment()
+      .addDeployment(
+        Servlets.deployment()
           .setClassLoader(UndertowServer.class.getClassLoader())
           .setContextPath("/")
           .setDeploymentName(UndertowServer.class.getName())
@@ -33,9 +34,9 @@ public final class UndertowServer {
     final HttpHandler webSocketHandler = deployment.start();
     final HttpHandler fileHandler = Handlers.resource(new FileResourceManager(new File("."), 100));
     Undertow.builder()
-      .addHttpListener(JettyServer.PORT, JettyServer.HOST)
+      .addHttpListener(PORT, HOST)
       .setHandler(exchange -> {
-        if (JettyServer.PATH.equals(exchange.getRequestPath())) {
+        if (PATH.equals(exchange.getRequestPath())) {
           webSocketHandler.handleRequest(exchange);
         } else {
           fileHandler.handleRequest(exchange);
