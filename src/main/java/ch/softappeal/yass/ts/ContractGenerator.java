@@ -28,7 +28,7 @@ import java.util.SortedMap;
 import java.util.stream.Collectors;
 
 /**
- * Note: You must use the -parameters option for javac to get the real method parameter names.
+ * $note: You must use the -parameters option for javac to get the real method parameter names.
  */
 public final class ContractGenerator extends Generator {
 

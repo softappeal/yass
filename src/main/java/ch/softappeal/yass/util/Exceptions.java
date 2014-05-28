@@ -20,7 +20,7 @@ public final class Exceptions {
   /**
    * Prints to {@link System#err} and EXITS if {@code !(throwable instanceof Exception)}.
    * <p>
-   * Note: For productive code, this handler should be replaced with one that uses your logging framework!
+   * $note: For productive code, this handler should be replaced with one that uses your logging framework!
    */
   public static final UncaughtExceptionHandler STD_ERR = (thread, throwable) -> {
     System.err.println(
@@ -39,7 +39,7 @@ public final class Exceptions {
   /**
    * Prints to {@link System#err} and EXITS.
    * <p>
-   * Note: For productive code, this handler should be replaced with one that uses your logging framework!
+   * $note: For productive code, this handler should be replaced with one that uses your logging framework!
    */
   public static final UncaughtExceptionHandler TERMINATE = (thread, throwable) -> {
     STD_ERR.uncaughtException(thread, throwable);

@@ -10,7 +10,7 @@ public final class Service {
   final Interceptor interceptor;
 
   /**
-   * Note: It's a good idea to add an interceptor that handles unexpected exceptions
+   * $note: It's a good idea to add an interceptor that handles unexpected exceptions
    * (this is especially useful for oneway methods where these are ignored and NOT passed to the client).
    */
   public <C> Service(final ContractId<C> contractId, final C implementation, final Interceptor... interceptors) {
