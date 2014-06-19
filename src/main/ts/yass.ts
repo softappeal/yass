@@ -777,7 +777,7 @@ module yass {
   }
 
   export function connect(url: string, serializer: Serializer, server: Server, sessionFactory: SessionFactory): void {
-    serializer = new PacketSerializer(new MessageSerializer(serializer))
+    serializer = new PacketSerializer(new MessageSerializer(serializer));
     var ws = new WebSocket(url);
     ws.binaryType = "arraybuffer";
     ws.onopen = function () {
