@@ -44,7 +44,7 @@ public abstract class UndertowTest extends WsTest {
     final XnioWorker worker = Xnio.getInstance().createWorker(OptionMap.create(Options.THREAD_DAEMON, true));
     final Pool<ByteBuffer> buffers = new ByteBufferSlicePool(1024, 10240);
     final ServerWebSocketContainer container = new ServerWebSocketContainer(
-      DefaultClassIntrospector.INSTANCE, worker, buffers, new CompositeThreadSetupAction(Collections.emptyList()), true
+      DefaultClassIntrospector.INSTANCE, worker, buffers, new CompositeThreadSetupAction(Collections.emptyList()), true, true
     );
     connect(container, latch);
     server.stop();

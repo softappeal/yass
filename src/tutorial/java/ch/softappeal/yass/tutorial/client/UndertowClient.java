@@ -19,7 +19,7 @@ public final class UndertowClient extends WsClientSetup {
     final XnioWorker worker = Xnio.getInstance().createWorker(OptionMap.create(Options.THREAD_DAEMON, true));
     final Pool<ByteBuffer> buffers = new ByteBufferSlicePool(1024, 10240);
     run(new ServerWebSocketContainer(
-      DefaultClassIntrospector.INSTANCE, worker, buffers, new CompositeThreadSetupAction(Collections.emptyList()), true
+      DefaultClassIntrospector.INSTANCE, worker, buffers, new CompositeThreadSetupAction(Collections.emptyList()), true, true
     ));
   }
 
