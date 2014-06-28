@@ -41,6 +41,11 @@ tasks.withType(Javadoc) {
   options.addStringOption('Xdoclint:all,-missing', '-quiet')
 }
 
+task generateContract(type: JavaExec) {
+  main = 'ch.softappeal.yass.tutorial.client.GenerateContract'
+  classpath = sourceSets.tutorial.runtimeClasspath
+}
+
 jar {
   from "readme.md"
   from "license.txt"
