@@ -10,12 +10,8 @@ import io.undertow.websockets.jsr.WebSocketDeploymentInfo;
 import org.xnio.ByteBufferSlicePool;
 import org.xnio.OptionMap;
 import org.xnio.Options;
-import org.xnio.Pool;
 import org.xnio.Xnio;
-import org.xnio.XnioWorker;
 
-import javax.websocket.server.ServerEndpointConfig;
-import java.nio.ByteBuffer;
 import java.util.Collections;
 import java.util.concurrent.CountDownLatch;
 
@@ -23,17 +19,18 @@ public abstract class UndertowTest extends WsTest {
 
   protected static void run(final CountDownLatch latch) throws Exception {
     final Xnio xnio = Xnio.getInstance();
-    final XnioWorker xnioWorker = xnio.createWorker(OptionMap.builder().getMap());
-    final WebSocketDeploymentInfo webSockets = new WebSocketDeploymentInfo()
-      .addEndpoint(ServerEndpointConfig.Builder.create(ServerEndpoint.class, PATH).build())
-      .setWorker(xnioWorker);
     final DeploymentManager deployment = Servlets.defaultContainer()
       .addDeployment(
         Servlets.deployment()
           .setClassLoader(UndertowTest.class.getClassLoader())
           .setContextPath("/")
           .setDeploymentName(UndertowTest.class.getName())
-          .addServletContextAttribute(WebSocketDeploymentInfo.ATTRIBUTE_NAME, webSockets)
+          .addServletContextAttribute(
+            WebSocketDeploymentInfo.ATTRIBUTE_NAME,
+            new WebSocketDeploymentInfo()
+              .addEndpoint(SERVER_ENDPOINT_CONFIG)
+              .setWorker(xnio.createWorker(OptionMap.builder().getMap()))
+          )
       );
     deployment.deploy();
     final Undertow server = Undertow.builder()
@@ -41,12 +38,17 @@ public abstract class UndertowTest extends WsTest {
       .setHandler(deployment.start())
       .build();
     server.start();
-    final XnioWorker worker = Xnio.getInstance().createWorker(OptionMap.create(Options.THREAD_DAEMON, true));
-    final Pool<ByteBuffer> buffers = new ByteBufferSlicePool(1024, 10240);
-    final ServerWebSocketContainer container = new ServerWebSocketContainer(
-      DefaultClassIntrospector.INSTANCE, worker, buffers, new CompositeThreadSetupAction(Collections.emptyList()), true, true
+    connect(
+      new ServerWebSocketContainer(
+        DefaultClassIntrospector.INSTANCE,
+        ServerWebSocketContainer.class.getClassLoader(),
+        xnio.createWorker(OptionMap.create(Options.THREAD_DAEMON, true)),
+        new ByteBufferSlicePool(1024, 10240),
+        new CompositeThreadSetupAction(Collections.emptyList()),
+        true
+      ),
+      latch
     );
-    connect(container, latch);
     server.stop();
   }
 

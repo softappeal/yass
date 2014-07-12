@@ -7,6 +7,7 @@ import ch.softappeal.yass.util.Exceptions;
 import ch.softappeal.yass.util.NamedThreadFactory;
 
 import javax.websocket.Session;
+import javax.websocket.server.ServerEndpointConfig;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
@@ -25,5 +26,7 @@ public abstract class WsServerSetup extends ServerSetup {
       return new WsConnection(TRANSPORT_SETUP, session);
     }
   }
+
+  protected static final ServerEndpointConfig ENDPOINT_CONFIG = ServerEndpointConfig.Builder.create(Endpoint.class, PATH).build();
 
 }

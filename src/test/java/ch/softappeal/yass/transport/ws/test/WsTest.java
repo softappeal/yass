@@ -14,6 +14,7 @@ import org.junit.Before;
 import javax.websocket.ClientEndpointConfig;
 import javax.websocket.Session;
 import javax.websocket.WebSocketContainer;
+import javax.websocket.server.ServerEndpointConfig;
 import java.net.URI;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
@@ -50,6 +51,8 @@ public abstract class WsTest {
       return new WsConnection(TRANSPORT_SETUP_SERVER, session);
     }
   }
+
+  protected static final ServerEndpointConfig SERVER_ENDPOINT_CONFIG = ServerEndpointConfig.Builder.create(ServerEndpoint.class, PATH).build();
 
   protected static void setTransportSetup(
     final boolean serverInvoke, final boolean serverCreateException,

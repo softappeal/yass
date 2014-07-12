@@ -8,7 +8,6 @@ import org.eclipse.jetty.server.handler.ResourceHandler;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.websocket.jsr356.server.deploy.WebSocketServerContainerInitializer;
 
-import javax.websocket.server.ServerEndpointConfig;
 import java.net.InetSocketAddress;
 
 public final class JettyServer extends WsServerSetup {
@@ -28,9 +27,7 @@ public final class JettyServer extends WsServerSetup {
     handlers.setHandlers(new Handler[] {resourceHandler, webSocketHandler});
     server.setHandler(handlers);
 
-    WebSocketServerContainerInitializer.configureContext(webSocketHandler).addEndpoint(
-      ServerEndpointConfig.Builder.create(Endpoint.class, PATH).build()
-    );
+    WebSocketServerContainerInitializer.configureContext(webSocketHandler).addEndpoint(ENDPOINT_CONFIG);
 
     server.start();
     System.out.println("started");
