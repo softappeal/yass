@@ -40,11 +40,12 @@ public final class ContractGenerator extends Generator {
 
   private void checkType(final Class<?> type) {
     if (!type.getCanonicalName().startsWith(rootPackage)) {
-      throw new RuntimeException("type '" + type.getCanonicalName() + "' has wrong root package");
+      throw new RuntimeException("type '" + type.getCanonicalName() + "' doesn't have root package '" + rootPackage + "'");
     }
   }
 
   private String jsType(final Class<?> type) {
+    checkType(type);
     return type.getCanonicalName().substring(rootPackage.length());
   }
 
@@ -53,7 +54,6 @@ public final class ContractGenerator extends Generator {
   }
 
   private void generateType(final Class<?> type, final TypeGenerator typeGenerator) {
-    checkType(type);
     final String jsType = jsType(type);
     final int dot = jsType.lastIndexOf('.');
     final String name = type.getSimpleName();
@@ -265,8 +265,12 @@ public final class ContractGenerator extends Generator {
     println();
   }
 
+  public static final String CLIENT_SERVICES = "ClientServices";
+  public static final String SERVER_SERVICES = "ServerServices";
+
   /**
-   * @param methodMapperFactory Note: You must provide a factory that doesn't allow overloading due to JavaScript restrictions!
+   * @param rootPackage $note: Must contain the classes {@link #CLIENT_SERVICES} and {@link #SERVER_SERVICES} with static fields of type {@link ContractId}.
+   * @param methodMapperFactory $note: You must provide a factory that doesn't allow overloading and where {@link MethodMapper.Mapping#id} is of type {@link Integer} due to JavaScript restrictions.
    */
   @SuppressWarnings("unchecked")
   public ContractGenerator(
@@ -303,8 +307,8 @@ public final class ContractGenerator extends Generator {
         generateClass(type);
       }
     }
-    final Class<?> clientServices = Class.forName(this.rootPackage + "ClientServices");
-    final Class<?> serverServices = Class.forName(this.rootPackage + "ServerServices");
+    final Class<?> clientServices = Class.forName(this.rootPackage + CLIENT_SERVICES);
+    final Class<?> serverServices = Class.forName(this.rootPackage + SERVER_SERVICES);
     final Set<Class<?>> interfaceSet = getInterfaces(clientServices);
     interfaceSet.addAll(getInterfaces(serverServices));
     final List<Class<?>> interfaceList = new ArrayList<>(interfaceSet);
