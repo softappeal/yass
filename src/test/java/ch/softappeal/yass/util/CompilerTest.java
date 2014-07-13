@@ -7,14 +7,13 @@ import java.util.Map;
 
 public class CompilerTest {
 
-  public static final String TEXT = "hello";
+  public static final String TEXT = "Hello";
 
   private static final String CODE =
     "package x;" +
     "public class T {" +
     "public static void x() {" +
-    "System.out.println(ch.softappeal.yass.util.CompilerTest.TEXT + \", world\");" +
-    "" +
+    "System.out.println(ch.softappeal.yass.util.CompilerTest.TEXT + \", world!\");" +
     "}" +
     "}";
 
