@@ -20,7 +20,7 @@ public class CompilerTest {
   @Test public void test() throws Exception {
     final Map<String, CharSequence> map = new HashMap<>();
     map.put("x.T", CODE);
-    final ClassLoader classLoader = Compiler.compile(Thread.currentThread().getContextClassLoader(), map, "-Xlint");
+    final ClassLoader classLoader = Compiler.compile(CompilerTest.class.getClassLoader(), map, "-Xlint");
     classLoader.loadClass("x.T").getMethod("x").invoke(null);
   }
 

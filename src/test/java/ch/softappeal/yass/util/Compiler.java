@@ -24,7 +24,6 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 
 public final class Compiler {
@@ -155,22 +154,12 @@ public final class Compiler {
       final Iterable<JavaFileObject> result = super.list(location, packageName, kinds, recurse);
       final Collection<JavaFileObject> files = new ArrayList<>();
       if ((location == StandardLocation.CLASS_PATH) && kinds.contains(JavaFileObject.Kind.CLASS)) {
-        for (final JavaFileObject file : fileObjects.values()) {
-          if ((file.getKind() == JavaFileObject.Kind.CLASS) && file.getName().startsWith(packageName)) {
-            files.add(file);
-          }
-        }
+        fileObjects.values().stream().filter(fo -> (fo.getKind() == JavaFileObject.Kind.CLASS) && fo.getName().startsWith(packageName)).forEach(files::add);
         files.addAll(classLoader.classes.values());
       } else if ((location == StandardLocation.SOURCE_PATH) && kinds.contains(JavaFileObject.Kind.SOURCE)) {
-        for (final JavaFileObject file : fileObjects.values()) {
-          if ((file.getKind() == JavaFileObject.Kind.SOURCE) && file.getName().startsWith(packageName)) {
-            files.add(file);
-          }
-        }
+        fileObjects.values().stream().filter(fo -> (fo.getKind() == JavaFileObject.Kind.SOURCE) && fo.getName().startsWith(packageName)).forEach(files::add);
       }
-      for (final JavaFileObject file : result) {
-        files.add(file);
-      }
+      result.forEach(files::add);
       return files;
     }
 
@@ -185,23 +174,24 @@ public final class Compiler {
     return writer.toString();
   }
 
-  public static ClassLoader compile(final ClassLoader loader, final Map<String, CharSequence> classes, final String... options) {
+  public static ClassLoader compile(final ClassLoader parentClassLoader, final Map<String, CharSequence> classes, final String... options) {
     final DiagnosticCollector<JavaFileObject> diagnostics = new DiagnosticCollector<>();
     final JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
-    final ClassLoaderImpl classLoader = new ClassLoaderImpl(loader);
+    final ClassLoaderImpl classLoader = new ClassLoaderImpl(parentClassLoader);
     final FileManagerImpl javaFileManager = new FileManagerImpl(compiler.getStandardFileManager(diagnostics, null, null), classLoader);
     final List<JavaFileObject> sources = new ArrayList<>();
-    for (final Entry<String, CharSequence> entry : classes.entrySet()) {
+    classes.entrySet().forEach(entry -> {
       final String qualifiedClassName = entry.getKey();
       final int dotPos = qualifiedClassName.lastIndexOf('.');
       final String className = (dotPos == -1) ? qualifiedClassName : qualifiedClassName.substring(dotPos + 1);
       final JavaFileObjectImpl source = new JavaFileObjectImpl(className, entry.getValue());
       sources.add(source);
       javaFileManager.putFileForInput(StandardLocation.SOURCE_PATH, (dotPos == -1) ? "" : qualifiedClassName.substring(0, dotPos), className + JAVA_EXT, source);
-    }
+    });
     if (!compiler.getTask(null, javaFileManager, diagnostics, Arrays.asList(options), null, sources).call()) {
       throw new RuntimeException(toString("Compilation failed.", diagnostics));
-    } else if (!diagnostics.getDiagnostics().isEmpty()) {
+    }
+    if (!diagnostics.getDiagnostics().isEmpty()) {
       throw new RuntimeException(toString("Compilation warnings.", diagnostics));
     }
     return classLoader;
