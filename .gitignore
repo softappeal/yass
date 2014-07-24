@@ -1,7 +1,8 @@
-.gradle/
-.idea/
-build/
-classes/
+/.gradle/
+/.idea/
+/build/
+/classes/
 *.iml
 *.js
 *.js.map
+.DS_Store
