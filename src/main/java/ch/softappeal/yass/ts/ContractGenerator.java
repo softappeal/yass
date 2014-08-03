@@ -22,7 +22,6 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.SortedMap;
 import java.util.stream.Collectors;
@@ -281,12 +280,11 @@ public final class ContractGenerator extends Generator {
     this.rootPackage = rootPackage.getName() + '.';
     this.methodMapperFactory = Check.notNull(methodMapperFactory);
     id2typeHandler = serializer.id2typeHandler();
-    for (final Map.Entry<Integer, TypeHandler> entry : id2typeHandler.entrySet()) {
-      final int id = entry.getKey();
+    id2typeHandler.forEach((id, typeHandler) -> {
       if (id >= JsFastSerializer.FIRST_ID) {
-        type2id.put(entry.getValue().type, id);
+        type2id.put(typeHandler.type, id);
       }
-    }
+    });
     tabsln("/// <reference path='%s'/>", Check.notNull(baseTypesModulePath));
     println();
     tabsln("module %s {", Check.notNull(contractModuleName));
@@ -294,19 +292,8 @@ public final class ContractGenerator extends Generator {
     inc();
     tabsln("export var GENERATED_BY_YASS_VERSION = '%s';", Version.VALUE);
     println();
-    for (final Map.Entry<Integer, TypeHandler> entry : id2typeHandler.entrySet()) {
-      final Class<?> type = entry.getValue().type;
-      if (type.isEnum()) {
-        generateEnum((Class<Enum<?>>)type);
-      }
-    }
-    for (final Map.Entry<Integer, TypeHandler> entry : id2typeHandler.entrySet()) {
-      final TypeHandler typeHandler = entry.getValue();
-      final Class<?> type = typeHandler.type;
-      if (typeHandler instanceof ClassTypeHandler) {
-        generateClass(type);
-      }
-    }
+    id2typeHandler.values().stream().map(typeHandler -> typeHandler.type).filter(Class::isEnum).forEach(type -> generateEnum((Class<Enum<?>>)type));
+    id2typeHandler.values().stream().filter(typeHandler -> typeHandler instanceof ClassTypeHandler).forEach(typeHandler -> generateClass(typeHandler.type));
     final Class<?> clientServices = Class.forName(this.rootPackage + CLIENT_SERVICES);
     final Class<?> serverServices = Class.forName(this.rootPackage + SERVER_SERVICES);
     final Set<Class<?>> interfaceSet = getInterfaces(clientServices);

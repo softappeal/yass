@@ -180,11 +180,10 @@ public final class Compiler {
     final ClassLoaderImpl classLoader = new ClassLoaderImpl(parentClassLoader);
     final FileManagerImpl javaFileManager = new FileManagerImpl(compiler.getStandardFileManager(diagnostics, null, null), classLoader);
     final List<JavaFileObject> sources = new ArrayList<>();
-    classes.entrySet().forEach(entry -> {
-      final String qualifiedClassName = entry.getKey();
+    classes.forEach((qualifiedClassName, code) -> {
       final int dotPos = qualifiedClassName.lastIndexOf('.');
       final String className = (dotPos == -1) ? qualifiedClassName : qualifiedClassName.substring(dotPos + 1);
-      final JavaFileObjectImpl source = new JavaFileObjectImpl(className, entry.getValue());
+      final JavaFileObjectImpl source = new JavaFileObjectImpl(className, code);
       sources.add(source);
       javaFileManager.putFileForInput(StandardLocation.SOURCE_PATH, (dotPos == -1) ? "" : qualifiedClassName.substring(0, dotPos), className + JAVA_EXT, source);
     });
