@@ -158,8 +158,8 @@ module yass {
   }
 
   export interface TypeHandler<T> {
-    write(value: T, writer: Writer): void;
     read (reader: Reader, id2typeHandler?: TypeHandler<any>[]): T;
+    write(value: T, writer: Writer): void;
   }
 
   export class TypeDesc {
@@ -183,7 +183,7 @@ module yass {
   var NULL_DESC = new TypeDesc(0, new NullTypeHandler);
 
   class ListTypeHandler implements TypeHandler<any[]> {
-    read(reader: Reader, id2typeHandler?: TypeHandler<any>[]): any[] {
+    read(reader: Reader, id2typeHandler: TypeHandler<any>[]): any[] {
       var list: any[] = [];
       for (var size = reader.readVarInt(); size > 0; size--) {
         list.push(read(reader, id2typeHandler));
@@ -305,7 +305,7 @@ module yass {
     addField(id: number, handler: FieldHandler): void {
       this.fieldId2handler[id] = handler;
     }
-    read(reader: Reader, id2typeHandler?: TypeHandler<any>[]): any {
+    read(reader: Reader, id2typeHandler: TypeHandler<any>[]): any {
       var object = new this.Constructor;
       while (true) {
         var id = reader.readVarInt();
@@ -465,7 +465,7 @@ module yass {
 
   export class MethodMapper<C> {
     private id2mapping: MethodMapping[] = [];
-    private name2Mapping: any = {};
+    private name2Mapping: {[methodName: string]: MethodMapping} = {};
     constructor(...mappings: MethodMapping[]) {
       mappings.forEach(mapping => {
         this.id2mapping[mapping.id] = mapping;
