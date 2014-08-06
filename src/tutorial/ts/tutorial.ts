@@ -92,7 +92,7 @@ module tutorial {
           result();
           log("callback: subscribe");
         } catch (e) {
-          log("callback: subscribe with exception", e)
+          log("callback: subscribe with exception", e);
         }
       });
     }
