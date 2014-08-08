@@ -624,21 +624,10 @@ module yass {
   }
 
   export class MockInvokerFactory extends Client {
-    constructor(server: Server, serializer: Serializer) {
-      serializer = new MessageSerializer(serializer);
-      function copy(value: any): any {
-        var writer = new Writer(1024);
-        serializer.write(value, writer);
-        var reader = new Reader(writer.getArray());
-        value = serializer.read(reader);
-        if (!reader.isEmpty()) {
-          throw new Error("reader is not empty");
-        }
-        return value;
-      }
+    constructor(server: Server) {
       super(function (invocation: (tunnel: Tunnel) => any): any {
         return invocation(function (request: Request, promise: Promise<any>): any {
-          var reply = copy(server(copy(request)).invoke());
+          var reply = server(request).invoke();
           if (promise) {
             promise.settle(() => reply.process());
           }

@@ -74,8 +74,7 @@ module tutorial {
     yass.server(
       new yass.Service(contract.ClientServices.PriceListener, PRICE_LISTENER, serverLogger),
       new yass.Service(contract.ClientServices.EchoService, ECHO_SERVICE, serverLogger)
-    ),
-    contract.SERIALIZER
+    )
   ));
 
   function subscribePrices(invokerFactory: yass.InvokerFactory): void {
