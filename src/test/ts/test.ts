@@ -331,7 +331,7 @@ module remoteSerializerTest {
 module interceptorTest {
 
   function i(id: number): yass.Interceptor {
-    return function (method: string, parameters: any[], proceed: () => any): any {
+    return (style, method, parameters, proceed) => {
       log("id", id);
       parameters[0] = (parameters[0] * 10) + id;
       return proceed();
@@ -340,7 +340,7 @@ module interceptorTest {
 
   function invoke(...interceptors: yass.Interceptor[]): number {
     var parameters = [0];
-    yass.composite.apply(null, interceptors)(null, parameters, () => "fkjskfjksjfl");
+    yass.composite.apply(null, interceptors)(null, null, parameters, () => "fkjskfjksjfl");
     return parameters[0];
   }
 
@@ -359,19 +359,19 @@ module interceptorTest {
 
 module promiseTest {
 
-  var promise = new yass.Promise<string>();
+  var promise = new yass.Promise<string>(yass.DIRECT, null, null);
   promise.then(result => log(result()));
-  promise.settle(() => "hello")
+  promise.settle(() => "hello");
 
-  var promise = new yass.Promise<string>();
-  promise.settle(() => "world")
+  var promise = new yass.Promise<string>(yass.DIRECT, null, null);
+  promise.settle(() => "world");
   promise.then(result => log(result()));
 
   assertThrown(() => promise.then(result => 123));
 
-  assertThrown(() => new yass.Promise<string>().then(null));
+  assertThrown(() => new yass.Promise<string>(yass.DIRECT, null, null).then(null));
 
-  promise = new yass.Promise<string>();
+  promise = new yass.Promise<string>(yass.DIRECT, null, null);
   promise.settle(function (): string {
     throw new Error("settle");
   });

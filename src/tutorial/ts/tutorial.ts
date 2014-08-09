@@ -9,9 +9,9 @@ module tutorial {
   log("running tutorial ...");
 
   function logger(type: string): yass.Interceptor {
-    return function (method: string, parameters: any[], proceed: () => any): any {
+    return (style, method, parameters, proceed) => {
       function doLog(kind: string, data: any): void {
-        log("logger:", type, kind, method, data);
+        log("logger:", type, kind, yass.InvokeStyle[style], method, data);
       }
       doLog("entry", parameters);
       try {
@@ -58,16 +58,16 @@ module tutorial {
     // rpc-style method calls
     var promiseValue = echoService.echo("hello");
     var promiseException = echoService.echo("throw");
-    var callback = (result: any) => {
+    var settled: yass.Settled<any> = result => {
       try {
         log("promiseValue:", result()); // calling result() returns the function result or throws its exception
       } catch (e) {
         log("promiseException:", e);
       }
     };
-    // executes callback on result received
-    promiseValue.then(callback);
-    promiseException.then(callback);
+    // executes settled on result received
+    promiseValue.then(settled);
+    promiseException.then(settled);
   }
 
   simulateServerCallingClient(new yass.MockInvokerFactory(

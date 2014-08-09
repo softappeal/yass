@@ -372,17 +372,28 @@ module yass {
     return new TypeDesc(id, new EnumTypeHandler(values));
   }
 
-  export interface Interceptor {
-    (method: string, parameters: any[], proceed: () => any): any;
+  export interface Invocation {
+    (): any;
   }
 
-  export var DIRECT: Interceptor = (method: string, parameters: any[], proceed: () => any): any => proceed();
+  /**
+   * An invocation has a promise if and only if it is a client side rpc style invocation.
+   * If an invocation has a promise, the interceptor will be called twice (first with PromiseEntry and then with PromiseExit).
+   * If an invocation doesn't have a promise, the interceptor will be called once (with NoPromise).
+   */
+  export enum InvokeStyle { NoPromise, PromiseEntry, PromiseExit }
+
+  export interface Interceptor {
+    (style: InvokeStyle, method: string, parameters: any[], proceed: Invocation): any;
+  }
+
+  export var DIRECT: Interceptor = (style, method, parameters, proceed) => proceed();
 
   export function composite(...interceptors: Interceptor[]): Interceptor {
     function composite2(interceptor1: Interceptor, interceptor2: Interceptor): Interceptor {
-      return function (method: string, parameters: any[], proceed: () => any): any {
-        return interceptor1(method, parameters, () => interceptor2(method, parameters, proceed));
-      };
+      return (style, method, parameters, proceed) => interceptor1(
+        style, method, parameters, () => interceptor2(style, method, parameters, proceed)
+      );
     }
     var i1 = DIRECT;
     for (var i = 0; i < interceptors.length; i++) {
@@ -480,35 +491,8 @@ module yass {
     }
     proxy(interceptor: (method: string, parameters: any[]) => any): C {
       var stub: any = {};
-      var delegate = (method: string): void => {
-        stub[method] = (...parameters: any[]) => interceptor(method, parameters);
-      };
-      Object.keys(this.name2Mapping).forEach(method => delegate(method));
+      Object.keys(this.name2Mapping).forEach(method => stub[method] = (...parameters: any[]) => interceptor(method, parameters));
       return stub;
-    }
-  }
-
-  export class Promise<R> {
-    private callback: (result: () => R) => void = null;
-    private result: () => R = null;
-    then(callback: (result: () => R) => void): void {
-      if (this.callback) {
-        throw new Error("method 'then' already called");
-      }
-      if (typeof(callback) !== "function") {
-        throw new Error("parameter 'callback' is not a function");
-      }
-      this.callback = callback;
-      if (this.result) {
-        callback(this.result);
-      }
-    }
-    settle(result: () => R): void {
-      if (this.callback) {
-        this.callback(result);
-      } else {
-        this.result = result;
-      }
     }
   }
 
@@ -541,7 +525,7 @@ module yass {
       };
       var value: Reply;
       try {
-        value = this.interceptor(method, parameters, proceed);
+        value = this.interceptor(InvokeStyle.NoPromise, method, parameters, proceed);
       } catch (exception) {
         return new ExceptionReply(exception);
       }
@@ -592,30 +576,72 @@ module yass {
     invoker<PC>(contractId: ContractId<any, PC>): Invoker<PC>;
   }
 
+  export interface Result<R> {
+    (): R
+  }
+
+  export interface Settled<R> {
+    (result: Result<R>): void
+  }
+
+  export class Promise<R> {
+    private settled: Settled<R> = null;
+    private result: Result<R> = null;
+    constructor(private interceptor: Interceptor, private method: string, private parameters: any[]) {
+      // empty
+    }
+    private doSettled(result: Result<R>): void {
+      try {
+        this.interceptor(InvokeStyle.PromiseExit, this.method, this.parameters, result);
+      } catch (ignore) {
+        // empty
+      }
+      this.settled(result);
+    }
+    then(settled: Settled<R>): void {
+      if (this.settled) {
+        throw new Error("method 'then' already called");
+      }
+      if (typeof(settled) !== "function") {
+        throw new Error("parameter 'callback' is not a function");
+      }
+      this.settled = settled;
+      if (this.result) {
+        this.doSettled(this.result);
+      }
+    }
+    settle(result: Result<R>): void {
+      if (this.settled) {
+        this.doSettled(result);
+      } else {
+        this.result = result;
+      }
+    }
+  }
+
   export interface Tunnel {
     (request: Request, promise: Promise<any>): void;
   }
 
-  export interface ClientInvoker {
-    (invocation: (tunnel: Tunnel) => any): any
+  export interface ClientInvocation {
+   (tunnel: Tunnel): Promise<any>
   }
 
   export class Client implements InvokerFactory {
-    constructor(private clientInvoker: ClientInvoker) {
+    constructor(private clientInvoker: (invocation: ClientInvocation) => Promise<any>) {
       // empty
     }
     invoker<C, PC>(contractId: ContractId<C, PC>): Invoker<PC> {
       return (...interceptors: Interceptor[]): PC => {
         var interceptor = composite.apply(null, interceptors);
-        return <any>contractId.methodMapper.proxy((method: string, parameters: any[]): any => {
+        return <any>contractId.methodMapper.proxy((method, parameters) => {
           var methodMapping = contractId.methodMapper.mapMethod(method);
-          return this.clientInvoker(function (tunnel: Tunnel): Promise<any> {
-            var promise = methodMapping.oneWay ? null : new Promise<any>();
-            interceptor(
-              methodMapping.method,
-              parameters,
-              () => tunnel(new Request(contractId.id, methodMapping.id, parameters), promise)
-            );
+          return this.clientInvoker(tunnel => {
+            var promise = methodMapping.oneWay ? null : new Promise<any>(interceptor, method, parameters);
+            interceptor(methodMapping.oneWay ? InvokeStyle.NoPromise : InvokeStyle.PromiseEntry, method, parameters, (): any => {
+              tunnel(new Request(contractId.id, methodMapping.id, parameters), promise);
+              return null;
+            });
             return promise;
           });
         });
@@ -625,15 +651,12 @@ module yass {
 
   export class MockInvokerFactory extends Client {
     constructor(server: Server) {
-      super(function (invocation: (tunnel: Tunnel) => any): any {
-        return invocation(function (request: Request, promise: Promise<any>): any {
-          var reply = server(request).invoke();
-          if (promise) {
-            promise.settle(() => reply.process());
-          }
-          return null;
-        });
-      });
+      super(invocation => invocation((request, promise) => {
+        var reply = server(request).invoke();
+        if (promise) {
+          promise.settle(() => reply.process());
+        }
+      }));
     }
   }
 
@@ -690,8 +713,8 @@ module yass {
     private requestNumber2promise: Promise<any>[] = [];
     private session: Session = null;
     constructor(private server: Server, sessionFactory: SessionFactory, private connection: Connection) {
-      super(function (invocation: (tunnel: Tunnel) => any): any {
-        return invocation((request: Request, promise: Promise<any>): any => {
+      super(function (invocation: ClientInvocation) {
+        return invocation((request, promise) => {
           if (!this.session) {
             throw new Error("session is not yet opened");
           }
@@ -706,7 +729,6 @@ module yass {
             }
             this.requestNumber2promise[this.requestNumber] = promise;
           }
-          return null;
         });
       });
       this.session = sessionFactory(this);
