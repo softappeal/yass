@@ -624,7 +624,7 @@ module yass {
   }
 
   export interface ClientInvocation {
-   (tunnel: Tunnel): Promise<any>
+    (tunnel: Tunnel): Promise<any>
   }
 
   export class Client implements InvokerFactory {
