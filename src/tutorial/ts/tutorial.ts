@@ -45,7 +45,7 @@ module tutorial {
     }
   }
   var ECHO_SERVICE = new EchoServiceImpl;
-  log(ECHO_SERVICE.echo("echo"));
+  log(ECHO_SERVICE.echo("echo called"));
 
   function simulateServerCallingClient(invokerFactory: yass.InvokerFactory): void {
     var priceListener = invokerFactory.invoker(contract.ClientServices.PriceListener)(clientLogger);
@@ -55,19 +55,15 @@ module tutorial {
     price.type = contract.PriceType.ASK;
     price.value = 999;
     priceListener.newPrices([price, price]); // oneway method call
-    // rpc-style method calls
-    var promiseValue = echoService.echo("hello");
-    var promiseException = echoService.echo("throw");
-    var settled: yass.Settled<any> = result => {
-      try {
-        log("promiseValue:", result()); // calling result() returns the function result or throws its exception
-      } catch (e) {
-        log("promiseException:", e);
-      }
+    // rpc style method calls
+    var succeeded: yass.Succeeded<string> = result => {
+      log("echo succeeded with", result);
     };
-    // executes settled on result received
-    promiseValue.then(settled);
-    promiseException.then(settled);
+    var failed: yass.Failed = exception => {
+      log("echo failed with", exception);
+    };
+    echoService.echo("hello").then(succeeded, failed);
+    echoService.echo("throw").then(succeeded, failed);
   }
 
   simulateServerCallingClient(new yass.MockInvokerFactory(
@@ -86,19 +82,16 @@ module tutorial {
     var priceEngine = priceEngineInvoker(clientLogger);
     instrumentService.reload(true, 987654); // shows oneway method call
     function subscribe(instrumentIds: string[]): void {
-      priceEngine.subscribe(instrumentIds).then(result => {
-        try {
-          result();
-          log("callback: subscribe");
-        } catch (e) {
-          log("callback: subscribe with exception", e);
+      priceEngine.subscribe(instrumentIds).then( // shows rpc style method call
+        result => { // called if succeeded
+          log("subscribe succeeded"); // result not used here because it's void
+        },
+        exception => { // called if failed
+          log("subscribe failed with", exception);
         }
-      });
+      );
     }
-    instrumentService.getInstruments().then(result => {
-      var instruments = result();
-      subscribe(instruments.map(instrument => instrument.id));
-    });
+    instrumentService.getInstruments().then(i => subscribe(i.map(i => i.id)), yass.RETHROW);
     subscribe(["unknownId"]); // shows exceptions
   }
 

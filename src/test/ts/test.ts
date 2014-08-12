@@ -275,35 +275,27 @@ module remoteSerializerTest {
       opened: function () {
         log("session opened");
         var echoService = sessionInvokerFactory.invoker(contract.ServerServices.EchoService)();
-        echoService.echo(12345678).then(result => {
-          assert(result() === 12345678);
-        });
-        echoService.echo(-87654321).then(result => {
-          assert(result() === -87654321);
-        });
-        echoService.echo(new contract.instrument.stock.JsDouble(123.456e98)).then(result => {
-          assert((<contract.instrument.stock.JsDouble>result()).d === 123.456e98);
-        });
-        echoService.echo(new contract.instrument.stock.JsDouble(-9.384762637432E-12)).then(result => {
-          assert((<contract.instrument.stock.JsDouble>result()).d === -9.384762637432E-12);
-        });
+        echoService.echo(12345678).then(result =>  assert(result === 12345678), yass.RETHROW);
+        echoService.echo(-87654321).then(result  => assert(result === -87654321), yass.RETHROW);
+        echoService.echo(new contract.instrument.stock.JsDouble(123.456e98)).then(result => assert((<contract.instrument.stock.JsDouble>result).d === 123.456e98), yass.RETHROW);
+        echoService.echo(new contract.instrument.stock.JsDouble(-9.384762637432E-12)).then(result => assert((<contract.instrument.stock.JsDouble>result).d === -9.384762637432E-12), yass.RETHROW);
         echoService.echo(new contract.Expiration(9, 8, 7)).then(result => {
-          var expiration = <contract.Expiration>result();
+          var expiration = <contract.Expiration>result;
           assert(expiration.year === 9);
           assert(expiration.month === 8);
           assert(expiration.day === 7);
-        });
+        }, yass.RETHROW);
         var writer = new yass.Writer(1);
         writer.writeByte(123);
         writer.writeByte(0);
         writer.writeByte(210);
         echoService.echo(writer.getArray()).then(result => {
-          var reader = new yass.Reader(<Uint8Array>result());
+          var reader = new yass.Reader(<Uint8Array>result);
           assert(reader.readByte() === 123);
           assert(reader.readByte() === 0);
           assert(reader.readByte() === 210);
           assert(reader.isEmpty());
-        });
+        }, yass.RETHROW);
         setTimeout(() => sessionInvokerFactory.close(), 5000);
       },
       closed: function (exception) {
@@ -359,23 +351,38 @@ module interceptorTest {
 
 module promiseTest {
 
-  var promise = new yass.Promise<string>(yass.DIRECT, null, null);
-  promise.then(result => log(result()));
-  promise.settle(() => "hello");
+  var logger: yass.Interceptor = (style, method, parameters, proceed) => {
+    function doLog(kind: string, data: any): void {
+      log("logger:", kind, yass.InvokeStyle[style], method, data);
+    }
+    doLog("entry", parameters);
+    try {
+      var result = proceed();
+      doLog("exit", result);
+      return result;
+    } catch (e) {
+      doLog("exception", e);
+      throw e;
+    }
+  };
 
-  var promise = new yass.Promise<string>(yass.DIRECT, null, null);
-  promise.settle(() => "world");
-  promise.then(result => log(result()));
+  var promise = new yass.Promise<string>(logger, "test", [123]);
+  promise.then(result => log("promise", result), yass.RETHROW);
+  log("before settle");
+  promise.settle({ process: () => "hello" });
 
-  assertThrown(() => promise.then(result => 123));
+  promise = new yass.Promise<string>(logger, "test", [123]);
+  promise.settle({ process: () => "world" });
+  log("before then");
+  promise.then(result => log("promise", result), yass.RETHROW);
 
-  assertThrown(() => new yass.Promise<string>(yass.DIRECT, null, null).then(null));
-
-  promise = new yass.Promise<string>(yass.DIRECT, null, null);
-  promise.settle(function (): string {
-    throw new Error("settle");
-  });
-  assertThrown(() => promise.then(result => result()));
+  promise = new yass.Promise<string>(logger, "test", [123]);
+  promise.settle({ process: () => { throw "settle"; } });
+  log("before then");
+  promise.then(
+    result => { throw "error"; },
+    exception => log("exception", exception)
+  );
 
   log("promiseTest done");
 

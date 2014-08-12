@@ -384,6 +384,9 @@ module yass {
   export enum InvokeStyle { NoPromise, PromiseEntry, PromiseExit }
 
   export interface Interceptor {
+    /**
+     * @return proceed()
+     */
     (style: InvokeStyle, method: string, parameters: any[], proceed: Invocation): any;
   }
 
@@ -576,45 +579,53 @@ module yass {
     invoker<PC>(contractId: ContractId<any, PC>): Invoker<PC>;
   }
 
-  export interface Result<R> {
-    (): R
+  export interface Succeeded<R> {
+    (result: R): void;
   }
 
-  export interface Settled<R> {
-    (result: Result<R>): void
+  export interface Failed {
+    (exception: any): void;
   }
+
+  export var RETHROW: Failed = exception => {
+    throw exception;
+  };
 
   export class Promise<R> {
-    private settled: Settled<R> = null;
-    private result: Result<R> = null;
+    private succeeded: Succeeded<R> = null;
+    private failed: Failed = null;
+    private reply: Reply = null;
     constructor(private interceptor: Interceptor, private method: string, private parameters: any[]) {
       // empty
     }
-    private doSettled(result: Result<R>): void {
+    private settled(): void {
       try {
-        this.interceptor(InvokeStyle.PromiseExit, this.method, this.parameters, result);
+        this.interceptor(InvokeStyle.PromiseExit, this.method, this.parameters, () => this.reply.process());
       } catch (ignore) {
         // empty
       }
-      this.settled(result);
-    }
-    then(settled: Settled<R>): void {
-      if (this.settled) {
-        throw new Error("method 'then' already called");
-      }
-      if (typeof(settled) !== "function") {
-        throw new Error("parameter 'callback' is not a function");
-      }
-      this.settled = settled;
-      if (this.result) {
-        this.doSettled(this.result);
+      try {
+        this.succeeded(this.reply.process());
+      } catch (exception) {
+        this.failed(exception);
       }
     }
-    settle(result: Result<R>): void {
-      if (this.settled) {
-        this.doSettled(result);
-      } else {
-        this.result = result;
+    /**
+     * Must be called exactly once.
+     * @param succeeded called with the result if invocation succeeded
+     * @param failed called with the exception if invocation failed
+     */
+    then(succeeded: Succeeded<R>, failed: Failed): void {
+      this.succeeded = succeeded;
+      this.failed = failed;
+      if (this.reply) {
+        this.settled();
+      }
+    }
+    settle(reply: Reply): void {
+      this.reply = reply;
+      if (this.succeeded) {
+        this.settled();
       }
     }
   }
@@ -654,7 +665,7 @@ module yass {
       super(invocation => invocation((request, promise) => {
         var reply = server(request).invoke();
         if (promise) {
-          promise.settle(() => reply.process());
+          promise.settle(reply);
         }
       }));
     }
@@ -695,6 +706,9 @@ module yass {
 
   export interface Session {
     opened(): void;
+    /**
+     * @param exception null if regular close else reason for close
+     */
     closed(exception: any): void;
   }
 
@@ -779,7 +793,7 @@ module yass {
         } else { // Reply
           var promise = this.requestNumber2promise[packet.requestNumber];
           delete this.requestNumber2promise[packet.requestNumber];
-          promise.settle(() => (<Reply>packet.message).process());
+          promise.settle(<Reply>packet.message);
         }
       } catch (exception) {
         this.doClose(exception);
