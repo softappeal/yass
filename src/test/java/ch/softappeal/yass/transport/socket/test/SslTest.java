@@ -33,7 +33,9 @@ public class SslTest extends InvokeTest {
     Assert.assertEquals("CN=Test", ((SSLSocket)((SocketConnection)sessionClient.connection).socket).getSession().getPeerPrincipal().getName());
   }
 
-  private static void test(final ServerSocketFactory serverSocketFactory, final SocketFactory socketFactory) throws Exception {
+  private static void test(
+    final ServerSocketFactory serverSocketFactory, final SocketFactory socketFactory, final boolean needClientAuth
+  ) throws Exception {
     final ExecutorService executor = Executors.newCachedThreadPool(new NamedThreadFactory("executor", Exceptions.STD_ERR));
     try {
       SocketTransport.listener(
@@ -49,7 +51,9 @@ public class SslTest extends InvokeTest {
             SocketPerformanceTest.PACKET_SERIALIZER
           ) {
             @Override public Session createSession(final SessionClient sessionClient) throws Exception {
-              checkName(sessionClient);
+              if (needClientAuth) {
+                checkName(sessionClient);
+              }
               return new Session(sessionClient) {
                 @Override protected void closed(final Throwable throwable) {
                   if (throwable != null) {
@@ -107,27 +111,35 @@ public class SslTest extends InvokeTest {
   private static final String PROTOCOL = "TLSv1.2";
   private static final String CIPHER = "TLS_RSA_WITH_AES_128_CBC_SHA";
 
+  @Test public void onlyServerAuthentication() throws Exception {
+    test(
+      new SslSetup(PROTOCOL, CIPHER, TEST, PASSWORD, null).serverSocketFactory,
+      new SslSetup(PROTOCOL, CIPHER, null, null, TEST_CA).socketFactory,
+      false
+    );
+  }
+
   @Test public void clientAndServerAuthentication() throws Exception {
-    System.setProperty("javax.net.debug", "ssl");
     test(
       new SslSetup(PROTOCOL, CIPHER, TEST, PASSWORD, TEST_CA).serverSocketFactory,
-      new SslSetup(PROTOCOL, CIPHER, TEST, PASSWORD, TEST_CA).socketFactory
+      new SslSetup(PROTOCOL, CIPHER, TEST, PASSWORD, TEST_CA).socketFactory,
+      true
     );
   }
 
   @Test public void wrongServerCA() throws Exception {
-    System.setProperty("javax.net.debug", "ssl");
     test(
       new SslSetup(PROTOCOL, CIPHER, TEST, PASSWORD, OTHER_CA).serverSocketFactory,
-      new SslSetup(PROTOCOL, CIPHER, TEST, PASSWORD, TEST_CA).socketFactory
+      new SslSetup(PROTOCOL, CIPHER, TEST, PASSWORD, TEST_CA).socketFactory,
+      true
     );
   }
 
   @Test public void expiredServerCertificate() throws Exception {
-    System.setProperty("javax.net.debug", "ssl");
     test(
       new SslSetup(PROTOCOL, CIPHER, TEST, PASSWORD, TEST_CA).serverSocketFactory,
-      new SslSetup(PROTOCOL, CIPHER, TEST_EXPIRED, PASSWORD, TEST_CA).socketFactory
+      new SslSetup(PROTOCOL, CIPHER, TEST_EXPIRED, PASSWORD, TEST_CA).socketFactory,
+      true
     );
   }
 
