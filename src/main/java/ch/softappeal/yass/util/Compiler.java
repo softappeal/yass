@@ -11,13 +11,16 @@ import javax.tools.StandardLocation;
 import javax.tools.ToolProvider;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
+import java.io.RandomAccessFile;
 import java.io.StringWriter;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -33,7 +36,7 @@ public final class Compiler {
     // disable
   }
 
-  private static final String JAVA_EXT = ".java";
+  public static final String JAVA_EXT = ".java";
   private static final String CLASS_EXT = ".class";
 
   private static URI toURI(final String name) {
@@ -194,6 +197,15 @@ public final class Compiler {
       throw new RuntimeException(toString("Compilation warnings.", diagnostics));
     }
     return classLoader;
+  }
+
+
+  public static String readFile(final File source, final Charset charset) throws IOException {
+    try (RandomAccessFile file = new RandomAccessFile(source, "r")) {
+      final byte[] bytes = new byte[(int)file.length()];
+      file.read(bytes);
+      return new String(bytes, charset);
+    }
   }
 
 
