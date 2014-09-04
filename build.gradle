@@ -19,15 +19,17 @@ sourceSets {
   tutorial { java.srcDir file('src/tutorial/java') }
 }
 
+def websocket_dep = 'javax.websocket:javax.websocket-api:1.0'
 def jetty_dep = 'org.eclipse.jetty.websocket:javax-websocket-server-impl:9.2.2.v20140723'
-def undertow_dep = 'io.undertow:undertow-websockets-jsr:1.1.0.Beta6'
+def undertow_dep = 'io.undertow:undertow-websockets-jsr:1.0.15.Final'
+def junit_dep = 'junit:junit:4.11'
 
 dependencies {
-  compile 'javax.websocket:javax.websocket-api:1.0'
+  compile websocket_dep
   tutorialCompile sourceSets.main.output
   tutorialCompile jetty_dep
   tutorialCompile undertow_dep
-  testCompile 'junit:junit:4.11'
+  testCompile junit_dep
   testCompile jetty_dep
   testCompile undertow_dep
 }
