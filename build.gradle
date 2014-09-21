@@ -20,8 +20,8 @@ sourceSets {
 }
 
 def websocket_dep = 'javax.websocket:javax.websocket-api:1.0'
-def jetty_dep = 'org.eclipse.jetty.websocket:javax-websocket-server-impl:9.2.2.v20140723'
-def undertow_dep = 'io.undertow:undertow-websockets-jsr:1.0.15.Final'
+def jetty_dep = 'org.eclipse.jetty.websocket:javax-websocket-server-impl:9.2.3.v20140905'
+def undertow_dep = 'io.undertow:undertow-websockets-jsr:1.0.16.Final'
 def junit_dep = 'junit:junit:4.11'
 
 dependencies {
