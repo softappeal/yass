@@ -1,16 +1,11 @@
 package ch.softappeal.yass.tutorial.server;
 
-import io.undertow.Handlers;
 import io.undertow.Undertow;
-import io.undertow.server.HttpHandler;
-import io.undertow.server.handlers.resource.FileResourceManager;
 import io.undertow.servlet.Servlets;
 import io.undertow.servlet.api.DeploymentManager;
 import io.undertow.websockets.jsr.WebSocketDeploymentInfo;
 import org.xnio.OptionMap;
 import org.xnio.Xnio;
-
-import java.io.File;
 
 public final class UndertowServer extends WsServerSetup {
 
@@ -29,17 +24,9 @@ public final class UndertowServer extends WsServerSetup {
           )
       );
     deployment.deploy();
-    final HttpHandler webSocketHandler = deployment.start();
-    final HttpHandler fileHandler = Handlers.resource(new FileResourceManager(new File("."), 100));
     Undertow.builder()
       .addHttpListener(PORT, HOST)
-      .setHandler(exchange -> {
-        if (PATH.equals(exchange.getRequestPath())) {
-          webSocketHandler.handleRequest(exchange);
-        } else {
-          fileHandler.handleRequest(exchange);
-        }
-      })
+      .setHandler(deployment.start())
       .build()
       .start();
     System.out.println("started");
