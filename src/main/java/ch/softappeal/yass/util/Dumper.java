@@ -48,7 +48,7 @@ public final class Dumper {
 
     private final StringBuilder out;
 
-    private Dump(final StringBuilder out) {
+    Dump(final StringBuilder out) {
       this.out = Check.notNull(out);
     }
 
@@ -176,6 +176,7 @@ public final class Dumper {
         dumpClass(type, value);
       }
     }
+
   }
 
 }

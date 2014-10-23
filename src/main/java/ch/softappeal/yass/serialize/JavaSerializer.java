@@ -28,6 +28,6 @@ public final class JavaSerializer implements Serializer {
     }
   }
 
-  public static final JavaSerializer INSTANCE = new JavaSerializer();
+  public static final Serializer INSTANCE = new JavaSerializer();
 
 }

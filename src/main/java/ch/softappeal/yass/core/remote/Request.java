@@ -3,9 +3,6 @@ package ch.softappeal.yass.core.remote;
 import ch.softappeal.yass.util.Check;
 import ch.softappeal.yass.util.Nullable;
 
-/**
- * A remote request.
- */
 public final class Request extends Message {
 
   private static final long serialVersionUID = 1L;

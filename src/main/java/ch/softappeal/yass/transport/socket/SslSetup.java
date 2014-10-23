@@ -54,13 +54,13 @@ public final class SslSetup {
     cipherSuites = new String[] {Check.notNull(cipher)};
     try {
       context = SSLContext.getInstance(protocol);
-      boolean needClientAuth = false;
       KeyManager[] keyManagers = new KeyManager[0];
       if (keyStore != null) {
         final KeyManagerFactory keyManagerFactory = KeyManagerFactory.getInstance(keyManagerFactoryAlgorithm);
         keyManagerFactory.init(keyStore, keyStorePwd);
         keyManagers = keyManagerFactory.getKeyManagers();
       }
+      boolean needClientAuth = false;
       TrustManager[] trustManagers = new TrustManager[0];
       if (trustStore != null) {
         final TrustManagerFactory trustManagerFactory = TrustManagerFactory.getInstance(trustManagerFactoryAlgorithm);

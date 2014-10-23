@@ -4,7 +4,6 @@ import ch.softappeal.yass.util.Check;
 
 /**
  * Combines a contract with an id.
- * Factory for {@link Service} and {@link Invoker}.
  * @param <C> the contract type
  */
 public final class ContractId<C> {

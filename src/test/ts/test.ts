@@ -39,11 +39,14 @@ try {
   log(e);
 }
 
-function writer2reader(writer: yass.Writer): yass.Reader {
-  var byteArray = writer.getArray();
+function toArrayBuffer(byteArray: Uint8Array): ArrayBuffer {
   var arrayBuffer = new ArrayBuffer(byteArray.length);
   new Uint8Array(arrayBuffer).set(byteArray);
-  return new yass.Reader(arrayBuffer);
+  return arrayBuffer;
+}
+
+function writer2reader(writer: yass.Writer): yass.Reader {
+  return new yass.Reader(toArrayBuffer(writer.getArray()));
 }
 
 module ioTest {
@@ -241,7 +244,7 @@ module localSerializerTest {
   e = copy(e);
   assert(compare(e.instrumentIds, ["a", "b"]));
   assert(e.comment.coupon.d === 3.5);
-  assert(new yass.Reader(e.dump).isEmpty());
+  assert(new yass.Reader(toArrayBuffer(e.dump)).isEmpty());
 
   var price = new contract.Price;
   price.instrumentId = "123";
@@ -290,7 +293,7 @@ module remoteSerializerTest {
         writer.writeByte(0);
         writer.writeByte(210);
         echoService.echo(writer.getArray()).then(result => {
-          var reader = new yass.Reader(<Uint8Array>result);
+          var reader = new yass.Reader(toArrayBuffer(result));
           assert(reader.readByte() === 123);
           assert(reader.readByte() === 0);
           assert(reader.readByte() === 210);

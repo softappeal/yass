@@ -6,15 +6,25 @@ import ch.softappeal.yass.util.Nullable;
 
 import java.io.Serializable;
 
-/**
- * A {@link Message} with a request number.
- */
 public final class Packet implements Serializable {
 
   private static final long serialVersionUID = 1L;
 
   private final int requestNumber;
   @Nullable private final Message message;
+
+  /**
+   * @param requestNumber must not be {@link #END_REQUEST_NUMBER}; use {@link #END} instead
+   */
+  public Packet(final int requestNumber, final Message message) {
+    if (requestNumber == END_REQUEST_NUMBER) {
+      throw new IllegalArgumentException("use END");
+    }
+    this.requestNumber = requestNumber;
+    this.message = Check.notNull(message);
+  }
+
+  public static final int END_REQUEST_NUMBER = 0;
 
   public boolean isEnd() {
     return requestNumber == END_REQUEST_NUMBER;
@@ -42,28 +52,15 @@ public final class Packet implements Serializable {
     return message;
   }
 
-  /**
-   * @param requestNumber must not be {@link #END_REQUEST_NUMBER}; use {@link #END} instead
-   */
-  public Packet(final int requestNumber, final Message message) {
-    if (requestNumber == END_REQUEST_NUMBER) {
-      throw new IllegalArgumentException("use END");
-    }
-    this.requestNumber = requestNumber;
-    this.message = Check.notNull(message);
-  }
-
   private Packet() {
     requestNumber = END_REQUEST_NUMBER;
     message = null;
   }
 
+  public static final Packet END = new Packet();
+
   public static boolean isEnd(final int requestNumber) {
     return requestNumber == END_REQUEST_NUMBER;
   }
-
-  public static final Packet END = new Packet();
-
-  public static final int END_REQUEST_NUMBER = 0;
 
 }

@@ -54,7 +54,7 @@ public final class SocketTransport {
         setTcpNoDelay(socket);
         final Reader reader = Reader.create(socket.getInputStream());
         final TransportSetup setup = pathResolver.resolvePath(pathSerializer.read(reader));
-        new SocketConnection(setup, socket, reader, socket.getOutputStream(), writerExecutor);
+        SocketConnection.create(setup, socket, reader, socket.getOutputStream(), writerExecutor);
       }
     };
   }
@@ -97,7 +97,7 @@ public final class SocketTransport {
         final OutputStream outputStream = socket.getOutputStream();
         pathSerializer.write(path, Writer.create(outputStream));
         outputStream.flush();
-        new SocketConnection(setup, socket, Reader.create(socket.getInputStream()), outputStream, writerExecutor);
+        SocketConnection.create(setup, socket, Reader.create(socket.getInputStream()), outputStream, writerExecutor);
       }
     });
   }

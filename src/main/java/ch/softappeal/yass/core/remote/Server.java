@@ -1,97 +1,58 @@
 package ch.softappeal.yass.core.remote;
 
 import ch.softappeal.yass.core.Interceptor;
-import ch.softappeal.yass.core.Invocation;
 import ch.softappeal.yass.util.Nullable;
 
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * Container for {@link Service}.
- */
 public final class Server extends Common {
 
-
-  private final class ServerInvoker {
-
-    private final Interceptor serviceInterceptor;
+  private final class ServiceDesc {
+    final Service service;
     final MethodMapper methodMapper;
-    private final Object implementation;
-
-    ServerInvoker(final Service service) {
-      serviceInterceptor = service.interceptor;
+    ServiceDesc(final Service service) {
+      this.service = service;
       methodMapper = methodMapper(service.contractId.contract);
-      implementation = service.implementation;
     }
-
-    Reply invoke(final Interceptor invocationInterceptor, final Method method, @Nullable final Object[] arguments) {
-      final Invocation invocation = () -> {
-        try {
-          return method.invoke(implementation, arguments);
-        } catch (final InvocationTargetException e) {
-          throw e.getCause();
-        }
-      };
-      final Interceptor interceptor = Interceptor.composite(invocationInterceptor, serviceInterceptor);
-      @Nullable final Object value;
-      try {
-        value = interceptor.invoke(method, arguments, invocation);
-      } catch (final Throwable t) {
-        return new ExceptionReply(t);
-      }
-      return new ValueReply(value);
-    }
-
   }
 
-
-  public static final class ServerInvocation {
-
-    public final boolean oneWay;
-    private final ServerInvoker invoker;
-    private final Request request;
-    private final Method method;
-
-    ServerInvocation(final ServerInvoker invoker, final Request request) {
-      this.invoker = invoker;
-      this.request = request;
-      final MethodMapper.Mapping methodMapping = invoker.methodMapper.mapId(request.methodId);
-      oneWay = methodMapping.oneWay;
-      method = methodMapping.method;
-    }
-
-    /**
-     * @param interceptor prepended to the interceptor chain
-     */
-    public Reply invoke(final Interceptor interceptor) {
-      return invoker.invoke(interceptor, method, request.arguments);
-    }
-
-  }
-
-
-  private final Map<Object, ServerInvoker> serviceId2invoker;
+  private final Map<Object, ServiceDesc> serviceId2serviceDesc;
 
   public Server(final MethodMapper.Factory methodMapperFactory, final Service... services) {
     super(methodMapperFactory);
-    serviceId2invoker = new HashMap<>(services.length);
+    serviceId2serviceDesc = new HashMap<>(services.length);
     for (final Service service : services) {
-      if (serviceId2invoker.put(service.contractId.id, new ServerInvoker(service)) != null) {
+      if (serviceId2serviceDesc.put(service.contractId.id, new ServiceDesc(service)) != null) {
         throw new IllegalArgumentException("serviceId '" + service.contractId.id + "' already added");
       }
     }
   }
 
-  public ServerInvocation invocation(final Request request) {
-    final ServerInvoker invoker = serviceId2invoker.get(request.serviceId);
-    if (invoker == null) {
-      throw new RuntimeException("no serviceId '" + request.serviceId + "' found (methodId '" + request.methodId + "')");
+  public static final class ServerInvocation {
+    public final boolean oneWay;
+    private final Service service;
+    private final Method method;
+    @Nullable private final Object[] arguments;
+    ServerInvocation(final ServiceDesc serviceDesc, final Request request) {
+      final MethodMapper.Mapping methodMapping = serviceDesc.methodMapper.mapId(request.methodId);
+      oneWay = methodMapping.oneWay;
+      service = serviceDesc.service;
+      method = methodMapping.method;
+      arguments = request.arguments;
     }
-    return new ServerInvocation(invoker, request);
+    public Reply invoke(final Interceptor prependInterceptor) {
+      return service.invoke(prependInterceptor, method, arguments);
+    }
   }
 
+  public ServerInvocation invocation(final Request request) {
+    @Nullable final ServiceDesc serviceDesc = serviceId2serviceDesc.get(request.serviceId);
+    if (serviceDesc == null) {
+      throw new RuntimeException("no serviceId '" + request.serviceId + "' found (methodId '" + request.methodId + "')");
+    }
+    return new ServerInvocation(serviceDesc, request);
+  }
 
 }

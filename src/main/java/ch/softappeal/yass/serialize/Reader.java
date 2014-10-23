@@ -142,26 +142,6 @@ public abstract class Reader {
     return (value >>> 1) ^ -(value & 1);
   }
 
-  public final InputStream stream() {
-    return new InputStream() {
-      @Override public int read() {
-        try {
-          return readByte() & 0b1111_1111;
-        } catch (final Exception e) {
-          throw Exceptions.wrap(e);
-        }
-      }
-      @Override public int read(final byte[] b, final int off, final int len) {
-        try {
-          readBytes(b, off, len);
-          return len;
-        } catch (final Exception e) {
-          throw Exceptions.wrap(e);
-        }
-      }
-    };
-  }
-
   //  /**
   //   * Reads an UTF-8 encoded string.
   //   * @param utf8Length the length in bytes of the UTF-8 encoded string to be read
@@ -213,6 +193,26 @@ public abstract class Reader {
   //    }
   //    return new String(chars, 0, charsCount);
   //  }
+
+  public final InputStream stream() {
+    return new InputStream() {
+      @Override public int read() {
+        try {
+          return readByte() & 0b1111_1111;
+        } catch (final Exception e) {
+          throw Exceptions.wrap(e);
+        }
+      }
+      @Override public int read(final byte[] b, final int off, final int len) {
+        try {
+          readBytes(b, off, len);
+          return len;
+        } catch (final Exception e) {
+          throw Exceptions.wrap(e);
+        }
+      }
+    };
+  }
 
   public static Reader create(final InputStream in) {
     Check.notNull(in);

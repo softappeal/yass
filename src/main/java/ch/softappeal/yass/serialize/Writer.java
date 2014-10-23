@@ -3,8 +3,10 @@ package ch.softappeal.yass.serialize;
 import ch.softappeal.yass.util.Check;
 import ch.softappeal.yass.util.Exceptions;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.nio.ByteBuffer;
 
 public abstract class Writer {
 
@@ -182,6 +184,15 @@ public abstract class Writer {
         out.write(buffer, offset, length);
       }
     };
+  }
+
+  public static final class ByteBufferOutputStream extends ByteArrayOutputStream {
+    public ByteBufferOutputStream(final int size) {
+      super(size);
+    }
+    public ByteBuffer toByteBuffer() {
+      return ByteBuffer.wrap(buf, 0, count);
+    }
   }
 
 }

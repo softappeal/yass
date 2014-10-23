@@ -31,7 +31,6 @@ import java.util.Set;
 
 public final class Compiler {
 
-
   private Compiler() {
     // disable
   }
@@ -51,50 +50,37 @@ public final class Compiler {
     return toURI(location.getName() + '/' + packageName + '/' + relativeName);
   }
 
-
   private static final class JavaFileObjectImpl extends SimpleJavaFileObject {
-
     private ByteArrayOutputStream byteCode; // If kind == CLASS, this stores byte code from openOutputStream
     private final CharSequence source; // if kind == SOURCE, this contains the source text
-
     JavaFileObjectImpl(final String baseName, final CharSequence source) {
       super(toURI(baseName + JAVA_EXT), Kind.SOURCE);
       this.source = source;
     }
-
     JavaFileObjectImpl(final String name, final Kind kind) {
       super(toURI(name), kind);
       source = null;
     }
-
     @Override public CharSequence getCharContent(final boolean ignoreEncodingErrors) {
       return source;
     }
-
     @Override public InputStream openInputStream() {
       return new ByteArrayInputStream(getByteCode());
     }
-
     @Override public OutputStream openOutputStream() {
       byteCode = new ByteArrayOutputStream();
       return byteCode;
     }
-
     byte[] getByteCode() {
       return byteCode.toByteArray();
     }
-
   }
 
-
   private static final class ClassLoaderImpl extends ClassLoader {
-
     final Map<String, JavaFileObject> classes = new HashMap<>();
-
     ClassLoaderImpl(final ClassLoader parentClassLoader) {
       super(parentClassLoader);
     }
-
     @Override protected Class<?> findClass(final String qualifiedClassName) throws ClassNotFoundException {
       final JavaFileObject file = classes.get(qualifiedClassName);
       if (file != null) {
@@ -103,7 +89,6 @@ public final class Compiler {
       }
       return super.findClass(qualifiedClassName);
     }
-
     @Override public InputStream getResourceAsStream(final String name) {
       if (name.endsWith(CLASS_EXT)) {
         final JavaFileObjectImpl file = (JavaFileObjectImpl)classes.get(name.substring(0, name.length() - CLASS_EXT.length()).replace('/', '.'));
@@ -113,24 +98,18 @@ public final class Compiler {
       }
       return super.getResourceAsStream(name);
     }
-
   }
 
-
   private static final class FileManagerImpl extends ForwardingJavaFileManager<JavaFileManager> {
-
     private final ClassLoaderImpl classLoader;
     private final Map<URI, JavaFileObject> fileObjects = new HashMap<>();
-
     FileManagerImpl(final JavaFileManager fileManager, final ClassLoaderImpl classLoader) {
       super(fileManager);
       this.classLoader = classLoader;
     }
-
     void putFileForInput(final StandardLocation location, final String packageName, final String relativeName, final JavaFileObject file) {
       fileObjects.put(uri(location, packageName, relativeName), file);
     }
-
     @Override public FileObject getFileForInput(final Location location, final String packageName, final String relativeName) throws IOException {
       final FileObject fileObject = fileObjects.get(uri(location, packageName, relativeName));
       if (fileObject != null) {
@@ -138,21 +117,17 @@ public final class Compiler {
       }
       return super.getFileForInput(location, packageName, relativeName);
     }
-
     @Override public JavaFileObject getJavaFileForOutput(final Location location, final String qualifiedName, final JavaFileObject.Kind kind, final FileObject outputFile) {
       final JavaFileObject file = new JavaFileObjectImpl(qualifiedName, kind);
       classLoader.classes.put(qualifiedName, file);
       return file;
     }
-
     @Override public ClassLoader getClassLoader(final Location location) {
       return classLoader;
     }
-
     @Override public String inferBinaryName(final Location loc, final JavaFileObject file) {
       return (file instanceof JavaFileObjectImpl) ? file.getName() : super.inferBinaryName(loc, file);
     }
-
     @Override public Iterable<JavaFileObject> list(final Location location, final String packageName, final Set<JavaFileObject.Kind> kinds, final boolean recurse) throws IOException {
       final Iterable<JavaFileObject> result = super.list(location, packageName, kinds, recurse);
       final Collection<JavaFileObject> files = new ArrayList<>();
@@ -165,9 +140,7 @@ public final class Compiler {
       result.forEach(files::add);
       return files;
     }
-
   }
-
 
   private static String toString(final String reason, final DiagnosticCollector<JavaFileObject> diagnostics) {
     final StringWriter writer = new StringWriter();
@@ -199,7 +172,6 @@ public final class Compiler {
     return classLoader;
   }
 
-
   public static String readFile(final File source, final Charset charset) throws IOException {
     try (RandomAccessFile file = new RandomAccessFile(source, "r")) {
       final byte[] bytes = new byte[(int)file.length()];
@@ -207,6 +179,5 @@ public final class Compiler {
       return new String(bytes, charset);
     }
   }
-
 
 }

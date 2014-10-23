@@ -11,9 +11,6 @@ public abstract class TransportSetup extends SessionSetup {
 
   public final Serializer packetSerializer;
 
-  /**
-   * @param requestExecutor executes incoming requests
-   */
   protected TransportSetup(final Server server, final Executor requestExecutor, final Serializer packetSerializer) {
     super(server, requestExecutor);
     this.packetSerializer = Check.notNull(packetSerializer);

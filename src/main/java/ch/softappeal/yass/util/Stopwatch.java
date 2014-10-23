@@ -5,7 +5,7 @@ package ch.softappeal.yass.util;
  */
 public final class Stopwatch {
 
-  private boolean stopped;
+  private boolean stopped = false;
   private final long startNanos;
   private long endNanos;
 

@@ -79,7 +79,7 @@ public class MethodMapperTest {
       TaggedMethodMapper.FACTORY.create(OnewayResult.class);
       Assert.fail();
     } catch (final IllegalArgumentException e) {
-      Assert.assertEquals("oneway method 'public abstract int ch.softappeal.yass.core.remote.test.MethodMapperTest$OnewayResult.test()' must return 'void'", e.getMessage());
+      Assert.assertEquals("oneway method 'public abstract int ch.softappeal.yass.core.remote.test.MethodMapperTest$OnewayResult.test()' must 'return' void", e.getMessage());
     }
   }
 

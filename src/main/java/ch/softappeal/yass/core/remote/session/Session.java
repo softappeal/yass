@@ -16,12 +16,12 @@ public abstract class Session implements AutoCloseable, InvokerFactory {
     return INSTANCE.get();
   }
 
-  private final SessionClient sessionClient;
   public final Connection connection;
+  private final SessionClient sessionClient;
 
   protected Session(final SessionClient sessionClient) {
-    this.sessionClient = sessionClient;
     connection = sessionClient.connection;
+    this.sessionClient = sessionClient;
   }
 
   /**

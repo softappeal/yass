@@ -19,22 +19,26 @@ import java.util.concurrent.TimeUnit;
 
 public final class SocketConnection implements Connection {
 
-  private final Serializer packetSerializer;
   public final Socket socket;
+  private final Serializer packetSerializer;
   private volatile boolean closed = false;
   private final BlockingQueue<ByteArrayOutputStream> writerQueue = new LinkedBlockingQueue<>(); // unbounded queue
   private final Object writerQueueEmpty = new Object();
 
-  SocketConnection(
+  private SocketConnection(final TransportSetup setup, final Socket socket) {
+    this.socket = socket;
+    packetSerializer = setup.packetSerializer;
+  }
+
+  static void create(
     final TransportSetup setup, final Socket socket, final Reader reader, final OutputStream outputStream, final Executor writerExecutor
   ) throws Exception {
-    packetSerializer = setup.packetSerializer;
-    this.socket = socket;
-    final SessionClient sessionClient = new SessionClient(setup, this);
+    final SocketConnection connection = new SocketConnection(setup, socket);
+    final SessionClient sessionClient = SessionClient.create(setup, connection);
     try {
       writerExecutor.execute(() -> {
         try {
-          write(outputStream);
+          connection.write(outputStream);
         } catch (final Exception e) {
           sessionClient.close(e);
         }
@@ -43,11 +47,11 @@ public final class SocketConnection implements Connection {
       sessionClient.close(e);
       return;
     }
-    read(sessionClient, reader);
+    connection.read(sessionClient, reader);
   }
 
   @Override public void write(final Packet packet) throws Exception {
-    final ByteArrayOutputStream buffer = new ByteArrayOutputStream(1024);
+    final ByteArrayOutputStream buffer = new ByteArrayOutputStream(128);
     packetSerializer.write(packet, Writer.create(buffer));
     writerQueue.put(buffer);
   }
@@ -103,14 +107,14 @@ public final class SocketConnection implements Connection {
     }
   }
 
-  private boolean writerQueueFull() {
+  private boolean writerQueueNotEmpty() {
     return !writerQueue.isEmpty();
   }
 
   public void awaitWriterQueueEmpty() {
     try {
       synchronized (writerQueueEmpty) {
-        while (writerQueueFull()) {
+        while (writerQueueNotEmpty()) {
           writerQueueEmpty.wait();
         }
       }
@@ -125,7 +129,7 @@ public final class SocketConnection implements Connection {
   @Override public void closed() throws Exception {
     try {
       try {
-        while (writerQueueFull()) {
+        while (writerQueueNotEmpty()) {
           TimeUnit.MILLISECONDS.sleep(100L);
         }
         TimeUnit.MILLISECONDS.sleep(100L); // give the socket a chance to write the end packet

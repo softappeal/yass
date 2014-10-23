@@ -2,7 +2,6 @@ package ch.softappeal.yass.core.remote.session;
 
 import ch.softappeal.yass.core.Interceptor;
 import ch.softappeal.yass.core.remote.Client;
-import ch.softappeal.yass.core.remote.ExceptionReply;
 import ch.softappeal.yass.core.remote.Message;
 import ch.softappeal.yass.core.remote.Reply;
 import ch.softappeal.yass.core.remote.Request;
@@ -26,32 +25,37 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public final class SessionClient extends Client {
 
+  public final Connection connection;
   private final SessionSetup setup;
   private final AtomicBoolean closed = new AtomicBoolean(false);
-  private final Session session;
-  public final Connection connection;
-  private final Interceptor sessionInterceptor;
+  private Session session;
+  private Interceptor sessionInterceptor;
 
-  public SessionClient(final SessionSetup setup, final Connection connection) throws Exception {
+  private SessionClient(final SessionSetup setup, final Connection connection) {
     super(setup.server.methodMapperFactory);
-    this.setup = setup;
     this.connection = Check.notNull(connection);
-    session = Check.notNull(setup.createSession(this));
-    sessionInterceptor = Interceptor.threadLocal(Session.INSTANCE, session);
+    this.setup = setup;
+  }
+
+  public static SessionClient create(final SessionSetup setup, final Connection connection) throws Exception {
+    final SessionClient sessionClient = new SessionClient(setup, connection);
+    sessionClient.session = Check.notNull(setup.createSession(sessionClient));
+    sessionClient.sessionInterceptor = Interceptor.threadLocal(Session.INSTANCE, sessionClient.session);
     setup.requestExecutor.execute(() -> {
       try {
-        session.opened();
+        sessionClient.session.opened();
       } catch (final Exception e) {
-        close(e);
+        sessionClient.close(e);
       }
     });
+    return sessionClient;
   }
 
   private void close(final boolean sendEnd, @Nullable final Throwable throwable) {
+    if (closed.getAndSet(true)) {
+      return;
+    }
     try {
-      if (closed.getAndSet(true)) {
-        return;
-      }
       try {
         session.closed(throwable);
         if (sendEnd) {
@@ -84,27 +88,27 @@ public final class SessionClient extends Client {
 
   private final Map<Integer, BlockingQueue<Reply>> requestNumber2replyQueue = Collections.synchronizedMap(new HashMap<>(16));
 
-  private void writeReply(final int requestNumber, final Reply reply) throws InterruptedException {
+  private void replyReceived(final int requestNumber, final Reply reply) throws InterruptedException {
     @Nullable final BlockingQueue<Reply> replyQueue = requestNumber2replyQueue.remove(requestNumber);
     if (replyQueue != null) { // needed because request can be interrupted, see below
       replyQueue.put(reply);
     }
   }
 
-  private Reply requestInterrupted(final int requestNumber) {
+  private RequestInterruptedException requestInterrupted(final int requestNumber) {
     requestNumber2replyQueue.remove(requestNumber);
-    return new ExceptionReply(new RequestInterruptedException());
+    return new RequestInterruptedException();
   }
 
-  private Reply writeRequestAndReadReply(final int requestNumber, final Request request) {
+  private Reply rpcInvoke(final int requestNumber, final Request request) {
     final BlockingQueue<Reply> replyQueue = new ArrayBlockingQueue<>(1, false); // we use unfair for speed
     if (requestNumber2replyQueue.put(requestNumber, replyQueue) != null) {
       throw new RuntimeException("already waiting for requestNumber " + requestNumber);
     }
-    write(requestNumber, request); // note: must be after line above to prevent race conditions with method above
+    write(requestNumber, request);
     while (true) {
       if (Thread.interrupted()) {
-        return requestInterrupted(requestNumber);
+        throw requestInterrupted(requestNumber);
       }
       try {
         final Reply reply = replyQueue.poll(100L, TimeUnit.MILLISECONDS);
@@ -114,7 +118,7 @@ public final class SessionClient extends Client {
           throw new SessionClosedException();
         }
       } catch (final InterruptedException ignored) {
-        return requestInterrupted(requestNumber);
+        throw requestInterrupted(requestNumber);
       }
     }
   }
@@ -140,14 +144,14 @@ public final class SessionClient extends Client {
   public void received(final Packet packet) {
     try {
       if (packet.isEnd()) {
-        close(null);
+        close(false, null);
         return;
       }
       final Message message = packet.message();
       if (message instanceof Request) {
         serverInvoke(packet.requestNumber(), (Request)message);
-      } else { // Reply
-        writeReply(packet.requestNumber(), (Reply)message);
+      } else {
+        replyReceived(packet.requestNumber(), (Reply)message);
       }
     } catch (final Exception e) {
       close(e);
@@ -159,7 +163,7 @@ public final class SessionClient extends Client {
    * This method is idempotent.
    */
   public void close(final Throwable throwable) {
-    close(false, throwable);
+    close(false, Check.notNull(throwable));
   }
 
   private final AtomicInteger nextRequestNumber = new AtomicInteger(Packet.END_REQUEST_NUMBER);
@@ -174,7 +178,7 @@ public final class SessionClient extends Client {
         write(requestNumber, request);
         return null;
       }
-      return writeRequestAndReadReply(requestNumber, request);
+      return rpcInvoke(requestNumber, request);
     });
   }
 

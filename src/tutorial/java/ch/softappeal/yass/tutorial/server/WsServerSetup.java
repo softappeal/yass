@@ -23,7 +23,7 @@ public abstract class WsServerSetup extends ServerSetup {
 
   public static final class Endpoint extends WsEndpoint {
     @Override protected WsConnection createConnection(final Session session) throws Exception {
-      return new WsConnection(TRANSPORT_SETUP, session);
+      return WsConnection.create(TRANSPORT_SETUP, session);
     }
   }
 

@@ -2,12 +2,16 @@ package ch.softappeal.yass.core.remote;
 
 import ch.softappeal.yass.core.Interceptor;
 import ch.softappeal.yass.util.Check;
+import ch.softappeal.yass.util.Nullable;
+
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 
 public final class Service {
 
   final ContractId<?> contractId;
-  final Object implementation;
-  final Interceptor interceptor;
+  private final Object implementation;
+  private final Interceptor interceptor;
 
   /**
    * $note: It's a good idea to add an interceptor that handles unexpected exceptions
@@ -17,6 +21,24 @@ public final class Service {
     this.contractId = Check.notNull(contractId);
     this.implementation = Check.notNull(implementation);
     interceptor = Interceptor.composite(interceptors);
+  }
+
+  Reply invoke(final Interceptor prependInterceptor, final Method method, @Nullable final Object[] arguments) {
+    try {
+      return new ValueReply(Interceptor.composite(prependInterceptor, interceptor).invoke(
+        method,
+        arguments,
+        () -> {
+          try {
+            return method.invoke(implementation, arguments);
+          } catch (final InvocationTargetException e) {
+            throw e.getCause();
+          }
+        }
+      ));
+    } catch (final Throwable t) {
+      return new ExceptionReply(t);
+    }
   }
 
 }

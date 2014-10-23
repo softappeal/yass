@@ -3,6 +3,7 @@ package ch.softappeal.yass.core;
 import ch.softappeal.yass.util.Check;
 import ch.softappeal.yass.util.Nullable;
 
+import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
@@ -15,30 +16,11 @@ public interface Interceptor {
 
   /**
    * Performs extra treatments before and after the invocation.
+   * @param arguments see {@link InvocationHandler#invoke(Object, Method, Object[])}
    * @return {@link Invocation#proceed()}
    * @throws Throwable exception of {@link Invocation#proceed()}
    */
   @Nullable Object invoke(Method method, @Nullable Object[] arguments, Invocation invocation) throws Throwable;
-
-  /**
-   * @param <C> the contract type
-   * @return a proxy for implementation using interceptors
-   */
-  static <C> C proxy(final Class<C> contract, final C implementation, final Interceptor... interceptors) {
-    Check.notNull(implementation);
-    final Interceptor interceptor = composite(interceptors);
-    return contract.cast(Proxy.newProxyInstance(
-      contract.getClassLoader(),
-      new Class<?>[] {contract},
-      (proxy, method, arguments) -> interceptor.invoke(method, arguments, () -> {
-        try {
-          return method.invoke(implementation, arguments);
-        } catch (final InvocationTargetException e) {
-          throw e.getCause();
-        }
-      })
-    ));
-  }
 
   /**
    * Calls {@link Invocation#proceed()}.
@@ -55,28 +37,51 @@ public interface Interceptor {
       return interceptor1;
     }
     return (method, arguments, invocation) -> interceptor1.invoke(
-      method, arguments, () -> interceptor2.invoke(method, arguments, invocation)
+      method,
+      arguments,
+      () -> interceptor2.invoke(method, arguments, invocation)
     );
   }
 
-  /**
-   * @return an interceptor that is a composite of interceptors
-   */
   static Interceptor composite(final Interceptor... interceptors) {
-    Interceptor compositeInterceptor = DIRECT;
+    Interceptor composite = DIRECT;
     for (final Interceptor interceptor : interceptors) {
-      compositeInterceptor = composite(compositeInterceptor, interceptor);
+      composite = composite(composite, interceptor);
     }
-    return compositeInterceptor;
+    return composite;
+  }
+
+  /**
+   * @param <C> the contract type
+   * @return a proxy for implementation using interceptors
+   */
+  @SuppressWarnings("unchecked")
+  static <C> C proxy(final Class<C> contract, final C implementation, final Interceptor... interceptors) {
+    Check.notNull(implementation);
+    final Interceptor interceptor = composite(interceptors);
+    if (interceptor == DIRECT) {
+      Check.notNull(contract);
+      return implementation;
+    }
+    return (C)Proxy.newProxyInstance(
+      contract.getClassLoader(),
+      new Class<?>[] {contract},
+      (proxy, method, arguments) -> interceptor.invoke(method, arguments, () -> {
+        try {
+          return method.invoke(implementation, arguments);
+        } catch (final InvocationTargetException e) {
+          throw e.getCause();
+        }
+      })
+    );
   }
 
   /**
    * @param <T> the type of the {@link ThreadLocal}
    * @return an interceptor that changes threadLocal to value during {@link Interceptor#invoke(Method, Object[], Invocation)}
    */
-  static <T> Interceptor threadLocal(final ThreadLocal<T> threadLocal, final T value) {
+  static <T> Interceptor threadLocal(final ThreadLocal<T> threadLocal, @Nullable final T value) {
     Check.notNull(threadLocal);
-    Check.notNull(value);
     return (method, arguments, invocation) -> {
       @Nullable final T oldValue = threadLocal.get();
       threadLocal.set(value);

@@ -9,58 +9,43 @@ import java.lang.reflect.Method;
  */
 public interface MethodMapper {
 
+  @FunctionalInterface interface Factory {
+    MethodMapper create(Class<?> contract);
+  }
 
-  /**
-   * A {@link Method} mapping.
-   */
   final class Mapping {
-
     public final Method method;
-
     /**
      * @see Request#methodId
      */
     public final Object id;
-
     /**
-     * Oneway methods must 'return' void and must not throw any exceptions.
+     * Oneway methods must 'return' void and must not throw exceptions.
      */
     public final boolean oneWay;
-
     public Mapping(final Method method, final Object id, final boolean oneWay) {
       this.method = Check.notNull(method);
       this.id = Check.notNull(id);
       this.oneWay = oneWay;
       if (oneWay) {
         if (method.getReturnType() != Void.TYPE) {
-          throw new IllegalArgumentException("oneway method '" + method + "' must return 'void'");
+          throw new IllegalArgumentException("oneway method '" + method + "' must 'return' void");
         }
         if (method.getExceptionTypes().length != 0) {
           throw new IllegalArgumentException("oneway method '" + method + "' must not throw exceptions");
         }
       }
     }
-
+    /**
+     * Uses {@link OneWay} for marking oneway methods.
+     */
     public Mapping(final Method method, final Object id) {
       this(method, id, method.isAnnotationPresent(OneWay.class));
     }
-
   }
-
 
   Mapping mapId(Object id);
 
   Mapping mapMethod(Method method);
-
-
-  /**
-   * Creates a {@link MethodMapper} for a contract.
-   */
-  @FunctionalInterface interface Factory {
-
-    MethodMapper create(Class<?> contract);
-
-  }
-
 
 }
