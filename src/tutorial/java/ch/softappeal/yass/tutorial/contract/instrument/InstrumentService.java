@@ -7,8 +7,8 @@ import java.util.List;
 
 public interface InstrumentService {
 
-  List<Instrument> getInstruments();
+    List<Instrument> getInstruments();
 
-  @OneWay void reload(boolean testBoolean, int testInt);
+    @OneWay void reload(boolean testBoolean, int testInt);
 
 }

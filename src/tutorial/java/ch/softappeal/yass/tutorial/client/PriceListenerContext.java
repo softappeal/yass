@@ -7,6 +7,6 @@ import ch.softappeal.yass.tutorial.contract.Instrument;
  */
 public interface PriceListenerContext {
 
-  Instrument getInstrument(String instrumentId);
+    Instrument getInstrument(String instrumentId);
 
 }

@@ -12,15 +12,15 @@ import java.util.concurrent.Executors;
 
 public final class SocketClient extends ClientSetup {
 
-  public static void main(final String... args) {
-    final Executor executor = Executors.newCachedThreadPool(new NamedThreadFactory("executor", Exceptions.STD_ERR));
-    SocketTransport.connect(
-      createTransportSetup(executor),
-      new SocketExecutor(executor, Exceptions.STD_ERR),
-      Config.PATH_SERIALIZER, SocketServer.PATH,
-      SocketServer.ADDRESS
-    );
-    System.out.println("started");
-  }
+    public static void main(final String... args) {
+        final Executor executor = Executors.newCachedThreadPool(new NamedThreadFactory("executor", Exceptions.STD_ERR));
+        SocketTransport.connect(
+            createTransportSetup(executor),
+            new SocketExecutor(executor, Exceptions.STD_ERR),
+            Config.PATH_SERIALIZER, SocketServer.PATH,
+            SocketServer.ADDRESS
+        );
+        System.out.println("started");
+    }
 
 }

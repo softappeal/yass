@@ -8,11 +8,11 @@ import ch.softappeal.yass.util.Nullable;
  */
 public final class Stock extends Instrument {
 
-  @Nullable public final Boolean paysDividend;
+    @Nullable public final Boolean paysDividend;
 
-  public Stock(final String id, final String name, final Boolean paysDividend) {
-    super(id, name);
-    this.paysDividend = paysDividend;
-  }
+    public Stock(final String id, final String name, final Boolean paysDividend) {
+        super(id, name);
+        this.paysDividend = paysDividend;
+    }
 
 }

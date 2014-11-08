@@ -13,21 +13,21 @@ import java.util.concurrent.Executor;
 
 public abstract class ServerSetup {
 
-  protected static TransportSetup createTransportSetup(final Executor requestExecutor) {
-    return new TransportSetup(
-      new Server(
-        Config.METHOD_MAPPER_FACTORY,
-        new Service(ServerServices.InstrumentService, new InstrumentServiceImpl(), Logger.SERVER),
-        new Service(ServerServices.PriceEngine, new PriceEngineImpl(() -> (PriceEngineContext)Session.get()), Logger.SERVER),
-        new Service(ServerServices.EchoService, new EchoServiceImpl())
-      ),
-      requestExecutor,
-      Config.PACKET_SERIALIZER
-    ) {
-      @Override public Session createSession(final SessionClient sessionClient) {
-        return new ServerSession(sessionClient);
-      }
-    };
-  }
+    protected static TransportSetup createTransportSetup(final Executor requestExecutor) {
+        return new TransportSetup(
+            new Server(
+                Config.METHOD_MAPPER_FACTORY,
+                new Service(ServerServices.InstrumentService, new InstrumentServiceImpl(), Logger.SERVER),
+                new Service(ServerServices.PriceEngine, new PriceEngineImpl(() -> (PriceEngineContext)Session.get()), Logger.SERVER),
+                new Service(ServerServices.EchoService, new EchoServiceImpl())
+            ),
+            requestExecutor,
+            Config.PACKET_SERIALIZER
+        ) {
+            @Override public Session createSession(final SessionClient sessionClient) {
+                return new ServerSession(sessionClient);
+            }
+        };
+    }
 
 }

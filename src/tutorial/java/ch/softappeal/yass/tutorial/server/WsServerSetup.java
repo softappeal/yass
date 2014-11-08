@@ -13,20 +13,20 @@ import java.util.concurrent.Executors;
 
 public abstract class WsServerSetup extends ServerSetup {
 
-  public static final String HOST = "localhost";
-  public static final int PORT = 9090;
-  public static final String PATH = "/tutorial";
+    public static final String HOST = "localhost";
+    public static final int PORT = 9090;
+    public static final String PATH = "/tutorial";
 
-  public static final Executor REQUEST_EXECUTOR = Executors.newCachedThreadPool(new NamedThreadFactory("requestExecutor", Exceptions.STD_ERR));
+    public static final Executor REQUEST_EXECUTOR = Executors.newCachedThreadPool(new NamedThreadFactory("requestExecutor", Exceptions.STD_ERR));
 
-  private static final TransportSetup TRANSPORT_SETUP = SocketServer.createTransportSetup(REQUEST_EXECUTOR);
+    private static final TransportSetup TRANSPORT_SETUP = SocketServer.createTransportSetup(REQUEST_EXECUTOR);
 
-  public static final class Endpoint extends WsEndpoint {
-    @Override protected WsConnection createConnection(final Session session) throws Exception {
-      return WsConnection.create(TRANSPORT_SETUP, session);
+    public static final class Endpoint extends WsEndpoint {
+        @Override protected WsConnection createConnection(final Session session) throws Exception {
+            return WsConnection.create(TRANSPORT_SETUP, session);
+        }
     }
-  }
 
-  protected static final ServerEndpointConfig ENDPOINT_CONFIG = ServerEndpointConfig.Builder.create(Endpoint.class, PATH).build();
+    protected static final ServerEndpointConfig ENDPOINT_CONFIG = ServerEndpointConfig.Builder.create(Endpoint.class, PATH).build();
 
 }

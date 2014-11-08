@@ -14,18 +14,18 @@ import java.util.Date;
  */
 public final class Logger implements Interceptor {
 
-  private final String side;
+    private final String side;
 
-  private Logger(final String side) {
-    this.side = Check.notNull(side);
-  }
+    private Logger(final String side) {
+        this.side = Check.notNull(side);
+    }
 
-  @Override public Object invoke(final Method method, @Nullable final Object[] arguments, final Invocation invocation) throws Throwable {
-    System.out.println(new Date() + " - " + Session.get().hashCode() + " - " + side + ": " + method.getName());
-    return invocation.proceed();
-  }
+    @Override public Object invoke(final Method method, @Nullable final Object[] arguments, final Invocation invocation) throws Throwable {
+        System.out.println(new Date() + " - " + Session.get().hashCode() + " - " + side + ": " + method.getName());
+        return invocation.proceed();
+    }
 
-  public static final Interceptor CLIENT = new Logger("client");
-  public static final Interceptor SERVER = new Logger("server");
+    public static final Interceptor CLIENT = new Logger("client");
+    public static final Interceptor SERVER = new Logger("server");
 
 }

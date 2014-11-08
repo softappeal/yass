@@ -9,27 +9,27 @@ import org.xnio.Xnio;
 
 public final class UndertowServer extends WsServerSetup {
 
-  public static void main(final String... args) throws Exception {
-    final DeploymentManager deployment = Servlets.defaultContainer()
-      .addDeployment(
-        Servlets.deployment()
-          .setClassLoader(UndertowServer.class.getClassLoader())
-          .setContextPath("/")
-          .setDeploymentName(UndertowServer.class.getName())
-          .addServletContextAttribute(
-            WebSocketDeploymentInfo.ATTRIBUTE_NAME,
-            new WebSocketDeploymentInfo()
-              .addEndpoint(ENDPOINT_CONFIG)
-              .setWorker(Xnio.getInstance().createWorker(OptionMap.builder().getMap()))
-          )
-      );
-    deployment.deploy();
-    Undertow.builder()
-      .addHttpListener(PORT, HOST)
-      .setHandler(deployment.start())
-      .build()
-      .start();
-    System.out.println("started");
-  }
+    public static void main(final String... args) throws Exception {
+        final DeploymentManager deployment = Servlets.defaultContainer()
+            .addDeployment(
+                Servlets.deployment()
+                    .setClassLoader(UndertowServer.class.getClassLoader())
+                    .setContextPath("/")
+                    .setDeploymentName(UndertowServer.class.getName())
+                    .addServletContextAttribute(
+                        WebSocketDeploymentInfo.ATTRIBUTE_NAME,
+                        new WebSocketDeploymentInfo()
+                            .addEndpoint(ENDPOINT_CONFIG)
+                            .setWorker(Xnio.getInstance().createWorker(OptionMap.builder().getMap()))
+                    )
+            );
+        deployment.deploy();
+        Undertow.builder()
+            .addHttpListener(PORT, HOST)
+            .setHandler(deployment.start())
+            .build()
+            .start();
+        System.out.println("started");
+    }
 
 }

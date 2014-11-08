@@ -4,6 +4,6 @@ import ch.softappeal.yass.util.Nullable;
 
 public interface EchoService {
 
-  @Nullable Object echo(@Nullable Object value);
+    @Nullable Object echo(@Nullable Object value);
 
 }

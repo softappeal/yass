@@ -6,6 +6,6 @@ import java.util.List;
 
 public interface PriceListener {
 
-  @OneWay void newPrices(List<Price> prices);
+    @OneWay void newPrices(List<Price> prices);
 
 }

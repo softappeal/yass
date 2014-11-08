@@ -12,15 +12,15 @@ import java.util.Collections;
 
 public final class UndertowClient extends WsClientSetup {
 
-  public static void main(final String... args) throws Exception {
-    run(new ServerWebSocketContainer(
-      DefaultClassIntrospector.INSTANCE,
-      ServerWebSocketContainer.class.getClassLoader(),
-      Xnio.getInstance().createWorker(OptionMap.create(Options.THREAD_DAEMON, true)),
-      new ByteBufferSlicePool(1024, 10240),
-      new CompositeThreadSetupAction(Collections.emptyList()),
-      true
-    ));
-  }
+    public static void main(final String... args) throws Exception {
+        run(new ServerWebSocketContainer(
+            DefaultClassIntrospector.INSTANCE,
+            ServerWebSocketContainer.class.getClassLoader(),
+            Xnio.getInstance().createWorker(OptionMap.create(Options.THREAD_DAEMON, true)),
+            new ByteBufferSlicePool(1024, 10240),
+            new CompositeThreadSetupAction(Collections.emptyList()),
+            true
+        ));
+    }
 
 }

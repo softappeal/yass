@@ -14,15 +14,15 @@ import java.util.concurrent.Executors;
 
 public final class SocketServer extends ServerSetup {
 
-  public static final SocketAddress ADDRESS = new InetSocketAddress("localhost", 28947);
-  public static final String PATH = "tutorial";
+    public static final SocketAddress ADDRESS = new InetSocketAddress("localhost", 28947);
+    public static final String PATH = "tutorial";
 
-  public static void main(final String... args) {
-    final Executor executor = Executors.newCachedThreadPool(new NamedThreadFactory("executor", Exceptions.STD_ERR));
-    SocketTransport.listener(
-      Config.PATH_SERIALIZER, new PathResolver(PATH, createTransportSetup(executor))
-    ).start(executor, new SocketExecutor(executor, Exceptions.STD_ERR), ADDRESS);
-    System.out.println("started");
-  }
+    public static void main(final String... args) {
+        final Executor executor = Executors.newCachedThreadPool(new NamedThreadFactory("executor", Exceptions.STD_ERR));
+        SocketTransport.listener(
+            Config.PATH_SERIALIZER, new PathResolver(PATH, createTransportSetup(executor))
+        ).start(executor, new SocketExecutor(executor, Exceptions.STD_ERR), ADDRESS);
+        System.out.println("started");
+    }
 
 }

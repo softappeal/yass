@@ -12,23 +12,23 @@ import java.util.Set;
 
 public final class PriceEngineImpl extends ContextService<PriceEngineContext> implements PriceEngine {
 
-  public PriceEngineImpl(final ContextLocator<PriceEngineContext> locator) {
-    super(locator);
-  }
+    public PriceEngineImpl(final ContextLocator<PriceEngineContext> locator) {
+        super(locator);
+    }
 
-  @Override public void subscribe(final List<String> instrumentIds) throws UnknownInstrumentsException {
-    final Set<String> subscribedInstrumentIds = context().subscribedInstrumentIds();
-    final Set<String> unknownInstrumentIds = new HashSet<>();
-    for (final String instrumentId : instrumentIds) {
-      if (InstrumentServiceImpl.INSTRUMENTS.containsKey(instrumentId)) {
-        subscribedInstrumentIds.add(instrumentId);
-      } else {
-        unknownInstrumentIds.add(instrumentId);
-      }
+    @Override public void subscribe(final List<String> instrumentIds) throws UnknownInstrumentsException {
+        final Set<String> subscribedInstrumentIds = context().subscribedInstrumentIds();
+        final Set<String> unknownInstrumentIds = new HashSet<>();
+        for (final String instrumentId : instrumentIds) {
+            if (InstrumentServiceImpl.INSTRUMENTS.containsKey(instrumentId)) {
+                subscribedInstrumentIds.add(instrumentId);
+            } else {
+                unknownInstrumentIds.add(instrumentId);
+            }
+        }
+        if (!unknownInstrumentIds.isEmpty()) {
+            throw new UnknownInstrumentsException(new ArrayList<>(unknownInstrumentIds));
+        }
     }
-    if (!unknownInstrumentIds.isEmpty()) {
-      throw new UnknownInstrumentsException(new ArrayList<>(unknownInstrumentIds));
-    }
-  }
 
 }

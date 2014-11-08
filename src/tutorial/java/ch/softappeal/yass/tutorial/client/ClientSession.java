@@ -18,37 +18,37 @@ import java.util.Map;
 
 public final class ClientSession extends Session implements PriceListenerContext {
 
-  private final Map<String, Instrument> id2instrument = Collections.synchronizedMap(new HashMap<>());
+    private final Map<String, Instrument> id2instrument = Collections.synchronizedMap(new HashMap<>());
 
-  private final PriceEngine priceEngine;
-  private final InstrumentService instrumentService;
-  private final EchoService echoService;
+    private final PriceEngine priceEngine;
+    private final InstrumentService instrumentService;
+    private final EchoService echoService;
 
-  public ClientSession(final SessionClient sessionClient) {
-    super(sessionClient);
-    System.out.println("create: " + hashCode());
-    priceEngine = invoker(ServerServices.PriceEngine).proxy();
-    instrumentService = invoker(ServerServices.InstrumentService).proxy();
-    echoService = invoker(ServerServices.EchoService).proxy();
-  }
-
-  @Override public void opened() throws UnknownInstrumentsException {
-    System.out.println("opened: " + hashCode());
-    System.out.println(echoService.echo("echo"));
-    instrumentService.reload(false, 123);
-    instrumentService.getInstruments().forEach(instrument -> id2instrument.put(instrument.id, instrument));
-    priceEngine.subscribe(new ArrayList<>(id2instrument.keySet()));
-  }
-
-  @Override public void closed(@Nullable final Throwable throwable) {
-    System.out.println("closed: " + hashCode());
-    if (throwable != null) {
-      Exceptions.uncaughtException(Exceptions.STD_ERR, throwable);
+    public ClientSession(final SessionClient sessionClient) {
+        super(sessionClient);
+        System.out.println("create: " + hashCode());
+        priceEngine = invoker(ServerServices.PriceEngine).proxy();
+        instrumentService = invoker(ServerServices.InstrumentService).proxy();
+        echoService = invoker(ServerServices.EchoService).proxy();
     }
-  }
 
-  @Override public Instrument getInstrument(final String instrumentId) {
-    return id2instrument.get(instrumentId);
-  }
+    @Override public void opened() throws UnknownInstrumentsException {
+        System.out.println("opened: " + hashCode());
+        System.out.println(echoService.echo("echo"));
+        instrumentService.reload(false, 123);
+        instrumentService.getInstruments().forEach(instrument -> id2instrument.put(instrument.id, instrument));
+        priceEngine.subscribe(new ArrayList<>(id2instrument.keySet()));
+    }
+
+    @Override public void closed(@Nullable final Throwable throwable) {
+        System.out.println("closed: " + hashCode());
+        if (throwable != null) {
+            Exceptions.uncaughtException(Exceptions.STD_ERR, throwable);
+        }
+    }
+
+    @Override public Instrument getInstrument(final String instrumentId) {
+        return id2instrument.get(instrumentId);
+    }
 
 }

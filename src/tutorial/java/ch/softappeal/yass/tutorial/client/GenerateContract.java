@@ -5,11 +5,11 @@ import ch.softappeal.yass.tutorial.contract.Config;
 
 public final class GenerateContract {
 
-  public static void main(final String... args) throws Exception {
-    new ContractGenerator(
-      Config.class.getPackage(), Config.CONTRACT_SERIALIZER, Config.METHOD_MAPPER_FACTORY,
-      "baseTypes", "contract", "src/tutorial/ts/contract.ts"
-    );
-  }
+    public static void main(final String... args) throws Exception {
+        new ContractGenerator(
+            Config.class.getPackage(), Config.CONTRACT_SERIALIZER, Config.METHOD_MAPPER_FACTORY,
+            "baseTypes", "contract", "src/tutorial/ts/contract.ts"
+        );
+    }
 
 }

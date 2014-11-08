@@ -21,35 +21,35 @@ import java.util.Arrays;
 
 public final class Config {
 
-  /**
-   * @see TaggedFastSerializer
-   * @see SimpleFastSerializer
-   */
-  public static final JsFastSerializer CONTRACT_SERIALIZER = new JsFastSerializer(
-    FastReflector.FACTORY,
-    Arrays.asList(Expiration.TYPE_HANDLER, JsDouble.TYPE_HANDLER),
-    Arrays.asList(PriceType.class),
-    Arrays.asList(Price.class, Stock.class, Bond.class, UnknownInstrumentsException.class, Trade.class)
-  );
+    /**
+     * @see TaggedFastSerializer
+     * @see SimpleFastSerializer
+     */
+    public static final JsFastSerializer CONTRACT_SERIALIZER = new JsFastSerializer(
+        FastReflector.FACTORY,
+        Arrays.asList(Expiration.TYPE_HANDLER, JsDouble.TYPE_HANDLER),
+        Arrays.asList(PriceType.class),
+        Arrays.asList(Price.class, Stock.class, Bond.class, UnknownInstrumentsException.class, Trade.class)
+    );
 
-  /**
-   * Shows how to configure a {@link SimpleFastSerializer}.
-   */
-  private static final AbstractFastSerializer CONTRACT_SERIALIZER_2 = new SimpleFastSerializer(
-    FastReflector.FACTORY,
-    Arrays.asList(BaseTypeHandlers.BOOLEAN, BaseTypeHandlers.INTEGER, BaseTypeHandlers.STRING, Expiration.TYPE_HANDLER, JsDouble.TYPE_HANDLER),
-    Arrays.asList(PriceType.class),
-    Arrays.asList(Price.class, Trade.class, UnknownInstrumentsException.class),
-    Arrays.asList(Stock.class, Bond.class)
-  );
+    /**
+     * Shows how to configure a {@link SimpleFastSerializer}.
+     */
+    private static final AbstractFastSerializer CONTRACT_SERIALIZER_2 = new SimpleFastSerializer(
+        FastReflector.FACTORY,
+        Arrays.asList(BaseTypeHandlers.BOOLEAN, BaseTypeHandlers.INTEGER, BaseTypeHandlers.STRING, Expiration.TYPE_HANDLER, JsDouble.TYPE_HANDLER),
+        Arrays.asList(PriceType.class),
+        Arrays.asList(Price.class, Trade.class, UnknownInstrumentsException.class),
+        Arrays.asList(Stock.class, Bond.class)
+    );
 
-  public static final Serializer PACKET_SERIALIZER = new PacketSerializer(new MessageSerializer(CONTRACT_SERIALIZER));
+    public static final Serializer PACKET_SERIALIZER = new PacketSerializer(new MessageSerializer(CONTRACT_SERIALIZER));
 
-  /**
-   * @see TaggedMethodMapper
-   */
-  public static final MethodMapper.Factory METHOD_MAPPER_FACTORY = SimpleMethodMapper.FACTORY;
+    /**
+     * @see TaggedMethodMapper
+     */
+    public static final MethodMapper.Factory METHOD_MAPPER_FACTORY = SimpleMethodMapper.FACTORY;
 
-  public static final Serializer PATH_SERIALIZER = StringPathSerializer.INSTANCE;
+    public static final Serializer PATH_SERIALIZER = StringPathSerializer.INSTANCE;
 
 }

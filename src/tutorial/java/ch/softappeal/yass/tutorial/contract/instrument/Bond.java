@@ -7,13 +7,13 @@ import ch.softappeal.yass.util.Check;
 
 public final class Bond extends Instrument {
 
-  public final JsDouble coupon;
-  public final Expiration expiration;
+    public final JsDouble coupon;
+    public final Expiration expiration;
 
-  public Bond(final String id, final String name, final double coupon, final Expiration expiration) {
-    super(id, name);
-    this.coupon = new JsDouble(coupon);
-    this.expiration = Check.notNull(expiration);
-  }
+    public Bond(final String id, final String name, final double coupon, final Expiration expiration) {
+        super(id, name);
+        this.coupon = new JsDouble(coupon);
+        this.expiration = Check.notNull(expiration);
+    }
 
 }

@@ -7,6 +7,6 @@ import java.util.Set;
  */
 public interface PriceEngineContext {
 
-  Set<String> subscribedInstrumentIds();
+    Set<String> subscribedInstrumentIds();
 
 }

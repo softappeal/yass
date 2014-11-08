@@ -8,8 +8,8 @@ import ch.softappeal.yass.tutorial.contract.instrument.InstrumentService;
  */
 public final class ServerServices {
 
-  public static final ContractId<PriceEngine> PriceEngine = ContractId.create(PriceEngine.class, 0);
-  public static final ContractId<InstrumentService> InstrumentService = ContractId.create(InstrumentService.class, 1);
-  public static final ContractId<EchoService> EchoService = ContractId.create(EchoService.class, 2);
+    public static final ContractId<PriceEngine> PriceEngine = ContractId.create(PriceEngine.class, 0);
+    public static final ContractId<InstrumentService> InstrumentService = ContractId.create(InstrumentService.class, 1);
+    public static final ContractId<EchoService> EchoService = ContractId.create(EchoService.class, 2);
 
 }
