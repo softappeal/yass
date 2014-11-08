@@ -145,7 +145,7 @@ public abstract class AbstractFastSerializer implements Serializer {
                         printer.println();
                         final Object[] constants = baseTypeHandler.type.getEnumConstants();
                         for (int c = 0; c < constants.length; c++) {
-                            printer.println("  " + c + ": " + ((Enum<?>)constants[c]).name());
+                            printer.println("    " + c + ": " + ((Enum<?>)constants[c]).name());
                         }
                     } else {
                         printer.println();
@@ -154,7 +154,7 @@ public abstract class AbstractFastSerializer implements Serializer {
                     final ClassTypeHandler classTypeHandler = (ClassTypeHandler)typeHandler;
                     printer.println(" (referenceable=" + classTypeHandler.referenceable + ')');
                     for (final ClassTypeHandler.FieldDesc fieldDesc : classTypeHandler.fieldDescs()) {
-                        printer.println("  " + fieldDesc.id + ": " + fieldDesc.handler.field);
+                        printer.println("    " + fieldDesc.id + ": " + fieldDesc.handler.field);
                     }
                 }
                 printer.println();

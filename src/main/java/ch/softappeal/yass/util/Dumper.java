@@ -56,7 +56,7 @@ public final class Dumper {
 
         private void appendTabs() {
             for (int t = tabs; t > 0; t--) {
-                out.append("  ");
+                out.append("    ");
             }
         }
 

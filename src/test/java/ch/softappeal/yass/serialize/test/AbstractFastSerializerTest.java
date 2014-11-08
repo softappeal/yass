@@ -121,7 +121,7 @@ public class AbstractFastSerializerTest {
         });
     }
 
-    @Test public void simplePrints() {
+    @Test public void simplePrint() {
         TestUtils.compareFile("ch/softappeal/yass/serialize/test/SimpleFastSerializerTest.numbers.txt", printer -> {
             SerializerTest.SIMPLE_FAST_SERIALIZER.print(printer);
         });
