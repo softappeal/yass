@@ -81,7 +81,7 @@ public final class ContractGenerator extends Generator {
     });
   }
 
-  private static final Set<Class<?>> ROOT_CLASSES = new HashSet<>(Arrays.asList(
+  private static final Set<Type> ROOT_CLASSES = new HashSet<>(Arrays.asList(
     Object.class, Exception.class, RuntimeException.class, Error.class, Throwable.class
   ));
 
