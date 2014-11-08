@@ -12,11 +12,11 @@ sourceCompatibility = '1.8'
 targetCompatibility = '1.8'
 
 repositories {
-  mavenCentral()
+    mavenCentral()
 }
 
 sourceSets {
-  tutorial { java.srcDir file('src/tutorial/java') }
+    tutorial { java.srcDir file('src/tutorial/java') }
 }
 
 def websocket_dep = 'javax.websocket:javax.websocket-api:1.0'
@@ -25,122 +25,122 @@ def undertow_dep = 'io.undertow:undertow-websockets-jsr:1.0.17.Final'
 def junit_dep = 'junit:junit:4.11'
 
 dependencies {
-  compile websocket_dep
-  tutorialCompile sourceSets.main.output
-  tutorialCompile jetty_dep
-  tutorialCompile undertow_dep
-  testCompile junit_dep
-  testCompile jetty_dep
-  testCompile undertow_dep
+    compile websocket_dep
+    tutorialCompile sourceSets.main.output
+    tutorialCompile jetty_dep
+    tutorialCompile undertow_dep
+    testCompile junit_dep
+    testCompile jetty_dep
+    testCompile undertow_dep
 }
 
 tasks.withType(JavaCompile) {
-  options.compilerArgs << "-Xlint"
-  // options.compilerArgs << "-parameters" $note: testcases don't work yet with this option
-  options.encoding = "US-ASCII"
+    options.compilerArgs << "-Xlint"
+    // options.compilerArgs << "-parameters" $note: testcases don't work yet with this option
+    options.encoding = "US-ASCII"
 }
 
 task generateContract(type: JavaExec) { // $note: call this task if bug above will be fixed
-  main = 'ch.softappeal.yass.tutorial.client.GenerateContract'
-  classpath = sourceSets.tutorial.runtimeClasspath
+    main = 'ch.softappeal.yass.tutorial.client.GenerateContract'
+    classpath = sourceSets.tutorial.runtimeClasspath
 }
 
 tasks.withType(Javadoc) {
-  options.addStringOption('Xdoclint:all,-missing', '-quiet')
+    options.addStringOption('Xdoclint:all,-missing', '-quiet')
 }
 
 jar {
-  from "readme.md"
-  from "license.txt"
-  manifest { attributes("Implementation-Version": "${version}") }
+    from "readme.md"
+    from "license.txt"
+    manifest { attributes("Implementation-Version": "${version}") }
 }
 
 task packageSources(type: Jar) {
-  from "readme.md"
-  from "license.txt"
-  from sourceSets.main.allSource
-  classifier = 'sources'
+    from "readme.md"
+    from "license.txt"
+    from sourceSets.main.allSource
+    classifier = 'sources'
 }
 
 task packageJavadoc(type: Jar, dependsOn: 'javadoc') {
-  from "readme.md"
-  from "license.txt"
-  from javadoc.destinationDir
-  classifier = 'javadoc'
+    from "readme.md"
+    from "license.txt"
+    from javadoc.destinationDir
+    classifier = 'javadoc'
 }
 
 artifacts {
-  archives(packageSources)
-  archives(packageJavadoc)
+    archives(packageSources)
+    archives(packageJavadoc)
 }
 
 task createPom << {
-  pom {
-    project {
-      name project.name
-      description 'Yet Another Service Solution'
-      url 'https://github.com/softappeal/yass'
-      licenses {
-        license { name 'The BSD 3-Clause License' }
-      }
-      scm { url 'https://github.com/softappeal/yass' }
-      organization { name 'softappeal GmbH Switzerland' }
-      developers {
-        developer { name 'Angelo Salvade' }
-      }
-    }
-  }.writeTo("build/libs/${project.name}-${version}.pom")
+    pom {
+        project {
+            name project.name
+            description 'Yet Another Service Solution'
+            url 'https://github.com/softappeal/yass'
+            licenses {
+                license { name 'The BSD 3-Clause License' }
+            }
+            scm { url 'https://github.com/softappeal/yass' }
+            organization { name 'softappeal GmbH Switzerland' }
+            developers {
+                developer { name 'Angelo Salvade' }
+            }
+        }
+    }.writeTo("build/libs/${project.name}-${version}.pom")
 }
 
 task dist << {
-  if (project.hasProperty('signing.password')) {
-    def signPrefix = "build/libs/${project.name}-${version}"
-    signing.sign(file("${signPrefix}.pom"))
-    signing.sign(file("${signPrefix}.jar"))
-    signing.sign(file("${signPrefix}-sources.jar"))
-    signing.sign(file("${signPrefix}-javadoc.jar"))
-  }
-  ant.zip(destfile: "build/${project.name}-${version}_artifacts.zip") {
-    fileset(dir: 'build/libs')
-  }
+    if (project.hasProperty('signing.password')) {
+        def signPrefix = "build/libs/${project.name}-${version}"
+        signing.sign(file("${signPrefix}.pom"))
+        signing.sign(file("${signPrefix}.jar"))
+        signing.sign(file("${signPrefix}-sources.jar"))
+        signing.sign(file("${signPrefix}-javadoc.jar"))
+    }
+    ant.zip(destfile: "build/${project.name}-${version}_artifacts.zip") {
+        fileset(dir: 'build/libs')
+    }
 }
 
 def searchMarker(tree, divider1, divider2, title, marker) {
-  println divider1
-  println "= search: " + title
-  tree.each { file ->
-    def found = false
-    def number = 0
-    file.eachLine { line ->
-      number++
-      if (line.toLowerCase().contains(marker)) {
-        if (!found) {
-          println divider2
-          println "+ " + file
+    println divider1
+    println "= search: " + title
+    tree.each { file ->
+        def found = false
+        def number = 0
+        file.eachLine { line ->
+            number++
+            if (line.toLowerCase().contains(marker)) {
+                if (!found) {
+                    println divider2
+                    println "+ " + file
+                }
+                found = true
+                println "- " + number + ": " + line
+            }
         }
-        found = true
-        println "- " + number + ": " + line
-      }
     }
-  }
 }
 
 task todo << {
-  def divider1 = "========================================================================================================================"
-  def divider2 = "------------------------------------------------------------------------------------------------------------------------"
-  def searchTree = fileTree(dir: '.').exclude('.git/').exclude('.gradle/').exclude('.idea/').exclude('build/').exclude('classes/')
-  searchMarker(searchTree, divider1, divider2, 'abort', '$' + '$$')  // abort, not allowed for building a release
-  searchMarker(searchTree, divider1, divider2, 'todo', '$' + 'todo') // under construction, yet a release can still be built
-  searchMarker(searchTree, divider1, divider2, 'note', '$' + 'note') // important comment
-  println divider1
+    def divider1 = "========================================================================================================================"
+    def divider2 = "------------------------------------------------------------------------------------------------------------------------"
+    def searchTree = fileTree(dir: '.').exclude('.git/').exclude('.gradle/').exclude('.idea/').exclude('build/').exclude('classes/')
+    searchMarker(searchTree, divider1, divider2, 'abort', '$' + '$$' /* abort, not allowed for building a release */)
+    searchMarker(searchTree, divider1, divider2, 'todo', '$' + 'todo' /* under construction, yet a release can still be built */)
+    searchMarker(searchTree, divider1, divider2, 'note', '$' + 'note' /* important comment */)
+    println divider1
 }
 
 idea {
-  project {
-    jdkName = '1.8'
-    languageLevel = '1.8'
-  }
-  module {
-    testSourceDirs += sourceSets.tutorial.java.srcDirs
-  }
+    project {
+        jdkName = '1.8'
+        languageLevel = '1.8'
+    }
+    module {
+        testSourceDirs += sourceSets.tutorial.java.srcDirs
+    }
 }
