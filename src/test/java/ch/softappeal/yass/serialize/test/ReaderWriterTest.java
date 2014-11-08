@@ -70,11 +70,11 @@ public class ReaderWriterTest {
     @Test public void bytes() throws Exception {
         final ByteArrayOutputStream out = new ByteArrayOutputStream();
         final Writer writer = Writer.create(out);
-        writer.writeBytes(new byte[]{(byte)-1, (byte)0, (byte)1});
+        writer.writeBytes(new byte[] {(byte)-1, (byte)0, (byte)1});
         final Reader reader = Reader.create(new ByteArrayInputStream(out.toByteArray()));
         final byte[] bytes = new byte[3];
         reader.readBytes(bytes);
-        Assert.assertTrue(Arrays.equals(bytes, new byte[]{(byte)-1, (byte)0, (byte)1}));
+        Assert.assertTrue(Arrays.equals(bytes, new byte[] {(byte)-1, (byte)0, (byte)1}));
     }
 
     @Test public void numbers() throws Exception {

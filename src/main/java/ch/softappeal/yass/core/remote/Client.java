@@ -18,7 +18,7 @@ public abstract class Client extends Common implements InvokerFactory {
             final Interceptor interceptor = Interceptor.composite(interceptors);
             return (C)Proxy.newProxyInstance(
                 contractId.contract.getClassLoader(),
-                new Class<?>[]{contractId.contract},
+                new Class<?>[] {contractId.contract},
                 (proxy, method, arguments) -> invoke(new ClientInvocation(interceptor, contractId.id, methodMapper.mapMethod(method), arguments))
             );
         };

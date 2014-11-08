@@ -64,7 +64,7 @@ import java.lang.reflect.Proxy;
         }
         return (C)Proxy.newProxyInstance(
             contract.getClassLoader(),
-            new Class<?>[]{contract},
+            new Class<?>[] {contract},
             (proxy, method, arguments) -> interceptor.invoke(method, arguments, () -> {
                 try {
                     return method.invoke(implementation, arguments);

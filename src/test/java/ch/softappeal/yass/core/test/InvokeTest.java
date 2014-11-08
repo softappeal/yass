@@ -152,15 +152,15 @@ public class InvokeTest {
      * @param testService must use {@link #CLIENT_INTERCEPTOR} and {@link #SERVER_INTERCEPTOR}
      */
     public static void invoke(final TestService testService) throws InterruptedException {
-        invoke("nothing", new Class<?>[]{}, null, () -> testService.nothing());
-        invoke("divide", new Class<?>[]{int.class, int.class}, new Object[]{12, 3}, () -> {
+        invoke("nothing", new Class<?>[] {}, null, () -> testService.nothing());
+        invoke("divide", new Class<?>[] {int.class, int.class}, new Object[] {12, 3}, () -> {
             try {
                 Assert.assertTrue(testService.divide(12, 3) == 4);
             } catch (final DivisionByZeroException e) {
                 Assert.fail();
             }
         });
-        invoke("divide", new Class<?>[]{int.class, int.class}, new Object[]{123, 0}, () -> {
+        invoke("divide", new Class<?>[] {int.class, int.class}, new Object[] {123, 0}, () -> {
             try {
                 testService.divide(123, 0);
                 Assert.fail();
@@ -168,7 +168,7 @@ public class InvokeTest {
                 Assert.assertTrue(e.value == 123);
             }
         });
-        invoke("throwError", new Class<?>[]{}, null, () -> {
+        invoke("throwError", new Class<?>[] {}, null, () -> {
             try {
                 testService.throwError();
                 Assert.fail();
@@ -176,7 +176,7 @@ public class InvokeTest {
                 Assert.assertEquals("throwError", e.getMessage());
             }
         });
-        invoke("oneWay", new Class<?>[]{int.class}, new Object[]{100}, () -> testService.oneWay(100));
+        invoke("oneWay", new Class<?>[] {int.class}, new Object[] {100}, () -> testService.oneWay(100));
         TimeUnit.MILLISECONDS.sleep(200L);
     }
 

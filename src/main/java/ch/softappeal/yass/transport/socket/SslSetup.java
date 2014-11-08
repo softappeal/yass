@@ -50,8 +50,8 @@ public final class SslSetup {
         if ((keyStore == null) && (trustStore == null)) {
             throw new IllegalArgumentException("at least one of keyStore or trustStore must be defined");
         }
-        protocols = new String[]{Check.notNull(protocol)};
-        cipherSuites = new String[]{Check.notNull(cipher)};
+        protocols = new String[] {Check.notNull(protocol)};
+        cipherSuites = new String[] {Check.notNull(cipher)};
         try {
             context = SSLContext.getInstance(protocol);
             KeyManager[] keyManagers = new KeyManager[0];
