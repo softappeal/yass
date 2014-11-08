@@ -119,15 +119,17 @@ public final class FastReflector implements Reflector {
         }
       };
     }
-    // Double.TYPE
-    return new Accessor() {
-      @Override public Object get(final Object object) {
-        return UNSAFE.getDouble(object, offset);
-      }
-      @Override public void set(final Object object, @Nullable final Object value) {
-        UNSAFE.putDouble(object, offset, (Double)value);
-      }
-    };
+    if (type == Double.TYPE) {
+      return new Accessor() {
+        @Override public Object get(final Object object) {
+          return UNSAFE.getDouble(object, offset);
+        }
+        @Override public void set(final Object object, @Nullable final Object value) {
+          UNSAFE.putDouble(object, offset, (Double)value);
+        }
+      };
+    }
+    throw new RuntimeException("unexpected type " + type);
   }
 
 }
