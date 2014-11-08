@@ -107,8 +107,8 @@ public final class Compiler {
       super(fileManager);
       this.classLoader = classLoader;
     }
-    void putFileForInput(final StandardLocation location, final String packageName, final String relativeName, final JavaFileObject file) {
-      fileObjects.put(uri(location, packageName, relativeName), file);
+    void putFileForInput(final String packageName, final String relativeName, final JavaFileObject file) {
+      fileObjects.put(uri(StandardLocation.SOURCE_PATH, packageName, relativeName), file);
     }
     @Override public FileObject getFileForInput(final Location location, final String packageName, final String relativeName) throws IOException {
       final FileObject fileObject = fileObjects.get(uri(location, packageName, relativeName));
@@ -161,7 +161,7 @@ public final class Compiler {
       final String className = (dotPos == -1) ? qualifiedClassName : qualifiedClassName.substring(dotPos + 1);
       final JavaFileObjectImpl source = new JavaFileObjectImpl(className, code);
       sources.add(source);
-      javaFileManager.putFileForInput(StandardLocation.SOURCE_PATH, (dotPos == -1) ? "" : qualifiedClassName.substring(0, dotPos), className + JAVA_EXT, source);
+      javaFileManager.putFileForInput((dotPos == -1) ? "" : qualifiedClassName.substring(0, dotPos), className + JAVA_EXT, source);
     });
     if (!compiler.getTask(null, javaFileManager, diagnostics, Arrays.asList(options), null, sources).call()) {
       throw new RuntimeException(toString("Compilation failed.", diagnostics));
