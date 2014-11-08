@@ -35,7 +35,7 @@ abstract class Generator {
     }
 
     protected final void tab() {
-        printer.print("  ");
+        printer.print("    ");
     }
 
     protected final void tabs() {
