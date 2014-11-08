@@ -16,7 +16,7 @@ import java.util.Map;
  */
 public final class JsFastSerializer extends AbstractFastSerializer {
 
-  private void addClass(final int typeId, final Class<?> type, final boolean referenceable) {
+  private void addClass(final int typeId, final Class<?> type) {
     checkClass(type);
     final List<Field> fields = allFields(type);
     final Map<String, Field> name2field = new HashMap<>(fields.size());
@@ -32,7 +32,7 @@ public final class JsFastSerializer extends AbstractFastSerializer {
     for (final Field field : fields) {
       id2field.put(fieldId++, field);
     }
-    addClass(typeId, type, referenceable, id2field);
+    addClass(typeId, type, false, id2field);
   }
 
   public static final TypeDesc BOOLEAN_TYPEDESC = new TypeDesc(TypeDesc.FIRST_ID, BaseTypeHandlers.BOOLEAN);
@@ -61,7 +61,7 @@ public final class JsFastSerializer extends AbstractFastSerializer {
       addEnum(id++, type);
     }
     for (final Class<?> type : concreteClasses) {
-      addClass(id++, type, false);
+      addClass(id++, type);
     }
     fixupFields();
   }
