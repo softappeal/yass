@@ -7,22 +7,22 @@ import java.io.InputStream;
 
 public final class FileResource implements Resource {
 
-  private final File file;
+    private final File file;
 
-  public FileResource(final File file) {
-    this.file = Check.notNull(file);
-  }
-
-  public FileResource(final String file) {
-    this(new File(file));
-  }
-
-  @Override public InputStream create() {
-    try {
-      return new FileInputStream(file);
-    } catch (final FileNotFoundException e) {
-      throw new RuntimeException(e);
+    public FileResource(final File file) {
+        this.file = Check.notNull(file);
     }
-  }
+
+    public FileResource(final String file) {
+        this(new File(file));
+    }
+
+    @Override public InputStream create() {
+        try {
+            return new FileInputStream(file);
+        } catch (final FileNotFoundException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
 }

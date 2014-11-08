@@ -12,22 +12,22 @@ import java.io.Serializable;
  */
 public final class JavaSerializer implements Serializer {
 
-  private JavaSerializer() {
-    // empty
-  }
-
-  @Override @Nullable public Object read(final Reader reader) throws Exception {
-    try (ObjectInputStream in = new ObjectInputStream(reader.stream())) {
-      return in.readObject();
+    private JavaSerializer() {
+        // empty
     }
-  }
 
-  @Override public void write(@Nullable final Object value, final Writer writer) throws IOException {
-    try (ObjectOutputStream out = new ObjectOutputStream(writer.stream())) {
-      out.writeObject(value);
+    @Override @Nullable public Object read(final Reader reader) throws Exception {
+        try (ObjectInputStream in = new ObjectInputStream(reader.stream())) {
+            return in.readObject();
+        }
     }
-  }
 
-  public static final Serializer INSTANCE = new JavaSerializer();
+    @Override public void write(@Nullable final Object value, final Writer writer) throws IOException {
+        try (ObjectOutputStream out = new ObjectOutputStream(writer.stream())) {
+            out.writeObject(value);
+        }
+    }
+
+    public static final Serializer INSTANCE = new JavaSerializer();
 
 }

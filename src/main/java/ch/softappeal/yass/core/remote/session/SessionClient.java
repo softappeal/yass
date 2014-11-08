@@ -25,168 +25,168 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public final class SessionClient extends Client {
 
-  public final Connection connection;
-  private final SessionSetup setup;
-  private final AtomicBoolean closed = new AtomicBoolean(false);
-  private Session session;
-  private Interceptor sessionInterceptor;
+    public final Connection connection;
+    private final SessionSetup setup;
+    private final AtomicBoolean closed = new AtomicBoolean(false);
+    private Session session;
+    private Interceptor sessionInterceptor;
 
-  private SessionClient(final SessionSetup setup, final Connection connection) {
-    super(setup.server.methodMapperFactory);
-    this.connection = Check.notNull(connection);
-    this.setup = setup;
-  }
-
-  public static SessionClient create(final SessionSetup setup, final Connection connection) throws Exception {
-    final SessionClient sessionClient = new SessionClient(setup, connection);
-    sessionClient.session = Check.notNull(setup.createSession(sessionClient));
-    sessionClient.sessionInterceptor = Interceptor.threadLocal(Session.INSTANCE, sessionClient.session);
-    setup.requestExecutor.execute(() -> {
-      try {
-        sessionClient.session.opened();
-      } catch (final Exception e) {
-        sessionClient.close(e);
-      }
-    });
-    return sessionClient;
-  }
-
-  private void close(final boolean sendEnd, @Nullable final Throwable throwable) {
-    if (closed.getAndSet(true)) {
-      return;
+    private SessionClient(final SessionSetup setup, final Connection connection) {
+        super(setup.server.methodMapperFactory);
+        this.connection = Check.notNull(connection);
+        this.setup = setup;
     }
-    try {
-      try {
-        session.closed(throwable);
-        if (sendEnd) {
-          connection.write(Packet.END);
+
+    public static SessionClient create(final SessionSetup setup, final Connection connection) throws Exception {
+        final SessionClient sessionClient = new SessionClient(setup, connection);
+        sessionClient.session = Check.notNull(setup.createSession(sessionClient));
+        sessionClient.sessionInterceptor = Interceptor.threadLocal(Session.INSTANCE, sessionClient.session);
+        setup.requestExecutor.execute(() -> {
+            try {
+                sessionClient.session.opened();
+            } catch (final Exception e) {
+                sessionClient.close(e);
+            }
+        });
+        return sessionClient;
+    }
+
+    private void close(final boolean sendEnd, @Nullable final Throwable throwable) {
+        if (closed.getAndSet(true)) {
+            return;
         }
-      } catch (final Exception e) {
         try {
-          connection.closed();
-        } catch (final Exception e2) {
-          e.addSuppressed(e2);
+            try {
+                session.closed(throwable);
+                if (sendEnd) {
+                    connection.write(Packet.END);
+                }
+            } catch (final Exception e) {
+                try {
+                    connection.closed();
+                } catch (final Exception e2) {
+                    e.addSuppressed(e2);
+                }
+                throw e;
+            }
+            connection.closed();
+        } catch (final Exception e) {
+            throw Exceptions.wrap(e);
         }
-        throw e;
-      }
-      connection.closed();
-    } catch (final Exception e) {
-      throw Exceptions.wrap(e);
     }
-  }
 
-  private void write(final int requestNumber, final Message message) {
-    if (closed.get()) {
-      throw new SessionClosedException();
-    }
-    try {
-      connection.write(new Packet(requestNumber, message));
-    } catch (final Exception e) {
-      close(e);
-    }
-  }
-
-  private final Map<Integer, BlockingQueue<Reply>> requestNumber2replyQueue = Collections.synchronizedMap(new HashMap<>(16));
-
-  private void replyReceived(final int requestNumber, final Reply reply) throws InterruptedException {
-    @Nullable final BlockingQueue<Reply> replyQueue = requestNumber2replyQueue.remove(requestNumber);
-    if (replyQueue != null) { // needed because request can be interrupted, see below
-      replyQueue.put(reply);
-    }
-  }
-
-  private RequestInterruptedException requestInterrupted(final int requestNumber) {
-    requestNumber2replyQueue.remove(requestNumber);
-    return new RequestInterruptedException();
-  }
-
-  private Reply rpcInvoke(final int requestNumber, final Request request) {
-    final BlockingQueue<Reply> replyQueue = new ArrayBlockingQueue<>(1, false); // we use unfair for speed
-    if (requestNumber2replyQueue.put(requestNumber, replyQueue) != null) {
-      throw new RuntimeException("already waiting for requestNumber " + requestNumber);
-    }
-    write(requestNumber, request);
-    while (true) {
-      if (Thread.interrupted()) {
-        throw requestInterrupted(requestNumber);
-      }
-      try {
-        final Reply reply = replyQueue.poll(100L, TimeUnit.MILLISECONDS);
-        if (reply != null) {
-          return reply;
-        } else if (closed.get()) {
-          throw new SessionClosedException();
+    private void write(final int requestNumber, final Message message) {
+        if (closed.get()) {
+            throw new SessionClosedException();
         }
-      } catch (final InterruptedException ignored) {
-        throw requestInterrupted(requestNumber);
-      }
-    }
-  }
-
-  private void serverInvoke(final int requestNumber, final Request request) {
-    setup.requestExecutor.execute(() -> {
-      try {
-        final ServerInvocation invocation = setup.server.invocation(request);
-        final Reply reply = invocation.invoke(sessionInterceptor);
-        if (!invocation.oneWay) {
-          write(requestNumber, reply);
+        try {
+            connection.write(new Packet(requestNumber, message));
+        } catch (final Exception e) {
+            close(e);
         }
-      } catch (final Exception e) {
-        close(e);
-      }
-    });
-  }
-
-  /**
-   * Must be called if a packet has been received.
-   * It must also be called if {@link Packet#isEnd()}; however, it must not be called again after that.
-   */
-  public void received(final Packet packet) {
-    try {
-      if (packet.isEnd()) {
-        close(false, null);
-        return;
-      }
-      final Message message = packet.message();
-      if (message instanceof Request) {
-        serverInvoke(packet.requestNumber(), (Request)message);
-      } else {
-        replyReceived(packet.requestNumber(), (Reply)message);
-      }
-    } catch (final Exception e) {
-      close(e);
     }
-  }
 
-  /**
-   * Must be called if communication has failed.
-   * This method is idempotent.
-   */
-  public void close(final Throwable throwable) {
-    close(false, Check.notNull(throwable));
-  }
+    private final Map<Integer, BlockingQueue<Reply>> requestNumber2replyQueue = Collections.synchronizedMap(new HashMap<>(16));
 
-  private final AtomicInteger nextRequestNumber = new AtomicInteger(Packet.END_REQUEST_NUMBER);
+    private void replyReceived(final int requestNumber, final Reply reply) throws InterruptedException {
+        @Nullable final BlockingQueue<Reply> replyQueue = requestNumber2replyQueue.remove(requestNumber);
+        if (replyQueue != null) { // needed because request can be interrupted, see below
+            replyQueue.put(reply);
+        }
+    }
 
-  @Override protected Object invoke(final ClientInvocation invocation) throws Throwable {
-    return invocation.invoke(sessionInterceptor, request -> {
-      int requestNumber;
-      do { // we can't use END_REQUEST_NUMBER as regular requestNumber
-        requestNumber = nextRequestNumber.incrementAndGet();
-      } while (requestNumber == Packet.END_REQUEST_NUMBER);
-      if (invocation.oneWay) {
+    private RequestInterruptedException requestInterrupted(final int requestNumber) {
+        requestNumber2replyQueue.remove(requestNumber);
+        return new RequestInterruptedException();
+    }
+
+    private Reply rpcInvoke(final int requestNumber, final Request request) {
+        final BlockingQueue<Reply> replyQueue = new ArrayBlockingQueue<>(1, false); // we use unfair for speed
+        if (requestNumber2replyQueue.put(requestNumber, replyQueue) != null) {
+            throw new RuntimeException("already waiting for requestNumber " + requestNumber);
+        }
         write(requestNumber, request);
-        return null;
-      }
-      return rpcInvoke(requestNumber, request);
-    });
-  }
+        while (true) {
+            if (Thread.interrupted()) {
+                throw requestInterrupted(requestNumber);
+            }
+            try {
+                final Reply reply = replyQueue.poll(100L, TimeUnit.MILLISECONDS);
+                if (reply != null) {
+                    return reply;
+                } else if (closed.get()) {
+                    throw new SessionClosedException();
+                }
+            } catch (final InterruptedException ignored) {
+                throw requestInterrupted(requestNumber);
+            }
+        }
+    }
 
-  /**
-   * This method is idempotent.
-   */
-  void close() {
-    close(true, null);
-  }
+    private void serverInvoke(final int requestNumber, final Request request) {
+        setup.requestExecutor.execute(() -> {
+            try {
+                final ServerInvocation invocation = setup.server.invocation(request);
+                final Reply reply = invocation.invoke(sessionInterceptor);
+                if (!invocation.oneWay) {
+                    write(requestNumber, reply);
+                }
+            } catch (final Exception e) {
+                close(e);
+            }
+        });
+    }
+
+    /**
+     * Must be called if a packet has been received.
+     * It must also be called if {@link Packet#isEnd()}; however, it must not be called again after that.
+     */
+    public void received(final Packet packet) {
+        try {
+            if (packet.isEnd()) {
+                close(false, null);
+                return;
+            }
+            final Message message = packet.message();
+            if (message instanceof Request) {
+                serverInvoke(packet.requestNumber(), (Request)message);
+            } else {
+                replyReceived(packet.requestNumber(), (Reply)message);
+            }
+        } catch (final Exception e) {
+            close(e);
+        }
+    }
+
+    /**
+     * Must be called if communication has failed.
+     * This method is idempotent.
+     */
+    public void close(final Throwable throwable) {
+        close(false, Check.notNull(throwable));
+    }
+
+    private final AtomicInteger nextRequestNumber = new AtomicInteger(Packet.END_REQUEST_NUMBER);
+
+    @Override protected Object invoke(final ClientInvocation invocation) throws Throwable {
+        return invocation.invoke(sessionInterceptor, request -> {
+            int requestNumber;
+            do { // we can't use END_REQUEST_NUMBER as regular requestNumber
+                requestNumber = nextRequestNumber.incrementAndGet();
+            } while (requestNumber == Packet.END_REQUEST_NUMBER);
+            if (invocation.oneWay) {
+                write(requestNumber, request);
+                return null;
+            }
+            return rpcInvoke(requestNumber, request);
+        });
+    }
+
+    /**
+     * This method is idempotent.
+     */
+    void close() {
+        close(true, null);
+    }
 
 }

@@ -10,21 +10,21 @@ import java.util.concurrent.CountDownLatch;
 
 public abstract class JettyTest extends WsTest {
 
-  protected static void run(final CountDownLatch latch) throws Exception {
-    final Server server = new Server();
-    final ServerConnector serverConnector = new ServerConnector(server);
-    serverConnector.setPort(PORT);
-    server.addConnector(serverConnector);
-    final ServletContextHandler contextHandler = new ServletContextHandler(ServletContextHandler.SESSIONS);
-    contextHandler.setContextPath("/");
-    server.setHandler(contextHandler);
-    WebSocketServerContainerInitializer.configureContext(contextHandler).addEndpoint(SERVER_ENDPOINT_CONFIG);
-    server.start();
-    final ClientContainer container = new ClientContainer();
-    container.start();
-    connect(container, latch);
-    container.stop();
-    server.stop();
-  }
+    protected static void run(final CountDownLatch latch) throws Exception {
+        final Server server = new Server();
+        final ServerConnector serverConnector = new ServerConnector(server);
+        serverConnector.setPort(PORT);
+        server.addConnector(serverConnector);
+        final ServletContextHandler contextHandler = new ServletContextHandler(ServletContextHandler.SESSIONS);
+        contextHandler.setContextPath("/");
+        server.setHandler(contextHandler);
+        WebSocketServerContainerInitializer.configureContext(contextHandler).addEndpoint(SERVER_ENDPOINT_CONFIG);
+        server.start();
+        final ClientContainer container = new ClientContainer();
+        container.start();
+        connect(container, latch);
+        container.stop();
+        server.stop();
+    }
 
 }

@@ -32,99 +32,99 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public final class WriterExecutorTest {
 
-  public interface StringListener {
-    @Tag(1) @OneWay void newString(String value);
-  }
+    public interface StringListener {
+        @Tag(1) @OneWay void newString(String value);
+    }
 
-  private static final ContractId<StringListener> StringListenerId = ContractId.create(StringListener.class, 0);
+    private static final ContractId<StringListener> StringListenerId = ContractId.create(StringListener.class, 0);
 
-  private static final Serializer PACKET_SERIALIZER = new PacketSerializer(new MessageSerializer(SerializerTest.TAGGED_FAST_SERIALIZER));
+    private static final Serializer PACKET_SERIALIZER = new PacketSerializer(new MessageSerializer(SerializerTest.TAGGED_FAST_SERIALIZER));
 
-  private static final MethodMapper.Factory METHOD_MAPPER_FACTORY = TaggedMethodMapper.FACTORY;
+    private static final MethodMapper.Factory METHOD_MAPPER_FACTORY = TaggedMethodMapper.FACTORY;
 
-  private static final SocketAddress ADDRESS = new InetSocketAddress("localhost", 28947);
+    private static final SocketAddress ADDRESS = new InetSocketAddress("localhost", 28947);
 
-  private static Executor executor(final String name) {
-    return Executors.newCachedThreadPool(new NamedThreadFactory(name, Exceptions.TERMINATE));
-  }
+    private static Executor executor(final String name) {
+        return Executors.newCachedThreadPool(new NamedThreadFactory(name, Exceptions.TERMINATE));
+    }
 
-  private static void server() {
-    SocketTransport.listener(
-      StringPathSerializer.INSTANCE,
-      new PathResolver(
-        SocketTransportTest.PATH,
-        new TransportSetup(
-          new Server(METHOD_MAPPER_FACTORY),
-          executor("server-request"),
-          PACKET_SERIALIZER
-        ) {
-          @Override public Session createSession(final SessionClient sessionClient) {
-            return new Session(sessionClient) {
-              @Override public void opened() {
-                final SocketConnection socketConnection = (SocketConnection)connection;
-                final StringListener stringListener = invoker(StringListenerId).proxy();
-                socketConnection.awaitWriterQueueEmpty();
-                final Executor worker = executor("server-worker");
-                final String s = "hello";
-                for (int i = 0; i < 20; i++) {
-                  worker.execute(() -> {
-                    while (true) {
-                      stringListener.newString(s);
-                      try {
-                        TimeUnit.MILLISECONDS.sleep(1);
-                      } catch (final InterruptedException e) {
-                        throw new RuntimeException(e);
-                      }
+    private static void server() {
+        SocketTransport.listener(
+            StringPathSerializer.INSTANCE,
+            new PathResolver(
+                SocketTransportTest.PATH,
+                new TransportSetup(
+                    new Server(METHOD_MAPPER_FACTORY),
+                    executor("server-request"),
+                    PACKET_SERIALIZER
+                ) {
+                    @Override public Session createSession(final SessionClient sessionClient) {
+                        return new Session(sessionClient) {
+                            @Override public void opened() {
+                                final SocketConnection socketConnection = (SocketConnection)connection;
+                                final StringListener stringListener = invoker(StringListenerId).proxy();
+                                socketConnection.awaitWriterQueueEmpty();
+                                final Executor worker = executor("server-worker");
+                                final String s = "hello";
+                                for (int i = 0; i < 20; i++) {
+                                    worker.execute(() -> {
+                                        while (true) {
+                                            stringListener.newString(s);
+                                            try {
+                                                TimeUnit.MILLISECONDS.sleep(1);
+                                            } catch (final InterruptedException e) {
+                                                throw new RuntimeException(e);
+                                            }
+                                        }
+                                    });
+                                }
+                            }
+                            @Override public void closed(@Nullable final Throwable throwable) {
+                                Exceptions.TERMINATE.uncaughtException(null, throwable);
+                            }
+                        };
                     }
-                  });
                 }
-              }
-              @Override public void closed(@Nullable final Throwable throwable) {
-                Exceptions.TERMINATE.uncaughtException(null, throwable);
-              }
-            };
-          }
-        }
-      )
-    ).start(executor("server-listener"), new SocketExecutor(executor("server-socket"), Exceptions.TERMINATE), ADDRESS);
-  }
+            )
+        ).start(executor("server-listener"), new SocketExecutor(executor("server-socket"), Exceptions.TERMINATE), ADDRESS);
+    }
 
-  public static void main(final String... args) {
-    server();
-    final AtomicInteger counter = new AtomicInteger(0);
-    SocketTransport.connect(
-      new TransportSetup(
-        new Server(
-          METHOD_MAPPER_FACTORY,
-          new Service(
-            StringListenerId,
-            value -> {
-              counter.incrementAndGet();
-            }
-          )
-        ),
-        executor("client-request"),
-        PACKET_SERIALIZER
-      ) {
-        @Override public Session createSession(final SessionClient sessionClient) {
-          return new Session(sessionClient) {
-            @Override public void closed(@Nullable final Throwable throwable) {
-              Exceptions.TERMINATE.uncaughtException(null, throwable);
-            }
-          };
-        }
-      },
-      new SocketExecutor(executor("client-socket"), Exceptions.TERMINATE),
-      StringPathSerializer.INSTANCE, SocketTransportTest.PATH, ADDRESS
-    );
-    Executors.newScheduledThreadPool(1).scheduleAtFixedRate(
-      () -> {
-        System.out.println(counter.get());
-      },
-      0,
-      1,
-      TimeUnit.SECONDS
-    );
-  }
+    public static void main(final String... args) {
+        server();
+        final AtomicInteger counter = new AtomicInteger(0);
+        SocketTransport.connect(
+            new TransportSetup(
+                new Server(
+                    METHOD_MAPPER_FACTORY,
+                    new Service(
+                        StringListenerId,
+                        value -> {
+                            counter.incrementAndGet();
+                        }
+                    )
+                ),
+                executor("client-request"),
+                PACKET_SERIALIZER
+            ) {
+                @Override public Session createSession(final SessionClient sessionClient) {
+                    return new Session(sessionClient) {
+                        @Override public void closed(@Nullable final Throwable throwable) {
+                            Exceptions.TERMINATE.uncaughtException(null, throwable);
+                        }
+                    };
+                }
+            },
+            new SocketExecutor(executor("client-socket"), Exceptions.TERMINATE),
+            StringPathSerializer.INSTANCE, SocketTransportTest.PATH, ADDRESS
+        );
+        Executors.newScheduledThreadPool(1).scheduleAtFixedRate(
+            () -> {
+                System.out.println(counter.get());
+            },
+            0,
+            1,
+            TimeUnit.SECONDS
+        );
+    }
 
 }

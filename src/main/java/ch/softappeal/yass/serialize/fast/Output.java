@@ -8,27 +8,27 @@ import java.util.Map;
 
 final class Output {
 
-  final Writer writer;
-  private final Map<Class<?>, TypeDesc> class2typeDesc;
-  Map<Object, Integer> object2reference;
+    final Writer writer;
+    private final Map<Class<?>, TypeDesc> class2typeDesc;
+    Map<Object, Integer> object2reference;
 
-  Output(final Writer writer, final Map<Class<?>, TypeDesc> class2typeDesc) {
-    this.writer = writer;
-    this.class2typeDesc = class2typeDesc;
-  }
-
-  void write(@Nullable final Object value) throws Exception {
-    if (value == null) {
-      TypeDesc.NULL.write(null, this);
-    } else if (value instanceof List) {
-      TypeDesc.LIST.write(value, this);
-    } else {
-      final TypeDesc typeDesc = class2typeDesc.get(value.getClass());
-      if (typeDesc == null) {
-        throw new IllegalArgumentException("missing type '" + value.getClass().getCanonicalName() + '\'');
-      }
-      typeDesc.write(value, this);
+    Output(final Writer writer, final Map<Class<?>, TypeDesc> class2typeDesc) {
+        this.writer = writer;
+        this.class2typeDesc = class2typeDesc;
     }
-  }
+
+    void write(@Nullable final Object value) throws Exception {
+        if (value == null) {
+            TypeDesc.NULL.write(null, this);
+        } else if (value instanceof List) {
+            TypeDesc.LIST.write(value, this);
+        } else {
+            final TypeDesc typeDesc = class2typeDesc.get(value.getClass());
+            if (typeDesc == null) {
+                throw new IllegalArgumentException("missing type '" + value.getClass().getCanonicalName() + '\'');
+            }
+            typeDesc.write(value, this);
+        }
+    }
 
 }

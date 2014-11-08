@@ -2,24 +2,24 @@ package ch.softappeal.yass.serialize.test;
 
 public class FieldModifiers {
 
-  static boolean CONSTRUCTOR_CALLED;
+    static boolean CONSTRUCTOR_CALLED;
 
-  public static int STATIC_FIELD;
+    public static int STATIC_FIELD;
 
-  public transient int transientField;
+    public transient int transientField;
 
-  private int privateField;
+    private int privateField;
 
-  private int privateFinalField;
+    private int privateFinalField;
 
-  public int publicField;
+    public int publicField;
 
-  public final int publicFinalField;
+    public final int publicFinalField;
 
-  private FieldModifiers() {
-    CONSTRUCTOR_CALLED = true;
-    privateFinalField = 100;
-    publicFinalField = 101;
-  }
+    private FieldModifiers() {
+        CONSTRUCTOR_CALLED = true;
+        privateFinalField = 100;
+        publicFinalField = 101;
+    }
 
 }

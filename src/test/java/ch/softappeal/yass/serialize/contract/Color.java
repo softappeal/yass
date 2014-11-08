@@ -5,18 +5,18 @@ import ch.softappeal.yass.util.Tag;
 
 @Tag(30) public enum Color {
 
-  RED("red"),
-  GREEN("green"),
-  BLUE("blue");
+    RED("red"),
+    GREEN("green"),
+    BLUE("blue");
 
-  Color(final String text) {
-    this.text = Check.notNull(text);
-  }
+    Color(final String text) {
+        this.text = Check.notNull(text);
+    }
 
-  private final String text;
+    private final String text;
 
-  public String getText() {
-    return text;
-  }
+    public String getText() {
+        return text;
+    }
 
 }

@@ -9,11 +9,11 @@ import java.util.concurrent.Executor;
 
 public abstract class TransportSetup extends SessionSetup {
 
-  public final Serializer packetSerializer;
+    public final Serializer packetSerializer;
 
-  protected TransportSetup(final Server server, final Executor requestExecutor, final Serializer packetSerializer) {
-    super(server, requestExecutor);
-    this.packetSerializer = Check.notNull(packetSerializer);
-  }
+    protected TransportSetup(final Server server, final Executor requestExecutor, final Serializer packetSerializer) {
+        super(server, requestExecutor);
+        this.packetSerializer = Check.notNull(packetSerializer);
+    }
 
 }

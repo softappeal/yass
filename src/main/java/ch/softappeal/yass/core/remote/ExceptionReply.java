@@ -4,16 +4,16 @@ import ch.softappeal.yass.util.Check;
 
 public final class ExceptionReply extends Reply {
 
-  private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-  public final Throwable throwable;
+    public final Throwable throwable;
 
-  public ExceptionReply(final Throwable throwable) {
-    this.throwable = Check.notNull(throwable);
-  }
+    public ExceptionReply(final Throwable throwable) {
+        this.throwable = Check.notNull(throwable);
+    }
 
-  @Override Object process() throws Throwable {
-    throw throwable;
-  }
+    @Override Object process() throws Throwable {
+        throw throwable;
+    }
 
 }

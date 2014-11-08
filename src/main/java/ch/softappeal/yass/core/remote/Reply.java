@@ -4,12 +4,12 @@ import ch.softappeal.yass.util.Nullable;
 
 public abstract class Reply extends Message {
 
-  private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-  Reply() {
-    // empty
-  }
+    Reply() {
+        // empty
+    }
 
-  @Nullable abstract Object process() throws Throwable;
+    @Nullable abstract Object process() throws Throwable;
 
 }

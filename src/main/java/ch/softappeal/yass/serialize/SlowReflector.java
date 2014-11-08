@@ -11,34 +11,34 @@ import java.lang.reflect.Modifier;
  */
 public final class SlowReflector implements Reflector {
 
-  public static final Factory FACTORY = SlowReflector::new;
+    public static final Factory FACTORY = SlowReflector::new;
 
-  private SlowReflector(final Class<?> type) throws NoSuchMethodException {
-    constructor = type.getDeclaredConstructor();
-    if (!Modifier.isPublic(constructor.getModifiers())) {
-      constructor.setAccessible(true);
+    private SlowReflector(final Class<?> type) throws NoSuchMethodException {
+        constructor = type.getDeclaredConstructor();
+        if (!Modifier.isPublic(constructor.getModifiers())) {
+            constructor.setAccessible(true);
+        }
     }
-  }
 
-  private final Constructor<?> constructor;
+    private final Constructor<?> constructor;
 
-  @Override public Object newInstance() throws Exception {
-    return constructor.newInstance();
-  }
-
-  @Override public Accessor accessor(final Field field) {
-    final int modifiers = field.getModifiers();
-    if (!Modifier.isPublic(modifiers) || Modifier.isFinal(modifiers)) {
-      field.setAccessible(true);
+    @Override public Object newInstance() throws Exception {
+        return constructor.newInstance();
     }
-    return new Accessor() {
-      @Override public Object get(final Object object) throws IllegalAccessException {
-        return field.get(object);
-      }
-      @Override public void set(final Object object, @Nullable final Object value) throws IllegalAccessException {
-        field.set(object, value);
-      }
-    };
-  }
+
+    @Override public Accessor accessor(final Field field) {
+        final int modifiers = field.getModifiers();
+        if (!Modifier.isPublic(modifiers) || Modifier.isFinal(modifiers)) {
+            field.setAccessible(true);
+        }
+        return new Accessor() {
+            @Override public Object get(final Object object) throws IllegalAccessException {
+                return field.get(object);
+            }
+            @Override public void set(final Object object, @Nullable final Object value) throws IllegalAccessException {
+                field.set(object, value);
+            }
+        };
+    }
 
 }

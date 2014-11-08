@@ -7,19 +7,19 @@ import ch.softappeal.yass.serialize.fast.BaseTypeHandlers;
 
 public final class StringPathSerializer implements Serializer {
 
-  private StringPathSerializer() {
-    // disable
-  }
+    private StringPathSerializer() {
+        // disable
+    }
 
-  @Override public Object read(final Reader reader) throws Exception {
-    return BaseTypeHandlers.STRING.read(reader);
-  }
+    @Override public Object read(final Reader reader) throws Exception {
+        return BaseTypeHandlers.STRING.read(reader);
+    }
 
-  @Override public void write(final Object value, final Writer writer) throws Exception {
-    BaseTypeHandlers.STRING.write((String)value, writer);
+    @Override public void write(final Object value, final Writer writer) throws Exception {
+        BaseTypeHandlers.STRING.write((String)value, writer);
 
-  }
+    }
 
-  public static final Serializer INSTANCE = new StringPathSerializer();
+    public static final Serializer INSTANCE = new StringPathSerializer();
 
 }

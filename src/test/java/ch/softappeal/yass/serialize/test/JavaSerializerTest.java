@@ -18,52 +18,52 @@ import java.io.EOFException;
 
 public class JavaSerializerTest {
 
-  @SuppressWarnings("unchecked")
-  @Nullable public static <T> T copy(final Serializer serializer, @Nullable final T value) throws Exception {
-    final ByteArrayOutputStream buffer = new ByteArrayOutputStream();
-    final Writer writer = Writer.create(buffer);
-    serializer.write(value, writer);
-    writer.writeByte((byte)123); // write sentinel
-    final Reader reader = Reader.create(new ByteArrayInputStream(buffer.toByteArray()));
-    final T result = (T)serializer.read(reader);
-    Assert.assertTrue(reader.readByte() == 123); // check sentinel
-    return result;
-  }
+    @SuppressWarnings("unchecked")
+    @Nullable public static <T> T copy(final Serializer serializer, @Nullable final T value) throws Exception {
+        final ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+        final Writer writer = Writer.create(buffer);
+        serializer.write(value, writer);
+        writer.writeByte((byte)123); // write sentinel
+        final Reader reader = Reader.create(new ByteArrayInputStream(buffer.toByteArray()));
+        final T result = (T)serializer.read(reader);
+        Assert.assertTrue(reader.readByte() == 123); // check sentinel
+        return result;
+    }
 
-  @Nullable private static <T> T copy(@Nullable final T value) throws Exception {
-    return copy(JavaSerializer.INSTANCE, value);
-  }
+    @Nullable private static <T> T copy(@Nullable final T value) throws Exception {
+        return copy(JavaSerializer.INSTANCE, value);
+    }
 
-  @Test public void nullValue() throws Exception {
-    Assert.assertNull(copy(null));
-  }
+    @Test public void nullValue() throws Exception {
+        Assert.assertNull(copy(null));
+    }
 
-  @Test public void request() throws Exception {
-    final int requestNumber = 1234567890;
-    final Object serviceId = "abc";
-    final String methodId = "xyz";
-    final Packet packet = copy(
-      new Packet(
-        requestNumber,
-        new Request(serviceId, methodId, new Object[0])
-      )
-    );
-    Assert.assertTrue(packet.requestNumber() == requestNumber);
-    final Request request = (Request)packet.message();
-    Assert.assertEquals(serviceId, request.serviceId);
-    Assert.assertEquals(methodId, request.methodId);
-    Assert.assertTrue(request.arguments.length == 0);
-  }
+    @Test public void request() throws Exception {
+        final int requestNumber = 1234567890;
+        final Object serviceId = "abc";
+        final String methodId = "xyz";
+        final Packet packet = copy(
+            new Packet(
+                requestNumber,
+                new Request(serviceId, methodId, new Object[0])
+            )
+        );
+        Assert.assertTrue(packet.requestNumber() == requestNumber);
+        final Request request = (Request)packet.message();
+        Assert.assertEquals(serviceId, request.serviceId);
+        Assert.assertEquals(methodId, request.methodId);
+        Assert.assertTrue(request.arguments.length == 0);
+    }
 
-  @Test public void value() throws Exception {
-    final String value = "xyz";
-    final ValueReply reply = copy(new ValueReply(value));
-    Assert.assertEquals(value, reply.value);
-  }
+    @Test public void value() throws Exception {
+        final String value = "xyz";
+        final ValueReply reply = copy(new ValueReply(value));
+        Assert.assertEquals(value, reply.value);
+    }
 
-  @Test public void exception() throws Exception {
-    final ExceptionReply reply = copy(new ExceptionReply(new EOFException()));
-    Assert.assertTrue(reply.throwable instanceof EOFException);
-  }
+    @Test public void exception() throws Exception {
+        final ExceptionReply reply = copy(new ExceptionReply(new EOFException()));
+        Assert.assertTrue(reply.throwable instanceof EOFException);
+    }
 
 }

@@ -2,8 +2,8 @@ package ch.softappeal.yass.serialize.test;
 
 public class FieldInit {
 
-  public int i = 123;
+    public int i = 123;
 
-  public String s = "abc";
+    public String s = "abc";
 
 }

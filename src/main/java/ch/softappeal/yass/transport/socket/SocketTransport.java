@@ -35,81 +35,81 @@ import java.util.concurrent.Executor;
  */
 public final class SocketTransport {
 
-  private SocketTransport() {
-    // disable
-  }
-
-  /**
-   * Forces immediate send.
-   */
-  private static void setTcpNoDelay(final Socket socket) throws SocketException {
-    socket.setTcpNoDelay(true);
-  }
-
-  public static SocketListener listener(final Serializer pathSerializer, final PathResolver pathResolver) {
-    Check.notNull(pathSerializer);
-    Check.notNull(pathResolver);
-    return new SocketListener() {
-      @Override void accept(final Socket socket, final Executor writerExecutor) throws Exception {
-        setTcpNoDelay(socket);
-        final Reader reader = Reader.create(socket.getInputStream());
-        final TransportSetup setup = pathResolver.resolvePath(pathSerializer.read(reader));
-        SocketConnection.create(setup, socket, reader, socket.getOutputStream(), writerExecutor);
-      }
-    };
-  }
-
-  static void close(final Socket socket, final Exception e) {
-    try {
-      socket.close();
-    } catch (final Exception e2) {
-      e.addSuppressed(e2);
+    private SocketTransport() {
+        // disable
     }
-  }
 
-  static Socket connectSocket(final SocketFactory socketFactory, final SocketAddress socketAddress) throws IOException {
-    final Socket socket = socketFactory.createSocket();
-    try {
-      socket.connect(socketAddress);
-      return socket;
-    } catch (final Exception e) {
-      close(socket, e);
-      throw e;
+    /**
+     * Forces immediate send.
+     */
+    private static void setTcpNoDelay(final Socket socket) throws SocketException {
+        socket.setTcpNoDelay(true);
     }
-  }
 
-  public static void connect(
-    final TransportSetup setup, final SocketExecutor socketExecutor, final Serializer pathSerializer, final Object path,
-    final SocketFactory socketFactory, final SocketAddress socketAddress
-  ) {
-    Check.notNull(setup);
-    Check.notNull(pathSerializer);
-    Check.notNull(path);
-    final Socket socket;
-    try {
-      socket = connectSocket(socketFactory, socketAddress);
-    } catch (final IOException e) {
-      throw new RuntimeException(e);
+    public static SocketListener listener(final Serializer pathSerializer, final PathResolver pathResolver) {
+        Check.notNull(pathSerializer);
+        Check.notNull(pathResolver);
+        return new SocketListener() {
+            @Override void accept(final Socket socket, final Executor writerExecutor) throws Exception {
+                setTcpNoDelay(socket);
+                final Reader reader = Reader.create(socket.getInputStream());
+                final TransportSetup setup = pathResolver.resolvePath(pathSerializer.read(reader));
+                SocketConnection.create(setup, socket, reader, socket.getOutputStream(), writerExecutor);
+            }
+        };
     }
-    socketExecutor.execute(socket, new SocketListener() {
-      @Override void accept(final Socket socket, final Executor writerExecutor) throws Exception {
-        setTcpNoDelay(socket);
-        final OutputStream outputStream = socket.getOutputStream();
-        pathSerializer.write(path, Writer.create(outputStream));
-        outputStream.flush();
-        SocketConnection.create(setup, socket, Reader.create(socket.getInputStream()), outputStream, writerExecutor);
-      }
-    });
-  }
 
-  /**
-   * Uses {@link SocketFactory#getDefault()}.
-   */
-  public static void connect(
-    final TransportSetup setup, final SocketExecutor socketExecutor, final Serializer pathSerializer, final Object path,
-    final SocketAddress socketAddress
-  ) {
-    connect(setup, socketExecutor, pathSerializer, path, SocketFactory.getDefault(), socketAddress);
-  }
+    static void close(final Socket socket, final Exception e) {
+        try {
+            socket.close();
+        } catch (final Exception e2) {
+            e.addSuppressed(e2);
+        }
+    }
+
+    static Socket connectSocket(final SocketFactory socketFactory, final SocketAddress socketAddress) throws IOException {
+        final Socket socket = socketFactory.createSocket();
+        try {
+            socket.connect(socketAddress);
+            return socket;
+        } catch (final Exception e) {
+            close(socket, e);
+            throw e;
+        }
+    }
+
+    public static void connect(
+        final TransportSetup setup, final SocketExecutor socketExecutor, final Serializer pathSerializer, final Object path,
+        final SocketFactory socketFactory, final SocketAddress socketAddress
+    ) {
+        Check.notNull(setup);
+        Check.notNull(pathSerializer);
+        Check.notNull(path);
+        final Socket socket;
+        try {
+            socket = connectSocket(socketFactory, socketAddress);
+        } catch (final IOException e) {
+            throw new RuntimeException(e);
+        }
+        socketExecutor.execute(socket, new SocketListener() {
+            @Override void accept(final Socket socket, final Executor writerExecutor) throws Exception {
+                setTcpNoDelay(socket);
+                final OutputStream outputStream = socket.getOutputStream();
+                pathSerializer.write(path, Writer.create(outputStream));
+                outputStream.flush();
+                SocketConnection.create(setup, socket, Reader.create(socket.getInputStream()), outputStream, writerExecutor);
+            }
+        });
+    }
+
+    /**
+     * Uses {@link SocketFactory#getDefault()}.
+     */
+    public static void connect(
+        final TransportSetup setup, final SocketExecutor socketExecutor, final Serializer pathSerializer, final Object path,
+        final SocketAddress socketAddress
+    ) {
+        connect(setup, socketExecutor, pathSerializer, path, SocketFactory.getDefault(), socketAddress);
+    }
 
 }

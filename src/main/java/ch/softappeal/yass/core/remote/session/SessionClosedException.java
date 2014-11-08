@@ -5,6 +5,6 @@ package ch.softappeal.yass.core.remote.session;
  */
 public final class SessionClosedException extends RuntimeException {
 
-  private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
 }

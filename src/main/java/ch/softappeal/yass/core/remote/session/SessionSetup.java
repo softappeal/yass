@@ -9,19 +9,19 @@ import java.util.concurrent.Executor;
 
 public abstract class SessionSetup {
 
-  public final Server server;
-  public final Executor requestExecutor;
+    public final Server server;
+    public final Executor requestExecutor;
 
-  protected SessionSetup(final Server server, final Executor requestExecutor) {
-    this.server = Check.notNull(server);
-    this.requestExecutor = Check.notNull(requestExecutor);
-  }
+    protected SessionSetup(final Server server, final Executor requestExecutor) {
+        this.server = Check.notNull(server);
+        this.requestExecutor = Check.notNull(requestExecutor);
+    }
 
-  /**
-   * It's allowed to call {@link Invoker#proxy(Interceptor...)} during this method,
-   * but the proxies can be used not before {@link Session#opened()} is called.
-   * If this method throws an exception, the connection is rejected ({@link Session#closed(Throwable)} won't be called).
-   */
-  public abstract Session createSession(SessionClient sessionClient) throws Exception;
+    /**
+     * It's allowed to call {@link Invoker#proxy(Interceptor...)} during this method,
+     * but the proxies can be used not before {@link Session#opened()} is called.
+     * If this method throws an exception, the connection is rejected ({@link Session#closed(Throwable)} won't be called).
+     */
+    public abstract Session createSession(SessionClient sessionClient) throws Exception;
 
 }

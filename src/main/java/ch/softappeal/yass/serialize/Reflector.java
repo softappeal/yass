@@ -9,17 +9,17 @@ import java.lang.reflect.Field;
  */
 public interface Reflector {
 
-  @FunctionalInterface interface Factory {
-    Reflector create(Class<?> type) throws Exception;
-  }
+    @FunctionalInterface interface Factory {
+        Reflector create(Class<?> type) throws Exception;
+    }
 
-  interface Accessor {
-    @Nullable Object get(Object object) throws Exception;
-    void set(Object object, @Nullable Object value) throws Exception;
-  }
+    interface Accessor {
+        @Nullable Object get(Object object) throws Exception;
+        void set(Object object, @Nullable Object value) throws Exception;
+    }
 
-  Object newInstance() throws Exception;
+    Object newInstance() throws Exception;
 
-  Accessor accessor(Field field);
+    Accessor accessor(Field field);
 
 }

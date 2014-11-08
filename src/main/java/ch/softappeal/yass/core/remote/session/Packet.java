@@ -8,59 +8,59 @@ import java.io.Serializable;
 
 public final class Packet implements Serializable {
 
-  private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-  private final int requestNumber;
-  @Nullable private final Message message;
+    private final int requestNumber;
+    @Nullable private final Message message;
 
-  /**
-   * @param requestNumber must not be {@link #END_REQUEST_NUMBER}; use {@link #END} instead
-   */
-  public Packet(final int requestNumber, final Message message) {
-    if (requestNumber == END_REQUEST_NUMBER) {
-      throw new IllegalArgumentException("use END");
+    /**
+     * @param requestNumber must not be {@link #END_REQUEST_NUMBER}; use {@link #END} instead
+     */
+    public Packet(final int requestNumber, final Message message) {
+        if (requestNumber == END_REQUEST_NUMBER) {
+            throw new IllegalArgumentException("use END");
+        }
+        this.requestNumber = requestNumber;
+        this.message = Check.notNull(message);
     }
-    this.requestNumber = requestNumber;
-    this.message = Check.notNull(message);
-  }
 
-  public static final int END_REQUEST_NUMBER = 0;
+    public static final int END_REQUEST_NUMBER = 0;
 
-  public boolean isEnd() {
-    return requestNumber == END_REQUEST_NUMBER;
-  }
-
-  private void checkNotEnd() {
-    if (isEnd()) {
-      throw new IllegalStateException("not allowed if isEnd");
+    public boolean isEnd() {
+        return requestNumber == END_REQUEST_NUMBER;
     }
-  }
 
-  /**
-   * Must not be called if {@link #isEnd()}.
-   */
-  public int requestNumber() {
-    checkNotEnd();
-    return requestNumber;
-  }
+    private void checkNotEnd() {
+        if (isEnd()) {
+            throw new IllegalStateException("not allowed if isEnd");
+        }
+    }
 
-  /**
-   * Must not be called if {@link #isEnd()}.
-   */
-  public Message message() {
-    checkNotEnd();
-    return message;
-  }
+    /**
+     * Must not be called if {@link #isEnd()}.
+     */
+    public int requestNumber() {
+        checkNotEnd();
+        return requestNumber;
+    }
 
-  private Packet() {
-    requestNumber = END_REQUEST_NUMBER;
-    message = null;
-  }
+    /**
+     * Must not be called if {@link #isEnd()}.
+     */
+    public Message message() {
+        checkNotEnd();
+        return message;
+    }
 
-  public static final Packet END = new Packet();
+    private Packet() {
+        requestNumber = END_REQUEST_NUMBER;
+        message = null;
+    }
 
-  public static boolean isEnd(final int requestNumber) {
-    return requestNumber == END_REQUEST_NUMBER;
-  }
+    public static final Packet END = new Packet();
+
+    public static boolean isEnd(final int requestNumber) {
+        return requestNumber == END_REQUEST_NUMBER;
+    }
 
 }

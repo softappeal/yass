@@ -11,33 +11,33 @@ import java.util.Map;
  */
 public final class SimpleMethodMapper implements MethodMapper {
 
-  private final Mapping[] mappings;
-  private final Map<String, Mapping> name2mapping;
+    private final Mapping[] mappings;
+    private final Map<String, Mapping> name2mapping;
 
-  private SimpleMethodMapper(final Class<?> contract) {
-    final Method[] methods = contract.getMethods();
-    Arrays.sort(methods, (method1, method2) -> method1.getName().compareTo(method2.getName()));
-    mappings = new Mapping[methods.length];
-    name2mapping = new HashMap<>(methods.length);
-    int id = 0;
-    for (final Method method : methods) {
-      final Mapping mapping = new Mapping(method, id);
-      final Mapping oldMapping = name2mapping.put(method.getName(), mapping);
-      if (oldMapping != null) {
-        throw new IllegalArgumentException("methods '" + method + "' and '" + oldMapping.method + "' are overloaded");
-      }
-      mappings[id++] = mapping;
+    private SimpleMethodMapper(final Class<?> contract) {
+        final Method[] methods = contract.getMethods();
+        Arrays.sort(methods, (method1, method2) -> method1.getName().compareTo(method2.getName()));
+        mappings = new Mapping[methods.length];
+        name2mapping = new HashMap<>(methods.length);
+        int id = 0;
+        for (final Method method : methods) {
+            final Mapping mapping = new Mapping(method, id);
+            final Mapping oldMapping = name2mapping.put(method.getName(), mapping);
+            if (oldMapping != null) {
+                throw new IllegalArgumentException("methods '" + method + "' and '" + oldMapping.method + "' are overloaded");
+            }
+            mappings[id++] = mapping;
+        }
     }
-  }
 
-  @Override public Mapping mapId(final Object id) {
-    return mappings[(Integer)id];
-  }
+    @Override public Mapping mapId(final Object id) {
+        return mappings[(Integer)id];
+    }
 
-  @Override public Mapping mapMethod(final Method method) {
-    return name2mapping.get(method.getName());
-  }
+    @Override public Mapping mapMethod(final Method method) {
+        return name2mapping.get(method.getName());
+    }
 
-  public static final Factory FACTORY = SimpleMethodMapper::new;
+    public static final Factory FACTORY = SimpleMethodMapper::new;
 
 }

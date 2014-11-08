@@ -7,31 +7,31 @@ import java.lang.reflect.AnnotatedElement;
  */
 public final class Check {
 
-  private Check() {
-    // disable
-  }
-
-  /**
-   * @param <T> the value type
-   * @return value if (value != null)
-   * @throws NullPointerException if (value == null)
-   */
-  public static <T> T notNull(@Nullable final T value) throws NullPointerException {
-    if (value == null) {
-      throw new NullPointerException();
+    private Check() {
+        // disable
     }
-    return value;
-  }
 
-  /**
-   * @throws IllegalArgumentException if missing {@link Tag}
-   */
-  public static int hasTag(final AnnotatedElement element) throws IllegalArgumentException {
-    final Tag annotation = element.getAnnotation(Tag.class);
-    if (annotation == null) {
-      throw new IllegalArgumentException("missing tag for '" + element + '\'');
+    /**
+     * @param <T> the value type
+     * @return value if (value != null)
+     * @throws NullPointerException if (value == null)
+     */
+    public static <T> T notNull(@Nullable final T value) throws NullPointerException {
+        if (value == null) {
+            throw new NullPointerException();
+        }
+        return value;
     }
-    return annotation.value();
-  }
+
+    /**
+     * @throws IllegalArgumentException if missing {@link Tag}
+     */
+    public static int hasTag(final AnnotatedElement element) throws IllegalArgumentException {
+        final Tag annotation = element.getAnnotation(Tag.class);
+        if (annotation == null) {
+            throw new IllegalArgumentException("missing tag for '" + element + '\'');
+        }
+        return annotation.value();
+    }
 
 }

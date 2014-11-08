@@ -8,16 +8,16 @@ import ch.softappeal.yass.util.Check;
  */
 public final class ContractId<C> {
 
-  public final Class<C> contract;
-  public final Object id;
+    public final Class<C> contract;
+    public final Object id;
 
-  private ContractId(final Class<C> contract, final Object id) {
-    this.contract = Check.notNull(contract);
-    this.id = Check.notNull(id);
-  }
+    private ContractId(final Class<C> contract, final Object id) {
+        this.contract = Check.notNull(contract);
+        this.id = Check.notNull(id);
+    }
 
-  public static <C> ContractId<C> create(final Class<C> contract, final Object id) {
-    return new ContractId<>(contract, id);
-  }
+    public static <C> ContractId<C> create(final Class<C> contract, final Object id) {
+        return new ContractId<>(contract, id);
+    }
 
 }

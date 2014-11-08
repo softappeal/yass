@@ -19,58 +19,58 @@ import java.util.List;
  */
 public final class MessageSerializer implements Serializer {
 
-  public final Serializer contractSerializer;
+    public final Serializer contractSerializer;
 
-  public MessageSerializer(final Serializer contractSerializer) {
-    this.contractSerializer = Check.notNull(contractSerializer);
-  }
-
-  private static final byte REQUEST = (byte)0;
-  private static final byte VALUE_REPLY = (byte)1;
-  private static final byte EXCEPTION_REPLY = (byte)2;
-
-  private static Object[] toArray(final List<Object> list) {
-    return list.toArray(new Object[list.size()]);
-  }
-
-  @SuppressWarnings("unchecked")
-  @Override public Message read(final Reader reader) throws Exception {
-    final byte type = reader.readByte();
-    if (type == REQUEST) {
-      return new Request(
-        contractSerializer.read(reader),
-        contractSerializer.read(reader),
-        toArray((List<Object>)contractSerializer.read(reader))
-      );
+    public MessageSerializer(final Serializer contractSerializer) {
+        this.contractSerializer = Check.notNull(contractSerializer);
     }
-    if (type == VALUE_REPLY) {
-      return new ValueReply(
-        contractSerializer.read(reader)
-      );
-    }
-    return new ExceptionReply(
-      (Throwable)contractSerializer.read(reader)
-    );
-  }
 
-  private static final List<?> NO_ARGUMENTS = Collections.emptyList();
+    private static final byte REQUEST = (byte)0;
+    private static final byte VALUE_REPLY = (byte)1;
+    private static final byte EXCEPTION_REPLY = (byte)2;
 
-  @Override public void write(final Object message, final Writer writer) throws Exception {
-    if (message instanceof Request) {
-      writer.writeByte(REQUEST);
-      final Request request = (Request)message;
-      contractSerializer.write(request.serviceId, writer);
-      contractSerializer.write(request.methodId, writer);
-      contractSerializer.write((request.arguments == null) ? NO_ARGUMENTS : Arrays.asList(request.arguments), writer);
-    } else if (message instanceof ValueReply) {
-      writer.writeByte(VALUE_REPLY);
-      final ValueReply reply = (ValueReply)message;
-      contractSerializer.write(reply.value, writer);
-    } else {
-      writer.writeByte(EXCEPTION_REPLY);
-      final ExceptionReply reply = (ExceptionReply)message;
-      contractSerializer.write(reply.throwable, writer);
+    private static Object[] toArray(final List<Object> list) {
+        return list.toArray(new Object[list.size()]);
     }
-  }
+
+    @SuppressWarnings("unchecked")
+    @Override public Message read(final Reader reader) throws Exception {
+        final byte type = reader.readByte();
+        if (type == REQUEST) {
+            return new Request(
+                contractSerializer.read(reader),
+                contractSerializer.read(reader),
+                toArray((List<Object>)contractSerializer.read(reader))
+            );
+        }
+        if (type == VALUE_REPLY) {
+            return new ValueReply(
+                contractSerializer.read(reader)
+            );
+        }
+        return new ExceptionReply(
+            (Throwable)contractSerializer.read(reader)
+        );
+    }
+
+    private static final List<?> NO_ARGUMENTS = Collections.emptyList();
+
+    @Override public void write(final Object message, final Writer writer) throws Exception {
+        if (message instanceof Request) {
+            writer.writeByte(REQUEST);
+            final Request request = (Request)message;
+            contractSerializer.write(request.serviceId, writer);
+            contractSerializer.write(request.methodId, writer);
+            contractSerializer.write((request.arguments == null) ? NO_ARGUMENTS : Arrays.asList(request.arguments), writer);
+        } else if (message instanceof ValueReply) {
+            writer.writeByte(VALUE_REPLY);
+            final ValueReply reply = (ValueReply)message;
+            contractSerializer.write(reply.value, writer);
+        } else {
+            writer.writeByte(EXCEPTION_REPLY);
+            final ExceptionReply reply = (ExceptionReply)message;
+            contractSerializer.write(reply.throwable, writer);
+        }
+    }
 
 }

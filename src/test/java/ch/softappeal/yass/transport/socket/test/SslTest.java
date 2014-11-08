@@ -29,118 +29,118 @@ import java.util.concurrent.TimeUnit;
 
 public class SslTest extends InvokeTest {
 
-  private static void checkName(final SessionClient sessionClient) throws Exception {
-    Assert.assertEquals("CN=Test", ((SSLSocket)((SocketConnection)sessionClient.connection).socket).getSession().getPeerPrincipal().getName());
-  }
-
-  private static void test(
-    final ServerSocketFactory serverSocketFactory, final SocketFactory socketFactory, final boolean needClientAuth
-  ) throws Exception {
-    final ExecutorService executor = Executors.newCachedThreadPool(new NamedThreadFactory("executor", Exceptions.STD_ERR));
-    try {
-      SocketTransport.listener(
-        SocketTransportTest.PATH_SERIALIZER,
-        new PathResolver(
-          SocketTransportTest.PATH,
-          new TransportSetup(
-            new Server(
-              PerformanceTest.METHOD_MAPPER_FACTORY,
-              new Service(PerformanceTest.CONTRACT_ID, new TestServiceImpl())
-            ),
-            executor,
-            SocketPerformanceTest.PACKET_SERIALIZER
-          ) {
-            @Override public Session createSession(final SessionClient sessionClient) throws Exception {
-              if (needClientAuth) {
-                checkName(sessionClient);
-              }
-              return new Session(sessionClient) {
-                @Override protected void closed(final Throwable throwable) {
-                  if (throwable != null) {
-                    Exceptions.TERMINATE.uncaughtException(null, throwable);
-                  }
-                }
-              };
-            }
-          }
-        )
-      ).start(executor, new SocketExecutor(executor, Exceptions.TERMINATE), serverSocketFactory, SocketListenerTest.ADDRESS);
-      SocketTransport.connect(
-        new TransportSetup(
-          new Server(PerformanceTest.METHOD_MAPPER_FACTORY),
-          executor,
-          SocketPerformanceTest.PACKET_SERIALIZER
-        ) {
-          @Override public Session createSession(final SessionClient sessionClient) throws Exception {
-            checkName(sessionClient);
-            return new Session(sessionClient) {
-              @Override protected void opened() throws Exception {
-                final TestService testService = invoker(PerformanceTest.CONTRACT_ID).proxy();
-                Assert.assertTrue(testService.divide(12, 4) == 3);
-                close();
-              }
-              @Override protected void closed(final Throwable throwable) {
-                if (throwable != null) {
-                  Exceptions.TERMINATE.uncaughtException(null, throwable);
-                }
-              }
-            };
-          }
-        },
-        new SocketExecutor(executor, Exceptions.TERMINATE),
-        SocketTransportTest.PATH_SERIALIZER, SocketTransportTest.PATH,
-        socketFactory, SocketListenerTest.ADDRESS
-      );
-    } finally {
-      TimeUnit.MILLISECONDS.sleep(200);
-      SocketListenerTest.shutdown(executor);
+    private static void checkName(final SessionClient sessionClient) throws Exception {
+        Assert.assertEquals("CN=Test", ((SSLSocket)((SocketConnection)sessionClient.connection).socket).getSession().getPeerPrincipal().getName());
     }
-  }
 
-  private static final char[] PASSWORD = "changeit".toCharArray();
+    private static void test(
+        final ServerSocketFactory serverSocketFactory, final SocketFactory socketFactory, final boolean needClientAuth
+    ) throws Exception {
+        final ExecutorService executor = Executors.newCachedThreadPool(new NamedThreadFactory("executor", Exceptions.STD_ERR));
+        try {
+            SocketTransport.listener(
+                SocketTransportTest.PATH_SERIALIZER,
+                new PathResolver(
+                    SocketTransportTest.PATH,
+                    new TransportSetup(
+                        new Server(
+                            PerformanceTest.METHOD_MAPPER_FACTORY,
+                            new Service(PerformanceTest.CONTRACT_ID, new TestServiceImpl())
+                        ),
+                        executor,
+                        SocketPerformanceTest.PACKET_SERIALIZER
+                    ) {
+                        @Override public Session createSession(final SessionClient sessionClient) throws Exception {
+                            if (needClientAuth) {
+                                checkName(sessionClient);
+                            }
+                            return new Session(sessionClient) {
+                                @Override protected void closed(final Throwable throwable) {
+                                    if (throwable != null) {
+                                        Exceptions.TERMINATE.uncaughtException(null, throwable);
+                                    }
+                                }
+                            };
+                        }
+                    }
+                )
+            ).start(executor, new SocketExecutor(executor, Exceptions.TERMINATE), serverSocketFactory, SocketListenerTest.ADDRESS);
+            SocketTransport.connect(
+                new TransportSetup(
+                    new Server(PerformanceTest.METHOD_MAPPER_FACTORY),
+                    executor,
+                    SocketPerformanceTest.PACKET_SERIALIZER
+                ) {
+                    @Override public Session createSession(final SessionClient sessionClient) throws Exception {
+                        checkName(sessionClient);
+                        return new Session(sessionClient) {
+                            @Override protected void opened() throws Exception {
+                                final TestService testService = invoker(PerformanceTest.CONTRACT_ID).proxy();
+                                Assert.assertTrue(testService.divide(12, 4) == 3);
+                                close();
+                            }
+                            @Override protected void closed(final Throwable throwable) {
+                                if (throwable != null) {
+                                    Exceptions.TERMINATE.uncaughtException(null, throwable);
+                                }
+                            }
+                        };
+                    }
+                },
+                new SocketExecutor(executor, Exceptions.TERMINATE),
+                SocketTransportTest.PATH_SERIALIZER, SocketTransportTest.PATH,
+                socketFactory, SocketListenerTest.ADDRESS
+            );
+        } finally {
+            TimeUnit.MILLISECONDS.sleep(200);
+            SocketListenerTest.shutdown(executor);
+        }
+    }
 
-  private static KeyStore readKeyStore(final String name) {
-    return SslSetup.readKeyStore(new ClassLoaderResource(SslTest.class.getClassLoader(), SslTest.class.getPackage().getName().replace('.', '/') + '/' + name + ".jks"), PASSWORD);
-  }
+    private static final char[] PASSWORD = "changeit".toCharArray();
 
-  private static final KeyStore TEST = readKeyStore("Test");
-  private static final KeyStore TEST_EXPIRED = readKeyStore("TestExpired");
-  private static final KeyStore TEST_CA = readKeyStore("TestCA");
-  private static final KeyStore OTHER_CA = readKeyStore("OtherCA");
+    private static KeyStore readKeyStore(final String name) {
+        return SslSetup.readKeyStore(new ClassLoaderResource(SslTest.class.getClassLoader(), SslTest.class.getPackage().getName().replace('.', '/') + '/' + name + ".jks"), PASSWORD);
+    }
 
-  private static final String PROTOCOL = "TLSv1.2";
-  private static final String CIPHER = "TLS_RSA_WITH_AES_128_CBC_SHA";
+    private static final KeyStore TEST = readKeyStore("Test");
+    private static final KeyStore TEST_EXPIRED = readKeyStore("TestExpired");
+    private static final KeyStore TEST_CA = readKeyStore("TestCA");
+    private static final KeyStore OTHER_CA = readKeyStore("OtherCA");
 
-  @Test public void onlyServerAuthentication() throws Exception {
-    test(
-      new SslSetup(PROTOCOL, CIPHER, TEST, PASSWORD, null).serverSocketFactory,
-      new SslSetup(PROTOCOL, CIPHER, null, null, TEST_CA).socketFactory,
-      false
-    );
-  }
+    private static final String PROTOCOL = "TLSv1.2";
+    private static final String CIPHER = "TLS_RSA_WITH_AES_128_CBC_SHA";
 
-  @Test public void clientAndServerAuthentication() throws Exception {
-    test(
-      new SslSetup(PROTOCOL, CIPHER, TEST, PASSWORD, TEST_CA).serverSocketFactory,
-      new SslSetup(PROTOCOL, CIPHER, TEST, PASSWORD, TEST_CA).socketFactory,
-      true
-    );
-  }
+    @Test public void onlyServerAuthentication() throws Exception {
+        test(
+            new SslSetup(PROTOCOL, CIPHER, TEST, PASSWORD, null).serverSocketFactory,
+            new SslSetup(PROTOCOL, CIPHER, null, null, TEST_CA).socketFactory,
+            false
+        );
+    }
 
-  @Test public void wrongServerCA() throws Exception {
-    test(
-      new SslSetup(PROTOCOL, CIPHER, TEST, PASSWORD, OTHER_CA).serverSocketFactory,
-      new SslSetup(PROTOCOL, CIPHER, TEST, PASSWORD, TEST_CA).socketFactory,
-      true
-    );
-  }
+    @Test public void clientAndServerAuthentication() throws Exception {
+        test(
+            new SslSetup(PROTOCOL, CIPHER, TEST, PASSWORD, TEST_CA).serverSocketFactory,
+            new SslSetup(PROTOCOL, CIPHER, TEST, PASSWORD, TEST_CA).socketFactory,
+            true
+        );
+    }
 
-  @Test public void expiredServerCertificate() throws Exception {
-    test(
-      new SslSetup(PROTOCOL, CIPHER, TEST, PASSWORD, TEST_CA).serverSocketFactory,
-      new SslSetup(PROTOCOL, CIPHER, TEST_EXPIRED, PASSWORD, TEST_CA).socketFactory,
-      true
-    );
-  }
+    @Test public void wrongServerCA() throws Exception {
+        test(
+            new SslSetup(PROTOCOL, CIPHER, TEST, PASSWORD, OTHER_CA).serverSocketFactory,
+            new SslSetup(PROTOCOL, CIPHER, TEST, PASSWORD, TEST_CA).socketFactory,
+            true
+        );
+    }
+
+    @Test public void expiredServerCertificate() throws Exception {
+        test(
+            new SslSetup(PROTOCOL, CIPHER, TEST, PASSWORD, TEST_CA).serverSocketFactory,
+            new SslSetup(PROTOCOL, CIPHER, TEST_EXPIRED, PASSWORD, TEST_CA).socketFactory,
+            true
+        );
+    }
 
 }

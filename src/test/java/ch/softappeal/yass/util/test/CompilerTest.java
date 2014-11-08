@@ -11,28 +11,28 @@ import java.util.Map;
 
 public class CompilerTest {
 
-  private static String add(final Map<String, CharSequence> map, final String name) throws IOException {
-    final String source = "ch.softappeal.yass.util.test." + name;
-    map.put(
-      source,
-      Compiler.readFile(
-        new File("src/test/java", source.replace('.', '/') + ".txt"),
-        StandardCharsets.US_ASCII
-      )
-    );
-    return source;
-  }
+    private static String add(final Map<String, CharSequence> map, final String name) throws IOException {
+        final String source = "ch.softappeal.yass.util.test." + name;
+        map.put(
+            source,
+            Compiler.readFile(
+                new File("src/test/java", source.replace('.', '/') + ".txt"),
+                StandardCharsets.US_ASCII
+            )
+        );
+        return source;
+    }
 
-  @Test public void test() throws Exception {
-    final Map<String, CharSequence> map = new HashMap<>();
-    final String source = add(map, "CompilerTestSource");
-    add(map, "CompilerTestSourceText");
-    final ClassLoader classLoader = Compiler.compile(
-      CompilerTest.class.getClassLoader(),
-      map,
-      "-Xlint"
-    );
-    classLoader.loadClass(source).getMethod("x").invoke(null);
-  }
+    @Test public void test() throws Exception {
+        final Map<String, CharSequence> map = new HashMap<>();
+        final String source = add(map, "CompilerTestSource");
+        add(map, "CompilerTestSourceText");
+        final ClassLoader classLoader = Compiler.compile(
+            CompilerTest.class.getClassLoader(),
+            map,
+            "-Xlint"
+        );
+        classLoader.loadClass(source).getMethod("x").invoke(null);
+    }
 
 }

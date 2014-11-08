@@ -5,8 +5,8 @@ package ch.softappeal.yass.serialize;
  */
 public interface Serializer {
 
-  Object read(Reader reader) throws Exception;
+    Object read(Reader reader) throws Exception;
 
-  void write(Object value, Writer writer) throws Exception;
+    void write(Object value, Writer writer) throws Exception;
 
 }

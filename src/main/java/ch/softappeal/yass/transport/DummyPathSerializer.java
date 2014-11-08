@@ -6,20 +6,20 @@ import ch.softappeal.yass.serialize.Writer;
 
 public final class DummyPathSerializer implements Serializer {
 
-  public static final Integer PATH = 0;
+    public static final Integer PATH = 0;
 
-  private DummyPathSerializer() {
-    // disable
-  }
+    private DummyPathSerializer() {
+        // disable
+    }
 
-  @Override public Object read(final Reader reader) {
-    return PATH;
-  }
+    @Override public Object read(final Reader reader) {
+        return PATH;
+    }
 
-  @Override public void write(final Object value, final Writer writer) {
-    // empty
-  }
+    @Override public void write(final Object value, final Writer writer) {
+        // empty
+    }
 
-  public static final Serializer INSTANCE = new DummyPathSerializer();
+    public static final Serializer INSTANCE = new DummyPathSerializer();
 
 }

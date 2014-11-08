@@ -11,30 +11,30 @@ import java.util.List;
 
 @Tag(41) public final class AllTypes extends PrimitiveTypes {
 
-  private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-  @Tag(100) public String stringField;
+    @Tag(100) public String stringField;
 
-  @Tag(101) public Color colorField;
+    @Tag(101) public Color colorField;
 
-  @Tag(102) public BigDecimal bigDecimalField;
-  @Tag(103) public BigInteger bigIntegerField;
-  @Tag(104) public Date dateField;
+    @Tag(102) public BigDecimal bigDecimalField;
+    @Tag(103) public BigInteger bigIntegerField;
+    @Tag(104) public Date dateField;
 
-  @Tag(106) public PrimitiveTypes primitiveTypesField;
-  @Tag(107) public List<PrimitiveTypes> primitiveTypesListField;
+    @Tag(106) public PrimitiveTypes primitiveTypesField;
+    @Tag(107) public List<PrimitiveTypes> primitiveTypesListField;
 
-  @Tag(108) public Object objectField;
-  @Tag(109) public List<Object> objectListField;
+    @Tag(108) public Object objectField;
+    @Tag(109) public List<Object> objectListField;
 
-  @Tag(110) public Throwable throwable;
+    @Tag(110) public Throwable throwable;
 
-  public AllTypes(final String stringField) {
-    this.stringField = stringField;
-  }
+    public AllTypes(final String stringField) {
+        this.stringField = stringField;
+    }
 
-  public AllTypes() {
-    // empty
-  }
+    public AllTypes() {
+        // empty
+    }
 
 }

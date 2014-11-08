@@ -6,17 +6,17 @@ package ch.softappeal.yass.util;
  */
 public abstract class ContextService<C> {
 
-  protected ContextService(final ContextLocator<C> locator) {
-    this.locator = Check.notNull(locator);
-  }
+    protected ContextService(final ContextLocator<C> locator) {
+        this.locator = Check.notNull(locator);
+    }
 
-  private final ContextLocator<C> locator;
+    private final ContextLocator<C> locator;
 
-  /**
-   * @return {@link ContextLocator#context()}
-   */
-  protected final C context() {
-    return locator.context();
-  }
+    /**
+     * @return {@link ContextLocator#context()}
+     */
+    protected final C context() {
+        return locator.context();
+    }
 
 }

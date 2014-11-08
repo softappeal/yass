@@ -26,63 +26,63 @@ import java.util.concurrent.TimeUnit;
 
 public class PerformanceTest extends InvokeTest {
 
-  private static final int COUNTER = 100;
+    private static final int COUNTER = 100;
 
-  public static final MethodMapper.Factory METHOD_MAPPER_FACTORY = TaggedMethodMapper.FACTORY;
+    public static final MethodMapper.Factory METHOD_MAPPER_FACTORY = TaggedMethodMapper.FACTORY;
 
-  public static final ContractId<TestService> CONTRACT_ID = ContractId.create(TestService.class, 0);
+    public static final ContractId<TestService> CONTRACT_ID = ContractId.create(TestService.class, 0);
 
-  public static TransportSetup createSetup(final Executor requestExecutor, @Nullable final CountDownLatch latch, final int samples) {
-    return new TransportSetup(
-      new Server(METHOD_MAPPER_FACTORY, new Service(CONTRACT_ID, new TestServiceImpl())), requestExecutor, SocketPerformanceTest.PACKET_SERIALIZER
-    ) {
-      @Override public Session createSession(final SessionClient sessionClient) {
-        return new Session(sessionClient) {
-          @Override public void opened() {
-            if (latch == null) {
-              return;
+    public static TransportSetup createSetup(final Executor requestExecutor, @Nullable final CountDownLatch latch, final int samples) {
+        return new TransportSetup(
+            new Server(METHOD_MAPPER_FACTORY, new Service(CONTRACT_ID, new TestServiceImpl())), requestExecutor, SocketPerformanceTest.PACKET_SERIALIZER
+        ) {
+            @Override public Session createSession(final SessionClient sessionClient) {
+                return new Session(sessionClient) {
+                    @Override public void opened() {
+                        if (latch == null) {
+                            return;
+                        }
+                        try (Session session = this) {
+                            final TestService testService = session.invoker(CONTRACT_ID).proxy();
+                            System.out.println("*** rpc");
+                            new PerformanceTask() {
+                                @Override protected void run(final int count) throws DivisionByZeroException {
+                                    int counter = count;
+                                    while (counter-- > 0) {
+                                        Assert.assertTrue(testService.divide(12, 4) == 3);
+                                    }
+                                }
+                            }.run(samples, TimeUnit.MICROSECONDS);
+                            System.out.println("*** oneway");
+                            new PerformanceTask() {
+                                @Override protected void run(final int count) {
+                                    int counter = count;
+                                    while (counter-- > 0) {
+                                        testService.oneWay(-1);
+                                    }
+                                }
+                            }.run(samples, TimeUnit.MICROSECONDS);
+
+                        }
+                        latch.countDown();
+                    }
+                    @Override public void closed(@Nullable final Throwable throwable) {
+                        // empty
+                    }
+                };
             }
-            try (Session session = this) {
-              final TestService testService = session.invoker(CONTRACT_ID).proxy();
-              System.out.println("*** rpc");
-              new PerformanceTask() {
-                @Override protected void run(final int count) throws DivisionByZeroException {
-                  int counter = count;
-                  while (counter-- > 0) {
-                    Assert.assertTrue(testService.divide(12, 4) == 3);
-                  }
-                }
-              }.run(samples, TimeUnit.MICROSECONDS);
-              System.out.println("*** oneway");
-              new PerformanceTask() {
-                @Override protected void run(final int count) {
-                  int counter = count;
-                  while (counter-- > 0) {
-                    testService.oneWay(-1);
-                  }
-                }
-              }.run(samples, TimeUnit.MICROSECONDS);
-
-            }
-            latch.countDown();
-          }
-          @Override public void closed(@Nullable final Throwable throwable) {
-            // empty
-          }
         };
-      }
-    };
-  }
-
-  @Test public void test() throws InterruptedException {
-    final ExecutorService executor = Executors.newCachedThreadPool(new NamedThreadFactory("executor", Exceptions.TERMINATE));
-    try {
-      final CountDownLatch latch = new CountDownLatch(1);
-      LocalConnection.connect(createSetup(executor, latch, COUNTER), createSetup(executor, null, COUNTER));
-      latch.await();
-    } finally {
-      executor.shutdownNow();
     }
-  }
+
+    @Test public void test() throws InterruptedException {
+        final ExecutorService executor = Executors.newCachedThreadPool(new NamedThreadFactory("executor", Exceptions.TERMINATE));
+        try {
+            final CountDownLatch latch = new CountDownLatch(1);
+            LocalConnection.connect(createSetup(executor, latch, COUNTER), createSetup(executor, null, COUNTER));
+            latch.await();
+        } finally {
+            executor.shutdownNow();
+        }
+    }
 
 }

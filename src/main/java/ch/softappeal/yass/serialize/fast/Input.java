@@ -7,20 +7,20 @@ import java.util.Map;
 
 final class Input {
 
-  final Reader reader;
-  private final Map<Integer, TypeHandler> id2typeHandler;
-  List<Object> referenceableObjects;
+    final Reader reader;
+    private final Map<Integer, TypeHandler> id2typeHandler;
+    List<Object> referenceableObjects;
 
-  Input(final Reader reader, final Map<Integer, TypeHandler> id2typeHandler) {
-    this.reader = reader;
-    this.id2typeHandler = id2typeHandler;
-  }
+    Input(final Reader reader, final Map<Integer, TypeHandler> id2typeHandler) {
+        this.reader = reader;
+        this.id2typeHandler = id2typeHandler;
+    }
 
-  /**
-   * @see TypeHandler#write(int, Object, Output)
-   */
-  Object read() throws Exception {
-    return id2typeHandler.get(reader.readVarInt()).read(this);
-  }
+    /**
+     * @see TypeHandler#write(int, Object, Output)
+     */
+    Object read() throws Exception {
+        return id2typeHandler.get(reader.readVarInt()).read(this);
+    }
 
 }

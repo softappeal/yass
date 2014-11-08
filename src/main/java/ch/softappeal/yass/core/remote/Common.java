@@ -4,14 +4,14 @@ import ch.softappeal.yass.util.Check;
 
 public abstract class Common {
 
-  Common(final MethodMapper.Factory methodMapperFactory) {
-    this.methodMapperFactory = Check.notNull(methodMapperFactory);
-  }
+    Common(final MethodMapper.Factory methodMapperFactory) {
+        this.methodMapperFactory = Check.notNull(methodMapperFactory);
+    }
 
-  public final MethodMapper.Factory methodMapperFactory;
+    public final MethodMapper.Factory methodMapperFactory;
 
-  final MethodMapper methodMapper(final Class<?> contract) {
-    return methodMapperFactory.create(contract);
-  }
+    final MethodMapper methodMapper(final Class<?> contract) {
+        return methodMapperFactory.create(contract);
+    }
 
 }

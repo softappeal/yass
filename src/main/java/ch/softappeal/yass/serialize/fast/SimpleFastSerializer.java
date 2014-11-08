@@ -14,43 +14,43 @@ import java.util.Map;
  */
 public final class SimpleFastSerializer extends AbstractFastSerializer {
 
-  private void addClass(final int typeId, final Class<?> type, final boolean referenceable) {
-    checkClass(type);
-    final Map<Integer, Field> id2field = new HashMap<>(16);
-    int fieldId = FieldHandler.FIRST_ID;
-    for (Class<?> t = type; (t != null) && (t != Throwable.class); t = t.getSuperclass()) {
-      final List<Field> fields = ownFields(t);
-      Collections.sort(fields, (field1, field2) -> field1.getName().compareTo(field2.getName()));
-      for (final Field field : fields) {
-        id2field.put(fieldId++, field);
-      }
+    private void addClass(final int typeId, final Class<?> type, final boolean referenceable) {
+        checkClass(type);
+        final Map<Integer, Field> id2field = new HashMap<>(16);
+        int fieldId = FieldHandler.FIRST_ID;
+        for (Class<?> t = type; (t != null) && (t != Throwable.class); t = t.getSuperclass()) {
+            final List<Field> fields = ownFields(t);
+            Collections.sort(fields, (field1, field2) -> field1.getName().compareTo(field2.getName()));
+            for (final Field field : fields) {
+                id2field.put(fieldId++, field);
+            }
+        }
+        addClass(typeId, type, referenceable, id2field);
     }
-    addClass(typeId, type, referenceable, id2field);
-  }
 
-  /**
-   * @param concreteClasses instances of these classes can only be used in trees
-   * @param referenceableConcreteClasses instances of these classes can be used in graphs
-   */
-  public SimpleFastSerializer(
-    final Reflector.Factory reflectorFactory, final Collection<BaseTypeHandler<?>> baseTypeHandlers, final Collection<Class<?>> enumerations,
-    final Collection<Class<?>> concreteClasses, final Collection<Class<?>> referenceableConcreteClasses
-  ) {
-    super(reflectorFactory);
-    int id = TypeDesc.FIRST_ID;
-    for (final BaseTypeHandler<?> typeHandler : baseTypeHandlers) {
-      addBaseType(new TypeDesc(id++, typeHandler));
+    /**
+     * @param concreteClasses instances of these classes can only be used in trees
+     * @param referenceableConcreteClasses instances of these classes can be used in graphs
+     */
+    public SimpleFastSerializer(
+        final Reflector.Factory reflectorFactory, final Collection<BaseTypeHandler<?>> baseTypeHandlers, final Collection<Class<?>> enumerations,
+        final Collection<Class<?>> concreteClasses, final Collection<Class<?>> referenceableConcreteClasses
+    ) {
+        super(reflectorFactory);
+        int id = TypeDesc.FIRST_ID;
+        for (final BaseTypeHandler<?> typeHandler : baseTypeHandlers) {
+            addBaseType(new TypeDesc(id++, typeHandler));
+        }
+        for (final Class<?> type : enumerations) {
+            addEnum(id++, type);
+        }
+        for (final Class<?> type : concreteClasses) {
+            addClass(id++, type, false);
+        }
+        for (final Class<?> type : referenceableConcreteClasses) {
+            addClass(id++, type, true);
+        }
+        fixupFields();
     }
-    for (final Class<?> type : enumerations) {
-      addEnum(id++, type);
-    }
-    for (final Class<?> type : concreteClasses) {
-      addClass(id++, type, false);
-    }
-    for (final Class<?> type : referenceableConcreteClasses) {
-      addClass(id++, type, true);
-    }
-    fixupFields();
-  }
 
 }

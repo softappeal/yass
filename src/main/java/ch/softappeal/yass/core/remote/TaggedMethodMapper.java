@@ -13,28 +13,28 @@ import java.util.Map;
  */
 public final class TaggedMethodMapper implements MethodMapper {
 
-  private final Map<Integer, Mapping> id2mapping;
+    private final Map<Integer, Mapping> id2mapping;
 
-  private TaggedMethodMapper(final Class<?> contract) {
-    final Method[] methods = contract.getMethods();
-    id2mapping = new HashMap<>(methods.length);
-    for (final Method method : methods) {
-      final int id = Check.hasTag(method);
-      final Mapping oldMapping = id2mapping.put(id, new Mapping(method, id));
-      if (oldMapping != null) {
-        throw new IllegalArgumentException("tag " + id + " used for methods '" + method + "' and '" + oldMapping.method + '\'');
-      }
+    private TaggedMethodMapper(final Class<?> contract) {
+        final Method[] methods = contract.getMethods();
+        id2mapping = new HashMap<>(methods.length);
+        for (final Method method : methods) {
+            final int id = Check.hasTag(method);
+            final Mapping oldMapping = id2mapping.put(id, new Mapping(method, id));
+            if (oldMapping != null) {
+                throw new IllegalArgumentException("tag " + id + " used for methods '" + method + "' and '" + oldMapping.method + '\'');
+            }
+        }
     }
-  }
 
-  @Override public Mapping mapId(final Object id) {
-    return id2mapping.get(id);
-  }
+    @Override public Mapping mapId(final Object id) {
+        return id2mapping.get(id);
+    }
 
-  @Override public Mapping mapMethod(final Method method) {
-    return id2mapping.get(method.getAnnotation(Tag.class).value());
-  }
+    @Override public Mapping mapMethod(final Method method) {
+        return id2mapping.get(method.getAnnotation(Tag.class).value());
+    }
 
-  public static final Factory FACTORY = TaggedMethodMapper::new;
+    public static final Factory FACTORY = TaggedMethodMapper::new;
 
 }

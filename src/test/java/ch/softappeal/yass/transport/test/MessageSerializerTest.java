@@ -15,30 +15,30 @@ import java.io.EOFException;
 
 public class MessageSerializerTest {
 
-  public static final Serializer SERIALIZER = new MessageSerializer(JavaSerializer.INSTANCE);
+    public static final Serializer SERIALIZER = new MessageSerializer(JavaSerializer.INSTANCE);
 
-  private static <T extends Message> T copy(final T value) throws Exception {
-    return JavaSerializerTest.copy(SERIALIZER, value);
-  }
+    private static <T extends Message> T copy(final T value) throws Exception {
+        return JavaSerializerTest.copy(SERIALIZER, value);
+    }
 
-  @Test public void request() throws Exception {
-    final Object serviceId = "abc";
-    final String methodId = "xyz";
-    final Request request = copy(new Request(serviceId, methodId, new Object[0]));
-    Assert.assertEquals(serviceId, request.serviceId);
-    Assert.assertEquals(methodId, request.methodId);
-    Assert.assertTrue(request.arguments.length == 0);
-  }
+    @Test public void request() throws Exception {
+        final Object serviceId = "abc";
+        final String methodId = "xyz";
+        final Request request = copy(new Request(serviceId, methodId, new Object[0]));
+        Assert.assertEquals(serviceId, request.serviceId);
+        Assert.assertEquals(methodId, request.methodId);
+        Assert.assertTrue(request.arguments.length == 0);
+    }
 
-  @Test public void value() throws Exception {
-    final String value = "xyz";
-    final ValueReply reply = copy(new ValueReply(value));
-    Assert.assertEquals(value, reply.value);
-  }
+    @Test public void value() throws Exception {
+        final String value = "xyz";
+        final ValueReply reply = copy(new ValueReply(value));
+        Assert.assertEquals(value, reply.value);
+    }
 
-  @Test public void exception() throws Exception {
-    final ExceptionReply reply = copy(new ExceptionReply(new EOFException()));
-    Assert.assertTrue(reply.throwable instanceof EOFException);
-  }
+    @Test public void exception() throws Exception {
+        final ExceptionReply reply = copy(new ExceptionReply(new EOFException()));
+        Assert.assertTrue(reply.throwable instanceof EOFException);
+    }
 
 }

@@ -23,93 +23,93 @@ import java.security.SecureRandom;
 
 public final class SslSetup {
 
-  public static KeyStore readKeyStore(final Resource keyStoreResource, @Nullable final char[] keyStorePwd) {
-    try {
-      final KeyStore keyStore = KeyStore.getInstance("JKS");
-      try (InputStream in = keyStoreResource.create()) {
-        keyStore.load(in, keyStorePwd);
-      }
-      return keyStore;
-    } catch (final Exception e) {
-      throw Exceptions.wrap(e);
+    public static KeyStore readKeyStore(final Resource keyStoreResource, @Nullable final char[] keyStorePwd) {
+        try {
+            final KeyStore keyStore = KeyStore.getInstance("JKS");
+            try (InputStream in = keyStoreResource.create()) {
+                keyStore.load(in, keyStorePwd);
+            }
+            return keyStore;
+        } catch (final Exception e) {
+            throw Exceptions.wrap(e);
+        }
     }
-  }
 
-  private final SSLContext context;
-  private final String[] protocols;
-  private final String[] cipherSuites;
-  private final boolean needClientAuth;
+    private final SSLContext context;
+    private final String[] protocols;
+    private final String[] cipherSuites;
+    private final boolean needClientAuth;
 
-  public SslSetup(
-    final String protocol, final String cipher,
-    @Nullable final KeyStore keyStore, @Nullable final char[] keyStorePwd,
-    @Nullable final KeyStore trustStore,
-    @Nullable final SecureRandom random,
-    final String keyManagerFactoryAlgorithm, final String trustManagerFactoryAlgorithm
-  ) {
-    if ((keyStore == null) && (trustStore == null)) {
-      throw new IllegalArgumentException("at least one of keyStore or trustStore must be defined");
+    public SslSetup(
+        final String protocol, final String cipher,
+        @Nullable final KeyStore keyStore, @Nullable final char[] keyStorePwd,
+        @Nullable final KeyStore trustStore,
+        @Nullable final SecureRandom random,
+        final String keyManagerFactoryAlgorithm, final String trustManagerFactoryAlgorithm
+    ) {
+        if ((keyStore == null) && (trustStore == null)) {
+            throw new IllegalArgumentException("at least one of keyStore or trustStore must be defined");
+        }
+        protocols = new String[]{Check.notNull(protocol)};
+        cipherSuites = new String[]{Check.notNull(cipher)};
+        try {
+            context = SSLContext.getInstance(protocol);
+            KeyManager[] keyManagers = new KeyManager[0];
+            if (keyStore != null) {
+                final KeyManagerFactory keyManagerFactory = KeyManagerFactory.getInstance(keyManagerFactoryAlgorithm);
+                keyManagerFactory.init(keyStore, keyStorePwd);
+                keyManagers = keyManagerFactory.getKeyManagers();
+            }
+            boolean needClientAuth = false;
+            TrustManager[] trustManagers = new TrustManager[0];
+            if (trustStore != null) {
+                final TrustManagerFactory trustManagerFactory = TrustManagerFactory.getInstance(trustManagerFactoryAlgorithm);
+                trustManagerFactory.init(trustStore);
+                trustManagers = trustManagerFactory.getTrustManagers();
+                needClientAuth = true;
+            }
+            context.init(keyManagers, trustManagers, random);
+            this.needClientAuth = needClientAuth;
+        } catch (final Exception e) {
+            throw Exceptions.wrap(e);
+        }
     }
-    protocols = new String[] {Check.notNull(protocol)};
-    cipherSuites = new String[] {Check.notNull(cipher)};
-    try {
-      context = SSLContext.getInstance(protocol);
-      KeyManager[] keyManagers = new KeyManager[0];
-      if (keyStore != null) {
-        final KeyManagerFactory keyManagerFactory = KeyManagerFactory.getInstance(keyManagerFactoryAlgorithm);
-        keyManagerFactory.init(keyStore, keyStorePwd);
-        keyManagers = keyManagerFactory.getKeyManagers();
-      }
-      boolean needClientAuth = false;
-      TrustManager[] trustManagers = new TrustManager[0];
-      if (trustStore != null) {
-        final TrustManagerFactory trustManagerFactory = TrustManagerFactory.getInstance(trustManagerFactoryAlgorithm);
-        trustManagerFactory.init(trustStore);
-        trustManagers = trustManagerFactory.getTrustManagers();
-        needClientAuth = true;
-      }
-      context.init(keyManagers, trustManagers, random);
-      this.needClientAuth = needClientAuth;
-    } catch (final Exception e) {
-      throw Exceptions.wrap(e);
-    }
-  }
 
-  public SslSetup(
-    final String protocol, final String cipher,
-    @Nullable final KeyStore keyStore, @Nullable final char[] keyStorePwd,
-    @Nullable final KeyStore trustStore
-  ) {
-    this(protocol, cipher, keyStore, keyStorePwd, trustStore, null, "SunX509", "SunX509");
-  }
-
-  public final SocketFactory socketFactory = new AbstractSocketFactory() {
-    @Override public Socket createSocket() throws IOException {
-      final SSLSocket socket = (SSLSocket)context.getSocketFactory().createSocket();
-      try {
-        socket.setEnabledProtocols(protocols);
-        socket.setEnabledCipherSuites(cipherSuites);
-      } catch (final Exception e) {
-        SocketTransport.close(socket, e);
-        throw e;
-      }
-      return socket;
+    public SslSetup(
+        final String protocol, final String cipher,
+        @Nullable final KeyStore keyStore, @Nullable final char[] keyStorePwd,
+        @Nullable final KeyStore trustStore
+    ) {
+        this(protocol, cipher, keyStore, keyStorePwd, trustStore, null, "SunX509", "SunX509");
     }
-  };
 
-  public final ServerSocketFactory serverSocketFactory = new AbstractServerSocketFactory() {
-    @Override public ServerSocket createServerSocket() throws IOException {
-      final SSLServerSocket serverSocket = (SSLServerSocket)context.getServerSocketFactory().createServerSocket();
-      try {
-        serverSocket.setNeedClientAuth(needClientAuth);
-        serverSocket.setEnabledProtocols(protocols);
-        serverSocket.setEnabledCipherSuites(cipherSuites);
-      } catch (final Exception e) {
-        SocketListener.close(serverSocket, e);
-        throw e;
-      }
-      return serverSocket;
-    }
-  };
+    public final SocketFactory socketFactory = new AbstractSocketFactory() {
+        @Override public Socket createSocket() throws IOException {
+            final SSLSocket socket = (SSLSocket)context.getSocketFactory().createSocket();
+            try {
+                socket.setEnabledProtocols(protocols);
+                socket.setEnabledCipherSuites(cipherSuites);
+            } catch (final Exception e) {
+                SocketTransport.close(socket, e);
+                throw e;
+            }
+            return socket;
+        }
+    };
+
+    public final ServerSocketFactory serverSocketFactory = new AbstractServerSocketFactory() {
+        @Override public ServerSocket createServerSocket() throws IOException {
+            final SSLServerSocket serverSocket = (SSLServerSocket)context.getServerSocketFactory().createServerSocket();
+            try {
+                serverSocket.setNeedClientAuth(needClientAuth);
+                serverSocket.setEnabledProtocols(protocols);
+                serverSocket.setEnabledCipherSuites(cipherSuites);
+            } catch (final Exception e) {
+                SocketListener.close(serverSocket, e);
+                throw e;
+            }
+            return serverSocket;
+        }
+    };
 
 }
