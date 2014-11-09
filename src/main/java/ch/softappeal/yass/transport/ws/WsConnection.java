@@ -58,7 +58,7 @@ public final class WsConnection implements Connection {
     }
 
     @Override public void write(final Packet packet) throws Exception {
-        final ByteBufferOutputStream out = new ByteBufferOutputStream(1024);
+        final ByteBufferOutputStream out = new ByteBufferOutputStream(128);
         packetSerializer.write(packet, Writer.create(out));
         remoteEndpoint.sendBinary(out.toByteBuffer(), result -> {
             if (result == null) {

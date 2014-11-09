@@ -278,27 +278,45 @@ module remoteSerializerTest {
             opened: function () {
                 log("session opened");
                 var echoService = sessionInvokerFactory.invoker(contract.ServerServices.EchoService)();
-                echoService.echo(12345678).then(result =>  assert(result === 12345678), yass.RETHROW);
-                echoService.echo(-87654321).then(result  => assert(result === -87654321), yass.RETHROW);
-                echoService.echo(new contract.instrument.stock.JsDouble(123.456e98)).then(result => assert((<contract.instrument.stock.JsDouble>result).d === 123.456e98), yass.RETHROW);
-                echoService.echo(new contract.instrument.stock.JsDouble(-9.384762637432E-12)).then(result => assert((<contract.instrument.stock.JsDouble>result).d === -9.384762637432E-12), yass.RETHROW);
-                echoService.echo(new contract.Expiration(9, 8, 7)).then(result => {
-                    var expiration = <contract.Expiration>result;
-                    assert(expiration.year === 9);
-                    assert(expiration.month === 8);
-                    assert(expiration.day === 7);
-                }, yass.RETHROW);
+                echoService.echo(12345678).then(
+                    result =>  assert(result === 12345678),
+                    yass.RETHROW
+                );
+                echoService.echo(-87654321).then(
+                    result  => assert(result === -87654321),
+                    yass.RETHROW
+                );
+                echoService.echo(new contract.instrument.stock.JsDouble(123.456e98)).then(
+                    result => assert((<contract.instrument.stock.JsDouble>result).d === 123.456e98),
+                    yass.RETHROW
+                );
+                echoService.echo(new contract.instrument.stock.JsDouble(-9.384762637432E-12)).then(
+                    result => assert((<contract.instrument.stock.JsDouble>result).d === -9.384762637432E-12),
+                    yass.RETHROW
+                );
+                echoService.echo(new contract.Expiration(9, 8, 7)).then(
+                    result => {
+                        var expiration = <contract.Expiration>result;
+                        assert(expiration.year === 9);
+                        assert(expiration.month === 8);
+                        assert(expiration.day === 7);
+                    },
+                    yass.RETHROW
+                );
                 var writer = new yass.Writer(1);
                 writer.writeByte(123);
                 writer.writeByte(0);
                 writer.writeByte(210);
-                echoService.echo(writer.getArray()).then(result => {
-                    var reader = new yass.Reader(toArrayBuffer(result));
-                    assert(reader.readByte() === 123);
-                    assert(reader.readByte() === 0);
-                    assert(reader.readByte() === 210);
-                    assert(reader.isEmpty());
-                }, yass.RETHROW);
+                echoService.echo(writer.getArray()).then(
+                    result => {
+                        var reader = new yass.Reader(toArrayBuffer(result));
+                        assert(reader.readByte() === 123);
+                        assert(reader.readByte() === 0);
+                        assert(reader.readByte() === 210);
+                        assert(reader.isEmpty());
+                    },
+                    yass.RETHROW
+                );
                 setTimeout(() => sessionInvokerFactory.close(), 5000);
             },
             closed: function (exception) {
@@ -370,14 +388,20 @@ module promiseTest {
     };
 
     var promise = new yass.Promise<string>(logger, "test", [123]);
-    promise.then(result => log("promise", result), yass.RETHROW);
+    promise.then(
+        result => log("promise", result),
+        yass.RETHROW
+    );
     log("before settle");
     promise.settle({process: () => "hello"});
 
     promise = new yass.Promise<string>(logger, "test", [123]);
     promise.settle({process: () => "world"});
     log("before then");
-    promise.then(result => log("promise", result), yass.RETHROW);
+    promise.then(
+        result => log("promise", result),
+        yass.RETHROW
+    );
 
     promise = new yass.Promise<string>(logger, "test", [123]);
     promise.settle({

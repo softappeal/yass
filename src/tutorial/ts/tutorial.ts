@@ -91,18 +91,21 @@ module tutorial {
                 }
             );
         }
-        instrumentService.getInstruments().then(i => subscribe(i.map(i => i.id)), yass.RETHROW);
+        instrumentService.getInstruments().then(
+            i => subscribe(i.map(i => i.id)),
+            yass.RETHROW
+        );
         subscribe(["unknownId"]); // shows exceptions
     }
 
     function sessionFactory(sessionInvokerFactory: yass.SessionInvokerFactory): yass.Session { // called on successful connect
         return {
-            opened: function () { // called if session has been opened
+            opened: function (): void { // called if session has been opened
                 log("session opened");
                 subscribePrices(sessionInvokerFactory);
                 setTimeout(() => sessionInvokerFactory.close(), 5000); // closes the session
             },
-            closed: function (exception) { // called if session has been closed; exception is null if regular close else reason for close
+            closed: function (exception: any): void { // called if session has been closed; exception is null if regular close else reason for close
                 log("session closed", exception);
             }
         };

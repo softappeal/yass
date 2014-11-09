@@ -32,8 +32,11 @@ public final class TaggedFastSerializer extends AbstractFastSerializer {
      * @param referenceableConcreteClasses instances of these classes can be used in graphs
      */
     public TaggedFastSerializer(
-        final Reflector.Factory reflectorFactory, final Collection<TypeDesc> baseTypeDescs, final Collection<Class<?>> enumerations,
-        final Collection<Class<?>> concreteClasses, final Collection<Class<?>> referenceableConcreteClasses
+        final Reflector.Factory reflectorFactory,
+        final Collection<TypeDesc> baseTypeDescs,
+        final Collection<Class<?>> enumerations,
+        final Collection<Class<?>> concreteClasses,
+        final Collection<Class<?>> referenceableConcreteClasses
     ) {
         super(reflectorFactory);
         baseTypeDescs.forEach(this::addBaseType);

@@ -68,8 +68,7 @@ public abstract class WsTest {
     }
 
     protected static void connect(final WebSocketContainer container, final CountDownLatch latch) throws Exception {
-        final ClientEndpointConfig config = ClientEndpointConfig.Builder.create().build();
-        container.connectToServer(new ClientEndpoint(), config, THE_URI);
+        container.connectToServer(new ClientEndpoint(), ClientEndpointConfig.Builder.create().build(), THE_URI);
         latch.await();
         TimeUnit.MILLISECONDS.sleep(400L);
     }

@@ -16,7 +16,14 @@ import java.util.Set;
 public final class Dumper {
 
     private static final Set<Class<?>> PRIMITIVE_WRAPPER_CLASSES = new HashSet<>(Arrays.asList(
-        Boolean.class, Character.class, Byte.class, Short.class, Integer.class, Long.class, Float.class, Double.class
+        Boolean.class,
+        Character.class,
+        Byte.class,
+        Short.class,
+        Integer.class,
+        Long.class,
+        Float.class,
+        Double.class
     ));
 
     private final Set<Class<?>> concreteValueClasses;

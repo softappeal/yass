@@ -100,7 +100,13 @@ public class SslTest extends InvokeTest {
     private static final char[] PASSWORD = "changeit".toCharArray();
 
     private static KeyStore readKeyStore(final String name) {
-        return SslSetup.readKeyStore(new ClassLoaderResource(SslTest.class.getClassLoader(), SslTest.class.getPackage().getName().replace('.', '/') + '/' + name + ".jks"), PASSWORD);
+        return SslSetup.readKeyStore(
+            new ClassLoaderResource(
+                SslTest.class.getClassLoader(),
+                SslTest.class.getPackage().getName().replace('.', '/') + '/' + name + ".jks"
+            ),
+            PASSWORD
+        );
     }
 
     private static final KeyStore TEST = readKeyStore("Test");

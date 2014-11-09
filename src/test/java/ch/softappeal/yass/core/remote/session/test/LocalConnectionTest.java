@@ -30,7 +30,13 @@ public class LocalConnectionTest extends InvokeTest {
         return invocation.proceed();
     };
 
-    private static TransportSetup createSetup(final boolean invoke, final Executor requestExecutor, final boolean createException, final boolean openedException, final boolean invokeBeforeOpened) {
+    private static TransportSetup createSetup(
+        final boolean invoke,
+        final Executor requestExecutor,
+        final boolean createException,
+        final boolean openedException,
+        final boolean invokeBeforeOpened
+    ) {
         return new TransportSetup(
             new Server(
                 TaggedMethodMapper.FACTORY,
@@ -58,11 +64,9 @@ public class LocalConnectionTest extends InvokeTest {
                         }
                         if (invoke) {
                             try (Session session = this) {
-                                InvokeTest.invoke(
-                                    session.invoker(ContractIdTest.ID).proxy(
-                                        invoke ? Interceptor.composite(PRINTLN_AFTER, SESSION_CHECKER, CLIENT_INTERCEPTOR) : SESSION_CHECKER
-                                    )
-                                );
+                                InvokeTest.invoke(session.invoker(ContractIdTest.ID).proxy(
+                                    invoke ? Interceptor.composite(PRINTLN_AFTER, SESSION_CHECKER, CLIENT_INTERCEPTOR) : SESSION_CHECKER
+                                ));
                             }
                         }
                     }

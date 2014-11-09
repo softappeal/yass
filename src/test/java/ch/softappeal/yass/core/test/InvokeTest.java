@@ -152,7 +152,7 @@ public class InvokeTest {
      * @param testService must use {@link #CLIENT_INTERCEPTOR} and {@link #SERVER_INTERCEPTOR}
      */
     public static void invoke(final TestService testService) throws InterruptedException {
-        invoke("nothing", new Class<?>[] {}, null, () -> testService.nothing());
+        invoke("nothing", new Class<?>[] {}, null, testService::nothing);
         invoke("divide", new Class<?>[] {int.class, int.class}, new Object[] {12, 3}, () -> {
             try {
                 Assert.assertTrue(testService.divide(12, 3) == 4);

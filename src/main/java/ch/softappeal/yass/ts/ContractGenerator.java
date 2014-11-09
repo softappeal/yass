@@ -82,7 +82,11 @@ public final class ContractGenerator extends Generator {
     }
 
     private static final Set<Type> ROOT_CLASSES = new HashSet<>(Arrays.asList(
-        Object.class, Exception.class, RuntimeException.class, Error.class, Throwable.class
+        Object.class,
+        Exception.class,
+        RuntimeException.class,
+        Error.class,
+        Throwable.class
     ));
 
     private String type(final Type type) {
@@ -273,8 +277,12 @@ public final class ContractGenerator extends Generator {
      */
     @SuppressWarnings("unchecked")
     public ContractGenerator(
-        final Package rootPackage, final JsFastSerializer serializer, final MethodMapper.Factory methodMapperFactory,
-        final String baseTypesModulePath, final String contractModuleName, final String contractFilePath
+        final Package rootPackage,
+        final JsFastSerializer serializer,
+        final MethodMapper.Factory methodMapperFactory,
+        final String baseTypesModulePath,
+        final String contractModuleName,
+        final String contractFilePath
     ) throws Exception {
         super(contractFilePath);
         this.rootPackage = rootPackage.getName() + '.';

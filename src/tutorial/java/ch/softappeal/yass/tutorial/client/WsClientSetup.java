@@ -21,9 +21,10 @@ public abstract class WsClientSetup extends ClientSetup {
     }
 
     protected static void run(final WebSocketContainer container) throws Exception {
-        final ClientEndpointConfig config = ClientEndpointConfig.Builder.create().build();
         container.connectToServer(
-            new Endpoint(), config, URI.create("ws://" + WsServerSetup.HOST + ":" + WsServerSetup.PORT + WsServerSetup.PATH)
+            new Endpoint(),
+            ClientEndpointConfig.Builder.create().build(),
+            URI.create("ws://" + WsServerSetup.HOST + ":" + WsServerSetup.PORT + WsServerSetup.PATH)
         );
         System.out.println("started");
     }

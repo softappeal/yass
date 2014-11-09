@@ -142,57 +142,57 @@ public abstract class Reader {
         return (value >>> 1) ^ -(value & 1);
     }
 
-    //  /**
-    //   * Reads an UTF-8 encoded string.
-    //   * @param utf8Length the length in bytes of the UTF-8 encoded string to be read
-    //   * @see Writer#writeString(CharSequence)
-    //   */
-    //  public final String readString(final int utf8Length) throws Exception {
-    //    final char[] chars = new char[utf8Length]; // note: could be 3x too big
-    //    int count = 0;
-    //    int charsCount = 0;
-    //    while (count < utf8Length) {
-    //      final int c = readByte() & 0b1111_1111;
-    //      if (c <= 0b0111_1111) {
-    //        count++;
-    //        chars[charsCount++] = (char)c;
-    //      } else {
-    //        switch (c >> 4) {
-    //          case 0b1100:
-    //          case 0b1101: // 110x xxxx  10xx xxxx
-    //          {
-    //            count += 2;
-    //            if (count > utf8Length) {
-    //              throw new RuntimeException("malformed input");
-    //            }
-    //            final int c2 = readByte();
-    //            if ((c2 & 0b1100_0000) != 0b1000_0000) {
-    //              throw new RuntimeException("malformed input");
-    //            }
-    //            chars[charsCount++] = (char)(((c & 0b0001_1111) << 6) | (c2 & 0b0011_1111));
-    //          }
-    //          break;
-    //          case 0b1110: // 1110 xxxx  10xx xxxx  10xx xxxx
-    //          {
-    //            count += 3;
-    //            if (count > utf8Length) {
-    //              throw new RuntimeException("malformed input");
-    //            }
-    //            final int c2 = readByte();
-    //            final int c3 = readByte();
-    //            if (((c2 & 0b1100_0000) != 0b1000_0000) || ((c3 & 0b1100_0000) != 0b1000_0000)) {
-    //              throw new RuntimeException("malformed input");
-    //            }
-    //            chars[charsCount++] = (char)(((c & 0b0000_1111) << 12) | ((c2 & 0b0011_1111) << 6) | (c3 & 0b0011_1111));
-    //          }
-    //          break;
-    //          default:
-    //            throw new RuntimeException("malformed input");
-    //        }
-    //      }
-    //    }
-    //    return new String(chars, 0, charsCount);
-    //  }
+    /**
+     * Reads an UTF-8 encoded string.
+     * @param utf8Length the length in bytes of the UTF-8 encoded string to be read
+     * @see Writer#writeString(CharSequence)
+     */
+    public final String readString(final int utf8Length) throws Exception {
+        final char[] chars = new char[utf8Length]; // note: could be 3x too big
+        int count = 0;
+        int charsCount = 0;
+        while (count < utf8Length) {
+            final int c = readByte() & 0b1111_1111;
+            if (c <= 0b0111_1111) {
+                count++;
+                chars[charsCount++] = (char)c;
+            } else {
+                switch (c >> 4) {
+                    case 0b1100:
+                    case 0b1101: // 110x xxxx  10xx xxxx
+                    {
+                        count += 2;
+                        if (count > utf8Length) {
+                            throw new RuntimeException("malformed input");
+                        }
+                        final int c2 = readByte();
+                        if ((c2 & 0b1100_0000) != 0b1000_0000) {
+                            throw new RuntimeException("malformed input");
+                        }
+                        chars[charsCount++] = (char)(((c & 0b0001_1111) << 6) | (c2 & 0b0011_1111));
+                    }
+                    break;
+                    case 0b1110: // 1110 xxxx  10xx xxxx  10xx xxxx
+                    {
+                        count += 3;
+                        if (count > utf8Length) {
+                            throw new RuntimeException("malformed input");
+                        }
+                        final int c2 = readByte();
+                        final int c3 = readByte();
+                        if (((c2 & 0b1100_0000) != 0b1000_0000) || ((c3 & 0b1100_0000) != 0b1000_0000)) {
+                            throw new RuntimeException("malformed input");
+                        }
+                        chars[charsCount++] = (char)(((c & 0b0000_1111) << 12) | ((c2 & 0b0011_1111) << 6) | (c3 & 0b0011_1111));
+                    }
+                    break;
+                    default:
+                        throw new RuntimeException("malformed input");
+                }
+            }
+        }
+        return new String(chars, 0, charsCount);
+    }
 
     public final InputStream stream() {
         return new InputStream() {

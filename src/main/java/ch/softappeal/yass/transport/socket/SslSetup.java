@@ -41,11 +41,14 @@ public final class SslSetup {
     private final boolean needClientAuth;
 
     public SslSetup(
-        final String protocol, final String cipher,
-        @Nullable final KeyStore keyStore, @Nullable final char[] keyStorePwd,
+        final String protocol,
+        final String cipher,
+        @Nullable final KeyStore keyStore,
+        @Nullable final char[] keyStorePwd,
         @Nullable final KeyStore trustStore,
         @Nullable final SecureRandom random,
-        final String keyManagerFactoryAlgorithm, final String trustManagerFactoryAlgorithm
+        final String keyManagerFactoryAlgorithm,
+        final String trustManagerFactoryAlgorithm
     ) {
         if ((keyStore == null) && (trustStore == null)) {
             throw new IllegalArgumentException("at least one of keyStore or trustStore must be defined");
@@ -76,8 +79,10 @@ public final class SslSetup {
     }
 
     public SslSetup(
-        final String protocol, final String cipher,
-        @Nullable final KeyStore keyStore, @Nullable final char[] keyStorePwd,
+        final String protocol,
+        final String cipher,
+        @Nullable final KeyStore keyStore,
+        @Nullable final char[] keyStorePwd,
         @Nullable final KeyStore trustStore
     ) {
         this(protocol, cipher, keyStore, keyStorePwd, trustStore, null, "SunX509", "SunX509");

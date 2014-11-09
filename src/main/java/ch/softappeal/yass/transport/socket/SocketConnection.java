@@ -31,7 +31,11 @@ public final class SocketConnection implements Connection {
     }
 
     static void create(
-        final TransportSetup setup, final Socket socket, final Reader reader, final OutputStream outputStream, final Executor writerExecutor
+        final TransportSetup setup,
+        final Socket socket,
+        final Reader reader,
+        final OutputStream outputStream,
+        final Executor writerExecutor
     ) throws Exception {
         final SocketConnection connection = new SocketConnection(setup, socket);
         final SessionClient sessionClient = SessionClient.create(setup, connection);

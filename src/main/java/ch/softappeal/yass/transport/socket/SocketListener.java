@@ -22,10 +22,7 @@ public abstract class SocketListener {
      * Starts a socket listener.
      * @param listenerExecutor must interrupt it's threads to terminate the socket listener (use {@link ExecutorService#shutdownNow()})
      */
-    public final void start(
-        final Executor listenerExecutor, final SocketExecutor socketExecutor,
-        final ServerSocketFactory socketFactory, final SocketAddress socketAddress
-    ) {
+    public final void start(final Executor listenerExecutor, final SocketExecutor socketExecutor, final ServerSocketFactory socketFactory, final SocketAddress socketAddress) {
         Check.notNull(socketExecutor);
         try {
             final ServerSocket serverSocket = socketFactory.createServerSocket();
@@ -78,10 +75,7 @@ public abstract class SocketListener {
     /**
      * Uses {@link ServerSocketFactory#getDefault()}.
      */
-    public final void start(
-        final Executor listenerExecutor, final SocketExecutor socketExecutor,
-        final SocketAddress socketAddress
-    ) {
+    public final void start(final Executor listenerExecutor, final SocketExecutor socketExecutor, final SocketAddress socketAddress) {
         start(listenerExecutor, socketExecutor, ServerSocketFactory.getDefault(), socketAddress);
     }
 

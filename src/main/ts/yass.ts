@@ -40,6 +40,20 @@ module yass {
         writeZigZagInt(value: number): void {
             this.writeVarInt((value << 1) ^ (value >> 31));
         }
+        static calcUtf8bytes(value: string): number {
+            var bytes = 0;
+            for (var c = 0; c < value.length; c++) {
+                var code = value.charCodeAt(c);
+                if (code < 0x80) {
+                    bytes += 1;
+                } else if (code < 0x800) {
+                    bytes += 2;
+                } else {
+                    bytes += 3;
+                }
+            }
+            return bytes;
+        }
         writeUtf8(value: string): void {
             for (var c = 0; c < value.length; c++) {
                 var code = value.charCodeAt(c);
@@ -57,20 +71,6 @@ module yass {
         }
         getArray(): Uint8Array {
             return this.array.subarray(0, this.position);
-        }
-        static calcUtf8bytes(value: string): number {
-            var bytes = 0;
-            for (var c = 0; c < value.length; c++) {
-                var code = value.charCodeAt(c);
-                if (code < 0x80) {
-                    bytes += 1;
-                } else if (code < 0x800) {
-                    bytes += 2;
-                } else {
-                    bytes += 3;
-                }
-            }
-            return bytes;
         }
     }
 
@@ -805,28 +805,28 @@ module yass {
         serializer = new PacketSerializer(new MessageSerializer(serializer));
         var ws = new WebSocket(url);
         ws.binaryType = "arraybuffer";
-        ws.onopen = function () {
+        ws.onopen = function (): void {
             var sessionClient = new SessionClient(server, sessionFactory, {
-                write: function (packet) {
-                    var writer = new Writer(1024);
+                write: function (packet: Packet): void {
+                    var writer = new Writer(128);
                     serializer.write(packet, writer);
                     ws.send(writer.getArray());
                 },
-                closed: function () {
+                closed: function (): void {
                     ws.close();
                 }
             });
-            ws.onmessage = function (evt) {
-                var reader = new Reader(evt.data);
+            ws.onmessage = function (event: MessageEvent): void {
+                var reader = new Reader(event.data);
                 sessionClient.received(serializer.read(reader));
                 if (!reader.isEmpty()) {
                     throw new Error("reader is not empty");
                 }
             };
-            ws.onerror = function (evt) {
+            ws.onerror = function (): void {
                 sessionClient.doClose(new Error("onerror"));
             };
-            ws.onclose = function () {
+            ws.onclose = function (): void {
                 sessionClient.doClose(new Error("onclose"));
             };
         };

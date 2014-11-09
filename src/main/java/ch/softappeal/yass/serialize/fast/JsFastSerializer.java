@@ -45,8 +45,10 @@ public final class JsFastSerializer extends AbstractFastSerializer {
      * @param concreteClasses instances of these classes can only be used in trees
      */
     public JsFastSerializer(
-        final Reflector.Factory reflectorFactory, final Collection<BaseTypeHandler<?>> baseTypeHandlers,
-        final Collection<Class<?>> enumerations, final Collection<Class<?>> concreteClasses
+        final Reflector.Factory reflectorFactory,
+        final Collection<BaseTypeHandler<?>> baseTypeHandlers,
+        final Collection<Class<?>> enumerations,
+        final Collection<Class<?>> concreteClasses
     ) {
         super(reflectorFactory);
         addBaseType(BOOLEAN_TYPEDESC);

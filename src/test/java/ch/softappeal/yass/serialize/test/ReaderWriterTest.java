@@ -245,24 +245,47 @@ public class ReaderWriterTest {
         Assert.assertTrue(reader.readZigZagLong() == Long.MAX_VALUE);
     }
 
-    private static void test(final int utf8Length, final String value) {
+    private static void string(final int utf8Length, final String value) {
         final byte[] bytes = Utf8.bytes(value);
         Assert.assertTrue(bytes.length == utf8Length);
         Assert.assertEquals(value, Utf8.string(bytes));
     }
 
     @Test public void string() {
-        test(2, "><");
-        test(3, ">\u0000<");
-        test(3, ">\u0001<");
-        test(3, ">\u0012<");
-        test(3, ">\u007F<");
-        test(4, ">\u0080<");
-        test(4, ">\u0234<");
-        test(4, ">\u07FF<");
-        test(5, ">\u0800<");
-        test(5, ">\u4321<");
-        test(5, ">\uFFFF<");
+        string(2, "><");
+        string(3, ">\u0000<");
+        string(3, ">\u0001<");
+        string(3, ">\u0012<");
+        string(3, ">\u007F<");
+        string(4, ">\u0080<");
+        string(4, ">\u0234<");
+        string(4, ">\u07FF<");
+        string(5, ">\u0800<");
+        string(5, ">\u4321<");
+        string(5, ">\uFFFF<");
+    }
+
+    private static void string2(final int utf8Length, final String value) throws Exception {
+        Assert.assertTrue(Writer.calculateUtf8Length(value) == utf8Length);
+        final ByteArrayOutputStream out = new ByteArrayOutputStream();
+        final Writer writer = Writer.create(out);
+        writer.writeString(value);
+        final Reader reader = Reader.create(new ByteArrayInputStream(out.toByteArray()));
+        Assert.assertEquals(value, reader.readString(utf8Length));
+    }
+
+    @Test public void string2() throws Exception {
+        string2(2, "><");
+        string2(3, ">\u0000<");
+        string2(3, ">\u0001<");
+        string2(3, ">\u0012<");
+        string2(3, ">\u007F<");
+        string2(4, ">\u0080<");
+        string2(4, ">\u0234<");
+        string2(4, ">\u07FF<");
+        string2(5, ">\u0800<");
+        string2(5, ">\u4321<");
+        string2(5, ">\uFFFF<");
     }
 
 }

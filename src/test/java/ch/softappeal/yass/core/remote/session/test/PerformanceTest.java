@@ -34,7 +34,9 @@ public class PerformanceTest extends InvokeTest {
 
     public static TransportSetup createSetup(final Executor requestExecutor, @Nullable final CountDownLatch latch, final int samples) {
         return new TransportSetup(
-            new Server(METHOD_MAPPER_FACTORY, new Service(CONTRACT_ID, new TestServiceImpl())), requestExecutor, SocketPerformanceTest.PACKET_SERIALIZER
+            new Server(METHOD_MAPPER_FACTORY, new Service(CONTRACT_ID, new TestServiceImpl())),
+            requestExecutor,
+            SocketPerformanceTest.PACKET_SERIALIZER
         ) {
             @Override public Session createSession(final SessionClient sessionClient) {
                 return new Session(sessionClient) {

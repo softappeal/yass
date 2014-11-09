@@ -79,8 +79,12 @@ public final class SocketTransport {
     }
 
     public static void connect(
-        final TransportSetup setup, final SocketExecutor socketExecutor, final Serializer pathSerializer, final Object path,
-        final SocketFactory socketFactory, final SocketAddress socketAddress
+        final TransportSetup setup,
+        final SocketExecutor socketExecutor,
+        final Serializer pathSerializer,
+        final Object path,
+        final SocketFactory socketFactory,
+        final SocketAddress socketAddress
     ) {
         Check.notNull(setup);
         Check.notNull(pathSerializer);
@@ -106,7 +110,10 @@ public final class SocketTransport {
      * Uses {@link SocketFactory#getDefault()}.
      */
     public static void connect(
-        final TransportSetup setup, final SocketExecutor socketExecutor, final Serializer pathSerializer, final Object path,
+        final TransportSetup setup,
+        final SocketExecutor socketExecutor,
+        final Serializer pathSerializer,
+        final Object path,
         final SocketAddress socketAddress
     ) {
         connect(setup, socketExecutor, pathSerializer, path, SocketFactory.getDefault(), socketAddress);

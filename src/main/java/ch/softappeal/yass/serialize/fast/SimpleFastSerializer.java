@@ -33,8 +33,11 @@ public final class SimpleFastSerializer extends AbstractFastSerializer {
      * @param referenceableConcreteClasses instances of these classes can be used in graphs
      */
     public SimpleFastSerializer(
-        final Reflector.Factory reflectorFactory, final Collection<BaseTypeHandler<?>> baseTypeHandlers, final Collection<Class<?>> enumerations,
-        final Collection<Class<?>> concreteClasses, final Collection<Class<?>> referenceableConcreteClasses
+        final Reflector.Factory reflectorFactory,
+        final Collection<BaseTypeHandler<?>> baseTypeHandlers,
+        final Collection<Class<?>> enumerations,
+        final Collection<Class<?>> concreteClasses,
+        final Collection<Class<?>> referenceableConcreteClasses
     ) {
         super(reflectorFactory);
         int id = TypeDesc.FIRST_ID;

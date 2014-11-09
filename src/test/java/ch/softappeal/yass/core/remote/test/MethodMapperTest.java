@@ -45,7 +45,10 @@ public class MethodMapperTest {
             TaggedMethodMapper.FACTORY.create(MissingTag.class);
             Assert.fail();
         } catch (final IllegalArgumentException e) {
-            Assert.assertEquals("missing tag for 'public abstract void ch.softappeal.yass.core.remote.test.MethodMapperTest$MissingTag.test()'", e.getMessage());
+            Assert.assertEquals(
+                "missing tag for 'public abstract void ch.softappeal.yass.core.remote.test.MethodMapperTest$MissingTag.test()'",
+                e.getMessage()
+            );
         }
     }
 
@@ -79,7 +82,10 @@ public class MethodMapperTest {
             TaggedMethodMapper.FACTORY.create(OnewayResult.class);
             Assert.fail();
         } catch (final IllegalArgumentException e) {
-            Assert.assertEquals("oneway method 'public abstract int ch.softappeal.yass.core.remote.test.MethodMapperTest$OnewayResult.test()' must 'return' void", e.getMessage());
+            Assert.assertEquals(
+                "oneway method 'public abstract int ch.softappeal.yass.core.remote.test.MethodMapperTest$OnewayResult.test()' must 'return' void",
+                e.getMessage()
+            );
         }
     }
 
@@ -92,7 +98,10 @@ public class MethodMapperTest {
             TaggedMethodMapper.FACTORY.create(OnewayException.class);
             Assert.fail();
         } catch (final IllegalArgumentException e) {
-            Assert.assertEquals("oneway method 'public abstract void ch.softappeal.yass.core.remote.test.MethodMapperTest$OnewayException.test() throws java.lang.Exception' must not throw exceptions", e.getMessage());
+            Assert.assertEquals(
+                "oneway method 'public abstract void ch.softappeal.yass.core.remote.test.MethodMapperTest$OnewayException.test() throws java.lang.Exception' must not throw exceptions",
+                e.getMessage()
+            );
         }
     }
 
