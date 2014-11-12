@@ -258,7 +258,7 @@ module yass {
     }
 
     function write(value: any, writer: Writer): void {
-        if (value === null) {
+        if ((value === null) || (value === undefined)) {
             NULL_DESC.write(null, writer);
         } else if (typeof(value) === "number") {
             INTEGER_DESC.write(value, writer);

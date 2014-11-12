@@ -278,6 +278,26 @@ module remoteSerializerTest {
             opened: function () {
                 log("session opened");
                 var echoService = sessionInvokerFactory.invoker(contract.ServerServices.EchoService)();
+                echoService.echo(null).then(
+                    result => assert(result === null),
+                    yass.RETHROW
+                );
+                echoService.echo(undefined).then(
+                    result => assert(result === null),
+                    yass.RETHROW
+                );
+                var stock = new contract.instrument.stock.Stock;
+                stock.id = "123";
+                stock.name = null;
+                stock.paysDividend = undefined;
+                echoService.echo(stock).then(
+                    result => {
+                        assert(result.id === "123");
+                        assert(result.name === undefined);
+                        assert(result.paysDividend === undefined);
+                    },
+                    yass.RETHROW
+                );
                 echoService.echo(12345678).then(
                     result =>  assert(result === 12345678),
                     yass.RETHROW
