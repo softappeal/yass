@@ -30,6 +30,7 @@ public abstract class UndertowTest extends WsTest {
                         new WebSocketDeploymentInfo()
                             .addEndpoint(SERVER_ENDPOINT_CONFIG)
                             .setWorker(xnio.createWorker(OptionMap.builder().getMap()))
+                            .setBuffers(new ByteBufferSlicePool(100, 1000))
                     )
             );
         deployment.deploy();
