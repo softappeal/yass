@@ -30,7 +30,6 @@ public abstract class SocketListener {
                 serverSocket.bind(socketAddress);
                 serverSocket.setSoTimeout(ACCEPT_TIMEOUT_MILLISECONDS);
                 listenerExecutor.execute(new Runnable() {
-
                     void loop() throws IOException {
                         while (true) {
                             if (Thread.interrupted()) {
@@ -47,7 +46,6 @@ public abstract class SocketListener {
                             socketExecutor.execute(socket, SocketListener.this);
                         }
                     }
-
                     @Override public void run() {
                         try {
                             try {
@@ -61,7 +59,6 @@ public abstract class SocketListener {
                             throw new RuntimeException(e);
                         }
                     }
-
                 });
             } catch (final Exception e) {
                 close(serverSocket, e);
