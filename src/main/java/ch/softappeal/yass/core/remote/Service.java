@@ -23,9 +23,9 @@ public final class Service {
         interceptor = Interceptor.composite(interceptors);
     }
 
-    Reply invoke(final Interceptor prependInterceptor, final Method method, @Nullable final Object[] arguments) {
+    Reply invoke(final Interceptor interceptor, final Method method, @Nullable final Object[] arguments) {
         try {
-            return new ValueReply(Interceptor.composite(prependInterceptor, interceptor).invoke(
+            return new ValueReply(Interceptor.composite(interceptor, this.interceptor).invoke(
                 method,
                 arguments,
                 () -> {

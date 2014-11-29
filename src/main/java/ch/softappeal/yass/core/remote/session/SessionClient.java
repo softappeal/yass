@@ -29,7 +29,7 @@ public final class SessionClient extends Client {
     private final SessionSetup setup;
     private final AtomicBoolean closed = new AtomicBoolean(false);
     private Session session;
-    private Interceptor sessionInterceptor;
+    private Interceptor interceptor;
 
     private SessionClient(final SessionSetup setup, final Connection connection) {
         super(setup.server.methodMapperFactory);
@@ -40,7 +40,7 @@ public final class SessionClient extends Client {
     public static SessionClient create(final SessionSetup setup, final Connection connection) throws Exception {
         final SessionClient sessionClient = new SessionClient(setup, connection);
         sessionClient.session = Check.notNull(setup.createSession(sessionClient));
-        sessionClient.sessionInterceptor = Interceptor.threadLocal(Session.INSTANCE, sessionClient.session);
+        sessionClient.interceptor = Interceptor.threadLocal(Session.INSTANCE, sessionClient.session);
         setup.requestExecutor.execute(() -> {
             try {
                 sessionClient.session.opened();
@@ -127,7 +127,7 @@ public final class SessionClient extends Client {
         setup.requestExecutor.execute(() -> {
             try {
                 final ServerInvocation invocation = setup.server.invocation(request);
-                final Reply reply = invocation.invoke(sessionInterceptor);
+                final Reply reply = invocation.invoke(interceptor);
                 if (!invocation.oneWay) {
                     write(requestNumber, reply);
                 }
@@ -169,7 +169,7 @@ public final class SessionClient extends Client {
     private final AtomicInteger nextRequestNumber = new AtomicInteger(Packet.END_REQUEST_NUMBER);
 
     @Override protected Object invoke(final ClientInvocation invocation) throws Throwable {
-        return invocation.invoke(sessionInterceptor, request -> {
+        return invocation.invoke(interceptor, request -> {
             int requestNumber;
             do { // we can't use END_REQUEST_NUMBER as regular requestNumber
                 requestNumber = nextRequestNumber.incrementAndGet();

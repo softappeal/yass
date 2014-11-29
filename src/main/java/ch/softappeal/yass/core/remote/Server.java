@@ -42,8 +42,8 @@ public final class Server extends Common {
             method = methodMapping.method;
             arguments = request.arguments;
         }
-        public Reply invoke(final Interceptor prependInterceptor) {
-            return service.invoke(prependInterceptor, method, arguments);
+        public Reply invoke(final Interceptor interceptor) {
+            return service.invoke(interceptor, method, arguments);
         }
     }
 

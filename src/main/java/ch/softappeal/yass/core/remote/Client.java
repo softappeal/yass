@@ -37,8 +37,8 @@ public abstract class Client extends Common implements InvokerFactory {
             this.methodMapping = methodMapping;
             this.arguments = arguments;
         }
-        @Nullable public Object invoke(final Interceptor prependInterceptor, final Tunnel tunnel) throws Throwable {
-            return Interceptor.composite(prependInterceptor, interceptor).invoke(
+        @Nullable public Object invoke(final Interceptor interceptor, final Tunnel tunnel) throws Throwable {
+            return Interceptor.composite(interceptor, this.interceptor).invoke(
                 methodMapping.method,
                 arguments,
                 () -> {
