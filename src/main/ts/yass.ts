@@ -438,7 +438,7 @@ module yass {
         }
     }
 
-    class MessageSerializer implements Serializer {
+    export class MessageSerializer implements Serializer {
         private static REQUEST = 0;
         private static VALUE_REPLY = 1;
         private static EXCEPTION_REPLY = 2;
@@ -679,7 +679,7 @@ module yass {
         }
     }
 
-    class Packet {
+    export class Packet {
         static END_REQUESTNUMBER = 0;
         static END = new Packet(Packet.END_REQUESTNUMBER, null);
         constructor(public requestNumber: number, public message: Message) {
@@ -690,7 +690,7 @@ module yass {
         }
     }
 
-    class PacketSerializer implements Serializer {
+    export class PacketSerializer implements Serializer {
         constructor(private messageSerializer: Serializer) {
             // empty
         }
@@ -724,7 +724,7 @@ module yass {
         (sessionInvokerFactory: SessionInvokerFactory): Session;
     }
 
-    interface Connection {
+    export interface Connection {
         write(packet: Packet): void;
         closed(): void;
     }
@@ -745,7 +745,7 @@ module yass {
         };
     }
 
-    class SessionClient extends Client implements SessionInvokerFactory {
+    export class SessionClient extends Client implements SessionInvokerFactory {
         private closed = false;
         private requestNumber = Packet.END_REQUESTNUMBER;
         private requestNumber2promise: Promise<any>[] = [];
