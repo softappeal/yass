@@ -11,7 +11,7 @@ module tutorial {
     function logger(type: string): yass.Interceptor {
         return (style, method, parameters, proceed) => {
             function doLog(kind: string, data: any): void {
-                log("logger:", type, kind, yass.InvokeStyle[style], method, data);
+                log("logger:", type, yass.SESSION ? (<Session>yass.SESSION).createTime : null, kind, yass.InvokeStyle[style], method, data);
             }
             doLog("entry", parameters);
             try {
@@ -98,17 +98,19 @@ module tutorial {
         subscribe(["unknownId"]); // shows exceptions
     }
 
-    function sessionFactory(sessionInvokerFactory: yass.SessionInvokerFactory): yass.Session { // called on successful connect
-        return {
-            opened: function (): void { // called if session has been opened
-                log("session opened");
-                subscribePrices(sessionInvokerFactory);
-                setTimeout(() => sessionInvokerFactory.close(), 5000); // closes the session
-            },
-            closed: function (exception: any): void { // called if session has been closed; exception is null if regular close else reason for close
-                log("session closed", exception);
-            }
-        };
+    class Session implements yass.Session {
+        public createTime = Date.now();
+        constructor(private sessionInvokerFactory: yass.SessionInvokerFactory) {
+            // empty
+        }
+        opened(): void { // called if session has been opened
+            log("session opened", this.createTime);
+            subscribePrices(this.sessionInvokerFactory);
+            setTimeout(() => this.sessionInvokerFactory.close(), 5000); // closes the session
+        }
+        closed(exception: any): void { // called if session has been closed; exception is null if regular close else reason for close
+            log("session closed", this.createTime, exception);
+        }
     }
 
     yass.connect(
@@ -118,7 +120,7 @@ module tutorial {
             new yass.Service(contract.ClientServices.PriceListener, PRICE_LISTENER, serverLogger),
             new yass.Service(contract.ClientServices.EchoService, ECHO_SERVICE, serverLogger)
         ),
-        sessionFactory
+        sessionInvokerFactory => new Session(sessionInvokerFactory) // called on successful connect
     );
 
 }

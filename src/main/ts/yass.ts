@@ -521,14 +521,14 @@ module yass {
             this.interceptor = service.interceptor;
             this.implementation = service.implementation;
         }
-        invoke(method: string, parameters: any[]): Reply {
+        invoke(interceptor: Interceptor, method: string, parameters: any[]): Reply {
             var proceed = () => {
                 var result = this.implementation[method].apply(this.implementation, parameters);
                 return result ? result : null;
             };
             var value: Reply;
             try {
-                value = this.interceptor(InvokeStyle.NoPromise, method, parameters, proceed);
+                value = composite(interceptor, this.interceptor)(InvokeStyle.NoPromise, method, parameters, proceed);
             } catch (exception) {
                 return new ExceptionReply(exception);
             }
@@ -544,8 +544,8 @@ module yass {
             this.oneWay = methodMapping.oneWay;
             this.method = methodMapping.method;
         }
-        invoke(): Reply {
-            return this.serverInvoker.invoke(this.method, this.request.parameters);
+        invoke(interceptor: Interceptor): Reply {
+            return this.serverInvoker.invoke(interceptor, this.method, this.request.parameters);
         }
     }
 
@@ -634,8 +634,24 @@ module yass {
         (request: Request, promise: Promise<any>): void;
     }
 
-    export interface ClientInvocation {
-        (tunnel: Tunnel): Promise<any>
+    export class ClientInvocation {
+        constructor(private interceptor: Interceptor, private serviceId: number, private methodMapping: MethodMapping, private parameters: any[]) {
+            // empty
+        }
+        invoke(interceptor: Interceptor, tunnel: Tunnel): Promise<any> {
+            var compositeInterceptor = composite(interceptor, this.interceptor);
+            var promise = this.methodMapping.oneWay ? null : new Promise<any>(compositeInterceptor, this.methodMapping.method, this.parameters);
+            compositeInterceptor(
+                this.methodMapping.oneWay ? InvokeStyle.NoPromise : InvokeStyle.PromiseEntry,
+                this.methodMapping.method,
+                this.parameters,
+                (): any => {
+                    tunnel(new Request(this.serviceId, this.methodMapping.id, this.parameters), promise);
+                    return null;
+                }
+            );
+            return promise;
+        }
     }
 
     export class Client implements InvokerFactory {
@@ -645,25 +661,17 @@ module yass {
         invoker<C, PC>(contractId: ContractId<C, PC>): Invoker<PC> {
             return (...interceptors: Interceptor[]): PC => {
                 var interceptor = composite.apply(null, interceptors);
-                return <any>contractId.methodMapper.proxy((method, parameters) => {
-                    var methodMapping = contractId.methodMapper.mapMethod(method);
-                    return this.clientInvoker(tunnel => {
-                        var promise = methodMapping.oneWay ? null : new Promise<any>(interceptor, method, parameters);
-                        interceptor(methodMapping.oneWay ? InvokeStyle.NoPromise : InvokeStyle.PromiseEntry, method, parameters, (): any => {
-                            tunnel(new Request(contractId.id, methodMapping.id, parameters), promise);
-                            return null;
-                        });
-                        return promise;
-                    });
-                });
+                return <any>contractId.methodMapper.proxy((method, parameters) => this.clientInvoker(
+                    new ClientInvocation(interceptor, contractId.id, contractId.methodMapper.mapMethod(method), parameters)
+                ));
             };
         }
     }
 
     export class MockInvokerFactory extends Client {
         constructor(server: Server) {
-            super(invocation => invocation((request, promise) => {
-                var reply = server(request).invoke();
+            super(invocation => invocation.invoke(DIRECT, (request, promise) => {
+                var reply = server(request).invoke(DIRECT);
                 if (promise) {
                     promise.settle(reply);
                 }
@@ -721,14 +729,31 @@ module yass {
         closed(): void;
     }
 
+    /**
+     * The session of the active invocation or null if no active invocation.
+     */
+    export var SESSION: Session = null;
+    function sessionInterceptor(session: Session): Interceptor {
+        return (style, method, parameters, proceed) => {
+            var oldSession = SESSION;
+            SESSION = session;
+            try {
+                return proceed();
+            } finally {
+                SESSION = oldSession;
+            }
+        };
+    }
+
     class SessionClient extends Client implements SessionInvokerFactory {
         private closed = false;
         private requestNumber = Packet.END_REQUESTNUMBER;
         private requestNumber2promise: Promise<any>[] = [];
         private session: Session = null;
+        private interceptor: Interceptor;
         constructor(private server: Server, sessionFactory: SessionFactory, private connection: Connection) {
             super(function (invocation: ClientInvocation) {
-                return invocation((request, promise) => {
+                return invocation.invoke(this.interceptor, (request, promise) => {
                     if (!this.session) {
                         throw new Error("session is not yet opened");
                     }
@@ -746,6 +771,7 @@ module yass {
                 });
             });
             this.session = sessionFactory(this);
+            this.interceptor = sessionInterceptor(this.session);
             this.session.opened();
         }
         doClose(exception: any): void {
@@ -786,7 +812,7 @@ module yass {
                 }
                 if (packet.message instanceof Request) {
                     var invocation = this.server(<Request>packet.message);
-                    var reply = invocation.invoke();
+                    var reply = invocation.invoke(this.interceptor);
                     if (!invocation.oneWay) {
                         this.write(packet.requestNumber, reply);
                     }
