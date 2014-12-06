@@ -19,17 +19,16 @@ public final class Exceptions {
 
     /**
      * Prints to {@link System#err} and EXITS if {@code !(throwable instanceof Exception)}.
-     * <p>
-     * $note: For productive code, this handler should be replaced with one that uses your logging framework!
      */
     public static final UncaughtExceptionHandler STD_ERR = (thread, throwable) -> {
-        System.err.println(
-            "### " + new Date() + " - " + ((thread == null) ? "<null>" : thread.getName()) + " - " + Exceptions.class.getName() + ':'
-        );
-        if (throwable == null) {
-            System.err.println("throwable is null");
-        } else {
-            throwable.printStackTrace();
+        try {
+            System.err.println("### " + new Date() + " - " + ((thread == null) ? "<null>" : thread.getName()) + " - " + Exceptions.class.getName() + ':');
+            if (throwable == null) {
+                System.err.println("throwable is null");
+            } else {
+                throwable.printStackTrace();
+            }
+        } finally {
             if (!(throwable instanceof Exception)) {
                 System.exit(1);
             }
@@ -38,12 +37,13 @@ public final class Exceptions {
 
     /**
      * Prints to {@link System#err} and EXITS.
-     * <p>
-     * $note: For productive code, this handler should be replaced with one that uses your logging framework!
      */
     public static final UncaughtExceptionHandler TERMINATE = (thread, throwable) -> {
-        STD_ERR.uncaughtException(thread, throwable);
-        System.exit(1);
+        try {
+            STD_ERR.uncaughtException(thread, throwable);
+        } finally {
+            System.exit(1);
+        }
     };
 
 }

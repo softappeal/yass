@@ -6,10 +6,6 @@ import org.junit.Test;
 
 public class ExceptionsTest {
 
-    @Test public void stdErrNull() {
-        Exceptions.STD_ERR.uncaughtException(null, null);
-    }
-
     @Test public void stdErrException() {
         try {
             throw new Exception("Test");
