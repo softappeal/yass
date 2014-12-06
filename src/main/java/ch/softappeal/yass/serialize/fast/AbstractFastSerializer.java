@@ -29,7 +29,7 @@ import java.util.TreeMap;
  * class hierarchies with all non-static and non-transient fields
  * (field id's must be &gt;= {@link FieldHandler#FIRST_ID} and must be unique in the path to its super classes)
  * </li>
- * <li>exceptions (but without fields of {@link Throwable}; therefore, $note: you should implement {@link Throwable#getMessage()})</li>
+ * <li>exceptions (but without fields of {@link Throwable}; therefore, you should implement {@link Throwable#getMessage()})</li>
  * <li>graphs with cycles</li>
  * </ul>
  * There is some support for contract versioning:

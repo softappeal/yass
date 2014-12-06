@@ -11,7 +11,7 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * $note: This implementation is not very efficient! It uses uncached reflection.
+ * This implementation is not very efficient! It uses uncached reflection.
  */
 public final class Dumper {
 

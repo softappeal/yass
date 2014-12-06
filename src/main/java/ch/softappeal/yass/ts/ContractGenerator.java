@@ -27,7 +27,7 @@ import java.util.SortedMap;
 import java.util.stream.Collectors;
 
 /**
- * $note: You must use the -parameters option for javac to get the real method parameter names.
+ * You must use the "-parameters" option for javac to get the real method parameter names.
  */
 public final class ContractGenerator extends Generator {
 
@@ -272,8 +272,8 @@ public final class ContractGenerator extends Generator {
     public static final String SERVER_SERVICES = "ServerServices";
 
     /**
-     * @param rootPackage $note: Must contain the classes {@link #CLIENT_SERVICES} and {@link #SERVER_SERVICES} with static fields of type {@link ContractId}.
-     * @param methodMapperFactory $note: You must provide a factory that doesn't allow overloading and where {@link MethodMapper.Mapping#id} is of type {@link Integer} due to JavaScript restrictions.
+     * @param rootPackage Must contain the classes {@link #CLIENT_SERVICES} and {@link #SERVER_SERVICES} with static fields of type {@link ContractId}.
+     * @param methodMapperFactory You must provide a factory that doesn't allow overloading and where {@link MethodMapper.Mapping#id} is of type {@link Integer} due to JavaScript restrictions.
      */
     @SuppressWarnings("unchecked")
     public ContractGenerator(
