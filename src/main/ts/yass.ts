@@ -827,10 +827,19 @@ module yass {
         }
     }
 
-    export function connect(url: string, serializer: Serializer, server: Server, sessionFactory: SessionFactory): void {
+    export function connect(url: string, serializer: Serializer, server: Server, sessionFactory: SessionFactory, connectFailed = () => {}): void {
         serializer = new PacketSerializer(new MessageSerializer(serializer));
+        var connectFailedCalled = false;
+        function callConnectFailed(): void {
+            if (!connectFailedCalled) {
+                connectFailedCalled = true;
+                connectFailed();
+            }
+        }
         var ws = new WebSocket(url);
         ws.binaryType = "arraybuffer";
+        ws.onerror = callConnectFailed;
+        ws.onclose = callConnectFailed;
         ws.onopen = function (): void {
             var sessionClient = new SessionClient(server, sessionFactory, {
                 write: function (packet: Packet): void {

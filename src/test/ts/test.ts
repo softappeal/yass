@@ -354,7 +354,8 @@ module remoteSerializerTest {
         yass.server(
             new yass.Service(contract.ClientServices.EchoService, {echo: (value: any) => value})
         ),
-        sessionFactory
+        sessionFactory,
+        () => log("connectFailed")
     );
 
     log("remoteSerializerTest done");
