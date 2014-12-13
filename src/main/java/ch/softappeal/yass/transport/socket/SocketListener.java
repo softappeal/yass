@@ -31,17 +31,14 @@ public abstract class SocketListener {
                 serverSocket.setSoTimeout(ACCEPT_TIMEOUT_MILLISECONDS);
                 listenerExecutor.execute(new Runnable() {
                     void loop() throws IOException {
-                        while (true) {
-                            if (Thread.interrupted()) {
-                                break;
-                            }
+                        while (!Thread.interrupted()) {
                             final Socket socket;
                             try {
                                 socket = serverSocket.accept();
                             } catch (final SocketTimeoutException ignore) { // thrown if SoTimeout reached
                                 continue;
                             } catch (final InterruptedIOException ignore) {
-                                break; // needed because some VM's (for example: Sun Solaris) throw this exception if the thread gets interrupted
+                                return; // needed because some VM's (for example: Sun Solaris) throw this exception if the thread gets interrupted
                             }
                             socketExecutor.execute(socket, SocketListener.this);
                         }
