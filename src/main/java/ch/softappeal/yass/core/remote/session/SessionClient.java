@@ -75,7 +75,7 @@ public final class SessionClient extends Client {
         }
     }
 
-    private void write(final int requestNumber, final Message message) {
+    private void write(final int requestNumber, final Message message) throws SessionClosedException {
         if (closed.get()) {
             throw new SessionClosedException();
         }
@@ -100,7 +100,7 @@ public final class SessionClient extends Client {
         return new RequestInterruptedException();
     }
 
-    private Reply rpcInvoke(final int requestNumber, final Request request) {
+    private Reply clientInvoke(final int requestNumber, final Request request) throws RequestInterruptedException, SessionClosedException {
         final BlockingQueue<Reply> replyQueue = new ArrayBlockingQueue<>(1, false); // we use unfair for speed
         if (requestNumber2replyQueue.put(requestNumber, replyQueue) != null) {
             throw new RuntimeException("already waiting for requestNumber " + requestNumber);
@@ -178,7 +178,7 @@ public final class SessionClient extends Client {
                 write(requestNumber, request);
                 return null;
             }
-            return rpcInvoke(requestNumber, request);
+            return clientInvoke(requestNumber, request);
         });
     }
 
