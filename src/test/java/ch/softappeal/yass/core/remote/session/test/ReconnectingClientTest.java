@@ -23,7 +23,6 @@ import ch.softappeal.yass.util.Nullable;
 import org.junit.Ignore;
 import org.junit.Test;
 
-import java.util.Date;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -34,30 +33,26 @@ public class ReconnectingClientTest {
 
     @Ignore
     @Test public void test() throws InterruptedException {
+        final Server server = new Server(
+            Config.METHOD_MAPPER_FACTORY,
+            new Service(ClientServices.PriceListener, new PriceListener() {
+                @Override public void newPrices(final List<Price> prices) {
+                    final StringBuilder s = new StringBuilder();
+                    s.append("newPrices - ");
+                    for (final Price price : prices) {
+                        s.append(' ').append(price.instrumentId).append(":").append(price.value);
+                    }
+                    System.out.println(s);
+                }
+            }),
+            new Service(ClientServices.EchoService, new EchoServiceImpl())
+        );
         final ExecutorService executor = Executors.newCachedThreadPool(new NamedThreadFactory("executor", Exceptions.STD_ERR));
         try {
             new ReconnectingClient(executor, 10) {
                 @Override protected void connect(final SessionFactory sessionFactory) {
                     SocketTransport.connect(
-                        new TransportSetup(
-                            new Server(
-                                Config.METHOD_MAPPER_FACTORY,
-                                new Service(ClientServices.PriceListener, new PriceListener() {
-                                    @Override public void newPrices(final List<Price> prices) {
-                                        final StringBuilder s = new StringBuilder();
-                                        s.append(new Date() + " - newPrices - ");
-                                        for (final Price price : prices) {
-                                            s.append(' ').append(price.instrumentId).append(":").append(price.value);
-                                        }
-                                        System.out.println(s);
-                                    }
-                                }),
-                                new Service(ClientServices.EchoService, new EchoServiceImpl())
-                            ),
-                            executor,
-                            Config.PACKET_SERIALIZER,
-                            sessionFactory
-                        ),
+                        new TransportSetup(server, executor, Config.PACKET_SERIALIZER, sessionFactory),
                         new SocketExecutor(executor, Exceptions.STD_ERR),
                         Config.PATH_SERIALIZER, SocketServer.PATH,
                         SocketServer.ADDRESS
@@ -67,7 +62,7 @@ public class ReconnectingClientTest {
                     System.out.println("connectFailed: " + e.getMessage());
                 }
                 @Override protected void connected(final Session session) throws Exception {
-                    System.out.println("connected ");
+                    System.out.println("connected");
                     final PriceEngine priceEngine = session.invoker(ServerServices.PriceEngine).proxy();
                     final InstrumentService instrumentService = session.invoker(ServerServices.InstrumentService).proxy();
                     priceEngine.subscribe(instrumentService.getInstruments().stream().map(instrument -> instrument.id).collect(Collectors.toList()));
