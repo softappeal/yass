@@ -2,10 +2,9 @@ package ch.softappeal.yass.core.remote.session;
 
 import ch.softappeal.yass.core.remote.ContractId;
 import ch.softappeal.yass.core.remote.Invoker;
-import ch.softappeal.yass.core.remote.InvokerFactory;
 import ch.softappeal.yass.util.Nullable;
 
-public abstract class Session implements AutoCloseable, InvokerFactory {
+public abstract class Session implements CloseableInvokerFactory {
 
     static final ThreadLocal<Session> INSTANCE = new ThreadLocal<>();
 
