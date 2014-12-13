@@ -7,7 +7,6 @@ import ch.softappeal.yass.core.remote.Service;
 import ch.softappeal.yass.core.remote.TaggedMethodMapper;
 import ch.softappeal.yass.core.remote.session.LocalConnection;
 import ch.softappeal.yass.core.remote.session.Session;
-import ch.softappeal.yass.core.remote.session.SessionClient;
 import ch.softappeal.yass.core.test.InvokeTest;
 import ch.softappeal.yass.transport.TransportSetup;
 import ch.softappeal.yass.transport.socket.test.SocketPerformanceTest;
@@ -36,44 +35,40 @@ public class PerformanceTest extends InvokeTest {
         return new TransportSetup(
             new Server(METHOD_MAPPER_FACTORY, new Service(CONTRACT_ID, new TestServiceImpl())),
             requestExecutor,
-            SocketPerformanceTest.PACKET_SERIALIZER
-        ) {
-            @Override public Session createSession(final SessionClient sessionClient) {
-                return new Session(sessionClient) {
-                    @Override public void opened() {
-                        if (latch == null) {
-                            return;
-                        }
-                        try (Session session = this) {
-                            final TestService testService = session.invoker(CONTRACT_ID).proxy();
-                            System.out.println("*** rpc");
-                            new PerformanceTask() {
-                                @Override protected void run(final int count) throws DivisionByZeroException {
-                                    int counter = count;
-                                    while (counter-- > 0) {
-                                        Assert.assertTrue(testService.divide(12, 4) == 3);
-                                    }
-                                }
-                            }.run(samples, TimeUnit.MICROSECONDS);
-                            System.out.println("*** oneway");
-                            new PerformanceTask() {
-                                @Override protected void run(final int count) {
-                                    int counter = count;
-                                    while (counter-- > 0) {
-                                        testService.oneWay(-1);
-                                    }
-                                }
-                            }.run(samples, TimeUnit.MICROSECONDS);
-
-                        }
-                        latch.countDown();
+            SocketPerformanceTest.PACKET_SERIALIZER,
+            sessionClient -> new Session(sessionClient) {
+                @Override public void opened() {
+                    if (latch == null) {
+                        return;
                     }
-                    @Override public void closed(@Nullable final Throwable throwable) {
-                        // empty
+                    try (Session session = this) {
+                        final TestService testService = session.invoker(CONTRACT_ID).proxy();
+                        System.out.println("*** rpc");
+                        new PerformanceTask() {
+                            @Override protected void run(final int count) throws DivisionByZeroException {
+                                int counter = count;
+                                while (counter-- > 0) {
+                                    Assert.assertTrue(testService.divide(12, 4) == 3);
+                                }
+                            }
+                        }.run(samples, TimeUnit.MICROSECONDS);
+                        System.out.println("*** oneway");
+                        new PerformanceTask() {
+                            @Override protected void run(final int count) {
+                                int counter = count;
+                                while (counter-- > 0) {
+                                    testService.oneWay(-1);
+                                }
+                            }
+                        }.run(samples, TimeUnit.MICROSECONDS);
                     }
-                };
+                    latch.countDown();
+                }
+                @Override public void closed(@Nullable final Throwable throwable) {
+                    // empty
+                }
             }
-        };
+        );
     }
 
     @Test public void test() throws InterruptedException {

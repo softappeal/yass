@@ -6,7 +6,6 @@ import ch.softappeal.yass.core.remote.Service;
 import ch.softappeal.yass.core.remote.TaggedMethodMapper;
 import ch.softappeal.yass.core.remote.session.LocalConnection;
 import ch.softappeal.yass.core.remote.session.Session;
-import ch.softappeal.yass.core.remote.session.SessionClient;
 import ch.softappeal.yass.core.remote.test.ContractIdTest;
 import ch.softappeal.yass.core.test.InvokeTest;
 import ch.softappeal.yass.transport.TransportSetup;
@@ -47,9 +46,8 @@ public class LocalConnectionTest extends InvokeTest {
                 )
             ),
             requestExecutor,
-            PacketSerializerTest.SERIALIZER
-        ) {
-            @Override public Session createSession(final SessionClient sessionClient) throws Exception {
+            PacketSerializerTest.SERIALIZER,
+            sessionClient -> {
                 if (createException) {
                     throw new Exception("create failed");
                 }
@@ -78,7 +76,7 @@ public class LocalConnectionTest extends InvokeTest {
                     }
                 };
             }
-        };
+        );
     }
 
     public static TransportSetup createSetup(final boolean invoke, final Executor requestExecutor, final boolean createException) {

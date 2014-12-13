@@ -48,9 +48,8 @@ public class SslTest extends InvokeTest {
                             new Service(PerformanceTest.CONTRACT_ID, new TestServiceImpl())
                         ),
                         executor,
-                        SocketPerformanceTest.PACKET_SERIALIZER
-                    ) {
-                        @Override public Session createSession(final SessionClient sessionClient) throws Exception {
+                        SocketPerformanceTest.PACKET_SERIALIZER,
+                        sessionClient -> {
                             if (needClientAuth) {
                                 checkName(sessionClient);
                             }
@@ -62,16 +61,15 @@ public class SslTest extends InvokeTest {
                                 }
                             };
                         }
-                    }
+                    )
                 )
             ).start(executor, new SocketExecutor(executor, Exceptions.TERMINATE), serverSocketFactory, SocketListenerTest.ADDRESS);
             SocketTransport.connect(
                 new TransportSetup(
                     new Server(PerformanceTest.METHOD_MAPPER_FACTORY),
                     executor,
-                    SocketPerformanceTest.PACKET_SERIALIZER
-                ) {
-                    @Override public Session createSession(final SessionClient sessionClient) throws Exception {
+                    SocketPerformanceTest.PACKET_SERIALIZER,
+                    sessionClient -> {
                         checkName(sessionClient);
                         return new Session(sessionClient) {
                             @Override protected void opened() throws Exception {
@@ -86,7 +84,7 @@ public class SslTest extends InvokeTest {
                             }
                         };
                     }
-                },
+                ),
                 new SocketExecutor(executor, Exceptions.TERMINATE),
                 SocketTransportTest.PATH_SERIALIZER, SocketTransportTest.PATH,
                 socketFactory, SocketListenerTest.ADDRESS

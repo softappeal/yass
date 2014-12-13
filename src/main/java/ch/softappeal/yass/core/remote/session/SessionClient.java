@@ -39,7 +39,7 @@ public final class SessionClient extends Client {
 
     public static SessionClient create(final SessionSetup setup, final Connection connection) throws Exception {
         final SessionClient sessionClient = new SessionClient(setup, connection);
-        sessionClient.session = Check.notNull(setup.createSession(sessionClient));
+        sessionClient.session = Check.notNull(setup.sessionFactory.create(sessionClient));
         sessionClient.interceptor = Interceptor.threadLocal(Session.INSTANCE, sessionClient.session);
         setup.requestExecutor.execute(() -> {
             try {

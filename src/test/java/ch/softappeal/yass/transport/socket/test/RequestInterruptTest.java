@@ -5,7 +5,6 @@ import ch.softappeal.yass.core.remote.Service;
 import ch.softappeal.yass.core.remote.TaggedMethodMapper;
 import ch.softappeal.yass.core.remote.session.RequestInterruptedException;
 import ch.softappeal.yass.core.remote.session.Session;
-import ch.softappeal.yass.core.remote.session.SessionClient;
 import ch.softappeal.yass.core.remote.test.ContractIdTest;
 import ch.softappeal.yass.core.test.InvokeTest;
 import ch.softappeal.yass.transport.PathResolver;
@@ -37,65 +36,59 @@ public class RequestInterruptTest extends InvokeTest {
                     new TransportSetup(
                         new Server(TaggedMethodMapper.FACTORY, new Service(ContractIdTest.ID, new TestServiceImpl())),
                         executor,
-                        PacketSerializerTest.SERIALIZER
-                    ) {
-                        @Override public Session createSession(final SessionClient sessionClient) {
-                            return new Session(sessionClient) {
-                                @Override public void closed(@Nullable final Throwable throwable) {
-                                    Exceptions.uncaughtException(Exceptions.STD_ERR, throwable);
-                                }
-                            };
+                        PacketSerializerTest.SERIALIZER,
+                        sessionClient -> new Session(sessionClient) {
+                            @Override public void closed(@Nullable final Throwable throwable) {
+                                Exceptions.uncaughtException(Exceptions.STD_ERR, throwable);
+                            }
                         }
-                    }
+                    )
                 )
             ).start(executor, new SocketExecutor(executor, Exceptions.TERMINATE), SocketListenerTest.ADDRESS);
             SocketTransport.connect(
                 new TransportSetup(
                     new Server(TaggedMethodMapper.FACTORY),
                     executor,
-                    PacketSerializerTest.SERIALIZER
-                ) {
-                    @Override public Session createSession(final SessionClient sessionClient) {
-                        return new Session(sessionClient) {
-                            @Override public void opened() {
-                                final TestService testService = invoker(ContractIdTest.ID).proxy((method, arguments, invocation) -> {
-                                    System.out.println("before");
-                                    try {
-                                        final Object reply = invocation.proceed();
-                                        System.out.println("after");
-                                        return reply;
-                                    } catch (final Throwable throwable) {
-                                        System.out.println("after exception");
-                                        throwable.printStackTrace(System.out);
-                                        throw throwable;
-                                    }
-                                });
-                                final Thread testThread = Thread.currentThread();
-                                new Thread() {
-                                    @Override public void run() {
-                                        try {
-                                            TimeUnit.MILLISECONDS.sleep(200);
-                                            testThread.interrupt();
-                                        } catch (InterruptedException e) {
-                                            throw new RuntimeException(e);
-                                        }
-                                        super.run();
-                                    }
-                                }.start();
+                    PacketSerializerTest.SERIALIZER,
+                    sessionClient -> new Session(sessionClient) {
+                        @Override public void opened() {
+                            final TestService testService = invoker(ContractIdTest.ID).proxy((method, arguments, invocation) -> {
+                                System.out.println("before");
                                 try {
-                                    testService.delay(400);
-                                    Assert.fail();
-                                } catch (final RequestInterruptedException e) {
-                                    e.printStackTrace(System.out);
+                                    final Object reply = invocation.proceed();
+                                    System.out.println("after");
+                                    return reply;
+                                } catch (final Throwable throwable) {
+                                    System.out.println("after exception");
+                                    throwable.printStackTrace(System.out);
+                                    throw throwable;
                                 }
-                                testService.delay(10);
+                            });
+                            final Thread testThread = Thread.currentThread();
+                            new Thread() {
+                                @Override public void run() {
+                                    try {
+                                        TimeUnit.MILLISECONDS.sleep(200);
+                                        testThread.interrupt();
+                                    } catch (InterruptedException e) {
+                                        throw new RuntimeException(e);
+                                    }
+                                    super.run();
+                                }
+                            }.start();
+                            try {
+                                testService.delay(400);
+                                Assert.fail();
+                            } catch (final RequestInterruptedException e) {
+                                e.printStackTrace(System.out);
                             }
-                            @Override public void closed(@Nullable final Throwable throwable) {
-                                Exceptions.uncaughtException(Exceptions.STD_ERR, throwable);
-                            }
-                        };
+                            testService.delay(10);
+                        }
+                        @Override public void closed(@Nullable final Throwable throwable) {
+                            Exceptions.uncaughtException(Exceptions.STD_ERR, throwable);
+                        }
                     }
-                },
+                ),
                 new SocketExecutor(executor, Exceptions.TERMINATE), StringPathSerializer.INSTANCE, SocketTransportTest.PATH, SocketListenerTest.ADDRESS
             );
             TimeUnit.SECONDS.sleep(1L);

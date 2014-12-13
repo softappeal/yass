@@ -3,7 +3,6 @@ package ch.softappeal.yass.tutorial.client;
 import ch.softappeal.yass.core.remote.Server;
 import ch.softappeal.yass.core.remote.Service;
 import ch.softappeal.yass.core.remote.session.Session;
-import ch.softappeal.yass.core.remote.session.SessionClient;
 import ch.softappeal.yass.transport.TransportSetup;
 import ch.softappeal.yass.tutorial.contract.ClientServices;
 import ch.softappeal.yass.tutorial.contract.Config;
@@ -21,12 +20,9 @@ public abstract class ClientSetup {
                 new Service(ClientServices.EchoService, new EchoServiceImpl())
             ),
             requestExecutor,
-            Config.PACKET_SERIALIZER
-        ) {
-            @Override public Session createSession(final SessionClient sessionClient) {
-                return new ClientSession(sessionClient);
-            }
-        };
+            Config.PACKET_SERIALIZER,
+            ClientSession::new
+        );
     }
 
 }
