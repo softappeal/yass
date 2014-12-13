@@ -4,7 +4,7 @@ import ch.softappeal.yass.core.remote.ContractId;
 import ch.softappeal.yass.core.remote.Invoker;
 import ch.softappeal.yass.util.Nullable;
 
-public abstract class Session implements CloseableInvokerFactory {
+public abstract class Session implements SessionInvokerFactory {
 
     static final ThreadLocal<Session> INSTANCE = new ThreadLocal<>();
 
