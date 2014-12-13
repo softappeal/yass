@@ -29,6 +29,7 @@ dependencies {
     tutorialCompile sourceSets.main.output
     tutorialCompile jetty_dep
     tutorialCompile undertow_dep
+    testCompile sourceSets.tutorial.output
     testCompile junit_dep
     testCompile jetty_dep
     testCompile undertow_dep
