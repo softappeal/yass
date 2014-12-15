@@ -749,14 +749,11 @@ module yass {
         private closed = false;
         private requestNumber = Packet.END_REQUESTNUMBER;
         private requestNumber2promise: Promise<any>[] = [];
-        private session: Session = null;
+        private session: Session;
         private interceptor: Interceptor;
         constructor(private server: Server, sessionFactory: SessionFactory, private connection: Connection) {
             super(function (invocation: ClientInvocation) {
                 return invocation.invoke(this.interceptor, (request, promise) => {
-                    if (!this.session) {
-                        throw new Error("session is not yet opened");
-                    }
                     if (this.requestNumber === 2147483647) {
                         this.requestNumber = Packet.END_REQUESTNUMBER;
                     }

@@ -28,8 +28,8 @@ public final class SessionClient extends Client {
     public final Connection connection;
     private final SessionSetup setup;
     private final AtomicBoolean closed = new AtomicBoolean(false);
-    private Session session;
-    private Interceptor interceptor;
+    private Session session = null;
+    private Interceptor interceptor = null;
 
     private SessionClient(final SessionSetup setup, final Connection connection) {
         super(setup.server.methodMapperFactory);
@@ -100,7 +100,7 @@ public final class SessionClient extends Client {
         return new RequestInterruptedException();
     }
 
-    private Reply clientInvoke(final int requestNumber, final Request request) throws RequestInterruptedException, SessionClosedException {
+    private Reply clientRpcInvoke(final int requestNumber, final Request request) throws RequestInterruptedException, SessionClosedException {
         final BlockingQueue<Reply> replyQueue = new ArrayBlockingQueue<>(1, false); // we use unfair for speed
         if (requestNumber2replyQueue.put(requestNumber, replyQueue) != null) {
             throw new RuntimeException("already waiting for requestNumber " + requestNumber);
@@ -178,7 +178,7 @@ public final class SessionClient extends Client {
                 write(requestNumber, request);
                 return null;
             }
-            return clientInvoke(requestNumber, request);
+            return clientRpcInvoke(requestNumber, request);
         });
     }
 

@@ -92,7 +92,7 @@ module tutorial {
             );
         }
         instrumentService.getInstruments().then(
-            i => subscribe(i.map(i => i.id)),
+            instruments => subscribe(instruments.map(instrument => instrument.id)),
             yass.RETHROW
         );
         subscribe(["unknownId"]); // shows exceptions
