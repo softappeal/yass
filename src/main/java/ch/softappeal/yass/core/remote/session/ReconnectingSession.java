@@ -23,6 +23,9 @@ public abstract class ReconnectingSession extends Session {
         reconnectingClosed(throwable);
     }
 
+    /**
+     * @see #closed(Throwable)
+     */
     protected abstract void reconnectingClosed(@Nullable Throwable throwable);
 
     @FunctionalInterface public interface Factory {
@@ -38,7 +41,7 @@ public abstract class ReconnectingSession extends Session {
         Check.notNull(sessionFactory);
         final AtomicBoolean closed = new AtomicBoolean(true);
         final SessionFactory factory = sessionClient -> {
-            final Session session = sessionFactory.create(sessionClient, closed);
+            final ReconnectingSession session = sessionFactory.create(sessionClient, closed);
             closed.set(false);
             return session;
         };
