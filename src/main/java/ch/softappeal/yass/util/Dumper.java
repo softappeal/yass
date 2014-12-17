@@ -26,14 +26,30 @@ public final class Dumper {
         Double.class
     ));
 
+    private final boolean compact;
+    private final boolean cycles;
     private final Set<Class<?>> concreteValueClasses;
 
     /**
-     * @param concreteValueClasses should implement {@link Object#toString()}
+     * @param compact one-liner or multiple lines
+     * @param cycles graph can have cycles; these are marked with #
+     * @param concreteValueClasses should implement {@link Object#toString()}; only allowed if (cycles)
      */
-    public Dumper(final Class<?>... concreteValueClasses) {
+    public Dumper(final boolean compact, final boolean cycles, final Class<?>... concreteValueClasses) {
+        this.compact = compact;
+        this.cycles = cycles;
+        if (!cycles && (concreteValueClasses.length != 0)) {
+            throw new IllegalArgumentException("concreteValueClasses only allowed if (cycles)");
+        }
         this.concreteValueClasses = new HashSet<>(Arrays.asList(concreteValueClasses));
         this.concreteValueClasses.addAll(PRIMITIVE_WRAPPER_CLASSES);
+    }
+
+    /**
+     * Calls {@code this(false, true, concreteValueClasses)}.
+     */
+    public Dumper(final Class<?>... concreteValueClasses) {
+        this(false, true, concreteValueClasses);
     }
 
     public StringBuilder append(final StringBuilder s, @Nullable final Object value) {
@@ -85,35 +101,64 @@ public final class Dumper {
 
         private void dumpArray(final Object array) throws Exception {
             final int length = Array.getLength(array);
-            inc("[");
-            for (int i = 0; i < length; i++) {
-                appendTabs();
-                dump(Array.get(array, i));
-                appendLine();
+            if (compact) {
+                out.append("[ ");
+                for (int i = 0; i < length; i++) {
+                    dump(Array.get(array, i));
+                    out.append(' ');
+                }
+                out.append(']');
+            } else {
+                inc("[");
+                for (int i = 0; i < length; i++) {
+                    appendTabs();
+                    dump(Array.get(array, i));
+                    appendLine();
+                }
+                dec("]");
             }
-            dec("]");
         }
 
         private void dumpCollection(final Collection<?> collection) throws Exception {
-            inc("[");
-            for (final Object e : collection) {
-                appendTabs();
-                dump(e);
-                appendLine();
+            if (compact) {
+                out.append("[ ");
+                for (final Object e : collection) {
+                    dump(e);
+                    out.append(' ');
+                }
+                out.append(']');
+            } else {
+                inc("[");
+                for (final Object e : collection) {
+                    appendTabs();
+                    dump(e);
+                    appendLine();
+                }
+                dec("]");
             }
-            dec("]");
         }
 
         private void dumpMap(final Map<?, ?> map) throws Exception {
-            inc("{");
-            for (final Map.Entry<?, ?> entry : map.entrySet()) {
-                appendTabs();
-                dump(entry.getKey());
-                out.append(" -> ");
-                dump(entry.getValue());
-                appendLine();
+            if (compact) {
+                out.append("{ ");
+                for (final Map.Entry<?, ?> entry : map.entrySet()) {
+                    dump(entry.getKey());
+                    out.append("->");
+                    dump(entry.getValue());
+                    out.append(' ');
+                }
+                out.append('}');
+            } else {
+                inc("{");
+                for (final Map.Entry<?, ?> entry : map.entrySet()) {
+                    appendTabs();
+                    dump(entry.getKey());
+                    out.append(" -> ");
+                    dump(entry.getValue());
+                    appendLine();
+                }
+                dec("}");
             }
-            dec("}");
         }
 
         private void dumpClassFields(Class<?> type, final Object object) throws Exception {
@@ -124,10 +169,16 @@ public final class Dumper {
                         field.setAccessible(true);
                         @Nullable final Object value = field.get(object);
                         if (value != null) {
-                            appendTabs();
-                            out.append(field.getName()).append(" = ");
-                            dump(value);
-                            appendLine();
+                            if (compact) {
+                                out.append(field.getName()).append('=');
+                                dump(value);
+                                out.append(' ');
+                            } else {
+                                appendTabs();
+                                out.append(field.getName()).append(" = ");
+                                dump(value);
+                                appendLine();
+                            }
                         }
                     }
                 }
@@ -135,24 +186,37 @@ public final class Dumper {
             }
         }
 
-        private final Map<Object, Integer> alreadyDumpedObjects = new IdentityHashMap<>(16);
+        private final Map<Object, Integer> alreadyDumpedObjects = cycles ? new IdentityHashMap<>(16) : null;
 
         private void dumpClass(final Class<?> type, final Object object) throws Exception {
-            final Integer reference = alreadyDumpedObjects.get(object);
-            if (reference != null) {
-                out.append('#').append(reference);
-            } else {
-                final int index = alreadyDumpedObjects.size();
+            final int index;
+            if (cycles) {
+                final Integer reference = alreadyDumpedObjects.get(object);
+                if (reference != null) {
+                    out.append('#').append(reference);
+                    return;
+                }
+                index = alreadyDumpedObjects.size();
                 alreadyDumpedObjects.put(object, index);
-                final Class<?> toStringClass = type.getMethod("toString").getDeclaringClass();
-                if ((toStringClass == Object.class) || (toStringClass == Throwable.class)) {
+            } else {
+                index = 0;
+            }
+            final Class<?> toStringClass = type.getMethod("toString").getDeclaringClass();
+            if ((toStringClass == Object.class) || (toStringClass == Throwable.class)) {
+                if (compact) {
+                    out.append(type.getSimpleName()).append("( ");
+                    dumpClassFields(type, object);
+                    out.append(')');
+                } else {
                     inc(type.getSimpleName() + '(');
                     dumpClassFields(type, object);
                     dec(")");
-                } else {
-                    out.append(object);
                 }
-                out.append(" #").append(index);
+            } else {
+                out.append(object);
+            }
+            if (cycles) {
+                out.append('#').append(index);
             }
         }
 
