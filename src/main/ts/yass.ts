@@ -1,3 +1,5 @@
+/// <reference path="es6-promise"/>
+
 module yass {
 
     export class Writer {
@@ -377,9 +379,9 @@ module yass {
     }
 
     /**
-     * An invocation has a promise if and only if it is a client side rpc style invocation.
-     * If an invocation has a promise, the interceptor will be called twice (first with PromiseEntry and then with PromiseExit).
-     * If an invocation doesn't have a promise, the interceptor will be called once (with NoPromise).
+     * An invocation has a Promise if and only if it is a client side rpc style invocation.
+     * If an invocation has a Promise, the interceptor will be called twice (first with PromiseEntry and then with PromiseExit).
+     * If an invocation doesn't have a Promise, the interceptor will be called once (with NoPromise).
      */
     export enum InvokeStyle { NoPromise, PromiseEntry, PromiseExit }
 
@@ -579,59 +581,29 @@ module yass {
         invoker<PC>(contractId: ContractId<any, PC>): Invoker<PC>;
     }
 
-    export interface Succeeded<R> {
-        (result: R): void;
-    }
-
-    export interface Failed {
-        (exception: any): void;
-    }
-
-    export var RETHROW: Failed = exception => {
-        throw exception;
-    };
-
-    export class Promise<R> {
-        private succeeded: Succeeded<R> = null;
-        private failed: Failed = null;
-        private reply: Reply = null;
-        constructor(private interceptor: Interceptor, private method: string, private parameters: any[]) {
-            // empty
-        }
-        private settled(): void {
-            try {
-                this.interceptor(InvokeStyle.PromiseExit, this.method, this.parameters, () => this.reply.process());
-            } catch (ignore) {
-                // empty
-            }
-            try {
-                this.succeeded(this.reply.process());
-            } catch (exception) {
-                this.failed(exception);
-            }
-        }
-        /**
-         * Must be called exactly once.
-         * @param succeeded called with the result if invocation succeeded
-         * @param failed called with the exception if invocation failed
-         */
-        then(succeeded: Succeeded<R>, failed: Failed): void {
-            this.succeeded = succeeded;
-            this.failed = failed;
-            if (this.reply) {
-                this.settled();
-            }
-        }
-        settle(reply: Reply): void {
-            this.reply = reply;
-            if (this.succeeded) {
-                this.settled();
-            }
+    class Rpc {
+        promise: Promise<any>;
+        settle: (reply: Reply) => void;
+        constructor(interceptor: Interceptor, method: string, parameters: any[]) {
+            this.promise = new Promise<any>((resolve, reject) => {
+                this.settle = function (reply: Reply): void {
+                    try {
+                        interceptor(InvokeStyle.PromiseExit, method, parameters, () => reply.process());
+                    } catch (ignore) {
+                        // empty
+                    }
+                    try {
+                        resolve(reply.process());
+                    } catch (exception) {
+                        reject(exception);
+                    }
+                };
+            });
         }
     }
 
     export interface Tunnel {
-        (request: Request, promise: Promise<any>): void;
+        (request: Request, rpc: Rpc): void;
     }
 
     export class ClientInvocation {
@@ -640,17 +612,17 @@ module yass {
         }
         invoke(interceptor: Interceptor, tunnel: Tunnel): Promise<any> {
             var compositeInterceptor = composite(interceptor, this.interceptor);
-            var promise = this.methodMapping.oneWay ? null : new Promise<any>(compositeInterceptor, this.methodMapping.method, this.parameters);
+            var rpc = this.methodMapping.oneWay ? null : new Rpc(compositeInterceptor, this.methodMapping.method, this.parameters);
             compositeInterceptor(
                 this.methodMapping.oneWay ? InvokeStyle.NoPromise : InvokeStyle.PromiseEntry,
                 this.methodMapping.method,
                 this.parameters,
                 (): any => {
-                    tunnel(new Request(this.serviceId, this.methodMapping.id, this.parameters), promise);
+                    tunnel(new Request(this.serviceId, this.methodMapping.id, this.parameters), rpc);
                     return null;
                 }
             );
-            return promise;
+            return rpc ? rpc.promise : null;
         }
     }
 
@@ -665,17 +637,6 @@ module yass {
                     new ClientInvocation(interceptor, contractId.id, contractId.methodMapper.mapMethod(method), parameters)
                 ));
             };
-        }
-    }
-
-    export class MockInvokerFactory extends Client {
-        constructor(server: Server) {
-            super(invocation => invocation.invoke(DIRECT, (request, promise) => {
-                var reply = server(request).invoke(DIRECT);
-                if (promise) {
-                    promise.settle(reply);
-                }
-            }));
         }
     }
 
@@ -748,22 +709,22 @@ module yass {
     export class SessionClient extends Client implements SessionInvokerFactory {
         private closed = false;
         private requestNumber = Packet.END_REQUESTNUMBER;
-        private requestNumber2promise: Promise<any>[] = [];
+        private requestNumber2rpc: Rpc[] = [];
         private session: Session;
         private interceptor: Interceptor;
         constructor(private server: Server, sessionFactory: SessionFactory, private connection: Connection) {
             super(function (invocation: ClientInvocation) {
-                return invocation.invoke(this.interceptor, (request, promise) => {
+                return invocation.invoke(this.interceptor, (request, rpc) => {
                     if (this.requestNumber === 2147483647) {
                         this.requestNumber = Packet.END_REQUESTNUMBER;
                     }
                     this.requestNumber++;
                     this.write(this.requestNumber, request);
-                    if (promise) {
-                        if (this.requestNumber2promise[this.requestNumber]) {
+                    if (rpc) {
+                        if (this.requestNumber2rpc[this.requestNumber]) {
                             throw new Error("already waiting for requestNumber " + this.requestNumber);
                         }
-                        this.requestNumber2promise[this.requestNumber] = promise;
+                        this.requestNumber2rpc[this.requestNumber] = rpc;
                     }
                 });
             });
@@ -814,9 +775,9 @@ module yass {
                         this.write(packet.requestNumber, reply);
                     }
                 } else { // Reply
-                    var promise = this.requestNumber2promise[packet.requestNumber];
-                    delete this.requestNumber2promise[packet.requestNumber];
-                    promise.settle(<Reply>packet.message);
+                    var rpc = this.requestNumber2rpc[packet.requestNumber];
+                    delete this.requestNumber2rpc[packet.requestNumber];
+                    rpc.settle(<Reply>packet.message);
                 }
             } catch (exception) {
                 this.doClose(exception);

@@ -2,16 +2,14 @@
 
 module tutorial {
 
-    function log(...args: any[]): void {
+    export function log(...args: any[]): void {
         console.log.apply(console, args);
     }
-
-    log("running tutorial ...");
 
     function logger(type: string): yass.Interceptor {
         return (style, method, parameters, proceed) => {
             function doLog(kind: string, data: any): void {
-                log("logger:", type, yass.SESSION ? (<Session>yass.SESSION).createTime : null, kind, yass.InvokeStyle[style], method, data);
+                log("logger:", type, (<Session>yass.SESSION).createTime, kind, yass.InvokeStyle[style], method, data);
             }
             doLog("entry", parameters);
             try {
@@ -32,83 +30,39 @@ module tutorial {
             log("newPrices:", prices);
         }
     }
-    var PRICE_LISTENER = new PriceListenerImpl;
 
     class EchoServiceImpl implements contract.EchoService {
         echo(value: any): any {
-            if (value === "throw") {
-                var e = new contract.UnknownInstrumentsException;
-                e.comment = "exception from echo";
-                throw e;
-            }
             return value;
         }
     }
-    var ECHO_SERVICE = new EchoServiceImpl;
-    log(ECHO_SERVICE.echo("echo called"));
-
-    function simulateServerCallingClient(invokerFactory: yass.InvokerFactory): void {
-        var priceListener = invokerFactory.invoker(contract.ClientServices.PriceListener)(clientLogger);
-        var echoService = invokerFactory.invoker(contract.ClientServices.EchoService)(clientLogger);
-        var price = new contract.Price;
-        price.instrumentId = "123";
-        price.type = contract.PriceType.ASK;
-        price.value = 999;
-        priceListener.newPrices([price, price]); // oneway method call
-        // rpc style method calls
-        var succeeded: yass.Succeeded<string> = result => {
-            log("echo succeeded with", result);
-        };
-        var failed: yass.Failed = exception => {
-            log("echo failed with", exception);
-        };
-        echoService.echo("hello").then(succeeded, failed);
-        echoService.echo("throw").then(succeeded, failed);
-    }
-
-    simulateServerCallingClient(new yass.MockInvokerFactory(
-        yass.server(
-            new yass.Service(contract.ClientServices.PriceListener, PRICE_LISTENER, serverLogger),
-            new yass.Service(contract.ClientServices.EchoService, ECHO_SERVICE, serverLogger)
-        )
-    ));
 
     function subscribePrices(invokerFactory: yass.InvokerFactory): void {
-        // create invokers for ServerServices
         var instrumentServiceInvoker = invokerFactory.invoker(contract.ServerServices.InstrumentService);
         var priceEngineInvoker = invokerFactory.invoker(contract.ServerServices.PriceEngine);
-        // create proxies; you can add 0..n interceptors to each proxy
+        // create proxies; you can add 0..n interceptors to a proxy
         var instrumentService = instrumentServiceInvoker(clientLogger);
         var priceEngine = priceEngineInvoker(clientLogger);
-        instrumentService.reload(true, 987654); // shows oneway method call
-        function subscribe(instrumentIds: string[]): void {
-            priceEngine.subscribe(instrumentIds).then( // shows rpc style method call
-                result => { // called if succeeded
-                    log("subscribe succeeded"); // result not used here because it's void
-                },
-                exception => { // called if failed
-                    log("subscribe failed with", exception);
-                }
-            );
-        }
+        instrumentService.reload(true, 987654); // oneway method call
         instrumentService.getInstruments().then(
-            instruments => subscribe(instruments.map(instrument => instrument.id)),
-            yass.RETHROW
+            instruments => priceEngine.subscribe(instruments.map(instrument => instrument.id))
+        ).then(
+            () => log("subscribe succeeded")
         );
-        subscribe(["unknownId"]); // shows exceptions
+        priceEngine.subscribe(["unknownId"]).catch(exception => log("subscribe failed with", exception));
     }
 
     class Session implements yass.Session {
-        public createTime = Date.now();
+        createTime = Date.now();
         constructor(private sessionInvokerFactory: yass.SessionInvokerFactory) {
             // empty
         }
-        opened(): void { // called if session has been opened
+        opened(): void {
             log("session opened", this.createTime);
             subscribePrices(this.sessionInvokerFactory);
-            setTimeout(() => this.sessionInvokerFactory.close(), 5000); // closes the session
+            setTimeout(() => this.sessionInvokerFactory.close(), 5000);
         }
-        closed(exception: any): void { // called if session has been closed; exception is null if regular close else reason for close
+        closed(exception: any): void {
             log("session closed", this.createTime, exception);
         }
     }
@@ -116,11 +70,12 @@ module tutorial {
     yass.connect(
         "ws://localhost:9090/tutorial",
         contract.SERIALIZER,
-        yass.server( // create server for ClientServices; you can add 0..n interceptors to each service
-            new yass.Service(contract.ClientServices.PriceListener, PRICE_LISTENER, serverLogger),
-            new yass.Service(contract.ClientServices.EchoService, ECHO_SERVICE, serverLogger)
+        yass.server( // you can add 0..n interceptors to a service
+            new yass.Service(contract.ClientServices.PriceListener, new PriceListenerImpl, serverLogger),
+            new yass.Service(contract.ClientServices.EchoService, new EchoServiceImpl, serverLogger)
         ),
-        sessionInvokerFactory => new Session(sessionInvokerFactory) // called on successful connect
+        sessionInvokerFactory => new Session(sessionInvokerFactory),
+        () => log("connect failed")
     );
 
 }

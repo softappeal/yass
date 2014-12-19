@@ -224,7 +224,7 @@ public final class ContractGenerator extends Generator {
                     } else {
                         final String type = type(method.getGenericReturnType());
                         if (proxy) {
-                            print("yass.Promise<%s>", type);
+                            print("Promise<%s>", type);
                         } else {
                             print(type);
                         }

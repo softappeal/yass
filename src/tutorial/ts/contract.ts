@@ -74,7 +74,7 @@ module contract {
         echo(value: any): any;
     }
     export interface EchoService_PROXY {
-        echo(value: any): yass.Promise<any>;
+        echo(value: any): Promise<any>;
     }
     export var EchoService_MAPPER = new yass.MethodMapper<EchoService>(
         new yass.MethodMapping('echo', 0, false)
@@ -84,7 +84,7 @@ module contract {
         subscribe(instrumentIds: string[]): void;
     }
     export interface PriceEngine_PROXY {
-        subscribe(instrumentIds: string[]): yass.Promise<void>;
+        subscribe(instrumentIds: string[]): Promise<void>;
     }
     export var PriceEngine_MAPPER = new yass.MethodMapper<PriceEngine>(
         new yass.MethodMapping('subscribe', 0, false)
@@ -106,7 +106,7 @@ module contract {
             reload(testBoolean: boolean, testInt: number): void;
         }
         export interface InstrumentService_PROXY {
-            getInstruments(): yass.Promise<Instrument[]>;
+            getInstruments(): Promise<Instrument[]>;
             reload(testBoolean: boolean, testInt: number): void;
         }
         export var InstrumentService_MAPPER = new yass.MethodMapper<InstrumentService>(
