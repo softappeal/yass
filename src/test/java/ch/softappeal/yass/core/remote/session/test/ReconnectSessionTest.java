@@ -2,7 +2,7 @@ package ch.softappeal.yass.core.remote.session.test;
 
 import ch.softappeal.yass.core.remote.Server;
 import ch.softappeal.yass.core.remote.Service;
-import ch.softappeal.yass.core.remote.session.ReconnectingSession;
+import ch.softappeal.yass.core.remote.session.ReconnectSession;
 import ch.softappeal.yass.core.remote.session.SessionClient;
 import ch.softappeal.yass.transport.TransportSetup;
 import ch.softappeal.yass.transport.socket.SocketExecutor;
@@ -29,9 +29,9 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
-public class ReconnectingSessionTest {
+public class ReconnectSessionTest {
 
-    public static final class Session extends ReconnectingSession {
+    public static final class Session extends ReconnectSession {
         public final PriceEngine priceEngine;
         public final InstrumentService instrumentService;
         public Session(final SessionClient sessionClient, final AtomicBoolean closed) {
@@ -43,7 +43,7 @@ public class ReconnectingSessionTest {
             System.out.println("opened");
             priceEngine.subscribe(instrumentService.getInstruments().stream().map(instrument -> instrument.id).collect(Collectors.toList()));
         }
-        @Override protected void reconnectingClosed(@Nullable final Throwable throwable) {
+        @Override protected void reconnectClosed(@Nullable final Throwable throwable) {
             System.out.println("closed: " + ((throwable == null) ? "<null>" : throwable.getClass()));
         }
     }
@@ -66,7 +66,7 @@ public class ReconnectingSessionTest {
         );
         final ExecutorService executor = Executors.newCachedThreadPool(new NamedThreadFactory("executor", Exceptions.STD_ERR));
         try {
-            ReconnectingSession.start(
+            ReconnectSession.start(
                 executor, 5,
                 sessionFactory -> {
                     try {
