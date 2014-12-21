@@ -524,17 +524,14 @@ module yass {
             this.implementation = service.implementation;
         }
         invoke(interceptor: Interceptor, method: string, parameters: any[]): Reply {
-            var proceed = () => {
-                var result = this.implementation[method].apply(this.implementation, parameters);
-                return result ? result : null;
-            };
-            var value: Reply;
             try {
-                value = composite(interceptor, this.interceptor)(InvokeStyle.NoPromise, method, parameters, proceed);
+                return new ValueReply(composite(interceptor, this.interceptor)(InvokeStyle.NoPromise, method, parameters, () => {
+                    var result = this.implementation[method].apply(this.implementation, parameters);
+                    return result ? result : null;
+                }));
             } catch (exception) {
                 return new ExceptionReply(exception);
             }
-            return new ValueReply(value);
         }
     }
 
@@ -564,7 +561,7 @@ module yass {
             }
             serviceId2invoker[id] = new ServerInvoker(service);
         });
-        return function (request: Request): ServerInvocation {
+        return request => {
             var invoker = serviceId2invoker[request.serviceId];
             if (!invoker) {
                 throw new Error("no serviceId '" + request.serviceId + "' found (methodId '" + request.methodId + "')");
@@ -586,7 +583,7 @@ module yass {
         settle: (reply: Reply) => void;
         constructor(interceptor: Interceptor, method: string, parameters: any[]) {
             this.promise = new Promise<any>((resolve, reject) => {
-                this.settle = function (reply: Reply): void {
+                this.settle = reply => {
                     try {
                         interceptor(InvokeStyle.PromiseExit, method, parameters, () => reply.process());
                     } catch (ignore) {
@@ -800,28 +797,22 @@ module yass {
         ws.onclose = callConnectFailed;
         ws.onopen = function (): void {
             var sessionClient = new SessionClient(server, sessionFactory, {
-                write: function (packet: Packet): void {
+                write: packet => {
                     var writer = new Writer(128);
                     serializer.write(packet, writer);
                     ws.send(writer.getArray());
                 },
-                closed: function (): void {
-                    ws.close();
-                }
+                closed: () => ws.close()
             });
-            ws.onmessage = function (event: MessageEvent): void {
+            ws.onmessage = event => {
                 var reader = new Reader(event.data);
                 sessionClient.received(serializer.read(reader));
                 if (!reader.isEmpty()) {
                     throw new Error("reader is not empty");
                 }
             };
-            ws.onerror = function (): void {
-                sessionClient.doClose(new Error("onerror"));
-            };
-            ws.onclose = function (): void {
-                sessionClient.doClose(new Error("onclose"));
-            };
+            ws.onerror = () => sessionClient.doClose(new Error("onerror"));
+            ws.onclose = () => sessionClient.doClose(new Error("onclose"));
         };
     }
 
