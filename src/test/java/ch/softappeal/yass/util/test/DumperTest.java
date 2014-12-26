@@ -3,7 +3,9 @@ package ch.softappeal.yass.util.test;
 import ch.softappeal.yass.serialize.test.SerializerTest;
 import ch.softappeal.yass.util.Dumper;
 import ch.softappeal.yass.util.Nullable;
+import ch.softappeal.yass.util.PerformanceTask;
 import ch.softappeal.yass.util.TestUtils;
+import org.junit.Assert;
 import org.junit.Test;
 
 import java.io.PrintWriter;
@@ -13,6 +15,7 @@ import java.time.Instant;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 public class DumperTest {
 
@@ -42,12 +45,25 @@ public class DumperTest {
                 printer.append(s);
             }
             @Override public void print(final PrintWriter printer) {
-                print(new Dumper(BigInteger.class, BigDecimal.class, Instant.class), printer, true);
+                print(new Dumper(false, true, BigInteger.class, BigDecimal.class, Instant.class), printer, true);
                 print(new Dumper(false, false), printer, false);
                 print(new Dumper(true, true, BigInteger.class, BigDecimal.class, Instant.class), printer, true);
                 print(new Dumper(true, false), printer, false);
             }
         });
+    }
+
+    @Test public void performance() {
+        final Object value = SerializerTest.createValues();
+        final Dumper dumper = new Dumper(true, false);
+        new PerformanceTask() {
+            @Override protected void run(final int count) {
+                int counter = count;
+                while (counter-- > 0) {
+                    Assert.assertEquals(dumper.append(new StringBuilder(2048), value).length(), 1270);
+                }
+            }
+        }.run(1, TimeUnit.MICROSECONDS);
     }
 
 }

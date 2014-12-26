@@ -9,21 +9,12 @@ import java.util.HashSet;
 import java.util.IdentityHashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
-/**
- * This implementation is not very efficient! It uses uncached reflection.
- */
 public final class Dumper {
 
     private static final Set<Class<?>> PRIMITIVE_WRAPPER_CLASSES = new HashSet<>(Arrays.asList(
-        Boolean.class,
-        Character.class,
-        Byte.class,
-        Short.class,
-        Integer.class,
-        Long.class,
-        Float.class,
-        Double.class
+        Boolean.class, Character.class, Byte.class, Short.class, Integer.class, Long.class, Float.class, Double.class
     ));
 
     private final boolean compact;
@@ -45,13 +36,6 @@ public final class Dumper {
         this.concreteValueClasses.addAll(PRIMITIVE_WRAPPER_CLASSES);
     }
 
-    /**
-     * Calls {@code this(false, true, concreteValueClasses)}.
-     */
-    public Dumper(final Class<?>... concreteValueClasses) {
-        this(false, true, concreteValueClasses);
-    }
-
     public StringBuilder append(final StringBuilder s, @Nullable final Object value) {
         try {
             new Dump(s).dump(value);
@@ -67,38 +51,32 @@ public final class Dumper {
 
     public static final String LINE_SEPARATOR = System.getProperty("line.separator");
 
+    private final Map<Class<?>, Boolean> class2noToString = new ConcurrentHashMap<>();
+
     private final class Dump {
-
         private final StringBuilder out;
-
         Dump(final StringBuilder out) {
             this.out = Check.notNull(out);
         }
-
         private int tabs = 0;
-
         private void appendTabs() {
             for (int t = tabs; t > 0; t--) {
                 out.append("    ");
             }
         }
-
         private void appendLine() {
             out.append(LINE_SEPARATOR);
         }
-
         private void inc(final String s) {
             out.append(s);
             appendLine();
             tabs++;
         }
-
         private void dec(final String s) {
             tabs--;
             appendTabs();
             out.append(s);
         }
-
         private void dumpArray(final Object array) throws Exception {
             final int length = Array.getLength(array);
             if (compact) {
@@ -118,7 +96,6 @@ public final class Dumper {
                 dec("]");
             }
         }
-
         private void dumpCollection(final Collection<?> collection) throws Exception {
             if (compact) {
                 out.append("[ ");
@@ -137,7 +114,6 @@ public final class Dumper {
                 dec("]");
             }
         }
-
         private void dumpMap(final Map<?, ?> map) throws Exception {
             if (compact) {
                 out.append("{ ");
@@ -160,7 +136,6 @@ public final class Dumper {
                 dec("}");
             }
         }
-
         private void dumpClassFields(Class<?> type, final Object object) throws Exception {
             while ((type != Object.class) && (type != Throwable.class)) {
                 for (final Field field : type.getDeclaredFields()) {
@@ -185,9 +160,7 @@ public final class Dumper {
                 type = type.getSuperclass();
             }
         }
-
         private final Map<Object, Integer> alreadyDumpedObjects = cycles ? new IdentityHashMap<>(16) : null;
-
         private void dumpClass(final Class<?> type, final Object object) throws Exception {
             final int index;
             if (cycles) {
@@ -201,8 +174,13 @@ public final class Dumper {
             } else {
                 index = 0;
             }
-            final Class<?> toStringClass = type.getMethod("toString").getDeclaringClass();
-            if ((toStringClass == Object.class) || (toStringClass == Throwable.class)) {
+            @Nullable Boolean noToString = class2noToString.get(type);
+            if (noToString == null) {
+                final Class<?> toStringClass = type.getMethod("toString").getDeclaringClass();
+                noToString = (toStringClass == Object.class) || (toStringClass == Throwable.class);
+                class2noToString.put(type, noToString);
+            }
+            if (noToString) {
                 if (compact) {
                     out.append(type.getSimpleName()).append("( ");
                     dumpClassFields(type, object);
@@ -219,7 +197,6 @@ public final class Dumper {
                 out.append('#').append(index);
             }
         }
-
         void dump(@Nullable final Object value) throws Exception {
             if (value == null) {
                 out.append("null");
@@ -247,7 +224,6 @@ public final class Dumper {
                 dumpClass(type, value);
             }
         }
-
     }
 
 }
