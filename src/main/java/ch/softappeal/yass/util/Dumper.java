@@ -2,14 +2,15 @@ package ch.softappeal.yass.util;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.IdentityHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
 public final class Dumper {
 
@@ -37,21 +38,64 @@ public final class Dumper {
     }
 
     public StringBuilder append(final StringBuilder s, @Nullable final Object value) {
-        try {
-            new Dump(s).dump(value);
-            return s;
-        } catch (final Exception e) {
-            throw Exceptions.wrap(e);
-        }
+        new Dump(s).dump(value);
+        return s;
     }
 
     public String toString(@Nullable final Object value) {
         return append(new StringBuilder(256), value).toString();
     }
 
-    public static final String LINE_SEPARATOR = System.getProperty("line.separator");
+    @FunctionalInterface private interface Accessor {
+        @Nullable Object get(Object object);
+    }
 
-    private final Map<Class<?>, Boolean> class2noToString = new ConcurrentHashMap<>();
+    private static final class FieldDesc {
+        final Accessor accessor;
+        final String name;
+        FieldDesc(final Field field) {
+            name = field.getName();
+            final Class<?> type = field.getType();
+            final long offset = Reflect.UNSAFE.objectFieldOffset(field);
+            if (!type.isPrimitive()) {
+                accessor = object -> Reflect.UNSAFE.getObject(object, offset);
+            } else if (type == Boolean.TYPE) {
+                accessor = object -> Reflect.UNSAFE.getBoolean(object, offset);
+            } else if (type == Character.TYPE) {
+                accessor = object -> Reflect.UNSAFE.getChar(object, offset);
+            } else if (type == Byte.TYPE) {
+                accessor = object -> Reflect.UNSAFE.getByte(object, offset);
+            } else if (type == Short.TYPE) {
+                accessor = object -> Reflect.UNSAFE.getShort(object, offset);
+            } else if (type == Integer.TYPE) {
+                accessor = object -> Reflect.UNSAFE.getInt(object, offset);
+            } else if (type == Long.TYPE) {
+                accessor = object -> Reflect.UNSAFE.getLong(object, offset);
+            } else if (type == Float.TYPE) {
+                accessor = object -> Reflect.UNSAFE.getFloat(object, offset);
+            } else if (type == Double.TYPE) {
+                accessor = object -> Reflect.UNSAFE.getDouble(object, offset);
+            } else {
+                throw new RuntimeException("unexpected type " + type);
+            }
+        }
+    }
+
+    private static final class ClassDesc {
+        final boolean noToString;
+        final List<FieldDesc> fieldDescs;
+        ClassDesc(final Class<?> type) {
+            try {
+                final Class<?> toStringClass = type.getMethod("toString").getDeclaringClass();
+                noToString = (toStringClass == Object.class) || (toStringClass == Throwable.class);
+                fieldDescs = Reflect.allFields(type).stream().map(FieldDesc::new).collect(Collectors.toList());
+            } catch (final NoSuchMethodException e) {
+                throw new RuntimeException(e);
+            }
+        }
+    }
+
+    private final Map<Class<?>, ClassDesc> class2desc = new ConcurrentHashMap<>();
 
     private final class Dump {
         private final StringBuilder out;
@@ -65,7 +109,7 @@ public final class Dumper {
             }
         }
         private void appendLine() {
-            out.append(LINE_SEPARATOR);
+            out.append('\n');
         }
         private void inc(final String s) {
             out.append(s);
@@ -77,7 +121,7 @@ public final class Dumper {
             appendTabs();
             out.append(s);
         }
-        private void dumpArray(final Object array) throws Exception {
+        private void dumpArray(final Object array) {
             final int length = Array.getLength(array);
             if (compact) {
                 out.append("[ ");
@@ -96,7 +140,7 @@ public final class Dumper {
                 dec("]");
             }
         }
-        private void dumpCollection(final Collection<?> collection) throws Exception {
+        private void dumpCollection(final Collection<?> collection) {
             if (compact) {
                 out.append("[ ");
                 for (final Object e : collection) {
@@ -114,7 +158,7 @@ public final class Dumper {
                 dec("]");
             }
         }
-        private void dumpMap(final Map<?, ?> map) throws Exception {
+        private void dumpMap(final Map<?, ?> map) {
             if (compact) {
                 out.append("{ ");
                 for (final Map.Entry<?, ?> entry : map.entrySet()) {
@@ -136,32 +180,25 @@ public final class Dumper {
                 dec("}");
             }
         }
-        private void dumpClassFields(Class<?> type, final Object object) throws Exception {
-            while ((type != Object.class) && (type != Throwable.class)) {
-                for (final Field field : type.getDeclaredFields()) {
-                    final int modifiers = field.getModifiers();
-                    if (!(Modifier.isStatic(modifiers) || Modifier.isTransient(modifiers))) {
-                        field.setAccessible(true);
-                        @Nullable final Object value = field.get(object);
-                        if (value != null) {
-                            if (compact) {
-                                out.append(field.getName()).append('=');
-                                dump(value);
-                                out.append(' ');
-                            } else {
-                                appendTabs();
-                                out.append(field.getName()).append(" = ");
-                                dump(value);
-                                appendLine();
-                            }
-                        }
+        private void dumpClassFields(final ClassDesc classDesc, final Object object) {
+            for (final FieldDesc fieldDesc : classDesc.fieldDescs) {
+                @Nullable final Object value = fieldDesc.accessor.get(object);
+                if (value != null) {
+                    if (compact) {
+                        out.append(fieldDesc.name).append('=');
+                        dump(value);
+                        out.append(' ');
+                    } else {
+                        appendTabs();
+                        out.append(fieldDesc.name).append(" = ");
+                        dump(value);
+                        appendLine();
                     }
                 }
-                type = type.getSuperclass();
             }
         }
         private final Map<Object, Integer> alreadyDumpedObjects = cycles ? new IdentityHashMap<>(16) : null;
-        private void dumpClass(final Class<?> type, final Object object) throws Exception {
+        private void dumpClass(final Class<?> type, final Object object) {
             final int index;
             if (cycles) {
                 final Integer reference = alreadyDumpedObjects.get(object);
@@ -174,20 +211,19 @@ public final class Dumper {
             } else {
                 index = 0;
             }
-            @Nullable Boolean noToString = class2noToString.get(type);
-            if (noToString == null) {
-                final Class<?> toStringClass = type.getMethod("toString").getDeclaringClass();
-                noToString = (toStringClass == Object.class) || (toStringClass == Throwable.class);
-                class2noToString.put(type, noToString);
+            @Nullable ClassDesc classDesc = class2desc.get(type);
+            if (classDesc == null) {
+                classDesc = new ClassDesc(type);
+                class2desc.put(type, classDesc);
             }
-            if (noToString) {
+            if (classDesc.noToString) {
                 if (compact) {
                     out.append(type.getSimpleName()).append("( ");
-                    dumpClassFields(type, object);
+                    dumpClassFields(classDesc, object);
                     out.append(')');
                 } else {
                     inc(type.getSimpleName() + '(');
-                    dumpClassFields(type, object);
+                    dumpClassFields(classDesc, object);
                     dec(")");
                 }
             } else {
@@ -197,7 +233,7 @@ public final class Dumper {
                 out.append('#').append(index);
             }
         }
-        void dump(@Nullable final Object value) throws Exception {
+        void dump(@Nullable final Object value) {
             if (value == null) {
                 out.append("null");
                 return;

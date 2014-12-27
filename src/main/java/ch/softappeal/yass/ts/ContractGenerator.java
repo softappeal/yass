@@ -3,12 +3,12 @@ package ch.softappeal.yass.ts;
 import ch.softappeal.yass.Version;
 import ch.softappeal.yass.core.remote.ContractId;
 import ch.softappeal.yass.core.remote.MethodMapper;
-import ch.softappeal.yass.serialize.fast.AbstractFastSerializer;
 import ch.softappeal.yass.serialize.fast.ClassTypeHandler;
 import ch.softappeal.yass.serialize.fast.JsFastSerializer;
 import ch.softappeal.yass.serialize.fast.TypeDesc;
 import ch.softappeal.yass.serialize.fast.TypeHandler;
 import ch.softappeal.yass.util.Check;
+import ch.softappeal.yass.util.Reflect;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -143,8 +143,7 @@ public final class ContractGenerator extends Generator {
         }
         final Class<?> superClass = sc;
         generateType(type, name -> {
-            final List<Field> fields = AbstractFastSerializer.ownFields(type);
-            Collections.sort(fields, (field1, field2) -> field1.getName().compareTo(field2.getName()));
+            final List<Field> fields = Reflect.ownFields(type);
             tabsln("export class %s extends %s {", name, (superClass == null) ? "yass.Type" : jsType(superClass));
             inc();
             for (final Field field : fields) {

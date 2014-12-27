@@ -2,6 +2,7 @@ package ch.softappeal.yass.serialize.fast;
 
 import ch.softappeal.yass.serialize.Reflector;
 import ch.softappeal.yass.util.Check;
+import ch.softappeal.yass.util.Reflect;
 import ch.softappeal.yass.util.Tag;
 
 import java.lang.reflect.Field;
@@ -17,7 +18,7 @@ public final class TaggedFastSerializer extends AbstractFastSerializer {
     private void addClass(final Class<?> type, final boolean referenceable) {
         checkClass(type);
         final Map<Integer, Field> id2field = new HashMap<>(16);
-        for (final Field field : allFields(type)) {
+        for (final Field field : Reflect.allFields(type)) {
             final int id = Check.hasTag(field);
             final Field oldField = id2field.put(id, field);
             if (oldField != null) {

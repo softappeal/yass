@@ -7,7 +7,6 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.function.Consumer;
 
 public abstract class ReconnectSession extends Session {
 
@@ -32,12 +31,18 @@ public abstract class ReconnectSession extends Session {
         ReconnectSession create(SessionClient sessionClient, AtomicBoolean closed) throws Exception;
     }
 
+    @FunctionalInterface public interface Connector {
+        /**
+         * note: must not throw any exceptions
+         */
+        void connect(SessionFactory sessionFactory);
+    }
+
     /**
      * @param reconnectExecutor must interrupt it's threads to terminate reconnects (use {@link ExecutorService#shutdownNow()})
-     * @param connect note: must not throw any exceptions
      */
-    public static void start(final Executor reconnectExecutor, final long reconnectIntervalSeconds, final Consumer<SessionFactory> connect, final Factory sessionFactory) {
-        Check.notNull(connect);
+    public static void start(final Executor reconnectExecutor, final long reconnectIntervalSeconds, final Connector connector, final Factory sessionFactory) {
+        Check.notNull(connector);
         Check.notNull(sessionFactory);
         final AtomicBoolean closed = new AtomicBoolean(true);
         final SessionFactory factory = sessionClient -> {
@@ -48,7 +53,7 @@ public abstract class ReconnectSession extends Session {
         reconnectExecutor.execute(() -> {
             while (!Thread.interrupted()) {
                 if (closed.get()) {
-                    connect.accept(factory);
+                    connector.connect(factory);
                 }
                 try {
                     TimeUnit.SECONDS.sleep(reconnectIntervalSeconds);

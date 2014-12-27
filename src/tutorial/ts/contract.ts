@@ -30,9 +30,9 @@ module contract {
         export class Stock extends Instrument {
             paysDividend: boolean;
             static TYPE_DESC = yass.classDesc(11, Stock,
-                new yass.FieldDesc(1, 'id', yass.STRING_DESC),
-                new yass.FieldDesc(2, 'name', yass.STRING_DESC),
-                new yass.FieldDesc(3, 'paysDividend', yass.BOOLEAN_DESC)
+                new yass.FieldDesc(1, 'paysDividend', yass.BOOLEAN_DESC),
+                new yass.FieldDesc(2, 'id', yass.STRING_DESC),
+                new yass.FieldDesc(3, 'name', yass.STRING_DESC)
             );
         }
     }

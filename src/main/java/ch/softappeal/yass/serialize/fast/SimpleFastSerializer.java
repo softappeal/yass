@@ -1,12 +1,11 @@
 package ch.softappeal.yass.serialize.fast;
 
 import ch.softappeal.yass.serialize.Reflector;
+import ch.softappeal.yass.util.Reflect;
 
 import java.lang.reflect.Field;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -18,12 +17,8 @@ public final class SimpleFastSerializer extends AbstractFastSerializer {
         checkClass(type);
         final Map<Integer, Field> id2field = new HashMap<>(16);
         int fieldId = FieldHandler.FIRST_ID;
-        for (Class<?> t = type; (t != null) && (t != Throwable.class); t = t.getSuperclass()) {
-            final List<Field> fields = ownFields(t);
-            Collections.sort(fields, (field1, field2) -> field1.getName().compareTo(field2.getName()));
-            for (final Field field : fields) {
-                id2field.put(fieldId++, field);
-            }
+        for (final Field field : Reflect.allFields(type)) {
+            id2field.put(fieldId++, field);
         }
         addClass(typeId, type, referenceable, id2field);
     }

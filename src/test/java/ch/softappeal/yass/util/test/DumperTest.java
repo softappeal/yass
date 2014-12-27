@@ -22,7 +22,7 @@ public class DumperTest {
     @Test public void test() {
         TestUtils.compareFile("ch/softappeal/yass/util/test/DumperTest.dump.txt", new TestUtils.Printer() {
             void dump(final Dumper dumper, final StringBuilder s, @Nullable final Object value) {
-                s.append(dumper.toString(value)).append(Dumper.LINE_SEPARATOR);
+                s.append(dumper.toString(value)).append('\n');
             }
             void print(final Dumper dumper, final PrintWriter printer, final boolean cycles) {
                 final StringBuilder s = new StringBuilder(1024);
@@ -54,16 +54,16 @@ public class DumperTest {
     }
 
     @Test public void performance() {
-        final Object value = SerializerTest.createValues();
+        final Object value = SerializerTest.createNulls();
         final Dumper dumper = new Dumper(true, false);
         new PerformanceTask() {
             @Override protected void run(final int count) {
                 int counter = count;
                 while (counter-- > 0) {
-                    Assert.assertEquals(dumper.append(new StringBuilder(2048), value).length(), 1270);
+                    Assert.assertEquals(dumper.append(new StringBuilder(256), value).length(), 127);
                 }
             }
-        }.run(1, TimeUnit.MICROSECONDS);
+        }.run(1, TimeUnit.NANOSECONDS);
     }
 
 }

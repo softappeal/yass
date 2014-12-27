@@ -1,10 +1,10 @@
 package ch.softappeal.yass.serialize.fast;
 
 import ch.softappeal.yass.serialize.Reflector;
+import ch.softappeal.yass.util.Reflect;
 
 import java.lang.reflect.Field;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -18,7 +18,7 @@ public final class JsFastSerializer extends AbstractFastSerializer {
 
     private void addClass(final int typeId, final Class<?> type) {
         checkClass(type);
-        final List<Field> fields = allFields(type);
+        final List<Field> fields = Reflect.allFields(type);
         final Map<String, Field> name2field = new HashMap<>(fields.size());
         for (final Field field : fields) {
             final Field oldField = name2field.put(field.getName(), field);
@@ -26,7 +26,6 @@ public final class JsFastSerializer extends AbstractFastSerializer {
                 throw new IllegalArgumentException("duplicated fields '" + field + "' and '" + oldField + "' in class hierarchy");
             }
         }
-        Collections.sort(fields, (field1, field2) -> field1.getName().compareTo(field2.getName()));
         final Map<Integer, Field> id2field = new HashMap<>(fields.size());
         int fieldId = FieldHandler.FIRST_ID;
         for (final Field field : fields) {

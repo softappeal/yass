@@ -6,113 +6,113 @@ null
 AllTypes(
     booleanField = false
     byteField = 0
-    shortField = 0
+    charField = (char)0
+    doubleField = 0.0
+    floatField = 0.0
     intField = 0
     longField = 0
-    charField = (char)0
-    floatField = 0.0
-    doubleField = 0.0
+    shortField = 0
 )#0
 AllTypes(
-    stringField = "999"
-    colorField = BLUE
     bigDecimalField = 98.7
     bigIntegerField = 987
+    colorField = BLUE
     dateField = Fri Jan 02 11:17:36 CET 1970#1
     instantField = 1970-01-01T00:02:03.000456789Z
-    primitiveTypesField = AllTypes(
-        stringField = "hello"
-        booleanField = false
-        byteField = 0
-        shortField = 0
-        intField = 0
-        longField = 0
-        charField = (char)0
-        floatField = 0.0
-        doubleField = 0.0
-    )#2
-    primitiveTypesListField = [
-        PrimitiveTypes(
-            booleanField = false
-            byteField = 0
-            shortField = 0
-            intField = 999
-            longField = 0
-            charField = (char)0
-            floatField = 0.0
-            doubleField = 0.0
-        )#3
-        AllTypes(
-            stringField = "world"
-            booleanField = false
-            byteField = 0
-            shortField = 0
-            intField = 0
-            longField = 0
-            charField = (char)0
-            floatField = 0.0
-            doubleField = 0.0
-        )#4
-        null
-    ]
     objectField = "bad"
     objectListField = [
         "good"
         null
         123
     ]
+    primitiveTypesField = AllTypes(
+        stringField = "hello"
+        booleanField = false
+        byteField = 0
+        charField = (char)0
+        doubleField = 0.0
+        floatField = 0.0
+        intField = 0
+        longField = 0
+        shortField = 0
+    )#2
+    primitiveTypesListField = [
+        PrimitiveTypes(
+            booleanField = false
+            byteField = 0
+            charField = (char)0
+            doubleField = 0.0
+            floatField = 0.0
+            intField = 999
+            longField = 0
+            shortField = 0
+        )#3
+        AllTypes(
+            stringField = "world"
+            booleanField = false
+            byteField = 0
+            charField = (char)0
+            doubleField = 0.0
+            floatField = 0.0
+            intField = 0
+            longField = 0
+            shortField = 0
+        )#4
+        null
+    ]
+    stringField = "999"
     throwable = IntException(
         value = 123
     )#5
-    booleanField = false
-    byteField = 100
-    shortField = 101
-    intField = 102
-    longField = 103
-    charField = 'x'
-    floatField = 1.23
-    doubleField = 3.21
     booleanArrayField = [
         false
         true
         false
     ]
+    booleanField = false
+    booleanWrapperField = true
     byteArrayField = [
         1
         -2
     ]
-    shortArrayField = [
-        -1
-        2
-    ]
-    intArrayField = [
-        1
-        -2
-    ]
-    longArrayField = [
-        -1
-        2
-    ]
+    byteField = 100
+    byteWrapperField = -100
     charArrayField = [
         'x'
         'y'
     ]
-    floatArrayField = [
-        -1.0
-        2.0
-    ]
+    charField = 'x'
+    charWrapperField = 'y'
     doubleArrayField = [
         1.0
         -2.0
     ]
-    booleanWrapperField = true
-    byteWrapperField = -100
-    shortWrapperField = -101
-    intWrapperField = -102
-    longWrapperField = -103
-    charWrapperField = 'y'
-    floatWrapperField = -1.23
+    doubleField = 3.21
     doubleWrapperField = -3.21
+    floatArrayField = [
+        -1.0
+        2.0
+    ]
+    floatField = 1.23
+    floatWrapperField = -1.23
+    intArrayField = [
+        1
+        -2
+    ]
+    intField = 102
+    intWrapperField = -102
+    longArrayField = [
+        -1
+        2
+    ]
+    longField = 103
+    longWrapperField = -103
+    shortArrayField = [
+        -1
+        2
+    ]
+    shortField = 101
+    shortWrapperField = -101
 )#0
 Node(
     id = 1
@@ -142,113 +142,113 @@ null
 AllTypes(
     booleanField = false
     byteField = 0
-    shortField = 0
+    charField = (char)0
+    doubleField = 0.0
+    floatField = 0.0
     intField = 0
     longField = 0
-    charField = (char)0
-    floatField = 0.0
-    doubleField = 0.0
+    shortField = 0
 )
 AllTypes(
-    stringField = "999"
-    colorField = BLUE
     bigDecimalField = 98.7
     bigIntegerField = 987
+    colorField = BLUE
     dateField = Fri Jan 02 11:17:36 CET 1970
     instantField = 1970-01-01T00:02:03.000456789Z
-    primitiveTypesField = AllTypes(
-        stringField = "hello"
-        booleanField = false
-        byteField = 0
-        shortField = 0
-        intField = 0
-        longField = 0
-        charField = (char)0
-        floatField = 0.0
-        doubleField = 0.0
-    )
-    primitiveTypesListField = [
-        PrimitiveTypes(
-            booleanField = false
-            byteField = 0
-            shortField = 0
-            intField = 999
-            longField = 0
-            charField = (char)0
-            floatField = 0.0
-            doubleField = 0.0
-        )
-        AllTypes(
-            stringField = "world"
-            booleanField = false
-            byteField = 0
-            shortField = 0
-            intField = 0
-            longField = 0
-            charField = (char)0
-            floatField = 0.0
-            doubleField = 0.0
-        )
-        null
-    ]
     objectField = "bad"
     objectListField = [
         "good"
         null
         123
     ]
+    primitiveTypesField = AllTypes(
+        stringField = "hello"
+        booleanField = false
+        byteField = 0
+        charField = (char)0
+        doubleField = 0.0
+        floatField = 0.0
+        intField = 0
+        longField = 0
+        shortField = 0
+    )
+    primitiveTypesListField = [
+        PrimitiveTypes(
+            booleanField = false
+            byteField = 0
+            charField = (char)0
+            doubleField = 0.0
+            floatField = 0.0
+            intField = 999
+            longField = 0
+            shortField = 0
+        )
+        AllTypes(
+            stringField = "world"
+            booleanField = false
+            byteField = 0
+            charField = (char)0
+            doubleField = 0.0
+            floatField = 0.0
+            intField = 0
+            longField = 0
+            shortField = 0
+        )
+        null
+    ]
+    stringField = "999"
     throwable = IntException(
         value = 123
     )
-    booleanField = false
-    byteField = 100
-    shortField = 101
-    intField = 102
-    longField = 103
-    charField = 'x'
-    floatField = 1.23
-    doubleField = 3.21
     booleanArrayField = [
         false
         true
         false
     ]
+    booleanField = false
+    booleanWrapperField = true
     byteArrayField = [
         1
         -2
     ]
-    shortArrayField = [
-        -1
-        2
-    ]
-    intArrayField = [
-        1
-        -2
-    ]
-    longArrayField = [
-        -1
-        2
-    ]
+    byteField = 100
+    byteWrapperField = -100
     charArrayField = [
         'x'
         'y'
     ]
-    floatArrayField = [
-        -1.0
-        2.0
-    ]
+    charField = 'x'
+    charWrapperField = 'y'
     doubleArrayField = [
         1.0
         -2.0
     ]
-    booleanWrapperField = true
-    byteWrapperField = -100
-    shortWrapperField = -101
-    intWrapperField = -102
-    longWrapperField = -103
-    charWrapperField = 'y'
-    floatWrapperField = -1.23
+    doubleField = 3.21
     doubleWrapperField = -3.21
+    floatArrayField = [
+        -1.0
+        2.0
+    ]
+    floatField = 1.23
+    floatWrapperField = -1.23
+    intArrayField = [
+        1
+        -2
+    ]
+    intField = 102
+    intWrapperField = -102
+    longArrayField = [
+        -1
+        2
+    ]
+    longField = 103
+    longWrapperField = -103
+    shortArrayField = [
+        -1
+        2
+    ]
+    shortField = 101
+    shortWrapperField = -101
 )
 [
     "one"
@@ -265,8 +265,8 @@ null
 ' '
 '~'
 (char)127
-AllTypes( booleanField=false byteField=0 shortField=0 intField=0 longField=0 charField=(char)0 floatField=0.0 doubleField=0.0 )#0
-AllTypes( stringField="999" colorField=BLUE bigDecimalField=98.7 bigIntegerField=987 dateField=Fri Jan 02 11:17:36 CET 1970#1 instantField=1970-01-01T00:02:03.000456789Z primitiveTypesField=AllTypes( stringField="hello" booleanField=false byteField=0 shortField=0 intField=0 longField=0 charField=(char)0 floatField=0.0 doubleField=0.0 )#2 primitiveTypesListField=[ PrimitiveTypes( booleanField=false byteField=0 shortField=0 intField=999 longField=0 charField=(char)0 floatField=0.0 doubleField=0.0 )#3 AllTypes( stringField="world" booleanField=false byteField=0 shortField=0 intField=0 longField=0 charField=(char)0 floatField=0.0 doubleField=0.0 )#4 null ] objectField="bad" objectListField=[ "good" null 123 ] throwable=IntException( value=123 )#5 booleanField=false byteField=100 shortField=101 intField=102 longField=103 charField='x' floatField=1.23 doubleField=3.21 booleanArrayField=[ false true false ] byteArrayField=[ 1 -2 ] shortArrayField=[ -1 2 ] intArrayField=[ 1 -2 ] longArrayField=[ -1 2 ] charArrayField=[ 'x' 'y' ] floatArrayField=[ -1.0 2.0 ] doubleArrayField=[ 1.0 -2.0 ] booleanWrapperField=true byteWrapperField=-100 shortWrapperField=-101 intWrapperField=-102 longWrapperField=-103 charWrapperField='y' floatWrapperField=-1.23 doubleWrapperField=-3.21 )#0
+AllTypes( booleanField=false byteField=0 charField=(char)0 doubleField=0.0 floatField=0.0 intField=0 longField=0 shortField=0 )#0
+AllTypes( bigDecimalField=98.7 bigIntegerField=987 colorField=BLUE dateField=Fri Jan 02 11:17:36 CET 1970#1 instantField=1970-01-01T00:02:03.000456789Z objectField="bad" objectListField=[ "good" null 123 ] primitiveTypesField=AllTypes( stringField="hello" booleanField=false byteField=0 charField=(char)0 doubleField=0.0 floatField=0.0 intField=0 longField=0 shortField=0 )#2 primitiveTypesListField=[ PrimitiveTypes( booleanField=false byteField=0 charField=(char)0 doubleField=0.0 floatField=0.0 intField=999 longField=0 shortField=0 )#3 AllTypes( stringField="world" booleanField=false byteField=0 charField=(char)0 doubleField=0.0 floatField=0.0 intField=0 longField=0 shortField=0 )#4 null ] stringField="999" throwable=IntException( value=123 )#5 booleanArrayField=[ false true false ] booleanField=false booleanWrapperField=true byteArrayField=[ 1 -2 ] byteField=100 byteWrapperField=-100 charArrayField=[ 'x' 'y' ] charField='x' charWrapperField='y' doubleArrayField=[ 1.0 -2.0 ] doubleField=3.21 doubleWrapperField=-3.21 floatArrayField=[ -1.0 2.0 ] floatField=1.23 floatWrapperField=-1.23 intArrayField=[ 1 -2 ] intField=102 intWrapperField=-102 longArrayField=[ -1 2 ] longField=103 longWrapperField=-103 shortArrayField=[ -1 2 ] shortField=101 shortWrapperField=-101 )#0
 Node( id=1 link=Node( id=2 link=Node( id=3 link=#1 )#2 )#1 )#0
 [ "one" "two" "three" ]
 { 1->"one" 2->null 3->"three" }
@@ -275,7 +275,7 @@ null
 ' '
 '~'
 (char)127
-AllTypes( booleanField=false byteField=0 shortField=0 intField=0 longField=0 charField=(char)0 floatField=0.0 doubleField=0.0 )
-AllTypes( stringField="999" colorField=BLUE bigDecimalField=98.7 bigIntegerField=987 dateField=Fri Jan 02 11:17:36 CET 1970 instantField=1970-01-01T00:02:03.000456789Z primitiveTypesField=AllTypes( stringField="hello" booleanField=false byteField=0 shortField=0 intField=0 longField=0 charField=(char)0 floatField=0.0 doubleField=0.0 ) primitiveTypesListField=[ PrimitiveTypes( booleanField=false byteField=0 shortField=0 intField=999 longField=0 charField=(char)0 floatField=0.0 doubleField=0.0 ) AllTypes( stringField="world" booleanField=false byteField=0 shortField=0 intField=0 longField=0 charField=(char)0 floatField=0.0 doubleField=0.0 ) null ] objectField="bad" objectListField=[ "good" null 123 ] throwable=IntException( value=123 ) booleanField=false byteField=100 shortField=101 intField=102 longField=103 charField='x' floatField=1.23 doubleField=3.21 booleanArrayField=[ false true false ] byteArrayField=[ 1 -2 ] shortArrayField=[ -1 2 ] intArrayField=[ 1 -2 ] longArrayField=[ -1 2 ] charArrayField=[ 'x' 'y' ] floatArrayField=[ -1.0 2.0 ] doubleArrayField=[ 1.0 -2.0 ] booleanWrapperField=true byteWrapperField=-100 shortWrapperField=-101 intWrapperField=-102 longWrapperField=-103 charWrapperField='y' floatWrapperField=-1.23 doubleWrapperField=-3.21 )
+AllTypes( booleanField=false byteField=0 charField=(char)0 doubleField=0.0 floatField=0.0 intField=0 longField=0 shortField=0 )
+AllTypes( bigDecimalField=98.7 bigIntegerField=987 colorField=BLUE dateField=Fri Jan 02 11:17:36 CET 1970 instantField=1970-01-01T00:02:03.000456789Z objectField="bad" objectListField=[ "good" null 123 ] primitiveTypesField=AllTypes( stringField="hello" booleanField=false byteField=0 charField=(char)0 doubleField=0.0 floatField=0.0 intField=0 longField=0 shortField=0 ) primitiveTypesListField=[ PrimitiveTypes( booleanField=false byteField=0 charField=(char)0 doubleField=0.0 floatField=0.0 intField=999 longField=0 shortField=0 ) AllTypes( stringField="world" booleanField=false byteField=0 charField=(char)0 doubleField=0.0 floatField=0.0 intField=0 longField=0 shortField=0 ) null ] stringField="999" throwable=IntException( value=123 ) booleanArrayField=[ false true false ] booleanField=false booleanWrapperField=true byteArrayField=[ 1 -2 ] byteField=100 byteWrapperField=-100 charArrayField=[ 'x' 'y' ] charField='x' charWrapperField='y' doubleArrayField=[ 1.0 -2.0 ] doubleField=3.21 doubleWrapperField=-3.21 floatArrayField=[ -1.0 2.0 ] floatField=1.23 floatWrapperField=-1.23 intArrayField=[ 1 -2 ] intField=102 intWrapperField=-102 longArrayField=[ -1 2 ] longField=103 longWrapperField=-103 shortArrayField=[ -1 2 ] shortField=101 shortWrapperField=-101 )
 [ "one" "two" "three" ]
 { 1->"one" 2->null 3->"three" }

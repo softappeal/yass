@@ -14,7 +14,6 @@ import java.util.Map;
 public final class InstrumentServiceImpl implements InstrumentService {
 
     static final Map<String, Instrument> INSTRUMENTS;
-
     static {
         final List<String> names = Arrays.asList("IBM", "Google", "Apple", "Microsoft");
         final Map<String, Instrument> instruments = new HashMap<>(names.size());
