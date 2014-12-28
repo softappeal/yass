@@ -51,8 +51,8 @@ public final class Dumper {
     }
 
     private static final class FieldDesc {
-        final Accessor accessor;
         final String name;
+        final Accessor accessor;
         FieldDesc(final Field field) {
             name = field.getName();
             final Class<?> type = field.getType();
