@@ -578,7 +578,7 @@ module yass {
         invoker<PC>(contractId: ContractId<any, PC>): Invoker<PC>;
     }
 
-    class Rpc {
+    export class Rpc {
         promise: Promise<any>;
         settle: (reply: Reply) => void;
         constructor(interceptor: Interceptor, method: string, parameters: any[]) {
