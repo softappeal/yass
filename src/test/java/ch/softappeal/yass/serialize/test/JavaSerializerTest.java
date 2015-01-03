@@ -41,7 +41,7 @@ public class JavaSerializerTest {
     @Test public void request() throws Exception {
         final int requestNumber = 1234567890;
         final int serviceId = 123;
-        final String methodId = "xyz";
+        final int methodId = 1147;
         final Packet packet = copy(
             new Packet(
                 requestNumber,

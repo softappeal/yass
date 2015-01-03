@@ -35,7 +35,7 @@ public class ServerTest {
             client.invoker(ContractId.create(InvokeTest.TestService.class, 123456)).proxy().nothing();
             Assert.fail();
         } catch (final RuntimeException e) {
-            Assert.assertEquals("no serviceId 123456 found (methodId '0')", e.getMessage());
+            Assert.assertEquals("no serviceId 123456 found (methodId 0)", e.getMessage());
         }
     }
 

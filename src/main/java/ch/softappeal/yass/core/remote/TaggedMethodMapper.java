@@ -27,7 +27,7 @@ public final class TaggedMethodMapper implements MethodMapper {
         }
     }
 
-    @Override public Mapping mapId(final Object id) {
+    @Override public Mapping mapId(final int id) {
         return id2mapping.get(id);
     }
 

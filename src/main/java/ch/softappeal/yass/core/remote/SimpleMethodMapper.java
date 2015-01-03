@@ -30,8 +30,8 @@ public final class SimpleMethodMapper implements MethodMapper {
         }
     }
 
-    @Override public Mapping mapId(final Object id) {
-        return mappings[(Integer)id];
+    @Override public Mapping mapId(final int id) {
+        return mappings[id];
     }
 
     @Override public Mapping mapMethod(final Method method) {

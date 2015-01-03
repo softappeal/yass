@@ -275,7 +275,7 @@ module yass {
         } else if (value instanceof Uint8Array) {
             BYTES_DESC.write(value, writer);
         } else {
-            throw new Error("unexpected value'" + value + "'");
+            throw new Error("unexpected value '" + value + "'");
         }
     }
 
@@ -450,7 +450,7 @@ module yass {
         read(reader: Reader): Message {
             var type = reader.readByte();
             if (type === MessageSerializer.REQUEST) {
-                return new Request(INTEGER_DESC.handler.read(reader), this.serializer.read(reader), this.serializer.read(reader));
+                return new Request(INTEGER_DESC.handler.read(reader), INTEGER_DESC.handler.read(reader), this.serializer.read(reader));
             }
             if (type === MessageSerializer.VALUE_REPLY) {
                 return new ValueReply(this.serializer.read(reader));
@@ -461,7 +461,7 @@ module yass {
             if (message instanceof Request) {
                 writer.writeByte(MessageSerializer.REQUEST);
                 INTEGER_DESC.handler.write((<Request>message).serviceId, writer);
-                this.serializer.write((<Request>message).methodId, writer);
+                INTEGER_DESC.handler.write((<Request>message).methodId, writer);
                 this.serializer.write((<Request>message).parameters, writer);
             } else if (message instanceof ValueReply) {
                 writer.writeByte(MessageSerializer.VALUE_REPLY);
@@ -564,7 +564,7 @@ module yass {
         return request => {
             var invoker = serviceId2invoker[request.serviceId];
             if (!invoker) {
-                throw new Error("no serviceId '" + request.serviceId + "' found (methodId '" + request.methodId + "')");
+                throw new Error("no serviceId " + request.serviceId + " found (methodId " + request.methodId + ")");
             }
             return new ServerInvocation(invoker, request);
         };

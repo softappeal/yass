@@ -18,14 +18,14 @@ public interface MethodMapper {
         /**
          * @see Request#methodId
          */
-        public final Object id;
+        public final int id;
         /**
          * Oneway methods must 'return' void and must not throw exceptions.
          */
         public final boolean oneWay;
-        public Mapping(final Method method, final Object id, final boolean oneWay) {
+        public Mapping(final Method method, final int id, final boolean oneWay) {
             this.method = Check.notNull(method);
-            this.id = Check.notNull(id);
+            this.id = id;
             this.oneWay = oneWay;
             if (oneWay) {
                 if (method.getReturnType() != Void.TYPE) {
@@ -39,12 +39,12 @@ public interface MethodMapper {
         /**
          * Uses {@link OneWay} for marking oneway methods.
          */
-        public Mapping(final Method method, final Object id) {
+        public Mapping(final Method method, final int id) {
             this(method, id, method.isAnnotationPresent(OneWay.class));
         }
     }
 
-    Mapping mapId(Object id);
+    Mapping mapId(int id);
 
     Mapping mapMethod(Method method);
 

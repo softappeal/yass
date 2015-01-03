@@ -23,7 +23,7 @@ public class MessageSerializerTest {
 
     @Test public void request() throws Exception {
         final int serviceId = 123456;
-        final String methodId = "xyz";
+        final int methodId = 4711;
         final Request request = copy(new Request(serviceId, methodId, new Object[0]));
         Assert.assertEquals(serviceId, request.serviceId);
         Assert.assertEquals(methodId, request.methodId);

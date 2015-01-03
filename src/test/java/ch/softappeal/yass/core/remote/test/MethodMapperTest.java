@@ -15,10 +15,10 @@ import java.lang.reflect.Method;
 public class MethodMapperTest {
 
     @Test public void mapping() {
-        final String methodId = "xyz";
+        final int methodId = 1147;
         final MethodMapper.Mapping mapping = new MethodMapper.Mapping(InterceptorTest.METHOD, methodId, false);
         Assert.assertSame(InterceptorTest.METHOD, mapping.method);
-        Assert.assertSame(methodId, mapping.id);
+        Assert.assertEquals(methodId, mapping.id);
         Assert.assertFalse(mapping.oneWay);
     }
 

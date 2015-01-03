@@ -272,7 +272,7 @@ public final class ContractGenerator extends Generator {
 
     /**
      * @param rootPackage Must contain the classes {@link #CLIENT_SERVICES} and {@link #SERVER_SERVICES} with static fields of type {@link ContractId}.
-     * @param methodMapperFactory You must provide a factory that doesn't allow overloading and where {@link MethodMapper.Mapping#id} is of type {@link Integer} due to JavaScript restrictions.
+     * @param methodMapperFactory You must provide a factory that doesn't allow overloading due to JavaScript restrictions.
      */
     @SuppressWarnings("unchecked")
     public ContractGenerator(

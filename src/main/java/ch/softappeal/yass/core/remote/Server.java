@@ -50,7 +50,7 @@ public final class Server extends Common {
     public ServerInvocation invocation(final Request request) {
         @Nullable final ServiceDesc serviceDesc = serviceId2serviceDesc.get(request.serviceId);
         if (serviceDesc == null) {
-            throw new RuntimeException("no serviceId " + request.serviceId + " found (methodId '" + request.methodId + "')");
+            throw new RuntimeException("no serviceId " + request.serviceId + " found (methodId " + request.methodId + ')');
         }
         return new ServerInvocation(serviceDesc, request);
     }
