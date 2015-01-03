@@ -450,7 +450,7 @@ module yass {
         read(reader: Reader): Message {
             var type = reader.readByte();
             if (type === MessageSerializer.REQUEST) {
-                return new Request(INTEGER_DESC.handler.read(reader), INTEGER_DESC.handler.read(reader), this.serializer.read(reader));
+                return new Request(reader.readZigZagInt(), reader.readZigZagInt(), this.serializer.read(reader));
             }
             if (type === MessageSerializer.VALUE_REPLY) {
                 return new ValueReply(this.serializer.read(reader));
@@ -460,8 +460,8 @@ module yass {
         write(message: Message, writer: Writer): void {
             if (message instanceof Request) {
                 writer.writeByte(MessageSerializer.REQUEST);
-                INTEGER_DESC.handler.write((<Request>message).serviceId, writer);
-                INTEGER_DESC.handler.write((<Request>message).methodId, writer);
+                writer.writeZigZagInt((<Request>message).serviceId);
+                writer.writeZigZagInt((<Request>message).methodId);
                 this.serializer.write((<Request>message).parameters, writer);
             } else if (message instanceof ValueReply) {
                 writer.writeByte(MessageSerializer.VALUE_REPLY);

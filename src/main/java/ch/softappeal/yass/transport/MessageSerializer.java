@@ -7,7 +7,6 @@ import ch.softappeal.yass.core.remote.ValueReply;
 import ch.softappeal.yass.serialize.Reader;
 import ch.softappeal.yass.serialize.Serializer;
 import ch.softappeal.yass.serialize.Writer;
-import ch.softappeal.yass.serialize.fast.BaseTypeHandlers;
 import ch.softappeal.yass.util.Check;
 
 import java.util.Arrays;
@@ -38,11 +37,7 @@ public final class MessageSerializer implements Serializer {
     @Override public Message read(final Reader reader) throws Exception {
         final byte type = reader.readByte();
         if (type == REQUEST) {
-            return new Request(
-                BaseTypeHandlers.INTEGER.read(reader),
-                BaseTypeHandlers.INTEGER.read(reader),
-                toArray((List<Object>)contractSerializer.read(reader))
-            );
+            return new Request(reader.readZigZagInt(), reader.readZigZagInt(), toArray((List<Object>)contractSerializer.read(reader)));
         }
         if (type == VALUE_REPLY) {
             return new ValueReply(
@@ -60,8 +55,8 @@ public final class MessageSerializer implements Serializer {
         if (message instanceof Request) {
             writer.writeByte(REQUEST);
             final Request request = (Request)message;
-            BaseTypeHandlers.INTEGER.write(request.serviceId, writer);
-            BaseTypeHandlers.INTEGER.write(request.methodId, writer);
+            writer.writeZigZagInt(request.serviceId);
+            writer.writeZigZagInt(request.methodId);
             contractSerializer.write((request.arguments == null) ? NO_ARGUMENTS : Arrays.asList(request.arguments), writer);
         } else if (message instanceof ValueReply) {
             writer.writeByte(VALUE_REPLY);
