@@ -47,7 +47,7 @@ public final class TypeDesc {
     public static final TypeDesc LIST = new TypeDesc(2, new TypeHandler(List.class) {
         @Override Object read(final Input input) throws Exception {
             int length = input.reader.readVarInt();
-            final List<Object> list = new ArrayList<>(Math.min(length, 256)); // note: prevents out-of-memory attack
+            final List<Object> list = new ArrayList<>(Math.min(length, 32)); // note: prevents out-of-memory attack
             while (length-- > 0) {
                 list.add(input.read());
             }

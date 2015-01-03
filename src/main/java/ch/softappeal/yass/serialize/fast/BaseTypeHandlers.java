@@ -91,7 +91,7 @@ public final class BaseTypeHandlers {
     public static final BaseTypeHandler<boolean[]> BOOLEAN_ARRAY = new BaseTypeHandler<boolean[]>(boolean[].class) {
         @Override public boolean[] read(final Reader reader) throws Exception {
             final int length = reader.readVarInt();
-            boolean[] value = new boolean[Math.min(length, 1024)];
+            boolean[] value = new boolean[Math.min(length, 128)];
             for (int i = 0; i < length; i++) {
                 if (i >= value.length) {
                     value = Arrays.copyOf(value, Math.min(length, 2 * value.length)); // note: prevents out-of-memory attack
@@ -111,7 +111,7 @@ public final class BaseTypeHandlers {
     public static final BaseTypeHandler<byte[]> BYTE_ARRAY = new BaseTypeHandler<byte[]>(byte[].class) {
         @Override public byte[] read(final Reader reader) throws Exception {
             final int length = reader.readVarInt();
-            byte[] value = new byte[Math.min(length, 1024)];
+            byte[] value = new byte[Math.min(length, 128)];
             for (int i = 0; i < length; i++) {
                 if (i >= value.length) {
                     value = Arrays.copyOf(value, Math.min(length, 2 * value.length)); // note: prevents out-of-memory attack
@@ -129,7 +129,7 @@ public final class BaseTypeHandlers {
     public static final BaseTypeHandler<short[]> SHORT_ARRAY = new BaseTypeHandler<short[]>(short[].class) {
         @Override public short[] read(final Reader reader) throws Exception {
             final int length = reader.readVarInt();
-            short[] value = new short[Math.min(length, 512)];
+            short[] value = new short[Math.min(length, 64)];
             for (int i = 0; i < length; i++) {
                 if (i >= value.length) {
                     value = Arrays.copyOf(value, Math.min(length, 2 * value.length)); // note: prevents out-of-memory attack
@@ -149,7 +149,7 @@ public final class BaseTypeHandlers {
     public static final BaseTypeHandler<int[]> INTEGER_ARRAY = new BaseTypeHandler<int[]>(int[].class) {
         @Override public int[] read(final Reader reader) throws Exception {
             final int length = reader.readVarInt();
-            int[] value = new int[Math.min(length, 256)];
+            int[] value = new int[Math.min(length, 32)];
             for (int i = 0; i < length; i++) {
                 if (i >= value.length) {
                     value = Arrays.copyOf(value, Math.min(length, 2 * value.length)); // note: prevents out-of-memory attack
@@ -169,7 +169,7 @@ public final class BaseTypeHandlers {
     public static final BaseTypeHandler<long[]> LONG_ARRAY = new BaseTypeHandler<long[]>(long[].class) {
         @Override public long[] read(final Reader reader) throws Exception {
             final int length = reader.readVarInt();
-            long[] value = new long[Math.min(length, 128)];
+            long[] value = new long[Math.min(length, 16)];
             for (int i = 0; i < length; i++) {
                 if (i >= value.length) {
                     value = Arrays.copyOf(value, Math.min(length, 2 * value.length)); // note: prevents out-of-memory attack
@@ -189,7 +189,7 @@ public final class BaseTypeHandlers {
     public static final BaseTypeHandler<char[]> CHARACTER_ARRAY = new BaseTypeHandler<char[]>(char[].class) {
         @Override public char[] read(final Reader reader) throws Exception {
             final int length = reader.readVarInt();
-            char[] value = new char[Math.min(length, 512)];
+            char[] value = new char[Math.min(length, 64)];
             for (int i = 0; i < length; i++) {
                 if (i >= value.length) {
                     value = Arrays.copyOf(value, Math.min(length, 2 * value.length)); // note: prevents out-of-memory attack
@@ -209,7 +209,7 @@ public final class BaseTypeHandlers {
     public static final BaseTypeHandler<float[]> FLOAT_ARRAY = new BaseTypeHandler<float[]>(float[].class) {
         @Override public float[] read(final Reader reader) throws Exception {
             final int length = reader.readVarInt();
-            float[] value = new float[Math.min(length, 256)];
+            float[] value = new float[Math.min(length, 32)];
             for (int i = 0; i < length; i++) {
                 if (i >= value.length) {
                     value = Arrays.copyOf(value, Math.min(length, 2 * value.length)); // note: prevents out-of-memory attack
@@ -229,7 +229,7 @@ public final class BaseTypeHandlers {
     public static final BaseTypeHandler<double[]> DOUBLE_ARRAY = new BaseTypeHandler<double[]>(double[].class) {
         @Override public double[] read(final Reader reader) throws Exception {
             final int length = reader.readVarInt();
-            double[] value = new double[Math.min(length, 128)];
+            double[] value = new double[Math.min(length, 16)];
             for (int i = 0; i < length; i++) {
                 if (i >= value.length) {
                     value = Arrays.copyOf(value, Math.min(length, 2 * value.length)); // note: prevents out-of-memory attack
