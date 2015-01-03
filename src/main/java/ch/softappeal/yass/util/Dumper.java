@@ -42,10 +42,6 @@ public final class Dumper {
         return s;
     }
 
-    public String toString(@Nullable final Object value) {
-        return append(new StringBuilder(256), value).toString();
-    }
-
     @FunctionalInterface private interface Accessor {
         @Nullable Object get(Object object);
     }
