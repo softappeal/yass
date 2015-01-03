@@ -5,7 +5,7 @@ var log = tutorial.log;
 
 function assert(value: boolean): void {
     if (!value) {
-        log("### assert failed ###");
+        log("####### assert failed #######");
         throw new Error("assert failed");
     }
 }
@@ -22,19 +22,9 @@ function assertThrown(action: ()=>void): void {
 }
 
 assert(true);
-try {
-    assert(false);
-} catch (e) {
-    log("assert:", e);
-}
 assertThrown(() => {
     throw new Error("test")
 });
-try {
-    assertThrown(() => 123);
-} catch (e) {
-    log("assertThrown:", e);
-}
 
 function toArrayBuffer(byteArray: Uint8Array): ArrayBuffer {
     var arrayBuffer = new ArrayBuffer(byteArray.length);
