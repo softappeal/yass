@@ -265,27 +265,4 @@ public class ReaderWriterTest {
         string(5, ">\uFFFF<");
     }
 
-    private static void string2(final int utf8Length, final String value) throws Exception {
-        Assert.assertTrue(Writer.calculateUtf8Length(value) == utf8Length);
-        final ByteArrayOutputStream out = new ByteArrayOutputStream();
-        final Writer writer = Writer.create(out);
-        writer.writeString(value);
-        final Reader reader = Reader.create(new ByteArrayInputStream(out.toByteArray()));
-        Assert.assertEquals(value, reader.readString(utf8Length));
-    }
-
-    @Test public void string2() throws Exception {
-        string2(2, "><");
-        string2(3, ">\u0000<");
-        string2(3, ">\u0001<");
-        string2(3, ">\u0012<");
-        string2(3, ">\u007F<");
-        string2(4, ">\u0080<");
-        string2(4, ">\u0234<");
-        string2(4, ">\u07FF<");
-        string2(5, ">\u0800<");
-        string2(5, ">\u4321<");
-        string2(5, ">\uFFFF<");
-    }
-
 }
