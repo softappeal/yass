@@ -450,7 +450,7 @@ module yass {
         read(reader: Reader): Message {
             var type = reader.readByte();
             if (type === MessageSerializer.REQUEST) {
-                return new Request(this.serializer.read(reader), this.serializer.read(reader), this.serializer.read(reader));
+                return new Request(INTEGER_DESC.handler.read(reader), this.serializer.read(reader), this.serializer.read(reader));
             }
             if (type === MessageSerializer.VALUE_REPLY) {
                 return new ValueReply(this.serializer.read(reader));
@@ -460,7 +460,7 @@ module yass {
         write(message: Message, writer: Writer): void {
             if (message instanceof Request) {
                 writer.writeByte(MessageSerializer.REQUEST);
-                this.serializer.write((<Request>message).serviceId, writer);
+                INTEGER_DESC.handler.write((<Request>message).serviceId, writer);
                 this.serializer.write((<Request>message).methodId, writer);
                 this.serializer.write((<Request>message).parameters, writer);
             } else if (message instanceof ValueReply) {
@@ -557,7 +557,7 @@ module yass {
         services.forEach(service => {
             var id = service.contractId.id;
             if (serviceId2invoker[id]) {
-                throw new Error("serviceId '" + id + "' already added");
+                throw new Error("serviceId " + id + " already added");
             }
             serviceId2invoker[id] = new ServerInvoker(service);
         });

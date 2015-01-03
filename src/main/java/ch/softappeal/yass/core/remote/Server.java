@@ -18,14 +18,14 @@ public final class Server extends Common {
         }
     }
 
-    private final Map<Object, ServiceDesc> serviceId2serviceDesc;
+    private final Map<Integer, ServiceDesc> serviceId2serviceDesc;
 
     public Server(final MethodMapper.Factory methodMapperFactory, final Service... services) {
         super(methodMapperFactory);
         serviceId2serviceDesc = new HashMap<>(services.length);
         for (final Service service : services) {
             if (serviceId2serviceDesc.put(service.contractId.id, new ServiceDesc(service)) != null) {
-                throw new IllegalArgumentException("serviceId '" + service.contractId.id + "' already added");
+                throw new IllegalArgumentException("serviceId " + service.contractId.id + " already added");
             }
         }
     }
@@ -50,7 +50,7 @@ public final class Server extends Common {
     public ServerInvocation invocation(final Request request) {
         @Nullable final ServiceDesc serviceDesc = serviceId2serviceDesc.get(request.serviceId);
         if (serviceDesc == null) {
-            throw new RuntimeException("no serviceId '" + request.serviceId + "' found (methodId '" + request.methodId + "')");
+            throw new RuntimeException("no serviceId " + request.serviceId + " found (methodId '" + request.methodId + "')");
         }
         return new ServerInvocation(serviceDesc, request);
     }

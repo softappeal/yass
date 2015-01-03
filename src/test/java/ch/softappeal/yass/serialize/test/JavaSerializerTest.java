@@ -40,7 +40,7 @@ public class JavaSerializerTest {
 
     @Test public void request() throws Exception {
         final int requestNumber = 1234567890;
-        final Object serviceId = "abc";
+        final int serviceId = 123;
         final String methodId = "xyz";
         final Packet packet = copy(
             new Packet(

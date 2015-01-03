@@ -7,6 +7,7 @@ import ch.softappeal.yass.core.remote.ValueReply;
 import ch.softappeal.yass.serialize.Reader;
 import ch.softappeal.yass.serialize.Serializer;
 import ch.softappeal.yass.serialize.Writer;
+import ch.softappeal.yass.serialize.fast.BaseTypeHandlers;
 import ch.softappeal.yass.util.Check;
 
 import java.util.Arrays;
@@ -38,7 +39,7 @@ public final class MessageSerializer implements Serializer {
         final byte type = reader.readByte();
         if (type == REQUEST) {
             return new Request(
-                contractSerializer.read(reader),
+                BaseTypeHandlers.INTEGER.read(reader),
                 contractSerializer.read(reader),
                 toArray((List<Object>)contractSerializer.read(reader))
             );
@@ -59,7 +60,7 @@ public final class MessageSerializer implements Serializer {
         if (message instanceof Request) {
             writer.writeByte(REQUEST);
             final Request request = (Request)message;
-            contractSerializer.write(request.serviceId, writer);
+            BaseTypeHandlers.INTEGER.write(request.serviceId, writer);
             contractSerializer.write(request.methodId, writer);
             contractSerializer.write((request.arguments == null) ? NO_ARGUMENTS : Arrays.asList(request.arguments), writer);
         } else if (message instanceof ValueReply) {

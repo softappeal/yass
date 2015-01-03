@@ -7,11 +7,11 @@ import org.junit.Test;
 
 public class ContractIdTest {
 
-    public static final ContractId<InvokeTest.TestService> ID = ContractId.create(InvokeTest.TestService.class, "TestService");
+    public static final ContractId<InvokeTest.TestService> ID = ContractId.create(InvokeTest.TestService.class, 987654);
 
     @Test public void test() {
         Assert.assertSame(InvokeTest.TestService.class, ID.contract);
-        Assert.assertEquals("TestService", ID.id);
+        Assert.assertEquals(987654, ID.id);
     }
 
 }

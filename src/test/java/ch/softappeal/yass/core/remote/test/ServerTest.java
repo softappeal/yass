@@ -26,16 +26,16 @@ public class ServerTest {
             new Server(TaggedMethodMapper.FACTORY, service, service);
             Assert.fail();
         } catch (final IllegalArgumentException e) {
-            Assert.assertEquals("serviceId 'TestService' already added", e.getMessage());
+            Assert.assertEquals("serviceId 987654 already added", e.getMessage());
         }
     }
 
     @Test public void noService() {
         try {
-            client.invoker(ContractId.create(InvokeTest.TestService.class, "xxx")).proxy().nothing();
+            client.invoker(ContractId.create(InvokeTest.TestService.class, 123456)).proxy().nothing();
             Assert.fail();
         } catch (final RuntimeException e) {
-            Assert.assertEquals("no serviceId 'xxx' found (methodId '0')", e.getMessage());
+            Assert.assertEquals("no serviceId 123456 found (methodId '0')", e.getMessage());
         }
     }
 

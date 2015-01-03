@@ -27,10 +27,10 @@ public abstract class Client extends Common implements InvokerFactory {
     public static final class ClientInvocation {
         public final boolean oneWay;
         private final Interceptor interceptor;
-        private final Object serviceId;
+        private final int serviceId;
         private final MethodMapper.Mapping methodMapping;
         @Nullable private final Object[] arguments;
-        ClientInvocation(final Interceptor interceptor, final Object serviceId, final MethodMapper.Mapping methodMapping, @Nullable final Object[] arguments) {
+        ClientInvocation(final Interceptor interceptor, final int serviceId, final MethodMapper.Mapping methodMapping, @Nullable final Object[] arguments) {
             oneWay = methodMapping.oneWay;
             this.interceptor = interceptor;
             this.serviceId = serviceId;
