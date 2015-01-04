@@ -11,6 +11,12 @@ group = "ch.softappeal.yass"
 sourceCompatibility = '1.8'
 targetCompatibility = '1.8'
 
+configurations.all {
+    resolutionStrategy {
+        failOnVersionConflict()
+    }
+}
+
 repositories {
     mavenCentral()
 }
@@ -26,13 +32,8 @@ def junit_dep = 'junit:junit:4.11'
 
 dependencies {
     compile websocket_dep
-    tutorialCompile sourceSets.main.output
-    tutorialCompile jetty_dep
-    tutorialCompile undertow_dep
-    testCompile sourceSets.tutorial.output
-    testCompile junit_dep
-    testCompile jetty_dep
-    testCompile undertow_dep
+    tutorialCompile sourceSets.main.output, jetty_dep, undertow_dep
+    testCompile sourceSets.tutorial.output, junit_dep, jetty_dep, undertow_dep
 }
 
 tasks.withType(JavaCompile) {
