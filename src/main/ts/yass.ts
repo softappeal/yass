@@ -119,17 +119,18 @@ module yass {
             return (value >>> 1) ^ -(value & 1);
         }
         readUtf8(bytes: number): string {
-            var result: number[] = [];
+            var result = "";
             while (bytes-- > 0) {
+                var code: number;
                 var b1 = this.readByte();
                 if ((b1 & 0x80) === 0) { // 0xxx xxxx
-                    result.push(b1);
+                    code = b1;
                 } else if ((b1 & 0xE0) === 0xC0) { // 110x xxxx  10xx xxxx
                     var b2 = this.readByte();
                     if ((b2 & 0xC0) !== 0x80) {
                         throw new Error("malformed String input (1)");
                     }
-                    result.push(((b1 & 0x1F) << 6) | (b2 & 0x3F));
+                    code = ((b1 & 0x1F) << 6) | (b2 & 0x3F);
                     bytes--;
                 } else if ((b1 & 0xF0) === 0xE0) { // 1110 xxxx  10xx xxxx  10xx xxxx
                     var b2 = this.readByte();
@@ -137,13 +138,14 @@ module yass {
                     if (((b2 & 0xC0) !== 0x80) || ((b3 & 0xC0) !== 0x80)) {
                         throw new Error("malformed String input (2)");
                     }
-                    result.push(((b1 & 0x0F) << 12) | ((b2 & 0x3F) << 6) | (b3 & 0x3F));
+                    code = ((b1 & 0x0F) << 12) | ((b2 & 0x3F) << 6) | (b3 & 0x3F);
                     bytes -= 2;
                 } else {
                     throw new Error("malformed String input (3)");
                 }
+                result += String.fromCharCode(code);
             }
-            return String.fromCharCode.apply(null, result);
+            return result;
         }
     }
 
