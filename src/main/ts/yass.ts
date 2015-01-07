@@ -716,13 +716,13 @@ module yass {
                         this.requestNumber = Packet.END_REQUESTNUMBER;
                     }
                     this.requestNumber++;
-                    this.write(this.requestNumber, request);
                     if (rpc) {
                         if (this.requestNumber2rpc[this.requestNumber]) {
                             throw new Error("already waiting for requestNumber " + this.requestNumber);
                         }
                         this.requestNumber2rpc[this.requestNumber] = rpc;
                     }
+                    this.write(this.requestNumber, request);
                 });
             });
             this.session = sessionFactory(this);
@@ -782,6 +782,21 @@ module yass {
         }
     }
 
+    export function writeTo(serializer: Serializer, value: any): Uint8Array {
+        var writer = new Writer(128);
+        serializer.write(value, writer);
+        return writer.getArray();
+    }
+
+    export function readFrom(serializer: Serializer, arrayBuffer: ArrayBuffer): any {
+        var reader = new Reader(arrayBuffer);
+        var value = serializer.read(reader);
+        if (!reader.isEmpty()) {
+            throw new Error("reader is not empty");
+        }
+        return value;
+    }
+
     export function connect(url: string, serializer: Serializer, server: Server, sessionFactory: SessionFactory, connectFailed = () => {}): void {
         serializer = new PacketSerializer(new MessageSerializer(serializer));
         var connectFailedCalled = false;
@@ -797,20 +812,10 @@ module yass {
         ws.onclose = callConnectFailed;
         ws.onopen = function (): void {
             var sessionClient = new SessionClient(server, sessionFactory, {
-                write: packet => {
-                    var writer = new Writer(128);
-                    serializer.write(packet, writer);
-                    ws.send(writer.getArray());
-                },
+                write: packet => ws.send(writeTo(serializer, packet)),
                 closed: () => ws.close()
             });
-            ws.onmessage = event => {
-                var reader = new Reader(event.data);
-                sessionClient.received(serializer.read(reader));
-                if (!reader.isEmpty()) {
-                    throw new Error("reader is not empty");
-                }
-            };
+            ws.onmessage = event => sessionClient.received(readFrom(serializer, event.data));
             ws.onerror = () => sessionClient.doClose(new Error("onerror"));
             ws.onclose = () => sessionClient.doClose(new Error("onclose"));
         };
