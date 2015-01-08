@@ -69,7 +69,9 @@ public final class Config {
         )
     );
 
-    public static final Serializer PACKET_SERIALIZER = new PacketSerializer(new MessageSerializer(CONTRACT_SERIALIZER));
+    public static final Serializer MESSAGE_SERIALIZER = new MessageSerializer(CONTRACT_SERIALIZER);
+
+    public static final Serializer PACKET_SERIALIZER = new PacketSerializer(MESSAGE_SERIALIZER);
 
     /**
      * @see TaggedMethodMapper
