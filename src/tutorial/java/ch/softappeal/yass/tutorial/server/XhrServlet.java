@@ -17,6 +17,8 @@ import javax.servlet.http.HttpServletResponse;
 
 public class XhrServlet extends HttpServlet {
 
+    private static final long serialVersionUID = 1L;
+
     private static void invoke(final Server server, final Serializer serializer, final HttpServletRequest request, final HttpServletResponse response) throws Exception {
         final ServerInvocation invocation = server.invocation((Request)serializer.read(Reader.create(request.getInputStream())));
         final Reply reply = invocation.invoke(Interceptor.DIRECT); // note: we could add a http session interceptor here if needed
