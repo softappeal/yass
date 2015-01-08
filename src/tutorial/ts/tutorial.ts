@@ -9,7 +9,7 @@ module tutorial {
     function logger(type: string): yass.Interceptor {
         return (style, method, parameters, proceed) => {
             function doLog(kind: string, data: any): void {
-                log("logger:", type, (<Session>yass.SESSION).createTime, kind, yass.InvokeStyle[style], method, data);
+                log("logger:", type, yass.SESSION ? (<Session>yass.SESSION).createTime : null, kind, yass.InvokeStyle[style], method, data);
             }
             doLog("entry", parameters);
             try {
@@ -76,6 +76,35 @@ module tutorial {
         ),
         sessionInvokerFactory => new Session(sessionInvokerFactory),
         () => log("connect failed")
+    );
+
+    // shows xhr usage
+    class XhrClient extends yass.Client {
+        constructor(url: string, serializer: yass.Serializer) {
+            super(function (invocation: yass.ClientInvocation) {
+                return invocation.invoke(yass.DIRECT, (request, rpc) => {
+                    var xhr = new XMLHttpRequest();
+                    xhr.responseType = "arraybuffer";
+                    xhr.onerror = () => rpc.settle(new yass.ExceptionReply(new Error(xhr.statusText)));
+                    xhr.onload = () => {
+                        try {
+                            rpc.settle(yass.readFrom(serializer, xhr.response));
+                        } catch (e) {
+                            rpc.settle(new yass.ExceptionReply(e));
+                        }
+                    };
+                    xhr.open("POST", url);
+                    xhr.send(yass.writeTo(serializer, request));
+                });
+            });
+            serializer = new yass.MessageSerializer(serializer);
+        }
+    }
+    var invokerFactory = new XhrClient("http://localhost:9090/xhr", contract.SERIALIZER);
+    var echoService = invokerFactory.invoker(contract.ServerServices.EchoService)(clientLogger);
+    echoService.echo("Hello World!").then(
+        result => log("echo succeeded:", result),
+        error => log("echo failed:", error)
     );
 
 }

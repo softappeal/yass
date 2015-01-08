@@ -422,7 +422,7 @@ module yass {
         process(): any
     }
 
-    class ValueReply implements Reply {
+    export class ValueReply implements Reply {
         constructor(public value: any) {
             // empty
         }
@@ -431,7 +431,7 @@ module yass {
         }
     }
 
-    class ExceptionReply implements Reply {
+    export class ExceptionReply implements Reply {
         constructor(public exception: any) {
             // empty
         }
