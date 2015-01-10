@@ -35,6 +35,10 @@ public final class TaggedMethodMapper implements MethodMapper {
         return id2mapping.get(method.getAnnotation(Tag.class).value());
     }
 
-    public static final Factory FACTORY = TaggedMethodMapper::new;
+    public static final Factory FACTORY = new Factory() {
+        @Override public MethodMapper create(final Class<?> contract) {
+            return new TaggedMethodMapper(contract);
+        }
+    };
 
 }

@@ -1,5 +1,6 @@
 package ch.softappeal.yass.util;
 
+import javax.tools.Diagnostic;
 import javax.tools.DiagnosticCollector;
 import javax.tools.FileObject;
 import javax.tools.ForwardingJavaFileManager;
@@ -132,12 +133,22 @@ public final class Compiler {
             final Iterable<JavaFileObject> result = super.list(location, packageName, kinds, recurse);
             final Collection<JavaFileObject> files = new ArrayList<>();
             if ((location == StandardLocation.CLASS_PATH) && kinds.contains(JavaFileObject.Kind.CLASS)) {
-                fileObjects.values().stream().filter(fo -> (fo.getKind() == JavaFileObject.Kind.CLASS) && fo.getName().startsWith(packageName)).forEach(files::add);
+                for (final JavaFileObject fileObject : fileObjects.values()) {
+                    if ((fileObject.getKind() == JavaFileObject.Kind.CLASS) && fileObject.getName().startsWith(packageName)) {
+                        files.add(fileObject);
+                    }
+                }
                 files.addAll(classLoader.classes.values());
             } else if ((location == StandardLocation.SOURCE_PATH) && kinds.contains(JavaFileObject.Kind.SOURCE)) {
-                fileObjects.values().stream().filter(fo -> (fo.getKind() == JavaFileObject.Kind.SOURCE) && fo.getName().startsWith(packageName)).forEach(files::add);
+                for (final JavaFileObject fileObject : fileObjects.values()) {
+                    if ((fileObject.getKind() == JavaFileObject.Kind.SOURCE) && fileObject.getName().startsWith(packageName)) {
+                        files.add(fileObject);
+                    }
+                }
             }
-            result.forEach(files::add);
+            for (final JavaFileObject fileObject : result) {
+                files.add(fileObject);
+            }
             return files;
         }
     }
@@ -146,7 +157,9 @@ public final class Compiler {
         final StringWriter writer = new StringWriter();
         final PrintWriter printer = new PrintWriter(writer);
         printer.println(reason);
-        diagnostics.getDiagnostics().forEach(printer::println);
+        for (final Diagnostic<? extends JavaFileObject> diagnostic : diagnostics.getDiagnostics()) {
+            printer.println(diagnostic);
+        }
         return writer.toString();
     }
 
@@ -156,13 +169,15 @@ public final class Compiler {
         final ClassLoaderImpl classLoader = new ClassLoaderImpl(parentClassLoader);
         final FileManagerImpl javaFileManager = new FileManagerImpl(compiler.getStandardFileManager(diagnostics, null, null), classLoader);
         final List<JavaFileObject> sources = new ArrayList<>();
-        classes.forEach((qualifiedClassName, code) -> {
+        for (final Map.Entry<String, CharSequence> entry : classes.entrySet()) {
+            final String qualifiedClassName = entry.getKey();
+            final CharSequence code = entry.getValue();
             final int dotPos = qualifiedClassName.lastIndexOf('.');
             final String className = (dotPos == -1) ? qualifiedClassName : qualifiedClassName.substring(dotPos + 1);
             final JavaFileObjectImpl source = new JavaFileObjectImpl(className, code);
             sources.add(source);
             javaFileManager.putFileForInput((dotPos == -1) ? "" : qualifiedClassName.substring(0, dotPos), className + JAVA_EXT, source);
-        });
+        }
         if (!compiler.getTask(null, javaFileManager, diagnostics, Arrays.asList(options), null, sources).call()) {
             throw new RuntimeException(toString("Compilation failed.", diagnostics));
         }

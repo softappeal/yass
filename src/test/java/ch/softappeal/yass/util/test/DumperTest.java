@@ -11,7 +11,6 @@ import org.junit.Test;
 import java.io.PrintWriter;
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.time.Instant;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -45,9 +44,9 @@ public class DumperTest {
                 printer.append(s);
             }
             @Override public void print(final PrintWriter printer) {
-                print(new Dumper(false, true, BigInteger.class, BigDecimal.class, Instant.class), printer, true);
+                print(new Dumper(false, true, BigInteger.class, BigDecimal.class), printer, true);
                 print(new Dumper(false, false), printer, false);
-                print(new Dumper(true, true, BigInteger.class, BigDecimal.class, Instant.class), printer, true);
+                print(new Dumper(true, true, BigInteger.class, BigDecimal.class), printer, true);
                 print(new Dumper(true, false), printer, false);
             }
         });

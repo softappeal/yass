@@ -27,11 +27,11 @@ public abstract class ReconnectSession extends Session {
      */
     protected abstract void reconnectClosed(@Nullable Throwable throwable);
 
-    @FunctionalInterface public interface Factory {
+    public interface Factory {
         ReconnectSession create(SessionClient sessionClient, AtomicBoolean closed) throws Exception;
     }
 
-    @FunctionalInterface public interface Connector {
+    public interface Connector {
         /**
          * note: must not throw any exceptions
          */
@@ -45,20 +45,24 @@ public abstract class ReconnectSession extends Session {
         Check.notNull(connector);
         Check.notNull(sessionFactory);
         final AtomicBoolean closed = new AtomicBoolean(true);
-        final SessionFactory factory = sessionClient -> {
-            final ReconnectSession session = sessionFactory.create(sessionClient, closed);
-            closed.set(false);
-            return session;
+        final SessionFactory factory = new SessionFactory() {
+            @Override public Session create(final SessionClient sessionClient) throws Exception {
+                final ReconnectSession session = sessionFactory.create(sessionClient, closed);
+                closed.set(false);
+                return session;
+            }
         };
-        reconnectExecutor.execute(() -> {
-            while (!Thread.interrupted()) {
-                if (closed.get()) {
-                    connector.connect(factory);
-                }
-                try {
-                    TimeUnit.SECONDS.sleep(reconnectIntervalSeconds);
-                } catch (final InterruptedException ignore) {
-                    return;
+        reconnectExecutor.execute(new Runnable() {
+            @Override public void run() {
+                while (!Thread.interrupted()) {
+                    if (closed.get()) {
+                        connector.connect(factory);
+                    }
+                    try {
+                        TimeUnit.SECONDS.sleep(reconnectIntervalSeconds);
+                    } catch (final InterruptedException ignore) {
+                        return;
+                    }
                 }
             }
         });

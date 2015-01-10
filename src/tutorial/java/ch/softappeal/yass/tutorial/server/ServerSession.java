@@ -21,7 +21,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 public final class ServerSession extends Session implements PriceEngineContext {
 
-    private final Set<String> subscribedInstrumentIds = Collections.synchronizedSet(new HashSet<>());
+    private final Set<String> subscribedInstrumentIds = Collections.synchronizedSet(new HashSet<String>());
     private final AtomicBoolean closed = new AtomicBoolean(false);
 
     private final PriceListener priceListener;

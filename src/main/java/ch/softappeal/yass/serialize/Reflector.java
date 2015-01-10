@@ -9,7 +9,7 @@ import java.lang.reflect.Field;
  */
 public interface Reflector {
 
-    @FunctionalInterface interface Factory {
+    interface Factory {
         Reflector create(Class<?> type) throws Exception;
     }
 

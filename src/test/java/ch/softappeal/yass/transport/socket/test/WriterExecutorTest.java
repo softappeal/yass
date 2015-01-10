@@ -7,6 +7,8 @@ import ch.softappeal.yass.core.remote.Server;
 import ch.softappeal.yass.core.remote.Service;
 import ch.softappeal.yass.core.remote.TaggedMethodMapper;
 import ch.softappeal.yass.core.remote.session.Session;
+import ch.softappeal.yass.core.remote.session.SessionClient;
+import ch.softappeal.yass.core.remote.session.SessionFactory;
 import ch.softappeal.yass.serialize.Serializer;
 import ch.softappeal.yass.serialize.test.SerializerTest;
 import ch.softappeal.yass.transport.MessageSerializer;
@@ -56,28 +58,34 @@ public final class WriterExecutorTest {
                     new Server(METHOD_MAPPER_FACTORY),
                     executor("server-request"),
                     PACKET_SERIALIZER,
-                    sessionClient -> new Session(sessionClient) {
-                        @Override public void opened() {
-                            final SocketConnection socketConnection = (SocketConnection)connection;
-                            final StringListener stringListener = invoker(StringListenerId).proxy();
-                            socketConnection.awaitWriterQueueEmpty();
-                            final Executor worker = executor("server-worker");
-                            final String s = "hello";
-                            for (int i = 0; i < 20; i++) {
-                                worker.execute(() -> {
-                                    while (true) {
-                                        stringListener.newString(s);
-                                        try {
-                                            TimeUnit.MILLISECONDS.sleep(1);
-                                        } catch (final InterruptedException e) {
-                                            throw new RuntimeException(e);
-                                        }
+                    new SessionFactory() {
+                        @Override public Session create(final SessionClient sessionClient) throws Exception {
+                            return new Session(sessionClient) {
+                                @Override public void opened() {
+                                    final SocketConnection socketConnection = (SocketConnection)connection;
+                                    final StringListener stringListener = invoker(StringListenerId).proxy();
+                                    socketConnection.awaitWriterQueueEmpty();
+                                    final Executor worker = executor("server-worker");
+                                    final String s = "hello";
+                                    for (int i = 0; i < 20; i++) {
+                                        worker.execute(new Runnable() {
+                                            @Override public void run() {
+                                                while (true) {
+                                                    stringListener.newString(s);
+                                                    try {
+                                                        TimeUnit.MILLISECONDS.sleep(1);
+                                                    } catch (final InterruptedException e) {
+                                                        throw new RuntimeException(e);
+                                                    }
+                                                }
+                                            }
+                                        });
                                     }
-                                });
-                            }
-                        }
-                        @Override public void closed(@Nullable final Throwable throwable) {
-                            Exceptions.TERMINATE.uncaughtException(null, throwable);
+                                }
+                                @Override public void closed(@Nullable final Throwable throwable) {
+                                    Exceptions.TERMINATE.uncaughtException(null, throwable);
+                                }
+                            };
                         }
                     }
                 )
@@ -94,16 +102,22 @@ public final class WriterExecutorTest {
                     METHOD_MAPPER_FACTORY,
                     new Service(
                         StringListenerId,
-                        value -> {
-                            counter.incrementAndGet();
+                        new StringListener() {
+                            @Override public void newString(final String value) {
+                                counter.incrementAndGet();
+                            }
                         }
                     )
                 ),
                 executor("client-request"),
                 PACKET_SERIALIZER,
-                sessionClient -> new Session(sessionClient) {
-                    @Override public void closed(@Nullable final Throwable throwable) {
-                        Exceptions.TERMINATE.uncaughtException(null, throwable);
+                new SessionFactory() {
+                    @Override public Session create(final SessionClient sessionClient) throws Exception {
+                        return new Session(sessionClient) {
+                            @Override public void closed(@Nullable final Throwable throwable) {
+                                Exceptions.TERMINATE.uncaughtException(null, throwable);
+                            }
+                        };
                     }
                 }
             ),
@@ -111,7 +125,11 @@ public final class WriterExecutorTest {
             StringPathSerializer.INSTANCE, SocketTransportTest.PATH, ADDRESS
         );
         Executors.newScheduledThreadPool(1).scheduleAtFixedRate(
-            () -> System.out.println(counter.get()),
+            new Runnable() {
+                @Override public void run() {
+                    System.out.println(counter.get());
+                }
+            },
             0,
             1,
             TimeUnit.SECONDS

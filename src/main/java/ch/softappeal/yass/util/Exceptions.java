@@ -20,17 +20,19 @@ public final class Exceptions {
     /**
      * Prints to {@link System#err} and EXITS if {@code !(throwable instanceof Exception)}.
      */
-    public static final UncaughtExceptionHandler STD_ERR = (thread, throwable) -> {
-        try {
-            System.err.println("### " + new Date() + " - " + ((thread == null) ? "<null>" : thread.getName()) + " - " + Exceptions.class.getName() + ':');
-            if (throwable == null) {
-                System.err.println("throwable is null");
-            } else {
-                throwable.printStackTrace();
-            }
-        } finally {
-            if (!(throwable instanceof Exception)) {
-                System.exit(1);
+    public static final UncaughtExceptionHandler STD_ERR = new UncaughtExceptionHandler() {
+        @Override public void uncaughtException(final Thread thread, final Throwable throwable) {
+            try {
+                System.err.println("### " + new Date() + " - " + ((thread == null) ? "<null>" : thread.getName()) + " - " + Exceptions.class.getName() + ':');
+                if (throwable == null) {
+                    System.err.println("throwable is null");
+                } else {
+                    throwable.printStackTrace();
+                }
+            } finally {
+                if (!(throwable instanceof Exception)) {
+                    System.exit(1);
+                }
             }
         }
     };
@@ -38,11 +40,13 @@ public final class Exceptions {
     /**
      * Prints to {@link System#err} and EXITS.
      */
-    public static final UncaughtExceptionHandler TERMINATE = (thread, throwable) -> {
-        try {
-            STD_ERR.uncaughtException(thread, throwable);
-        } finally {
-            System.exit(1);
+    public static final UncaughtExceptionHandler TERMINATE = new UncaughtExceptionHandler() {
+        @Override public void uncaughtException(final Thread thread, final Throwable throwable) {
+            try {
+                STD_ERR.uncaughtException(thread, throwable);
+            } finally {
+                System.exit(1);
+            }
         }
     };
 

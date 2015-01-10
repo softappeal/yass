@@ -1,6 +1,6 @@
 package ch.softappeal.yass.core.test;
 
-import ch.softappeal.yass.core.Interceptor;
+import ch.softappeal.yass.core.Interceptors;
 import ch.softappeal.yass.util.PerformanceTask;
 import org.junit.Test;
 
@@ -26,7 +26,7 @@ public class PerformanceTest extends InvokeTest {
     }
 
     @Test public void proxy() {
-        task(Interceptor.proxy(TestService.class, new TestServiceImpl())).run(100_000, TimeUnit.NANOSECONDS);
+        task(Interceptors.proxy(TestService.class, new TestServiceImpl())).run(100_000, TimeUnit.NANOSECONDS);
     }
 
 }

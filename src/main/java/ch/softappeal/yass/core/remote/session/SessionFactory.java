@@ -3,7 +3,7 @@ package ch.softappeal.yass.core.remote.session;
 import ch.softappeal.yass.core.Interceptor;
 import ch.softappeal.yass.core.remote.Invoker;
 
-@FunctionalInterface public interface SessionFactory {
+public interface SessionFactory {
 
     /**
      * It's allowed to call {@link Invoker#proxy(Interceptor...)} during this method,

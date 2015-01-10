@@ -1,6 +1,8 @@
 package ch.softappeal.yass.core.remote;
 
 import ch.softappeal.yass.core.Interceptor;
+import ch.softappeal.yass.core.Interceptors;
+import ch.softappeal.yass.core.Invocation;
 import ch.softappeal.yass.util.Check;
 import ch.softappeal.yass.util.Nullable;
 
@@ -20,19 +22,21 @@ public final class Service {
     public <C> Service(final ContractId<C> contractId, final C implementation, final Interceptor... interceptors) {
         this.contractId = Check.notNull(contractId);
         this.implementation = Check.notNull(implementation);
-        interceptor = Interceptor.composite(interceptors);
+        interceptor = Interceptors.composite(interceptors);
     }
 
     Reply invoke(final Interceptor interceptor, final Method method, @Nullable final Object[] arguments) {
         try {
-            return new ValueReply(Interceptor.composite(interceptor, this.interceptor).invoke(
+            return new ValueReply(Interceptors.composite(interceptor, this.interceptor).invoke(
                 method,
                 arguments,
-                () -> {
-                    try {
-                        return method.invoke(implementation, arguments);
-                    } catch (final InvocationTargetException e) {
-                        throw e.getCause();
+                new Invocation() {
+                    @Override public Object proceed() throws Throwable {
+                        try {
+                            return method.invoke(implementation, arguments);
+                        } catch (final InvocationTargetException e) {
+                            throw e.getCause();
+                        }
                     }
                 }
             ));

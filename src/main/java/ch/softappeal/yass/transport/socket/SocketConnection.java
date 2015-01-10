@@ -40,11 +40,13 @@ public final class SocketConnection implements Connection {
         final SocketConnection connection = new SocketConnection(setup, socket);
         final SessionClient sessionClient = SessionClient.create(setup, connection);
         try {
-            writerExecutor.execute(() -> {
-                try {
-                    connection.write(outputStream);
-                } catch (final Exception e) {
-                    sessionClient.close(e);
+            writerExecutor.execute(new Runnable() {
+                @Override public void run() {
+                    try {
+                        connection.write(outputStream);
+                    } catch (final Exception e) {
+                        sessionClient.close(e);
+                    }
                 }
             });
         } catch (final Exception e) {

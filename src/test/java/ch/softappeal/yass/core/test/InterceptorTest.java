@@ -1,6 +1,7 @@
 package ch.softappeal.yass.core.test;
 
 import ch.softappeal.yass.core.Interceptor;
+import ch.softappeal.yass.core.Interceptors;
 import ch.softappeal.yass.core.Invocation;
 import ch.softappeal.yass.util.Nullable;
 import org.junit.Assert;
@@ -24,7 +25,11 @@ public class InterceptorTest {
     @Test public void direct() throws Throwable {
         final Object result = new Object();
         Assert.assertSame(
-            Interceptor.DIRECT.invoke(null, null, () -> result),
+            Interceptors.DIRECT.invoke(null, null, new Invocation() {
+                @Override public Object proceed() throws Throwable {
+                    return result;
+                }
+            }),
             result
         );
     }
@@ -55,9 +60,9 @@ public class InterceptorTest {
 
     @Test public void composite() throws Throwable {
         final Interceptor stepInterceptor = new StepInterceptor(0, 0);
-        Assert.assertSame(stepInterceptor, Interceptor.composite(stepInterceptor, Interceptor.DIRECT));
-        Assert.assertSame(stepInterceptor, Interceptor.composite(Interceptor.DIRECT, stepInterceptor));
-        final Interceptor interceptor = Interceptor.composite(
+        Assert.assertSame(stepInterceptor, Interceptors.composite(stepInterceptor, Interceptors.DIRECT));
+        Assert.assertSame(stepInterceptor, Interceptors.composite(Interceptors.DIRECT, stepInterceptor));
+        final Interceptor interceptor = Interceptors.composite(
             new StepInterceptor(0, 8),
             new StepInterceptor(1, 7),
             new StepInterceptor(2, 6),
@@ -65,10 +70,12 @@ public class InterceptorTest {
         );
         final int interceptors = 4;
         step = 0;
-        final Invocation invocation = () -> {
-            Assert.assertEquals(step, interceptors);
-            step++;
-            return step + 100;
+        final Invocation invocation = new Invocation() {
+            @Override public Object proceed() throws Throwable {
+                Assert.assertEquals(step, interceptors);
+                step++;
+                return step + 100;
+            }
         };
         Assert.assertEquals(interceptor.invoke(METHOD, ARGUMENTS, invocation), (2 * interceptors) + 101);
         Assert.assertEquals(step, (2 * interceptors) + 1);
@@ -82,9 +89,11 @@ public class InterceptorTest {
         final Object result = new Object();
         Assert.assertSame(
             result,
-            Interceptor.threadLocal(threadLocal, value).invoke(null, null, () -> {
-                Assert.assertSame(value, threadLocal.get());
-                return result;
+            Interceptors.threadLocal(threadLocal, value).invoke(null, null, new Invocation() {
+                @Override public Object proceed() throws Throwable {
+                    Assert.assertSame(value, threadLocal.get());
+                    return result;
+                }
             })
         );
         Assert.assertSame(oldValue, threadLocal.get());

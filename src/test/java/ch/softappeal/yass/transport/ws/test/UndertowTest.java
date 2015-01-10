@@ -3,6 +3,7 @@ package ch.softappeal.yass.transport.ws.test;
 import io.undertow.Undertow;
 import io.undertow.servlet.Servlets;
 import io.undertow.servlet.api.DeploymentManager;
+import io.undertow.servlet.api.ThreadSetupAction;
 import io.undertow.servlet.core.CompositeThreadSetupAction;
 import io.undertow.servlet.util.DefaultClassIntrospector;
 import io.undertow.websockets.jsr.ServerWebSocketContainer;
@@ -12,7 +13,7 @@ import org.xnio.OptionMap;
 import org.xnio.Options;
 import org.xnio.Xnio;
 
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.concurrent.CountDownLatch;
 
 public abstract class UndertowTest extends WsTest {
@@ -45,7 +46,7 @@ public abstract class UndertowTest extends WsTest {
                 ServerWebSocketContainer.class.getClassLoader(),
                 xnio.createWorker(OptionMap.create(Options.THREAD_DAEMON, true)),
                 new ByteBufferSlicePool(1024, 10240),
-                new CompositeThreadSetupAction(Collections.emptyList()),
+                new CompositeThreadSetupAction(new ArrayList<ThreadSetupAction>()),
                 true
             ),
             latch

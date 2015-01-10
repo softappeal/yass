@@ -13,6 +13,8 @@ import ch.softappeal.yass.util.Check;
 import javax.websocket.CloseReason;
 import javax.websocket.MessageHandler;
 import javax.websocket.RemoteEndpoint;
+import javax.websocket.SendHandler;
+import javax.websocket.SendResult;
 import javax.websocket.Session;
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -60,12 +62,14 @@ public final class WsConnection implements Connection {
     @Override public void write(final Packet packet) throws Exception {
         final ByteBufferOutputStream out = new ByteBufferOutputStream(128);
         packetSerializer.write(packet, Writer.create(out));
-        remoteEndpoint.sendBinary(out.toByteBuffer(), result -> {
-            if (result == null) {
-                onError(new Exception("result == null"));
-            } else if (!result.isOK()) {
-                final Throwable throwable = result.getException();
-                onError((throwable == null) ? new Exception("throwable == null") : throwable);
+        remoteEndpoint.sendBinary(out.toByteBuffer(), new SendHandler() {
+            @Override public void onResult(final SendResult result) {
+                if (result == null) {
+                    WsConnection.this.onError(new Exception("result == null"));
+                } else if (!result.isOK()) {
+                    final Throwable throwable = result.getException();
+                    WsConnection.this.onError((throwable == null) ? new Exception("throwable == null") : throwable);
+                }
             }
         });
     }

@@ -31,10 +31,10 @@ public final class Config {
             Expiration.TYPE_HANDLER,
             JsDouble.TYPE_HANDLER
         ),
-        Arrays.asList(
+        Arrays.<Class<?>>asList(
             PriceType.class
         ),
-        Arrays.asList(
+        Arrays.<Class<?>>asList(
             Price.class,
             Stock.class,
             Bond.class,
@@ -55,15 +55,15 @@ public final class Config {
             Expiration.TYPE_HANDLER,
             JsDouble.TYPE_HANDLER
         ),
-        Arrays.asList(
+        Arrays.<Class<?>>asList(
             PriceType.class
         ),
-        Arrays.asList(
+        Arrays.<Class<?>>asList(
             Price.class,
             Trade.class,
             UnknownInstrumentsException.class
         ),
-        Arrays.asList(
+        Arrays.<Class<?>>asList(
             Stock.class,
             Bond.class
         )

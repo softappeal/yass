@@ -9,7 +9,7 @@ import java.lang.reflect.Method;
  */
 public interface MethodMapper {
 
-    @FunctionalInterface interface Factory {
+    interface Factory {
         MethodMapper create(Class<?> contract);
     }
 

@@ -1,10 +1,14 @@
 package ch.softappeal.yass.transport.socket.test;
 
+import ch.softappeal.yass.core.Interceptor;
+import ch.softappeal.yass.core.Invocation;
 import ch.softappeal.yass.core.remote.Server;
 import ch.softappeal.yass.core.remote.Service;
 import ch.softappeal.yass.core.remote.TaggedMethodMapper;
 import ch.softappeal.yass.core.remote.session.RequestInterruptedException;
 import ch.softappeal.yass.core.remote.session.Session;
+import ch.softappeal.yass.core.remote.session.SessionClient;
+import ch.softappeal.yass.core.remote.session.SessionFactory;
 import ch.softappeal.yass.core.remote.test.ContractIdTest;
 import ch.softappeal.yass.core.test.InvokeTest;
 import ch.softappeal.yass.transport.PathResolver;
@@ -20,6 +24,7 @@ import ch.softappeal.yass.util.Nullable;
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.lang.reflect.Method;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -37,9 +42,13 @@ public class RequestInterruptTest extends InvokeTest {
                         new Server(TaggedMethodMapper.FACTORY, new Service(ContractIdTest.ID, new TestServiceImpl())),
                         executor,
                         PacketSerializerTest.SERIALIZER,
-                        sessionClient -> new Session(sessionClient) {
-                            @Override public void closed(@Nullable final Throwable throwable) {
-                                Exceptions.uncaughtException(Exceptions.STD_ERR, throwable);
+                        new SessionFactory() {
+                            @Override public Session create(final SessionClient sessionClient) throws Exception {
+                                return new Session(sessionClient) {
+                                    @Override public void closed(@Nullable final Throwable throwable) {
+                                        Exceptions.uncaughtException(Exceptions.STD_ERR, throwable);
+                                    }
+                                };
                             }
                         }
                     )
@@ -50,42 +59,48 @@ public class RequestInterruptTest extends InvokeTest {
                     new Server(TaggedMethodMapper.FACTORY),
                     executor,
                     PacketSerializerTest.SERIALIZER,
-                    sessionClient -> new Session(sessionClient) {
-                        @Override public void opened() {
-                            final TestService testService = invoker(ContractIdTest.ID).proxy((method, arguments, invocation) -> {
-                                System.out.println("before");
-                                try {
-                                    final Object reply = invocation.proceed();
-                                    System.out.println("after");
-                                    return reply;
-                                } catch (final Throwable throwable) {
-                                    System.out.println("after exception");
-                                    throwable.printStackTrace(System.out);
-                                    throw throwable;
-                                }
-                            });
-                            final Thread testThread = Thread.currentThread();
-                            new Thread() {
-                                @Override public void run() {
+                    new SessionFactory() {
+                        @Override public Session create(final SessionClient sessionClient) throws Exception {
+                            return new Session(sessionClient) {
+                                @Override public void opened() {
+                                    final TestService testService = invoker(ContractIdTest.ID).proxy(new Interceptor() {
+                                        @Override public Object invoke(final Method method, @Nullable final Object[] arguments, final Invocation invocation) throws Throwable {
+                                            System.out.println("before");
+                                            try {
+                                                final Object reply = invocation.proceed();
+                                                System.out.println("after");
+                                                return reply;
+                                            } catch (final Throwable throwable) {
+                                                System.out.println("after exception");
+                                                throwable.printStackTrace(System.out);
+                                                throw throwable;
+                                            }
+                                        }
+                                    });
+                                    final Thread testThread = Thread.currentThread();
+                                    new Thread() {
+                                        @Override public void run() {
+                                            try {
+                                                TimeUnit.MILLISECONDS.sleep(200);
+                                                testThread.interrupt();
+                                            } catch (InterruptedException e) {
+                                                throw new RuntimeException(e);
+                                            }
+                                            super.run();
+                                        }
+                                    }.start();
                                     try {
-                                        TimeUnit.MILLISECONDS.sleep(200);
-                                        testThread.interrupt();
-                                    } catch (InterruptedException e) {
-                                        throw new RuntimeException(e);
+                                        testService.delay(400);
+                                        Assert.fail();
+                                    } catch (final RequestInterruptedException e) {
+                                        e.printStackTrace(System.out);
                                     }
-                                    super.run();
+                                    testService.delay(10);
                                 }
-                            }.start();
-                            try {
-                                testService.delay(400);
-                                Assert.fail();
-                            } catch (final RequestInterruptedException e) {
-                                e.printStackTrace(System.out);
-                            }
-                            testService.delay(10);
-                        }
-                        @Override public void closed(@Nullable final Throwable throwable) {
-                            Exceptions.uncaughtException(Exceptions.STD_ERR, throwable);
+                                @Override public void closed(@Nullable final Throwable throwable) {
+                                    Exceptions.uncaughtException(Exceptions.STD_ERR, throwable);
+                                }
+                            };
                         }
                     }
                 ),

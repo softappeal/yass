@@ -1,4 +1,4 @@
-defaultTasks 'clean', 'todo', 'build', 'compileTutorialJava', 'createPom', 'dist'
+defaultTasks 'clean', 'todo', 'build', 'compileTutorialJava', 'generateContract', 'createPom', 'dist'
 
 apply plugin: 'java'
 apply plugin: 'osgi'
@@ -8,8 +8,8 @@ apply plugin: 'idea'
 
 group = "ch.softappeal.yass"
 
-sourceCompatibility = '1.8'
-targetCompatibility = '1.8'
+sourceCompatibility = '1.7'
+targetCompatibility = '1.7'
 
 configurations.all {
     resolutionStrategy {
@@ -38,17 +38,12 @@ dependencies {
 
 tasks.withType(JavaCompile) {
     options.compilerArgs << "-Xlint"
-    // options.compilerArgs << "-parameters" $note: testcases don't work yet with this option
     options.encoding = "US-ASCII"
 }
 
-task generateContract(type: JavaExec) { // $note: call this task if bug above will be fixed
+task generateContract(type: JavaExec) {
     main = 'ch.softappeal.yass.tutorial.client.GenerateContract'
     classpath = sourceSets.tutorial.runtimeClasspath
-}
-
-tasks.withType(Javadoc) {
-    options.addStringOption('Xdoclint:all,-missing', '-quiet')
 }
 
 jar {
@@ -139,8 +134,8 @@ task todo << {
 
 idea {
     project {
-        jdkName = '1.8'
-        languageLevel = '1.8'
+        jdkName = '1.7'
+        languageLevel = '1.7'
     }
     module {
         testSourceDirs += sourceSets.tutorial.java.srcDirs

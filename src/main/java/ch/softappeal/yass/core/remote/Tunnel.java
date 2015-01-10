@@ -5,7 +5,7 @@ import ch.softappeal.yass.util.Nullable;
 /**
  * Invokes a remote method.
  */
-@FunctionalInterface public interface Tunnel {
+public interface Tunnel {
 
     /**
      * @return will be ignored if it is an oneway invocation, only then can it be null

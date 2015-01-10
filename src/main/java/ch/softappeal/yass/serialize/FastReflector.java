@@ -11,7 +11,11 @@ import java.lang.reflect.Field;
  */
 public final class FastReflector implements Reflector {
 
-    public static final Factory FACTORY = FastReflector::new;
+    public static final Factory FACTORY = new Factory() {
+        @Override public Reflector create(final Class<?> type) throws Exception {
+            return new FastReflector(type);
+        }
+    };
 
     private FastReflector(final Class<?> type) {
         this.type = Check.notNull(type);

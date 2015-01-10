@@ -26,12 +26,14 @@ public final class SocketExecutor {
 
     void execute(final Socket socket, final SocketListener listener) {
         try {
-            executor.execute(() -> {
-                try {
-                    listener.accept(socket, executor);
-                } catch (final Exception e) {
-                    SocketTransport.close(socket, e);
-                    throw Exceptions.wrap(e);
+            executor.execute(new Runnable() {
+                @Override public void run() {
+                    try {
+                        listener.accept(socket, executor);
+                    } catch (final Exception e) {
+                        SocketTransport.close(socket, e);
+                        throw Exceptions.wrap(e);
+                    }
                 }
             });
         } catch (final Exception e) {

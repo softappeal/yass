@@ -6,7 +6,6 @@ import ch.softappeal.yass.serialize.Writer;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.time.Instant;
 import java.util.Arrays;
 import java.util.Date;
 
@@ -261,16 +260,6 @@ public final class BaseTypeHandlers {
         }
         @Override public void write(final Date value, final Writer writer) throws Exception {
             LONG.write(value.getTime(), writer);
-        }
-    };
-
-    public static final BaseTypeHandler<Instant> INSTANT = new BaseTypeHandler<Instant>(Instant.class) {
-        @Override public Instant read(final Reader reader) throws Exception {
-            return Instant.ofEpochSecond(LONG.read(reader), reader.readVarInt());
-        }
-        @Override public void write(final Instant value, final Writer writer) throws Exception {
-            LONG.write(value.getEpochSecond(), writer);
-            writer.writeVarInt(value.getNano());
         }
     };
 
