@@ -16,10 +16,10 @@ public final class PriceEngineImpl extends ContextService<PriceEngineContext> im
         super(locator);
     }
 
-    @Override public void subscribe(final List<String> instrumentIds) throws UnknownInstrumentsException {
-        final Set<String> subscribedInstrumentIds = context().subscribedInstrumentIds();
-        final Set<String> unknownInstrumentIds = new HashSet<>();
-        for (final String instrumentId : instrumentIds) {
+    @Override public void subscribe(final List<Integer> instrumentIds) throws UnknownInstrumentsException {
+        final Set<Integer> subscribedInstrumentIds = context().subscribedInstrumentIds();
+        final Set<Integer> unknownInstrumentIds = new HashSet<>();
+        for (final int instrumentId : instrumentIds) {
             if (InstrumentServiceImpl.INSTRUMENTS.containsKey(instrumentId)) {
                 subscribedInstrumentIds.add(instrumentId);
             } else {

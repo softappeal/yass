@@ -11,18 +11,18 @@ module contract {
     }
 
     export class Price extends yass.Type {
-        instrumentId: string;
+        instrumentId: number;
         type: PriceType;
         value: number;
         static TYPE_DESC = yass.classDesc(10, Price,
-            new yass.FieldDesc(1, 'instrumentId', yass.STRING_DESC),
+            new yass.FieldDesc(1, 'instrumentId', yass.INTEGER_DESC),
             new yass.FieldDesc(2, 'type', PriceType.TYPE_DESC),
             new yass.FieldDesc(3, 'value', yass.INTEGER_DESC)
         );
     }
 
     export class Instrument extends yass.Type {
-        id: string;
+        id: number;
         name: string;
     }
 
@@ -31,7 +31,7 @@ module contract {
             paysDividend: boolean;
             static TYPE_DESC = yass.classDesc(11, Stock,
                 new yass.FieldDesc(1, 'paysDividend', yass.BOOLEAN_DESC),
-                new yass.FieldDesc(2, 'id', yass.STRING_DESC),
+                new yass.FieldDesc(2, 'id', yass.INTEGER_DESC),
                 new yass.FieldDesc(3, 'name', yass.STRING_DESC)
             );
         }
@@ -44,7 +44,7 @@ module contract {
             static TYPE_DESC = yass.classDesc(12, Bond,
                 new yass.FieldDesc(1, 'coupon', instrument.stock.JsDouble.TYPE_DESC),
                 new yass.FieldDesc(2, 'expiration', Expiration.TYPE_DESC),
-                new yass.FieldDesc(3, 'id', yass.STRING_DESC),
+                new yass.FieldDesc(3, 'id', yass.INTEGER_DESC),
                 new yass.FieldDesc(4, 'name', yass.STRING_DESC)
             );
         }
@@ -53,7 +53,7 @@ module contract {
     export class UnknownInstrumentsException extends yass.Type {
         comment: any;
         dump: Uint8Array;
-        instrumentIds: string[];
+        instrumentIds: number[];
         static TYPE_DESC = yass.classDesc(13, UnknownInstrumentsException,
             new yass.FieldDesc(1, 'comment', null),
             new yass.FieldDesc(2, 'dump', yass.BYTES_DESC),
@@ -81,10 +81,10 @@ module contract {
     );
 
     export interface PriceEngine {
-        subscribe(instrumentIds: string[]): void;
+        subscribe(instrumentIds: number[]): void;
     }
     export interface PriceEngine_PROXY {
-        subscribe(instrumentIds: string[]): Promise<void>;
+        subscribe(instrumentIds: number[]): Promise<void>;
     }
     export var PriceEngine_MAPPER = new yass.MethodMapper<PriceEngine>(
         new yass.MethodMapping('subscribe', 0, false)

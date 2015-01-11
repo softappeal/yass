@@ -1,7 +1,8 @@
-// runs tutorial
-/// <reference path="../../tutorial/ts/tutorial"/>
+/// <reference path="../../tutorial/ts/contract"/>
 
-var log = tutorial.log;
+function log(...args: any[]): void {
+    console.log.apply(console, args);
+}
 
 function assert(value: boolean): void {
     if (!value) {
@@ -142,7 +143,7 @@ module enumTest {
 module classTest {
 
     var stock = new contract.instrument.stock.Stock;
-    stock.id = "1344";
+    stock.id = 1344;
     stock.name = "IBM";
     stock.paysDividend = true;
     log(stock);
@@ -150,7 +151,7 @@ module classTest {
     assert(stock instanceof contract.instrument.stock.Stock);
     assert(!(stock instanceof contract.instrument.Bond));
     var exception = new contract.UnknownInstrumentsException;
-    exception.instrumentIds = ["23", "454"];
+    exception.instrumentIds = [23, 454];
 
 }
 
@@ -195,11 +196,11 @@ module serializerTest {
     assert(compare(copy([12, true, "bla"]), [12, true, "bla"]));
 
     var stock = new contract.instrument.stock.Stock;
-    stock.id = "1344";
+    stock.id = 1344;
     stock.name = "IBM";
     stock.paysDividend = true;
     stock = copy(stock);
-    assert(stock.id === "1344");
+    assert(stock.id === 1344);
     assert(stock.name === "IBM");
     assert(stock.paysDividend);
     stock.paysDividend = false;
@@ -219,20 +220,20 @@ module serializerTest {
     assert(bond.expiration.day === 20);
 
     var e = new contract.UnknownInstrumentsException;
-    e.instrumentIds = ["a", "b"];
+    e.instrumentIds = [100, 200];
     e.comment = bond;
     e.dump = new yass.Writer(100).getArray();
     e = copy(e);
-    assert(compare(e.instrumentIds, ["a", "b"]));
+    assert(compare(e.instrumentIds, [100, 200]));
     assert(e.comment.coupon.d === 3.5);
     assert(new yass.Reader(toArrayBuffer(e.dump)).isEmpty());
 
     var price = new contract.Price;
-    price.instrumentId = "123";
+    price.instrumentId = 123;
     price.type = contract.PriceType.ASK;
     price.value = 999;
     price = copy(price);
-    assert(price.instrumentId === "123");
+    assert(price.instrumentId === 123);
     assert(price.type === contract.PriceType.ASK);
     assert(price.value === 999);
 
@@ -282,7 +283,11 @@ module remoteTest {
         return {
             opened: function () {
                 log("session opened");
-                var echoService = sessionInvokerFactory.invoker(contract.ServerServices.EchoService)();
+                var printer: yass.Interceptor = (style, method, parameters, proceed) => {
+                    log("printer:", yass.InvokeStyle[style], method, parameters);
+                    return proceed();
+                };
+                var echoService = sessionInvokerFactory.invoker(contract.ServerServices.EchoService)(printer);
                 echoService.echo(null).then(
                     result => assert(result === null)
                 );
@@ -290,12 +295,12 @@ module remoteTest {
                     result => assert(result === null)
                 );
                 var stock = new contract.instrument.stock.Stock;
-                stock.id = "123";
+                stock.id = 123;
                 stock.name = null;
                 stock.paysDividend = undefined;
                 echoService.echo(stock).then(
                     result => {
-                        assert(result.id === "123");
+                        assert(result.id === 123);
                         assert(result.name === undefined);
                         assert(result.paysDividend === undefined);
                     }
@@ -333,7 +338,7 @@ module remoteTest {
                         assert(reader.isEmpty());
                     }
                 );
-                setTimeout(() => sessionInvokerFactory.close(), 5000);
+                setTimeout(() => sessionInvokerFactory.close(), 1000);
             },
             closed: function (exception) {
                 log("session closed", exception);

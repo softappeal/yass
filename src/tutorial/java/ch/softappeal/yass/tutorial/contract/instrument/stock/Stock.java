@@ -10,7 +10,7 @@ public final class Stock extends Instrument {
 
     @Nullable public final Boolean paysDividend;
 
-    public Stock(final String id, final String name, final Boolean paysDividend) {
+    public Stock(final int id, final String name, final Boolean paysDividend) {
         super(id, name);
         this.paysDividend = paysDividend;
     }

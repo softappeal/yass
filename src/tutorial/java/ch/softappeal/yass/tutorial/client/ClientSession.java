@@ -18,7 +18,7 @@ import java.util.Map;
 
 public final class ClientSession extends Session implements PriceListenerContext {
 
-    private final Map<String, Instrument> id2instrument = Collections.synchronizedMap(new HashMap<>());
+    private final Map<Integer, Instrument> id2instrument = Collections.synchronizedMap(new HashMap<>());
 
     private final PriceEngine priceEngine;
     private final InstrumentService instrumentService;
@@ -47,7 +47,7 @@ public final class ClientSession extends Session implements PriceListenerContext
         }
     }
 
-    @Override public Instrument getInstrument(final String instrumentId) {
+    @Override public Instrument getInstrument(final int instrumentId) {
         return id2instrument.get(instrumentId);
     }
 
