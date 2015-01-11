@@ -27,7 +27,7 @@ public final class SessionClient extends Client {
 
     public final Connection connection;
     private final SessionSetup setup;
-    private final AtomicBoolean closed = new AtomicBoolean(false);
+    final AtomicBoolean closed = new AtomicBoolean(false);
     private Session session = null;
     private Interceptor interceptor = null;
 
