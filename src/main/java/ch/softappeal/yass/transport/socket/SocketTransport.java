@@ -17,7 +17,7 @@ import java.util.concurrent.Executor;
 
 /**
  * Uses the same socket connection during a session.
- * <p>
+ * <p/>
  * The semantic of the different executors is as follows:
  * <table summary="executors">
  * <tr> <td>                  </td> <th> purpose             </th> <th> calls to execute          </th> <th> terminates on      </th> </tr>

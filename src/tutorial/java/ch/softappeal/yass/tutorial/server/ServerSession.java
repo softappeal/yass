@@ -20,7 +20,7 @@ import java.util.concurrent.TimeUnit;
 
 public final class ServerSession extends Session implements PriceEngineContext {
 
-    private final Set<Integer> subscribedInstrumentIds = Collections.synchronizedSet(new HashSet<>());
+    private final Set<Integer> subscribedInstrumentIds = Collections.synchronizedSet(new HashSet<Integer>());
 
     private final PriceListener priceListener;
     private final EchoService echoService;

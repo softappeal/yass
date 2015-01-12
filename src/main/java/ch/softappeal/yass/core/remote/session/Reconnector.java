@@ -13,7 +13,7 @@ public final class Reconnector {
         // disable
     }
 
-    @FunctionalInterface public interface Connector {
+    public interface Connector {
         /**
          * note: must not throw any exceptions
          */
@@ -27,21 +27,25 @@ public final class Reconnector {
         Check.notNull(sessionFactory);
         Check.notNull(connector);
         final AtomicReference<Session> session = new AtomicReference<>(null);
-        final SessionFactory factory = sessionClient -> {
-            final Session s = sessionFactory.create(sessionClient);
-            session.set(s);
-            return s;
+        final SessionFactory factory = new SessionFactory() {
+            @Override public Session create(final SessionClient sessionClient) throws Exception {
+                final Session s = sessionFactory.create(sessionClient);
+                session.set(s);
+                return s;
+            }
         };
-        executor.execute(() -> {
-            while (!Thread.interrupted()) {
-                final Session s = session.get();
-                if ((s == null) || s.isClosed()) {
-                    connector.connect(factory);
-                }
-                try {
-                    TimeUnit.SECONDS.sleep(intervalSeconds);
-                } catch (final InterruptedException ignore) {
-                    return;
+        executor.execute(new Runnable() {
+            @Override public void run() {
+                while (!Thread.interrupted()) {
+                    final Session s = session.get();
+                    if ((s == null) || s.isClosed()) {
+                        connector.connect(factory);
+                    }
+                    try {
+                        TimeUnit.SECONDS.sleep(intervalSeconds);
+                    } catch (final InterruptedException ignore) {
+                        return;
+                    }
                 }
             }
         });

@@ -18,7 +18,7 @@ import java.util.Map;
 
 public final class ClientSession extends Session implements PriceListenerContext {
 
-    private final Map<Integer, Instrument> id2instrument = Collections.synchronizedMap(new HashMap<>());
+    private final Map<Integer, Instrument> id2instrument = Collections.synchronizedMap(new HashMap<Integer, Instrument>());
 
     private final PriceEngine priceEngine;
     private final InstrumentService instrumentService;
@@ -36,7 +36,9 @@ public final class ClientSession extends Session implements PriceListenerContext
         System.out.println("opened: " + hashCode());
         System.out.println(echoService.echo("echo"));
         instrumentService.reload(false, 123);
-        instrumentService.getInstruments().forEach(instrument -> id2instrument.put(instrument.id, instrument));
+        for (final Instrument instrument : instrumentService.getInstruments()) {
+            id2instrument.put(instrument.id, instrument);
+        }
         priceEngine.subscribe(new ArrayList<>(id2instrument.keySet()));
     }
 
