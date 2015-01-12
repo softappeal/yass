@@ -19,7 +19,7 @@ public final class PriceListenerImpl extends ContextService<PriceListenerContext
         final StringBuilder s = new StringBuilder();
         s.append(new Date() + " - newPrices from ").append(context.hashCode()).append(" -");
         for (final Price price : prices) {
-            s.append(' ').append(context.getInstrument(price.instrumentId).name).append(":").append(price.value);
+            s.append(' ').append(context.getInstrument(price.instrumentId).name).append(':').append(price.type).append(':').append(price.value);
         }
         System.out.println(s);
     }

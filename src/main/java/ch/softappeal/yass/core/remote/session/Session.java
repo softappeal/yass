@@ -50,4 +50,8 @@ public abstract class Session implements SessionInvokerFactory {
         return sessionClient.invoker(contractId);
     }
 
+    public final boolean isClosed() {
+        return sessionClient.closed.get();
+    }
+
 }

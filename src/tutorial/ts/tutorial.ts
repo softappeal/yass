@@ -2,7 +2,7 @@
 
 module tutorial {
 
-    export function log(...args: any[]): void {
+    function log(...args: any[]): void {
         console.log.apply(console, args);
     }
 
@@ -25,9 +25,45 @@ module tutorial {
     var clientLogger = logger("client");
     var serverLogger = logger("server");
 
+    class TableRow {
+        bidElement: HTMLElement;
+        askElement: HTMLElement;
+        constructor(public instrument: contract.Instrument) {
+            // empty
+        }
+    }
+
+    var tableModel: TableRow[] = [];
+
+    function createTable(): void {
+        var html = "<table border='1'><thead><tr>";
+        ["Id", "Name", "Bid", "Ask"].forEach(title => html += "<th>" + title + "</th>");
+        html += "</tr></thead><tbody>";
+        tableModel.forEach(row => {
+            html += "<tr>";
+            var instrument = row.instrument;
+            [instrument.id, instrument.name].forEach(value => html += "<td>" + value + "</td>");
+            ["bid", "ask"].forEach(type => html += "<td id='" + instrument.id + ":" + type + "'></td>");
+            html += "</tr>";
+        });
+        document.getElementById("table").innerHTML = html + "</tbody></table>";
+        tableModel.forEach(row => {
+            var find = (type: string) => document.getElementById(row.instrument.id + ":" + type);
+            row.bidElement = find("bid");
+            row.askElement = find("ask");
+        });
+    }
+
     class PriceListenerImpl implements contract.PriceListener {
         newPrices(prices: contract.Price[]): void {
-            log("newPrices:", prices);
+            prices.forEach(price => {
+                var tableRow = tableModel[price.instrumentId];
+                if (price.type === contract.PriceType.BID) {
+                    tableRow.bidElement.innerHTML = price.value.toString();
+                } else {
+                    tableRow.askElement.innerHTML = price.value.toString();
+                }
+            });
         }
     }
 
@@ -45,11 +81,15 @@ module tutorial {
         var priceEngine = priceEngineInvoker(clientLogger);
         instrumentService.reload(true, 987654); // oneway method call
         instrumentService.getInstruments().then(
-            instruments => priceEngine.subscribe(instruments.map(instrument => instrument.id))
+            instruments => {
+                instruments.forEach(instrument => tableModel[instrument.id] = new TableRow(instrument));
+                createTable();
+                return priceEngine.subscribe(instruments.map(instrument => instrument.id));
+            }
         ).then(
             () => log("subscribe succeeded")
         );
-        priceEngine.subscribe(["unknownId"]).catch(exception => log("subscribe failed with", exception));
+        priceEngine.subscribe([987654321]).catch(exception => log("subscribe failed with", exception));
     }
 
     class Session implements yass.Session {
@@ -60,7 +100,6 @@ module tutorial {
         opened(): void {
             log("session opened", this.createTime);
             subscribePrices(this.sessionInvokerFactory);
-            setTimeout(() => this.sessionInvokerFactory.close(), 5000);
         }
         closed(exception: any): void {
             log("session closed", this.createTime, exception);
@@ -78,33 +117,13 @@ module tutorial {
         () => log("connect failed")
     );
 
-    // shows xhr usage
-    class XhrClient extends yass.Client {
-        constructor(url: string, serializer: yass.Serializer) {
-            super(function (invocation: yass.ClientInvocation) {
-                return invocation.invoke(yass.DIRECT, (request, rpc) => {
-                    var xhr = new XMLHttpRequest();
-                    xhr.responseType = "arraybuffer";
-                    xhr.onerror = () => rpc.settle(new yass.ExceptionReply(new Error(xhr.statusText)));
-                    xhr.onload = () => {
-                        try {
-                            rpc.settle(yass.readFrom(serializer, xhr.response));
-                        } catch (e) {
-                            rpc.settle(new yass.ExceptionReply(e));
-                        }
-                    };
-                    xhr.open("POST", url);
-                    xhr.send(yass.writeTo(serializer, request));
-                });
-            });
-            serializer = new yass.MessageSerializer(serializer);
-        }
-    }
-    var invokerFactory = new XhrClient("http://localhost:9090/xhr", contract.SERIALIZER);
+    var invokerFactory = yass.xhr("http://localhost:9090/xhr", contract.SERIALIZER);
     var echoService = invokerFactory.invoker(contract.ServerServices.EchoService)(clientLogger);
-    echoService.echo("Hello World!").then(
-        result => log("echo succeeded:", result),
-        error => log("echo failed:", error)
-    );
+    export function echoClick() {
+        echoService.echo((<any>document.getElementById("echoInput")).value).then(
+            result => document.getElementById("echoOutput").innerHTML = result,
+            error => log("echo failed:", error)
+        );
+    }
 
 }

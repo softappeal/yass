@@ -17,12 +17,10 @@ import java.util.List;
 import java.util.Random;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 public final class ServerSession extends Session implements PriceEngineContext {
 
-    private final Set<String> subscribedInstrumentIds = Collections.synchronizedSet(new HashSet<String>());
-    private final AtomicBoolean closed = new AtomicBoolean(false);
+    private final Set<Integer> subscribedInstrumentIds = Collections.synchronizedSet(new HashSet<>());
 
     private final PriceListener priceListener;
     private final EchoService echoService;
@@ -38,27 +36,28 @@ public final class ServerSession extends Session implements PriceEngineContext {
         System.out.println("opened: " + hashCode());
         System.out.println(echoService.echo("echo"));
         final Random random = new Random();
-        while (!closed.get()) {
+        while (!isClosed()) {
             final List<Price> prices = new ArrayList<>();
-            for (final String subscribedInstrumentId : subscribedInstrumentIds.toArray(new String[0])) {
-                prices.add(new Price(subscribedInstrumentId, random.nextInt(99) + 1, PriceType.ASK));
+            for (final int subscribedInstrumentId : subscribedInstrumentIds.toArray(new Integer[0])) {
+                if (random.nextBoolean()) {
+                    prices.add(new Price(subscribedInstrumentId, random.nextInt(99) + 1, PriceType.values()[random.nextInt(2)]));
+                }
             }
             if (!prices.isEmpty()) {
                 priceListener.newPrices(prices);
             }
-            TimeUnit.MILLISECONDS.sleep(1000L);
+            TimeUnit.MILLISECONDS.sleep(500L);
         }
     }
 
     @Override public void closed(@Nullable final Throwable throwable) {
-        closed.set(true);
         System.out.println("closed: " + hashCode());
         if (throwable != null) {
             Exceptions.uncaughtException(Exceptions.STD_ERR, throwable);
         }
     }
 
-    @Override public Set<String> subscribedInstrumentIds() {
+    @Override public Set<Integer> subscribedInstrumentIds() {
         return subscribedInstrumentIds;
     }
 

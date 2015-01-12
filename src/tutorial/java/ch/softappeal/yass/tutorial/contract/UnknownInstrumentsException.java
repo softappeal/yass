@@ -10,11 +10,11 @@ public final class UnknownInstrumentsException extends Exception {
 
     private static final long serialVersionUID = 1L;
 
-    public final List<String> instrumentIds;
+    public final List<Integer> instrumentIds;
     @Nullable public Object comment;
     @Nullable public byte[] dump;
 
-    public UnknownInstrumentsException(final List<String> instrumentIds) {
+    public UnknownInstrumentsException(final List<Integer> instrumentIds) {
         this.instrumentIds = Check.notNull(instrumentIds);
     }
 

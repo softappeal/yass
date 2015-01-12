@@ -12,7 +12,7 @@ import java.net.URI;
 
 public abstract class WsClientSetup extends ClientSetup {
 
-    private static final TransportSetup TRANSPORT_SETUP = SocketClient.createTransportSetup(WsServerSetup.REQUEST_EXECUTOR);
+    private static final TransportSetup TRANSPORT_SETUP = createTransportSetup(WsServerSetup.REQUEST_EXECUTOR, ClientSession::new);
 
     private static final class Endpoint extends WsEndpoint {
         @Override protected WsConnection createConnection(final Session session) throws Exception {
