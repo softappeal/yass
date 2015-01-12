@@ -117,31 +117,8 @@ module tutorial {
         () => log("connect failed")
     );
 
-    class XhrClient extends yass.Client {
-        constructor(url: string, serializer: yass.Serializer) {
-            super(function (invocation: yass.ClientInvocation) {
-                return invocation.invoke(yass.DIRECT, (request, rpc) => {
-                    var xhr = new XMLHttpRequest();
-                    xhr.responseType = "arraybuffer";
-                    xhr.onerror = () => rpc.settle(new yass.ExceptionReply(new Error(xhr.statusText)));
-                    xhr.onload = () => {
-                        try {
-                            rpc.settle(yass.readFrom(serializer, xhr.response));
-                        } catch (e) {
-                            rpc.settle(new yass.ExceptionReply(e));
-                        }
-                    };
-                    xhr.open("POST", url);
-                    xhr.send(yass.writeTo(serializer, request));
-                });
-            });
-            serializer = new yass.MessageSerializer(serializer);
-        }
-    }
-
-    var xhrInvokerFactory = new XhrClient("http://localhost:9090/xhr", contract.SERIALIZER);
-    var echoService = xhrInvokerFactory.invoker(contract.ServerServices.EchoService)(clientLogger);
-
+    var invokerFactory = yass.xhr("http://localhost:9090/xhr", contract.SERIALIZER);
+    var echoService = invokerFactory.invoker(contract.ServerServices.EchoService)(clientLogger);
     export function echoClick() {
         echoService.echo((<any>document.getElementById("echoInput")).value).then(
             result => document.getElementById("echoOutput").innerHTML = result,

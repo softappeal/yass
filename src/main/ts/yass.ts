@@ -821,4 +821,30 @@ module yass {
         };
     }
 
+    class XhrClient extends Client {
+        constructor(url: string, serializer: Serializer) {
+            super(function (invocation: ClientInvocation) {
+                return invocation.invoke(DIRECT, (request, rpc) => {
+                    var xhr = new XMLHttpRequest();
+                    xhr.responseType = "arraybuffer";
+                    xhr.onerror = () => rpc.settle(new ExceptionReply(new Error(xhr.statusText)));
+                    xhr.onload = () => {
+                        try {
+                            rpc.settle(readFrom(serializer, xhr.response));
+                        } catch (e) {
+                            rpc.settle(new ExceptionReply(e));
+                        }
+                    };
+                    xhr.open("POST", url);
+                    xhr.send(writeTo(serializer, request));
+                });
+            });
+            serializer = new MessageSerializer(serializer);
+        }
+    }
+
+    export function xhr(url: string, serializer: Serializer): InvokerFactory {
+        return new XhrClient(url, serializer);
+    }
+
 }
