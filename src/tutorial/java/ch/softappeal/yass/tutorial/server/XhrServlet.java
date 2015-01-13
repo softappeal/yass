@@ -1,10 +1,8 @@
 package ch.softappeal.yass.tutorial.server;
 
 import ch.softappeal.yass.core.Interceptor;
-import ch.softappeal.yass.core.remote.Reply;
 import ch.softappeal.yass.core.remote.Request;
 import ch.softappeal.yass.core.remote.Server;
-import ch.softappeal.yass.core.remote.Server.ServerInvocation;
 import ch.softappeal.yass.serialize.Reader;
 import ch.softappeal.yass.serialize.Serializer;
 import ch.softappeal.yass.serialize.Writer;
@@ -20,11 +18,12 @@ public class XhrServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
 
     private static void invoke(final Server server, final Serializer serializer, final HttpServletRequest request, final HttpServletResponse response) throws Exception {
-        final ServerInvocation invocation = server.invocation((Request)serializer.read(Reader.create(request.getInputStream())));
-        final Reply reply = invocation.invoke(Interceptor.DIRECT); // note: we could add a http session interceptor here if needed
-        if (!invocation.oneWay) {
-            serializer.write(reply, Writer.create(response.getOutputStream()));
-        }
+        serializer.write(
+            server.invocation((Request)serializer.read(Reader.create(request.getInputStream()))).invoke(
+                Interceptor.DIRECT // note: we could add a http session interceptor here if needed
+            ),
+            Writer.create(response.getOutputStream())
+        );
     }
 
     @Override protected void doPost(final HttpServletRequest request, final HttpServletResponse response) {

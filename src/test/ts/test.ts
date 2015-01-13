@@ -287,6 +287,8 @@ module remoteTest {
                     log("printer:", yass.InvokeStyle[style], method, parameters);
                     return proceed();
                 };
+                var instrumentService = sessionInvokerFactory.invoker(contract.ServerServices.InstrumentService)(printer);
+                instrumentService.reload(false, 123);
                 var echoService = sessionInvokerFactory.invoker(contract.ServerServices.EchoService)(printer);
                 echoService.echo(null).then(
                     result => assert(result === null)
@@ -354,6 +356,19 @@ module remoteTest {
         ),
         sessionFactory,
         () => log("connectFailed")
+    );
+
+}
+
+module xhrTest {
+
+    var invokerFactory = yass.xhr("http://localhost:9090/xhr", contract.SERIALIZER);
+    var instrumentService = invokerFactory.invoker(contract.ServerServices.InstrumentService)();
+    var echoService = invokerFactory.invoker(contract.ServerServices.EchoService)();
+    assertThrown(() => instrumentService.reload(false, 123));
+    echoService.echo("echo").then(
+        result => log("echo:", result),
+        error => log("echo failed:", error)
     );
 
 }
