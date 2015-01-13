@@ -116,15 +116,11 @@ public class AbstractFastSerializerTest {
     }
 
     @Test public void taggedPrint() {
-        TestUtils.compareFile("ch/softappeal/yass/serialize/test/TaggedFastSerializerTest.numbers.txt", printer -> {
-            SerializerTest.TAGGED_FAST_SERIALIZER.print(printer);
-        });
+        TestUtils.compareFile("ch/softappeal/yass/serialize/test/TaggedFastSerializerTest.numbers.txt", SerializerTest.TAGGED_FAST_SERIALIZER::print);
     }
 
     @Test public void simplePrint() {
-        TestUtils.compareFile("ch/softappeal/yass/serialize/test/SimpleFastSerializerTest.numbers.txt", printer -> {
-            SerializerTest.SIMPLE_FAST_SERIALIZER.print(printer);
-        });
+        TestUtils.compareFile("ch/softappeal/yass/serialize/test/SimpleFastSerializerTest.numbers.txt", SerializerTest.SIMPLE_FAST_SERIALIZER::print);
     }
 
     @Test public void bytes() throws Exception {

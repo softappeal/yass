@@ -1,0 +1,5 @@
+0: public abstract void ch.softappeal.yass.core.test.InvokeTest$TestService.nothing()
+11: public abstract int ch.softappeal.yass.core.test.InvokeTest$TestService.divide(int,int) throws ch.softappeal.yass.core.test.InvokeTest$DivisionByZeroException
+22: public abstract void ch.softappeal.yass.core.test.InvokeTest$TestService.throwError()
+33: public abstract void ch.softappeal.yass.core.test.InvokeTest$TestService.oneWay(int)
+34: public abstract void ch.softappeal.yass.core.test.InvokeTest$TestService.delay(int)
