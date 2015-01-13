@@ -826,7 +826,7 @@ module yass {
             super(function (invocation: ClientInvocation) {
                 return invocation.invoke(DIRECT, (request, rpc) => {
                     if (!rpc) {
-                        throw new Error("xhr not allowed for oneway method (serviceId " + request.serviceId + ", methodId " + request.methodId + ')');
+                        throw new Error("xhr not allowed for oneway method (serviceId " + request.serviceId + ", methodId " + request.methodId + ")");
                     }
                     var xhr = new XMLHttpRequest();
                     xhr.responseType = "arraybuffer";
