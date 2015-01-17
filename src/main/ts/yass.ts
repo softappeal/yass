@@ -1,3 +1,4 @@
+// $note: line below and corresponding file could probably be removed with TypeScript > 1.4
 /// <reference path="es6-promise"/>
 
 module yass {
