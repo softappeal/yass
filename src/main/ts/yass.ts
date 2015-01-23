@@ -830,6 +830,7 @@ module yass {
                         throw new Error("xhr not allowed for oneway method (serviceId " + request.serviceId + ", methodId " + request.methodId + ")");
                     }
                     var xhr = new XMLHttpRequest();
+                    xhr.open("POST", url);
                     xhr.responseType = "arraybuffer";
                     xhr.onerror = () => rpc.settle(new ExceptionReply(new Error(xhr.statusText)));
                     xhr.onload = () => {
@@ -839,7 +840,6 @@ module yass {
                             rpc.settle(new ExceptionReply(e));
                         }
                     };
-                    xhr.open("POST", url);
                     xhr.send(writeTo(serializer, request));
                 });
             });

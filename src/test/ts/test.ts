@@ -340,7 +340,7 @@ module remoteTest {
                         assert(reader.isEmpty());
                     }
                 );
-                setTimeout(() => sessionInvokerFactory.close(), 1000);
+                setTimeout(() => sessionInvokerFactory.close(), 2000);
             },
             closed: function (exception) {
                 log("session closed", exception);
@@ -366,9 +366,8 @@ module xhrTest {
     var instrumentService = invokerFactory.invoker(contract.ServerServices.InstrumentService)();
     var echoService = invokerFactory.invoker(contract.ServerServices.EchoService)();
     assertThrown(() => instrumentService.reload(false, 123));
-    echoService.echo("echo").then(
-        result => log("echo:", result),
-        error => log("echo failed:", error)
-    );
+    echoService.echo("echo").then(result => log("echo succeeded:", result));
+
+    yass.xhr("http://localhost:9090/dummy", contract.SERIALIZER).invoker(contract.ServerServices.EchoService)().echo("echo").catch(error => log("echo failed:", error));
 
 }
