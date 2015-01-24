@@ -832,7 +832,6 @@ module yass {
                     var xhr = new XMLHttpRequest();
                     xhr.open("POST", url);
                     xhr.responseType = "arraybuffer";
-                    xhr.onerror = () => rpc.settle(new ExceptionReply(new Error(xhr.statusText)));
                     xhr.onload = () => {
                         try {
                             rpc.settle(readFrom(serializer, xhr.response));

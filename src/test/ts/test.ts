@@ -11,7 +11,7 @@ function assert(value: boolean): void {
     }
 }
 
-function assertThrown(action: ()=>void): void {
+function assertThrown(action: () => void): void {
     var thrown = false;
     try {
         action();
@@ -284,12 +284,23 @@ module remoteTest {
             opened: function () {
                 log("session opened");
                 var printer: yass.Interceptor = (style, method, parameters, proceed) => {
-                    log("printer:", yass.InvokeStyle[style], method, parameters);
-                    return proceed();
+                    function doLog(kind: string, data: any): void {
+                        log("logger:", yass.SESSION, kind, yass.InvokeStyle[style], method, data);
+                    }
+                    doLog("entry", parameters);
+                    try {
+                        var result = proceed();
+                        doLog("exit", result);
+                        return result;
+                    } catch (e) {
+                        doLog("exception", e);
+                        throw e;
+                    }
                 };
                 var instrumentService = sessionInvokerFactory.invoker(contract.ServerServices.InstrumentService)(printer);
-                instrumentService.reload(false, 123);
+                var priceEngine = sessionInvokerFactory.invoker(contract.ServerServices.PriceEngine)(printer);
                 var echoService = sessionInvokerFactory.invoker(contract.ServerServices.EchoService)(printer);
+                instrumentService.reload(false, 123);
                 echoService.echo(null).then(
                     result => assert(result === null)
                 );
@@ -340,6 +351,7 @@ module remoteTest {
                         assert(reader.isEmpty());
                     }
                 );
+                priceEngine.subscribe([987654321]).catch(exception => log("subscribe failed with", exception));
                 setTimeout(() => sessionInvokerFactory.close(), 2000);
             },
             closed: function (exception) {
@@ -368,6 +380,7 @@ module xhrTest {
     assertThrown(() => instrumentService.reload(false, 123));
     echoService.echo("echo").then(result => log("echo succeeded:", result));
 
-    yass.xhr("http://localhost:9090/dummy", contract.SERIALIZER).invoker(contract.ServerServices.EchoService)().echo("echo").catch(error => log("echo failed:", error));
+    assertThrown(() => yass.xhr("dummy://localhost:9090/xhr", contract.SERIALIZER).invoker(contract.ServerServices.EchoService)().echo("echo1"));
+    yass.xhr("http://localhost:9090/dummy", contract.SERIALIZER).invoker(contract.ServerServices.EchoService)().echo("echo2").catch(error => log("echo failed:", error));
 
 }
