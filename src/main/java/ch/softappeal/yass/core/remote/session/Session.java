@@ -37,7 +37,7 @@ public abstract class Session implements SessionInvokerFactory {
      * Called when {@link SessionClient} has been closed.
      * @param throwable null if regular close else reason for close
      */
-    protected abstract void closed(@Nullable Throwable throwable);
+    protected abstract void closed(@Nullable Throwable throwable) throws Exception;
 
     /**
      * This method is idempotent.
