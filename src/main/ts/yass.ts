@@ -244,6 +244,8 @@ module yass {
     }
     export var BYTES_DESC = new TypeDesc(6, new BytesTypeHandler);
 
+    export var FIRST_ID = 7;
+
     class EnumTypeHandler implements TypeHandler<Enum> {
         constructor(private values: Enum[]) {
             // empty

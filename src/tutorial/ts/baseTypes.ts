@@ -22,7 +22,7 @@ module contract {
         constructor(public year: number, public month: number, public day: number) {
             super();
         }
-        static TYPE_DESC = new yass.TypeDesc(7, new Expiration_HANDLER);
+        static TYPE_DESC = new yass.TypeDesc(yass.FIRST_ID, new Expiration_HANDLER);
     }
 
     export module instrument.stock {
@@ -39,7 +39,7 @@ module contract {
             constructor(public d: number) {
                 super();
             }
-            static TYPE_DESC = new yass.TypeDesc(8, new JsDouble_HANDLER);
+            static TYPE_DESC = new yass.TypeDesc(yass.FIRST_ID + 1, new JsDouble_HANDLER);
         }
     }
 
