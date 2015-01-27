@@ -5,7 +5,7 @@ import ch.softappeal.yass.tutorial.contract.Config;
 
 import java.io.PrintWriter;
 
-public final class GenerateContract {
+public final class GenerateTypeScriptContract {
 
     public static void main(final String... args) throws Exception {
         new ContractGenerator(

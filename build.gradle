@@ -42,8 +42,8 @@ tasks.withType(JavaCompile) {
     options.encoding = "US-ASCII"
 }
 
-task generateContract(type: JavaExec) { // $note: call this task if bug above will be fixed
-    main = 'ch.softappeal.yass.tutorial.client.GenerateContract'
+task generateTypeScriptContract(type: JavaExec) { // $note: call this task if bug above will be fixed
+    main = 'ch.softappeal.yass.tutorial.client.GenerateTypeScriptContract'
     classpath = sourceSets.tutorial.runtimeClasspath
 }
 
