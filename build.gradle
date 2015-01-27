@@ -47,6 +47,18 @@ task generateTypeScriptContract(type: JavaExec) { // $note: call this task if bu
     classpath = sourceSets.tutorial.runtimeClasspath
 }
 
+task compileTestTypeScript(type: Exec) {
+    workingDir 'src/test/ts'
+    environment PATH: '/usr/local/bin'
+    commandLine '/usr/local/bin/tsc', '--out', 'all.js', '--noImplicitAny', '-target', 'ES5', '--sourcemap', 'test'
+}
+
+task compileTutorialTypeScript(type: Exec) {
+    workingDir 'src/tutorial/ts'
+    environment PATH: '/usr/local/bin'
+    commandLine '/usr/local/bin/tsc', '--out', 'all.js', '--noImplicitAny', '-target', 'ES5', '--sourcemap', 'tutorial'
+}
+
 tasks.withType(Javadoc) {
     options.addStringOption('Xdoclint:all,-missing', '-quiet')
 }
