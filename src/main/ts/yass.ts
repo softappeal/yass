@@ -573,12 +573,8 @@ module yass {
         };
     }
 
-    export interface Invoker<C> {
-        (...interceptors: Interceptor[]): C;
-    }
-
-    export interface InvokerFactory {
-        invoker<PC>(contractId: ContractId<any, PC>): Invoker<PC>;
+    export interface ProxyFactory {
+        proxy<PC>(contractId: ContractId<any, PC>, ...interceptors: Interceptor[]): PC;
     }
 
     export class Rpc {
@@ -626,17 +622,15 @@ module yass {
         }
     }
 
-    export class Client implements InvokerFactory {
+    export class Client implements ProxyFactory {
         constructor(private clientInvoker: (invocation: ClientInvocation) => Promise<any>) {
             // empty
         }
-        invoker<C, PC>(contractId: ContractId<C, PC>): Invoker<PC> {
-            return (...interceptors: Interceptor[]): PC => {
-                var interceptor = composite.apply(null, interceptors);
-                return <any>contractId.methodMapper.proxy((method, parameters) => this.clientInvoker(
-                    new ClientInvocation(interceptor, contractId.id, contractId.methodMapper.mapMethod(method), parameters)
-                ));
-            };
+        proxy<PC>(contractId: ContractId<any, PC>, ...interceptors: Interceptor[]): PC {
+            var interceptor = composite.apply(null, interceptors);
+            return <any>contractId.methodMapper.proxy((method, parameters) => this.clientInvoker(
+                new ClientInvocation(interceptor, contractId.id, contractId.methodMapper.mapMethod(method), parameters)
+            ));
         }
     }
 
@@ -669,7 +663,7 @@ module yass {
         }
     }
 
-    export interface SessionInvokerFactory extends InvokerFactory {
+    export interface SessionProxyFactory extends ProxyFactory {
         close(): void;
     }
 
@@ -682,7 +676,7 @@ module yass {
     }
 
     export interface SessionFactory {
-        (sessionInvokerFactory: SessionInvokerFactory): Session;
+        (sessionProxyFactory: SessionProxyFactory): Session;
     }
 
     export interface Connection {
@@ -706,7 +700,7 @@ module yass {
         };
     }
 
-    export class SessionClient extends Client implements SessionInvokerFactory {
+    export class SessionClient extends Client implements SessionProxyFactory {
         private closed = false;
         private requestNumber = Packet.END_REQUESTNUMBER;
         private requestNumber2rpc: Rpc[] = [];
@@ -848,7 +842,7 @@ module yass {
         }
     }
 
-    export function xhr(url: string, serializer: Serializer): InvokerFactory {
+    export function xhr(url: string, serializer: Serializer): ProxyFactory {
         return new XhrClient(url, serializer);
     }
 

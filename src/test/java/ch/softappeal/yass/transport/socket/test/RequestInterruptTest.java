@@ -52,7 +52,7 @@ public class RequestInterruptTest extends InvokeTest {
                     PacketSerializerTest.SERIALIZER,
                     sessionClient -> new Session(sessionClient) {
                         @Override public void opened() {
-                            final TestService testService = invoker(ContractIdTest.ID).proxy((method, arguments, invocation) -> {
+                            final TestService testService = proxy(ContractIdTest.ID, (method, arguments, invocation) -> {
                                 System.out.println("before");
                                 try {
                                     final Object reply = invocation.proceed();

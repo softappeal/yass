@@ -27,9 +27,9 @@ public final class ClientSession extends Session implements PriceListenerContext
     public ClientSession(final SessionClient sessionClient) {
         super(sessionClient);
         System.out.println("create: " + hashCode());
-        priceEngine = invoker(ServerServices.PriceEngine).proxy();
-        instrumentService = invoker(ServerServices.InstrumentService).proxy();
-        echoService = invoker(ServerServices.EchoService).proxy();
+        priceEngine = proxy(ServerServices.PriceEngine);
+        instrumentService = proxy(ServerServices.InstrumentService);
+        echoService = proxy(ServerServices.EchoService);
     }
 
     @Override public void opened() throws UnknownInstrumentsException {

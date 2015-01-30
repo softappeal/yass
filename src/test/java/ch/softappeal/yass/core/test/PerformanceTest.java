@@ -25,8 +25,17 @@ public class PerformanceTest extends InvokeTest {
         task(new TestServiceImpl()).run(100_000, TimeUnit.NANOSECONDS);
     }
 
+    private int counter;
+
     @Test public void proxy() {
-        task(Interceptor.proxy(TestService.class, new TestServiceImpl())).run(100_000, TimeUnit.NANOSECONDS);
+        task(Interceptor.proxy(
+            TestService.class,
+            new TestServiceImpl(),
+            (method, arguments, invocation) -> {
+                counter++;
+                return invocation.proceed();
+            }
+        )).run(100_000, TimeUnit.NANOSECONDS);
     }
 
 }

@@ -73,12 +73,10 @@ module tutorial {
         }
     }
 
-    function subscribePrices(invokerFactory: yass.InvokerFactory): void {
-        var instrumentServiceInvoker = invokerFactory.invoker(contract.ServerServices.InstrumentService);
-        var priceEngineInvoker = invokerFactory.invoker(contract.ServerServices.PriceEngine);
+    function subscribePrices(proxyFactory: yass.ProxyFactory): void {
         // create proxies; you can add 0..n interceptors to a proxy
-        var instrumentService = instrumentServiceInvoker(clientLogger);
-        var priceEngine = priceEngineInvoker(clientLogger);
+        var instrumentService = proxyFactory.proxy(contract.ServerServices.InstrumentService, clientLogger);
+        var priceEngine = proxyFactory.proxy(contract.ServerServices.PriceEngine, clientLogger);
         instrumentService.reload(true, 987654); // oneway method call
         instrumentService.getInstruments().then(
             instruments => {
@@ -94,12 +92,12 @@ module tutorial {
 
     class Session implements yass.Session {
         createTime = Date.now();
-        constructor(private sessionInvokerFactory: yass.SessionInvokerFactory) {
+        constructor(private sessionProxyFactory: yass.SessionProxyFactory) {
             // empty
         }
         opened(): void {
             log("session opened", this.createTime);
-            subscribePrices(this.sessionInvokerFactory);
+            subscribePrices(this.sessionProxyFactory);
         }
         closed(exception: any): void {
             log("session closed", this.createTime, exception);
@@ -113,12 +111,12 @@ module tutorial {
             new yass.Service(contract.ClientServices.PriceListener, new PriceListenerImpl, serverLogger),
             new yass.Service(contract.ClientServices.EchoService, new EchoServiceImpl, serverLogger)
         ),
-        sessionInvokerFactory => new Session(sessionInvokerFactory),
+        sessionProxyFactory => new Session(sessionProxyFactory),
         () => log("connect failed")
     );
 
-    var invokerFactory = yass.xhr("http://localhost:9090/xhr", contract.SERIALIZER);
-    var echoService = invokerFactory.invoker(contract.ServerServices.EchoService)(clientLogger);
+    var proxyFactory = yass.xhr("http://localhost:9090/xhr", contract.SERIALIZER);
+    var echoService = proxyFactory.proxy(contract.ServerServices.EchoService, clientLogger);
     export function echoClick() {
         echoService.echo((<any>document.getElementById("echoInput")).value).then(
             result => document.getElementById("echoOutput").innerHTML = result,

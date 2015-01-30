@@ -42,7 +42,7 @@ public class PerformanceTest extends InvokeTest {
                         return;
                     }
                     try (Session session = this) {
-                        final TestService testService = session.invoker(CONTRACT_ID).proxy();
+                        final TestService testService = session.proxy(CONTRACT_ID);
                         System.out.println("*** rpc");
                         new PerformanceTask() {
                             @Override protected void run(final int count) throws DivisionByZeroException {

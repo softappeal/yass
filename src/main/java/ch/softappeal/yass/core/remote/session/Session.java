@@ -1,10 +1,10 @@
 package ch.softappeal.yass.core.remote.session;
 
+import ch.softappeal.yass.core.Interceptor;
 import ch.softappeal.yass.core.remote.ContractId;
-import ch.softappeal.yass.core.remote.Invoker;
 import ch.softappeal.yass.util.Nullable;
 
-public abstract class Session implements SessionInvokerFactory {
+public abstract class Session implements SessionProxyFactory {
 
     static final ThreadLocal<Session> INSTANCE = new ThreadLocal<>();
 
@@ -46,8 +46,8 @@ public abstract class Session implements SessionInvokerFactory {
         sessionClient.close();
     }
 
-    @Override public final <C> Invoker<C> invoker(final ContractId<C> contractId) {
-        return sessionClient.invoker(contractId);
+    @Override public final <C> C proxy(final ContractId<C> contractId, final Interceptor... interceptors) {
+        return sessionClient.proxy(contractId, interceptors);
     }
 
     public final boolean isClosed() {

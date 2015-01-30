@@ -279,7 +279,7 @@ module interceptorTest {
 
 module remoteTest {
 
-    function sessionFactory(sessionInvokerFactory: yass.SessionInvokerFactory): yass.Session {
+    function sessionFactory(sessionProxyFactory: yass.SessionProxyFactory): yass.Session {
         return {
             opened: function () {
                 log("session opened");
@@ -297,9 +297,9 @@ module remoteTest {
                         throw e;
                     }
                 };
-                var instrumentService = sessionInvokerFactory.invoker(contract.ServerServices.InstrumentService)(printer);
-                var priceEngine = sessionInvokerFactory.invoker(contract.ServerServices.PriceEngine)(printer);
-                var echoService = sessionInvokerFactory.invoker(contract.ServerServices.EchoService)(printer);
+                var instrumentService = sessionProxyFactory.proxy(contract.ServerServices.InstrumentService, printer);
+                var priceEngine = sessionProxyFactory.proxy(contract.ServerServices.PriceEngine, printer);
+                var echoService = sessionProxyFactory.proxy(contract.ServerServices.EchoService, printer);
                 instrumentService.reload(false, 123);
                 echoService.echo(null).then(
                     result => assert(result === null)
@@ -352,7 +352,7 @@ module remoteTest {
                     }
                 );
                 priceEngine.subscribe([987654321]).catch(exception => log("subscribe failed with", exception));
-                setTimeout(() => sessionInvokerFactory.close(), 2000);
+                setTimeout(() => sessionProxyFactory.close(), 2000);
             },
             closed: function (exception) {
                 log("session closed", exception);
@@ -374,13 +374,13 @@ module remoteTest {
 
 module xhrTest {
 
-    var invokerFactory = yass.xhr("http://localhost:9090/xhr", contract.SERIALIZER);
-    var instrumentService = invokerFactory.invoker(contract.ServerServices.InstrumentService)();
-    var echoService = invokerFactory.invoker(contract.ServerServices.EchoService)();
+    var proxyFactory = yass.xhr("http://localhost:9090/xhr", contract.SERIALIZER);
+    var instrumentService = proxyFactory.proxy(contract.ServerServices.InstrumentService);
+    var echoService = proxyFactory.proxy(contract.ServerServices.EchoService);
     assertThrown(() => instrumentService.reload(false, 123));
     echoService.echo("echo").then(result => log("echo succeeded:", result));
 
-    assertThrown(() => yass.xhr("dummy://localhost:9090/xhr", contract.SERIALIZER).invoker(contract.ServerServices.EchoService)().echo("echo1"));
-    yass.xhr("http://localhost:9090/dummy", contract.SERIALIZER).invoker(contract.ServerServices.EchoService)().echo("echo2").catch(error => log("echo failed:", error));
+    assertThrown(() => yass.xhr("dummy://localhost:9090/xhr", contract.SERIALIZER).proxy(contract.ServerServices.EchoService).echo("echo1"));
+    yass.xhr("http://localhost:9090/dummy", contract.SERIALIZER).proxy(contract.ServerServices.EchoService).echo("echo2").catch(error => log("echo failed:", error));
 
 }
