@@ -1,4 +1,4 @@
-defaultTasks 'clean', 'todo', 'build', 'compileTutorialJava', 'createPom', 'dist'
+defaultTasks 'clean', 'todo', 'build', 'compileTutorialJava', 'compileAllTypeScript', 'createPom', 'dist'
 
 apply plugin: 'java'
 apply plugin: 'osgi'
@@ -58,6 +58,8 @@ task compileTutorialTypeScript(type: Exec) {
     environment PATH: '/usr/local/bin'
     commandLine '/usr/local/bin/tsc', '--out', 'all.js', '--noImplicitAny', '-target', 'ES5', '--sourcemap', 'tutorial'
 }
+
+task compileAllTypeScript(dependsOn: ['compileTestTypeScript', 'compileTutorialTypeScript'])
 
 tasks.withType(Javadoc) {
     options.addStringOption('Xdoclint:all,-missing', '-quiet')
