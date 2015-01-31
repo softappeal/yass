@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Diagram>
+  <ID>JAVA</ID>
+  <OriginalElement>ch.softappeal.yass.tutorial.contract.ClientServices</OriginalElement>
+  <nodes>
+    <node x="661.5757575757574" y="436.2828282828282">ch.softappeal.yass.tutorial.contract.Expiration</node>
+    <node x="986.8612596726673" y="619.922648249804">ch.softappeal.yass.tutorial.contract.PriceListener</node>
+    <node x="121.71717171717182" y="610.0791364055309">ch.softappeal.yass.tutorial.contract.instrument.InstrumentService</node>
+    <node x="377.30906026474906" y="352.89299099664913">ch.softappeal.yass.tutorial.contract.Instrument</node>
+    <node x="907.7512121212122" y="482.8593988444379">ch.softappeal.yass.tutorial.contract.PriceType</node>
+    <node x="859.3535353535353" y="348.13212611716494">ch.softappeal.yass.tutorial.contract.Price</node>
+    <node x="446.77949715134844" y="457.6324895983283">ch.softappeal.yass.tutorial.contract.instrument.Bond</node>
+    <node x="" y="">ch.softappeal.yass.tutorial.contract.EchoService</node>
+    <node x="170.25800060243571" y="455.7155000418944">ch.softappeal.yass.tutorial.contract.instrument.stock.Stock</node>
+    <node x="397.72697503243717" y="719.1138404117913">ch.softappeal.yass.tutorial.contract.ServerServices</node>
+    <node x="823.5054563631688" y="728.8270208813029">ch.softappeal.yass.tutorial.contract.ClientServices</node>
+    <node x="442.33004122969413" y="614.6876816727207">ch.softappeal.yass.tutorial.contract.PriceEngine</node>
+  </nodes>
+  <notes />
+  <edges>
+    <edge source="ch.softappeal.yass.tutorial.contract.instrument.Bond" target="ch.softappeal.yass.tutorial.contract.Expiration">
+      <point x="0.0" y="0.0" />
+      <point x="0.0" y="0.0" />
+    </edge>
+    <edge source="ch.softappeal.yass.tutorial.contract.instrument.stock.Stock" target="ch.softappeal.yass.tutorial.contract.Instrument">
+      <point x="0.0" y="0.0" />
+      <point x="0.0" y="0.0" />
+    </edge>
+    <edge source="ch.softappeal.yass.tutorial.contract.Price" target="ch.softappeal.yass.tutorial.contract.PriceType">
+      <point x="0.0" y="0.0" />
+      <point x="0.0" y="0.0" />
+    </edge>
+    <edge source="ch.softappeal.yass.tutorial.contract.ClientServices" target="ch.softappeal.yass.tutorial.contract.PriceListener">
+      <point x="0.0" y="0.0" />
+      <point x="0.0" y="0.0" />
+    </edge>
+    <edge source="ch.softappeal.yass.tutorial.contract.instrument.Bond" target="ch.softappeal.yass.tutorial.contract.Instrument">
+      <point x="0.0" y="0.0" />
+      <point x="0.0" y="0.0" />
+    </edge>
+    <edge source="ch.softappeal.yass.tutorial.contract.ServerServices" target="ch.softappeal.yass.tutorial.contract.PriceEngine">
+      <point x="0.0" y="0.0" />
+      <point x="0.0" y="0.0" />
+    </edge>
+    <edge source="ch.softappeal.yass.tutorial.contract.ServerServices" target="ch.softappeal.yass.tutorial.contract.EchoService">
+      <point x="0.0" y="0.0" />
+      <point x="0.0" y="0.0" />
+    </edge>
+    <edge source="ch.softappeal.yass.tutorial.contract.ClientServices" target="ch.softappeal.yass.tutorial.contract.EchoService">
+      <point x="0.0" y="0.0" />
+      <point x="0.0" y="0.0" />
+    </edge>
+    <edge source="ch.softappeal.yass.tutorial.contract.ServerServices" target="ch.softappeal.yass.tutorial.contract.instrument.InstrumentService">
+      <point x="0.0" y="0.0" />
+      <point x="0.0" y="0.0" />
+    </edge>
+  </edges>
+  <settings layout="Hierarchic Group" zoom="1.0" x="691.5" y="531.0" />
+  <SelectedNodes />
+  <Categories>
+    <Category>Fields</Category>
+    <Category>Methods</Category>
+  </Categories>
+  <SCOPE>All</SCOPE>
+  <VISIBILITY>public</VISIBILITY>
+</Diagram>
+

@@ -14,7 +14,7 @@ public final class ClassTypeHandler extends TypeHandler {
     public static final class FieldDesc {
         public final int id;
         public final FieldHandler handler;
-        private FieldDesc(final int id, final FieldHandler handler) {
+        FieldDesc(final int id, final FieldHandler handler) {
             this.id = id;
             this.handler = handler;
         }
