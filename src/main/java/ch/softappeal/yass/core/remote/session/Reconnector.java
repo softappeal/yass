@@ -15,9 +15,9 @@ public final class Reconnector {
 
     @FunctionalInterface public interface Connector {
         /**
-         * note: must not throw any exceptions
+         * @throws Exception note: will be ignored
          */
-        void connect(SessionFactory sessionFactory);
+        void connect(SessionFactory sessionFactory) throws Exception;
     }
 
     /**
@@ -36,7 +36,11 @@ public final class Reconnector {
             while (!Thread.interrupted()) {
                 final Session s = session.get();
                 if ((s == null) || s.isClosed()) {
-                    connector.connect(factory);
+                    try {
+                        connector.connect(factory);
+                    } catch (final Exception ignore) {
+                        // empty
+                    }
                 }
                 try {
                     TimeUnit.SECONDS.sleep(intervalSeconds);

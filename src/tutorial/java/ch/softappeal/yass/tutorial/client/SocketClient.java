@@ -15,18 +15,12 @@ public final class SocketClient extends ClientSetup {
 
     public static void main(final String... args) {
         final Executor executor = Executors.newCachedThreadPool(new NamedThreadFactory("executor", Exceptions.STD_ERR));
-        Reconnector.start(executor, 5, ClientSession::new, sessionFactory -> {
-            try {
-                SocketTransport.connect(
-                    createTransportSetup(executor, sessionFactory),
-                    new SocketExecutor(executor, Exceptions.STD_ERR),
-                    Config.PATH_SERIALIZER, SocketServer.PATH,
-                    SocketServer.ADDRESS
-                );
-            } catch (final RuntimeException e) {
-                System.out.println("connect failed: " + e.getMessage());
-            }
-        });
+        Reconnector.start(executor, 5, ClientSession::new, sessionFactory -> SocketTransport.connect(
+            createTransportSetup(executor, sessionFactory),
+            new SocketExecutor(executor, Exceptions.STD_ERR),
+            Config.PATH_SERIALIZER, SocketServer.PATH,
+            SocketServer.ADDRESS
+        ));
         System.out.println("started");
     }
 

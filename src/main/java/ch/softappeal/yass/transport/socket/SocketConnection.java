@@ -92,7 +92,7 @@ public final class SocketConnection implements Connection {
 
     private void write(final OutputStream out) throws Exception {
         while (true) {
-            final ByteArrayOutputStream buffer = writerQueue.poll(100L, TimeUnit.MILLISECONDS);
+            final ByteArrayOutputStream buffer = writerQueue.poll(200L, TimeUnit.MILLISECONDS);
             if (buffer == null) {
                 if (closed) {
                     return;
@@ -134,9 +134,9 @@ public final class SocketConnection implements Connection {
         try {
             try {
                 while (writerQueueNotEmpty()) {
-                    TimeUnit.MILLISECONDS.sleep(100L);
+                    TimeUnit.MILLISECONDS.sleep(200L);
                 }
-                TimeUnit.MILLISECONDS.sleep(100L); // give the socket a chance to write the end packet
+                TimeUnit.MILLISECONDS.sleep(200L); // give the socket a chance to write the end packet
             } finally {
                 closed = true; // terminates writer thread
                 socket.close();

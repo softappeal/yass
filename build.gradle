@@ -38,25 +38,42 @@ dependencies {
 
 tasks.withType(JavaCompile) {
     options.compilerArgs << "-Xlint"
-    // options.compilerArgs << "-parameters" $note: testcases don't work yet with this option
+    options.compilerArgs << "-parameters"
     options.encoding = "US-ASCII"
 }
 
-task generateTypeScriptContract(type: JavaExec) { // $note: call this task if bug above will be fixed
+task generateTypeScriptContract(type: JavaExec) {
     main = 'ch.softappeal.yass.tutorial.client.GenerateTypeScriptContract'
     classpath = sourceSets.tutorial.runtimeClasspath
+    standardOutput = new OutputStream() {
+        void write(int b) {
+            // empty
+        }
+    }
 }
 
-task compileTestTypeScript(type: Exec) {
+def isWindows() {
+    return System.getProperty("os.name").toLowerCase().contains("windows")
+}
+
+task compileTestTypeScript(type: Exec, dependsOn: 'generateTypeScriptContract') {
     workingDir 'src/test/ts'
-    environment PATH: '/usr/local/bin'
-    commandLine '/usr/local/bin/tsc', '--out', 'all.js', '--noImplicitAny', '-target', 'ES5', '--sourcemap', 'test'
+    if (isWindows()) {
+        // note: TBI
+    } else {
+        environment PATH: '/usr/local/bin'
+        commandLine '/usr/local/bin/tsc', '--out', 'all.js', '--noImplicitAny', '-target', 'ES5', '--sourcemap', 'test'
+    }
 }
 
-task compileTutorialTypeScript(type: Exec) {
+task compileTutorialTypeScript(type: Exec, dependsOn: 'generateTypeScriptContract') {
     workingDir 'src/tutorial/ts'
-    environment PATH: '/usr/local/bin'
-    commandLine '/usr/local/bin/tsc', '--out', 'all.js', '--noImplicitAny', '-target', 'ES5', '--sourcemap', 'tutorial'
+    if (isWindows()) {
+        // note: TBI
+    } else {
+        environment PATH: '/usr/local/bin'
+        commandLine '/usr/local/bin/tsc', '--out', 'all.js', '--noImplicitAny', '-target', 'ES5', '--sourcemap', 'tutorial'
+    }
 }
 
 task compileAllTypeScript(dependsOn: ['compileTestTypeScript', 'compileTutorialTypeScript'])
