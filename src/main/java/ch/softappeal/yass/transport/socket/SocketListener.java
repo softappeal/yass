@@ -16,7 +16,7 @@ public abstract class SocketListener {
 
     abstract void accept(Socket socket, Executor writerExecutor) throws Exception;
 
-    static final int ACCEPT_TIMEOUT_MILLISECONDS = 100;
+    static final int ACCEPT_TIMEOUT_MILLISECONDS = 200;
 
     /**
      * Starts a socket listener.
