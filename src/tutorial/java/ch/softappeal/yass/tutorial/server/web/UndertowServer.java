@@ -1,4 +1,4 @@
-package ch.softappeal.yass.tutorial.server;
+package ch.softappeal.yass.tutorial.server.web;
 
 import io.undertow.Handlers;
 import io.undertow.Undertow;

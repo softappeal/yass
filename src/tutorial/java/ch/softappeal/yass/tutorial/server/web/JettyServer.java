@@ -1,4 +1,4 @@
-package ch.softappeal.yass.tutorial.server;
+package ch.softappeal.yass.tutorial.server.web;
 
 import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.Server;

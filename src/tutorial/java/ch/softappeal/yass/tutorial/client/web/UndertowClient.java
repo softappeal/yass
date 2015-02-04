@@ -1,4 +1,4 @@
-package ch.softappeal.yass.tutorial.client;
+package ch.softappeal.yass.tutorial.client.web;
 
 import io.undertow.servlet.core.CompositeThreadSetupAction;
 import io.undertow.servlet.util.DefaultClassIntrospector;

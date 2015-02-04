@@ -1,9 +1,10 @@
-package ch.softappeal.yass.tutorial.server;
+package ch.softappeal.yass.tutorial.server.socket;
 
 import ch.softappeal.yass.transport.PathResolver;
 import ch.softappeal.yass.transport.socket.SocketExecutor;
 import ch.softappeal.yass.transport.socket.SocketTransport;
 import ch.softappeal.yass.tutorial.contract.Config;
+import ch.softappeal.yass.tutorial.server.ServerSetup;
 import ch.softappeal.yass.util.Exceptions;
 import ch.softappeal.yass.util.NamedThreadFactory;
 

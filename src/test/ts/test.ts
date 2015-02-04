@@ -221,12 +221,8 @@ module serializerTest {
 
     var e = new contract.UnknownInstrumentsException;
     e.instrumentIds = [100, 200];
-    e.comment = bond;
-    e.dump = new yass.Writer(100).getArray();
     e = copy(e);
     assert(compare(e.instrumentIds, [100, 200]));
-    assert(e.comment.coupon.d === 3.5);
-    assert(new yass.Reader(toArrayBuffer(e.dump)).isEmpty());
 
     var price = new contract.Price;
     price.instrumentId = 123;

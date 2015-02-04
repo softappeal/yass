@@ -5,8 +5,6 @@ import ch.softappeal.yass.core.remote.SimpleMethodMapper;
 import ch.softappeal.yass.core.remote.TaggedMethodMapper;
 import ch.softappeal.yass.serialize.FastReflector;
 import ch.softappeal.yass.serialize.Serializer;
-import ch.softappeal.yass.serialize.fast.AbstractFastSerializer;
-import ch.softappeal.yass.serialize.fast.BaseTypeHandlers;
 import ch.softappeal.yass.serialize.fast.JsFastSerializer;
 import ch.softappeal.yass.serialize.fast.SimpleFastSerializer;
 import ch.softappeal.yass.serialize.fast.TaggedFastSerializer;
@@ -38,34 +36,8 @@ public final class Config {
             Price.class,
             Stock.class,
             Bond.class,
-            UnknownInstrumentsException.class,
-            Trade.class
-        )
-    );
-
-    /**
-     * Shows how to configure a {@link SimpleFastSerializer}.
-     */
-    private static final AbstractFastSerializer CONTRACT_SERIALIZER_2 = new SimpleFastSerializer(
-        FastReflector.FACTORY,
-        Arrays.asList(
-            BaseTypeHandlers.BOOLEAN,
-            BaseTypeHandlers.INTEGER,
-            BaseTypeHandlers.STRING,
-            Expiration.TYPE_HANDLER,
-            JsDouble.TYPE_HANDLER
-        ),
-        Arrays.asList(
-            PriceType.class
-        ),
-        Arrays.asList(
-            Price.class,
-            Trade.class,
+            SystemException.class,
             UnknownInstrumentsException.class
-        ),
-        Arrays.asList(
-            Stock.class,
-            Bond.class
         )
     );
 

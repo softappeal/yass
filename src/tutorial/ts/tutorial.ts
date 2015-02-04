@@ -9,7 +9,7 @@ module tutorial {
     function logger(type: string): yass.Interceptor {
         return (style, method, parameters, proceed) => {
             function doLog(kind: string, data: any): void {
-                log("logger:", type, yass.SESSION ? (<Session>yass.SESSION).createTime : null, kind, yass.InvokeStyle[style], method, data);
+                log("logger:", type, yass.SESSION ? (<Session>yass.SESSION).id : null, kind, yass.InvokeStyle[style], method, data);
             }
             doLog("entry", parameters);
             try {
@@ -91,16 +91,17 @@ module tutorial {
     }
 
     class Session implements yass.Session {
-        createTime = Date.now();
+        private static ID = 1;
+        id = Session.ID++;
         constructor(private sessionProxyFactory: yass.SessionProxyFactory) {
             // empty
         }
         opened(): void {
-            log("session opened", this.createTime);
+            log("session opened", this.id);
             subscribePrices(this.sessionProxyFactory);
         }
         closed(exception: any): void {
-            log("session closed", this.createTime, exception);
+            log("session closed", this.id, exception);
         }
     }
 

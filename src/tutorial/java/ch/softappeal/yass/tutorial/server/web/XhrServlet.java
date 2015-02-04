@@ -1,4 +1,4 @@
-package ch.softappeal.yass.tutorial.server;
+package ch.softappeal.yass.tutorial.server.web;
 
 import ch.softappeal.yass.core.Interceptor;
 import ch.softappeal.yass.core.remote.Request;
@@ -8,6 +8,7 @@ import ch.softappeal.yass.serialize.Reader;
 import ch.softappeal.yass.serialize.Serializer;
 import ch.softappeal.yass.serialize.Writer;
 import ch.softappeal.yass.tutorial.contract.Config;
+import ch.softappeal.yass.tutorial.server.ServerSetup;
 import ch.softappeal.yass.util.Exceptions;
 
 import javax.servlet.http.HttpServlet;

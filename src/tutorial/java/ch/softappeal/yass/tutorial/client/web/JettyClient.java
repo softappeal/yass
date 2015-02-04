@@ -1,4 +1,4 @@
-package ch.softappeal.yass.tutorial.client;
+package ch.softappeal.yass.tutorial.client.web;
 
 import org.eclipse.jetty.websocket.jsr356.ClientContainer;
 

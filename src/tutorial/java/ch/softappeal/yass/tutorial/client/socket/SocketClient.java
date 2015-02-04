@@ -1,10 +1,12 @@
-package ch.softappeal.yass.tutorial.client;
+package ch.softappeal.yass.tutorial.client.socket;
 
 import ch.softappeal.yass.core.remote.session.Reconnector;
 import ch.softappeal.yass.transport.socket.SocketExecutor;
 import ch.softappeal.yass.transport.socket.SocketTransport;
+import ch.softappeal.yass.tutorial.client.ClientSession;
+import ch.softappeal.yass.tutorial.client.ClientSetup;
 import ch.softappeal.yass.tutorial.contract.Config;
-import ch.softappeal.yass.tutorial.server.SocketServer;
+import ch.softappeal.yass.tutorial.server.socket.SocketServer;
 import ch.softappeal.yass.util.Exceptions;
 import ch.softappeal.yass.util.NamedThreadFactory;
 

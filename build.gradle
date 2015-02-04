@@ -43,7 +43,7 @@ tasks.withType(JavaCompile) {
 }
 
 task generateTypeScriptContract(type: JavaExec) {
-    main = 'ch.softappeal.yass.tutorial.client.GenerateTypeScriptContract'
+    main = 'ch.softappeal.yass.tutorial.client.web.GenerateTypeScriptContract'
     classpath = sourceSets.tutorial.runtimeClasspath
     standardOutput = new OutputStream() {
         void write(int b) {

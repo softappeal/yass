@@ -1,8 +1,9 @@
-package ch.softappeal.yass.tutorial.server;
+package ch.softappeal.yass.tutorial.server.web;
 
 import ch.softappeal.yass.transport.TransportSetup;
 import ch.softappeal.yass.transport.ws.WsConnection;
 import ch.softappeal.yass.transport.ws.WsEndpoint;
+import ch.softappeal.yass.tutorial.server.ServerSetup;
 import ch.softappeal.yass.util.Exceptions;
 import ch.softappeal.yass.util.NamedThreadFactory;
 
