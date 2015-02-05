@@ -59,7 +59,7 @@ def isWindows() {
 task compileTestTypeScript(type: Exec, dependsOn: 'generateTypeScriptContract') {
     workingDir 'src/test/ts'
     if (isWindows()) {
-        // note: TBI
+        commandLine 'cmd', '/c', 'tsc', '--out', 'all.js', '--noImplicitAny', '-target', 'ES5', '--sourcemap', 'test'
     } else {
         environment PATH: '/usr/local/bin'
         commandLine '/usr/local/bin/tsc', '--out', 'all.js', '--noImplicitAny', '-target', 'ES5', '--sourcemap', 'test'
@@ -69,7 +69,7 @@ task compileTestTypeScript(type: Exec, dependsOn: 'generateTypeScriptContract') 
 task compileTutorialTypeScript(type: Exec, dependsOn: 'generateTypeScriptContract') {
     workingDir 'src/tutorial/ts'
     if (isWindows()) {
-        // note: TBI
+        commandLine 'cmd', '/c', 'tsc', '--out', 'all.js', '--noImplicitAny', '-target', 'ES5', '--sourcemap', 'tutorial'
     } else {
         environment PATH: '/usr/local/bin'
         commandLine '/usr/local/bin/tsc', '--out', 'all.js', '--noImplicitAny', '-target', 'ES5', '--sourcemap', 'tutorial'
