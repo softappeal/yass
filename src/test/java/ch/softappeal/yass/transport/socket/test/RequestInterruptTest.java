@@ -52,32 +52,20 @@ public class RequestInterruptTest extends InvokeTest {
                     PacketSerializerTest.SERIALIZER,
                     sessionClient -> new Session(sessionClient) {
                         @Override public void opened() {
-                            final TestService testService = proxy(ContractIdTest.ID, (method, arguments, invocation) -> {
-                                System.out.println("before");
-                                try {
-                                    final Object reply = invocation.proceed();
-                                    System.out.println("after");
-                                    return reply;
-                                } catch (final Throwable throwable) {
-                                    System.out.println("after exception");
-                                    throwable.printStackTrace(System.out);
-                                    throw throwable;
-                                }
-                            });
+                            final TestService testService = proxy(ContractIdTest.ID);
                             final Thread testThread = Thread.currentThread();
                             new Thread() {
                                 @Override public void run() {
                                     try {
-                                        TimeUnit.MILLISECONDS.sleep(200);
+                                        TimeUnit.MILLISECONDS.sleep(400);
                                         testThread.interrupt();
-                                    } catch (InterruptedException e) {
+                                    } catch (final InterruptedException e) {
                                         throw new RuntimeException(e);
                                     }
-                                    super.run();
                                 }
                             }.start();
                             try {
-                                testService.delay(400);
+                                testService.delay(800);
                                 Assert.fail();
                             } catch (final RequestInterruptedException e) {
                                 e.printStackTrace(System.out);
