@@ -15,7 +15,7 @@ public abstract class JettyTest extends WsTest {
         final ServerConnector serverConnector = new ServerConnector(server);
         serverConnector.setPort(PORT);
         server.addConnector(serverConnector);
-        final ServletContextHandler contextHandler = new ServletContextHandler(ServletContextHandler.SESSIONS);
+        final ServletContextHandler contextHandler = new ServletContextHandler(ServletContextHandler.NO_SESSIONS);
         contextHandler.setContextPath("/");
         server.setHandler(contextHandler);
         WebSocketServerContainerInitializer.configureContext(contextHandler).addEndpoint(SERVER_ENDPOINT_CONFIG);

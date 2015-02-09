@@ -17,7 +17,7 @@ public final class JettyServer extends WsServerSetup {
         serverConnector.setHost(HOST);
         serverConnector.setPort(PORT);
         server.addConnector(serverConnector);
-        final ServletContextHandler contextHandler = new ServletContextHandler(ServletContextHandler.SESSIONS);
+        final ServletContextHandler contextHandler = new ServletContextHandler(ServletContextHandler.NO_SESSIONS);
         contextHandler.setContextPath("/");
         contextHandler.addServlet(new ServletHolder(new XhrServlet()), XHR_PATH);
         final ResourceHandler resourceHandler = new ResourceHandler();
