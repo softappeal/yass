@@ -93,12 +93,12 @@ module tutorial {
     class Session implements yass.Session {
         private static ID = 1;
         id = Session.ID++;
-        constructor(private sessionProxyFactory: yass.SessionProxyFactory) {
+        constructor(private sessionClient: yass.SessionClient) {
             // empty
         }
         opened(): void {
             log("session opened", this.id);
-            subscribePrices(this.sessionProxyFactory);
+            subscribePrices(this.sessionClient);
         }
         closed(exception: any): void {
             log("session closed", this.id, exception);
@@ -112,7 +112,7 @@ module tutorial {
             new yass.Service(contract.ClientServices.PriceListener, new PriceListenerImpl, serverLogger),
             new yass.Service(contract.ClientServices.EchoService, new EchoServiceImpl, serverLogger)
         ),
-        sessionProxyFactory => new Session(sessionProxyFactory),
+        sessionClient => new Session(sessionClient),
         () => log("connect failed")
     );
 

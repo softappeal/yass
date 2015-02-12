@@ -275,7 +275,7 @@ module interceptorTest {
 
 module remoteTest {
 
-    function sessionFactory(sessionProxyFactory: yass.SessionProxyFactory): yass.Session {
+    function sessionFactory(sessionClient: yass.SessionClient): yass.Session {
         return {
             opened: function () {
                 log("session opened");
@@ -293,9 +293,9 @@ module remoteTest {
                         throw e;
                     }
                 };
-                var instrumentService = sessionProxyFactory.proxy(contract.ServerServices.InstrumentService, printer);
-                var priceEngine = sessionProxyFactory.proxy(contract.ServerServices.PriceEngine, printer);
-                var echoService = sessionProxyFactory.proxy(contract.ServerServices.EchoService, printer);
+                var instrumentService = sessionClient.proxy(contract.ServerServices.InstrumentService, printer);
+                var priceEngine = sessionClient.proxy(contract.ServerServices.PriceEngine, printer);
+                var echoService = sessionClient.proxy(contract.ServerServices.EchoService, printer);
                 instrumentService.reload(false, 123);
                 echoService.echo(null).then(
                     result => assert(result === null)
@@ -348,7 +348,7 @@ module remoteTest {
                     }
                 );
                 priceEngine.subscribe([987654321]).catch(exception => log("subscribe failed with", exception));
-                setTimeout(() => sessionProxyFactory.close(), 2000);
+                setTimeout(() => sessionClient.close(), 2000);
             },
             closed: function (exception) {
                 log("session closed", exception);

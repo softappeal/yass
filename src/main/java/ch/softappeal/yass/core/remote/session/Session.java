@@ -2,9 +2,10 @@ package ch.softappeal.yass.core.remote.session;
 
 import ch.softappeal.yass.core.Interceptor;
 import ch.softappeal.yass.core.remote.ContractId;
+import ch.softappeal.yass.core.remote.ProxyFactory;
 import ch.softappeal.yass.util.Nullable;
 
-public abstract class Session implements SessionProxyFactory {
+public abstract class Session implements AutoCloseable, ProxyFactory {
 
     static final ThreadLocal<Session> INSTANCE = new ThreadLocal<>();
 

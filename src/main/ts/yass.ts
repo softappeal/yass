@@ -663,10 +663,6 @@ module yass {
         }
     }
 
-    export interface SessionProxyFactory extends ProxyFactory {
-        close(): void;
-    }
-
     export interface Session {
         opened(): void;
         /**
@@ -676,7 +672,7 @@ module yass {
     }
 
     export interface SessionFactory {
-        (sessionProxyFactory: SessionProxyFactory): Session;
+        (sessionClient: SessionClient): Session;
     }
 
     export interface Connection {
@@ -700,7 +696,7 @@ module yass {
         };
     }
 
-    export class SessionClient extends Client implements SessionProxyFactory {
+    export class SessionClient extends Client {
         private closed = false;
         private requestNumber = Packet.END_REQUESTNUMBER;
         private requestNumber2rpc: Rpc[] = [];
