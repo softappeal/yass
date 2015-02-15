@@ -283,7 +283,7 @@ public final class ContractGenerator extends Generator {
     @Nullable private Class<?> getServicesClass(final String servicesClass) {
         try {
             return Class.forName(this.rootPackage + servicesClass);
-        } catch (final ClassNotFoundException e) {
+        } catch (final ClassNotFoundException ignore) {
             return null;
         }
     }
@@ -291,7 +291,7 @@ public final class ContractGenerator extends Generator {
     /**
      * @param rootPackage Must contain the optional classes {@link #CLIENT_SERVICES} and {@link #SERVER_SERVICES} with static fields of type {@link ContractId}.
      * @param methodMapperFactory Optional if there are no services. You must provide a factory that doesn't allow overloading due to JavaScript restrictions.
-     * @param includePath path to optional base types (which includes yass module) or yass module
+     * @param includePath path to base types or yass module
      */
     @SuppressWarnings("unchecked")
     public ContractGenerator(
