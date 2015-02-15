@@ -60,7 +60,7 @@ public class LocalConnectionTest extends InvokeTest {
                         throw new Exception("create failed");
                     }
                     if (invokeBeforeOpened) {
-                        sessionClient.invoker(ContractIdTest.ID).proxy().nothing();
+                        sessionClient.proxy(ContractIdTest.ID).nothing();
                     }
                     return new Session(sessionClient) {
                         @Override public void opened() throws Exception {
@@ -70,7 +70,7 @@ public class LocalConnectionTest extends InvokeTest {
                             }
                             if (invoke) {
                                 try (Session session = this) {
-                                    InvokeTest.invoke(session.invoker(ContractIdTest.ID).proxy(
+                                    InvokeTest.invoke(session.proxy(ContractIdTest.ID,
                                         invoke ? Interceptors.composite(PRINTLN_AFTER, SESSION_CHECKER, CLIENT_INTERCEPTOR) : SESSION_CHECKER
                                     ));
                                 }

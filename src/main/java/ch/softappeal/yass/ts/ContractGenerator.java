@@ -8,6 +8,7 @@ import ch.softappeal.yass.serialize.fast.JsFastSerializer;
 import ch.softappeal.yass.serialize.fast.TypeDesc;
 import ch.softappeal.yass.serialize.fast.TypeHandler;
 import ch.softappeal.yass.util.Check;
+import ch.softappeal.yass.util.Nullable;
 import ch.softappeal.yass.util.Reflect;
 
 import java.lang.reflect.Field;
@@ -18,24 +19,19 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.SortedMap;
 
-/**
- * You must use the "-parameters" option for javac to get the real method parameter names.
- */
 public final class ContractGenerator extends Generator {
 
     private final String rootPackage;
     private final LinkedHashMap<Class<?>, Integer> type2id = new LinkedHashMap<>();
     private final SortedMap<Integer, TypeHandler> id2typeHandler;
     private final Set<Class<?>> visitedClasses = new HashSet<>();
-    private final MethodMapper.Factory methodMapperFactory;
+    private final MethodMapper.@Nullable Factory methodMapperFactory;
 
     private void checkType(final Class<?> type) {
         if (!type.getCanonicalName().startsWith(rootPackage)) {
@@ -194,7 +190,10 @@ public final class ContractGenerator extends Generator {
         return serviceDescs;
     }
 
-    private static Set<Class<?>> getInterfaces(final Class<?> services) throws Exception {
+    private static Set<Class<?>> getInterfaces(@Nullable final Class<?> services) throws Exception {
+        if (services == null) {
+            return new HashSet<>();
+        }
         final Set<Class<?>> interfaces = new HashSet<>();
         for (final ServiceDesc serviceDesc : getServiceDescs(services)) {
             interfaces.add(serviceDesc.contractId.contract);
@@ -215,6 +214,9 @@ public final class ContractGenerator extends Generator {
     private void generateInterface(final Class<?> type) {
         checkType(type);
         final Method[] methods = getMethods(type);
+        if (methodMapperFactory == null) {
+            throw new IllegalArgumentException("methodMapperFactory must be specified if there are services");
+        }
         final MethodMapper methodMapper = methodMapperFactory.create(type);
         generateType(type, new TypeGenerator() {
             void generateInterface(final String name, final boolean proxy) {
@@ -267,7 +269,10 @@ public final class ContractGenerator extends Generator {
         });
     }
 
-    private void generateServices(final Class<?> services) throws Exception {
+    private void generateServices(@Nullable final Class<?> services) throws Exception {
+        if (services == null) {
+            return;
+        }
         tabsln("export module %s {", jsType(services));
         inc();
         for (final ServiceDesc serviceDesc : getServiceDescs(services)) {
@@ -282,22 +287,31 @@ public final class ContractGenerator extends Generator {
     public static final String CLIENT_SERVICES = "ClientServices";
     public static final String SERVER_SERVICES = "ServerServices";
 
+    @Nullable private Class<?> getServicesClass(final String servicesClass) {
+        try {
+            return Class.forName(this.rootPackage + servicesClass);
+        } catch (final ClassNotFoundException ignore) {
+            return null;
+        }
+    }
+
     /**
-     * @param rootPackage Must contain the classes {@link #CLIENT_SERVICES} and {@link #SERVER_SERVICES} with static fields of type {@link ContractId}.
-     * @param methodMapperFactory You must provide a factory that doesn't allow overloading due to JavaScript restrictions.
+     * @param rootPackage Must contain the optional classes {@link #CLIENT_SERVICES} and {@link #SERVER_SERVICES} with static fields of type {@link ContractId}.
+     * @param methodMapperFactory Optional if there are no services. You must provide a factory that doesn't allow overloading due to JavaScript restrictions.
+     * @param includePath path to base types or yass module
      */
     @SuppressWarnings("unchecked")
     public ContractGenerator(
         final Package rootPackage,
         final JsFastSerializer serializer,
-        final MethodMapper.Factory methodMapperFactory,
-        final String baseTypesModulePath,
+        final MethodMapper.@Nullable Factory methodMapperFactory,
+        final String includePath,
         final String contractModuleName,
         final String contractFilePath
     ) throws Exception {
         super(contractFilePath);
         this.rootPackage = rootPackage.getName() + '.';
-        this.methodMapperFactory = Check.notNull(methodMapperFactory);
+        this.methodMapperFactory = methodMapperFactory;
         id2typeHandler = serializer.id2typeHandler();
         for (final Map.Entry<Integer, TypeHandler> entry : id2typeHandler.entrySet()) {
             final int id = entry.getKey();
@@ -305,7 +319,7 @@ public final class ContractGenerator extends Generator {
                 type2id.put(entry.getValue().type, id);
             }
         }
-        tabsln("/// <reference path='%s'/>", Check.notNull(baseTypesModulePath));
+        tabsln("/// <reference path='%s'/>", Check.notNull(includePath));
         println();
         tabsln("module %s {", Check.notNull(contractModuleName));
         println();
@@ -323,8 +337,8 @@ public final class ContractGenerator extends Generator {
                 generateClass(typeHandler.type);
             }
         }
-        final Class<?> clientServices = Class.forName(this.rootPackage + CLIENT_SERVICES);
-        final Class<?> serverServices = Class.forName(this.rootPackage + SERVER_SERVICES);
+        @Nullable final Class<?> clientServices = getServicesClass(CLIENT_SERVICES);
+        @Nullable final Class<?> serverServices = getServicesClass(SERVER_SERVICES);
         final Set<Class<?>> interfaceSet = getInterfaces(clientServices);
         interfaceSet.addAll(getInterfaces(serverServices));
         final List<Class<?>> interfaceList = new ArrayList<>(interfaceSet);

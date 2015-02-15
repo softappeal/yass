@@ -7,6 +7,7 @@ import ch.softappeal.yass.core.remote.TaggedMethodMapper;
 import ch.softappeal.yass.core.test.InterceptorTest;
 import ch.softappeal.yass.core.test.InvokeTest;
 import ch.softappeal.yass.util.Tag;
+import ch.softappeal.yass.util.TestUtils;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -137,6 +138,20 @@ public class MethodMapperTest {
         } catch (final IllegalArgumentException e) {
             System.out.println(e.getMessage());
         }
+    }
+
+    @Test public void simplePrint() {
+        TestUtils.compareFile(
+            "ch/softappeal/yass/core/remote/test/SimpleMethodMapperTest.txt",
+            printer -> MethodMapper.print(printer, SimpleMethodMapper.FACTORY, InvokeTest.TestService.class)
+        );
+    }
+
+    @Test public void taggedPrint() {
+        TestUtils.compareFile(
+            "ch/softappeal/yass/core/remote/test/TaggedMethodMapperTest.txt",
+            printer -> MethodMapper.print(printer, TaggedMethodMapper.FACTORY, InvokeTest.TestService.class)
+        );
     }
 
 }

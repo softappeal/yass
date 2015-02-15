@@ -6,8 +6,10 @@ import ch.softappeal.yass.core.remote.session.SessionClient;
 import ch.softappeal.yass.core.remote.session.SessionFactory;
 import ch.softappeal.yass.transport.socket.SocketExecutor;
 import ch.softappeal.yass.transport.socket.SocketTransport;
+import ch.softappeal.yass.tutorial.client.ClientSession;
+import ch.softappeal.yass.tutorial.client.ClientSetup;
 import ch.softappeal.yass.tutorial.contract.Config;
-import ch.softappeal.yass.tutorial.server.SocketServer;
+import ch.softappeal.yass.tutorial.server.socket.SocketServer;
 import ch.softappeal.yass.util.Exceptions;
 import ch.softappeal.yass.util.NamedThreadFactory;
 
@@ -28,16 +30,12 @@ public final class SocketClient extends ClientSetup {
             },
             new Reconnector.Connector() {
                 @Override public void connect(final SessionFactory sessionFactory) {
-                    try {
-                        SocketTransport.connect(
-                            createTransportSetup(executor, sessionFactory),
-                            new SocketExecutor(executor, Exceptions.STD_ERR),
-                            Config.PATH_SERIALIZER, SocketServer.PATH,
-                            SocketServer.ADDRESS
-                        );
-                    } catch (final RuntimeException e) {
-                        System.out.println("connect failed: " + e.getMessage());
-                    }
+                    SocketTransport.connect(
+                        createTransportSetup(executor, sessionFactory),
+                        new SocketExecutor(executor, Exceptions.STD_ERR),
+                        Config.PATH_SERIALIZER, SocketServer.PATH,
+                        SocketServer.ADDRESS
+                    );
                 }
             }
         );

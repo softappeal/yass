@@ -2,17 +2,14 @@ package ch.softappeal.yass.tutorial.contract;
 
 import ch.softappeal.yass.serialize.fast.AbstractFastSerializer;
 import ch.softappeal.yass.util.Check;
-import ch.softappeal.yass.util.Nullable;
 
 import java.util.List;
 
-public final class UnknownInstrumentsException extends Exception {
+public final class UnknownInstrumentsException extends ApplicationException {
 
     private static final long serialVersionUID = 1L;
 
     public final List<Integer> instrumentIds;
-    @Nullable public Object comment;
-    @Nullable public byte[] dump;
 
     public UnknownInstrumentsException(final List<Integer> instrumentIds) {
         this.instrumentIds = Check.notNull(instrumentIds);

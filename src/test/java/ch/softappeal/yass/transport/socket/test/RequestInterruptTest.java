@@ -63,7 +63,7 @@ public class RequestInterruptTest extends InvokeTest {
                         @Override public Session create(final SessionClient sessionClient) throws Exception {
                             return new Session(sessionClient) {
                                 @Override public void opened() {
-                                    final TestService testService = invoker(ContractIdTest.ID).proxy(new Interceptor() {
+                                    final TestService testService = proxy(ContractIdTest.ID, (new Interceptor() {
                                         @Override public Object invoke(final Method method, @Nullable final Object[] arguments, final Invocation invocation) throws Throwable {
                                             System.out.println("before");
                                             try {

@@ -115,13 +115,13 @@ public final class SessionClient extends Client {
                 throw requestInterrupted(requestNumber);
             }
             try {
-                final Reply reply = replyQueue.poll(100L, TimeUnit.MILLISECONDS);
+                final Reply reply = replyQueue.poll(200L, TimeUnit.MILLISECONDS);
                 if (reply != null) {
                     return reply;
                 } else if (closed.get()) {
                     throw new SessionClosedException();
                 }
-            } catch (final InterruptedException ignored) {
+            } catch (final InterruptedException ignore) {
                 throw requestInterrupted(requestNumber);
             }
         }

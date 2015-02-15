@@ -1,11 +1,13 @@
-package ch.softappeal.yass.tutorial.client;
+package ch.softappeal.yass.tutorial.client.web;
 
 import ch.softappeal.yass.core.remote.session.SessionClient;
 import ch.softappeal.yass.core.remote.session.SessionFactory;
 import ch.softappeal.yass.transport.TransportSetup;
 import ch.softappeal.yass.transport.ws.WsConnection;
 import ch.softappeal.yass.transport.ws.WsEndpoint;
-import ch.softappeal.yass.tutorial.server.WsServerSetup;
+import ch.softappeal.yass.tutorial.client.ClientSession;
+import ch.softappeal.yass.tutorial.client.ClientSetup;
+import ch.softappeal.yass.tutorial.server.web.WsServerSetup;
 
 import javax.websocket.ClientEndpointConfig;
 import javax.websocket.Session;

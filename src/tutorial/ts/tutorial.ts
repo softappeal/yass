@@ -9,7 +9,7 @@ module tutorial {
     function logger(type: string): yass.Interceptor {
         return (style, method, parameters, proceed) => {
             function doLog(kind: string, data: any): void {
-                log("logger:", type, yass.SESSION ? (<Session>yass.SESSION).createTime : null, kind, yass.InvokeStyle[style], method, data);
+                log("logger:", type, yass.SESSION ? (<Session>yass.SESSION).id : null, kind, yass.InvokeStyle[style], method, data);
             }
             doLog("entry", parameters);
             try {
@@ -73,12 +73,10 @@ module tutorial {
         }
     }
 
-    function subscribePrices(invokerFactory: yass.InvokerFactory): void {
-        var instrumentServiceInvoker = invokerFactory.invoker(contract.ServerServices.InstrumentService);
-        var priceEngineInvoker = invokerFactory.invoker(contract.ServerServices.PriceEngine);
+    function subscribePrices(proxyFactory: yass.ProxyFactory): void {
         // create proxies; you can add 0..n interceptors to a proxy
-        var instrumentService = instrumentServiceInvoker(clientLogger);
-        var priceEngine = priceEngineInvoker(clientLogger);
+        var instrumentService = proxyFactory.proxy(contract.ServerServices.InstrumentService, clientLogger);
+        var priceEngine = proxyFactory.proxy(contract.ServerServices.PriceEngine, clientLogger);
         instrumentService.reload(true, 987654); // oneway method call
         instrumentService.getInstruments().then(
             instruments => {
@@ -93,16 +91,17 @@ module tutorial {
     }
 
     class Session implements yass.Session {
-        createTime = Date.now();
-        constructor(private sessionInvokerFactory: yass.SessionInvokerFactory) {
+        private static ID = 1;
+        id = Session.ID++;
+        constructor(private sessionClient: yass.SessionClient) {
             // empty
         }
         opened(): void {
-            log("session opened", this.createTime);
-            subscribePrices(this.sessionInvokerFactory);
+            log("session opened", this.id);
+            subscribePrices(this.sessionClient);
         }
         closed(exception: any): void {
-            log("session closed", this.createTime, exception);
+            log("session closed", this.id, exception);
         }
     }
 
@@ -113,12 +112,12 @@ module tutorial {
             new yass.Service(contract.ClientServices.PriceListener, new PriceListenerImpl, serverLogger),
             new yass.Service(contract.ClientServices.EchoService, new EchoServiceImpl, serverLogger)
         ),
-        sessionInvokerFactory => new Session(sessionInvokerFactory),
+        sessionClient => new Session(sessionClient),
         () => log("connect failed")
     );
 
-    var invokerFactory = yass.xhr("http://localhost:9090/xhr", contract.SERIALIZER);
-    var echoService = invokerFactory.invoker(contract.ServerServices.EchoService)(clientLogger);
+    var proxyFactory = yass.xhr("http://localhost:9090/xhr", contract.SERIALIZER);
+    var echoService = proxyFactory.proxy(contract.ServerServices.EchoService, clientLogger);
     export function echoClick() {
         echoService.echo((<any>document.getElementById("echoInput")).value).then(
             result => document.getElementById("echoOutput").innerHTML = result,

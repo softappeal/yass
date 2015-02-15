@@ -65,8 +65,7 @@ public abstract class AbstractFastSerializer implements Serializer {
         final TypeHandler oldTypeHandler = id2typeHandler.put(typeDesc.id, typeDesc.handler);
         if (oldTypeHandler != null) {
             throw new IllegalArgumentException(
-                "type id " + typeDesc.id + " used for '" + typeDesc.handler.type.getCanonicalName() + "' and '" +
-                    oldTypeHandler.type.getCanonicalName() + '\''
+                "type id " + typeDesc.id + " used for '" + typeDesc.handler.type.getCanonicalName() + "' and '" + oldTypeHandler.type.getCanonicalName() + '\''
             );
         }
     }

@@ -63,12 +63,10 @@ public class RemoteTest extends InvokeTest {
 
     @Test public void test() throws InterruptedException {
         invoke(
-            client(
-                new Server(
-                    TaggedMethodMapper.FACTORY,
-                    new Service(ContractIdTest.ID, new TestServiceImpl(), stepInterceptor(4), SERVER_INTERCEPTOR)
-                )
-            ).invoker(ContractIdTest.ID).proxy(PRINTLN_AFTER, stepInterceptor(2), CLIENT_INTERCEPTOR)
+            client(new Server(
+                TaggedMethodMapper.FACTORY,
+                new Service(ContractIdTest.ID, new TestServiceImpl(), stepInterceptor(4), SERVER_INTERCEPTOR)
+            )).proxy(ContractIdTest.ID, PRINTLN_AFTER, stepInterceptor(2), CLIENT_INTERCEPTOR)
         );
     }
 

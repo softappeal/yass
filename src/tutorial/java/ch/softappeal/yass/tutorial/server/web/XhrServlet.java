@@ -1,6 +1,6 @@
 package ch.softappeal.yass.tutorial.server;
 
-import ch.softappeal.yass.core.Interceptors;
+import ch.softappeal.yass.core.Interceptor;
 import ch.softappeal.yass.core.remote.Reply;
 import ch.softappeal.yass.core.remote.Request;
 import ch.softappeal.yass.core.remote.Server;
@@ -19,12 +19,16 @@ public class XhrServlet extends HttpServlet {
 
     private static final long serialVersionUID = 1L;
 
-    private static void invoke(final Server server, final Serializer serializer, final HttpServletRequest request, final HttpServletResponse response) throws Exception {
-        final ServerInvocation invocation = server.invocation((Request)serializer.read(Reader.create(request.getInputStream())));
-        final Reply reply = invocation.invoke(Interceptors.DIRECT); // note: we could add a http session interceptor here if needed
-        if (!invocation.oneWay) {
-            serializer.write(reply, Writer.create(response.getOutputStream()));
+    private static void invoke(final Server server, final Serializer serializer, final HttpServletRequest httpRequest, final HttpServletResponse httpResponse) throws Exception {
+        final Request request = (Request)serializer.read(Reader.create(httpRequest.getInputStream()));
+        final ServerInvocation invocation = server.invocation(request);
+        if (invocation.oneWay) {
+            throw new IllegalArgumentException("xhr not allowed for oneway method (serviceId " + request.serviceId + ", methodId " + request.methodId + ')');
         }
+        serializer.write(
+            invocation.invoke(Interceptor.DIRECT), // note: we could add a http session interceptor here if needed
+            Writer.create(httpResponse.getOutputStream())
+        );
     }
 
     @Override protected void doPost(final HttpServletRequest request, final HttpServletResponse response) {

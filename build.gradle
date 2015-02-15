@@ -1,4 +1,4 @@
-defaultTasks 'clean', 'todo', 'build', 'compileTutorialJava', 'generateContract', 'createPom', 'dist'
+defaultTasks 'clean', 'todo', 'build', 'compileTutorialJava', 'compileAllTypeScript', 'createPom', 'dist'
 
 apply plugin: 'java'
 apply plugin: 'osgi'
@@ -26,9 +26,9 @@ sourceSets {
 }
 
 def websocket_dep = 'javax.websocket:javax.websocket-api:1.0'
-def jetty_dep = 'org.eclipse.jetty.websocket:javax-websocket-server-impl:9.2.6.v20141205'
-def undertow_dep = 'io.undertow:undertow-websockets-jsr:1.2.0.Beta6'
-def junit_dep = 'junit:junit:4.11'
+def jetty_dep = 'org.eclipse.jetty.websocket:javax-websocket-server-impl:9.2.7.v20150116'
+def undertow_dep = 'io.undertow:undertow-websockets-jsr:1.2.0.Beta6' // note: Beta7 & Beta8 don't work
+def junit_dep = 'junit:junit:4.12'
 
 dependencies {
     compile websocket_dep
@@ -41,10 +41,41 @@ tasks.withType(JavaCompile) {
     options.encoding = "US-ASCII"
 }
 
-task generateContract(type: JavaExec) {
-    main = 'ch.softappeal.yass.tutorial.client.GenerateContract'
+task generateTypeScriptContract(type: JavaExec) {
+    main = 'ch.softappeal.yass.tutorial.client.web.GenerateTypeScriptContract'
     classpath = sourceSets.tutorial.runtimeClasspath
+    standardOutput = new OutputStream() {
+        void write(int b) {
+            // empty
+        }
+    }
 }
+
+def isWindows() {
+    return System.getProperty("os.name").toLowerCase().contains("windows")
+}
+
+task compileTestTypeScript(type: Exec, dependsOn: 'generateTypeScriptContract') {
+    workingDir 'src/test/ts'
+    if (isWindows()) {
+        commandLine 'cmd', '/c', 'tsc', '--out', 'all.js', '--noImplicitAny', '-target', 'ES5', '--sourcemap', 'test'
+    } else {
+        environment PATH: '/usr/local/bin'
+        commandLine '/usr/local/bin/tsc', '--out', 'all.js', '--noImplicitAny', '-target', 'ES5', '--sourcemap', 'test'
+    }
+}
+
+task compileTutorialTypeScript(type: Exec, dependsOn: 'generateTypeScriptContract') {
+    workingDir 'src/tutorial/ts'
+    if (isWindows()) {
+        commandLine 'cmd', '/c', 'tsc', '--out', 'all.js', '--noImplicitAny', '-target', 'ES5', '--sourcemap', 'tutorial'
+    } else {
+        environment PATH: '/usr/local/bin'
+        commandLine '/usr/local/bin/tsc', '--out', 'all.js', '--noImplicitAny', '-target', 'ES5', '--sourcemap', 'tutorial'
+    }
+}
+
+task compileAllTypeScript(dependsOn: ['compileTestTypeScript', 'compileTutorialTypeScript'])
 
 jar {
     from "readme.md"
@@ -125,7 +156,7 @@ def searchMarker(tree, divider1, divider2, title, marker) {
 task todo << {
     def divider1 = "========================================================================================================================"
     def divider2 = "------------------------------------------------------------------------------------------------------------------------"
-    def searchTree = fileTree(dir: '.').exclude('.git/').exclude('.gradle/').exclude('.idea/').exclude('build/').exclude('classes/')
+    def searchTree = fileTree(dir: '.').exclude('.git/').exclude('.gradle/').exclude('.idea/').exclude('build/')
     searchMarker(searchTree, divider1, divider2, 'abort', '$' + '$$' /* abort, not allowed for building a release */)
     searchMarker(searchTree, divider1, divider2, 'todo', '$' + 'todo' /* under construction, yet a release can still be built */)
     searchMarker(searchTree, divider1, divider2, 'note', '$' + 'note' /* important comment */)

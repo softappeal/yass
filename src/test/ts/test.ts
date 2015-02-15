@@ -11,7 +11,7 @@ function assert(value: boolean): void {
     }
 }
 
-function assertThrown(action: ()=>void): void {
+function assertThrown(action: () => void): void {
     var thrown = false;
     try {
         action();
@@ -221,12 +221,8 @@ module serializerTest {
 
     var e = new contract.UnknownInstrumentsException;
     e.instrumentIds = [100, 200];
-    e.comment = bond;
-    e.dump = new yass.Writer(100).getArray();
     e = copy(e);
     assert(compare(e.instrumentIds, [100, 200]));
-    assert(e.comment.coupon.d === 3.5);
-    assert(new yass.Reader(toArrayBuffer(e.dump)).isEmpty());
 
     var price = new contract.Price;
     price.instrumentId = 123;
@@ -279,15 +275,28 @@ module interceptorTest {
 
 module remoteTest {
 
-    function sessionFactory(sessionInvokerFactory: yass.SessionInvokerFactory): yass.Session {
+    function sessionFactory(sessionClient: yass.SessionClient): yass.Session {
         return {
             opened: function () {
                 log("session opened");
                 var printer: yass.Interceptor = (style, method, parameters, proceed) => {
-                    log("printer:", yass.InvokeStyle[style], method, parameters);
-                    return proceed();
+                    function doLog(kind: string, data: any): void {
+                        log("logger:", yass.SESSION, kind, yass.InvokeStyle[style], method, data);
+                    }
+                    doLog("entry", parameters);
+                    try {
+                        var result = proceed();
+                        doLog("exit", result);
+                        return result;
+                    } catch (e) {
+                        doLog("exception", e);
+                        throw e;
+                    }
                 };
-                var echoService = sessionInvokerFactory.invoker(contract.ServerServices.EchoService)(printer);
+                var instrumentService = sessionClient.proxy(contract.ServerServices.InstrumentService, printer);
+                var priceEngine = sessionClient.proxy(contract.ServerServices.PriceEngine, printer);
+                var echoService = sessionClient.proxy(contract.ServerServices.EchoService, printer);
+                instrumentService.reload(false, 123);
                 echoService.echo(null).then(
                     result => assert(result === null)
                 );
@@ -338,7 +347,8 @@ module remoteTest {
                         assert(reader.isEmpty());
                     }
                 );
-                setTimeout(() => sessionInvokerFactory.close(), 1000);
+                priceEngine.subscribe([987654321]).catch(exception => log("subscribe failed with", exception));
+                setTimeout(() => sessionClient.close(), 2000);
             },
             closed: function (exception) {
                 log("session closed", exception);
@@ -355,5 +365,18 @@ module remoteTest {
         sessionFactory,
         () => log("connectFailed")
     );
+
+}
+
+module xhrTest {
+
+    var proxyFactory = yass.xhr("http://localhost:9090/xhr", contract.SERIALIZER);
+    var instrumentService = proxyFactory.proxy(contract.ServerServices.InstrumentService);
+    var echoService = proxyFactory.proxy(contract.ServerServices.EchoService);
+    assertThrown(() => instrumentService.reload(false, 123));
+    echoService.echo("echo").then(result => log("echo succeeded:", result));
+
+    assertThrown(() => yass.xhr("dummy://localhost:9090/xhr", contract.SERIALIZER).proxy(contract.ServerServices.EchoService).echo("echo1"));
+    yass.xhr("http://localhost:9090/dummy", contract.SERIALIZER).proxy(contract.ServerServices.EchoService).echo("echo2").catch(error => log("echo failed:", error));
 
 }
