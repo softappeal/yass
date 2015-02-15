@@ -15,13 +15,11 @@ import ch.softappeal.yass.util.Nullable;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public final class ClientSession extends Session {
-    
+
     private final PriceEngine priceEngine;
     private final InstrumentService instrumentService;
     private final EchoService echoService;
@@ -48,11 +46,11 @@ public final class ClientSession extends Session {
             ignore.printStackTrace(System.out);
         }
         instrumentService.reload(false, 123);
-        final Map<Integer, Instrument> id2instrument = Collections.synchronizedMap(new HashMap<Integer, Instrument>());
+        final List<Integer> instrumentIds = new ArrayList<>();
         for (final Instrument instrument : instrumentService.getInstruments()) {
-            id2instrument.put(instrument.id, instrument);
+            instrumentIds.add(instrument.id);
         }
-        priceEngine.subscribe(new ArrayList<>(id2instrument.keySet()));
+        priceEngine.subscribe(instrumentIds);
     }
 
     @Override public void closed(@Nullable final Throwable throwable) {

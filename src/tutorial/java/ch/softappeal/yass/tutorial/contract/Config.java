@@ -5,8 +5,6 @@ import ch.softappeal.yass.core.remote.SimpleMethodMapper;
 import ch.softappeal.yass.core.remote.TaggedMethodMapper;
 import ch.softappeal.yass.serialize.FastReflector;
 import ch.softappeal.yass.serialize.Serializer;
-import ch.softappeal.yass.serialize.fast.AbstractFastSerializer;
-import ch.softappeal.yass.serialize.fast.BaseTypeHandlers;
 import ch.softappeal.yass.serialize.fast.JsFastSerializer;
 import ch.softappeal.yass.serialize.fast.SimpleFastSerializer;
 import ch.softappeal.yass.serialize.fast.TaggedFastSerializer;

@@ -1,4 +1,4 @@
-package ch.softappeal.yass.tutorial.client;
+package ch.softappeal.yass.tutorial.client.socket;
 
 import ch.softappeal.yass.core.remote.session.Reconnector;
 import ch.softappeal.yass.core.remote.session.Session;

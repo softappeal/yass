@@ -2,9 +2,7 @@ package ch.softappeal.yass.core.remote;
 
 import ch.softappeal.yass.util.Check;
 
-import java.io.PrintWriter;
 import java.lang.reflect.Method;
-import java.util.Arrays;
 
 /**
  * Maps between {@link Method} and {@link Request#methodId}.
@@ -49,13 +47,5 @@ public interface MethodMapper {
     Mapping mapId(int id);
 
     Mapping mapMethod(Method method);
-
-    static void print(final PrintWriter printer, final Factory factory, final Class<?> contract) {
-        final MethodMapper methodMapper = factory.create(contract);
-        Arrays.stream(contract.getMethods())
-            .map(methodMapper::mapMethod)
-            .sorted((mapping1, mapping2) -> ((Integer)mapping1.id).compareTo((Integer)mapping2.id))
-            .forEach(mapping -> printer.println(mapping.id + ": " + mapping.method));
-    }
 
 }

@@ -19,9 +19,11 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.SortedMap;
 
@@ -31,7 +33,7 @@ public final class ContractGenerator extends Generator {
     private final LinkedHashMap<Class<?>, Integer> type2id = new LinkedHashMap<>();
     private final SortedMap<Integer, TypeHandler> id2typeHandler;
     private final Set<Class<?>> visitedClasses = new HashSet<>();
-    private final MethodMapper.@Nullable Factory methodMapperFactory;
+    private final MethodMapper.Factory methodMapperFactory;
 
     private void checkType(final Class<?> type) {
         if (!type.getCanonicalName().startsWith(rootPackage)) {
@@ -304,7 +306,7 @@ public final class ContractGenerator extends Generator {
     public ContractGenerator(
         final Package rootPackage,
         final JsFastSerializer serializer,
-        final MethodMapper.@Nullable Factory methodMapperFactory,
+        final MethodMapper.Factory methodMapperFactory,
         final String includePath,
         final String contractModuleName,
         final String contractFilePath

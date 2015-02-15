@@ -1,7 +1,6 @@
-package ch.softappeal.yass.tutorial.server;
+package ch.softappeal.yass.tutorial.server.web;
 
-import ch.softappeal.yass.core.Interceptor;
-import ch.softappeal.yass.core.remote.Reply;
+import ch.softappeal.yass.core.Interceptors;
 import ch.softappeal.yass.core.remote.Request;
 import ch.softappeal.yass.core.remote.Server;
 import ch.softappeal.yass.core.remote.Server.ServerInvocation;
@@ -9,6 +8,7 @@ import ch.softappeal.yass.serialize.Reader;
 import ch.softappeal.yass.serialize.Serializer;
 import ch.softappeal.yass.serialize.Writer;
 import ch.softappeal.yass.tutorial.contract.Config;
+import ch.softappeal.yass.tutorial.server.ServerSetup;
 import ch.softappeal.yass.util.Exceptions;
 
 import javax.servlet.http.HttpServlet;
@@ -26,7 +26,7 @@ public class XhrServlet extends HttpServlet {
             throw new IllegalArgumentException("xhr not allowed for oneway method (serviceId " + request.serviceId + ", methodId " + request.methodId + ')');
         }
         serializer.write(
-            invocation.invoke(Interceptor.DIRECT), // note: we could add a http session interceptor here if needed
+            invocation.invoke(Interceptors.DIRECT), // note: we could add a http session interceptor here if needed
             Writer.create(httpResponse.getOutputStream())
         );
     }

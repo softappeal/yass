@@ -1,9 +1,13 @@
 package ch.softappeal.yass.core.test;
 
+import ch.softappeal.yass.core.Interceptor;
 import ch.softappeal.yass.core.Interceptors;
+import ch.softappeal.yass.core.Invocation;
+import ch.softappeal.yass.util.Nullable;
 import ch.softappeal.yass.util.PerformanceTask;
 import org.junit.Test;
 
+import java.lang.reflect.Method;
 import java.util.concurrent.TimeUnit;
 
 public class PerformanceTest extends InvokeTest {
@@ -25,8 +29,19 @@ public class PerformanceTest extends InvokeTest {
         task(new TestServiceImpl()).run(100_000, TimeUnit.NANOSECONDS);
     }
 
+    private int counter;
+
     @Test public void proxy() {
-        task(Interceptors.proxy(TestService.class, new TestServiceImpl())).run(100_000, TimeUnit.NANOSECONDS);
+        task(Interceptors.proxy(
+            TestService.class,
+            new TestServiceImpl(),
+            new Interceptor() {
+                @Override public Object invoke(final Method method, @Nullable final Object[] arguments, final Invocation invocation) throws Throwable {
+                    counter++;
+                    return invocation.proceed();
+                }
+            }
+        )).run(100_000, TimeUnit.NANOSECONDS);
     }
 
 }

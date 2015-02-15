@@ -1,6 +1,7 @@
 package ch.softappeal.yass.core.remote.test;
 
 import ch.softappeal.yass.core.remote.MethodMapper;
+import ch.softappeal.yass.core.remote.MethodMappers;
 import ch.softappeal.yass.core.remote.OneWay;
 import ch.softappeal.yass.core.remote.SimpleMethodMapper;
 import ch.softappeal.yass.core.remote.TaggedMethodMapper;
@@ -11,6 +12,7 @@ import ch.softappeal.yass.util.TestUtils;
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.io.PrintWriter;
 import java.lang.reflect.Method;
 
 public class MethodMapperTest {
@@ -143,14 +145,22 @@ public class MethodMapperTest {
     @Test public void simplePrint() {
         TestUtils.compareFile(
             "ch/softappeal/yass/core/remote/test/SimpleMethodMapperTest.txt",
-            printer -> MethodMapper.print(printer, SimpleMethodMapper.FACTORY, InvokeTest.TestService.class)
+            new TestUtils.Printer() {
+                @Override public void print(final PrintWriter printer) {
+                    MethodMappers.print(printer, SimpleMethodMapper.FACTORY, InvokeTest.TestService.class);
+                }
+            }
         );
     }
 
     @Test public void taggedPrint() {
         TestUtils.compareFile(
             "ch/softappeal/yass/core/remote/test/TaggedMethodMapperTest.txt",
-            printer -> MethodMapper.print(printer, TaggedMethodMapper.FACTORY, InvokeTest.TestService.class)
+            new TestUtils.Printer() {
+                @Override public void print(final PrintWriter printer) {
+                    MethodMappers.print(printer, TaggedMethodMapper.FACTORY, InvokeTest.TestService.class);
+                }
+            }
         );
     }
 

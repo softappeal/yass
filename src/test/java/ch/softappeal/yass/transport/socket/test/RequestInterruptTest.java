@@ -76,7 +76,7 @@ public class RequestInterruptTest extends InvokeTest {
                                                 throw throwable;
                                             }
                                         }
-                                    });
+                                    }));
                                     final Thread testThread = Thread.currentThread();
                                     new Thread() {
                                         @Override public void run() {
