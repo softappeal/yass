@@ -3,7 +3,6 @@ package ch.softappeal.yass.tutorial.client.web;
 import ch.softappeal.yass.transport.TransportSetup;
 import ch.softappeal.yass.transport.ws.WsConnection;
 import ch.softappeal.yass.transport.ws.WsEndpoint;
-import ch.softappeal.yass.tutorial.client.ClientSession;
 import ch.softappeal.yass.tutorial.client.ClientSetup;
 import ch.softappeal.yass.tutorial.server.web.WsServerSetup;
 
@@ -14,7 +13,7 @@ import java.net.URI;
 
 public abstract class WsClientSetup extends ClientSetup {
 
-    private static final TransportSetup TRANSPORT_SETUP = createTransportSetup(WsServerSetup.REQUEST_EXECUTOR, ClientSession::new);
+    private static final TransportSetup TRANSPORT_SETUP = createTransportSetup(WsServerSetup.REQUEST_EXECUTOR);
 
     private static final class Endpoint extends WsEndpoint {
         @Override protected WsConnection createConnection(final Session session) throws Exception {
