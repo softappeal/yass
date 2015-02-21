@@ -175,7 +175,7 @@ public final class Compiler {
     public static String readFile(final File source, final Charset charset) throws IOException {
         try (RandomAccessFile file = new RandomAccessFile(source, "r")) {
             final byte[] bytes = new byte[(int)file.length()];
-            file.read(bytes);
+            file.readFully(bytes);
             return new String(bytes, charset);
         }
     }
