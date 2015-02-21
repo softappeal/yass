@@ -26,8 +26,8 @@ sourceSets {
 }
 
 def websocket_dep = 'javax.websocket:javax.websocket-api:1.0'
-def jetty_dep = 'org.eclipse.jetty.websocket:javax-websocket-server-impl:9.2.7.v20150116'
-def undertow_dep = 'io.undertow:undertow-websockets-jsr:1.2.0.Beta6' // note: Beta7 & Beta8 don't work
+def jetty_dep = 'org.eclipse.jetty.websocket:javax-websocket-server-impl:9.2.8.v20150217'
+def undertow_dep = 'io.undertow:undertow-websockets-jsr:1.2.0.Beta6' // note: Beta7/Beta8 & 1.1.2.Final don't work
 def junit_dep = 'junit:junit:4.12'
 
 dependencies {
