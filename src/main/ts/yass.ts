@@ -390,17 +390,17 @@ module yass {
 
     export interface Interceptor {
         /**
-         * @return proceed()
+         * @return invocation()
          */
-        (style: InvokeStyle, method: string, parameters: any[], proceed: Invocation): any;
+        (style: InvokeStyle, method: string, parameters: any[], invocation: Invocation): any;
     }
 
-    export var DIRECT: Interceptor = (style, method, parameters, proceed) => proceed();
+    export var DIRECT: Interceptor = (style, method, parameters, invocation) => invocation();
 
     export function composite(...interceptors: Interceptor[]): Interceptor {
         function composite2(interceptor1: Interceptor, interceptor2: Interceptor): Interceptor {
-            return (style, method, parameters, proceed) => interceptor1(
-                style, method, parameters, () => interceptor2(style, method, parameters, proceed)
+            return (style, method, parameters, invocation) => interceptor1(
+                style, method, parameters, () => interceptor2(style, method, parameters, invocation)
             );
         }
         var i1 = DIRECT;
@@ -685,11 +685,11 @@ module yass {
      */
     export var SESSION: Session = null;
     function sessionInterceptor(session: Session): Interceptor {
-        return (style, method, parameters, proceed) => {
+        return (style, method, parameters, invocation) => {
             var oldSession = SESSION;
             SESSION = session;
             try {
-                return proceed();
+                return invocation();
             } finally {
                 SESSION = oldSession;
             }

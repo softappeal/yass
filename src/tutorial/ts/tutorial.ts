@@ -7,13 +7,13 @@ module tutorial {
     }
 
     function logger(type: string): yass.Interceptor {
-        return (style, method, parameters, proceed) => {
+        return (style, method, parameters, invocation) => {
             function doLog(kind: string, data: any): void {
                 log("logger:", type, yass.SESSION ? (<Session>yass.SESSION).id : null, kind, yass.InvokeStyle[style], method, data);
             }
             doLog("entry", parameters);
             try {
-                var result = proceed();
+                var result = invocation();
                 doLog("exit", result);
                 return result;
             } catch (e) {

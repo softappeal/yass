@@ -250,9 +250,9 @@ module serializerTest {
 module interceptorTest {
 
     function i(id: number): yass.Interceptor {
-        return (style, method, parameters, proceed) => {
+        return (style, method, parameters, invocation) => {
             parameters[0] = (parameters[0] * 10) + id;
-            return proceed();
+            return invocation();
         };
     }
 
@@ -279,13 +279,13 @@ module remoteTest {
         return {
             opened: function () {
                 log("session opened");
-                var printer: yass.Interceptor = (style, method, parameters, proceed) => {
+                var printer: yass.Interceptor = (style, method, parameters, invocation) => {
                     function doLog(kind: string, data: any): void {
                         log("logger:", yass.SESSION, kind, yass.InvokeStyle[style], method, data);
                     }
                     doLog("entry", parameters);
                     try {
-                        var result = proceed();
+                        var result = invocation();
                         doLog("exit", result);
                         return result;
                     } catch (e) {
