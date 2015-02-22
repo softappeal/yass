@@ -3,7 +3,6 @@ package ch.softappeal.yass.core.remote.test;
 import ch.softappeal.yass.core.Interceptor;
 import ch.softappeal.yass.core.remote.Client;
 import ch.softappeal.yass.core.remote.Server;
-import ch.softappeal.yass.core.remote.Server.ServerInvocation;
 import ch.softappeal.yass.core.remote.Service;
 import ch.softappeal.yass.core.remote.TaggedMethodMapper;
 import ch.softappeal.yass.core.test.InvokeTest;
@@ -23,7 +22,7 @@ public class RemoteTest extends InvokeTest {
 
     private static Client client(final Server server) {
         return new Client(TaggedMethodMapper.FACTORY) {
-            @Override public Object invoke(final ClientInvocation clientInvocation) throws Throwable {
+            @Override public Object invoke(final Client.Invocation clientInvocation) throws Throwable {
                 return clientInvocation.invoke(
                     Interceptor.composite(
                         (method, arguments, invocation) -> {
@@ -38,7 +37,7 @@ public class RemoteTest extends InvokeTest {
                     ),
                     request -> {
                         Assert.assertTrue((33 == (Integer)request.methodId) == clientInvocation.oneWay);
-                        final ServerInvocation serverInvocation = server.invocation(request);
+                        final Server.Invocation serverInvocation = server.invocation(request);
                         Assert.assertTrue(clientInvocation.oneWay == serverInvocation.oneWay);
                         return serverInvocation.invoke(stepInterceptor(3));
                     }

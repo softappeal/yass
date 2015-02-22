@@ -5,7 +5,7 @@ import ch.softappeal.yass.core.remote.Client;
 import ch.softappeal.yass.core.remote.Message;
 import ch.softappeal.yass.core.remote.Reply;
 import ch.softappeal.yass.core.remote.Request;
-import ch.softappeal.yass.core.remote.Server.ServerInvocation;
+import ch.softappeal.yass.core.remote.Server;
 import ch.softappeal.yass.util.Check;
 import ch.softappeal.yass.util.Exceptions;
 import ch.softappeal.yass.util.Nullable;
@@ -126,7 +126,7 @@ public final class SessionClient extends Client {
     private void serverInvoke(final int requestNumber, final Request request) {
         setup.requestExecutor.execute(() -> {
             try {
-                final ServerInvocation invocation = setup.server.invocation(request);
+                final Server.Invocation invocation = setup.server.invocation(request);
                 final Reply reply = invocation.invoke(interceptor);
                 if (!invocation.oneWay) {
                     write(requestNumber, reply);
@@ -168,7 +168,7 @@ public final class SessionClient extends Client {
 
     private final AtomicInteger nextRequestNumber = new AtomicInteger(Packet.END_REQUEST_NUMBER);
 
-    @Override protected Object invoke(final ClientInvocation invocation) throws Throwable {
+    @Override protected Object invoke(final Client.Invocation invocation) throws Throwable {
         return invocation.invoke(interceptor, request -> {
             int requestNumber;
             do { // we can't use END_REQUEST_NUMBER as regular requestNumber

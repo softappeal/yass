@@ -3,7 +3,6 @@ package ch.softappeal.yass.tutorial.server.web;
 import ch.softappeal.yass.core.Interceptor;
 import ch.softappeal.yass.core.remote.Request;
 import ch.softappeal.yass.core.remote.Server;
-import ch.softappeal.yass.core.remote.Server.ServerInvocation;
 import ch.softappeal.yass.serialize.Reader;
 import ch.softappeal.yass.serialize.Serializer;
 import ch.softappeal.yass.serialize.Writer;
@@ -21,7 +20,7 @@ public class XhrServlet extends HttpServlet {
 
     private static void invoke(final Server server, final Serializer serializer, final HttpServletRequest httpRequest, final HttpServletResponse httpResponse) throws Exception {
         final Request request = (Request)serializer.read(Reader.create(httpRequest.getInputStream()));
-        final ServerInvocation invocation = server.invocation(request);
+        final Server.Invocation invocation = server.invocation(request);
         if (invocation.oneWay) {
             throw new IllegalArgumentException("xhr not allowed for oneway method (serviceId " + request.serviceId + ", methodId " + request.methodId + ')');
         }

@@ -13,7 +13,7 @@ import org.junit.Test;
 public class ServerTest {
 
     static final Client client = new Client(TaggedMethodMapper.FACTORY) {
-        @Override public Object invoke(final ClientInvocation invocation) throws Throwable {
+        @Override public Object invoke(final Client.Invocation invocation) throws Throwable {
             return invocation.invoke(Interceptor.DIRECT, request -> new Server(
                 TaggedMethodMapper.FACTORY, new Service(ContractIdTest.ID, new InvokeTest.TestServiceImpl())
             ).invocation(request).invoke(Interceptor.DIRECT));
