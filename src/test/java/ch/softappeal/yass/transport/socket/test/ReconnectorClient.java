@@ -23,17 +23,17 @@ import java.util.concurrent.Executors;
 public final class ReconnectorClient {
 
     private static final class TestLink extends Link {
-        public final Delegate<InvokeTest.TestService> testService1 = delegate(ContractIdTest.ID);
-        public final Delegate<InvokeTest.TestService> testService2 = delegate(ContractIdTest.ID);
+        public final InvokeTest.TestService testService1 = proxy(ContractIdTest.ID);
+        public final InvokeTest.TestService testService2 = proxy(ContractIdTest.ID);
         @Override protected void opened() throws InvokeTest.DivisionByZeroException {
             System.out.println("opened");
             if (!up() || !(session().link instanceof TestLink)) {
                 throw new RuntimeException("wrong link");
             }
-            if (testService1.proxy.divide(6, 3) != 2) {
+            if (testService1.divide(6, 3) != 2) {
                 throw new RuntimeException("testService1 failed");
             }
-            if (testService2.proxy.divide(6, 2) != 3) {
+            if (testService2.divide(6, 2) != 3) {
                 throw new RuntimeException("testService2 failed");
             }
         }
@@ -51,7 +51,7 @@ public final class ReconnectorClient {
             throw new RuntimeException("link is up");
         }
         try {
-            link.testService1.proxy.divide(100, 10);
+            link.testService1.divide(100, 10);
             throw new Exception("session is up");
         } catch (final SessionClosedException ignore) {
             // empty

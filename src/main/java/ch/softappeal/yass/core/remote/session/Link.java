@@ -9,8 +9,7 @@ import java.lang.reflect.Proxy;
 import java.util.function.Consumer;
 
 /**
- * Wraps a client side {@link Session}.
- * {@link Delegate#proxy} survives {@link Session#closed(Throwable)}.
+ * Wraps a client side {@link ch.softappeal.yass.core.remote.session.Session}.
  * @see Reconnector
  */
 public abstract class Link {
@@ -23,15 +22,18 @@ public abstract class Link {
         }
     }
 
-    protected final <C> Delegate<C> delegate(final ContractId<C> contractId, final Interceptor... interceptors) {
-        return new Delegate<>(contractId, Interceptor.composite(interceptors));
+    /**
+     * @return a proxy surviving {@link ch.softappeal.yass.core.remote.session.Session#closed(Throwable)}
+     */
+    protected final <C> C proxy(final ContractId<C> contractId, final Interceptor... interceptors) {
+        return new Delegate<>(contractId, Interceptor.composite(interceptors)).proxy;
     }
 
-    public final class Delegate<C> {
+    private final class Delegate<C> {
         Delegate<Object> nextDelegate = null;
         private final ContractId<C> contractId;
         private final Interceptor interceptor;
-        public final C proxy;
+        final C proxy;
         private volatile C implementation;
         @SuppressWarnings("unchecked") Delegate(final ContractId<C> contractId, final Interceptor interceptor) {
             nextDelegate = firstDelegate;
@@ -60,14 +62,14 @@ public abstract class Link {
     }
 
     /**
-     * @see Session#opened()
+     * @see ch.softappeal.yass.core.remote.session.Session#opened()
      */
     protected void opened() throws Exception {
         // empty
     }
 
     /**
-     * @see Session#closed(Throwable)
+     * @see ch.softappeal.yass.core.remote.session.Session#closed(Throwable)
      */
     protected abstract void closed(@Nullable Throwable throwable) throws Exception;
 
