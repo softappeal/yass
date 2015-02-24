@@ -9,6 +9,7 @@ import ch.softappeal.yass.serialize.Writer;
 import ch.softappeal.yass.serialize.Writer.ByteBufferOutputStream;
 import ch.softappeal.yass.transport.TransportSetup;
 import ch.softappeal.yass.util.Check;
+import ch.softappeal.yass.util.Nullable;
 
 import javax.websocket.CloseReason;
 import javax.websocket.MessageHandler;
@@ -62,10 +63,9 @@ public final class WsConnection implements Connection {
         packetSerializer.write(packet, Writer.create(out));
         remoteEndpoint.sendBinary(out.toByteBuffer(), result -> {
             if (result == null) {
-                onError(new Exception("result == null"));
+                onError(null);
             } else if (!result.isOK()) {
-                final Throwable throwable = result.getException();
-                onError((throwable == null) ? new Exception("throwable == null") : throwable);
+                onError(result.getException());
             }
         });
     }
@@ -74,12 +74,12 @@ public final class WsConnection implements Connection {
         session.close();
     }
 
-    void onClose(final CloseReason closeReason) {
-        onError(new Exception((closeReason == null) ? "closeReason == null" : closeReason.toString()));
+    void onClose(@Nullable final CloseReason closeReason) {
+        onError(new WsClosedException(closeReason));
     }
 
-    void onError(final Throwable throwable) {
-        sessionClient.close((throwable == null) ? new Exception("throwable == null") : throwable);
+    void onError(@Nullable final Throwable throwable) {
+        sessionClient.close((throwable == null) ? new Exception("<no-throwable>") : throwable);
     }
 
 }
