@@ -57,7 +57,7 @@ public final class FieldHandler {
         }
     }
 
-    private static Class<?> primitiveWrapperType(final Class<?> type) {
+    public static Class<?> primitiveWrapperType(final Class<?> type) {
         if (type == boolean.class) {
             return Boolean.class;
         }

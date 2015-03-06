@@ -175,8 +175,8 @@ module serializerTest {
     assert(copy("blabli") === "blabli");
     assert(copy(contract.PriceType.ASK) === contract.PriceType.ASK);
     assert(copy(contract.PriceType.BID) === contract.PriceType.BID);
-    assert(copy(new contract.instrument.stock.JsDouble(123.456e98)).d === 123.456e98);
-    assert(copy(new contract.instrument.stock.JsDouble(-9.384762637432E-12)).d === -9.384762637432E-12);
+    assert(copy(new contract.instrument.stock.Double(123.456e98)).d === 123.456e98);
+    assert(copy(new contract.instrument.stock.Double(-9.384762637432E-12)).d === -9.384762637432E-12);
 
     function compare(array1: any[], array2: any[]): boolean {
         if (array1.length !== array2.length) {
@@ -211,7 +211,7 @@ module serializerTest {
     assert(stock.paysDividend === undefined);
 
     var bond = new contract.instrument.Bond;
-    bond.coupon = new contract.instrument.stock.JsDouble(3.5);
+    bond.coupon = new contract.instrument.stock.Double(3.5);
     bond.expiration = new contract.Expiration(2013, 2, 20);
     bond = copy(bond);
     assert(bond.coupon.d === 3.5);
@@ -320,11 +320,11 @@ module remoteTest {
                 echoService.echo(-87654321).then(
                     result  => assert(result === -87654321)
                 );
-                echoService.echo(new contract.instrument.stock.JsDouble(123.456e98)).then(
-                    result => assert((<contract.instrument.stock.JsDouble>result).d === 123.456e98)
+                echoService.echo(new contract.instrument.stock.Double(123.456e98)).then(
+                    result => assert((<contract.instrument.stock.Double>result).d === 123.456e98)
                 );
-                echoService.echo(new contract.instrument.stock.JsDouble(-9.384762637432E-12)).then(
-                    result => assert((<contract.instrument.stock.JsDouble>result).d === -9.384762637432E-12)
+                echoService.echo(new contract.instrument.stock.Double(-9.384762637432E-12)).then(
+                    result => assert((<contract.instrument.stock.Double>result).d === -9.384762637432E-12)
                 );
                 echoService.echo(new contract.Expiration(9, 8, 7)).then(
                     result => {
@@ -380,3 +380,5 @@ module xhrTest {
     yass.xhr("http://localhost:9090/dummy", contract.SERIALIZER).proxy(contract.ServerServices.EchoService).echo("echo2").catch(error => log("echo failed:", error));
 
 }
+
+log("done");

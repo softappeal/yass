@@ -4,6 +4,7 @@ import ch.softappeal.yass.Version;
 import ch.softappeal.yass.core.remote.ContractId;
 import ch.softappeal.yass.core.remote.MethodMapper;
 import ch.softappeal.yass.serialize.fast.ClassTypeHandler;
+import ch.softappeal.yass.serialize.fast.FieldHandler;
 import ch.softappeal.yass.serialize.fast.JsFastSerializer;
 import ch.softappeal.yass.serialize.fast.TypeDesc;
 import ch.softappeal.yass.serialize.fast.TypeHandler;
@@ -20,9 +21,11 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.SortedMap;
 import java.util.stream.Collectors;
@@ -37,6 +40,7 @@ public final class ContractGenerator extends Generator {
     private final SortedMap<Integer, TypeHandler> id2typeHandler;
     private final Set<Class<?>> visitedClasses = new HashSet<>();
     private final MethodMapper.@Nullable Factory methodMapperFactory;
+    private final Map<Class<?>, String> contractExternalJavaBaseType2contractInternalTsBaseType = new HashMap<>();
 
     private void checkType(final Class<?> type) {
         if (!type.getCanonicalName().startsWith(rootPackage)) {
@@ -45,6 +49,10 @@ public final class ContractGenerator extends Generator {
     }
 
     private String jsType(final Class<?> type) {
+        @Nullable final String internal = contractExternalJavaBaseType2contractInternalTsBaseType.get(FieldHandler.primitiveWrapperType(type));
+        if (internal != null) {
+            return internal;
+        }
         checkType(type);
         return type.getCanonicalName().substring(rootPackage.length());
     }
@@ -300,11 +308,17 @@ public final class ContractGenerator extends Generator {
         final MethodMapper.@Nullable Factory methodMapperFactory,
         final String includePath,
         final String contractModuleName,
+        @Nullable final Map<Class<?>, String> contractExternalJavaBaseType2contractInternalTsBaseType,
         final String contractFilePath
     ) throws Exception {
         super(contractFilePath);
         this.rootPackage = rootPackage.getName() + '.';
         this.methodMapperFactory = methodMapperFactory;
+        if (contractExternalJavaBaseType2contractInternalTsBaseType != null) {
+            contractExternalJavaBaseType2contractInternalTsBaseType.forEach(
+                (external, internal) -> this.contractExternalJavaBaseType2contractInternalTsBaseType.put(Check.notNull(external), Check.notNull(internal))
+            );
+        }
         id2typeHandler = serializer.id2typeHandler();
         id2typeHandler.forEach((id, typeHandler) -> {
             if (id >= JsFastSerializer.FIRST_ID) {
