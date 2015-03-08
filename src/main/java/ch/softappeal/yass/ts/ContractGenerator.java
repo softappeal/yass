@@ -40,7 +40,7 @@ public final class ContractGenerator extends Generator {
     private final SortedMap<Integer, TypeHandler> id2typeHandler;
     private final Set<Class<?>> visitedClasses = new HashSet<>();
     private final MethodMapper.@Nullable Factory methodMapperFactory;
-    private final Map<Class<?>, String> contractExternalJavaBaseType2contractInternalTsBaseType = new HashMap<>();
+    private final Map<Class<?>, String> externalJavaBaseType2tsBaseType = new HashMap<>();
 
     private void checkType(final Class<?> type) {
         if (!type.getCanonicalName().startsWith(rootPackage)) {
@@ -49,9 +49,9 @@ public final class ContractGenerator extends Generator {
     }
 
     private String jsType(final Class<?> type) {
-        @Nullable final String internal = contractExternalJavaBaseType2contractInternalTsBaseType.get(FieldHandler.primitiveWrapperType(type));
-        if (internal != null) {
-            return internal;
+        @Nullable final String tsBaseType = externalJavaBaseType2tsBaseType.get(FieldHandler.primitiveWrapperType(type));
+        if (tsBaseType != null) {
+            return tsBaseType;
         }
         checkType(type);
         return type.getCanonicalName().substring(rootPackage.length());
@@ -308,16 +308,14 @@ public final class ContractGenerator extends Generator {
         final MethodMapper.@Nullable Factory methodMapperFactory,
         final String includePath,
         final String contractModuleName,
-        @Nullable final Map<Class<?>, String> contractExternalJavaBaseType2contractInternalTsBaseType,
+        @Nullable final Map<Class<?>, String> externalJavaBaseType2tsBaseType,
         final String contractFilePath
     ) throws Exception {
         super(contractFilePath);
         this.rootPackage = rootPackage.getName() + '.';
         this.methodMapperFactory = methodMapperFactory;
-        if (contractExternalJavaBaseType2contractInternalTsBaseType != null) {
-            contractExternalJavaBaseType2contractInternalTsBaseType.forEach(
-                (external, internal) -> this.contractExternalJavaBaseType2contractInternalTsBaseType.put(Check.notNull(external), Check.notNull(internal))
-            );
+        if (externalJavaBaseType2tsBaseType != null) {
+            externalJavaBaseType2tsBaseType.forEach((java, ts) -> this.externalJavaBaseType2tsBaseType.put(Check.notNull(java), Check.notNull(ts)));
         }
         id2typeHandler = serializer.id2typeHandler();
         id2typeHandler.forEach((id, typeHandler) -> {
