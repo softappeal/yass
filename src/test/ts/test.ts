@@ -375,9 +375,11 @@ module xhrTest {
     var echoService = proxyFactory.proxy(contract.ServerServices.EchoService);
     assertThrown(() => instrumentService.reload(false, 123));
     echoService.echo("echo").then(result => log("echo succeeded:", result));
+    echoService.echo("throwRuntimeException").catch(error => log("throwRuntimeException failed:", error));
 
     assertThrown(() => yass.xhr("dummy://localhost:9090/xhr", contract.SERIALIZER).proxy(contract.ServerServices.EchoService).echo("echo1"));
-    yass.xhr("http://localhost:9090/dummy", contract.SERIALIZER).proxy(contract.ServerServices.EchoService).echo("echo2").catch(error => log("echo failed:", error));
+    yass.xhr("http://localhost:9090/dummy", contract.SERIALIZER).proxy(contract.ServerServices.EchoService).echo("echo2").catch(error => log("echo2 failed:", error));
+    yass.xhr("http://localhost:9999/xhr", contract.SERIALIZER).proxy(contract.ServerServices.EchoService).echo("echo3").catch(error => log("echo3 failed:", error));
 
 }
 
