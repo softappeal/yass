@@ -803,14 +803,20 @@ module yass {
         ws.binaryType = "arraybuffer";
         ws.onerror = callConnectFailed;
         ws.onclose = callConnectFailed;
-        ws.onopen = function (): void {
+        ws.onopen = () => {
             var sessionClient = new SessionClient(server, sessionFactory, {
                 write: packet => ws.send(writeTo(serializer, packet)),
                 closed: () => ws.close()
             });
-            ws.onmessage = event => sessionClient.received(readFrom(serializer, event.data));
-            ws.onerror = () => sessionClient.doClose(new Error("onerror"));
-            ws.onclose = () => sessionClient.doClose(new Error("onclose"));
+            ws.onmessage = event => {
+                try {
+                    sessionClient.received(readFrom(serializer, event.data));
+                } catch (exception) {
+                    sessionClient.doClose(exception);
+                }
+            };
+            ws.onerror = () => sessionClient.doClose(new Error("WebSocket.onerror"));
+            ws.onclose = () => sessionClient.doClose(new Error("WebSocket.onclose"));
         };
     }
 
@@ -822,14 +828,14 @@ module yass {
                         throw new Error("xhr not allowed for oneway method (serviceId " + request.serviceId + ", methodId " + request.methodId + ")");
                     }
                     var xhr = new XMLHttpRequest();
-                    xhr.onerror = () => rpc.settle(new ExceptionReply(new Error("XMLHttpRequest failed")));
+                    xhr.onerror = () => rpc.settle(new ExceptionReply(new Error("XMLHttpRequest.onerror")));
                     xhr.open("POST", url);
                     xhr.responseType = "arraybuffer";
                     xhr.onload = () => {
                         try {
                             rpc.settle(readFrom(serializer, xhr.response));
-                        } catch (e) {
-                            rpc.settle(new ExceptionReply(e));
+                        } catch (exception) {
+                            rpc.settle(new ExceptionReply(exception));
                         }
                     };
                     xhr.send(writeTo(serializer, request));
