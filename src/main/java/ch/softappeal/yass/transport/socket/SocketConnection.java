@@ -62,15 +62,14 @@ public final class SocketConnection implements Connection {
 
     private void read(final SessionClient sessionClient, final Reader reader) {
         while (true) {
-            final Packet packet;
             try {
-                packet = (Packet)packetSerializer.read(reader);
+                final Packet packet = (Packet)packetSerializer.read(reader);
+                sessionClient.received(packet);
+                if (packet.isEnd()) {
+                    return;
+                }
             } catch (final Exception e) {
                 sessionClient.close(e);
-                return;
-            }
-            sessionClient.received(packet);
-            if (packet.isEnd()) {
                 return;
             }
         }
