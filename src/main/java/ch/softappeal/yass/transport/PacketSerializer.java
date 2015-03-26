@@ -8,10 +8,13 @@ import ch.softappeal.yass.serialize.Writer;
 import ch.softappeal.yass.util.Check;
 
 /**
- * Adapts a {@link Serializer} for {@link Message} to one for {@link Packet}.
+ * Default {@link Serializer} for {@link Packet}.
  */
 public final class PacketSerializer implements Serializer {
 
+    /**
+     * A {@link Serializer} for {@link Message}.
+     */
     public final Serializer messageSerializer;
 
     public PacketSerializer(final Serializer messageSerializer) {

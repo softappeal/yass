@@ -453,12 +453,20 @@ module yass {
         read(reader: Reader): Message {
             var type = reader.readByte();
             if (type === MessageSerializer.REQUEST) {
-                return new Request(reader.readZigZagInt(), reader.readZigZagInt(), this.serializer.read(reader));
+                return new Request(
+                    reader.readZigZagInt(),
+                    reader.readZigZagInt(),
+                    this.serializer.read(reader)
+                );
+            } else if (type === MessageSerializer.VALUE_REPLY) {
+                return new ValueReply(
+                    this.serializer.read(reader)
+                );
+            } else {
+                return new ExceptionReply(
+                    this.serializer.read(reader)
+                );
             }
-            if (type === MessageSerializer.VALUE_REPLY) {
-                return new ValueReply(this.serializer.read(reader));
-            }
-            return new ExceptionReply(this.serializer.read(reader));
         }
         write(message: Message, writer: Writer): void {
             if (message instanceof Request) {
@@ -469,7 +477,7 @@ module yass {
             } else if (message instanceof ValueReply) {
                 writer.writeByte(MessageSerializer.VALUE_REPLY);
                 this.serializer.write((<ValueReply>message).value, writer);
-            } else { // ExceptionReply
+            } else {
                 writer.writeByte(MessageSerializer.EXCEPTION_REPLY);
                 this.serializer.write((<ExceptionReply>message).exception, writer);
             }
