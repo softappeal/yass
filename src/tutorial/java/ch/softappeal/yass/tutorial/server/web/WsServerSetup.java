@@ -30,6 +30,8 @@ public abstract class WsServerSetup extends ServerSetup {
         }
     }
 
-    protected static final ServerEndpointConfig ENDPOINT_CONFIG = ServerEndpointConfig.Builder.create(Endpoint.class, PATH).build();
+    protected static ServerEndpointConfig endpointConfig(final ServerEndpointConfig.Configurator configurator) {
+        return ServerEndpointConfig.Builder.create(Endpoint.class, PATH).configurator(configurator).build();
+    }
 
 }

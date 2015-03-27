@@ -6,6 +6,7 @@ import io.undertow.server.HttpHandler;
 import io.undertow.server.handlers.resource.FileResourceManager;
 import io.undertow.servlet.Servlets;
 import io.undertow.servlet.api.DeploymentManager;
+import io.undertow.websockets.jsr.DefaultContainerConfigurator;
 import io.undertow.websockets.jsr.WebSocketDeploymentInfo;
 import org.xnio.ByteBufferSlicePool;
 import org.xnio.OptionMap;
@@ -29,7 +30,7 @@ public final class UndertowServer extends WsServerSetup {
                     .addServletContextAttribute(
                         WebSocketDeploymentInfo.ATTRIBUTE_NAME,
                         new WebSocketDeploymentInfo()
-                            .addEndpoint(ENDPOINT_CONFIG)
+                            .addEndpoint(endpointConfig(new DefaultContainerConfigurator()))
                             .setWorker(Xnio.getInstance().createWorker(OptionMap.builder().getMap()))
                             .setBuffers(new ByteBufferSlicePool(100, 1000))
                     )
