@@ -34,6 +34,7 @@ public final class ContractGenerator extends Generator {
     private final SortedMap<Integer, TypeHandler> id2typeHandler;
     private final Set<Class<?>> visitedClasses = new HashSet<>();
     private final MethodMapper.Factory methodMapperFactory;
+    private final Map<Class<?>, String> externalJavaBaseType2tsBaseType = new HashMap<>();
 
     private void checkType(final Class<?> type) {
         if (!type.getCanonicalName().startsWith(rootPackage)) {
@@ -42,6 +43,10 @@ public final class ContractGenerator extends Generator {
     }
 
     private String jsType(final Class<?> type) {
+        @Nullable final String tsBaseType = externalJavaBaseType2tsBaseType.get(FieldHandler.primitiveWrapperType(type));
+        if (tsBaseType != null) {
+            return tsBaseType;
+        }
         checkType(type);
         return type.getCanonicalName().substring(rootPackage.length());
     }
@@ -309,11 +314,15 @@ public final class ContractGenerator extends Generator {
         final MethodMapper.Factory methodMapperFactory,
         final String includePath,
         final String contractModuleName,
+        @Nullable final Map<Class<?>, String> externalJavaBaseType2tsBaseType,
         final String contractFilePath
     ) throws Exception {
         super(contractFilePath);
         this.rootPackage = rootPackage.getName() + '.';
         this.methodMapperFactory = methodMapperFactory;
+        if (externalJavaBaseType2tsBaseType != null) {
+            externalJavaBaseType2tsBaseType.forEach((java, ts) -> this.externalJavaBaseType2tsBaseType.put(Check.notNull(java), Check.notNull(ts)));
+        }
         id2typeHandler = serializer.id2typeHandler();
         for (final Map.Entry<Integer, TypeHandler> entry : id2typeHandler.entrySet()) {
             final int id = entry.getKey();

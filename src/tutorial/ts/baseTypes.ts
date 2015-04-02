@@ -26,20 +26,20 @@ module contract {
     }
 
     export module instrument.stock {
-        class JsDouble_HANDLER implements yass.TypeHandler<JsDouble> {
-            read(reader: yass.Reader): JsDouble {
-                return new JsDouble(new DataView(reader.array.buffer).getFloat64(reader.needed(8)));
+        class Double_HANDLER implements yass.TypeHandler<Double> {
+            read(reader: yass.Reader): Double {
+                return new Double(new DataView(reader.array.buffer).getFloat64(reader.needed(8)));
             }
-            write(value: JsDouble, writer: yass.Writer): void {
+            write(value: Double, writer: yass.Writer): void {
                 var position = writer.needed(8);
                 new DataView(writer.array.buffer).setFloat64(position, value.d);
             }
         }
-        export class JsDouble extends yass.Type {
+        export class Double extends yass.Type {
             constructor(public d: number) {
                 super();
             }
-            static TYPE_DESC = new yass.TypeDesc(yass.FIRST_ID + 1, new JsDouble_HANDLER);
+            static TYPE_DESC = new yass.TypeDesc(yass.FIRST_ID + 1, new Double_HANDLER);
         }
     }
 

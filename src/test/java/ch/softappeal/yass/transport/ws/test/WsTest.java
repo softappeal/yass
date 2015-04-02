@@ -52,7 +52,9 @@ public abstract class WsTest {
         }
     }
 
-    protected static final ServerEndpointConfig SERVER_ENDPOINT_CONFIG = ServerEndpointConfig.Builder.create(ServerEndpoint.class, PATH).build();
+    protected static ServerEndpointConfig serverEndpointConfig(final ServerEndpointConfig.Configurator configurator) {
+        return ServerEndpointConfig.Builder.create(ServerEndpoint.class, PATH).configurator(configurator).build();
+    }
 
     protected static void setTransportSetup(
         final boolean serverInvoke, final boolean serverCreateException,

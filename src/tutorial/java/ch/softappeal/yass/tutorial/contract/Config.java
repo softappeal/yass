@@ -5,6 +5,7 @@ import ch.softappeal.yass.core.remote.SimpleMethodMapper;
 import ch.softappeal.yass.core.remote.TaggedMethodMapper;
 import ch.softappeal.yass.serialize.FastReflector;
 import ch.softappeal.yass.serialize.Serializer;
+import ch.softappeal.yass.serialize.fast.BaseTypeHandlers;
 import ch.softappeal.yass.serialize.fast.JsFastSerializer;
 import ch.softappeal.yass.serialize.fast.SimpleFastSerializer;
 import ch.softappeal.yass.serialize.fast.TaggedFastSerializer;
@@ -12,7 +13,6 @@ import ch.softappeal.yass.transport.MessageSerializer;
 import ch.softappeal.yass.transport.PacketSerializer;
 import ch.softappeal.yass.transport.StringPathSerializer;
 import ch.softappeal.yass.tutorial.contract.instrument.Bond;
-import ch.softappeal.yass.tutorial.contract.instrument.stock.JsDouble;
 import ch.softappeal.yass.tutorial.contract.instrument.stock.Stock;
 
 import java.util.Arrays;
@@ -27,7 +27,7 @@ public final class Config {
         FastReflector.FACTORY,
         Arrays.asList(
             Expiration.TYPE_HANDLER,
-            JsDouble.TYPE_HANDLER
+            BaseTypeHandlers.DOUBLE // shows how to use a contract external base type
         ),
         Arrays.<Class<?>>asList(
             PriceType.class

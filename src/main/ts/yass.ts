@@ -390,17 +390,17 @@ module yass {
 
     export interface Interceptor {
         /**
-         * @return proceed()
+         * @return invocation()
          */
-        (style: InvokeStyle, method: string, parameters: any[], proceed: Invocation): any;
+        (style: InvokeStyle, method: string, parameters: any[], invocation: Invocation): any;
     }
 
-    export var DIRECT: Interceptor = (style, method, parameters, proceed) => proceed();
+    export var DIRECT: Interceptor = (style, method, parameters, invocation) => invocation();
 
     export function composite(...interceptors: Interceptor[]): Interceptor {
         function composite2(interceptor1: Interceptor, interceptor2: Interceptor): Interceptor {
-            return (style, method, parameters, proceed) => interceptor1(
-                style, method, parameters, () => interceptor2(style, method, parameters, proceed)
+            return (style, method, parameters, invocation) => interceptor1(
+                style, method, parameters, () => interceptor2(style, method, parameters, invocation)
             );
         }
         var i1 = DIRECT;
@@ -453,12 +453,20 @@ module yass {
         read(reader: Reader): Message {
             var type = reader.readByte();
             if (type === MessageSerializer.REQUEST) {
-                return new Request(reader.readZigZagInt(), reader.readZigZagInt(), this.serializer.read(reader));
+                return new Request(
+                    reader.readZigZagInt(),
+                    reader.readZigZagInt(),
+                    this.serializer.read(reader)
+                );
+            } else if (type === MessageSerializer.VALUE_REPLY) {
+                return new ValueReply(
+                    this.serializer.read(reader)
+                );
+            } else {
+                return new ExceptionReply(
+                    this.serializer.read(reader)
+                );
             }
-            if (type === MessageSerializer.VALUE_REPLY) {
-                return new ValueReply(this.serializer.read(reader));
-            }
-            return new ExceptionReply(this.serializer.read(reader));
         }
         write(message: Message, writer: Writer): void {
             if (message instanceof Request) {
@@ -469,7 +477,7 @@ module yass {
             } else if (message instanceof ValueReply) {
                 writer.writeByte(MessageSerializer.VALUE_REPLY);
                 this.serializer.write((<ValueReply>message).value, writer);
-            } else { // ExceptionReply
+            } else {
                 writer.writeByte(MessageSerializer.EXCEPTION_REPLY);
                 this.serializer.write((<ExceptionReply>message).exception, writer);
             }
@@ -685,11 +693,11 @@ module yass {
      */
     export var SESSION: Session = null;
     function sessionInterceptor(session: Session): Interceptor {
-        return (style, method, parameters, proceed) => {
+        return (style, method, parameters, invocation) => {
             var oldSession = SESSION;
             SESSION = session;
             try {
-                return proceed();
+                return invocation();
             } finally {
                 SESSION = oldSession;
             }
@@ -803,14 +811,20 @@ module yass {
         ws.binaryType = "arraybuffer";
         ws.onerror = callConnectFailed;
         ws.onclose = callConnectFailed;
-        ws.onopen = function (): void {
+        ws.onopen = () => {
             var sessionClient = new SessionClient(server, sessionFactory, {
                 write: packet => ws.send(writeTo(serializer, packet)),
                 closed: () => ws.close()
             });
-            ws.onmessage = event => sessionClient.received(readFrom(serializer, event.data));
-            ws.onerror = () => sessionClient.doClose(new Error("onerror"));
-            ws.onclose = () => sessionClient.doClose(new Error("onclose"));
+            ws.onmessage = event => {
+                try {
+                    sessionClient.received(readFrom(serializer, event.data));
+                } catch (exception) {
+                    sessionClient.doClose(exception);
+                }
+            };
+            ws.onerror = () => sessionClient.doClose(new Error("WebSocket.onerror"));
+            ws.onclose = () => sessionClient.doClose(new Error("WebSocket.onclose"));
         };
     }
 
@@ -824,11 +838,12 @@ module yass {
                     var xhr = new XMLHttpRequest();
                     xhr.open("POST", url);
                     xhr.responseType = "arraybuffer";
+                    xhr.onerror = () => rpc.settle(new ExceptionReply(new Error("XMLHttpRequest.onerror")));
                     xhr.onload = () => {
                         try {
                             rpc.settle(readFrom(serializer, xhr.response));
-                        } catch (e) {
-                            rpc.settle(new ExceptionReply(e));
+                        } catch (exception) {
+                            rpc.settle(new ExceptionReply(exception));
                         }
                     };
                     xhr.send(writeTo(serializer, request));

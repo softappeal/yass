@@ -175,8 +175,8 @@ module serializerTest {
     assert(copy("blabli") === "blabli");
     assert(copy(contract.PriceType.ASK) === contract.PriceType.ASK);
     assert(copy(contract.PriceType.BID) === contract.PriceType.BID);
-    assert(copy(new contract.instrument.stock.JsDouble(123.456e98)).d === 123.456e98);
-    assert(copy(new contract.instrument.stock.JsDouble(-9.384762637432E-12)).d === -9.384762637432E-12);
+    assert(copy(new contract.instrument.stock.Double(123.456e98)).d === 123.456e98);
+    assert(copy(new contract.instrument.stock.Double(-9.384762637432E-12)).d === -9.384762637432E-12);
 
     function compare(array1: any[], array2: any[]): boolean {
         if (array1.length !== array2.length) {
@@ -211,7 +211,7 @@ module serializerTest {
     assert(stock.paysDividend === undefined);
 
     var bond = new contract.instrument.Bond;
-    bond.coupon = new contract.instrument.stock.JsDouble(3.5);
+    bond.coupon = new contract.instrument.stock.Double(3.5);
     bond.expiration = new contract.Expiration(2013, 2, 20);
     bond = copy(bond);
     assert(bond.coupon.d === 3.5);
@@ -250,9 +250,9 @@ module serializerTest {
 module interceptorTest {
 
     function i(id: number): yass.Interceptor {
-        return (style, method, parameters, proceed) => {
+        return (style, method, parameters, invocation) => {
             parameters[0] = (parameters[0] * 10) + id;
-            return proceed();
+            return invocation();
         };
     }
 
@@ -279,13 +279,13 @@ module remoteTest {
         return {
             opened: function () {
                 log("session opened");
-                var printer: yass.Interceptor = (style, method, parameters, proceed) => {
+                var printer: yass.Interceptor = (style, method, parameters, invocation) => {
                     function doLog(kind: string, data: any): void {
                         log("logger:", yass.SESSION, kind, yass.InvokeStyle[style], method, data);
                     }
                     doLog("entry", parameters);
                     try {
-                        var result = proceed();
+                        var result = invocation();
                         doLog("exit", result);
                         return result;
                     } catch (e) {
@@ -320,11 +320,11 @@ module remoteTest {
                 echoService.echo(-87654321).then(
                     result  => assert(result === -87654321)
                 );
-                echoService.echo(new contract.instrument.stock.JsDouble(123.456e98)).then(
-                    result => assert((<contract.instrument.stock.JsDouble>result).d === 123.456e98)
+                echoService.echo(new contract.instrument.stock.Double(123.456e98)).then(
+                    result => assert((<contract.instrument.stock.Double>result).d === 123.456e98)
                 );
-                echoService.echo(new contract.instrument.stock.JsDouble(-9.384762637432E-12)).then(
-                    result => assert((<contract.instrument.stock.JsDouble>result).d === -9.384762637432E-12)
+                echoService.echo(new contract.instrument.stock.Double(-9.384762637432E-12)).then(
+                    result => assert((<contract.instrument.stock.Double>result).d === -9.384762637432E-12)
                 );
                 echoService.echo(new contract.Expiration(9, 8, 7)).then(
                     result => {
@@ -375,8 +375,12 @@ module xhrTest {
     var echoService = proxyFactory.proxy(contract.ServerServices.EchoService);
     assertThrown(() => instrumentService.reload(false, 123));
     echoService.echo("echo").then(result => log("echo succeeded:", result));
+    echoService.echo("throwRuntimeException").catch(error => log("throwRuntimeException failed:", error));
 
     assertThrown(() => yass.xhr("dummy://localhost:9090/xhr", contract.SERIALIZER).proxy(contract.ServerServices.EchoService).echo("echo1"));
-    yass.xhr("http://localhost:9090/dummy", contract.SERIALIZER).proxy(contract.ServerServices.EchoService).echo("echo2").catch(error => log("echo failed:", error));
+    yass.xhr("http://localhost:9090/dummy", contract.SERIALIZER).proxy(contract.ServerServices.EchoService).echo("echo2").catch(error => log("echo2 failed:", error));
+    yass.xhr("http://localhost:9999/xhr", contract.SERIALIZER).proxy(contract.ServerServices.EchoService).echo("echo3").catch(error => log("echo3 failed:", error));
 
 }
+
+log("done");

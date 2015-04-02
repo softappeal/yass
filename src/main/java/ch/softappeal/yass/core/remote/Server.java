@@ -30,12 +30,12 @@ public final class Server extends Common {
         }
     }
 
-    public static final class ServerInvocation {
+    public static final class Invocation {
         public final boolean oneWay;
         private final Service service;
         private final Method method;
         @Nullable private final Object[] arguments;
-        ServerInvocation(final ServiceDesc serviceDesc, final Request request) {
+        Invocation(final ServiceDesc serviceDesc, final Request request) {
             final MethodMapper.Mapping methodMapping = serviceDesc.methodMapper.mapId(request.methodId);
             oneWay = methodMapping.oneWay;
             service = serviceDesc.service;
@@ -47,12 +47,12 @@ public final class Server extends Common {
         }
     }
 
-    public ServerInvocation invocation(final Request request) {
+    public Invocation invocation(final Request request) {
         @Nullable final ServiceDesc serviceDesc = serviceId2serviceDesc.get(request.serviceId);
         if (serviceDesc == null) {
             throw new RuntimeException("no serviceId " + request.serviceId + " found (methodId " + request.methodId + ')');
         }
-        return new ServerInvocation(serviceDesc, request);
+        return new Invocation(serviceDesc, request);
     }
 
 }

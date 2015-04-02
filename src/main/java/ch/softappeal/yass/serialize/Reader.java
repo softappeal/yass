@@ -24,7 +24,7 @@ public abstract class Reader {
     public final short readShort() throws Exception {
         return (short)(
             ((readByte() & 0b1111_1111) << 8) |
-                ((readByte() & 0b1111_1111) << 0)
+            ((readByte() & 0b1111_1111) << 0)
         );
     }
 
@@ -32,26 +32,28 @@ public abstract class Reader {
      * @see Writer#writeInt(int)
      */
     public final int readInt() throws Exception {
-        return
+        return (
             ((readByte() & 0b1111_1111) << 24) |
-                ((readByte() & 0b1111_1111) << 16) |
-                ((readByte() & 0b1111_1111) << 8) |
-                ((readByte() & 0b1111_1111) << 0);
+            ((readByte() & 0b1111_1111) << 16) |
+            ((readByte() & 0b1111_1111) << 8) |
+            ((readByte() & 0b1111_1111) << 0)
+        );
     }
 
     /**
      * @see Writer#writeLong(long)
      */
     public final long readLong() throws Exception {
-        return
+        return (
             ((readByte() & 0b1111_1111L) << 56) |
-                ((readByte() & 0b1111_1111L) << 48) |
-                ((readByte() & 0b1111_1111L) << 40) |
-                ((readByte() & 0b1111_1111L) << 32) |
-                ((readByte() & 0b1111_1111L) << 24) |
-                ((readByte() & 0b1111_1111L) << 16) |
-                ((readByte() & 0b1111_1111L) << 8) |
-                ((readByte() & 0b1111_1111L) << 0);
+            ((readByte() & 0b1111_1111L) << 48) |
+            ((readByte() & 0b1111_1111L) << 40) |
+            ((readByte() & 0b1111_1111L) << 32) |
+            ((readByte() & 0b1111_1111L) << 24) |
+            ((readByte() & 0b1111_1111L) << 16) |
+            ((readByte() & 0b1111_1111L) << 8) |
+            ((readByte() & 0b1111_1111L) << 0)
+        );
     }
 
     /**
@@ -60,7 +62,7 @@ public abstract class Reader {
     public final char readChar() throws Exception {
         return (char)(
             ((readByte() & 0b1111_1111) << 8) |
-                ((readByte() & 0b1111_1111) << 0)
+            ((readByte() & 0b1111_1111) << 0)
         );
     }
 
