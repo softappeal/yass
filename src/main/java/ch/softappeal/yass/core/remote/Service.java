@@ -27,19 +27,15 @@ public final class Service {
 
     Reply invoke(final Interceptor interceptor, final Method method, @Nullable final Object[] arguments) {
         try {
-            return new ValueReply(Interceptors.composite(interceptor, this.interceptor).invoke(
-                method,
-                arguments,
-                new Invocation() {
-                    @Override public Object proceed() throws Throwable {
-                        try {
-                            return method.invoke(implementation, arguments);
-                        } catch (final InvocationTargetException e) {
-                            throw e.getCause();
-                        }
+            return new ValueReply(Interceptors.composite(interceptor, this.interceptor).invoke(method, arguments, new Invocation() {
+                @Override public Object proceed() throws Throwable {
+                    try {
+                        return method.invoke(implementation, arguments);
+                    } catch (final InvocationTargetException e) {
+                        throw e.getCause();
                     }
                 }
-            ));
+            }));
         } catch (final Throwable t) {
             return new ExceptionReply(t);
         }

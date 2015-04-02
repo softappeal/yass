@@ -16,7 +16,7 @@ import org.junit.Test;
 public class ServerTest {
 
     static final Client client = new Client(TaggedMethodMapper.FACTORY) {
-        @Override public Object invoke(final ClientInvocation invocation) throws Throwable {
+        @Override public Object invoke(final Client.Invocation invocation) throws Throwable {
             return invocation.invoke(Interceptors.DIRECT, new Tunnel() {
                 @Override public Reply invoke(final Request request) throws Exception {
                     return new Server(

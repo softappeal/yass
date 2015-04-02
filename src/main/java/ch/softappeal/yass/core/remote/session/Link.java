@@ -1,12 +1,14 @@
 package ch.softappeal.yass.core.remote.session;
 
 import ch.softappeal.yass.core.Interceptor;
+import ch.softappeal.yass.core.Interceptors;
 import ch.softappeal.yass.core.remote.ContractId;
 import ch.softappeal.yass.util.Nullable;
 
+import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
-import java.util.function.Consumer;
 
 /**
  * Wraps a client side {@link ch.softappeal.yass.core.remote.session.Session}.
@@ -16,17 +18,11 @@ public abstract class Link {
 
     @Nullable private Delegate<Object> firstDelegate = null;
 
-    private void forEachDelegate(final Consumer<Delegate<Object>> consumer) {
-        for (Delegate<Object> delegate = firstDelegate; delegate != null; delegate = delegate.nextDelegate) {
-            consumer.accept(delegate);
-        }
-    }
-
     /**
      * @return a proxy surviving {@link ch.softappeal.yass.core.remote.session.Session#closed(Throwable)}
      */
     protected final <C> C proxy(final ContractId<C> contractId, final Interceptor... interceptors) {
-        return new Delegate<>(contractId, Interceptor.composite(interceptors)).proxy;
+        return new Delegate<>(contractId, Interceptors.composite(interceptors)).proxy;
     }
 
     private final class Delegate<C> {
@@ -43,15 +39,17 @@ public abstract class Link {
             proxy = (C)Proxy.newProxyInstance(
                 contractId.contract.getClassLoader(),
                 new Class<?>[] {contractId.contract},
-                (proxy, method, arguments) -> {
-                    final C implementation = this.implementation;
-                    if (implementation == null) {
-                        throw new SessionClosedException();
-                    }
-                    try {
-                        return method.invoke(implementation, arguments);
-                    } catch (final InvocationTargetException e) {
-                        throw e.getCause();
+                new InvocationHandler() {
+                    @Override public Object invoke(final Object proxy, final Method method, final Object[] arguments) throws Throwable {
+                        final C implementation = Delegate.this.implementation;
+                        if (implementation == null) {
+                            throw new SessionClosedException();
+                        }
+                        try {
+                            return method.invoke(implementation, arguments);
+                        } catch (final InvocationTargetException e) {
+                            throw e.getCause();
+                        }
                     }
                 }
             );
@@ -80,7 +78,9 @@ public abstract class Link {
         }
         @Override protected void opened() throws Exception {
             session = this;
-            forEachDelegate(delegate -> delegate.setImplementation(this));
+            for (Delegate<Object> delegate = firstDelegate; delegate != null; delegate = delegate.nextDelegate) {
+                delegate.setImplementation(this);
+            }
             Link.this.opened();
         }
         @Override protected void closed(@Nullable final Throwable throwable) throws Exception {
@@ -89,7 +89,11 @@ public abstract class Link {
         }
     }
 
-    public final SessionFactory sessionFactory = Session::new;
+    public final SessionFactory sessionFactory = new SessionFactory() {
+        @Override public ch.softappeal.yass.core.remote.session.Session create(final SessionClient sessionClient) throws Exception {
+            return new Session(sessionClient);
+        }
+    };
 
     @Nullable private volatile Session session = null;
 

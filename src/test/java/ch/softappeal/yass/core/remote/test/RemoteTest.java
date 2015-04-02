@@ -7,7 +7,6 @@ import ch.softappeal.yass.core.remote.Client;
 import ch.softappeal.yass.core.remote.Reply;
 import ch.softappeal.yass.core.remote.Request;
 import ch.softappeal.yass.core.remote.Server;
-import ch.softappeal.yass.core.remote.Server.ServerInvocation;
 import ch.softappeal.yass.core.remote.Service;
 import ch.softappeal.yass.core.remote.TaggedMethodMapper;
 import ch.softappeal.yass.core.remote.Tunnel;
@@ -33,11 +32,11 @@ public class RemoteTest extends InvokeTest {
 
     private static Client client(final Server server) {
         return new Client(TaggedMethodMapper.FACTORY) {
-            @Override public Object invoke(final ClientInvocation clientInvocation) throws Throwable {
+            @Override public Object invoke(final Client.Invocation clientInvocation) throws Throwable {
                 return clientInvocation.invoke(
                     Interceptors.composite(
                         new Interceptor() {
-                            @Override public Object invoke(final Method method, @Nullable final Object[] arguments, final Invocation invocation) throws Throwable {
+                            @Override public Object invoke(final Method method, @Nullable final Object[] arguments, final ch.softappeal.yass.core.Invocation invocation) throws Throwable {
                                 COUNTER = 0;
                                 try {
                                     return invocation.proceed();
@@ -51,7 +50,7 @@ public class RemoteTest extends InvokeTest {
                     new Tunnel() {
                         @Override public Reply invoke(final Request request) throws Exception {
                             Assert.assertTrue((33 == (Integer)request.methodId) == clientInvocation.oneWay);
-                            final ServerInvocation serverInvocation = server.invocation(request);
+                            final Server.Invocation serverInvocation = server.invocation(request);
                             Assert.assertTrue(clientInvocation.oneWay == serverInvocation.oneWay);
                             return serverInvocation.invoke(stepInterceptor(3));
                         }

@@ -1,12 +1,7 @@
 package ch.softappeal.yass.tutorial.client.socket;
 
-import ch.softappeal.yass.core.remote.session.Reconnector;
-import ch.softappeal.yass.core.remote.session.Session;
-import ch.softappeal.yass.core.remote.session.SessionClient;
-import ch.softappeal.yass.core.remote.session.SessionFactory;
 import ch.softappeal.yass.transport.socket.SocketExecutor;
 import ch.softappeal.yass.transport.socket.SocketTransport;
-import ch.softappeal.yass.tutorial.client.ClientSession;
 import ch.softappeal.yass.tutorial.client.ClientSetup;
 import ch.softappeal.yass.tutorial.contract.Config;
 import ch.softappeal.yass.tutorial.server.socket.SocketServer;
@@ -20,24 +15,11 @@ public final class SocketClient extends ClientSetup {
 
     public static void main(final String... args) {
         final Executor executor = Executors.newCachedThreadPool(new NamedThreadFactory("executor", Exceptions.STD_ERR));
-        Reconnector.start(
-            executor,
-            5,
-            new SessionFactory() {
-                @Override public Session create(final SessionClient sessionClient) {
-                    return new ClientSession(sessionClient);
-                }
-            },
-            new Reconnector.Connector() {
-                @Override public void connect(final SessionFactory sessionFactory) {
-                    SocketTransport.connect(
-                        createTransportSetup(executor, sessionFactory),
-                        new SocketExecutor(executor, Exceptions.STD_ERR),
-                        Config.PATH_SERIALIZER, SocketServer.PATH,
-                        SocketServer.ADDRESS
-                    );
-                }
-            }
+        SocketTransport.connect(
+            createTransportSetup(executor),
+            new SocketExecutor(executor, Exceptions.STD_ERR),
+            Config.PATH_SERIALIZER, SocketServer.PATH,
+            SocketServer.ADDRESS
         );
         System.out.println("started");
     }

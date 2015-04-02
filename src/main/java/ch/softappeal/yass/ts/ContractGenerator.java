@@ -4,6 +4,7 @@ import ch.softappeal.yass.Version;
 import ch.softappeal.yass.core.remote.ContractId;
 import ch.softappeal.yass.core.remote.MethodMapper;
 import ch.softappeal.yass.serialize.fast.ClassTypeHandler;
+import ch.softappeal.yass.serialize.fast.FieldHandler;
 import ch.softappeal.yass.serialize.fast.JsFastSerializer;
 import ch.softappeal.yass.serialize.fast.TypeDesc;
 import ch.softappeal.yass.serialize.fast.TypeHandler;
@@ -20,6 +21,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -311,7 +313,7 @@ public final class ContractGenerator extends Generator {
     public ContractGenerator(
         final Package rootPackage,
         final JsFastSerializer serializer,
-        final MethodMapper.Factory methodMapperFactory,
+        @Nullable final MethodMapper.Factory methodMapperFactory,
         final String includePath,
         final String contractModuleName,
         @Nullable final Map<Class<?>, String> externalJavaBaseType2tsBaseType,
@@ -321,7 +323,9 @@ public final class ContractGenerator extends Generator {
         this.rootPackage = rootPackage.getName() + '.';
         this.methodMapperFactory = methodMapperFactory;
         if (externalJavaBaseType2tsBaseType != null) {
-            externalJavaBaseType2tsBaseType.forEach((java, ts) -> this.externalJavaBaseType2tsBaseType.put(Check.notNull(java), Check.notNull(ts)));
+            for (final Map.Entry<Class<?>, String> entry : externalJavaBaseType2tsBaseType.entrySet()) {
+                this.externalJavaBaseType2tsBaseType.put(Check.notNull(entry.getKey()), Check.notNull(entry.getValue()));
+            }
         }
         id2typeHandler = serializer.id2typeHandler();
         for (final Map.Entry<Integer, TypeHandler> entry : id2typeHandler.entrySet()) {

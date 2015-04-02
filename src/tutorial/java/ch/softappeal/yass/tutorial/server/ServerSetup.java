@@ -27,7 +27,8 @@ public abstract class ServerSetup {
                     return (PriceEngineContext)Session.get();
                 }
             }),
-            UnexpectedExceptionHandler.INSTANCE, Logger.SERVER
+            UnexpectedExceptionHandler.INSTANCE,
+            Logger.SERVER
         ),
         new Service(ServerServices.EchoService, new EchoServiceImpl(), UnexpectedExceptionHandler.INSTANCE, Logger.SERVER)
     );
