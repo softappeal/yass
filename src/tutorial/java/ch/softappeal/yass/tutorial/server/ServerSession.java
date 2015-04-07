@@ -6,8 +6,8 @@ import ch.softappeal.yass.tutorial.contract.ClientServices;
 import ch.softappeal.yass.tutorial.contract.EchoService;
 import ch.softappeal.yass.tutorial.contract.Logger;
 import ch.softappeal.yass.tutorial.contract.Price;
+import ch.softappeal.yass.tutorial.contract.PriceKind;
 import ch.softappeal.yass.tutorial.contract.PriceListener;
-import ch.softappeal.yass.tutorial.contract.PriceType;
 import ch.softappeal.yass.util.Exceptions;
 import ch.softappeal.yass.util.Nullable;
 
@@ -42,7 +42,7 @@ public final class ServerSession extends Session implements PriceEngineContext {
             final List<Price> prices = new ArrayList<>();
             for (final int subscribedInstrumentId : subscribedInstrumentIds.toArray(new Integer[subscribedInstrumentIds.size()])) {
                 if (random.nextBoolean()) {
-                    prices.add(new Price(subscribedInstrumentId, random.nextInt(99) + 1, PriceType.values()[random.nextInt(2)]));
+                    prices.add(new Price(subscribedInstrumentId, random.nextInt(99) + 1, PriceKind.values()[random.nextInt(2)]));
                 }
             }
             if (!prices.isEmpty()) {
