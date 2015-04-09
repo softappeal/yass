@@ -11,7 +11,7 @@ public final class GenerateTypeScriptContract {
 
     public static void main(final String... args) throws Exception {
         final Map<Class<?>, String> externalJavaBaseType2tsBaseType = new HashMap<>();
-        externalJavaBaseType2tsBaseType.put(Double.class, "instrument.stock.Double");
+        externalJavaBaseType2tsBaseType.put(Integer.class, "instrument.stock.Integer");
         new ContractGenerator(
             Config.class.getPackage(), Config.CONTRACT_SERIALIZER, Config.METHOD_MAPPER_FACTORY,
             "baseTypes", "contract", externalJavaBaseType2tsBaseType, "src/tutorial/ts/contract.ts"

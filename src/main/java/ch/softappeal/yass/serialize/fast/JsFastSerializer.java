@@ -11,7 +11,7 @@ import java.util.Map;
 
 /**
  * This is the Java implementation of the yass JavaScript serializer.
- * Only the following base types are allowed: {@link Boolean}, {@link Integer}, {@link String} and byte[].
+ * Only the following base types are allowed: {@link Boolean}, {@link Double}, {@link String} and byte[].
  * This serializer assigns type and field id's automatically. Therefore, all peers must have the same version of the contract!
  */
 public final class JsFastSerializer extends AbstractFastSerializer {
@@ -35,7 +35,7 @@ public final class JsFastSerializer extends AbstractFastSerializer {
     }
 
     public static final TypeDesc BOOLEAN_TYPEDESC = new TypeDesc(TypeDesc.FIRST_ID, BaseTypeHandlers.BOOLEAN);
-    public static final TypeDesc INTEGER_TYPEDESC = new TypeDesc(TypeDesc.FIRST_ID + 1, BaseTypeHandlers.INTEGER);
+    public static final TypeDesc DOUBLE_TYPEDESC = new TypeDesc(TypeDesc.FIRST_ID + 1, BaseTypeHandlers.DOUBLE);
     public static final TypeDesc STRING_TYPEDESC = new TypeDesc(TypeDesc.FIRST_ID + 2, BaseTypeHandlers.STRING);
     public static final TypeDesc BYTES_TYPEDESC = new TypeDesc(TypeDesc.FIRST_ID + 3, BaseTypeHandlers.BYTE_ARRAY);
     public static final int FIRST_ID = TypeDesc.FIRST_ID + 4;
@@ -51,7 +51,7 @@ public final class JsFastSerializer extends AbstractFastSerializer {
     ) {
         super(reflectorFactory);
         addBaseType(BOOLEAN_TYPEDESC);
-        addBaseType(INTEGER_TYPEDESC);
+        addBaseType(DOUBLE_TYPEDESC);
         addBaseType(STRING_TYPEDESC);
         addBaseType(BYTES_TYPEDESC);
         int id = FIRST_ID;

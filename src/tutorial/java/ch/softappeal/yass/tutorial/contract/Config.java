@@ -27,10 +27,10 @@ public final class Config {
         FastReflector.FACTORY,
         Arrays.asList(
             Expiration.TYPE_HANDLER,
-            BaseTypeHandlers.DOUBLE // shows how to use a contract external base type
+            BaseTypeHandlers.INTEGER // shows how to use a contract external base type
         ),
         Arrays.<Class<?>>asList(
-            PriceType.class
+            PriceKind.class
         ),
         Arrays.<Class<?>>asList(
             Price.class,

@@ -35,8 +35,9 @@ public final class ContractGenerator extends Generator {
     private final LinkedHashMap<Class<?>, Integer> type2id = new LinkedHashMap<>();
     private final SortedMap<Integer, TypeHandler> id2typeHandler;
     private final Set<Class<?>> visitedClasses = new HashSet<>();
-    private final MethodMapper.Factory methodMapperFactory;
+    @Nullable private final MethodMapper.Factory methodMapperFactory;
     private final Map<Class<?>, String> externalJavaBaseType2tsBaseType = new HashMap<>();
+    private final String contractModuleName;
 
     private void checkType(final Class<?> type) {
         if (!type.getCanonicalName().startsWith(rootPackage)) {
@@ -104,7 +105,7 @@ public final class ContractGenerator extends Generator {
             } else {
                 throw new RuntimeException("unexpected type '" + parameterizedType + '\'');
             }
-        } else if ((type == int.class) || (type == Integer.class)) {
+        } else if ((type == double.class) || (type == Double.class)) {
             return "number";
         } else if ((type == boolean.class) || (type == Boolean.class)) {
             return "boolean";
@@ -117,7 +118,7 @@ public final class ContractGenerator extends Generator {
         } else if (type == void.class) {
             return "void";
         }
-        return jsType((Class<?>)type);
+        return contractModuleName + jsType((Class<?>)type);
     }
 
     private String typeDescOwner(final ClassTypeHandler.FieldDesc fieldDesc) {
@@ -126,8 +127,8 @@ public final class ContractGenerator extends Generator {
             return "yass.LIST_DESC";
         } else if (JsFastSerializer.BOOLEAN_TYPEDESC.handler == typeHandler) {
             return "yass.BOOLEAN_DESC";
-        } else if (JsFastSerializer.INTEGER_TYPEDESC.handler == typeHandler) {
-            return "yass.INTEGER_DESC";
+        } else if (JsFastSerializer.DOUBLE_TYPEDESC.handler == typeHandler) {
+            return "yass.NUMBER_DESC";
         } else if (JsFastSerializer.STRING_TYPEDESC.handler == typeHandler) {
             return "yass.STRING_DESC";
         } else if (JsFastSerializer.BYTES_TYPEDESC.handler == typeHandler) {
@@ -135,7 +136,7 @@ public final class ContractGenerator extends Generator {
         } else if (typeHandler == null) {
             return "null";
         }
-        return jsType(typeHandler.type) + ".TYPE_DESC";
+        return contractModuleName + jsType(typeHandler.type) + ".TYPE_DESC";
     }
 
     private void generateClass(final Class<?> type) {
@@ -152,7 +153,7 @@ public final class ContractGenerator extends Generator {
         generateType(type, new TypeGenerator() {
             @Override public void generateType(final String name) {
                 final List<Field> fields = Reflect.ownFields(type);
-                tabsln("export class %s extends %s {", name, (superClass == null) ? "yass.Type" : jsType(superClass));
+                tabsln("export class %s extends %s {", name, (superClass == null) ? "yass.Type" : (contractModuleName + jsType(superClass)));
                 inc();
                 for (final Field field : fields) {
                     tabsln("%s: %s;", field.getName(), type(field.getGenericType()));
@@ -259,7 +260,7 @@ public final class ContractGenerator extends Generator {
             @Override public void generateType(final String name) {
                 generateInterface(name, false);
                 generateInterface(name, true);
-                tabs("export var %s_MAPPER = new yass.MethodMapper<%s>(", name, name);
+                tabs("export var %s_MAPPER: yass.MethodMapper<%s> = new yass.MethodMapper<%s>(", name, name, name);
                 inc();
                 boolean first = true;
                 for (final Method method : methods) {
@@ -285,8 +286,11 @@ public final class ContractGenerator extends Generator {
         tabsln("export module %s {", jsType(services));
         inc();
         for (final ServiceDesc serviceDesc : getServiceDescs(services)) {
-            final String name = jsType(serviceDesc.contractId.contract);
-            tabsln("export var %s = new yass.ContractId<%s, %s_PROXY>(%s, %s_MAPPER);", serviceDesc.name, name, name, serviceDesc.contractId.id, name);
+            final String name = contractModuleName + jsType(serviceDesc.contractId.contract);
+            tabsln(
+                "export var %s: yass.ContractId<%s, %s_PROXY> = new yass.ContractId<%s, %s_PROXY>(%s, %s_MAPPER);",
+                serviceDesc.name, name, name, name, name, serviceDesc.contractId.id, name
+            );
         }
         dec();
         tabsln("}");
@@ -336,7 +340,8 @@ public final class ContractGenerator extends Generator {
         }
         tabsln("/// <reference path='%s'/>", Check.notNull(includePath));
         println();
-        tabsln("module %s {", Check.notNull(contractModuleName));
+        this.contractModuleName = Check.notNull(contractModuleName) + '.';
+        tabsln("module %s {", contractModuleName);
         println();
         inc();
         tabsln("export var GENERATED_BY_YASS_VERSION = '%s';", Version.VALUE);
@@ -376,7 +381,7 @@ public final class ContractGenerator extends Generator {
             }
             first = false;
             println();
-            tabs(jsType(type));
+            tabs(this.contractModuleName + jsType(type));
         }
         println();
         dec();

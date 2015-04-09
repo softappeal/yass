@@ -7,15 +7,15 @@ module contract {
     class Expiration_HANDLER implements yass.TypeHandler<Expiration> {
         read(reader: yass.Reader): Expiration {
             return new Expiration(
-                yass.INTEGER_DESC.handler.read(reader),
-                yass.INTEGER_DESC.handler.read(reader),
-                yass.INTEGER_DESC.handler.read(reader)
+                reader.readZigZagInt(),
+                reader.readZigZagInt(),
+                reader.readZigZagInt()
             );
         }
         write(value: Expiration, writer: yass.Writer): void {
-            yass.INTEGER_DESC.handler.write(value.year, writer);
-            yass.INTEGER_DESC.handler.write(value.month, writer);
-            yass.INTEGER_DESC.handler.write(value.day, writer);
+            writer.writeZigZagInt(value.year);
+            writer.writeZigZagInt(value.month);
+            writer.writeZigZagInt(value.day);
         }
     }
     export class Expiration extends yass.Type {
@@ -26,20 +26,22 @@ module contract {
     }
 
     export module instrument.stock {
-        class Double_HANDLER implements yass.TypeHandler<Double> {
-            read(reader: yass.Reader): Double {
-                return new Double(new DataView(reader.array.buffer).getFloat64(reader.needed(8)));
+        class Integer_HANDLER implements yass.TypeHandler<Integer> {
+            read(reader: yass.Reader): Integer {
+                return new Integer(reader.readZigZagInt());
             }
-            write(value: Double, writer: yass.Writer): void {
-                var position = writer.needed(8);
-                new DataView(writer.array.buffer).setFloat64(position, value.d);
+            write(value: Integer, writer: yass.Writer): void {
+                writer.writeZigZagInt(value.value);
             }
         }
-        export class Double extends yass.Type {
-            constructor(public d: number) {
-                super();
+        export class Integer extends yass.Type {
+            constructor(private v: number) {
+                super(); // note: check if v is really a Java Integer should be implemented here
             }
-            static TYPE_DESC = new yass.TypeDesc(yass.FIRST_ID + 1, new Double_HANDLER);
+            get value(): number {
+                return this.v;
+            }
+            static TYPE_DESC = new yass.TypeDesc(yass.FIRST_ID + 1, new Integer_HANDLER);
         }
     }
 

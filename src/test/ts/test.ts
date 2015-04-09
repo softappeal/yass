@@ -1,5 +1,7 @@
 /// <reference path="../../tutorial/ts/contract"/>
 
+import Integer = contract.instrument.stock.Integer;
+
 function log(...args: any[]): void {
     console.log.apply(console, args);
 }
@@ -131,19 +133,19 @@ module ioTest {
 
 module enumTest {
 
-    var ask = contract.PriceType.ASK;
+    var ask = contract.PriceKind.ASK;
     log(ask);
     assert(ask.number === 1);
     assert(ask.name === "ASK");
-    assert(ask === contract.PriceType.ASK);
-    assert(ask !== contract.PriceType.BID);
+    assert(ask === contract.PriceKind.ASK);
+    assert(ask !== contract.PriceKind.BID);
 
 }
 
 module classTest {
 
     var stock = new contract.instrument.stock.Stock;
-    stock.id = 1344;
+    stock.id = new Integer(1344);
     stock.name = "IBM";
     stock.paysDividend = true;
     log(stock);
@@ -151,7 +153,7 @@ module classTest {
     assert(stock instanceof contract.instrument.stock.Stock);
     assert(!(stock instanceof contract.instrument.Bond));
     var exception = new contract.UnknownInstrumentsException;
-    exception.instrumentIds = [23, 454];
+    exception.instrumentIds = [new Integer(23), new Integer(454)];
 
 }
 
@@ -173,17 +175,23 @@ module serializerTest {
     assert(copy(-1234567) === -1234567);
     assert(copy("") === "");
     assert(copy("blabli") === "blabli");
-    assert(copy(contract.PriceType.ASK) === contract.PriceType.ASK);
-    assert(copy(contract.PriceType.BID) === contract.PriceType.BID);
-    assert(copy(new contract.instrument.stock.Double(123.456e98)).d === 123.456e98);
-    assert(copy(new contract.instrument.stock.Double(-9.384762637432E-12)).d === -9.384762637432E-12);
+    assert(copy(contract.PriceKind.ASK) === contract.PriceKind.ASK);
+    assert(copy(contract.PriceKind.BID) === contract.PriceKind.BID);
+    assert(copy(new Integer(123456)).value === 123456);
+    assert(copy(new Integer(-987654)).value === -987654);
 
     function compare(array1: any[], array2: any[]): boolean {
         if (array1.length !== array2.length) {
             return false;
         }
         for (var i = 0; i < array1.length; i++) {
-            if (array1[i] !== array2[i]) {
+            var e1 = array1[i];
+            var e2 = array2[i];
+            if (e1 instanceof Integer) {
+                if (e1.value !== e2.value) {
+                    return false;
+                }
+            } else if (e1 !== e2) {
                 return false;
             }
         }
@@ -196,11 +204,11 @@ module serializerTest {
     assert(compare(copy([12, true, "bla"]), [12, true, "bla"]));
 
     var stock = new contract.instrument.stock.Stock;
-    stock.id = 1344;
+    stock.id = new Integer(1344);
     stock.name = "IBM";
     stock.paysDividend = true;
     stock = copy(stock);
-    assert(stock.id === 1344);
+    assert(stock.id.value === 1344);
     assert(stock.name === "IBM");
     assert(stock.paysDividend);
     stock.paysDividend = false;
@@ -211,27 +219,27 @@ module serializerTest {
     assert(stock.paysDividend === undefined);
 
     var bond = new contract.instrument.Bond;
-    bond.coupon = new contract.instrument.stock.Double(3.5);
+    bond.coupon = 3.5;
     bond.expiration = new contract.Expiration(2013, 2, 20);
     bond = copy(bond);
-    assert(bond.coupon.d === 3.5);
+    assert(bond.coupon === 3.5);
     assert(bond.expiration.year === 2013);
     assert(bond.expiration.month === 2);
     assert(bond.expiration.day === 20);
 
     var e = new contract.UnknownInstrumentsException;
-    e.instrumentIds = [100, 200];
+    e.instrumentIds = [new Integer(100), new Integer(200)];
     e = copy(e);
-    assert(compare(e.instrumentIds, [100, 200]));
+    assert(compare(e.instrumentIds, [new Integer(100), new Integer(200)]));
 
     var price = new contract.Price;
-    price.instrumentId = 123;
-    price.type = contract.PriceType.ASK;
-    price.value = 999;
+    price.instrumentId = new Integer(123);
+    price.kind = contract.PriceKind.ASK;
+    price.value = new Integer(999);
     price = copy(price);
-    assert(price.instrumentId === 123);
-    assert(price.type === contract.PriceType.ASK);
-    assert(price.value === 999);
+    assert(price.instrumentId.value === 123);
+    assert(price.kind === contract.PriceKind.ASK);
+    assert(price.value.value === 999);
 
     var writer = new yass.Writer(1);
     writer.writeByte(123);
@@ -296,7 +304,7 @@ module remoteTest {
                 var instrumentService = sessionClient.proxy(contract.ServerServices.InstrumentService, printer);
                 var priceEngine = sessionClient.proxy(contract.ServerServices.PriceEngine, printer);
                 var echoService = sessionClient.proxy(contract.ServerServices.EchoService, printer);
-                instrumentService.reload(false, 123);
+                instrumentService.reload(false, new Integer(123));
                 echoService.echo(null).then(
                     result => assert(result === null)
                 );
@@ -304,27 +312,27 @@ module remoteTest {
                     result => assert(result === null)
                 );
                 var stock = new contract.instrument.stock.Stock;
-                stock.id = 123;
+                stock.id = new Integer(123);
                 stock.name = null;
                 stock.paysDividend = undefined;
                 echoService.echo(stock).then(
                     result => {
-                        assert(result.id === 123);
+                        assert(result.id.value === 123);
                         assert(result.name === undefined);
                         assert(result.paysDividend === undefined);
                     }
                 );
-                echoService.echo(12345678).then(
-                    result =>  assert(result === 12345678)
+                echoService.echo(new Integer(12345678)).then(
+                    result =>  assert(result.value === 12345678)
                 );
-                echoService.echo(-87654321).then(
-                    result  => assert(result === -87654321)
+                echoService.echo(new Integer(-87654321)).then(
+                    result  => assert(result.value === -87654321)
                 );
-                echoService.echo(new contract.instrument.stock.Double(123.456e98)).then(
-                    result => assert((<contract.instrument.stock.Double>result).d === 123.456e98)
+                echoService.echo(123.456e98).then(
+                    result => assert(result === 123.456e98)
                 );
-                echoService.echo(new contract.instrument.stock.Double(-9.384762637432E-12)).then(
-                    result => assert((<contract.instrument.stock.Double>result).d === -9.384762637432E-12)
+                echoService.echo(-9.384762637432E-12).then(
+                    result => assert(result === -9.384762637432E-12)
                 );
                 echoService.echo(new contract.Expiration(9, 8, 7)).then(
                     result => {
@@ -347,7 +355,7 @@ module remoteTest {
                         assert(reader.isEmpty());
                     }
                 );
-                priceEngine.subscribe([987654321]).catch(exception => log("subscribe failed with", exception));
+                priceEngine.subscribe([new Integer(987654321)]).catch(exception => log("subscribe failed with", exception));
                 setTimeout(() => sessionClient.close(), 2000);
             },
             closed: function (exception) {
@@ -373,7 +381,7 @@ module xhrTest {
     var proxyFactory = yass.xhr("http://localhost:9090/xhr", contract.SERIALIZER);
     var instrumentService = proxyFactory.proxy(contract.ServerServices.InstrumentService);
     var echoService = proxyFactory.proxy(contract.ServerServices.EchoService);
-    assertThrown(() => instrumentService.reload(false, 123));
+    assertThrown(() => instrumentService.reload(false, new Integer(123)));
     echoService.echo("echo").then(result => log("echo succeeded:", result));
     echoService.echo("throwRuntimeException").catch(error => log("throwRuntimeException failed:", error));
 

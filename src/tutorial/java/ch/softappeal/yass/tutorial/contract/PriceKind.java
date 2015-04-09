@@ -1,6 +1,6 @@
 package ch.softappeal.yass.tutorial.contract;
 
-public enum PriceType {
+public enum PriceKind {
     BID,
     ASK
 }

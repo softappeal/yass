@@ -210,15 +210,16 @@ module yass {
     }
     export var BOOLEAN_DESC = new TypeDesc(3, new BooleanTypeHandler);
 
-    class IntegerTypeHandler implements TypeHandler<number> {
+    class NumberTypeHandler implements TypeHandler<number> {
         read(reader: Reader): number {
-            return reader.readZigZagInt();
+            return new DataView(reader.array.buffer).getFloat64(reader.needed(8));
         }
         write(value: number, writer: Writer): void {
-            writer.writeZigZagInt(value);
+            var position = writer.needed(8);
+            new DataView(writer.array.buffer).setFloat64(position, value);
         }
     }
-    export var INTEGER_DESC = new TypeDesc(4, new IntegerTypeHandler);
+    export var NUMBER_DESC = new TypeDesc(4, new NumberTypeHandler);
 
     class StringTypeHandler implements TypeHandler<string> {
         read(reader: Reader): string {
@@ -266,7 +267,7 @@ module yass {
         if ((value === null) || (value === undefined)) {
             NULL_DESC.write(null, writer);
         } else if (typeof(value) === "number") {
-            INTEGER_DESC.write(value, writer);
+            NUMBER_DESC.write(value, writer);
         } else if (typeof(value) === "string") {
             STRING_DESC.write(value, writer);
         } else if (typeof(value) === "boolean") {
@@ -340,7 +341,7 @@ module yass {
                 }
                 this.id2typeHandler[typeDesc.id] = typeDesc.handler;
             };
-            [NULL_DESC, LIST_DESC, BOOLEAN_DESC, INTEGER_DESC, STRING_DESC, BYTES_DESC].forEach(add);
+            [NULL_DESC, LIST_DESC, BOOLEAN_DESC, NUMBER_DESC, STRING_DESC, BYTES_DESC].forEach(add);
             Types.forEach(Type => add(Type.TYPE_DESC));
         }
         read(reader: Reader): any {
@@ -447,7 +448,7 @@ module yass {
         private static REQUEST = 0;
         private static VALUE_REPLY = 1;
         private static EXCEPTION_REPLY = 2;
-        constructor(private serializer: Serializer) {
+        constructor(private contractSerializer: Serializer) {
             // empty
         }
         read(reader: Reader): Message {
@@ -456,15 +457,15 @@ module yass {
                 return new Request(
                     reader.readZigZagInt(),
                     reader.readZigZagInt(),
-                    this.serializer.read(reader)
+                    this.contractSerializer.read(reader)
                 );
             } else if (type === MessageSerializer.VALUE_REPLY) {
                 return new ValueReply(
-                    this.serializer.read(reader)
+                    this.contractSerializer.read(reader)
                 );
             } else {
                 return new ExceptionReply(
-                    this.serializer.read(reader)
+                    this.contractSerializer.read(reader)
                 );
             }
         }
@@ -473,13 +474,13 @@ module yass {
                 writer.writeByte(MessageSerializer.REQUEST);
                 writer.writeZigZagInt((<Request>message).serviceId);
                 writer.writeZigZagInt((<Request>message).methodId);
-                this.serializer.write((<Request>message).parameters, writer);
+                this.contractSerializer.write((<Request>message).parameters, writer);
             } else if (message instanceof ValueReply) {
                 writer.writeByte(MessageSerializer.VALUE_REPLY);
-                this.serializer.write((<ValueReply>message).value, writer);
+                this.contractSerializer.write((<ValueReply>message).value, writer);
             } else {
                 writer.writeByte(MessageSerializer.EXCEPTION_REPLY);
-                this.serializer.write((<ExceptionReply>message).exception, writer);
+                this.contractSerializer.write((<ExceptionReply>message).exception, writer);
             }
         }
     }
@@ -616,7 +617,7 @@ module yass {
         }
         invoke(interceptor: Interceptor, tunnel: Tunnel): Promise<any> {
             var compositeInterceptor = composite(interceptor, this.interceptor);
-            var rpc = this.methodMapping.oneWay ? null : new Rpc(compositeInterceptor, this.methodMapping.method, this.parameters);
+            var rpc: Rpc = this.methodMapping.oneWay ? null : new Rpc(compositeInterceptor, this.methodMapping.method, this.parameters);
             compositeInterceptor(
                 this.methodMapping.oneWay ? InvokeStyle.NoPromise : InvokeStyle.PromiseEntry,
                 this.methodMapping.method,

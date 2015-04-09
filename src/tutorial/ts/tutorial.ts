@@ -2,14 +2,16 @@
 
 module tutorial {
 
+    import Integer = contract.instrument.stock.Integer;
+
     function log(...args: any[]): void {
         console.log.apply(console, args);
     }
 
-    function logger(type: string): yass.Interceptor {
+    function logger(side: string): yass.Interceptor {
         return (style, method, parameters, invocation) => {
             function doLog(kind: string, data: any): void {
-                log("logger:", type, yass.SESSION ? (<Session>yass.SESSION).id : null, kind, yass.InvokeStyle[style], method, data);
+                log("logger:", side, yass.SESSION ? (<Session>yass.SESSION).id : null, kind, yass.InvokeStyle[style], method, data);
             }
             doLog("entry", parameters);
             try {
@@ -42,13 +44,13 @@ module tutorial {
         tableModel.forEach(row => {
             html += "<tr>";
             var instrument = row.instrument;
-            [instrument.id, instrument.name].forEach(value => html += "<td>" + value + "</td>");
-            ["bid", "ask"].forEach(type => html += "<td id='" + instrument.id + ":" + type + "'></td>");
+            [instrument.id.value, instrument.name].forEach(value => html += "<td>" + value + "</td>");
+            ["bid", "ask"].forEach(kind => html += "<td id='" + instrument.id.value + ":" + kind + "'></td>");
             html += "</tr>";
         });
         document.getElementById("table").innerHTML = html + "</tbody></table>";
         tableModel.forEach(row => {
-            var find = (type: string) => document.getElementById(row.instrument.id + ":" + type);
+            var find = (kind: string) => document.getElementById(row.instrument.id.value + ":" + kind);
             row.bidElement = find("bid");
             row.askElement = find("ask");
         });
@@ -57,11 +59,11 @@ module tutorial {
     class PriceListenerImpl implements contract.PriceListener {
         newPrices(prices: contract.Price[]): void {
             prices.forEach(price => {
-                var tableRow = tableModel[price.instrumentId];
-                if (price.type === contract.PriceType.BID) {
-                    tableRow.bidElement.innerHTML = price.value.toString();
+                var tableRow = tableModel[price.instrumentId.value];
+                if (price.kind === contract.PriceKind.BID) {
+                    tableRow.bidElement.innerHTML = price.value.value.toString();
                 } else {
-                    tableRow.askElement.innerHTML = price.value.toString();
+                    tableRow.askElement.innerHTML = price.value.value.toString();
                 }
             });
         }
@@ -75,19 +77,19 @@ module tutorial {
 
     function subscribePrices(proxyFactory: yass.ProxyFactory): void {
         // create proxies; you can add 0..n interceptors to a proxy
-        var instrumentService = proxyFactory.proxy(contract.ServerServices.InstrumentService, clientLogger);
+        var instrumentService: contract.instrument.InstrumentService_PROXY = proxyFactory.proxy(contract.ServerServices.InstrumentService, clientLogger);
         var priceEngine = proxyFactory.proxy(contract.ServerServices.PriceEngine, clientLogger);
-        instrumentService.reload(true, 987654); // oneway method call
+        instrumentService.reload(true, new Integer(987654)); // oneway method call
         instrumentService.getInstruments().then(
             instruments => {
-                instruments.forEach(instrument => tableModel[instrument.id] = new TableRow(instrument));
+                instruments.forEach(instrument => tableModel[instrument.id.value] = new TableRow(instrument));
                 createTable();
                 return priceEngine.subscribe(instruments.map(instrument => instrument.id));
             }
         ).then(
             () => log("subscribe succeeded")
         );
-        priceEngine.subscribe([987654321]).catch(exception => log("subscribe failed with", exception));
+        priceEngine.subscribe([new Integer(987654321)]).catch(exception => log("subscribe failed with", exception));
     }
 
     class Session implements yass.Session {
