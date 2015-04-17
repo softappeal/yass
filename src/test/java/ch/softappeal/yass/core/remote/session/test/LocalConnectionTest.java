@@ -31,7 +31,7 @@ public class LocalConnectionTest extends InvokeTest {
 
     private static TransportSetup createSetup(
         final boolean invoke,
-        final Executor requestExecutor,
+        final Executor dispatcherExecutor,
         final boolean createException,
         final boolean openedException,
         final boolean invokeBeforeOpened
@@ -41,7 +41,7 @@ public class LocalConnectionTest extends InvokeTest {
                 TaggedMethodMapper.FACTORY,
                 new Service(ContractIdTest.ID, new TestServiceImpl(), invoke ? SESSION_CHECKER : Interceptor.composite(SESSION_CHECKER, SERVER_INTERCEPTOR))
             ),
-            requestExecutor,
+            dispatcherExecutor,
             PacketSerializerTest.SERIALIZER,
             sessionClient -> {
                 if (createException) {
@@ -76,8 +76,8 @@ public class LocalConnectionTest extends InvokeTest {
         );
     }
 
-    public static TransportSetup createSetup(final boolean invoke, final Executor requestExecutor, final boolean createException) {
-        return createSetup(invoke, requestExecutor, createException, false, false);
+    public static TransportSetup createSetup(final boolean invoke, final Executor dispatcherExecutor, final boolean createException) {
+        return createSetup(invoke, dispatcherExecutor, createException, false, false);
     }
 
     @Test public void plain() throws InterruptedException {

@@ -19,8 +19,8 @@ public abstract class ClientSetup {
         new Service(ClientServices.EchoService, new EchoServiceImpl(), UnexpectedExceptionHandler.INSTANCE, Logger.SERVER)
     );
 
-    protected static TransportSetup createTransportSetup(final Executor requestExecutor) {
-        return new TransportSetup(SERVER, requestExecutor, Config.PACKET_SERIALIZER, ClientSession::new);
+    protected static TransportSetup createTransportSetup(final Executor dispatcherExecutor) {
+        return new TransportSetup(SERVER, dispatcherExecutor, Config.PACKET_SERIALIZER, ClientSession::new);
     }
 
 }

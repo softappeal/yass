@@ -20,9 +20,9 @@ public abstract class WsServerSetup extends ServerSetup {
     public static final String XHR_PATH = "/xhr";
     public static final String WEB_PATH = ".";
 
-    public static final Executor REQUEST_EXECUTOR = Executors.newCachedThreadPool(new NamedThreadFactory("requestExecutor", Exceptions.STD_ERR));
+    public static final Executor DISPATCHER_EXECUTOR = Executors.newCachedThreadPool(new NamedThreadFactory("dispatcherExecutor", Exceptions.STD_ERR));
 
-    private static final TransportSetup TRANSPORT_SETUP = createTransportSetup(REQUEST_EXECUTOR);
+    private static final TransportSetup TRANSPORT_SETUP = createTransportSetup(DISPATCHER_EXECUTOR);
 
     public static final class Endpoint extends WsEndpoint {
         @Override protected WsConnection createConnection(final Session session) throws Exception {

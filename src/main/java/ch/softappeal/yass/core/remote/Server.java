@@ -32,9 +32,9 @@ public final class Server extends Common {
 
     public static final class Invocation {
         public final boolean oneWay;
-        private final Service service;
-        private final Method method;
-        @Nullable private final Object[] arguments;
+        public final Service service;
+        public final Method method;
+        @Nullable public final Object[] arguments;
         Invocation(final ServiceDesc serviceDesc, final Request request) {
             final MethodMapper.Mapping methodMapping = serviceDesc.methodMapper.mapId(request.methodId);
             oneWay = methodMapping.oneWay;

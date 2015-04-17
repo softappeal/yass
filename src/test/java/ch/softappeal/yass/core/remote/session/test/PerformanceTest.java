@@ -5,6 +5,7 @@ import ch.softappeal.yass.core.remote.MethodMapper;
 import ch.softappeal.yass.core.remote.Server;
 import ch.softappeal.yass.core.remote.Service;
 import ch.softappeal.yass.core.remote.TaggedMethodMapper;
+import ch.softappeal.yass.core.remote.session.Dispatcher;
 import ch.softappeal.yass.core.remote.session.LocalConnection;
 import ch.softappeal.yass.core.remote.session.Session;
 import ch.softappeal.yass.core.test.InvokeTest;
@@ -31,10 +32,10 @@ public class PerformanceTest extends InvokeTest {
 
     public static final ContractId<TestService> CONTRACT_ID = ContractId.create(TestService.class, 0);
 
-    public static TransportSetup createSetup(final Executor requestExecutor, @Nullable final CountDownLatch latch, final int samples) {
+    public static TransportSetup createSetup(final Dispatcher dispatcher, @Nullable final CountDownLatch latch, final int samples) {
         return new TransportSetup(
             new Server(METHOD_MAPPER_FACTORY, new Service(CONTRACT_ID, new TestServiceImpl())),
-            requestExecutor,
+            dispatcher,
             SocketPerformanceTest.PACKET_SERIALIZER,
             sessionClient -> new Session(sessionClient) {
                 @Override public void opened() {
@@ -69,6 +70,10 @@ public class PerformanceTest extends InvokeTest {
                 }
             }
         );
+    }
+
+    public static TransportSetup createSetup(final Executor dispatcherExecutor, @Nullable final CountDownLatch latch, final int samples) {
+        return createSetup(TransportSetup.dispatcher(dispatcherExecutor), latch, samples);
     }
 
     @Test public void test() throws InterruptedException {

@@ -1,5 +1,7 @@
 package ch.softappeal.yass.transport.socket.test;
 
+import ch.softappeal.yass.core.remote.Server;
+import ch.softappeal.yass.core.remote.session.Dispatcher;
 import ch.softappeal.yass.core.remote.session.test.PerformanceTest;
 import ch.softappeal.yass.core.test.InvokeTest;
 import ch.softappeal.yass.serialize.Serializer;
@@ -17,6 +19,7 @@ import ch.softappeal.yass.util.NamedThreadFactory;
 import ch.softappeal.yass.util.Nullable;
 import org.junit.Test;
 
+import java.util.Arrays;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
@@ -32,7 +35,20 @@ public class SocketPerformanceTest extends InvokeTest {
     public static final Serializer PACKET_SERIALIZER = new PacketSerializer(MESSAGE_SERIALIZER);
 
     private static TransportSetup createSetup(final Executor executor, @Nullable final CountDownLatch latch) {
-        return PerformanceTest.createSetup(executor, latch, COUNTER);
+        return PerformanceTest.createSetup(
+            new Dispatcher() {
+                @Override public void opened(final Runnable runnable) {
+                    System.out.println("opened");
+                    executor.execute(runnable);
+                }
+                @Override public void invoke(final Server.Invocation invocation, final Runnable runnable) {
+                    System.out.println(invocation.oneWay + " " + invocation.method.getName() + " " + Arrays.toString(invocation.arguments) + " " + invocation.service.contractId.id);
+                    runnable.run();
+                }
+            },
+            latch,
+            COUNTER
+        );
     }
 
     @Test public void test() throws InterruptedException {
