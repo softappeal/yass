@@ -25,8 +25,8 @@ public abstract class Session implements AutoCloseable, ProxyFactory {
     }
 
     /**
-     * Called from {@link SessionSetup#requestExecutor}.
-     * <p/>
+     * Called from {@link Dispatcher#opened(Runnable)}.
+     * <p>
      * This implementation does nothing.
      * @throws Exception if an exception is thrown, {@link #closed(Throwable)} will be called
      */

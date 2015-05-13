@@ -56,7 +56,7 @@ public final class WriterExecutorTest {
                 SocketTransportTest.PATH,
                 new TransportSetup(
                     new Server(METHOD_MAPPER_FACTORY),
-                    executor("server-request"),
+                    executor("server-dispatcher"),
                     PACKET_SERIALIZER,
                     new SessionFactory() {
                         @Override public Session create(final SessionClient sessionClient) throws Exception {
@@ -109,7 +109,7 @@ public final class WriterExecutorTest {
                         }
                     )
                 ),
-                executor("client-request"),
+                executor("client-dispatcher"),
                 PACKET_SERIALIZER,
                 new SessionFactory() {
                     @Override public Session create(final SessionClient sessionClient) throws Exception {

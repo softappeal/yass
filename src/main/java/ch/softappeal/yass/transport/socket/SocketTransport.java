@@ -20,17 +20,15 @@ import java.util.concurrent.Executor;
  * <p/>
  * The semantic of the different executors is as follows:
  * <table summary="executors">
- * <tr> <td>                  </td> <th> purpose             </th> <th> calls to execute          </th> <th> terminates on      </th> </tr>
- * <tr> <td> requestExecutor  </td> <td> executes request    </td> <td> for each incoming request </td> <td> request executed   </td> </tr>
- * <tr> <td> socketExecutor   </td> <td> socket read/write   </td> <td> twice for each session    </td> <td> session.close()    </td> </tr>
- * <tr> <td> listenerExecutor </td> <td> accepts connections </td> <td> only once                 </td> <td> thread.interrupt() </td> </tr>
+ * <tr> <td>                  </td> <th> purpose             </th> <th> calls to execute       </th> <th> terminates on      </th> </tr>
+ * <tr> <td> socketExecutor   </td> <td> socket read/write   </td> <td> twice for each session </td> <td> session.close()    </td> </tr>
+ * <tr> <td> listenerExecutor </td> <td> accepts connections </td> <td> only once              </td> <td> thread.interrupt() </td> </tr>
  * </table>
  * <pre>
  * server shutdown sequence:
  * - shutdown listenerExecutor
  * - close all open sessions
  * - shutdown socketExecutor
- * - shutdown requestExecutor
  * </pre>
  */
 public final class SocketTransport {

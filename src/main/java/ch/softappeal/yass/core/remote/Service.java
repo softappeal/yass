@@ -11,7 +11,7 @@ import java.lang.reflect.Method;
 
 public final class Service {
 
-    final ContractId<?> contractId;
+    public final ContractId<?> contractId;
     private final Object implementation;
     private final Interceptor interceptor;
 

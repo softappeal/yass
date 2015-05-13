@@ -27,14 +27,14 @@ public abstract class WsTest {
     protected static final String PATH = "/test";
     protected static final URI THE_URI = URI.create("ws://localhost:" + PORT + PATH);
 
-    private static volatile ExecutorService REQUEST_EXECUTOR;
+    private static volatile ExecutorService DISPATCHER_EXECUTOR;
 
-    @Before public void startRequestExecutor() {
-        REQUEST_EXECUTOR = Executors.newCachedThreadPool(new NamedThreadFactory("requestExecutor", Exceptions.TERMINATE));
+    @Before public void startDispatcherExecutor() {
+        DISPATCHER_EXECUTOR = Executors.newCachedThreadPool(new NamedThreadFactory("dispatcherExecutor", Exceptions.TERMINATE));
     }
 
-    @After public void stopRequestExecutor() {
-        REQUEST_EXECUTOR.shutdown();
+    @After public void stopDispatcherExecutor() {
+        DISPATCHER_EXECUTOR.shutdown();
     }
 
     private static volatile TransportSetup TRANSPORT_SETUP_CLIENT;
@@ -60,13 +60,13 @@ public abstract class WsTest {
         final boolean serverInvoke, final boolean serverCreateException,
         final boolean clientInvoke, final boolean clientCreateException
     ) {
-        TRANSPORT_SETUP_SERVER = LocalConnectionTest.createSetup(serverInvoke, REQUEST_EXECUTOR, serverCreateException);
-        TRANSPORT_SETUP_CLIENT = LocalConnectionTest.createSetup(clientInvoke, REQUEST_EXECUTOR, clientCreateException);
+        TRANSPORT_SETUP_SERVER = LocalConnectionTest.createSetup(serverInvoke, DISPATCHER_EXECUTOR, serverCreateException);
+        TRANSPORT_SETUP_CLIENT = LocalConnectionTest.createSetup(clientInvoke, DISPATCHER_EXECUTOR, clientCreateException);
     }
 
     protected static void setPerformanceSetup(final CountDownLatch latch) {
-        TRANSPORT_SETUP_SERVER = PerformanceTest.createSetup(REQUEST_EXECUTOR, null, SocketPerformanceTest.COUNTER);
-        TRANSPORT_SETUP_CLIENT = PerformanceTest.createSetup(REQUEST_EXECUTOR, latch, SocketPerformanceTest.COUNTER);
+        TRANSPORT_SETUP_SERVER = PerformanceTest.createSetup(DISPATCHER_EXECUTOR, null, SocketPerformanceTest.COUNTER);
+        TRANSPORT_SETUP_CLIENT = PerformanceTest.createSetup(DISPATCHER_EXECUTOR, latch, SocketPerformanceTest.COUNTER);
     }
 
     protected static void connect(final WebSocketContainer container, final CountDownLatch latch) throws Exception {

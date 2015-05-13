@@ -42,14 +42,12 @@ public final class SessionClient extends Client {
     public static SessionClient create(final SessionSetup setup, final Connection connection) throws Exception {
         final SessionClient sessionClient = new SessionClient(setup, connection);
         sessionClient.session = Check.notNull(setup.sessionFactory.create(sessionClient));
-        sessionClient.interceptor = Interceptors.threadLocal(Session.INSTANCE, sessionClient.session);
-        setup.requestExecutor.execute(new Runnable() {
-            @Override public void run() {
-                try {
-                    sessionClient.session.opened();
-                } catch (final Exception e) {
-                    sessionClient.close(e);
-                }
+        sessionClient.interceptor = Interceptor.threadLocal(Session.INSTANCE, sessionClient.session);
+        setup.dispatcher.opened(() -> {
+            try {
+                sessionClient.session.opened();
+            } catch (final Exception e) {
+                sessionClient.close(e);
             }
         });
         return sessionClient;
@@ -127,18 +125,16 @@ public final class SessionClient extends Client {
         }
     }
 
-    private void serverInvoke(final int requestNumber, final Request request) {
-        setup.requestExecutor.execute(new Runnable() {
-            @Override public void run() {
-                try {
-                    final Server.Invocation invocation = setup.server.invocation(request);
-                    final Reply reply = invocation.invoke(interceptor);
-                    if (!invocation.oneWay) {
-                        SessionClient.this.write(requestNumber, reply);
-                    }
-                } catch (final Exception e) {
-                    SessionClient.this.close(e);
+    private void serverInvoke(final int requestNumber, final Request request) throws Exception {
+        final Server.Invocation invocation = setup.server.invocation(request);
+        setup.dispatcher.invoke(invocation, () -> {
+            try {
+                final Reply reply = invocation.invoke(interceptor);
+                if (!invocation.oneWay) {
+                    write(requestNumber, reply);
                 }
+            } catch (final Exception e) {
+                close(e);
             }
         });
     }
