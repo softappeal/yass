@@ -305,56 +305,38 @@ module remoteTest {
                 var priceEngine = sessionClient.proxy(contract.ServerServices.PriceEngine, printer);
                 var echoService = sessionClient.proxy(contract.ServerServices.EchoService, printer);
                 instrumentService.reload(false, new Integer(123));
-                echoService.echo(null).then(
-                    result => assert(result === null)
-                );
-                echoService.echo(undefined).then(
-                    result => assert(result === null)
-                );
+                echoService.echo(null).then(result => assert(result === null));
+                echoService.echo(undefined).then(result => assert(result === null));
                 var stock = new contract.instrument.stock.Stock;
                 stock.id = new Integer(123);
                 stock.name = null;
                 stock.paysDividend = undefined;
-                echoService.echo(stock).then(
-                    result => {
-                        assert(result.id.value === 123);
-                        assert(result.name === undefined);
-                        assert(result.paysDividend === undefined);
-                    }
-                );
-                echoService.echo(new Integer(12345678)).then(
-                    result =>  assert(result.value === 12345678)
-                );
-                echoService.echo(new Integer(-87654321)).then(
-                    result  => assert(result.value === -87654321)
-                );
-                echoService.echo(123.456e98).then(
-                    result => assert(result === 123.456e98)
-                );
-                echoService.echo(-9.384762637432E-12).then(
-                    result => assert(result === -9.384762637432E-12)
-                );
-                echoService.echo(new contract.Expiration(9, 8, 7)).then(
-                    result => {
-                        var expiration = <contract.Expiration>result;
-                        assert(expiration.year === 9);
-                        assert(expiration.month === 8);
-                        assert(expiration.day === 7);
-                    }
-                );
+                echoService.echo(stock).then(result => {
+                    assert(result.id.value === 123);
+                    assert(result.name === undefined);
+                    assert(result.paysDividend === undefined);
+                });
+                echoService.echo(new Integer(12345678)).then(result =>  assert(result.value === 12345678));
+                echoService.echo(new Integer(-87654321)).then(result  => assert(result.value === -87654321));
+                echoService.echo(123.456e98).then(result => assert(result === 123.456e98));
+                echoService.echo(-9.384762637432E-12).then(result => assert(result === -9.384762637432E-12));
+                echoService.echo(new contract.Expiration(9, 8, 7)).then(result => {
+                    var expiration = <contract.Expiration>result;
+                    assert(expiration.year === 9);
+                    assert(expiration.month === 8);
+                    assert(expiration.day === 7);
+                });
                 var writer = new yass.Writer(1);
                 writer.writeByte(123);
                 writer.writeByte(0);
                 writer.writeByte(210);
-                echoService.echo(writer.getArray()).then(
-                    result => {
-                        var reader = new yass.Reader(toArrayBuffer(result));
-                        assert(reader.readByte() === 123);
-                        assert(reader.readByte() === 0);
-                        assert(reader.readByte() === 210);
-                        assert(reader.isEmpty());
-                    }
-                );
+                echoService.echo(writer.getArray()).then(result => {
+                    var reader = new yass.Reader(toArrayBuffer(result));
+                    assert(reader.readByte() === 123);
+                    assert(reader.readByte() === 0);
+                    assert(reader.readByte() === 210);
+                    assert(reader.isEmpty());
+                });
                 priceEngine.subscribe([new Integer(987654321)]).catch(exception => log("subscribe failed with", exception));
                 setTimeout(() => sessionClient.close(), 2000);
             },

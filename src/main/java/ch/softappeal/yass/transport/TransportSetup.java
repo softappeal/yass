@@ -3,6 +3,7 @@ package ch.softappeal.yass.transport;
 import ch.softappeal.yass.core.remote.Server;
 import ch.softappeal.yass.core.remote.session.Dispatcher;
 import ch.softappeal.yass.core.remote.session.Packet;
+import ch.softappeal.yass.core.remote.session.Session;
 import ch.softappeal.yass.core.remote.session.SessionFactory;
 import ch.softappeal.yass.core.remote.session.SessionSetup;
 import ch.softappeal.yass.serialize.Serializer;
@@ -25,10 +26,10 @@ public class TransportSetup extends SessionSetup {
     public static Dispatcher dispatcher(final Executor executor) {
         Check.notNull(executor);
         return new Dispatcher() {
-            @Override public void opened(final Runnable runnable) {
+            @Override public void opened(final Session session, final Runnable runnable) {
                 executor.execute(runnable);
             }
-            @Override public void invoke(final Server.Invocation invocation, final Runnable runnable) {
+            @Override public void invoke(final Session session, final Server.Invocation invocation, final Runnable runnable) {
                 executor.execute(runnable);
             }
         };

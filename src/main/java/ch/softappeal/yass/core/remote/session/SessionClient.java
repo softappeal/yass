@@ -41,7 +41,7 @@ public final class SessionClient extends Client {
         final SessionClient sessionClient = new SessionClient(setup, connection);
         sessionClient.session = Check.notNull(setup.sessionFactory.create(sessionClient));
         sessionClient.interceptor = Interceptor.threadLocal(Session.INSTANCE, sessionClient.session);
-        setup.dispatcher.opened(() -> {
+        setup.dispatcher.opened(sessionClient.session, () -> {
             try {
                 sessionClient.session.opened();
             } catch (final Exception e) {
@@ -125,7 +125,7 @@ public final class SessionClient extends Client {
 
     private void serverInvoke(final int requestNumber, final Request request) throws Exception {
         final Server.Invocation invocation = setup.server.invocation(request);
-        setup.dispatcher.invoke(invocation, () -> {
+        setup.dispatcher.invoke(session, invocation, () -> {
             try {
                 final Reply reply = invocation.invoke(interceptor);
                 if (!invocation.oneWay) {

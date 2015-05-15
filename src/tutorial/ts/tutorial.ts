@@ -80,13 +80,11 @@ module tutorial {
         var instrumentService: contract.instrument.InstrumentService_PROXY = proxyFactory.proxy(contract.ServerServices.InstrumentService, clientLogger);
         var priceEngine = proxyFactory.proxy(contract.ServerServices.PriceEngine, clientLogger);
         instrumentService.reload(true, new Integer(987654)); // oneway method call
-        instrumentService.getInstruments().then(
-            instruments => {
-                instruments.forEach(instrument => tableModel[instrument.id.value] = new TableRow(instrument));
-                createTable();
-                return priceEngine.subscribe(instruments.map(instrument => instrument.id));
-            }
-        ).then(
+        instrumentService.getInstruments().then(instruments => {
+            instruments.forEach(instrument => tableModel[instrument.id.value] = new TableRow(instrument));
+            createTable();
+            return priceEngine.subscribe(instruments.map(instrument => instrument.id));
+        }).then(
             () => log("subscribe succeeded")
         );
         priceEngine.subscribe([new Integer(987654321)]).catch(exception => log("subscribe failed with", exception));

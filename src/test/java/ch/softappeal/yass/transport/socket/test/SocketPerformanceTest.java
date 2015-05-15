@@ -2,6 +2,7 @@ package ch.softappeal.yass.transport.socket.test;
 
 import ch.softappeal.yass.core.remote.Server;
 import ch.softappeal.yass.core.remote.session.Dispatcher;
+import ch.softappeal.yass.core.remote.session.Session;
 import ch.softappeal.yass.core.remote.session.test.PerformanceTest;
 import ch.softappeal.yass.core.test.InvokeTest;
 import ch.softappeal.yass.serialize.Serializer;
@@ -37,12 +38,18 @@ public class SocketPerformanceTest extends InvokeTest {
     private static TransportSetup createSetup(final Executor executor, @Nullable final CountDownLatch latch) {
         return PerformanceTest.createSetup(
             new Dispatcher() {
-                @Override public void opened(final Runnable runnable) {
-                    System.out.println("opened");
+                @Override public void opened(final Session session, final Runnable runnable) {
+                    if (false) {
+                        System.out.println("opened: " + session);
+                    }
                     executor.execute(runnable);
                 }
-                @Override public void invoke(final Server.Invocation invocation, final Runnable runnable) {
-                    System.out.println(invocation.oneWay + " " + invocation.method.getName() + " " + Arrays.toString(invocation.arguments) + " " + invocation.service.contractId.id);
+                @Override public void invoke(final Session session, final Server.Invocation invocation, final Runnable runnable) {
+                    if (false) {
+                        System.out.println(
+                            "invoke: " + session + " " + invocation.oneWay + " " + invocation.method.getName() + " " + Arrays.toString(invocation.arguments) + " " + invocation.service.contractId.id
+                        );
+                    }
                     runnable.run();
                 }
             },

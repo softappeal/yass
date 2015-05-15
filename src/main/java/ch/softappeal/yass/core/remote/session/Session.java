@@ -25,8 +25,7 @@ public abstract class Session implements AutoCloseable, ProxyFactory {
     }
 
     /**
-     * Called from {@link Dispatcher#opened(Runnable)}.
-     * <p>
+     * Called when the session has been opened.
      * This implementation does nothing.
      * @throws Exception if an exception is thrown, {@link #closed(Throwable)} will be called
      */
@@ -35,12 +34,13 @@ public abstract class Session implements AutoCloseable, ProxyFactory {
     }
 
     /**
-     * Called when {@link SessionClient} has been closed.
+     * Called when the session has been closed.
      * @param throwable null if regular close else reason for close
      */
     protected abstract void closed(@Nullable Throwable throwable) throws Exception;
 
     /**
+     * Closes the session.
      * This method is idempotent.
      */
     @Override public void close() {
