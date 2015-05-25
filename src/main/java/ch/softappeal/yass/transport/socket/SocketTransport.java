@@ -3,9 +3,11 @@ package ch.softappeal.yass.transport.socket;
 import ch.softappeal.yass.serialize.Reader;
 import ch.softappeal.yass.serialize.Serializer;
 import ch.softappeal.yass.serialize.Writer;
+import ch.softappeal.yass.transport.DummyPathSerializer;
 import ch.softappeal.yass.transport.PathResolver;
 import ch.softappeal.yass.transport.TransportSetup;
 import ch.softappeal.yass.util.Check;
+import ch.softappeal.yass.util.Exceptions;
 
 import javax.net.SocketFactory;
 import java.io.IOException;
@@ -57,6 +59,13 @@ public final class SocketTransport {
         };
     }
 
+    /**
+     * Uses {@link DummyPathSerializer}.
+     */
+    public static SocketListener listener(final TransportSetup setup) {
+        return listener(DummyPathSerializer.INSTANCE, new PathResolver(DummyPathSerializer.PATH, setup));
+    }
+
     static void close(final Socket socket, final Exception e) {
         try {
             socket.close();
@@ -76,13 +85,29 @@ public final class SocketTransport {
         }
     }
 
+    static void execute(final Executor socketExecutor, final Socket socket, final SocketListener listener) {
+        try {
+            socketExecutor.execute(() -> { // readerExecutor
+                try {
+                    listener.accept(socket, socketExecutor); // writerExecutor
+                } catch (final Exception e) {
+                    close(socket, e);
+                    throw Exceptions.wrap(e);
+                }
+            });
+        } catch (final Exception e) {
+            close(socket, e);
+            throw e;
+        }
+    }
+
+    /**
+     * @param socketExecutor see {@link SocketTransport}
+     */
     public static void connect(
-        final TransportSetup setup,
-        final SocketExecutor socketExecutor,
-        final Serializer pathSerializer,
-        final Object path,
-        final SocketFactory socketFactory,
-        final SocketAddress socketAddress
+        final TransportSetup setup, final Executor socketExecutor,
+        final Serializer pathSerializer, final Object path,
+        final SocketFactory socketFactory, final SocketAddress socketAddress
     ) {
         Check.notNull(setup);
         Check.notNull(pathSerializer);
@@ -93,7 +118,7 @@ public final class SocketTransport {
         } catch (final IOException e) {
             throw new RuntimeException(e);
         }
-        socketExecutor.execute(socket, new SocketListener() {
+        execute(socketExecutor, socket, new SocketListener() {
             @Override void accept(final Socket socket, final Executor writerExecutor) throws Exception {
                 setTcpNoDelay(socket);
                 final OutputStream outputStream = socket.getOutputStream();
@@ -105,16 +130,10 @@ public final class SocketTransport {
     }
 
     /**
-     * Uses {@link SocketFactory#getDefault()}.
+     * Uses {@link SocketFactory#getDefault()} and {@link DummyPathSerializer}.
      */
-    public static void connect(
-        final TransportSetup setup,
-        final SocketExecutor socketExecutor,
-        final Serializer pathSerializer,
-        final Object path,
-        final SocketAddress socketAddress
-    ) {
-        connect(setup, socketExecutor, pathSerializer, path, SocketFactory.getDefault(), socketAddress);
+    public static void connect(final TransportSetup setup, final Executor socketExecutor, final SocketAddress socketAddress) {
+        connect(setup, socketExecutor, DummyPathSerializer.INSTANCE, DummyPathSerializer.PATH, SocketFactory.getDefault(), socketAddress);
     }
 
 }

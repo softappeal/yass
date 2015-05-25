@@ -7,9 +7,7 @@ import ch.softappeal.yass.core.remote.session.Reconnector;
 import ch.softappeal.yass.core.remote.session.SessionClosedException;
 import ch.softappeal.yass.core.remote.test.ContractIdTest;
 import ch.softappeal.yass.core.test.InvokeTest;
-import ch.softappeal.yass.transport.DummyPathSerializer;
 import ch.softappeal.yass.transport.TransportSetup;
-import ch.softappeal.yass.transport.socket.SocketExecutor;
 import ch.softappeal.yass.transport.socket.SocketListenerTest;
 import ch.softappeal.yass.transport.socket.SocketTransport;
 import ch.softappeal.yass.transport.test.PacketSerializerTest;
@@ -70,8 +68,7 @@ public final class ReconnectorClient {
                     PacketSerializerTest.SERIALIZER,
                     sessionFactory
                 ),
-                new SocketExecutor(executor, Exceptions.STD_ERR),
-                DummyPathSerializer.INSTANCE, DummyPathSerializer.PATH,
+                executor,
                 SocketListenerTest.ADDRESS
             )
         );

@@ -9,10 +9,7 @@ import ch.softappeal.yass.serialize.Serializer;
 import ch.softappeal.yass.serialize.test.SerializerTest;
 import ch.softappeal.yass.transport.MessageSerializer;
 import ch.softappeal.yass.transport.PacketSerializer;
-import ch.softappeal.yass.transport.PathResolver;
-import ch.softappeal.yass.transport.StringPathSerializer;
 import ch.softappeal.yass.transport.TransportSetup;
-import ch.softappeal.yass.transport.socket.SocketExecutor;
 import ch.softappeal.yass.transport.socket.SocketListenerTest;
 import ch.softappeal.yass.transport.socket.SocketTransport;
 import ch.softappeal.yass.util.Exceptions;
@@ -61,14 +58,9 @@ public class SocketPerformanceTest extends InvokeTest {
     @Test public void test() throws InterruptedException {
         final ExecutorService executor = Executors.newCachedThreadPool(new NamedThreadFactory("executor", Exceptions.TERMINATE));
         try {
-            SocketTransport.listener(
-                StringPathSerializer.INSTANCE, new PathResolver(SocketTransportTest.PATH, createSetup(executor, null))
-            ).start(executor, new SocketExecutor(executor, Exceptions.TERMINATE), SocketListenerTest.ADDRESS);
+            SocketTransport.listener(createSetup(executor, null)).start(executor, executor, SocketListenerTest.ADDRESS);
             final CountDownLatch latch = new CountDownLatch(1);
-            SocketTransport.connect(
-                createSetup(executor, latch), new SocketExecutor(executor, Exceptions.TERMINATE),
-                StringPathSerializer.INSTANCE, SocketTransportTest.PATH, SocketListenerTest.ADDRESS
-            );
+            SocketTransport.connect(createSetup(executor, latch), executor, SocketListenerTest.ADDRESS);
             latch.await();
             TimeUnit.MILLISECONDS.sleep(100L);
         } finally {

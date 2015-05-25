@@ -2,7 +2,6 @@ package ch.softappeal.yass.transport.socket;
 
 import ch.softappeal.yass.util.Exceptions;
 import ch.softappeal.yass.util.NamedThreadFactory;
-import ch.softappeal.yass.util.test.RejectExecutor;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -14,7 +13,6 @@ import java.net.SocketAddress;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.TimeUnit;
 
 public class SocketListenerTest {
@@ -45,28 +43,29 @@ public class SocketListenerTest {
         }
         ExecutorService executor;
         executor = Executors.newCachedThreadPool(new NamedThreadFactory("executor", Exceptions.TERMINATE));
-        LISTENER.start(executor, new SocketExecutor(executor, Exceptions.TERMINATE), ADDRESS);
+        LISTENER.start(executor, executor, ADDRESS);
         Socket socket = SocketTransport.connectSocket(SocketFactory.getDefault(), ADDRESS);
         socket.close();
         try {
-            LISTENER.start(executor, new SocketExecutor(executor, Exceptions.TERMINATE), ADDRESS);
+            LISTENER.start(executor, executor, ADDRESS);
             Assert.fail();
         } catch (final RuntimeException e) {
             System.out.println(e);
         }
         TimeUnit.MILLISECONDS.sleep(100);
         shutdown(executor);
-        executor = Executors.newCachedThreadPool(new NamedThreadFactory("executor", Exceptions.TERMINATE));
-        LISTENER.start(executor, new SocketExecutor(RejectExecutor.INSTANCE, Exceptions.STD_ERR), ADDRESS);
+        executor = Executors.newCachedThreadPool(new NamedThreadFactory("executor", Exceptions.STD_ERR));
+        LISTENER.start(
+            executor,
+            command -> {
+                throw new RuntimeException("socketExecutor");
+            },
+            ADDRESS
+        );
         socket = SocketTransport.connectSocket(SocketFactory.getDefault(), ADDRESS);
+        TimeUnit.MILLISECONDS.sleep(100);
         socket.close();
         shutdown(executor);
-        try {
-            LISTENER.start(RejectExecutor.INSTANCE, new SocketExecutor(executor, Exceptions.TERMINATE), ADDRESS);
-            Assert.fail();
-        } catch (final RejectedExecutionException e) {
-            System.out.println(e);
-        }
     }
 
 }

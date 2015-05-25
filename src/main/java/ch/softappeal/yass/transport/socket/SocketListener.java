@@ -14,6 +14,9 @@ import java.util.concurrent.ExecutorService;
 
 public abstract class SocketListener {
 
+    /**
+     * Runs in readerExecutor.
+     */
     abstract void accept(Socket socket, Executor writerExecutor) throws Exception;
 
     static final int ACCEPT_TIMEOUT_MILLISECONDS = 200;
@@ -21,8 +24,9 @@ public abstract class SocketListener {
     /**
      * Starts a socket listener.
      * @param listenerExecutor must interrupt it's threads to terminate the socket listener (use {@link ExecutorService#shutdownNow()})
+     * @param socketExecutor note: listener terminates if {@link Executor#execute(Runnable)} throws an exception; see {@link SocketTransport}
      */
-    public final void start(final Executor listenerExecutor, final SocketExecutor socketExecutor, final ServerSocketFactory socketFactory, final SocketAddress socketAddress) {
+    public final void start(final Executor listenerExecutor, final Executor socketExecutor, final ServerSocketFactory socketFactory, final SocketAddress socketAddress) {
         Check.notNull(socketExecutor);
         try {
             final ServerSocket serverSocket = socketFactory.createServerSocket();
@@ -40,7 +44,7 @@ public abstract class SocketListener {
                             } catch (final InterruptedIOException ignore) {
                                 return; // needed because some VM's (for example: Sun Solaris) throw this exception if the thread gets interrupted
                             }
-                            socketExecutor.execute(socket, SocketListener.this);
+                            SocketTransport.execute(socketExecutor, socket, SocketListener.this);
                         }
                     }
                     @Override public void run() {
@@ -69,7 +73,7 @@ public abstract class SocketListener {
     /**
      * Uses {@link ServerSocketFactory#getDefault()}.
      */
-    public final void start(final Executor listenerExecutor, final SocketExecutor socketExecutor, final SocketAddress socketAddress) {
+    public final void start(final Executor listenerExecutor, final Executor socketExecutor, final SocketAddress socketAddress) {
         start(listenerExecutor, socketExecutor, ServerSocketFactory.getDefault(), socketAddress);
     }
 
