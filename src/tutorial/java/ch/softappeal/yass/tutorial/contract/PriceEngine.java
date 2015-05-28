@@ -1,9 +1,11 @@
 package ch.softappeal.yass.tutorial.contract;
 
+import ch.softappeal.yass.util.Tag;
+
 import java.util.List;
 
 public interface PriceEngine {
 
-    void subscribe(List<Integer> instrumentIds) throws UnknownInstrumentsException;
+    @Tag(0) void subscribe(List<Integer> instrumentIds) throws UnknownInstrumentsException;
 
 }

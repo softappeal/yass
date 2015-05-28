@@ -3,9 +3,10 @@ package ch.softappeal.yass.ts;
 import ch.softappeal.yass.Version;
 import ch.softappeal.yass.core.remote.ContractId;
 import ch.softappeal.yass.core.remote.MethodMapper;
+import ch.softappeal.yass.core.remote.SimpleMethodMapper;
+import ch.softappeal.yass.serialize.fast.AbstractJsFastSerializer;
 import ch.softappeal.yass.serialize.fast.ClassTypeHandler;
 import ch.softappeal.yass.serialize.fast.FieldHandler;
-import ch.softappeal.yass.serialize.fast.JsFastSerializer;
 import ch.softappeal.yass.serialize.fast.TypeDesc;
 import ch.softappeal.yass.serialize.fast.TypeHandler;
 import ch.softappeal.yass.util.Check;
@@ -40,7 +41,7 @@ public final class ContractGenerator extends Generator {
     private final SortedMap<Integer, TypeHandler> id2typeHandler;
     private final Set<Class<?>> visitedClasses = new HashSet<>();
     private final MethodMapper.@Nullable Factory methodMapperFactory;
-    private final Map<Class<?>, String> externalJavaBaseType2tsBaseType = new HashMap<>();
+    private final Map<Class<?>, String> java2tsBaseType = new HashMap<>();
     private final String contractModuleName;
 
     private void checkType(final Class<?> type) {
@@ -50,7 +51,7 @@ public final class ContractGenerator extends Generator {
     }
 
     private String jsType(final Class<?> type) {
-        @Nullable final String tsBaseType = externalJavaBaseType2tsBaseType.get(FieldHandler.primitiveWrapperType(type));
+        @Nullable final String tsBaseType = java2tsBaseType.get(FieldHandler.primitiveWrapperType(type));
         if (tsBaseType != null) {
             return tsBaseType;
         }
@@ -127,13 +128,13 @@ public final class ContractGenerator extends Generator {
         final TypeHandler typeHandler = fieldDesc.handler.typeHandler();
         if (TypeDesc.LIST.handler == typeHandler) {
             return "yass.LIST_DESC";
-        } else if (JsFastSerializer.BOOLEAN_TYPEDESC.handler == typeHandler) {
+        } else if (AbstractJsFastSerializer.BOOLEAN_TYPEDESC.handler == typeHandler) {
             return "yass.BOOLEAN_DESC";
-        } else if (JsFastSerializer.DOUBLE_TYPEDESC.handler == typeHandler) {
+        } else if (AbstractJsFastSerializer.DOUBLE_TYPEDESC.handler == typeHandler) {
             return "yass.NUMBER_DESC";
-        } else if (JsFastSerializer.STRING_TYPEDESC.handler == typeHandler) {
+        } else if (AbstractJsFastSerializer.STRING_TYPEDESC.handler == typeHandler) {
             return "yass.STRING_DESC";
-        } else if (JsFastSerializer.BYTES_TYPEDESC.handler == typeHandler) {
+        } else if (AbstractJsFastSerializer.BYTES_TYPEDESC.handler == typeHandler) {
             return "yass.BYTES_DESC";
         } else if (typeHandler == null) {
             return "null";
@@ -218,6 +219,7 @@ public final class ContractGenerator extends Generator {
         if (methodMapperFactory == null) {
             throw new IllegalArgumentException("methodMapperFactory must be specified if there are services");
         }
+        SimpleMethodMapper.FACTORY.create(type); // checks for overloaded methods
         final MethodMapper methodMapper = methodMapperFactory.create(type);
         generateType(type, new TypeGenerator() {
             void generateInterface(final String name, final boolean proxy) {
@@ -308,22 +310,22 @@ public final class ContractGenerator extends Generator {
     @SuppressWarnings("unchecked")
     public ContractGenerator(
         final Package rootPackage,
-        final JsFastSerializer serializer,
+        final AbstractJsFastSerializer serializer,
         final MethodMapper.@Nullable Factory methodMapperFactory,
         final String includePath,
         final String contractModuleName,
-        @Nullable final Map<Class<?>, String> externalJavaBaseType2tsBaseType,
+        @Nullable final Map<Class<?>, String> java2tsBaseType,
         final String contractFilePath
     ) throws Exception {
         super(contractFilePath);
         this.rootPackage = rootPackage.getName() + '.';
         this.methodMapperFactory = methodMapperFactory;
-        if (externalJavaBaseType2tsBaseType != null) {
-            externalJavaBaseType2tsBaseType.forEach((java, ts) -> this.externalJavaBaseType2tsBaseType.put(Check.notNull(java), Check.notNull(ts)));
+        if (java2tsBaseType != null) {
+            java2tsBaseType.forEach((java, ts) -> this.java2tsBaseType.put(Check.notNull(java), Check.notNull(ts)));
         }
         id2typeHandler = serializer.id2typeHandler();
         id2typeHandler.forEach((id, typeHandler) -> {
-            if (id >= JsFastSerializer.FIRST_ID) {
+            if (id >= AbstractJsFastSerializer.FIRST_ID) {
                 type2id.put(typeHandler.type, id);
             }
         });

@@ -2,12 +2,13 @@ package ch.softappeal.yass.tutorial.contract;
 
 import ch.softappeal.yass.serialize.fast.AbstractFastSerializer;
 import ch.softappeal.yass.util.Check;
+import ch.softappeal.yass.util.Tag;
 
-public final class SystemException extends RuntimeException {
+@Tag(14) public final class SystemException extends RuntimeException {
 
     private static final long serialVersionUID = 1L;
 
-    public String message;
+    @Tag(1) public String message;
 
     public SystemException(final String message) {
         this.message = Check.notNull(message);
