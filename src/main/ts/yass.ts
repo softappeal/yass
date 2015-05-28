@@ -158,6 +158,9 @@ module yass {
         constructor(public number: number, public name: string) {
             super();
         }
+        toString(): string {
+            return this.name;
+        }
     }
 
     export interface TypeHandler<T> {
