@@ -139,6 +139,7 @@ module enumTest {
     assert(ask.name === "ASK");
     assert(ask === contract.PriceKind.ASK);
     assert(ask !== contract.PriceKind.BID);
+    log(">" + ask + "<");
 
 }
 
