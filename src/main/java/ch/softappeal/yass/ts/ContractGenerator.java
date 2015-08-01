@@ -70,7 +70,7 @@ public final class ContractGenerator extends Generator {
         if (dot < 0) {
             typeGenerator.generateType(name);
         } else {
-            tabsln("export module %s {", jsType.substring(0, dot));
+            tabsln("export namespace %s {", jsType.substring(0, dot));
             inc();
             typeGenerator.generateType(name);
             dec();
@@ -254,7 +254,7 @@ public final class ContractGenerator extends Generator {
             @Override public void generateType(final String name) {
                 generateInterface(name, false);
                 generateInterface(name, true);
-                tabs("export var %s_MAPPER: yass.MethodMapper<%s> = new yass.MethodMapper<%s>(", name, name, name);
+                tabs("export const %s_MAPPER: yass.MethodMapper<%s> = new yass.MethodMapper<%s>(", name, name, name);
                 inc();
                 boolean first = true;
                 for (final Method method : methods) {
@@ -277,12 +277,12 @@ public final class ContractGenerator extends Generator {
         if (services == null) {
             return;
         }
-        tabsln("export module %s {", jsType(services));
+        tabsln("export namespace %s {", jsType(services));
         inc();
         for (final ServiceDesc serviceDesc : getServiceDescs(services)) {
             final String name = contractModuleName + jsType(serviceDesc.contractId.contract);
             tabsln(
-                "export var %s: yass.ContractId<%s, %s_PROXY> = new yass.ContractId<%s, %s_PROXY>(%s, %s_MAPPER);",
+                "export const %s: yass.ContractId<%s, %s_PROXY> = new yass.ContractId<%s, %s_PROXY>(%s, %s_MAPPER);",
                 serviceDesc.name, name, name, name, name, serviceDesc.contractId.id, name
             );
         }
@@ -332,10 +332,10 @@ public final class ContractGenerator extends Generator {
         tabsln("/// <reference path='%s'/>", Check.notNull(includePath));
         println();
         this.contractModuleName = Check.notNull(contractModuleName) + '.';
-        tabsln("module %s {", contractModuleName);
+        tabsln("namespace %s {", contractModuleName);
         println();
         inc();
-        tabsln("export var GENERATED_BY_YASS_VERSION = '%s';", Version.VALUE);
+        tabsln("export const GENERATED_BY_YASS_VERSION = '%s';", Version.VALUE);
         println();
         id2typeHandler.values().stream().map(typeHandler -> typeHandler.type).filter(Class::isEnum).forEach(type -> generateEnum((Class<Enum<?>>)type));
         id2typeHandler.values().stream().filter(typeHandler -> typeHandler instanceof ClassTypeHandler).forEach(typeHandler -> generateClass(typeHandler.type));
@@ -348,7 +348,7 @@ public final class ContractGenerator extends Generator {
         interfaceList.forEach(this::generateInterface);
         generateServices(clientServices);
         generateServices(serverServices);
-        tabs("export var SERIALIZER = new yass.JsFastSerializer(");
+        tabs("export const SERIALIZER = new yass.JsFastSerializer(");
         inc();
         boolean first = true;
         for (final Class<?> type : type2id.keySet()) {

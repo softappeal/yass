@@ -1,6 +1,6 @@
 /// <reference path="contract"/>
 
-module tutorial {
+namespace tutorial {
 
     import Integer = contract.instrument.stock.Integer;
 
@@ -15,7 +15,7 @@ module tutorial {
             }
             doLog("entry", parameters);
             try {
-                var result = invocation();
+                const result = invocation();
                 doLog("exit", result);
                 return result;
             } catch (e) {
@@ -24,8 +24,8 @@ module tutorial {
             }
         };
     }
-    var clientLogger = logger("client");
-    var serverLogger = logger("server");
+    const clientLogger = logger("client");
+    const serverLogger = logger("server");
 
     class TableRow {
         bidElement: HTMLElement;
@@ -35,22 +35,22 @@ module tutorial {
         }
     }
 
-    var tableModel: TableRow[] = [];
+    const tableModel: TableRow[] = [];
 
     function createTable(): void {
-        var html = "<table border='1'><thead><tr>";
+        let html = "<table border='1'><thead><tr>";
         ["Id", "Name", "Bid", "Ask"].forEach(title => html += "<th>" + title + "</th>");
         html += "</tr></thead><tbody>";
         tableModel.forEach(row => {
             html += "<tr>";
-            var instrument = row.instrument;
+            const instrument = row.instrument;
             [instrument.id.value, instrument.name].forEach(value => html += "<td>" + value + "</td>");
             ["bid", "ask"].forEach(kind => html += "<td id='" + instrument.id.value + ":" + kind + "'></td>");
             html += "</tr>";
         });
         document.getElementById("table").innerHTML = html + "</tbody></table>";
         tableModel.forEach(row => {
-            var find = (kind: string) => document.getElementById(row.instrument.id.value + ":" + kind);
+            const find = (kind: string) => document.getElementById(row.instrument.id.value + ":" + kind);
             row.bidElement = find("bid");
             row.askElement = find("ask");
         });
@@ -59,7 +59,7 @@ module tutorial {
     class PriceListenerImpl implements contract.PriceListener {
         newPrices(prices: contract.Price[]): void {
             prices.forEach(price => {
-                var tableRow = tableModel[price.instrumentId.value];
+                const tableRow = tableModel[price.instrumentId.value];
                 if (price.kind === contract.PriceKind.BID) {
                     tableRow.bidElement.innerHTML = price.value.value.toString();
                 } else {
@@ -77,8 +77,8 @@ module tutorial {
 
     function subscribePrices(proxyFactory: yass.ProxyFactory): void {
         // create proxies; you can add 0..n interceptors to a proxy
-        var instrumentService: contract.instrument.InstrumentService_PROXY = proxyFactory.proxy(contract.ServerServices.InstrumentService, clientLogger);
-        var priceEngine = proxyFactory.proxy(contract.ServerServices.PriceEngine, clientLogger);
+        const instrumentService = proxyFactory.proxy(contract.ServerServices.InstrumentService, clientLogger);
+        const priceEngine = proxyFactory.proxy(contract.ServerServices.PriceEngine, clientLogger);
         instrumentService.reload(true, new Integer(987654)); // oneway method call
         instrumentService.getInstruments().then(instruments => {
             instruments.forEach(instrument => tableModel[instrument.id.value] = new TableRow(instrument));
@@ -116,8 +116,8 @@ module tutorial {
         () => log("connect failed")
     );
 
-    var proxyFactory = yass.xhr("http://localhost:9090/xhr", contract.SERIALIZER);
-    var echoService = proxyFactory.proxy(contract.ServerServices.EchoService, clientLogger);
+    const proxyFactory = yass.xhr("http://localhost:9090/xhr", contract.SERIALIZER);
+    const echoService = proxyFactory.proxy(contract.ServerServices.EchoService, clientLogger);
     export function echoClick() {
         echoService.echo((<any>document.getElementById("echoInput")).value).then(
             result => document.getElementById("echoOutput").innerHTML = result,
