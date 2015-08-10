@@ -1,5 +1,6 @@
-// $note: line below and corresponding file could probably be removed with TypeScript > 1.5
-/// <reference path="es6-promise"/>
+/// <reference path="es6-promise"/> // $note: could probably be removed in future
+
+// $note: parameter littleEndian of DataView calls could be removed; workaround for https://github.com/Microsoft/TypeScript/issues/4083
 
 namespace yass {
 
@@ -28,7 +29,7 @@ namespace yass {
         }
         writeInt(value: number): void {
             const position = this.needed(4);
-            new DataView(this.array.buffer).setInt32(position, value, false /* $note: workaround for https://github.com/Microsoft/TypeScript/issues/4083 */);
+            new DataView(this.array.buffer).setInt32(position, value, false);
         }
         writeVarInt(value: number): void {
             while (true) {
@@ -100,7 +101,7 @@ namespace yass {
             return this.array[this.needed(1)];
         }
         readInt(): number {
-            return new DataView(this.array.buffer).getInt32(this.needed(4), false /* $note: workaround for https://github.com/Microsoft/TypeScript/issues/4083 */);
+            return new DataView(this.array.buffer).getInt32(this.needed(4), false);
         }
         readVarInt(): number {
             let shift = 0;
@@ -215,11 +216,11 @@ namespace yass {
 
     class NumberTypeHandler implements TypeHandler<number> {
         read(reader: Reader): number {
-            return new DataView(reader.array.buffer).getFloat64(reader.needed(8), false /* $note: workaround for https://github.com/Microsoft/TypeScript/issues/4083 */);
+            return new DataView(reader.array.buffer).getFloat64(reader.needed(8), false);
         }
         write(value: number, writer: Writer): void {
             const position = writer.needed(8);
-            new DataView(writer.array.buffer).setFloat64(position, value, false /* $note: workaround for https://github.com/Microsoft/TypeScript/issues/4083 */);
+            new DataView(writer.array.buffer).setFloat64(position, value, false);
         }
     }
     export const NUMBER_DESC = new TypeDesc(4, new NumberTypeHandler);
@@ -408,9 +409,7 @@ namespace yass {
             );
         }
         let i1 = DIRECT;
-        for (let i2 of interceptors) {
-            i1 = (i1 === DIRECT) ? i2 : ((i2 === DIRECT) ? i1 : composite2(i1, i2));
-        }
+        interceptors.forEach(i2 => i1 = (i1 === DIRECT) ? i2 : ((i2 === DIRECT) ? i1 : composite2(i1, i2)));
         return i1;
     }
 
