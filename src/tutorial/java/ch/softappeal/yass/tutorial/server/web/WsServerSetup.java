@@ -14,7 +14,7 @@ import java.util.concurrent.Executors;
 
 public abstract class WsServerSetup extends ServerSetup {
 
-    public static final String HOST = "localhost";
+    public static final String HOST = "0.0.0.0";
     public static final int PORT = 9090;
     public static final String PATH = "/tutorial";
     public static final String XHR_PATH = "/xhr";

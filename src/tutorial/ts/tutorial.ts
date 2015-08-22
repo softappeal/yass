@@ -105,8 +105,10 @@ namespace tutorial {
         }
     }
 
+    const hostname = location.hostname;
+
     yass.connect(
-        "ws://localhost:9090/tutorial",
+        "ws://" + hostname + ":9090/tutorial",
         contract.SERIALIZER,
         yass.server( // you can add 0..n interceptors to a service
             new yass.Service(contract.ClientServices.PriceListener, new PriceListenerImpl, serverLogger),
@@ -116,7 +118,7 @@ namespace tutorial {
         () => log("connect failed")
     );
 
-    const proxyFactory = yass.xhr("http://localhost:9090/xhr", contract.SERIALIZER);
+    const proxyFactory = yass.xhr("http://" + hostname + ":9090/xhr", contract.SERIALIZER);
     const echoService = proxyFactory.proxy(contract.ServerServices.EchoService, clientLogger);
     export function echoClick() {
         echoService.echo((<any>document.getElementById("echoInput")).value).then(

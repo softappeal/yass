@@ -282,6 +282,8 @@ namespace interceptorTest {
 
 }
 
+const hostname = location.hostname;
+
 namespace remoteTest {
 
     function sessionFactory(sessionClient: yass.SessionClient): yass.Session {
@@ -348,7 +350,7 @@ namespace remoteTest {
     }
 
     yass.connect(
-        "ws://localhost:9090/tutorial",
+        "ws://" + hostname + ":9090/tutorial",
         contract.SERIALIZER,
         yass.server(
             new yass.Service(contract.ClientServices.EchoService, {echo: (value: any) => value})
@@ -361,16 +363,16 @@ namespace remoteTest {
 
 namespace xhrTest {
 
-    const proxyFactory = yass.xhr("http://localhost:9090/xhr", contract.SERIALIZER);
+    const proxyFactory = yass.xhr("http://" + hostname + ":9090/xhr", contract.SERIALIZER);
     const instrumentService = proxyFactory.proxy(contract.ServerServices.InstrumentService);
     const echoService = proxyFactory.proxy(contract.ServerServices.EchoService);
     assertThrown(() => instrumentService.reload(false, new Integer(123)));
     echoService.echo("echo").then(result => log("echo succeeded:", result));
     echoService.echo("throwRuntimeException").catch(error => log("throwRuntimeException failed:", error));
 
-    assertThrown(() => yass.xhr("dummy://localhost:9090/xhr", contract.SERIALIZER).proxy(contract.ServerServices.EchoService).echo("echo1"));
-    yass.xhr("http://localhost:9090/dummy", contract.SERIALIZER).proxy(contract.ServerServices.EchoService).echo("echo2").catch(error => log("echo2 failed:", error));
-    yass.xhr("http://localhost:9999/xhr", contract.SERIALIZER).proxy(contract.ServerServices.EchoService).echo("echo3").catch(error => log("echo3 failed:", error));
+    assertThrown(() => yass.xhr("dummy://" + hostname + ":9090/xhr", contract.SERIALIZER).proxy(contract.ServerServices.EchoService).echo("echo1"));
+    yass.xhr("http://" + hostname + ":9090/dummy", contract.SERIALIZER).proxy(contract.ServerServices.EchoService).echo("echo2").catch(error => log("echo2 failed:", error));
+    yass.xhr("http://" + hostname + ":9999/xhr", contract.SERIALIZER).proxy(contract.ServerServices.EchoService).echo("echo3").catch(error => log("echo3 failed:", error));
 
 }
 
