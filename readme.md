@@ -11,10 +11,10 @@
 
 * supports interceptors
 
-* is session based with bidirectional messasge streaming
+* is session based with bidirectional message streaming
 
 * provides transports for
-  * socket (including SSL/TLS)
+  * socket (including TLS)
   * WebSocket
 
 * has a fast and compact binary serializer
@@ -26,5 +26,7 @@
 * is Open Source (BSD-style license)
   * repository: https://github.com/softappeal/yass
   * wiki: https://github.com/softappeal/yass/wiki
-  * artifacts on MavenCentral: http://search.maven.org, groupId="ch.softappeal.yass", artifactId="yass"
+  * artifacts on MavenCentral: http://search.maven.org
+    * groupId="ch.softappeal.yass"
+    * artifactId="yass"
   * tutorial: see https://github.com/softappeal/yass/tree/master/src/tutorial
