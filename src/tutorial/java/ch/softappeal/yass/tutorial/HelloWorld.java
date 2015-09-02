@@ -1,39 +1,13 @@
-# yass (Yet Another Service Solution)
+package ch.softappeal.yass.tutorial;
 
-* is a small library for efficient peer-to-peer communication
-  * Java
-  * TypeScript/JavaScript
-  * high throughput, low latency
+import ch.softappeal.yass.core.remote.ContractId;
+import ch.softappeal.yass.transport.socket.SocketHelper;
 
-* supports type-safe contracts with DTOs and interfaces
+import java.net.InetSocketAddress;
+import java.net.SocketAddress;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.TimeUnit;
 
-* supports request/reply and oneway style method invocations
-
-* supports interceptors
-
-* provides session based bidirectional messaging
-
-* provides transports for
-  * socket (including TLS)
-  * WebSocket
-
-* has a fast and compact binary serializer
-
-* needs no third-party libraries
-
-* uses http://semver.org
-
-* is Open Source (BSD-style license)
-  * repository: https://github.com/softappeal/yass
-  * wiki: https://github.com/softappeal/yass/wiki
-  * artifacts on MavenCentral: http://search.maven.org
-    * groupId="ch.softappeal.yass"
-    * artifactId="yass"
-  * tutorial: see https://github.com/softappeal/yass/tree/master/src/tutorial
-
-## HelloWorld
-
-```java
 public final class HelloWorld {
 
     public interface Calculator {
@@ -71,6 +45,3 @@ public final class HelloWorld {
     }
 
 }
-```
-
-see https://github.com/softappeal/yass/tree/master/src/tutorial/java/ch/softappeal/yass/tutorial
