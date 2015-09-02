@@ -46,7 +46,10 @@ public final class HelloWorld {
         }
     }
 
-    public static final ContractId<Calculator> CALCULATOR_ID = ContractId.create(Calculator.class, 0);
+    public static final ContractId<Calculator> CALCULATOR_ID = ContractId.create(
+        Calculator.class, 0
+    );
+
     public static final SocketAddress ADDRESS = new InetSocketAddress("localhost", 28947);
 
     public static void main(final String... args) throws InterruptedException {
