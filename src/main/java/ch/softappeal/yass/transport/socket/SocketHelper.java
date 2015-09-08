@@ -60,7 +60,7 @@ public final class SocketHelper {
         return this;
     }
 
-    private static void handleCloseException(@Nullable final Throwable throwable) {
+    private static void handleClosedException(@Nullable final Throwable throwable) {
         if (throwable != null) {
             Exceptions.uncaughtException(Exceptions.STD_ERR, throwable);
         }
@@ -79,7 +79,7 @@ public final class SocketHelper {
                 opened.opened(this);
             }
             @Override protected void closed(@Nullable final Throwable throwable) {
-                handleCloseException(throwable);
+                handleClosedException(throwable);
             }
         });
     }
@@ -97,7 +97,7 @@ public final class SocketHelper {
         packetSerializer(JavaSerializer.INSTANCE);
         sessionFactory(sessionClient -> new Session(sessionClient) {
             @Override protected void closed(@Nullable final Throwable throwable) {
-                handleCloseException(throwable);
+                handleClosedException(throwable);
             }
         });
     }
