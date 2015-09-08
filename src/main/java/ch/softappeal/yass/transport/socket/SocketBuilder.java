@@ -26,36 +26,36 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-public final class SocketHelper {
+public final class SocketBuilder {
 
     public static ExecutorService newExecutorService() {
-        return Executors.newCachedThreadPool(new NamedThreadFactory("SocketHelper.Executor", Exceptions.STD_ERR));
+        return Executors.newCachedThreadPool(new NamedThreadFactory("SocketBuilder.Executor", Exceptions.STD_ERR));
     }
 
     private MethodMapper.Factory methodMapperFactory;
 
-    public SocketHelper methodMapperFactory(final MethodMapper.Factory methodMapperFactory) {
+    public SocketBuilder methodMapperFactory(final MethodMapper.Factory methodMapperFactory) {
         this.methodMapperFactory = Check.notNull(methodMapperFactory);
         return this;
     }
 
     private Serializer packetSerializer;
 
-    public SocketHelper packetSerializer(final Serializer packetSerializer) {
+    public SocketBuilder packetSerializer(final Serializer packetSerializer) {
         this.packetSerializer = Check.notNull(packetSerializer);
         return this;
     }
 
     private final List<Service> services = new ArrayList<>();
 
-    public <C> SocketHelper addService(final ContractId<C> contractId, final C implementation, final Interceptor... interceptors) {
+    public <C> SocketBuilder addService(final ContractId<C> contractId, final C implementation, final Interceptor... interceptors) {
         services.add(new Service(contractId, implementation, interceptors));
         return this;
     }
 
     private SessionFactory sessionFactory;
 
-    public SocketHelper sessionFactory(final SessionFactory sessionFactory) {
+    public SocketBuilder sessionFactory(final SessionFactory sessionFactory) {
         this.sessionFactory = Check.notNull(sessionFactory);
         return this;
     }
@@ -73,7 +73,7 @@ public final class SocketHelper {
     /**
      * Calls {@link #sessionFactory(SessionFactory)} with an adaptor for {@link Opened}.
      */
-    public SocketHelper opened(final Opened opened) {
+    public SocketBuilder opened(final Opened opened) {
         return sessionFactory(sessionClient -> new Session(sessionClient) {
             @Override protected void opened() throws Exception {
                 opened.opened(this);
@@ -91,7 +91,7 @@ public final class SocketHelper {
      * Calls {@link #packetSerializer(Serializer)} with {@link JavaSerializer#INSTANCE}.
      * Calls {@link #sessionFactory(SessionFactory)} with an 'empty' session factory.
      */
-    public SocketHelper(final Executor executor) {
+    public SocketBuilder(final Executor executor) {
         this.executor = Check.notNull(executor);
         methodMapperFactory(SimpleMethodMapper.FACTORY);
         packetSerializer(JavaSerializer.INSTANCE);
