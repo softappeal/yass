@@ -7,6 +7,8 @@ import ch.softappeal.yass.serialize.fast.BaseTypeHandlers;
 
 public final class StringPathSerializer implements Serializer {
 
+    public static final String DEFAULT = "<DEFAULT>";
+
     private StringPathSerializer() {
         // disable
     }

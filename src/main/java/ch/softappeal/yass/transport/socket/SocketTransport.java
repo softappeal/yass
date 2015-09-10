@@ -3,8 +3,8 @@ package ch.softappeal.yass.transport.socket;
 import ch.softappeal.yass.serialize.Reader;
 import ch.softappeal.yass.serialize.Serializer;
 import ch.softappeal.yass.serialize.Writer;
-import ch.softappeal.yass.transport.DummyPathSerializer;
 import ch.softappeal.yass.transport.PathResolver;
+import ch.softappeal.yass.transport.StringPathSerializer;
 import ch.softappeal.yass.transport.TransportSetup;
 import ch.softappeal.yass.util.Check;
 import ch.softappeal.yass.util.Exceptions;
@@ -60,10 +60,10 @@ public final class SocketTransport {
     }
 
     /**
-     * Uses {@link DummyPathSerializer}.
+     * Uses {@link StringPathSerializer}.
      */
     public static SocketListener listener(final TransportSetup setup) {
-        return listener(DummyPathSerializer.INSTANCE, new PathResolver(DummyPathSerializer.PATH, setup));
+        return listener(StringPathSerializer.INSTANCE, new PathResolver(StringPathSerializer.DEFAULT, setup));
     }
 
     static void close(final Socket socket, final Exception e) {
@@ -130,10 +130,10 @@ public final class SocketTransport {
     }
 
     /**
-     * Uses {@link SocketFactory#getDefault()} and {@link DummyPathSerializer}.
+     * Uses {@link SocketFactory#getDefault()} and {@link StringPathSerializer}.
      */
     public static void connect(final TransportSetup setup, final Executor socketExecutor, final SocketAddress socketAddress) {
-        connect(setup, socketExecutor, DummyPathSerializer.INSTANCE, DummyPathSerializer.PATH, SocketFactory.getDefault(), socketAddress);
+        connect(setup, socketExecutor, StringPathSerializer.INSTANCE, StringPathSerializer.DEFAULT, SocketFactory.getDefault(), socketAddress);
     }
 
 }
