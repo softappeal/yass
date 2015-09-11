@@ -286,67 +286,68 @@ const hostname = location.hostname;
 
 namespace remoteTest {
 
-    function sessionFactory(sessionClient: yass.SessionClient): yass.Session {
-        return {
-            opened: function () {
-                log("session opened");
-                const printer: yass.Interceptor = (style, method, parameters, invocation) => {
-                    function doLog(kind: string, data: any): void {
-                        log("logger:", yass.SESSION, kind, yass.InvokeStyle[style], method, data);
-                    }
-                    doLog("entry", parameters);
-                    try {
-                        const result = invocation();
-                        doLog("exit", result);
-                        return result;
-                    } catch (e) {
-                        doLog("exception", e);
-                        throw e;
-                    }
-                };
-                const instrumentService = sessionClient.proxy(contract.ServerServices.InstrumentService, printer);
-                const priceEngine = sessionClient.proxy(contract.ServerServices.PriceEngine, printer);
-                const echoService = sessionClient.proxy(contract.ServerServices.EchoService, printer);
-                instrumentService.reload(false, new Integer(123));
-                echoService.echo(null).then(result => assert(result === null));
-                echoService.echo(undefined).then(result => assert(result === null));
-                const stock = new contract.instrument.stock.Stock;
-                stock.id = new Integer(123);
-                stock.name = null;
-                stock.paysDividend = undefined;
-                echoService.echo(stock).then(result => {
-                    assert(result.id.value === 123);
-                    assert(result.name === undefined);
-                    assert(result.paysDividend === undefined);
-                });
-                echoService.echo(new Integer(12345678)).then(result =>  assert(result.value === 12345678));
-                echoService.echo(new Integer(-87654321)).then(result  => assert(result.value === -87654321));
-                echoService.echo(123.456e98).then(result => assert(result === 123.456e98));
-                echoService.echo(-9.384762637432E-12).then(result => assert(result === -9.384762637432E-12));
-                echoService.echo(new contract.Expiration(9, 8, 7)).then(result => {
-                    const expiration = <contract.Expiration>result;
-                    assert(expiration.year === 9);
-                    assert(expiration.month === 8);
-                    assert(expiration.day === 7);
-                });
-                const writer = new yass.Writer(1);
-                writer.writeByte(123);
-                writer.writeByte(0);
-                writer.writeByte(210);
-                echoService.echo(writer.getArray()).then(result => {
-                    const reader = new yass.Reader(toArrayBuffer(result));
-                    assert(reader.readByte() === 123);
-                    assert(reader.readByte() === 0);
-                    assert(reader.readByte() === 210);
-                    assert(reader.isEmpty());
-                });
-                priceEngine.subscribe([new Integer(987654321)]).catch(exception => log("subscribe failed with", exception));
-                setTimeout(() => sessionClient.close(), 2000);
-            },
-            closed: function (exception) {
-                log("session closed", exception);
-            }
-        };
+    class Session extends yass.Session {
+        constructor(sessionClient: yass.SessionClient) {
+            super(sessionClient);
+        }
+        opened(): void {
+            log("session opened");
+            const printer: yass.Interceptor = (style, method, parameters, invocation) => {
+                function doLog(kind: string, data: any): void {
+                    log("logger:", yass.SESSION, kind, yass.InvokeStyle[style], method, data);
+                }
+                doLog("entry", parameters);
+                try {
+                    const result = invocation();
+                    doLog("exit", result);
+                    return result;
+                } catch (e) {
+                    doLog("exception", e);
+                    throw e;
+                }
+            };
+            const instrumentService = this.proxy(contract.ServerServices.InstrumentService, printer);
+            const priceEngine = this.proxy(contract.ServerServices.PriceEngine, printer);
+            const echoService = this.proxy(contract.ServerServices.EchoService, printer);
+            instrumentService.reload(false, new Integer(123));
+            echoService.echo(null).then(result => assert(result === null));
+            echoService.echo(undefined).then(result => assert(result === null));
+            const stock = new contract.instrument.stock.Stock;
+            stock.id = new Integer(123);
+            stock.name = null;
+            stock.paysDividend = undefined;
+            echoService.echo(stock).then(result => {
+                assert(result.id.value === 123);
+                assert(result.name === undefined);
+                assert(result.paysDividend === undefined);
+            });
+            echoService.echo(new Integer(12345678)).then(result =>  assert(result.value === 12345678));
+            echoService.echo(new Integer(-87654321)).then(result  => assert(result.value === -87654321));
+            echoService.echo(123.456e98).then(result => assert(result === 123.456e98));
+            echoService.echo(-9.384762637432E-12).then(result => assert(result === -9.384762637432E-12));
+            echoService.echo(new contract.Expiration(9, 8, 7)).then(result => {
+                const expiration = <contract.Expiration>result;
+                assert(expiration.year === 9);
+                assert(expiration.month === 8);
+                assert(expiration.day === 7);
+            });
+            const writer = new yass.Writer(1);
+            writer.writeByte(123);
+            writer.writeByte(0);
+            writer.writeByte(210);
+            echoService.echo(writer.getArray()).then(result => {
+                const reader = new yass.Reader(toArrayBuffer(result));
+                assert(reader.readByte() === 123);
+                assert(reader.readByte() === 0);
+                assert(reader.readByte() === 210);
+                assert(reader.isEmpty());
+            });
+            priceEngine.subscribe([new Integer(987654321)]).catch(exception => log("subscribe failed with", exception));
+            setTimeout(() => this.close(), 2000);
+        }
+        closed(exception: any): void {
+            log("session closed", exception);
+        }
     }
 
     yass.connect(
@@ -355,7 +356,7 @@ namespace remoteTest {
         yass.server(
             new yass.Service(contract.ClientServices.EchoService, {echo: (value: any) => value})
         ),
-        sessionFactory,
+        sessionClient => new Session(sessionClient),
         () => log("connectFailed")
     );
 

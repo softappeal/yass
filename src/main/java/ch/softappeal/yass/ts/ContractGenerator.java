@@ -154,10 +154,12 @@ public final class ContractGenerator extends Generator {
         }
         final Class<?> superClass = sc;
         generateType(type, name -> {
-            final List<Field> fields = Reflect.ownFields(type);
-            tabsln("export class %s extends %s {", name, (superClass == null) ? "yass.Type" : (contractModuleName + jsType(superClass)));
+            tabsln(
+                "export %sclass %s extends %s {",
+                (Modifier.isAbstract(type.getModifiers()) ? "abstract " : ""), name, (superClass == null) ? "yass.Type" : (contractModuleName + jsType(superClass))
+            );
             inc();
-            for (final Field field : fields) {
+            for (final Field field : Reflect.ownFields(type)) {
                 tabsln("%s: %s;", field.getName(), type(field.getGenericType()));
             }
             final Integer id = type2id.get(type);

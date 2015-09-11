@@ -90,15 +90,15 @@ namespace tutorial {
         priceEngine.subscribe([new Integer(987654321)]).catch(exception => log("subscribe failed with", exception));
     }
 
-    class Session implements yass.Session {
+    class Session extends yass.Session {
         private static ID = 1;
         id = Session.ID++;
-        constructor(private sessionClient: yass.SessionClient) {
-            // empty
+        constructor(sessionClient: yass.SessionClient) {
+            super(sessionClient);
         }
         opened(): void {
             log("session opened", this.id);
-            subscribePrices(this.sessionClient);
+            subscribePrices(this);
         }
         closed(exception: any): void {
             log("session closed", this.id, exception);

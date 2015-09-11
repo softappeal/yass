@@ -149,7 +149,7 @@ namespace yass {
         }
     }
 
-    export class Type {
+    export abstract class Type {
         // empty
     }
 
@@ -411,32 +411,32 @@ namespace yass {
         return i1;
     }
 
-    export interface Message {
+    export abstract class Message {
         // empty
     }
 
-    export class Request implements Message {
+    export class Request extends Message {
         constructor(public serviceId: number, public methodId: number, public parameters: any[]) {
-            // empty
+            super();
         }
     }
 
-    export interface Reply extends Message {
-        process(): any
+    export abstract class Reply extends Message {
+        abstract process(): any;
     }
 
-    export class ValueReply implements Reply {
+    export class ValueReply extends Reply {
         constructor(public value: any) {
-            // empty
+            super();
         }
         process(): any {
             return this.value;
         }
     }
 
-    export class ExceptionReply implements Reply {
+    export class ExceptionReply extends Reply {
         constructor(public exception: any) {
-            // empty
+            super();
         }
         process(): any {
             throw this.exception;
@@ -630,16 +630,17 @@ namespace yass {
         }
     }
 
-    export class Client implements ProxyFactory {
-        constructor(private clientInvoker: (invocation: ClientInvocation) => Promise<any>) {
-            // empty
-        }
+    export abstract class Client implements ProxyFactory {
         proxy<PC>(contractId: ContractId<any, PC>, ...interceptors: Interceptor[]): PC {
             const interceptor = composite.apply(null, interceptors);
-            return <any>contractId.methodMapper.proxy((method, parameters) => this.clientInvoker(
+            return <any>contractId.methodMapper.proxy((method, parameters) => this.invoke(
                 new ClientInvocation(interceptor, contractId.id, contractId.methodMapper.mapMethod(method), parameters)
             ));
         }
+        /**
+         * @return ClientInvocation.invoke(Interceptor, Tunnel)
+         */
+        protected abstract invoke(invocation: ClientInvocation): Promise<any>;
     }
 
     export class Packet {
@@ -671,12 +672,22 @@ namespace yass {
         }
     }
 
-    export interface Session {
-        opened(): void;
+    export abstract class Session implements ProxyFactory {
+        constructor(private sessionClient: SessionClient) {
+            // empty
+        }
+        abstract opened(): void;
         /**
          * @param exception null if regular close else reason for close
          */
-        closed(exception: any): void;
+        abstract closed(exception: any): void;
+        proxy<PC>(contractId: ContractId<any, PC>, ...interceptors: Interceptor[]): PC {
+            (<any>interceptors).unshift(contractId);
+            return this.sessionClient.proxy.apply(this.sessionClient, interceptors);
+        }
+        close(): void {
+            this.sessionClient.close();
+        }
     }
 
     export interface SessionFactory {
@@ -711,24 +722,25 @@ namespace yass {
         private session: Session;
         private interceptor: Interceptor;
         constructor(private server: Server, sessionFactory: SessionFactory, private connection: Connection) {
-            super(function (invocation: ClientInvocation) {
-                return invocation.invoke(this.interceptor, (request, rpc) => {
-                    if (this.requestNumber === 2147483647) {
-                        this.requestNumber = Packet.END_REQUESTNUMBER;
-                    }
-                    this.requestNumber++;
-                    if (rpc) {
-                        if (this.requestNumber2rpc[this.requestNumber]) {
-                            throw new Error("already waiting for requestNumber " + this.requestNumber);
-                        }
-                        this.requestNumber2rpc[this.requestNumber] = rpc;
-                    }
-                    this.write(this.requestNumber, request);
-                });
-            });
+            super();
             this.session = sessionFactory(this);
             this.interceptor = sessionInterceptor(this.session);
             this.session.opened();
+        }
+        protected invoke(invocation: ClientInvocation): Promise<any> {
+            return invocation.invoke(this.interceptor, (request, rpc) => {
+                if (this.requestNumber === 2147483647) {
+                    this.requestNumber = Packet.END_REQUESTNUMBER;
+                }
+                this.requestNumber++;
+                if (rpc) {
+                    if (this.requestNumber2rpc[this.requestNumber]) {
+                        throw new Error("already waiting for requestNumber " + this.requestNumber);
+                    }
+                    this.requestNumber2rpc[this.requestNumber] = rpc;
+                }
+                this.write(this.requestNumber, request);
+            });
         }
         doClose(exception: any): void {
             this.doCloseSend(false, exception);
@@ -830,27 +842,29 @@ namespace yass {
     }
 
     class XhrClient extends Client {
-        constructor(url: string, serializer: Serializer) {
-            super(function (invocation: ClientInvocation) {
-                return invocation.invoke(DIRECT, (request, rpc) => {
-                    if (!rpc) {
-                        throw new Error("xhr not allowed for oneway method (serviceId " + request.serviceId + ", methodId " + request.methodId + ")");
+        private serializer: Serializer;
+        constructor(private url: string, serializer: Serializer) {
+            super();
+            this.serializer = new MessageSerializer(serializer);
+        }
+        protected invoke(invocation: ClientInvocation): Promise<any> {
+            return invocation.invoke(DIRECT, (request, rpc) => {
+                if (!rpc) {
+                    throw new Error("xhr not allowed for oneway method (serviceId " + request.serviceId + ", methodId " + request.methodId + ")");
+                }
+                const xhr = new XMLHttpRequest();
+                xhr.open("POST", this.url);
+                xhr.responseType = "arraybuffer";
+                xhr.onerror = () => rpc.settle(new ExceptionReply(new Error("XMLHttpRequest.onerror")));
+                xhr.onload = () => {
+                    try {
+                        rpc.settle(readFrom(this.serializer, xhr.response));
+                    } catch (exception) {
+                        rpc.settle(new ExceptionReply(exception));
                     }
-                    const xhr = new XMLHttpRequest();
-                    xhr.open("POST", url);
-                    xhr.responseType = "arraybuffer";
-                    xhr.onerror = () => rpc.settle(new ExceptionReply(new Error("XMLHttpRequest.onerror")));
-                    xhr.onload = () => {
-                        try {
-                            rpc.settle(readFrom(serializer, xhr.response));
-                        } catch (exception) {
-                            rpc.settle(new ExceptionReply(exception));
-                        }
-                    };
-                    xhr.send(writeTo(serializer, request));
-                });
+                };
+                xhr.send(writeTo(this.serializer, request));
             });
-            serializer = new MessageSerializer(serializer);
         }
     }
 
