@@ -1,7 +1,5 @@
 /// <reference path="es6-promise"/> // $note: could probably be removed in future
 
-// $note: parameter littleEndian of DataView calls could be removed; workaround for https://github.com/Microsoft/TypeScript/issues/4083
-
 namespace yass {
 
     export class Writer {
@@ -29,7 +27,7 @@ namespace yass {
         }
         writeInt(value: number): void {
             const position = this.needed(4);
-            new DataView(this.array.buffer).setInt32(position, value, false);
+            new DataView(this.array.buffer).setInt32(position, value);
         }
         writeVarInt(value: number): void {
             while (true) {
@@ -101,7 +99,7 @@ namespace yass {
             return this.array[this.needed(1)];
         }
         readInt(): number {
-            return new DataView(this.array.buffer).getInt32(this.needed(4), false);
+            return new DataView(this.array.buffer).getInt32(this.needed(4));
         }
         readVarInt(): number {
             let shift = 0;
@@ -216,11 +214,11 @@ namespace yass {
 
     class NumberTypeHandler implements TypeHandler<number> {
         read(reader: Reader): number {
-            return new DataView(reader.array.buffer).getFloat64(reader.needed(8), false);
+            return new DataView(reader.array.buffer).getFloat64(reader.needed(8));
         }
         write(value: number, writer: Writer): void {
             const position = writer.needed(8);
-            new DataView(writer.array.buffer).setFloat64(position, value, false);
+            new DataView(writer.array.buffer).setFloat64(position, value);
         }
     }
     export const NUMBER_DESC = new TypeDesc(4, new NumberTypeHandler);
