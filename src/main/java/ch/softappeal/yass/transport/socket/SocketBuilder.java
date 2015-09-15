@@ -10,7 +10,7 @@ import ch.softappeal.yass.core.remote.session.Session;
 import ch.softappeal.yass.core.remote.session.SessionFactory;
 import ch.softappeal.yass.serialize.JavaSerializer;
 import ch.softappeal.yass.serialize.Serializer;
-import ch.softappeal.yass.transport.StringPathSerializer;
+import ch.softappeal.yass.transport.PathSerializer;
 import ch.softappeal.yass.transport.TransportSetup;
 import ch.softappeal.yass.util.Check;
 import ch.softappeal.yass.util.Exceptions;
@@ -107,7 +107,7 @@ public final class SocketBuilder {
     }
 
     public void connect(final SocketFactory socketFactory, final SocketAddress socketAddress) {
-        SocketTransport.connect(transportSetup(), executor, StringPathSerializer.INSTANCE, StringPathSerializer.DEFAULT, socketFactory, socketAddress);
+        SocketTransport.connect(transportSetup(), executor, PathSerializer.INSTANCE, PathSerializer.DEFAULT, socketFactory, socketAddress);
     }
 
     public void connect(final SocketAddress socketAddress) {

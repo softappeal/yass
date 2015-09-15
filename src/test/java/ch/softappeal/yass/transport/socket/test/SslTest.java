@@ -6,7 +6,7 @@ import ch.softappeal.yass.core.remote.session.Session;
 import ch.softappeal.yass.core.remote.session.SessionClient;
 import ch.softappeal.yass.core.remote.session.test.PerformanceTest;
 import ch.softappeal.yass.core.test.InvokeTest;
-import ch.softappeal.yass.transport.StringPathSerializer;
+import ch.softappeal.yass.transport.PathSerializer;
 import ch.softappeal.yass.transport.TransportSetup;
 import ch.softappeal.yass.transport.socket.SocketConnection;
 import ch.softappeal.yass.transport.socket.SocketListenerTest;
@@ -79,7 +79,7 @@ public class SslTest extends InvokeTest {
                     }
                 ),
                 executor,
-                StringPathSerializer.INSTANCE, StringPathSerializer.DEFAULT,
+                PathSerializer.INSTANCE, PathSerializer.DEFAULT,
                 socketFactory, SocketListenerTest.ADDRESS
             );
         } finally {
