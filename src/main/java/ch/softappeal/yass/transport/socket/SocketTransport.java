@@ -130,10 +130,17 @@ public final class SocketTransport {
     }
 
     /**
+     * Uses {@link PathSerializer}.
+     */
+    public static void connect(final TransportSetup setup, final Executor socketExecutor, final SocketFactory socketFactory, final SocketAddress socketAddress) {
+        connect(setup, socketExecutor, PathSerializer.INSTANCE, PathSerializer.DEFAULT, socketFactory, socketAddress);
+    }
+
+    /**
      * Uses {@link SocketFactory#getDefault()} and {@link PathSerializer}.
      */
     public static void connect(final TransportSetup setup, final Executor socketExecutor, final SocketAddress socketAddress) {
-        connect(setup, socketExecutor, PathSerializer.INSTANCE, PathSerializer.DEFAULT, SocketFactory.getDefault(), socketAddress);
+        connect(setup, socketExecutor, SocketFactory.getDefault(), socketAddress);
     }
 
 }

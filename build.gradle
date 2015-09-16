@@ -1,4 +1,4 @@
-defaultTasks 'clean', 'todo', 'build', 'compileTutorialJava', 'compileAllTypeScript', 'createPom', 'dist'
+defaultTasks 'clean', 'todo', 'build', 'compileTutorialJava', 'compileAllTypeScript', 'createPom', 'collectJars', 'dist'
 
 apply plugin: 'java'
 apply plugin: 'osgi'
@@ -126,7 +126,17 @@ task createPom << {
     }.writeTo("build/libs/${project.name}-${version}.pom")
 }
 
+task collectJars(type: Copy) {
+    into "build/allJars"
+    from configurations.tutorialRuntime
+}
+
 task dist << {
+    ant.copy(todir: "build/server") {
+        fileset(dir: ".", includes: "src/*/ts/")
+        fileset(dir: ".", includes: "build/allJars/*.jar")
+        fileset(dir: ".", includes: "build/classes/")
+    }
     if (project.hasProperty('signing.password')) {
         def signPrefix = "build/libs/${project.name}-${version}"
         signing.sign(file("${signPrefix}.pom"))
