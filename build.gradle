@@ -134,9 +134,12 @@ task collectJars(type: Copy) {
 task dist << {
     ant.copy(todir: "build/server") {
         fileset(dir: ".", includes: "src/*/ts/")
-        fileset(dir: ".", includes: "build/allJars/*.jar")
-        fileset(dir: ".", includes: "build/classes/")
     }
+    ant.copy(todir: "build/server/libs") {
+        fileset(dir: "build/allJars", includes: "*.jar")
+    }
+    ant.jar(destfile: "build/server/libs/yass.jar", basedir: "build/classes/main")
+    ant.jar(destfile: "build/server/libs/tutorial.jar", basedir: "build/classes/tutorial")
     if (project.hasProperty('signing.password')) {
         def signPrefix = "build/libs/${project.name}-${version}"
         signing.sign(file("${signPrefix}.pom"))
