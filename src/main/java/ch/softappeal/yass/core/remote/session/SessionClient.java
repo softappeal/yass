@@ -89,36 +89,21 @@ public final class SessionClient extends Client {
     private final Map<Integer, BlockingQueue<Reply>> requestNumber2replyQueue = Collections.synchronizedMap(new HashMap<>(16));
 
     private void replyReceived(final int requestNumber, final Reply reply) throws InterruptedException {
-        @Nullable final BlockingQueue<Reply> replyQueue = requestNumber2replyQueue.remove(requestNumber);
-        if (replyQueue != null) { // needed because request can be interrupted, see below
-            replyQueue.put(reply);
-        }
+        requestNumber2replyQueue.remove(requestNumber).put(reply);
     }
 
-    private RequestInterruptedException requestInterrupted(final int requestNumber) {
-        requestNumber2replyQueue.remove(requestNumber);
-        return new RequestInterruptedException();
-    }
-
-    private Reply clientRpcInvoke(final int requestNumber, final Request request) throws RequestInterruptedException, SessionClosedException {
+    private Reply clientRpcInvoke(final int requestNumber, final Request request) throws InterruptedException, SessionClosedException {
         final BlockingQueue<Reply> replyQueue = new ArrayBlockingQueue<>(1, false); // we use unfair for speed
         if (requestNumber2replyQueue.put(requestNumber, replyQueue) != null) {
             throw new RuntimeException("already waiting for requestNumber " + requestNumber);
         }
         write(requestNumber, request);
         while (true) {
-            if (Thread.interrupted()) {
-                throw requestInterrupted(requestNumber);
-            }
-            try {
-                final Reply reply = replyQueue.poll(200L, TimeUnit.MILLISECONDS);
-                if (reply != null) {
-                    return reply;
-                } else if (closed.get()) {
-                    throw new SessionClosedException();
-                }
-            } catch (final InterruptedException ignore) {
-                throw requestInterrupted(requestNumber);
+            final Reply reply = replyQueue.poll(200L, TimeUnit.MILLISECONDS);
+            if (reply != null) {
+                return reply;
+            } else if (closed.get()) {
+                throw new SessionClosedException();
             }
         }
     }
