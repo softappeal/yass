@@ -112,11 +112,14 @@ public final class BaseTypeHandlers {
         @Override public byte[] read(final Reader reader) throws Exception {
             final int length = reader.readVarInt();
             byte[] value = new byte[Math.min(length, 128)];
-            for (int i = 0; i < length; i++) {
+            int i = 0;
+            while (i < length) {
                 if (i >= value.length) {
                     value = Arrays.copyOf(value, Math.min(length, 2 * value.length)); // note: prevents out-of-memory attack
                 }
-                value[i] = reader.readByte();
+                final int l = value.length - i;
+                reader.readBytes(value, i, l);
+                i += l;
             }
             return value;
         }

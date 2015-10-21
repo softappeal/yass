@@ -220,8 +220,12 @@ public class SerializerTest {
         final boolean[] booleans = new boolean[10000];
         Arrays.fill(booleans, true);
         assertArrayEquals(JavaSerializerTest.copy(serializer, booleans), booleans);
-        final byte[] bytes = new byte[10000];
+        byte[] bytes = new byte[10000];
         Arrays.fill(bytes, (byte)123);
+        Assert.assertArrayEquals(JavaSerializerTest.copy(serializer, bytes), bytes);
+        bytes = new byte[0];
+        Assert.assertArrayEquals(JavaSerializerTest.copy(serializer, bytes), bytes);
+        bytes = new byte[] {(byte)1, (byte)-2, (byte)3};
         Assert.assertArrayEquals(JavaSerializerTest.copy(serializer, bytes), bytes);
         final short[] shorts = new short[10000];
         Arrays.fill(shorts, (short)12345);
