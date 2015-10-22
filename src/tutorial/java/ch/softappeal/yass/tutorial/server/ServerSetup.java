@@ -22,7 +22,7 @@ public abstract class ServerSetup {
     );
 
     protected static TransportSetup createTransportSetup(final Executor dispatcherExecutor) {
-        return new TransportSetup(SERVER, dispatcherExecutor, Config.PACKET_SERIALIZER, ServerSession::new);
+        return TransportSetup.create(SERVER, dispatcherExecutor, Config.SERIALIZER, ServerSession::new);
     }
 
 }

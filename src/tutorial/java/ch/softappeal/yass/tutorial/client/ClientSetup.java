@@ -20,7 +20,7 @@ public abstract class ClientSetup {
     );
 
     protected static TransportSetup createTransportSetup(final Executor dispatcherExecutor) {
-        return new TransportSetup(SERVER, dispatcherExecutor, Config.PACKET_SERIALIZER, ClientSession::new);
+        return TransportSetup.create(SERVER, dispatcherExecutor, Config.SERIALIZER, ClientSession::new);
     }
 
 }

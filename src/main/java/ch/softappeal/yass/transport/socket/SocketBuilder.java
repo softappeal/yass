@@ -10,8 +10,6 @@ import ch.softappeal.yass.core.remote.session.Session;
 import ch.softappeal.yass.core.remote.session.SessionFactory;
 import ch.softappeal.yass.serialize.JavaSerializer;
 import ch.softappeal.yass.serialize.Serializer;
-import ch.softappeal.yass.transport.MessageSerializer;
-import ch.softappeal.yass.transport.PacketSerializer;
 import ch.softappeal.yass.transport.TransportSetup;
 import ch.softappeal.yass.util.Check;
 import ch.softappeal.yass.util.Exceptions;
@@ -48,10 +46,10 @@ public final class SocketBuilder {
     }
 
     /**
-     * Uses {@link PacketSerializer} and {@link MessageSerializer}.
+     * Uses {@link TransportSetup#packetSerializer(Serializer)}.
      */
     public SocketBuilder contractSerializer(final Serializer contractSerializer) {
-        return packetSerializer(new PacketSerializer(new MessageSerializer(contractSerializer)));
+        return packetSerializer(TransportSetup.packetSerializer(contractSerializer));
     }
 
     private final List<Service> services = new ArrayList<>();

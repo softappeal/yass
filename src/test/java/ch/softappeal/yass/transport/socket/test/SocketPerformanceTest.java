@@ -7,8 +7,6 @@ import ch.softappeal.yass.core.remote.session.test.PerformanceTest;
 import ch.softappeal.yass.core.test.InvokeTest;
 import ch.softappeal.yass.serialize.Serializer;
 import ch.softappeal.yass.serialize.test.SerializerTest;
-import ch.softappeal.yass.transport.MessageSerializer;
-import ch.softappeal.yass.transport.PacketSerializer;
 import ch.softappeal.yass.transport.TransportSetup;
 import ch.softappeal.yass.transport.socket.SocketListenerTest;
 import ch.softappeal.yass.transport.socket.SocketTransport;
@@ -28,9 +26,7 @@ public class SocketPerformanceTest extends InvokeTest {
 
     public static final int COUNTER = 1;
 
-    public static final Serializer MESSAGE_SERIALIZER = new MessageSerializer(SerializerTest.TAGGED_FAST_SERIALIZER);
-
-    public static final Serializer PACKET_SERIALIZER = new PacketSerializer(MESSAGE_SERIALIZER);
+    public static final Serializer PACKET_SERIALIZER = TransportSetup.packetSerializer(SerializerTest.TAGGED_FAST_SERIALIZER);
 
     private static TransportSetup createSetup(final Executor executor, @Nullable final CountDownLatch latch) {
         return PerformanceTest.createSetup(

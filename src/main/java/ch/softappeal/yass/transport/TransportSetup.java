@@ -14,6 +14,13 @@ import java.util.concurrent.Executor;
 public class TransportSetup extends SessionSetup {
 
     /**
+     * Uses {@link PacketSerializer} and {@link MessageSerializer}.
+     */
+    public static Serializer packetSerializer(final Serializer contractSerializer) {
+        return new PacketSerializer(new MessageSerializer(contractSerializer));
+    }
+
+    /**
      * A {@link Serializer} for {@link Packet}.
      */
     public final Serializer packetSerializer;
@@ -21,6 +28,13 @@ public class TransportSetup extends SessionSetup {
     public TransportSetup(final Server server, final Dispatcher dispatcher, final Serializer packetSerializer, final SessionFactory sessionFactory) {
         super(server, dispatcher, sessionFactory);
         this.packetSerializer = Check.notNull(packetSerializer);
+    }
+
+    /**
+     * Uses {@link #packetSerializer(Serializer)}.
+     */
+    public static TransportSetup create(final Server server, final Dispatcher dispatcher, final Serializer contractSerializer, final SessionFactory sessionFactory) {
+        return new TransportSetup(server, dispatcher, packetSerializer(contractSerializer), sessionFactory);
     }
 
     public static Dispatcher dispatcher(final Executor executor) {
@@ -37,6 +51,13 @@ public class TransportSetup extends SessionSetup {
 
     public TransportSetup(final Server server, final Executor dispatcherExecutor, final Serializer packetSerializer, final SessionFactory sessionFactory) {
         this(server, dispatcher(dispatcherExecutor), packetSerializer, sessionFactory);
+    }
+
+    /**
+     * Uses {@link #packetSerializer(Serializer)}.
+     */
+    public static TransportSetup create(final Server server, final Executor dispatcherExecutor, final Serializer contractSerializer, final SessionFactory sessionFactory) {
+        return new TransportSetup(server, dispatcherExecutor, packetSerializer(contractSerializer), sessionFactory);
     }
 
 }

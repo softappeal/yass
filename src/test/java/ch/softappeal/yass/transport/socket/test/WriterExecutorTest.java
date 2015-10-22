@@ -9,8 +9,6 @@ import ch.softappeal.yass.core.remote.TaggedMethodMapper;
 import ch.softappeal.yass.core.remote.session.Session;
 import ch.softappeal.yass.serialize.Serializer;
 import ch.softappeal.yass.serialize.test.SerializerTest;
-import ch.softappeal.yass.transport.MessageSerializer;
-import ch.softappeal.yass.transport.PacketSerializer;
 import ch.softappeal.yass.transport.TransportSetup;
 import ch.softappeal.yass.transport.socket.SocketConnection;
 import ch.softappeal.yass.transport.socket.SocketTransport;
@@ -34,7 +32,7 @@ public final class WriterExecutorTest {
 
     private static final ContractId<StringListener> StringListenerId = ContractId.create(StringListener.class, 0);
 
-    private static final Serializer PACKET_SERIALIZER = new PacketSerializer(new MessageSerializer(SerializerTest.TAGGED_FAST_SERIALIZER));
+    private static final Serializer PACKET_SERIALIZER = TransportSetup.packetSerializer(SerializerTest.TAGGED_FAST_SERIALIZER);
 
     private static final MethodMapper.Factory METHOD_MAPPER_FACTORY = TaggedMethodMapper.FACTORY;
 

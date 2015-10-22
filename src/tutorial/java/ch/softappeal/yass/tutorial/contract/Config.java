@@ -5,7 +5,6 @@ import ch.softappeal.yass.core.remote.SimpleMethodMapper;
 import ch.softappeal.yass.core.remote.TaggedMethodMapper;
 import ch.softappeal.yass.serialize.FastReflector;
 import ch.softappeal.yass.serialize.Serializer;
-import ch.softappeal.yass.serialize.fast.AbstractFastSerializer;
 import ch.softappeal.yass.serialize.fast.AbstractJsFastSerializer;
 import ch.softappeal.yass.serialize.fast.BaseTypeHandlers;
 import ch.softappeal.yass.serialize.fast.SimpleFastSerializer;
@@ -13,8 +12,6 @@ import ch.softappeal.yass.serialize.fast.SimpleJsFastSerializer;
 import ch.softappeal.yass.serialize.fast.TaggedFastSerializer;
 import ch.softappeal.yass.serialize.fast.TaggedJsFastSerializer;
 import ch.softappeal.yass.serialize.fast.TypeDesc;
-import ch.softappeal.yass.transport.MessageSerializer;
-import ch.softappeal.yass.transport.PacketSerializer;
 import ch.softappeal.yass.tutorial.contract.instrument.Bond;
 import ch.softappeal.yass.tutorial.contract.instrument.stock.Stock;
 
@@ -42,7 +39,7 @@ public final class Config {
     /**
      * Shows how to use {@link SimpleJsFastSerializer}.
      */
-    private static final AbstractJsFastSerializer SIMPLE_JS_CONTRACT_SERIALIZER = new SimpleJsFastSerializer(
+    private static final AbstractJsFastSerializer SIMPLE_JS_SERIALIZER = new SimpleJsFastSerializer(
         FastReflector.FACTORY,
         Arrays.asList(
             Expiration.TYPE_HANDLER,
@@ -55,7 +52,7 @@ public final class Config {
     /**
      * Shows how to use {@link TaggedJsFastSerializer}.
      */
-    private static final AbstractJsFastSerializer TAGGED_JS_CONTRACT_SERIALIZER = new TaggedJsFastSerializer(
+    private static final AbstractJsFastSerializer TAGGED_JS_SERIALIZER = new TaggedJsFastSerializer(
         FastReflector.FACTORY,
         Arrays.asList(
             new TypeDesc(AbstractJsFastSerializer.FIRST_ID, Expiration.TYPE_HANDLER),
@@ -65,12 +62,10 @@ public final class Config {
         CONCRETE_CLASSES
     );
 
-    public static final AbstractJsFastSerializer JS_CONTRACT_SERIALIZER = SIMPLE_JS_CONTRACT_SERIALIZER;
-
     /**
      * Shows how to use {@link SimpleFastSerializer}.
      */
-    private static final AbstractFastSerializer SIMPLE_CONTRACT_SERIALIZER = new SimpleFastSerializer(
+    private static final Serializer SIMPLE_SERIALIZER = new SimpleFastSerializer(
         FastReflector.FACTORY,
         Arrays.asList(
             BaseTypeHandlers.BOOLEAN,
@@ -87,7 +82,7 @@ public final class Config {
     /**
      * Shows how to use {@link TaggedFastSerializer}.
      */
-    private static final AbstractFastSerializer TAGGED_CONTRACT_SERIALIZER = new TaggedFastSerializer(
+    private static final Serializer TAGGED_SERIALIZER = new TaggedFastSerializer(
         FastReflector.FACTORY,
         Arrays.asList(
             new TypeDesc(TypeDesc.FIRST_ID, BaseTypeHandlers.BOOLEAN),
@@ -101,9 +96,7 @@ public final class Config {
         REFERENCEABLE_CONCRETE_CLASSES
     );
 
-    public static final Serializer MESSAGE_SERIALIZER = new MessageSerializer(JS_CONTRACT_SERIALIZER);
-
-    public static final Serializer PACKET_SERIALIZER = new PacketSerializer(MESSAGE_SERIALIZER);
+    public static final AbstractJsFastSerializer SERIALIZER = SIMPLE_JS_SERIALIZER;
 
     /**
      * Shows how to use {@link SimpleMethodMapper}.
