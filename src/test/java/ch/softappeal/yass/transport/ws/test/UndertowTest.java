@@ -1,6 +1,7 @@
 package ch.softappeal.yass.transport.ws.test;
 
 import io.undertow.Undertow;
+import io.undertow.server.XnioByteBufferPool;
 import io.undertow.servlet.Servlets;
 import io.undertow.servlet.api.DeploymentManager;
 import io.undertow.servlet.core.CompositeThreadSetupAction;
@@ -31,7 +32,7 @@ public abstract class UndertowTest extends WsTest {
                         new WebSocketDeploymentInfo()
                             .addEndpoint(serverEndpointConfig(new DefaultContainerConfigurator()))
                             .setWorker(xnio.createWorker(OptionMap.builder().getMap()))
-                            .setBuffers(new ByteBufferSlicePool(100, 1000))
+                            .setBuffers(new XnioByteBufferPool(new ByteBufferSlicePool(1024, 10240)))
                     )
             );
         deployment.deploy();
@@ -43,10 +44,10 @@ public abstract class UndertowTest extends WsTest {
         connect(
             new ServerWebSocketContainer(
                 DefaultClassIntrospector.INSTANCE,
-                ServerWebSocketContainer.class.getClassLoader(),
                 xnio.createWorker(OptionMap.create(Options.THREAD_DAEMON, true)),
-                new ByteBufferSlicePool(1024, 10240),
+                new XnioByteBufferPool(new ByteBufferSlicePool(1024, 10240)),
                 new CompositeThreadSetupAction(Collections.emptyList()),
+                true,
                 true
             ),
             latch
