@@ -31,15 +31,15 @@ public final class Server extends Common {
     }
 
     public static final class Invocation {
-        public final boolean oneWay;
         public final Service service;
         public final Method method;
+        public final boolean oneWay;
         @Nullable public final Object[] arguments;
         Invocation(final ServiceDesc serviceDesc, final Request request) {
-            final MethodMapper.Mapping methodMapping = serviceDesc.methodMapper.mapId(request.methodId);
-            oneWay = methodMapping.oneWay;
             service = serviceDesc.service;
+            final MethodMapper.Mapping methodMapping = serviceDesc.methodMapper.mapId(request.methodId);
             method = methodMapping.method;
+            oneWay = methodMapping.oneWay;
             arguments = request.arguments;
         }
         public Reply invoke(final Interceptor interceptor) {

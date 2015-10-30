@@ -720,15 +720,15 @@ namespace yass {
         private requestNumber = Packet.END_REQUESTNUMBER;
         private requestNumber2rpc: Rpc[] = [];
         private session: Session;
-        private interceptor: Interceptor;
+        private sessionInterceptor: Interceptor;
         constructor(private server: Server, sessionFactory: SessionFactory, private connection: Connection) {
             super();
             this.session = sessionFactory(this);
-            this.interceptor = sessionInterceptor(this.session);
+            this.sessionInterceptor = sessionInterceptor(this.session);
             this.session.opened();
         }
         protected invoke(invocation: ClientInvocation): Promise<any> {
-            return invocation.invoke(this.interceptor, (request, rpc) => {
+            return invocation.invoke(this.sessionInterceptor, (request, rpc) => {
                 if (this.requestNumber === 2147483647) {
                     this.requestNumber = Packet.END_REQUESTNUMBER;
                 }
@@ -781,7 +781,7 @@ namespace yass {
                 const message = packet.message;
                 if (message instanceof Request) {
                     const invocation = this.server(message);
-                    const reply = invocation.invoke(this.interceptor);
+                    const reply = invocation.invoke(this.sessionInterceptor);
                     if (!invocation.oneWay) {
                         this.write(packet.requestNumber, reply);
                     }

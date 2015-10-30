@@ -23,16 +23,16 @@ public abstract class Client extends Common implements ProxyFactory {
     }
 
     public static final class Invocation {
-        public final boolean oneWay;
         private final Interceptor interceptor;
         private final int serviceId;
         private final MethodMapper.Mapping methodMapping;
+        public final boolean oneWay;
         @Nullable private final Object[] arguments;
         Invocation(final Interceptor interceptor, final int serviceId, final MethodMapper.Mapping methodMapping, @Nullable final Object[] arguments) {
-            oneWay = methodMapping.oneWay;
             this.interceptor = interceptor;
             this.serviceId = serviceId;
             this.methodMapping = methodMapping;
+            oneWay = methodMapping.oneWay;
             this.arguments = arguments;
         }
         @Nullable public Object invoke(final Interceptor interceptor, final Tunnel tunnel) throws Throwable {

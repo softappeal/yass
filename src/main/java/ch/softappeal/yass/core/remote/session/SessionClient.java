@@ -25,22 +25,10 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public final class SessionClient extends Client {
 
-    public final Connection connection;
-    private final SessionSetup setup;
-    final AtomicBoolean closed = new AtomicBoolean(false);
-    private Session session = null;
-    private Interceptor interceptor = null;
-
-    private SessionClient(final SessionSetup setup, final Connection connection) {
-        super(setup.server.methodMapperFactory);
-        this.connection = Check.notNull(connection);
-        this.setup = setup;
-    }
-
     public static SessionClient create(final SessionSetup setup, final Connection connection) throws Exception {
         final SessionClient sessionClient = new SessionClient(setup, connection);
         sessionClient.session = Check.notNull(setup.sessionFactory.create(sessionClient));
-        sessionClient.interceptor = Interceptor.threadLocal(Session.INSTANCE, sessionClient.session);
+        sessionClient.sessionInterceptor = Interceptor.threadLocal(Session.INSTANCE, sessionClient.session);
         setup.dispatcher.opened(sessionClient.session, () -> {
             try {
                 sessionClient.session.opened();
@@ -49,6 +37,18 @@ public final class SessionClient extends Client {
             }
         });
         return sessionClient;
+    }
+
+    public final Connection connection;
+    private final SessionSetup setup;
+    final AtomicBoolean closed = new AtomicBoolean(false);
+    private Session session = null;
+    private Interceptor sessionInterceptor = null;
+
+    private SessionClient(final SessionSetup setup, final Connection connection) {
+        super(setup.server.methodMapperFactory);
+        this.connection = Check.notNull(connection);
+        this.setup = setup;
     }
 
     private void close(final boolean sendEnd, @Nullable final Throwable throwable) {
@@ -75,6 +75,21 @@ public final class SessionClient extends Client {
         }
     }
 
+    /**
+     * Must be called if communication has failed.
+     * This method is idempotent.
+     */
+    public void close(final Throwable throwable) {
+        close(false, Check.notNull(throwable));
+    }
+
+    /**
+     * This method is idempotent.
+     */
+    void close() {
+        close(true, null);
+    }
+
     private void write(final int requestNumber, final Message message) throws SessionClosedException {
         if (closed.get()) {
             throw new SessionClosedException();
@@ -86,33 +101,11 @@ public final class SessionClient extends Client {
         }
     }
 
-    private final Map<Integer, BlockingQueue<Reply>> requestNumber2replyQueue = Collections.synchronizedMap(new HashMap<>(16));
-
-    private void replyReceived(final int requestNumber, final Reply reply) throws InterruptedException {
-        requestNumber2replyQueue.remove(requestNumber).put(reply);
-    }
-
-    private Reply clientRpcInvoke(final int requestNumber, final Request request) throws InterruptedException, SessionClosedException {
-        final BlockingQueue<Reply> replyQueue = new ArrayBlockingQueue<>(1, false); // we use unfair for speed
-        if (requestNumber2replyQueue.put(requestNumber, replyQueue) != null) {
-            throw new RuntimeException("already waiting for requestNumber " + requestNumber);
-        }
-        write(requestNumber, request);
-        while (true) {
-            final Reply reply = replyQueue.poll(200L, TimeUnit.MILLISECONDS);
-            if (reply != null) {
-                return reply;
-            } else if (closed.get()) {
-                throw new SessionClosedException();
-            }
-        }
-    }
-
     private void serverInvoke(final int requestNumber, final Request request) throws Exception {
         final Server.Invocation invocation = setup.server.invocation(request);
         setup.dispatcher.invoke(session, invocation, () -> {
             try {
-                final Reply reply = invocation.invoke(interceptor);
+                final Reply reply = invocation.invoke(sessionInterceptor);
                 if (!invocation.oneWay) {
                     write(requestNumber, reply);
                 }
@@ -121,6 +114,8 @@ public final class SessionClient extends Client {
             }
         });
     }
+
+    private final Map<Integer, BlockingQueue<Reply>> requestNumber2replyQueue = Collections.synchronizedMap(new HashMap<>(16));
 
     /**
      * Must be called if a packet has been received.
@@ -136,25 +131,17 @@ public final class SessionClient extends Client {
             if (message instanceof Request) {
                 serverInvoke(packet.requestNumber(), (Request)message);
             } else {
-                replyReceived(packet.requestNumber(), (Reply)message);
+                requestNumber2replyQueue.remove(packet.requestNumber()).put((Reply)message); // client invoke
             }
         } catch (final Exception e) {
             close(e);
         }
     }
 
-    /**
-     * Must be called if communication has failed.
-     * This method is idempotent.
-     */
-    public void close(final Throwable throwable) {
-        close(false, Check.notNull(throwable));
-    }
-
     private final AtomicInteger nextRequestNumber = new AtomicInteger(Packet.END_REQUEST_NUMBER);
 
     @Override protected Object invoke(final Client.Invocation invocation) throws Throwable {
-        return invocation.invoke(interceptor, request -> {
+        return invocation.invoke(sessionInterceptor, request -> {
             int requestNumber;
             do { // we can't use END_REQUEST_NUMBER as regular requestNumber
                 requestNumber = nextRequestNumber.incrementAndGet();
@@ -163,15 +150,20 @@ public final class SessionClient extends Client {
                 write(requestNumber, request);
                 return null;
             }
-            return clientRpcInvoke(requestNumber, request);
+            final BlockingQueue<Reply> replyQueue = new ArrayBlockingQueue<>(1, false); // we use unfair for speed
+            if (requestNumber2replyQueue.put(requestNumber, replyQueue) != null) {
+                throw new RuntimeException("already waiting for requestNumber " + requestNumber);
+            }
+            write(requestNumber, request);
+            while (true) {
+                final Reply reply = replyQueue.poll(200L, TimeUnit.MILLISECONDS);
+                if (reply != null) {
+                    return reply;
+                } else if (closed.get()) {
+                    throw new SessionClosedException();
+                }
+            }
         });
-    }
-
-    /**
-     * This method is idempotent.
-     */
-    void close() {
-        close(true, null);
     }
 
 }
