@@ -3,14 +3,16 @@ package ch.softappeal.yass.transport.socket.test;
 import ch.softappeal.yass.core.remote.session.test.LocalConnectionTest;
 import ch.softappeal.yass.core.test.InvokeTest;
 import ch.softappeal.yass.transport.PathResolver;
-import ch.softappeal.yass.transport.PathSerializer;
 import ch.softappeal.yass.transport.TransportSetup;
-import ch.softappeal.yass.transport.socket.SocketListenerTest;
+import ch.softappeal.yass.transport.socket.AsyncSocketConnection;
+import ch.softappeal.yass.transport.socket.SocketHelper;
 import ch.softappeal.yass.transport.socket.SocketTransport;
+import ch.softappeal.yass.transport.socket.SyncSocketConnection;
 import ch.softappeal.yass.util.Exceptions;
 import ch.softappeal.yass.util.NamedThreadFactory;
 import org.junit.Test;
 
+import javax.net.ServerSocketFactory;
 import javax.net.SocketFactory;
 import java.util.HashMap;
 import java.util.Map;
@@ -23,44 +25,55 @@ public class SocketTransportTest extends InvokeTest {
     @Test public void createException() throws InterruptedException {
         final ExecutorService executor = Executors.newCachedThreadPool(new NamedThreadFactory("executor", Exceptions.STD_ERR));
         try {
-            SocketTransport.listener(LocalConnectionTest.createSetup(false, executor, false)).start(executor, executor, SocketListenerTest.ADDRESS);
-            SocketTransport.connect(LocalConnectionTest.createSetup(false, executor, true), executor, SocketListenerTest.ADDRESS);
+            new SocketTransport(executor, SyncSocketConnection.FACTORY).start(LocalConnectionTest.createSetup(false, executor, false), executor, SocketHelper.ADDRESS);
+            new SocketTransport(executor, SyncSocketConnection.FACTORY).connect(LocalConnectionTest.createSetup(false, executor, true), SocketHelper.ADDRESS);
             TimeUnit.MILLISECONDS.sleep(200L);
         } finally {
-            SocketListenerTest.shutdown(executor);
+            SocketHelper.shutdown(executor);
         }
     }
 
     @Test public void clientInvoke() throws InterruptedException {
         final ExecutorService executor = Executors.newCachedThreadPool(new NamedThreadFactory("executor", Exceptions.TERMINATE));
         try {
-            SocketTransport.listener(LocalConnectionTest.createSetup(false, executor, false)).start(executor, executor, SocketListenerTest.ADDRESS);
-            SocketTransport.connect(LocalConnectionTest.createSetup(true, executor, false), executor, SocketListenerTest.ADDRESS);
+            new SocketTransport(executor, SyncSocketConnection.FACTORY).start(LocalConnectionTest.createSetup(false, executor, false), executor, SocketHelper.ADDRESS);
+            new SocketTransport(executor, SyncSocketConnection.FACTORY).connect(LocalConnectionTest.createSetup(true, executor, false), SocketHelper.ADDRESS);
             TimeUnit.MILLISECONDS.sleep(400L);
         } finally {
-            SocketListenerTest.shutdown(executor);
+            SocketHelper.shutdown(executor);
+        }
+    }
+
+    @Test public void clientInvokeAsync() throws InterruptedException {
+        final ExecutorService executor = Executors.newCachedThreadPool(new NamedThreadFactory("executor", Exceptions.TERMINATE));
+        try {
+            new SocketTransport(executor, AsyncSocketConnection.factory(executor, 1)).start(LocalConnectionTest.createSetup(false, executor, false), executor, SocketHelper.ADDRESS);
+            new SocketTransport(executor, AsyncSocketConnection.factory(executor, 1)).connect(LocalConnectionTest.createSetup(true, executor, false), SocketHelper.ADDRESS);
+            TimeUnit.MILLISECONDS.sleep(400L);
+        } finally {
+            SocketHelper.shutdown(executor);
         }
     }
 
     @Test public void serverInvoke() throws InterruptedException {
         final ExecutorService executor = Executors.newCachedThreadPool(new NamedThreadFactory("executor", Exceptions.TERMINATE));
         try {
-            SocketTransport.listener(LocalConnectionTest.createSetup(true, executor, false)).start(executor, executor, SocketListenerTest.ADDRESS);
-            SocketTransport.connect(LocalConnectionTest.createSetup(false, executor, false), executor, SocketListenerTest.ADDRESS);
+            new SocketTransport(executor, SyncSocketConnection.FACTORY).start(LocalConnectionTest.createSetup(true, executor, false), executor, SocketHelper.ADDRESS);
+            new SocketTransport(executor, SyncSocketConnection.FACTORY).connect(LocalConnectionTest.createSetup(false, executor, false), SocketHelper.ADDRESS);
             TimeUnit.MILLISECONDS.sleep(400L);
         } finally {
-            SocketListenerTest.shutdown(executor);
+            SocketHelper.shutdown(executor);
         }
     }
 
     @Test public void wrongPath() throws InterruptedException {
         final ExecutorService executor = Executors.newCachedThreadPool(new NamedThreadFactory("executor", Exceptions.STD_ERR));
         try {
-            SocketTransport.listener(PathSerializer.INSTANCE, new PathResolver(1, LocalConnectionTest.createSetup(true, executor, false))).start(executor, executor, SocketListenerTest.ADDRESS);
-            SocketTransport.connect(LocalConnectionTest.createSetup(false, executor, false), executor, PathSerializer.INSTANCE, 2, SocketFactory.getDefault(), SocketListenerTest.ADDRESS);
+            new SocketTransport(executor, SyncSocketConnection.FACTORY).start(new PathResolver(1, LocalConnectionTest.createSetup(true, executor, false)), executor, ServerSocketFactory.getDefault(), SocketHelper.ADDRESS);
+            new SocketTransport(executor, SyncSocketConnection.FACTORY).connect(LocalConnectionTest.createSetup(false, executor, false), 2, SocketFactory.getDefault(), SocketHelper.ADDRESS);
             TimeUnit.MILLISECONDS.sleep(400L);
         } finally {
-            SocketListenerTest.shutdown(executor);
+            SocketHelper.shutdown(executor);
         }
     }
 
@@ -72,13 +85,13 @@ public class SocketTransportTest extends InvokeTest {
         pathMappings.put(path1, LocalConnectionTest.createSetup(true, executor, false));
         pathMappings.put(path2, LocalConnectionTest.createSetup(true, executor, false));
         try {
-            SocketTransport.listener(PathSerializer.INSTANCE, new PathResolver(pathMappings)).start(executor, executor, SocketListenerTest.ADDRESS);
-            SocketTransport.connect(LocalConnectionTest.createSetup(false, executor, false), executor, PathSerializer.INSTANCE, path1, SocketFactory.getDefault(), SocketListenerTest.ADDRESS);
+            new SocketTransport(executor, SyncSocketConnection.FACTORY).start(new PathResolver(pathMappings), executor, ServerSocketFactory.getDefault(), SocketHelper.ADDRESS);
+            new SocketTransport(executor, SyncSocketConnection.FACTORY).connect(LocalConnectionTest.createSetup(false, executor, false), path1, SocketFactory.getDefault(), SocketHelper.ADDRESS);
             TimeUnit.MILLISECONDS.sleep(400L);
-            SocketTransport.connect(LocalConnectionTest.createSetup(false, executor, false), executor, PathSerializer.INSTANCE, path2, SocketFactory.getDefault(), SocketListenerTest.ADDRESS);
+            new SocketTransport(executor, SyncSocketConnection.FACTORY).connect(LocalConnectionTest.createSetup(false, executor, false), path2, SocketFactory.getDefault(), SocketHelper.ADDRESS);
             TimeUnit.MILLISECONDS.sleep(400L);
         } finally {
-            SocketListenerTest.shutdown(executor);
+            SocketHelper.shutdown(executor);
         }
     }
 

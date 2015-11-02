@@ -1,5 +1,6 @@
 package ch.softappeal.yass.tutorial.server.socket;
 
+import ch.softappeal.yass.transport.socket.AsyncSocketConnection;
 import ch.softappeal.yass.transport.socket.SocketTransport;
 import ch.softappeal.yass.tutorial.server.ServerSetup;
 import ch.softappeal.yass.util.Exceptions;
@@ -16,7 +17,8 @@ public final class SocketServer extends ServerSetup {
 
     public static void main(final String... args) {
         final Executor executor = Executors.newCachedThreadPool(new NamedThreadFactory("executor", Exceptions.STD_ERR));
-        SocketTransport.listener(createTransportSetup(executor)).start(executor, executor, ADDRESS);
+        new SocketTransport(executor, AsyncSocketConnection.factory(executor, 1_000))
+            .start(createTransportSetup(executor), executor, ADDRESS);
         System.out.println("started");
     }
 

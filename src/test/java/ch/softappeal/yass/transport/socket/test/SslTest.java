@@ -8,9 +8,10 @@ import ch.softappeal.yass.core.remote.session.test.PerformanceTest;
 import ch.softappeal.yass.core.test.InvokeTest;
 import ch.softappeal.yass.transport.TransportSetup;
 import ch.softappeal.yass.transport.socket.SocketConnection;
-import ch.softappeal.yass.transport.socket.SocketListenerTest;
+import ch.softappeal.yass.transport.socket.SocketHelper;
 import ch.softappeal.yass.transport.socket.SocketTransport;
 import ch.softappeal.yass.transport.socket.SslSetup;
+import ch.softappeal.yass.transport.socket.SyncSocketConnection;
 import ch.softappeal.yass.util.ClassLoaderResource;
 import ch.softappeal.yass.util.Exceptions;
 import ch.softappeal.yass.util.NamedThreadFactory;
@@ -36,27 +37,32 @@ public class SslTest extends InvokeTest {
     ) throws Exception {
         final ExecutorService executor = Executors.newCachedThreadPool(new NamedThreadFactory("executor", Exceptions.STD_ERR));
         try {
-            SocketTransport.listener(new TransportSetup(
-                new Server(
-                    PerformanceTest.METHOD_MAPPER_FACTORY,
-                    new Service(PerformanceTest.CONTRACT_ID, new TestServiceImpl())
+            new SocketTransport(executor, SyncSocketConnection.FACTORY).start(
+                new TransportSetup(
+                    new Server(
+                        PerformanceTest.METHOD_MAPPER_FACTORY,
+                        new Service(PerformanceTest.CONTRACT_ID, new TestServiceImpl())
+                    ),
+                    executor,
+                    SocketPerformanceTest.PACKET_SERIALIZER,
+                    sessionClient -> {
+                        if (needClientAuth) {
+                            checkName(sessionClient);
+                        }
+                        return new Session(sessionClient) {
+                            @Override protected void closed(final Throwable throwable) {
+                                if (throwable != null) {
+                                    Exceptions.TERMINATE.uncaughtException(null, throwable);
+                                }
+                            }
+                        };
+                    }
                 ),
                 executor,
-                SocketPerformanceTest.PACKET_SERIALIZER,
-                sessionClient -> {
-                    if (needClientAuth) {
-                        checkName(sessionClient);
-                    }
-                    return new Session(sessionClient) {
-                        @Override protected void closed(final Throwable throwable) {
-                            if (throwable != null) {
-                                Exceptions.TERMINATE.uncaughtException(null, throwable);
-                            }
-                        }
-                    };
-                }
-            )).start(executor, executor, serverSocketFactory, SocketListenerTest.ADDRESS);
-            SocketTransport.connect(
+                serverSocketFactory,
+                SocketHelper.ADDRESS
+            );
+            new SocketTransport(executor, SyncSocketConnection.FACTORY).connect(
                 new TransportSetup(
                     new Server(PerformanceTest.METHOD_MAPPER_FACTORY),
                     executor,
@@ -78,11 +84,11 @@ public class SslTest extends InvokeTest {
                     }
                 ),
                 executor,
-                socketFactory, SocketListenerTest.ADDRESS
+                socketFactory, SocketHelper.ADDRESS
             );
         } finally {
             TimeUnit.MILLISECONDS.sleep(200);
-            SocketListenerTest.shutdown(executor);
+            SocketHelper.shutdown(executor);
         }
     }
 

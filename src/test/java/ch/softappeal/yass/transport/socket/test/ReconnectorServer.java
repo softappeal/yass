@@ -7,8 +7,9 @@ import ch.softappeal.yass.core.remote.session.Session;
 import ch.softappeal.yass.core.remote.test.ContractIdTest;
 import ch.softappeal.yass.core.test.InvokeTest;
 import ch.softappeal.yass.transport.TransportSetup;
-import ch.softappeal.yass.transport.socket.SocketListenerTest;
+import ch.softappeal.yass.transport.socket.SocketHelper;
 import ch.softappeal.yass.transport.socket.SocketTransport;
+import ch.softappeal.yass.transport.socket.SyncSocketConnection;
 import ch.softappeal.yass.transport.test.PacketSerializerTest;
 import ch.softappeal.yass.util.Exceptions;
 import ch.softappeal.yass.util.NamedThreadFactory;
@@ -21,22 +22,26 @@ public class ReconnectorServer {
 
     public static void main(final String... args) {
         final Executor executor = Executors.newCachedThreadPool(new NamedThreadFactory("executor", Exceptions.STD_ERR));
-        SocketTransport.listener(new TransportSetup(
-            new Server(
-                TaggedMethodMapper.FACTORY,
-                new Service(ContractIdTest.ID, new InvokeTest.TestServiceImpl())
+        new SocketTransport(executor, SyncSocketConnection.FACTORY).start(
+            new TransportSetup(
+                new Server(
+                    TaggedMethodMapper.FACTORY,
+                    new Service(ContractIdTest.ID, new InvokeTest.TestServiceImpl())
+                ),
+                executor,
+                PacketSerializerTest.SERIALIZER,
+                sessionClient -> new Session(sessionClient) {
+                    @Override protected void opened() {
+                        System.out.println("opened");
+                    }
+                    @Override public void closed(@Nullable final Throwable throwable) {
+                        System.out.println("closed");
+                    }
+                }
             ),
             executor,
-            PacketSerializerTest.SERIALIZER,
-            sessionClient -> new Session(sessionClient) {
-                @Override protected void opened() {
-                    System.out.println("opened");
-                }
-                @Override public void closed(@Nullable final Throwable throwable) {
-                    System.out.println("closed");
-                }
-            }
-        )).start(executor, executor, SocketListenerTest.ADDRESS);
+            SocketHelper.ADDRESS
+        );
         System.out.println("started");
     }
 

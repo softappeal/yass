@@ -7,46 +7,24 @@ import ch.softappeal.yass.serialize.Reader;
 import ch.softappeal.yass.serialize.Serializer;
 import ch.softappeal.yass.serialize.Writer;
 import ch.softappeal.yass.transport.TransportSetup;
+import ch.softappeal.yass.util.Check;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.Socket;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.Executor;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.TimeUnit;
 
-public final class SocketConnection implements Connection {
+public abstract class SocketConnection implements Connection {
 
-    public final Socket socket;
-    private final Serializer packetSerializer;
-    private volatile boolean closed = false;
-    private final BlockingQueue<ByteArrayOutputStream> writerQueue = new LinkedBlockingQueue<>(); // unbounded queue
-    private final Object writerQueueEmpty = new Object();
-
-    private SocketConnection(final TransportSetup setup, final Socket socket) {
-        this.socket = socket;
-        packetSerializer = setup.packetSerializer;
+    @FunctionalInterface public interface Factory {
+        SocketConnection create(TransportSetup setup, Socket socket, OutputStream out) throws Exception;
     }
 
-    static void create(
-        final TransportSetup setup,
-        final Socket socket,
-        final Reader reader,
-        final OutputStream outputStream,
-        final Executor writerExecutor
-    ) throws Exception {
-        final SocketConnection connection = new SocketConnection(setup, socket);
+    static void create(final Factory connectionFactory, final TransportSetup setup, final Socket socket, final Reader reader, final OutputStream out) throws Exception {
+        final SocketConnection connection = connectionFactory.create(setup, socket, out);
         final SessionClient sessionClient = SessionClient.create(setup, connection);
         try {
-            writerExecutor.execute(() -> {
-                try {
-                    connection.write(outputStream);
-                } catch (final Exception e) {
-                    sessionClient.close(e);
-                }
-            });
+            connection.created(sessionClient);
         } catch (final Exception e) {
             sessionClient.close(e);
             return;
@@ -54,10 +32,21 @@ public final class SocketConnection implements Connection {
         connection.read(sessionClient, reader);
     }
 
-    @Override public void write(final Packet packet) throws Exception {
-        final ByteArrayOutputStream buffer = new ByteArrayOutputStream(128);
-        packetSerializer.write(packet, Writer.create(buffer));
-        writerQueue.put(buffer);
+    private final Serializer packetSerializer;
+    public final Socket socket;
+    protected final OutputStream out;
+
+    protected SocketConnection(final TransportSetup setup, final Socket socket, final OutputStream out) {
+        this.packetSerializer = setup.packetSerializer;
+        this.socket = Check.notNull(socket);
+        this.out = Check.notNull(out);
+    }
+
+    /**
+     * Called after connection has been created.
+     */
+    protected void created(SessionClient sessionClient) throws Exception {
+        // empty
     }
 
     private void read(final SessionClient sessionClient, final Reader reader) {
@@ -75,74 +64,22 @@ public final class SocketConnection implements Connection {
         }
     }
 
-    private void notifyWriterQueueEmpty() {
-        synchronized (writerQueueEmpty) {
-            writerQueueEmpty.notifyAll();
-        }
+    protected final ByteArrayOutputStream writeToBuffer(final Packet packet) throws Exception {
+        final ByteArrayOutputStream buffer = new ByteArrayOutputStream(128);
+        packetSerializer.write(packet, Writer.create(buffer));
+        return buffer;
+    }
+
+    @Override public void closed() throws Exception {
+        socket.close();
     }
 
     /**
      * Buffering of output is needed to prevent long delays due to Nagle's algorithm.
      */
-    private static void flush(final ByteArrayOutputStream buffer, final OutputStream out) throws IOException {
+    protected static void flush(final ByteArrayOutputStream buffer, final OutputStream out) throws IOException {
         buffer.writeTo(out);
         out.flush();
-    }
-
-    private void write(final OutputStream out) throws Exception {
-        while (true) {
-            final ByteArrayOutputStream buffer = writerQueue.poll(200L, TimeUnit.MILLISECONDS);
-            if (buffer == null) {
-                if (closed) {
-                    return;
-                }
-                continue;
-            }
-            while (true) { // drain queue -> batching of packets
-                final ByteArrayOutputStream buffer2 = writerQueue.poll();
-                if (buffer2 == null) {
-                    notifyWriterQueueEmpty();
-                    break;
-                }
-                buffer2.writeTo(buffer);
-            }
-            flush(buffer, out);
-        }
-    }
-
-    private boolean writerQueueNotEmpty() {
-        return !writerQueue.isEmpty();
-    }
-
-    public void awaitWriterQueueEmpty() {
-        try {
-            synchronized (writerQueueEmpty) {
-                while (writerQueueNotEmpty()) {
-                    writerQueueEmpty.wait();
-                }
-            }
-        } catch (final InterruptedException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    /**
-     * Note: No more calls to {@link #write(Packet)} are accepted when this method is called due to implementation of {@link SessionClient}.
-     */
-    @Override public void closed() throws Exception {
-        try {
-            try {
-                while (writerQueueNotEmpty()) {
-                    TimeUnit.MILLISECONDS.sleep(200L);
-                }
-                TimeUnit.MILLISECONDS.sleep(200L); // give the socket a chance to write the end packet
-            } finally {
-                closed = true; // terminates writer thread
-                socket.close();
-            }
-        } finally {
-            notifyWriterQueueEmpty(); // guarantees that awaitWriterQueueEmpty never blocks again
-        }
     }
 
 }

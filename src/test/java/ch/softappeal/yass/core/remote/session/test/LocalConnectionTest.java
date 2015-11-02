@@ -9,7 +9,7 @@ import ch.softappeal.yass.core.remote.session.Session;
 import ch.softappeal.yass.core.remote.test.ContractIdTest;
 import ch.softappeal.yass.core.test.InvokeTest;
 import ch.softappeal.yass.transport.TransportSetup;
-import ch.softappeal.yass.transport.socket.SocketListenerTest;
+import ch.softappeal.yass.transport.socket.SocketHelper;
 import ch.softappeal.yass.transport.test.PacketSerializerTest;
 import ch.softappeal.yass.util.Exceptions;
 import ch.softappeal.yass.util.NamedThreadFactory;
@@ -104,7 +104,7 @@ public class LocalConnectionTest extends InvokeTest {
                 Assert.assertEquals(e.getMessage(), "java.lang.Exception: create failed");
             }
         } finally {
-            SocketListenerTest.shutdown(executor);
+            SocketHelper.shutdown(executor);
         }
     }
 
@@ -114,7 +114,7 @@ public class LocalConnectionTest extends InvokeTest {
             LocalConnection.connect(createSetup(false, executor, false, false, false), createSetup(false, executor, false, true, false));
             TimeUnit.MILLISECONDS.sleep(100L);
         } finally {
-            SocketListenerTest.shutdown(executor);
+            SocketHelper.shutdown(executor);
         }
     }
 
@@ -128,7 +128,7 @@ public class LocalConnectionTest extends InvokeTest {
                 e.printStackTrace();
             }
         } finally {
-            SocketListenerTest.shutdown(executor);
+            SocketHelper.shutdown(executor);
         }
     }
 

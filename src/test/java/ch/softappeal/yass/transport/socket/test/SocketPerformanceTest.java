@@ -8,8 +8,9 @@ import ch.softappeal.yass.core.test.InvokeTest;
 import ch.softappeal.yass.serialize.Serializer;
 import ch.softappeal.yass.serialize.test.SerializerTest;
 import ch.softappeal.yass.transport.TransportSetup;
-import ch.softappeal.yass.transport.socket.SocketListenerTest;
+import ch.softappeal.yass.transport.socket.SocketHelper;
 import ch.softappeal.yass.transport.socket.SocketTransport;
+import ch.softappeal.yass.transport.socket.SyncSocketConnection;
 import ch.softappeal.yass.util.Exceptions;
 import ch.softappeal.yass.util.NamedThreadFactory;
 import ch.softappeal.yass.util.Nullable;
@@ -54,13 +55,13 @@ public class SocketPerformanceTest extends InvokeTest {
     @Test public void test() throws InterruptedException {
         final ExecutorService executor = Executors.newCachedThreadPool(new NamedThreadFactory("executor", Exceptions.TERMINATE));
         try {
-            SocketTransport.listener(createSetup(executor, null)).start(executor, executor, SocketListenerTest.ADDRESS);
+            new SocketTransport(executor, SyncSocketConnection.FACTORY).start(createSetup(executor, null), executor, SocketHelper.ADDRESS);
             final CountDownLatch latch = new CountDownLatch(1);
-            SocketTransport.connect(createSetup(executor, latch), executor, SocketListenerTest.ADDRESS);
+            new SocketTransport(executor, SyncSocketConnection.FACTORY).connect(createSetup(executor, latch), SocketHelper.ADDRESS);
             latch.await();
             TimeUnit.MILLISECONDS.sleep(100L);
         } finally {
-            SocketListenerTest.shutdown(executor);
+            SocketHelper.shutdown(executor);
         }
     }
 

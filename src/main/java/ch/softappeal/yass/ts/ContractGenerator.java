@@ -59,7 +59,7 @@ public final class ContractGenerator extends Generator {
         return type.getCanonicalName().substring(rootPackage.length());
     }
 
-    private interface TypeGenerator {
+    @FunctionalInterface private interface TypeGenerator {
         void generateType(String name);
     }
 
