@@ -14,7 +14,7 @@ import java.util.function.Consumer;
  */
 public abstract class Link {
 
-    @Nullable private Delegate<Object> firstDelegate = null;
+    @Nullable private Delegate<Object> firstDelegate;
 
     private void forEachDelegate(final Consumer<Delegate<Object>> consumer) {
         for (Delegate<Object> delegate = firstDelegate; delegate != null; delegate = delegate.nextDelegate) {
@@ -30,7 +30,7 @@ public abstract class Link {
     }
 
     private final class Delegate<C> {
-        Delegate<Object> nextDelegate = null;
+        @Nullable Delegate<Object> nextDelegate;
         private final ContractId<C> contractId;
         private final Interceptor interceptor;
         final C proxy;

@@ -9,7 +9,7 @@ import java.net.Socket;
 
 /**
  * Writes to socket in caller thread.
- * Could block if socket can't send data.
+ * Blocks if socket can't send data.
  */
 public final class SyncSocketConnection extends SocketConnection {
 

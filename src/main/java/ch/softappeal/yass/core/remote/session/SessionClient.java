@@ -29,26 +29,32 @@ public final class SessionClient extends Client {
         final SessionClient sessionClient = new SessionClient(setup, connection);
         sessionClient.session = Check.notNull(setup.sessionFactory.create(sessionClient));
         sessionClient.sessionInterceptor = Interceptor.threadLocal(Session.INSTANCE, sessionClient.session);
-        setup.dispatcher.opened(sessionClient.session, () -> {
-            try {
-                sessionClient.session.opened();
-            } catch (final Exception e) {
-                sessionClient.close(e);
-            }
-        });
         return sessionClient;
     }
 
     public final Connection connection;
     private final SessionSetup setup;
     final AtomicBoolean closed = new AtomicBoolean(false);
-    private Session session = null;
-    private Interceptor sessionInterceptor = null;
+    private Session session;
+    private Interceptor sessionInterceptor;
 
     private SessionClient(final SessionSetup setup, final Connection connection) {
         super(setup.server.methodMapperFactory);
         this.connection = Check.notNull(connection);
         this.setup = setup;
+    }
+
+    /**
+     * Must be called after {@link #create(SessionSetup, Connection)}.
+     */
+    public void opened() throws Exception {
+        setup.dispatcher.opened(session, () -> {
+            try {
+                session.opened();
+            } catch (final Exception e) {
+                close(e);
+            }
+        });
     }
 
     private void close(final boolean sendEnd, @Nullable final Throwable throwable) {

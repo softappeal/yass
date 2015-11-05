@@ -23,6 +23,7 @@ public abstract class SocketConnection implements Connection {
     static void create(final Factory connectionFactory, final TransportSetup setup, final Socket socket, final Reader reader, final OutputStream out) throws Exception {
         final SocketConnection connection = connectionFactory.create(setup, socket, out);
         final SessionClient sessionClient = SessionClient.create(setup, connection);
+        sessionClient.opened();
         try {
             connection.created(sessionClient);
         } catch (final Exception e) {

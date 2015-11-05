@@ -1,6 +1,7 @@
 package ch.softappeal.yass.tutorial.server.web;
 
 import ch.softappeal.yass.transport.TransportSetup;
+import ch.softappeal.yass.transport.ws.AsyncWsConnection;
 import ch.softappeal.yass.transport.ws.WsConnection;
 import ch.softappeal.yass.transport.ws.WsEndpoint;
 import ch.softappeal.yass.tutorial.server.ServerSetup;
@@ -26,7 +27,7 @@ public abstract class WsServerSetup extends ServerSetup {
 
     public static final class Endpoint extends WsEndpoint {
         @Override protected WsConnection createConnection(final Session session) throws Exception {
-            return WsConnection.create(TRANSPORT_SETUP, session);
+            return WsConnection.create(AsyncWsConnection.factory(1_000), TRANSPORT_SETUP, session);
         }
     }
 

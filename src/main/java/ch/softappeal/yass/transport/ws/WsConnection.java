@@ -13,28 +13,31 @@ import ch.softappeal.yass.util.Nullable;
 
 import javax.websocket.CloseReason;
 import javax.websocket.MessageHandler;
-import javax.websocket.RemoteEndpoint;
 import javax.websocket.Session;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
-public final class WsConnection implements Connection {
+public abstract class WsConnection implements Connection {
+
+    @FunctionalInterface public interface Factory {
+        WsConnection create(TransportSetup setup, Session session) throws Exception;
+    }
 
     public final Session session;
     private final Serializer packetSerializer;
-    private RemoteEndpoint.Async remoteEndpoint;
     private SessionClient sessionClient;
 
-    private WsConnection(final TransportSetup setup, final Session session) {
+    protected WsConnection(final TransportSetup setup, final Session session) {
         packetSerializer = setup.packetSerializer;
         this.session = Check.notNull(session);
     }
 
-    public static WsConnection create(final TransportSetup setup, final Session session) throws Exception {
-        final WsConnection connection = new WsConnection(setup, session);
+    public static WsConnection create(final Factory connectionFactory, final TransportSetup setup, final Session session) throws Exception {
+        final WsConnection connection = connectionFactory.create(setup, session);
         try {
-            connection.remoteEndpoint = session.getAsyncRemote();
+            connection.created(session);
             connection.sessionClient = SessionClient.create(setup, connection);
+            connection.sessionClient.opened();
         } catch (final Exception e) {
             try {
                 session.close();
@@ -58,27 +61,26 @@ public final class WsConnection implements Connection {
         return connection;
     }
 
-    @Override public void write(final Packet packet) throws Exception {
-        final ByteBufferOutputStream out = new ByteBufferOutputStream(128);
-        packetSerializer.write(packet, Writer.create(out));
-        remoteEndpoint.sendBinary(out.toByteBuffer(), result -> {
-            if (result == null) {
-                onError(null);
-            } else if (!result.isOK()) {
-                onError(result.getException());
-            }
-        });
+    /**
+     * Called after connection has been created.
+     */
+    protected abstract void created(Session session) throws Exception;
+
+    protected final ByteBuffer writeToBuffer(final Packet packet) throws Exception {
+        final ByteBufferOutputStream buffer = new ByteBufferOutputStream(128);
+        packetSerializer.write(packet, Writer.create(buffer));
+        return buffer.toByteBuffer();
     }
 
-    @Override public void closed() throws IOException {
+    @Override public final void closed() throws IOException {
         session.close();
     }
 
-    void onClose(@Nullable final CloseReason closeReason) {
+    final void onClose(@Nullable final CloseReason closeReason) {
         onError(new WsClosedException(closeReason));
     }
 
-    void onError(@Nullable final Throwable throwable) {
+    final void onError(@Nullable final Throwable throwable) {
         sessionClient.close((throwable == null) ? new Exception("<no-throwable>") : throwable);
     }
 

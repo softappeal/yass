@@ -52,10 +52,10 @@ public final class AsyncSocketConnectionTest {
                     })
                 ),
                 new Dispatcher() {
-                    @Override public void opened(final Session session, final Runnable runnable) throws Exception {
+                    @Override public void opened(final Session session, final Runnable runnable) {
                         runnable.run();
                     }
-                    @Override public void invoke(final Session session, final Server.Invocation invocation, final Runnable runnable) throws Exception {
+                    @Override public void invoke(final Session session, final Server.Invocation invocation, final Runnable runnable) {
                         runnable.run();
                     }
                 },
