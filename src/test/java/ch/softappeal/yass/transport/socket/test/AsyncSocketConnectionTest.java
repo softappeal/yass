@@ -92,6 +92,7 @@ public final class AsyncSocketConnectionTest {
                     @Override public void closed(@Nullable final Throwable throwable) {
                         System.out.println("client closed");
                         throwable.printStackTrace(System.out);
+                        System.exit(1);
                     }
                 }
             ),
