@@ -16,7 +16,7 @@ public final class Check {
      * @return value if (value != null)
      * @throws NullPointerException if (value == null)
      */
-    public static <T> T notNull(@Nullable final T value) throws NullPointerException {
+    public static <T> T notNull(final @Nullable T value) throws NullPointerException {
         if (value == null) {
             throw new NullPointerException();
         }

@@ -46,7 +46,7 @@ public abstract class SocketConnection implements Connection {
     /**
      * Called after connection has been created.
      */
-    protected void created(SessionClient sessionClient) throws Exception {
+    protected void created(final SessionClient sessionClient) throws Exception {
         // empty
     }
 

@@ -12,7 +12,7 @@ public abstract class Session implements AutoCloseable, ProxyFactory {
     /**
      * @return the session of the active invocation or null if no active invocation
      */
-    @Nullable public static Session get() {
+    public static @Nullable Session get() {
         return INSTANCE.get();
     }
 

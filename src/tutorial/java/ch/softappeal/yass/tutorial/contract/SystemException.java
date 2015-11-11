@@ -8,7 +8,7 @@ import ch.softappeal.yass.util.Tag;
 
     private static final long serialVersionUID = 1L;
 
-    @Tag(1) public String message;
+    @Tag(1) public final String message;
 
     public SystemException(final String message) {
         this.message = Check.notNull(message);

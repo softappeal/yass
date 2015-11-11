@@ -64,7 +64,7 @@ public final class AsyncSocketConnectionTest {
                     @Override protected void opened() {
                         System.out.println("server opened");
                     }
-                    @Override public void closed(@Nullable final Throwable throwable) {
+                    @Override public void closed(final @Nullable Throwable throwable) {
                         System.out.println("server closed");
                     }
                 }
@@ -89,7 +89,7 @@ public final class AsyncSocketConnectionTest {
                         }
                         System.out.println("client done");
                     }
-                    @Override public void closed(@Nullable final Throwable throwable) {
+                    @Override public void closed(final @Nullable Throwable throwable) {
                         System.out.println("client closed");
                         throwable.printStackTrace(System.out);
                         System.exit(1);

@@ -11,7 +11,7 @@ public final class Packet implements Serializable {
     private static final long serialVersionUID = 1L;
 
     private final int requestNumber;
-    @Nullable private final Message message;
+    private final @Nullable Message message;
 
     /**
      * @param requestNumber must not be {@link #END_REQUEST_NUMBER}; use {@link #END} instead

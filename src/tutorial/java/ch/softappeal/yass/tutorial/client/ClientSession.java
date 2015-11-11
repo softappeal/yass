@@ -47,7 +47,7 @@ public final class ClientSession extends Session {
         priceEngine.subscribe(instrumentService.getInstruments().stream().map(instrument -> instrument.id).collect(Collectors.toList()));
     }
 
-    @Override public void closed(@Nullable final Throwable throwable) {
+    @Override public void closed(final @Nullable Throwable throwable) {
         System.out.println("session " + this + " closed");
         if (throwable != null) {
             Exceptions.uncaughtException(Exceptions.STD_ERR, throwable);

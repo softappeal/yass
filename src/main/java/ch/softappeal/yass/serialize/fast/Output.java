@@ -17,7 +17,7 @@ final class Output {
         this.class2typeDesc = class2typeDesc;
     }
 
-    void write(@Nullable final Object value) throws Exception {
+    void write(final @Nullable Object value) throws Exception {
         if (value == null) {
             TypeDesc.NULL.write(null, this);
         } else if (value instanceof List) {

@@ -36,7 +36,7 @@ public final class ReconnectorClient {
                 throw new RuntimeException("testService2 failed");
             }
         }
-        @Override protected void closed(@Nullable final Throwable throwable) {
+        @Override protected void closed(final @Nullable Throwable throwable) {
             System.out.println("closed");
             if (throwable != null) {
                 throwable.printStackTrace(System.out);

@@ -6,13 +6,13 @@ package ch.softappeal.yass.util;
  */
 public final class Reference<T> {
 
-    @Nullable private T value;
+    private @Nullable T value;
 
-    private Reference(@Nullable final T value) {
+    private Reference(final @Nullable T value) {
         this.value = value;
     }
 
-    @Nullable public T get() {
+    public @Nullable T get() {
         return value;
     }
 
@@ -20,7 +20,7 @@ public final class Reference<T> {
         return value == null;
     }
 
-    public void set(@Nullable final T value) {
+    public void set(final @Nullable T value) {
         this.value = value;
     }
 
@@ -32,7 +32,7 @@ public final class Reference<T> {
         return String.valueOf(value);
     }
 
-    public static <T> Reference<T> create(@Nullable final T value) {
+    public static <T> Reference<T> create(final @Nullable T value) {
         return new Reference<>(value);
     }
 

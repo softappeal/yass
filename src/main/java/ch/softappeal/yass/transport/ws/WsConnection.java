@@ -76,11 +76,11 @@ public abstract class WsConnection implements Connection {
         session.close();
     }
 
-    final void onClose(@Nullable final CloseReason closeReason) {
+    final void onClose(final @Nullable CloseReason closeReason) {
         onError(new WsClosedException(closeReason));
     }
 
-    final void onError(@Nullable final Throwable throwable) {
+    final void onError(final @Nullable Throwable throwable) {
         sessionClient.close((throwable == null) ? new Exception("<no-throwable>") : throwable);
     }
 

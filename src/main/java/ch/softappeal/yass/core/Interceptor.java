@@ -79,10 +79,10 @@ import java.lang.reflect.Proxy;
      * @param <T> the type of the {@link ThreadLocal}
      * @return an interceptor that changes threadLocal to value during {@link Interceptor#invoke(Method, Object[], Invocation)}
      */
-    static <T> Interceptor threadLocal(final ThreadLocal<T> threadLocal, @Nullable final T value) {
+    static <T> Interceptor threadLocal(final ThreadLocal<T> threadLocal, final @Nullable T value) {
         Check.notNull(threadLocal);
         return (method, arguments, invocation) -> {
-            @Nullable final T oldValue = threadLocal.get();
+            final @Nullable T oldValue = threadLocal.get();
             threadLocal.set(value);
             try {
                 return invocation.proceed();

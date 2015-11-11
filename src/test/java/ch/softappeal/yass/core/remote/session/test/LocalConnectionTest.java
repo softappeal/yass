@@ -65,7 +65,7 @@ public class LocalConnectionTest extends InvokeTest {
                             }
                         }
                     }
-                    @Override public void closed(@Nullable final Throwable throwable) {
+                    @Override public void closed(final @Nullable Throwable throwable) {
                         if (invoke) {
                             Assert.assertNull(throwable);
                         }

@@ -32,7 +32,7 @@ public class PerformanceTest extends InvokeTest {
 
     public static final ContractId<TestService> CONTRACT_ID = ContractId.create(TestService.class, 0);
 
-    public static TransportSetup createSetup(final Dispatcher dispatcher, @Nullable final CountDownLatch latch, final int samples) {
+    public static TransportSetup createSetup(final Dispatcher dispatcher, final @Nullable CountDownLatch latch, final int samples) {
         return new TransportSetup(
             new Server(METHOD_MAPPER_FACTORY, new Service(CONTRACT_ID, new TestServiceImpl())),
             dispatcher,
@@ -65,14 +65,14 @@ public class PerformanceTest extends InvokeTest {
                     }
                     latch.countDown();
                 }
-                @Override public void closed(@Nullable final Throwable throwable) {
+                @Override public void closed(final @Nullable Throwable throwable) {
                     // empty
                 }
             }
         );
     }
 
-    public static TransportSetup createSetup(final Executor dispatcherExecutor, @Nullable final CountDownLatch latch, final int samples) {
+    public static TransportSetup createSetup(final Executor dispatcherExecutor, final @Nullable CountDownLatch latch, final int samples) {
         return createSetup(TransportSetup.dispatcher(dispatcherExecutor), latch, samples);
     }
 

@@ -15,11 +15,11 @@ public final class FieldHandler {
     public final Field field;
     private final Reflector.Accessor accessor;
 
-    @Nullable private TypeHandler typeHandler;
+    private @Nullable TypeHandler typeHandler;
     /**
      * Note: null if {@link ClassTypeHandler} or type not in class2typeDesc (Object, Throwable, abstract classes, ...).
      */
-    @Nullable public TypeHandler typeHandler() {
+    public @Nullable TypeHandler typeHandler() {
         return typeHandler;
     }
 

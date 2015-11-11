@@ -29,7 +29,7 @@ public class SocketPerformanceTest extends InvokeTest {
 
     public static final Serializer PACKET_SERIALIZER = TransportSetup.packetSerializer(SerializerTest.TAGGED_FAST_SERIALIZER);
 
-    private static TransportSetup createSetup(final Executor executor, @Nullable final CountDownLatch latch) {
+    private static TransportSetup createSetup(final Executor executor, final @Nullable CountDownLatch latch) {
         return PerformanceTest.createSetup(
             new Dispatcher() {
                 @Override public void opened(final Session session, final Runnable runnable) {

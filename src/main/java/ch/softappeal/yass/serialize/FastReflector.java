@@ -31,7 +31,7 @@ public final class FastReflector implements Reflector {
                 @Override public Object get(final Object object) {
                     return Reflect.UNSAFE.getObject(object, offset);
                 }
-                @Override public void set(final Object object, @Nullable final Object value) {
+                @Override public void set(final Object object, final @Nullable Object value) {
                     Reflect.UNSAFE.putObject(object, offset, value);
                 }
             };
@@ -41,7 +41,7 @@ public final class FastReflector implements Reflector {
                 @Override public Object get(final Object object) {
                     return Reflect.UNSAFE.getBoolean(object, offset);
                 }
-                @Override public void set(final Object object, @Nullable final Object value) {
+                @Override public void set(final Object object, final @Nullable Object value) {
                     Reflect.UNSAFE.putBoolean(object, offset, (Boolean)value);
                 }
             };
@@ -51,7 +51,7 @@ public final class FastReflector implements Reflector {
                 @Override public Object get(final Object object) {
                     return Reflect.UNSAFE.getChar(object, offset);
                 }
-                @Override public void set(final Object object, @Nullable final Object value) {
+                @Override public void set(final Object object, final @Nullable Object value) {
                     Reflect.UNSAFE.putChar(object, offset, (Character)value);
                 }
             };
@@ -61,7 +61,7 @@ public final class FastReflector implements Reflector {
                 @Override public Object get(final Object object) {
                     return Reflect.UNSAFE.getByte(object, offset);
                 }
-                @Override public void set(final Object object, @Nullable final Object value) {
+                @Override public void set(final Object object, final @Nullable Object value) {
                     Reflect.UNSAFE.putByte(object, offset, (Byte)value);
                 }
             };
@@ -71,7 +71,7 @@ public final class FastReflector implements Reflector {
                 @Override public Object get(final Object object) {
                     return Reflect.UNSAFE.getShort(object, offset);
                 }
-                @Override public void set(final Object object, @Nullable final Object value) {
+                @Override public void set(final Object object, final @Nullable Object value) {
                     Reflect.UNSAFE.putShort(object, offset, (Short)value);
                 }
             };
@@ -81,7 +81,7 @@ public final class FastReflector implements Reflector {
                 @Override public Object get(final Object object) {
                     return Reflect.UNSAFE.getInt(object, offset);
                 }
-                @Override public void set(final Object object, @Nullable final Object value) {
+                @Override public void set(final Object object, final @Nullable Object value) {
                     Reflect.UNSAFE.putInt(object, offset, (Integer)value);
                 }
             };
@@ -91,7 +91,7 @@ public final class FastReflector implements Reflector {
                 @Override public Object get(final Object object) {
                     return Reflect.UNSAFE.getLong(object, offset);
                 }
-                @Override public void set(final Object object, @Nullable final Object value) {
+                @Override public void set(final Object object, final @Nullable Object value) {
                     Reflect.UNSAFE.putLong(object, offset, (Long)value);
                 }
             };
@@ -101,7 +101,7 @@ public final class FastReflector implements Reflector {
                 @Override public Object get(final Object object) {
                     return Reflect.UNSAFE.getFloat(object, offset);
                 }
-                @Override public void set(final Object object, @Nullable final Object value) {
+                @Override public void set(final Object object, final @Nullable Object value) {
                     Reflect.UNSAFE.putFloat(object, offset, (Float)value);
                 }
             };
@@ -111,7 +111,7 @@ public final class FastReflector implements Reflector {
                 @Override public Object get(final Object object) {
                     return Reflect.UNSAFE.getDouble(object, offset);
                 }
-                @Override public void set(final Object object, @Nullable final Object value) {
+                @Override public void set(final Object object, final @Nullable Object value) {
                     Reflect.UNSAFE.putDouble(object, offset, (Double)value);
                 }
             };

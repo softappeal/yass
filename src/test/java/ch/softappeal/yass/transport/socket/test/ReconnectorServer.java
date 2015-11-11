@@ -34,7 +34,7 @@ public class ReconnectorServer {
                     @Override protected void opened() {
                         System.out.println("opened");
                     }
-                    @Override public void closed(@Nullable final Throwable throwable) {
+                    @Override public void closed(final @Nullable Throwable throwable) {
                         System.out.println("closed");
                     }
                 }

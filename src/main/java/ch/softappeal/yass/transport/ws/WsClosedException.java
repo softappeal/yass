@@ -8,9 +8,9 @@ public final class WsClosedException extends RuntimeException {
 
     private static final long serialVersionUID = 1L;
 
-    @Nullable public final CloseReason closeReason;
+    public final @Nullable CloseReason closeReason;
 
-    public WsClosedException(@Nullable final CloseReason closeReason) {
+    public WsClosedException(final @Nullable CloseReason closeReason) {
         super((closeReason == null) ? "<no-closeReason>" : closeReason.toString());
         this.closeReason = closeReason;
     }

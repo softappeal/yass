@@ -34,7 +34,7 @@ public final class Server extends Common {
         public final Service service;
         public final Method method;
         public final boolean oneWay;
-        @Nullable public final Object[] arguments;
+        public final @Nullable Object[] arguments;
         Invocation(final ServiceDesc serviceDesc, final Request request) {
             service = serviceDesc.service;
             final MethodMapper.Mapping methodMapping = serviceDesc.methodMapper.mapId(request.methodId);
@@ -48,7 +48,7 @@ public final class Server extends Common {
     }
 
     public Invocation invocation(final Request request) {
-        @Nullable final ServiceDesc serviceDesc = serviceId2serviceDesc.get(request.serviceId);
+        final @Nullable ServiceDesc serviceDesc = serviceId2serviceDesc.get(request.serviceId);
         if (serviceDesc == null) {
             throw new RuntimeException("no serviceId " + request.serviceId + " found (methodId " + request.methodId + ')');
         }

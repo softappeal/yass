@@ -36,7 +36,7 @@ public class RemoteTest extends InvokeTest {
                         stepInterceptor(1)
                     ),
                     request -> {
-                        Assert.assertTrue((33 == (Integer)request.methodId) == clientInvocation.oneWay);
+                        Assert.assertTrue((33 == request.methodId) == clientInvocation.oneWay);
                         final Server.Invocation serverInvocation = server.invocation(request);
                         Assert.assertTrue(clientInvocation.oneWay == serverInvocation.oneWay);
                         return serverInvocation.invoke(stepInterceptor(3));

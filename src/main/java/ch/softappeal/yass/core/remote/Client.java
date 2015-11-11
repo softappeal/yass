@@ -27,20 +27,20 @@ public abstract class Client extends Common implements ProxyFactory {
         private final int serviceId;
         private final MethodMapper.Mapping methodMapping;
         public final boolean oneWay;
-        @Nullable private final Object[] arguments;
-        Invocation(final Interceptor interceptor, final int serviceId, final MethodMapper.Mapping methodMapping, @Nullable final Object[] arguments) {
+        private final @Nullable Object[] arguments;
+        Invocation(final Interceptor interceptor, final int serviceId, final MethodMapper.Mapping methodMapping, final @Nullable Object[] arguments) {
             this.interceptor = interceptor;
             this.serviceId = serviceId;
             this.methodMapping = methodMapping;
             oneWay = methodMapping.oneWay;
             this.arguments = arguments;
         }
-        @Nullable public Object invoke(final Interceptor interceptor, final Tunnel tunnel) throws Throwable {
+        public @Nullable Object invoke(final Interceptor interceptor, final Tunnel tunnel) throws Throwable {
             return Interceptor.composite(interceptor, this.interceptor).invoke(
                 methodMapping.method,
                 arguments,
                 () -> {
-                    @Nullable final Reply reply = tunnel.invoke(new Request(serviceId, methodMapping.id, arguments));
+                    final @Nullable Reply reply = tunnel.invoke(new Request(serviceId, methodMapping.id, arguments));
                     return oneWay ? null : reply.process();
                 }
             );
@@ -50,6 +50,6 @@ public abstract class Client extends Common implements ProxyFactory {
     /**
      * @return {@link Invocation#invoke(Interceptor, Tunnel)}
      */
-    @Nullable protected abstract Object invoke(Invocation invocation) throws Throwable;
+    protected abstract @Nullable Object invoke(Invocation invocation) throws Throwable;
 
 }

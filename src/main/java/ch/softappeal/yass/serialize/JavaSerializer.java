@@ -16,13 +16,13 @@ public final class JavaSerializer implements Serializer {
         // empty
     }
 
-    @Override @Nullable public Object read(final Reader reader) throws Exception {
+    @Override public @Nullable Object read(final Reader reader) throws Exception {
         try (ObjectInputStream in = new ObjectInputStream(reader.stream())) {
             return in.readObject();
         }
     }
 
-    @Override public void write(@Nullable final Object value, final Writer writer) throws IOException {
+    @Override public void write(final @Nullable Object value, final Writer writer) throws IOException {
         try (ObjectOutputStream out = new ObjectOutputStream(writer.stream())) {
             out.writeObject(value);
         }

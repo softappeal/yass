@@ -13,9 +13,9 @@ public final class Request extends Message {
      */
     public final int methodId;
 
-    @Nullable public final Object[] arguments;
+    public final @Nullable Object[] arguments;
 
-    public Request(final int serviceId, final int methodId, @Nullable final Object[] arguments) {
+    public Request(final int serviceId, final int methodId, final @Nullable Object[] arguments) {
         this.serviceId = serviceId;
         this.methodId = methodId;
         this.arguments = arguments;

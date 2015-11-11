@@ -45,7 +45,7 @@ public final class TaggedJsFastSerializer extends AbstractJsFastSerializer {
         super(reflectorFactory);
         baseTypeDescs.forEach(this::addBaseType);
         enumerations.forEach(type -> addEnum(Check.hasTag(type), type));
-        concreteClasses.forEach(type -> addClass(type));
+        concreteClasses.forEach(this::addClass);
         fixupFields();
     }
 

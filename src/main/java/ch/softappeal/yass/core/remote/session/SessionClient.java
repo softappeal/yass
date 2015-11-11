@@ -57,7 +57,7 @@ public final class SessionClient extends Client {
         });
     }
 
-    private void close(final boolean sendEnd, @Nullable final Throwable throwable) {
+    private void close(final boolean sendEnd, final @Nullable Throwable throwable) {
         if (closed.getAndSet(true)) {
             return;
         }

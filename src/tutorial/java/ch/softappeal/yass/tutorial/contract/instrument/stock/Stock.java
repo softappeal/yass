@@ -9,7 +9,7 @@ import ch.softappeal.yass.util.Tag;
  */
 @Tag(12) public final class Stock extends Instrument {
 
-    @Tag(3) @Nullable public final Boolean paysDividend;
+    @Tag(3) public final @Nullable Boolean paysDividend;
 
     public Stock(final int id, final String name, final Boolean paysDividend) {
         super(id, name);

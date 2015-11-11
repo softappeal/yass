@@ -6,7 +6,7 @@ import ch.softappeal.yass.util.Tag;
 @Tag(120) public final class C2 {
 
     @Tag(1) public final int i1;
-    @Tag(2) @Nullable public final Integer i2;
+    @Tag(2) public final @Nullable Integer i2;
 
     public C2(final int i1, final int i2) {
         this.i1 = i1;

@@ -51,7 +51,7 @@ public final class ContractGenerator extends Generator {
     }
 
     private String jsType(final Class<?> type) {
-        @Nullable final String tsBaseType = java2tsBaseType.get(FieldHandler.primitiveWrapperType(type));
+        final @Nullable String tsBaseType = java2tsBaseType.get(FieldHandler.primitiveWrapperType(type));
         if (tsBaseType != null) {
             return tsBaseType;
         }
@@ -202,7 +202,7 @@ public final class ContractGenerator extends Generator {
         return serviceDescs;
     }
 
-    private static Set<Class<?>> getInterfaces(@Nullable final Class<?> services) throws Exception {
+    private static Set<Class<?>> getInterfaces(final @Nullable Class<?> services) throws Exception {
         if (services == null) {
             return new HashSet<>();
         }
@@ -275,7 +275,7 @@ public final class ContractGenerator extends Generator {
         });
     }
 
-    private void generateServices(@Nullable final Class<?> services) throws Exception {
+    private void generateServices(final @Nullable Class<?> services) throws Exception {
         if (services == null) {
             return;
         }
@@ -296,7 +296,7 @@ public final class ContractGenerator extends Generator {
     public static final String CLIENT_SERVICES = "ClientServices";
     public static final String SERVER_SERVICES = "ServerServices";
 
-    @Nullable private Class<?> getServicesClass(final String servicesClass) {
+    private @Nullable Class<?> getServicesClass(final String servicesClass) {
         try {
             return Class.forName(this.rootPackage + servicesClass);
         } catch (final ClassNotFoundException ignore) {
@@ -316,7 +316,7 @@ public final class ContractGenerator extends Generator {
         final MethodMapper.@Nullable Factory methodMapperFactory,
         final String includePath,
         final String contractModuleName,
-        @Nullable final Map<Class<?>, String> java2tsBaseType,
+        final @Nullable Map<Class<?>, String> java2tsBaseType,
         final String contractFilePath
     ) throws Exception {
         super(contractFilePath);
@@ -341,8 +341,8 @@ public final class ContractGenerator extends Generator {
         println();
         id2typeHandler.values().stream().map(typeHandler -> typeHandler.type).filter(Class::isEnum).forEach(type -> generateEnum((Class<Enum<?>>)type));
         id2typeHandler.values().stream().filter(typeHandler -> typeHandler instanceof ClassTypeHandler).forEach(typeHandler -> generateClass(typeHandler.type));
-        @Nullable final Class<?> clientServices = getServicesClass(CLIENT_SERVICES);
-        @Nullable final Class<?> serverServices = getServicesClass(SERVER_SERVICES);
+        final @Nullable Class<?> clientServices = getServicesClass(CLIENT_SERVICES);
+        final @Nullable Class<?> serverServices = getServicesClass(SERVER_SERVICES);
         final Set<Class<?>> interfaceSet = getInterfaces(clientServices);
         interfaceSet.addAll(getInterfaces(serverServices));
         final List<Class<?>> interfaceList = new ArrayList<>(interfaceSet);

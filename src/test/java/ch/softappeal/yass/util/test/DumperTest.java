@@ -21,7 +21,7 @@ public class DumperTest {
 
     @Test public void test() {
         TestUtils.compareFile("ch/softappeal/yass/util/test/DumperTest.dump.txt", new TestUtils.Printer() {
-            void dump(final Dumper dumper, final StringBuilder s, @Nullable final Object value) {
+            void dump(final Dumper dumper, final StringBuilder s, final @Nullable Object value) {
                 s.append(dumper.append(new StringBuilder(256), value)).append('\n');
             }
             void print(final Dumper dumper, final PrintWriter printer, final boolean cycles) {

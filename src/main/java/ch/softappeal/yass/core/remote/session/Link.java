@@ -14,7 +14,7 @@ import java.util.function.Consumer;
  */
 public abstract class Link {
 
-    @Nullable private Delegate<Object> firstDelegate;
+    private @Nullable Delegate<Object> firstDelegate;
 
     private void forEachDelegate(final Consumer<Delegate<Object>> consumer) {
         for (Delegate<Object> delegate = firstDelegate; delegate != null; delegate = delegate.nextDelegate) {
@@ -30,7 +30,7 @@ public abstract class Link {
     }
 
     private final class Delegate<C> {
-        @Nullable Delegate<Object> nextDelegate;
+        final @Nullable Delegate<Object> nextDelegate;
         private final ContractId<C> contractId;
         private final Interceptor interceptor;
         final C proxy;
@@ -83,7 +83,7 @@ public abstract class Link {
             forEachDelegate(delegate -> delegate.setImplementation(this));
             Link.this.opened();
         }
-        @Override protected void closed(@Nullable final Throwable throwable) throws Exception {
+        @Override protected void closed(final @Nullable Throwable throwable) throws Exception {
             session = null;
             Link.this.closed(throwable);
         }
@@ -91,9 +91,9 @@ public abstract class Link {
 
     public final SessionFactory sessionFactory = Session::new;
 
-    @Nullable private volatile Session session = null;
+    private volatile @Nullable Session session = null;
 
-    @Nullable public final Session session() {
+    public final @Nullable Session session() {
         return session;
     }
 
