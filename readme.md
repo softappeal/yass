@@ -7,7 +7,7 @@
 
 * supports type-safe contracts with DTOs and interfaces
 
-* supports request/reply and oneway style method invocations
+* supports request/reply and oneWay style method invocations
 
 * supports interceptors
 

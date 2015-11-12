@@ -79,7 +79,7 @@ namespace tutorial {
         // create proxies; you can add 0..n interceptors to a proxy
         const instrumentService = proxyFactory.proxy(contract.ServerServices.InstrumentService, clientLogger);
         const priceEngine = proxyFactory.proxy(contract.ServerServices.PriceEngine, clientLogger);
-        instrumentService.reload(true, new Integer(987654)); // oneway method call
+        instrumentService.reload(true, new Integer(987654)); // oneWay method call
         instrumentService.getInstruments().then(instruments => {
             instruments.forEach(instrument => tableModel[instrument.id.value] = new TableRow(instrument));
             createTable();

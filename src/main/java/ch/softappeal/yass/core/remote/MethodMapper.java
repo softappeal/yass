@@ -31,15 +31,15 @@ public interface MethodMapper {
             this.oneWay = oneWay;
             if (oneWay) {
                 if (method.getReturnType() != Void.TYPE) {
-                    throw new IllegalArgumentException("oneway method '" + method + "' must 'return' void");
+                    throw new IllegalArgumentException("oneWay method '" + method + "' must 'return' void");
                 }
                 if (method.getExceptionTypes().length != 0) {
-                    throw new IllegalArgumentException("oneway method '" + method + "' must not throw exceptions");
+                    throw new IllegalArgumentException("oneWay method '" + method + "' must not throw exceptions");
                 }
             }
         }
         /**
-         * Uses {@link OneWay} for marking oneway methods.
+         * Uses {@link OneWay} for marking oneWay methods.
          */
         public Mapping(final Method method, final int id) {
             this(method, id, method.isAnnotationPresent(OneWay.class));

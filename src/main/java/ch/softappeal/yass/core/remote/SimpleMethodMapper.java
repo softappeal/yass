@@ -7,7 +7,7 @@ import java.util.Map;
 
 /**
  * Sorts {@link Method#getName()} and uses index as {@link Request#methodId}. Therefore, methods can't be overloaded!
- * Uses {@link OneWay} for marking oneway methods.
+ * Uses {@link OneWay} for marking oneWay methods.
  */
 public final class SimpleMethodMapper implements MethodMapper {
 

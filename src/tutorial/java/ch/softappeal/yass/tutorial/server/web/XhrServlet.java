@@ -23,7 +23,7 @@ public class XhrServlet extends HttpServlet {
         final Request request = (Request)messageSerializer.read(Reader.create(httpRequest.getInputStream()));
         final Server.Invocation invocation = server.invocation(request);
         if (invocation.oneWay) {
-            throw new IllegalArgumentException("xhr not allowed for oneway method (serviceId " + request.serviceId + ", methodId " + request.methodId + ')');
+            throw new IllegalArgumentException("xhr not allowed for oneWay method (serviceId " + request.serviceId + ", methodId " + request.methodId + ')');
         }
         messageSerializer.write(
             invocation.invoke(Interceptor.DIRECT), // note: we could add a http session interceptor here if needed

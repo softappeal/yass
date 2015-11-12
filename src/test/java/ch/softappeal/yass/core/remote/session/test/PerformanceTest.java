@@ -53,7 +53,7 @@ public class PerformanceTest extends InvokeTest {
                                 }
                             }
                         }.run(samples, TimeUnit.MICROSECONDS);
-                        System.out.println("*** oneway");
+                        System.out.println("*** oneWay");
                         new PerformanceTask() {
                             @Override protected void run(final int count) {
                                 int counter = count;

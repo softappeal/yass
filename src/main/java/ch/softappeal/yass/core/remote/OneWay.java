@@ -7,7 +7,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Marks oneway methods.
+ * Marks oneWay methods.
  * @see MethodMapper.Mapping#oneWay
  */
 @Documented
