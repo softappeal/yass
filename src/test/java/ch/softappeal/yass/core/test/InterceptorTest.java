@@ -11,7 +11,6 @@ import java.lang.reflect.Method;
 public class InterceptorTest {
 
     public static final Method METHOD;
-
     static {
         try {
             METHOD = Object.class.getMethod("toString");

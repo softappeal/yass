@@ -15,7 +15,6 @@ public final class Reflect {
     }
 
     public static final Unsafe UNSAFE;
-
     static {
         try {
             final Field field = Unsafe.class.getDeclaredField("theUnsafe");
