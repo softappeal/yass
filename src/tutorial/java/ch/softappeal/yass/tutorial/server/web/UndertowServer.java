@@ -38,7 +38,7 @@ public final class UndertowServer extends WsServerSetup {
             );
         deployment.deploy();
         final HttpHandler servletHandler = deployment.start();
-        final HttpHandler fileHandler = Handlers.resource(new FileResourceManager(new File(WEB_PATH), 100));
+        final HttpHandler fileHandler = Handlers.resource(new FileResourceManager(new File(WEB_PATH), 100, false));
         Undertow.builder()
             .addHttpListener(PORT, HOST)
             .setHandler(exchange -> {
