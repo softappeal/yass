@@ -39,7 +39,7 @@ public final class SlowReflector implements Reflector {
             @Override public Object get(final Object object) throws IllegalAccessException {
                 return field.get(object);
             }
-            @Override public void set(final Object object, @Nullable final Object value) throws IllegalAccessException {
+            @Override public void set(final Object object, final @Nullable Object value) throws IllegalAccessException {
                 field.set(object, value);
             }
         };

@@ -81,7 +81,7 @@ public class InvokeTest {
         Logger(final String name) {
             this.name = Check.notNull(name);
         }
-        @Override public Object invoke(final Method method, @Nullable final Object[] arguments, final Invocation invocation) throws Throwable {
+        @Override public Object invoke(final Method method, final @Nullable Object[] arguments, final Invocation invocation) throws Throwable {
             println(name, "entry", method.getName() + ' ' + Arrays.deepToString(arguments));
             try {
                 final Object result = invocation.proceed();
@@ -108,7 +108,7 @@ public class InvokeTest {
         }
     };
 
-    private static void checkArguments(final Method method, @Nullable final Object[] arguments) {
+    private static void checkArguments(final Method method, final @Nullable Object[] arguments) {
         Assert.assertEquals(METHOD.get(), method);
         if (ARGUMENTS.get() == null) {
             Assert.assertTrue((arguments == null) || (arguments.length == 0));
@@ -139,7 +139,7 @@ public class InvokeTest {
         new Logger("server")
     );
 
-    private static void invoke(final String method, final Class<?>[] types, @Nullable final Object[] arguments, final Runnable runnable) {
+    private static void invoke(final String method, final Class<?>[] types, final @Nullable Object[] arguments, final Runnable runnable) {
         try {
             METHOD.set(TestService.class.getMethod(method, types));
         } catch (final NoSuchMethodException e) {

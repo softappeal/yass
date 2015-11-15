@@ -1,7 +1,6 @@
-// $note: line below and corresponding file could probably be removed with TypeScript > 1.4
-/// <reference path="es6-promise"/>
+/// <reference path="es6-promise"/> // $note: could probably be removed in future
 
-module yass {
+namespace yass {
 
     export class Writer {
         private capacity: number;
@@ -12,10 +11,10 @@ module yass {
             this.array = new Uint8Array(initialCapacity);
         }
         needed(value: number): number {
-            var oldPosition = this.position;
+            const oldPosition = this.position;
             this.position += value;
             if (this.position > this.capacity) {
-                var oldArray = this.array;
+                const oldArray = this.array;
                 this.capacity = 2 * this.position;
                 this.array = new Uint8Array(this.capacity);
                 this.array.set(oldArray);
@@ -23,11 +22,11 @@ module yass {
             return oldPosition;
         }
         writeByte(value: number): void {
-            var position = this.needed(1);
+            const position = this.needed(1);
             this.array[position] = value;
         }
         writeInt(value: number): void {
-            var position = this.needed(4);
+            const position = this.needed(4);
             new DataView(this.array.buffer).setInt32(position, value);
         }
         writeVarInt(value: number): void {
@@ -44,9 +43,9 @@ module yass {
             this.writeVarInt((value << 1) ^ (value >> 31));
         }
         static calcUtf8bytes(value: string): number {
-            var bytes = 0;
-            for (var c = 0; c < value.length; c++) {
-                var code = value.charCodeAt(c);
+            let bytes = 0;
+            for (let c = 0; c < value.length; c++) {
+                const code = value.charCodeAt(c);
                 if (code < 0x80) {
                     bytes += 1;
                 } else if (code < 0x800) {
@@ -58,8 +57,8 @@ module yass {
             return bytes;
         }
         writeUtf8(value: string): void {
-            for (var c = 0; c < value.length; c++) {
-                var code = value.charCodeAt(c);
+            for (let c = 0; c < value.length; c++) {
+                const code = value.charCodeAt(c);
                 if (code < 0x80) { // 0xxx xxxx
                     this.writeByte(code);
                 } else if (code < 0x800) { // 110x xxxx  10xx xxxx
@@ -86,7 +85,7 @@ module yass {
             this.length = arrayBuffer.byteLength;
         }
         needed(value: number): number {
-            var oldPosition = this.position;
+            const oldPosition = this.position;
             this.position += value;
             if (this.position > this.length) {
                 throw new Error("reader buffer underflow");
@@ -103,10 +102,10 @@ module yass {
             return new DataView(this.array.buffer).getInt32(this.needed(4));
         }
         readVarInt(): number {
-            var shift = 0;
-            var value = 0;
+            let shift = 0;
+            let value = 0;
             while (shift < 32) {
-                var b = this.readByte();
+                const b = this.readByte();
                 value |= (b & 0x7F) << shift;
                 if ((b & 0x80) === 0) {
                     return value;
@@ -116,26 +115,26 @@ module yass {
             throw new Error("malformed VarInt input");
         }
         readZigZagInt(): number {
-            var value = this.readVarInt();
+            const value = this.readVarInt();
             return (value >>> 1) ^ -(value & 1);
         }
         readUtf8(bytes: number): string {
-            var result = "";
+            let result = "";
             while (bytes-- > 0) {
-                var code: number;
-                var b1 = this.readByte();
+                let code: number;
+                const b1 = this.readByte();
                 if ((b1 & 0x80) === 0) { // 0xxx xxxx
                     code = b1;
                 } else if ((b1 & 0xE0) === 0xC0) { // 110x xxxx  10xx xxxx
-                    var b2 = this.readByte();
+                    const b2 = this.readByte();
                     if ((b2 & 0xC0) !== 0x80) {
                         throw new Error("malformed String input (1)");
                     }
                     code = ((b1 & 0x1F) << 6) | (b2 & 0x3F);
                     bytes--;
                 } else if ((b1 & 0xF0) === 0xE0) { // 1110 xxxx  10xx xxxx  10xx xxxx
-                    var b2 = this.readByte();
-                    var b3 = this.readByte();
+                    const b2 = this.readByte();
+                    const b3 = this.readByte();
                     if (((b2 & 0xC0) !== 0x80) || ((b3 & 0xC0) !== 0x80)) {
                         throw new Error("malformed String input (2)");
                     }
@@ -150,13 +149,16 @@ module yass {
         }
     }
 
-    export class Type {
+    export abstract class Type {
         // empty
     }
 
     export class Enum extends Type {
         constructor(public number: number, public name: string) {
             super();
+        }
+        toString(): string {
+            return this.name;
         }
     }
 
@@ -183,12 +185,12 @@ module yass {
             // empty
         }
     }
-    var NULL_DESC = new TypeDesc(0, new NullTypeHandler);
+    const NULL_DESC = new TypeDesc(0, new NullTypeHandler);
 
     class ListTypeHandler implements TypeHandler<any[]> {
         read(reader: Reader, id2typeHandler: TypeHandler<any>[]): any[] {
-            var list: any[] = [];
-            for (var size = reader.readVarInt(); size > 0; size--) {
+            const list: any[] = [];
+            for (let size = reader.readVarInt(); size > 0; size--) {
                 list.push(read(reader, id2typeHandler));
             }
             return list;
@@ -198,7 +200,7 @@ module yass {
             value.forEach(element => write(element, writer));
         }
     }
-    export var LIST_DESC = new TypeDesc(2, new ListTypeHandler);
+    export const LIST_DESC = new TypeDesc(2, new ListTypeHandler);
 
     class BooleanTypeHandler implements TypeHandler<boolean> {
         read(reader: Reader): boolean {
@@ -208,18 +210,18 @@ module yass {
             writer.writeByte(value ? 1 : 0);
         }
     }
-    export var BOOLEAN_DESC = new TypeDesc(3, new BooleanTypeHandler);
+    export const BOOLEAN_DESC = new TypeDesc(3, new BooleanTypeHandler);
 
     class NumberTypeHandler implements TypeHandler<number> {
         read(reader: Reader): number {
             return new DataView(reader.array.buffer).getFloat64(reader.needed(8));
         }
         write(value: number, writer: Writer): void {
-            var position = writer.needed(8);
+            const position = writer.needed(8);
             new DataView(writer.array.buffer).setFloat64(position, value);
         }
     }
-    export var NUMBER_DESC = new TypeDesc(4, new NumberTypeHandler);
+    export const NUMBER_DESC = new TypeDesc(4, new NumberTypeHandler);
 
     class StringTypeHandler implements TypeHandler<string> {
         read(reader: Reader): string {
@@ -230,22 +232,22 @@ module yass {
             writer.writeUtf8(value);
         }
     }
-    export var STRING_DESC = new TypeDesc(5, new StringTypeHandler);
+    export const STRING_DESC = new TypeDesc(5, new StringTypeHandler);
 
     class BytesTypeHandler implements TypeHandler<Uint8Array> {
         read(reader: Reader): Uint8Array {
-            var length = reader.readVarInt();
+            const length = reader.readVarInt();
             return new Uint8Array(reader.array.buffer, reader.needed(length), length);
         }
         write(value: Uint8Array, writer: Writer): void {
             writer.writeVarInt(value.length);
-            var position = writer.needed(value.length);
+            const position = writer.needed(value.length);
             writer.array.set(value, position);
         }
     }
-    export var BYTES_DESC = new TypeDesc(6, new BytesTypeHandler);
+    export const BYTES_DESC = new TypeDesc(6, new BytesTypeHandler);
 
-    export var FIRST_ID = 7;
+    export const FIRST_ID = 7;
 
     class EnumTypeHandler implements TypeHandler<Enum> {
         constructor(private values: Enum[]) {
@@ -291,7 +293,7 @@ module yass {
             object[this.field] = this.typeHandler ? this.typeHandler.read(reader, id2typeHandler) : read(reader, id2typeHandler);
         }
         write(id: number, object: any, writer: Writer) {
-            var value = object[this.field];
+            const value = object[this.field];
             if (value) {
                 writer.writeVarInt(id);
                 if (this.typeHandler) {
@@ -312,9 +314,9 @@ module yass {
             this.fieldId2handler[id] = handler;
         }
         read(reader: Reader, id2typeHandler: TypeHandler<any>[]): any {
-            var object = new this.Constructor;
+            const object = new this.Constructor;
             while (true) {
-                var id = reader.readVarInt();
+                const id = reader.readVarInt();
                 if (id === 0) {
                     return object;
                 }
@@ -335,7 +337,7 @@ module yass {
     export class JsFastSerializer implements Serializer {
         private id2typeHandler: TypeHandler<any>[] = [];
         constructor(...Types: any[]) {
-            var add = (typeDesc: TypeDesc) => {
+            const add = (typeDesc: TypeDesc) => {
                 if (this.id2typeHandler[typeDesc.id]) {
                     throw new Error("TypeDesc with id " + typeDesc.id + " already added");
                 }
@@ -359,18 +361,18 @@ module yass {
     }
 
     export function classDesc(id: number, Type: any, ...fieldDescs: FieldDesc[]): TypeDesc {
-        var handler = new ClassTypeHandler(Type);
+        const handler = new ClassTypeHandler(Type);
         fieldDescs.forEach(fieldDesc => {
-            var typeDesc = fieldDesc.typeDesc;
+            const typeDesc = fieldDesc.typeDesc;
             handler.addField(fieldDesc.id, new FieldHandler(fieldDesc.name, typeDesc && typeDesc.handler));
         });
         return new TypeDesc(id, handler);
     }
 
     export function enumDesc(id: number, Type: any): TypeDesc {
-        var values: Enum[] = [];
+        const values: Enum[] = [];
         Object.keys(Type).forEach(property => {
-            var value = Type[property];
+            const value = Type[property];
             if (value instanceof Enum) {
                 values[value.number] = value;
             }
@@ -396,7 +398,7 @@ module yass {
         (style: InvokeStyle, method: string, parameters: any[], invocation: Invocation): any;
     }
 
-    export var DIRECT: Interceptor = (style, method, parameters, invocation) => invocation();
+    export const DIRECT: Interceptor = (style, method, parameters, invocation) => invocation();
 
     export function composite(...interceptors: Interceptor[]): Interceptor {
         function composite2(interceptor1: Interceptor, interceptor2: Interceptor): Interceptor {
@@ -404,40 +406,37 @@ module yass {
                 style, method, parameters, () => interceptor2(style, method, parameters, invocation)
             );
         }
-        var i1 = DIRECT;
-        for (var i = 0; i < interceptors.length; i++) {
-            var i2 = interceptors[i];
-            i1 = (i1 === DIRECT) ? i2 : ((i2 === DIRECT) ? i1 : composite2(i1, i2));
-        }
+        let i1 = DIRECT;
+        interceptors.forEach(i2 => i1 = (i1 === DIRECT) ? i2 : ((i2 === DIRECT) ? i1 : composite2(i1, i2)));
         return i1;
     }
 
-    export interface Message {
+    export abstract class Message {
         // empty
     }
 
-    export class Request implements Message {
+    export class Request extends Message {
         constructor(public serviceId: number, public methodId: number, public parameters: any[]) {
-            // empty
+            super();
         }
     }
 
-    export interface Reply extends Message {
-        process(): any
+    export abstract class Reply extends Message {
+        abstract process(): any;
     }
 
-    export class ValueReply implements Reply {
+    export class ValueReply extends Reply {
         constructor(public value: any) {
-            // empty
+            super();
         }
         process(): any {
             return this.value;
         }
     }
 
-    export class ExceptionReply implements Reply {
+    export class ExceptionReply extends Reply {
         constructor(public exception: any) {
-            // empty
+            super();
         }
         process(): any {
             throw this.exception;
@@ -452,7 +451,7 @@ module yass {
             // empty
         }
         read(reader: Reader): Message {
-            var type = reader.readByte();
+            const type = reader.readByte();
             if (type === MessageSerializer.REQUEST) {
                 return new Request(
                     reader.readZigZagInt(),
@@ -472,12 +471,12 @@ module yass {
         write(message: Message, writer: Writer): void {
             if (message instanceof Request) {
                 writer.writeByte(MessageSerializer.REQUEST);
-                writer.writeZigZagInt((<Request>message).serviceId);
-                writer.writeZigZagInt((<Request>message).methodId);
-                this.contractSerializer.write((<Request>message).parameters, writer);
+                writer.writeZigZagInt(message.serviceId);
+                writer.writeZigZagInt(message.methodId);
+                this.contractSerializer.write(message.parameters, writer);
             } else if (message instanceof ValueReply) {
                 writer.writeByte(MessageSerializer.VALUE_REPLY);
-                this.contractSerializer.write((<ValueReply>message).value, writer);
+                this.contractSerializer.write(message.value, writer);
             } else {
                 writer.writeByte(MessageSerializer.EXCEPTION_REPLY);
                 this.contractSerializer.write((<ExceptionReply>message).exception, writer);
@@ -507,7 +506,7 @@ module yass {
             return this.name2Mapping[method];
         }
         proxy(interceptor: (method: string, parameters: any[]) => any): C {
-            var stub: any = {};
+            const stub: any = {};
             Object.keys(this.name2Mapping).forEach(method => stub[method] = (...parameters: any[]) => interceptor(method, parameters));
             return stub;
         }
@@ -538,7 +537,7 @@ module yass {
         invoke(interceptor: Interceptor, method: string, parameters: any[]): Reply {
             try {
                 return new ValueReply(composite(interceptor, this.interceptor)(InvokeStyle.NoPromise, method, parameters, () => {
-                    var result = this.implementation[method].apply(this.implementation, parameters);
+                    const result = this.implementation[method].apply(this.implementation, parameters);
                     return result ? result : null;
                 }));
             } catch (exception) {
@@ -551,7 +550,7 @@ module yass {
         oneWay: boolean;
         private method: string;
         constructor(private serverInvoker: ServerInvoker, private request: Request) {
-            var methodMapping = serverInvoker.methodMapper.mapId(request.methodId);
+            const methodMapping = serverInvoker.methodMapper.mapId(request.methodId);
             this.oneWay = methodMapping.oneWay;
             this.method = methodMapping.method;
         }
@@ -565,16 +564,16 @@ module yass {
     }
 
     export function server(...services: Service<any>[]): Server {
-        var serviceId2invoker: ServerInvoker[] = [];
+        const serviceId2invoker: ServerInvoker[] = [];
         services.forEach(service => {
-            var id = service.contractId.id;
+            const id = service.contractId.id;
             if (serviceId2invoker[id]) {
                 throw new Error("serviceId " + id + " already added");
             }
             serviceId2invoker[id] = new ServerInvoker(service);
         });
         return request => {
-            var invoker = serviceId2invoker[request.serviceId];
+            const invoker = serviceId2invoker[request.serviceId];
             if (!invoker) {
                 throw new Error("no serviceId " + request.serviceId + " found (methodId " + request.methodId + ")");
             }
@@ -616,8 +615,8 @@ module yass {
             // empty
         }
         invoke(interceptor: Interceptor, tunnel: Tunnel): Promise<any> {
-            var compositeInterceptor = composite(interceptor, this.interceptor);
-            var rpc: Rpc = this.methodMapping.oneWay ? null : new Rpc(compositeInterceptor, this.methodMapping.method, this.parameters);
+            const compositeInterceptor = composite(interceptor, this.interceptor);
+            const rpc: Rpc = this.methodMapping.oneWay ? null : new Rpc(compositeInterceptor, this.methodMapping.method, this.parameters);
             compositeInterceptor(
                 this.methodMapping.oneWay ? InvokeStyle.NoPromise : InvokeStyle.PromiseEntry,
                 this.methodMapping.method,
@@ -631,16 +630,17 @@ module yass {
         }
     }
 
-    export class Client implements ProxyFactory {
-        constructor(private clientInvoker: (invocation: ClientInvocation) => Promise<any>) {
-            // empty
-        }
+    export abstract class Client implements ProxyFactory {
         proxy<PC>(contractId: ContractId<any, PC>, ...interceptors: Interceptor[]): PC {
-            var interceptor = composite.apply(null, interceptors);
-            return <any>contractId.methodMapper.proxy((method, parameters) => this.clientInvoker(
+            const interceptor = composite.apply(null, interceptors);
+            return <any>contractId.methodMapper.proxy((method, parameters) => this.invoke(
                 new ClientInvocation(interceptor, contractId.id, contractId.methodMapper.mapMethod(method), parameters)
             ));
         }
+        /**
+         * @return ClientInvocation.invoke(Interceptor, Tunnel)
+         */
+        protected abstract invoke(invocation: ClientInvocation): Promise<any>;
     }
 
     export class Packet {
@@ -659,7 +659,7 @@ module yass {
             // empty
         }
         read(reader: Reader): Packet {
-            var requestNumber = reader.readInt();
+            const requestNumber = reader.readInt();
             return (requestNumber === Packet.END_REQUESTNUMBER) ? Packet.END : new Packet(requestNumber, this.messageSerializer.read(reader));
         }
         write(packet: Packet, writer: Writer): void {
@@ -672,12 +672,22 @@ module yass {
         }
     }
 
-    export interface Session {
-        opened(): void;
+    export abstract class Session implements ProxyFactory {
+        constructor(private sessionClient: SessionClient) {
+            // empty
+        }
+        abstract opened(): void;
         /**
          * @param exception null if regular close else reason for close
          */
-        closed(exception: any): void;
+        abstract closed(exception: any): void;
+        proxy<PC>(contractId: ContractId<any, PC>, ...interceptors: Interceptor[]): PC {
+            (<any>interceptors).unshift(contractId);
+            return this.sessionClient.proxy.apply(this.sessionClient, interceptors);
+        }
+        close(): void {
+            this.sessionClient.close();
+        }
     }
 
     export interface SessionFactory {
@@ -692,10 +702,10 @@ module yass {
     /**
      * The session of the active invocation or null if no active invocation.
      */
-    export var SESSION: Session = null;
+    export let SESSION: Session = null;
     function sessionInterceptor(session: Session): Interceptor {
         return (style, method, parameters, invocation) => {
-            var oldSession = SESSION;
+            const oldSession = SESSION;
             SESSION = session;
             try {
                 return invocation();
@@ -710,26 +720,27 @@ module yass {
         private requestNumber = Packet.END_REQUESTNUMBER;
         private requestNumber2rpc: Rpc[] = [];
         private session: Session;
-        private interceptor: Interceptor;
+        private sessionInterceptor: Interceptor;
         constructor(private server: Server, sessionFactory: SessionFactory, private connection: Connection) {
-            super(function (invocation: ClientInvocation) {
-                return invocation.invoke(this.interceptor, (request, rpc) => {
-                    if (this.requestNumber === 2147483647) {
-                        this.requestNumber = Packet.END_REQUESTNUMBER;
-                    }
-                    this.requestNumber++;
-                    if (rpc) {
-                        if (this.requestNumber2rpc[this.requestNumber]) {
-                            throw new Error("already waiting for requestNumber " + this.requestNumber);
-                        }
-                        this.requestNumber2rpc[this.requestNumber] = rpc;
-                    }
-                    this.write(this.requestNumber, request);
-                });
-            });
+            super();
             this.session = sessionFactory(this);
-            this.interceptor = sessionInterceptor(this.session);
+            this.sessionInterceptor = sessionInterceptor(this.session);
             this.session.opened();
+        }
+        protected invoke(invocation: ClientInvocation): Promise<any> {
+            return invocation.invoke(this.sessionInterceptor, (request, rpc) => {
+                if (this.requestNumber === 2147483647) {
+                    this.requestNumber = Packet.END_REQUESTNUMBER;
+                }
+                this.requestNumber++;
+                if (rpc) {
+                    if (this.requestNumber2rpc[this.requestNumber]) {
+                        throw new Error("already waiting for requestNumber " + this.requestNumber);
+                    }
+                    this.requestNumber2rpc[this.requestNumber] = rpc;
+                }
+                this.write(this.requestNumber, request);
+            });
         }
         doClose(exception: any): void {
             this.doCloseSend(false, exception);
@@ -767,16 +778,17 @@ module yass {
                     this.doClose(null);
                     return;
                 }
-                if (packet.message instanceof Request) {
-                    var invocation = this.server(<Request>packet.message);
-                    var reply = invocation.invoke(this.interceptor);
+                const message = packet.message;
+                if (message instanceof Request) {
+                    const invocation = this.server(message);
+                    const reply = invocation.invoke(this.sessionInterceptor);
                     if (!invocation.oneWay) {
                         this.write(packet.requestNumber, reply);
                     }
                 } else { // Reply
-                    var rpc = this.requestNumber2rpc[packet.requestNumber];
+                    const rpc = this.requestNumber2rpc[packet.requestNumber];
                     delete this.requestNumber2rpc[packet.requestNumber];
-                    rpc.settle(<Reply>packet.message);
+                    rpc.settle(<Reply>message);
                 }
             } catch (exception) {
                 this.doClose(exception);
@@ -785,14 +797,14 @@ module yass {
     }
 
     export function writeTo(serializer: Serializer, value: any): Uint8Array {
-        var writer = new Writer(128);
+        const writer = new Writer(128);
         serializer.write(value, writer);
         return writer.getArray();
     }
 
     export function readFrom(serializer: Serializer, arrayBuffer: ArrayBuffer): any {
-        var reader = new Reader(arrayBuffer);
-        var value = serializer.read(reader);
+        const reader = new Reader(arrayBuffer);
+        const value = serializer.read(reader);
         if (!reader.isEmpty()) {
             throw new Error("reader is not empty");
         }
@@ -801,19 +813,19 @@ module yass {
 
     export function connect(url: string, serializer: Serializer, server: Server, sessionFactory: SessionFactory, connectFailed = () => {}): void {
         serializer = new PacketSerializer(new MessageSerializer(serializer));
-        var connectFailedCalled = false;
+        let connectFailedCalled = false;
         function callConnectFailed(): void {
             if (!connectFailedCalled) {
                 connectFailedCalled = true;
                 connectFailed();
             }
         }
-        var ws = new WebSocket(url);
+        const ws = new WebSocket(url);
         ws.binaryType = "arraybuffer";
         ws.onerror = callConnectFailed;
         ws.onclose = callConnectFailed;
         ws.onopen = () => {
-            var sessionClient = new SessionClient(server, sessionFactory, {
+            const sessionClient = new SessionClient(server, sessionFactory, {
                 write: packet => ws.send(writeTo(serializer, packet)),
                 closed: () => ws.close()
             });
@@ -830,27 +842,29 @@ module yass {
     }
 
     class XhrClient extends Client {
-        constructor(url: string, serializer: Serializer) {
-            super(function (invocation: ClientInvocation) {
-                return invocation.invoke(DIRECT, (request, rpc) => {
-                    if (!rpc) {
-                        throw new Error("xhr not allowed for oneway method (serviceId " + request.serviceId + ", methodId " + request.methodId + ")");
+        private serializer: Serializer;
+        constructor(private url: string, serializer: Serializer) {
+            super();
+            this.serializer = new MessageSerializer(serializer);
+        }
+        protected invoke(invocation: ClientInvocation): Promise<any> {
+            return invocation.invoke(DIRECT, (request, rpc) => {
+                if (!rpc) {
+                    throw new Error("xhr not allowed for oneWay method (serviceId " + request.serviceId + ", methodId " + request.methodId + ")");
+                }
+                const xhr = new XMLHttpRequest();
+                xhr.open("POST", this.url);
+                xhr.responseType = "arraybuffer";
+                xhr.onerror = () => rpc.settle(new ExceptionReply(new Error("XMLHttpRequest.onerror")));
+                xhr.onload = () => {
+                    try {
+                        rpc.settle(readFrom(this.serializer, xhr.response));
+                    } catch (exception) {
+                        rpc.settle(new ExceptionReply(exception));
                     }
-                    var xhr = new XMLHttpRequest();
-                    xhr.open("POST", url);
-                    xhr.responseType = "arraybuffer";
-                    xhr.onerror = () => rpc.settle(new ExceptionReply(new Error("XMLHttpRequest.onerror")));
-                    xhr.onload = () => {
-                        try {
-                            rpc.settle(readFrom(serializer, xhr.response));
-                        } catch (exception) {
-                            rpc.settle(new ExceptionReply(exception));
-                        }
-                    };
-                    xhr.send(writeTo(serializer, request));
-                });
+                };
+                xhr.send(writeTo(this.serializer, request));
             });
-            serializer = new MessageSerializer(serializer);
         }
     }
 

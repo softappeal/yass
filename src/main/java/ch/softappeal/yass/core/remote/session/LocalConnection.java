@@ -26,8 +26,10 @@ public final class LocalConnection implements Connection {
         final LocalConnection connection2 = new LocalConnection();
         try {
             connection2.sessionClient = SessionClient.create(setup1, connection1);
+            connection2.sessionClient.opened();
             try {
                 connection1.sessionClient = SessionClient.create(setup2, connection2);
+                connection1.sessionClient.opened();
             } catch (final Exception e) {
                 try {
                     connection2.sessionClient.close(e);

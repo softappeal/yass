@@ -16,7 +16,7 @@ import java.lang.reflect.Proxy;
  */
 public abstract class Link {
 
-    @Nullable private Delegate<Object> firstDelegate = null;
+    private @Nullable Delegate<Object> firstDelegate;
 
     /**
      * @return a proxy surviving {@link ch.softappeal.yass.core.remote.session.Session#closed(Throwable)}
@@ -26,7 +26,7 @@ public abstract class Link {
     }
 
     private final class Delegate<C> {
-        Delegate<Object> nextDelegate = null;
+        final @Nullable Delegate<Object> nextDelegate;
         private final ContractId<C> contractId;
         private final Interceptor interceptor;
         final C proxy;
@@ -83,7 +83,7 @@ public abstract class Link {
             }
             Link.this.opened();
         }
-        @Override protected void closed(@Nullable final Throwable throwable) throws Exception {
+        @Override protected void closed(final @Nullable Throwable throwable) throws Exception {
             session = null;
             Link.this.closed(throwable);
         }
@@ -95,9 +95,9 @@ public abstract class Link {
         }
     };
 
-    @Nullable private volatile Session session = null;
+    private volatile @Nullable Session session = null;
 
-    @Nullable public final Session session() {
+    public final @Nullable Session session() {
         return session;
     }
 

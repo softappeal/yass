@@ -4,16 +4,14 @@ import ch.softappeal.yass.core.remote.Server;
 import ch.softappeal.yass.core.remote.Service;
 import ch.softappeal.yass.core.remote.session.Session;
 import ch.softappeal.yass.core.remote.session.SessionClient;
-import ch.softappeal.yass.core.remote.session.SessionFactory;
 import ch.softappeal.yass.core.remote.session.test.PerformanceTest;
 import ch.softappeal.yass.core.test.InvokeTest;
-import ch.softappeal.yass.transport.PathResolver;
 import ch.softappeal.yass.transport.TransportSetup;
 import ch.softappeal.yass.transport.socket.SocketConnection;
-import ch.softappeal.yass.transport.socket.SocketExecutor;
-import ch.softappeal.yass.transport.socket.SocketListenerTest;
+import ch.softappeal.yass.transport.socket.SocketHelper;
 import ch.softappeal.yass.transport.socket.SocketTransport;
 import ch.softappeal.yass.transport.socket.SslSetup;
+import ch.softappeal.yass.transport.socket.SyncSocketConnection;
 import ch.softappeal.yass.util.ClassLoaderResource;
 import ch.softappeal.yass.util.Exceptions;
 import ch.softappeal.yass.util.NamedThreadFactory;
@@ -39,64 +37,58 @@ public class SslTest extends InvokeTest {
     ) throws Exception {
         final ExecutorService executor = Executors.newCachedThreadPool(new NamedThreadFactory("executor", Exceptions.STD_ERR));
         try {
-            SocketTransport.listener(
-                SocketTransportTest.PATH_SERIALIZER,
-                new PathResolver(
-                    SocketTransportTest.PATH,
-                    new TransportSetup(
-                        new Server(
-                            PerformanceTest.METHOD_MAPPER_FACTORY,
-                            new Service(PerformanceTest.CONTRACT_ID, new TestServiceImpl())
-                        ),
-                        executor,
-                        SocketPerformanceTest.PACKET_SERIALIZER,
-                        new SessionFactory() {
-                            @Override public Session create(final SessionClient sessionClient) throws Exception {
-                                if (needClientAuth) {
-                                    checkName(sessionClient);
-                                }
-                                return new Session(sessionClient) {
-                                    @Override protected void closed(final Throwable throwable) {
-                                        if (throwable != null) {
-                                            Exceptions.TERMINATE.uncaughtException(null, throwable);
-                                        }
-                                    }
-                                };
-                            }
+            new SocketTransport(executor, SyncSocketConnection.FACTORY).start(
+                new TransportSetup(
+                    new Server(
+                        PerformanceTest.METHOD_MAPPER_FACTORY,
+                        new Service(PerformanceTest.CONTRACT_ID, new TestServiceImpl())
+                    ),
+                    executor,
+                    SocketPerformanceTest.PACKET_SERIALIZER,
+                    sessionClient -> {
+                        if (needClientAuth) {
+                            checkName(sessionClient);
                         }
-                    )
-                )
-            ).start(executor, new SocketExecutor(executor, Exceptions.TERMINATE), serverSocketFactory, SocketListenerTest.ADDRESS);
-            SocketTransport.connect(
+                        return new Session(sessionClient) {
+                            @Override protected void closed(final Throwable throwable) {
+                                if (throwable != null) {
+                                    Exceptions.TERMINATE.uncaughtException(null, throwable);
+                                }
+                            }
+                        };
+                    }
+                ),
+                executor,
+                serverSocketFactory,
+                SocketHelper.ADDRESS
+            );
+            new SocketTransport(executor, SyncSocketConnection.FACTORY).connect(
                 new TransportSetup(
                     new Server(PerformanceTest.METHOD_MAPPER_FACTORY),
                     executor,
                     SocketPerformanceTest.PACKET_SERIALIZER,
-                    new SessionFactory() {
-                        @Override public Session create(final SessionClient sessionClient) throws Exception {
-                            checkName(sessionClient);
-                            return new Session(sessionClient) {
-                                @Override protected void opened() throws Exception {
-                                    final TestService testService = proxy(PerformanceTest.CONTRACT_ID);
-                                    Assert.assertTrue(testService.divide(12, 4) == 3);
-                                    close();
+                    sessionClient -> {
+                        checkName(sessionClient);
+                        return new Session(sessionClient) {
+                            @Override protected void opened() throws Exception {
+                                final TestService testService = proxy(PerformanceTest.CONTRACT_ID);
+                                Assert.assertTrue(testService.divide(12, 4) == 3);
+                                close();
+                            }
+                            @Override protected void closed(final Throwable throwable) {
+                                if (throwable != null) {
+                                    Exceptions.TERMINATE.uncaughtException(null, throwable);
                                 }
-                                @Override protected void closed(final Throwable throwable) {
-                                    if (throwable != null) {
-                                        Exceptions.TERMINATE.uncaughtException(null, throwable);
-                                    }
-                                }
-                            };
-                        }
+                            }
+                        };
                     }
                 ),
-                new SocketExecutor(executor, Exceptions.TERMINATE),
-                SocketTransportTest.PATH_SERIALIZER, SocketTransportTest.PATH,
-                socketFactory, SocketListenerTest.ADDRESS
+                executor,
+                socketFactory, SocketHelper.ADDRESS
             );
         } finally {
             TimeUnit.MILLISECONDS.sleep(200);
-            SocketListenerTest.shutdown(executor);
+            SocketHelper.shutdown(executor);
         }
     }
 

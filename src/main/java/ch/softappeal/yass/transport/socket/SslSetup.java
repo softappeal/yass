@@ -23,7 +23,7 @@ import java.security.SecureRandom;
 
 public final class SslSetup {
 
-    public static KeyStore readKeyStore(final Resource keyStoreResource, @Nullable final char[] keyStorePwd) {
+    public static KeyStore readKeyStore(final Resource keyStoreResource, final @Nullable char[] keyStorePwd) {
         try {
             final KeyStore keyStore = KeyStore.getInstance("JKS");
             try (InputStream in = keyStoreResource.create()) {
@@ -43,10 +43,10 @@ public final class SslSetup {
     public SslSetup(
         final String protocol,
         final String cipher,
-        @Nullable final KeyStore keyStore,
-        @Nullable final char[] keyStorePwd,
-        @Nullable final KeyStore trustStore,
-        @Nullable final SecureRandom random,
+        final @Nullable KeyStore keyStore,
+        final @Nullable char[] keyStorePwd,
+        final @Nullable KeyStore trustStore,
+        final @Nullable SecureRandom random,
         final String keyManagerFactoryAlgorithm,
         final String trustManagerFactoryAlgorithm
     ) {
@@ -81,9 +81,9 @@ public final class SslSetup {
     public SslSetup(
         final String protocol,
         final String cipher,
-        @Nullable final KeyStore keyStore,
-        @Nullable final char[] keyStorePwd,
-        @Nullable final KeyStore trustStore
+        final @Nullable KeyStore keyStore,
+        final @Nullable char[] keyStorePwd,
+        final @Nullable KeyStore trustStore
     ) {
         this(protocol, cipher, keyStore, keyStorePwd, trustStore, null, "SunX509", "SunX509");
     }
@@ -110,7 +110,7 @@ public final class SslSetup {
                 serverSocket.setEnabledProtocols(protocols);
                 serverSocket.setEnabledCipherSuites(cipherSuites);
             } catch (final Exception e) {
-                SocketListener.close(serverSocket, e);
+                SocketTransport.close(serverSocket, e);
                 throw e;
             }
             return serverSocket;

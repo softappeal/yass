@@ -4,16 +4,12 @@ import ch.softappeal.yass.core.remote.Server;
 import ch.softappeal.yass.core.remote.Service;
 import ch.softappeal.yass.core.remote.TaggedMethodMapper;
 import ch.softappeal.yass.core.remote.session.Session;
-import ch.softappeal.yass.core.remote.session.SessionClient;
-import ch.softappeal.yass.core.remote.session.SessionFactory;
 import ch.softappeal.yass.core.remote.test.ContractIdTest;
 import ch.softappeal.yass.core.test.InvokeTest;
-import ch.softappeal.yass.transport.DummyPathSerializer;
-import ch.softappeal.yass.transport.PathResolver;
 import ch.softappeal.yass.transport.TransportSetup;
-import ch.softappeal.yass.transport.socket.SocketExecutor;
-import ch.softappeal.yass.transport.socket.SocketListenerTest;
+import ch.softappeal.yass.transport.socket.SocketHelper;
 import ch.softappeal.yass.transport.socket.SocketTransport;
+import ch.softappeal.yass.transport.socket.SyncSocketConnection;
 import ch.softappeal.yass.transport.test.PacketSerializerTest;
 import ch.softappeal.yass.util.Exceptions;
 import ch.softappeal.yass.util.NamedThreadFactory;
@@ -26,32 +22,26 @@ public class ReconnectorServer {
 
     public static void main(final String... args) {
         final Executor executor = Executors.newCachedThreadPool(new NamedThreadFactory("executor", Exceptions.STD_ERR));
-        SocketTransport.listener(
-            DummyPathSerializer.INSTANCE,
-            new PathResolver(
-                DummyPathSerializer.PATH,
-                new TransportSetup(
-                    new Server(
-                        TaggedMethodMapper.FACTORY,
-                        new Service(ContractIdTest.ID, new InvokeTest.TestServiceImpl())
-                    ),
-                    executor,
-                    PacketSerializerTest.SERIALIZER,
-                    new SessionFactory() {
-                        @Override public Session create(final SessionClient sessionClient) throws Exception {
-                            return new Session(sessionClient) {
-                                @Override protected void opened() {
-                                    System.out.println("opened");
-                                }
-                                @Override public void closed(@Nullable final Throwable throwable) {
-                                    System.out.println("closed");
-                                }
-                            };
-                        }
+        new SocketTransport(executor, SyncSocketConnection.FACTORY).start(
+            new TransportSetup(
+                new Server(
+                    TaggedMethodMapper.FACTORY,
+                    new Service(ContractIdTest.ID, new InvokeTest.TestServiceImpl())
+                ),
+                executor,
+                PacketSerializerTest.SERIALIZER,
+                sessionClient -> new Session(sessionClient) {
+                    @Override protected void opened() {
+                        System.out.println("opened");
                     }
-                )
-            )
-        ).start(executor, new SocketExecutor(executor, Exceptions.STD_ERR), SocketListenerTest.ADDRESS);
+                    @Override public void closed(final @Nullable Throwable throwable) {
+                        System.out.println("closed");
+                    }
+                }
+            ),
+            executor,
+            SocketHelper.ADDRESS
+        );
         System.out.println("started");
     }
 

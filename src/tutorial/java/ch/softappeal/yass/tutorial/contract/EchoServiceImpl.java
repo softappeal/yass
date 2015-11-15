@@ -6,7 +6,7 @@ import java.util.concurrent.TimeUnit;
 
 public final class EchoServiceImpl implements EchoService {
 
-    @Nullable @Override public Object echo(@Nullable final Object value) {
+    @Override public @Nullable Object echo(final @Nullable Object value) {
         if ("throwRuntimeException".equals(value)) {
             throw new RuntimeException("throwRuntimeException");
         }

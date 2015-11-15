@@ -2,7 +2,7 @@
 
 /// <reference path="../../main/ts/yass"/>
 
-module contract {
+namespace contract {
 
     class Expiration_HANDLER implements yass.TypeHandler<Expiration> {
         read(reader: yass.Reader): Expiration {
@@ -25,7 +25,7 @@ module contract {
         static TYPE_DESC = new yass.TypeDesc(yass.FIRST_ID, new Expiration_HANDLER);
     }
 
-    export module instrument.stock {
+    export namespace instrument.stock {
         class Integer_HANDLER implements yass.TypeHandler<Integer> {
             read(reader: yass.Reader): Integer {
                 return new Integer(reader.readZigZagInt());

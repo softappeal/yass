@@ -5,14 +5,12 @@ import ch.softappeal.yass.core.remote.TaggedMethodMapper;
 import ch.softappeal.yass.core.remote.session.Link;
 import ch.softappeal.yass.core.remote.session.Reconnector;
 import ch.softappeal.yass.core.remote.session.SessionClosedException;
-import ch.softappeal.yass.core.remote.session.SessionFactory;
 import ch.softappeal.yass.core.remote.test.ContractIdTest;
 import ch.softappeal.yass.core.test.InvokeTest;
-import ch.softappeal.yass.transport.DummyPathSerializer;
 import ch.softappeal.yass.transport.TransportSetup;
-import ch.softappeal.yass.transport.socket.SocketExecutor;
-import ch.softappeal.yass.transport.socket.SocketListenerTest;
+import ch.softappeal.yass.transport.socket.SocketHelper;
 import ch.softappeal.yass.transport.socket.SocketTransport;
+import ch.softappeal.yass.transport.socket.SyncSocketConnection;
 import ch.softappeal.yass.transport.test.PacketSerializerTest;
 import ch.softappeal.yass.util.Exceptions;
 import ch.softappeal.yass.util.NamedThreadFactory;
@@ -38,7 +36,7 @@ public final class ReconnectorClient {
                 throw new RuntimeException("testService2 failed");
             }
         }
-        @Override protected void closed(@Nullable final Throwable throwable) {
+        @Override protected void closed(final @Nullable Throwable throwable) {
             System.out.println("closed");
             if (throwable != null) {
                 throwable.printStackTrace(System.out);
@@ -62,23 +60,17 @@ public final class ReconnectorClient {
             executor,
             5,
             link.sessionFactory,
-            new Reconnector.Connector() {
-                @Override public void connect(final SessionFactory sessionFactory) throws Exception {
-                    SocketTransport.connect(
-                        new TransportSetup(
-                            new Server(
-                                TaggedMethodMapper.FACTORY
-                            ),
-                            executor,
-                            PacketSerializerTest.SERIALIZER,
-                            sessionFactory
-                        ),
-                        new SocketExecutor(executor, Exceptions.STD_ERR),
-                        DummyPathSerializer.INSTANCE, DummyPathSerializer.PATH,
-                        SocketListenerTest.ADDRESS
-                    );
-                }
-            }
+            sessionFactory -> new SocketTransport(executor, SyncSocketConnection.FACTORY).connect(
+                new TransportSetup(
+                    new Server(
+                        TaggedMethodMapper.FACTORY
+                    ),
+                    executor,
+                    PacketSerializerTest.SERIALIZER,
+                    sessionFactory
+                ),
+                SocketHelper.ADDRESS
+            )
         );
         System.out.println("started");
     }

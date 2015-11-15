@@ -37,7 +37,7 @@ public final class Dumper {
         this.concreteValueClasses.addAll(PRIMITIVE_WRAPPER_CLASSES);
     }
 
-    public StringBuilder append(final StringBuilder s, @Nullable final Object value) {
+    public StringBuilder append(final StringBuilder s, final @Nullable Object value) {
         new Dump(s).dump(value);
         return s;
     }
@@ -216,7 +216,7 @@ public final class Dumper {
         }
         private void dumpClassFields(final ClassDesc classDesc, final Object object) {
             for (final FieldDesc fieldDesc : classDesc.fieldDescs) {
-                @Nullable final Object value = fieldDesc.accessor.get(object);
+                final @Nullable Object value = fieldDesc.accessor.get(object);
                 if (value != null) {
                     if (compact) {
                         out.append(fieldDesc.name).append('=');
@@ -267,7 +267,7 @@ public final class Dumper {
                 out.append('#').append(index);
             }
         }
-        void dump(@Nullable final Object value) {
+        void dump(final @Nullable Object value) {
             if (value == null) {
                 out.append("null");
                 return;

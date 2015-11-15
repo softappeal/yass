@@ -4,6 +4,8 @@ import ch.softappeal.yass.core.remote.session.test.LocalConnectionTest;
 import ch.softappeal.yass.core.remote.session.test.PerformanceTest;
 import ch.softappeal.yass.transport.TransportSetup;
 import ch.softappeal.yass.transport.socket.test.SocketPerformanceTest;
+import ch.softappeal.yass.transport.ws.AsyncWsConnection;
+import ch.softappeal.yass.transport.ws.SyncWsConnection;
 import ch.softappeal.yass.transport.ws.WsConnection;
 import ch.softappeal.yass.transport.ws.WsEndpoint;
 import ch.softappeal.yass.util.Exceptions;
@@ -42,13 +44,13 @@ public abstract class WsTest {
 
     public static final class ClientEndpoint extends WsEndpoint {
         @Override protected WsConnection createConnection(final Session session) throws Exception {
-            return WsConnection.create(TRANSPORT_SETUP_CLIENT, session);
+            return WsConnection.create(SyncWsConnection.FACTORY, TRANSPORT_SETUP_CLIENT, session);
         }
     }
 
     public static final class ServerEndpoint extends WsEndpoint {
         @Override protected WsConnection createConnection(final Session session) throws Exception {
-            return WsConnection.create(TRANSPORT_SETUP_SERVER, session);
+            return WsConnection.create(AsyncWsConnection.factory(100), TRANSPORT_SETUP_SERVER, session);
         }
     }
 

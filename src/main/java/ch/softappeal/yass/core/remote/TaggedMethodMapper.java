@@ -9,7 +9,7 @@ import java.util.Map;
 
 /**
  * Uses {@link Tag} as {@link Request#methodId}.
- * Uses {@link OneWay} for marking oneway methods.
+ * Uses {@link OneWay} for marking oneWay methods.
  */
 public final class TaggedMethodMapper implements MethodMapper {
 

@@ -17,7 +17,7 @@ public final class Service {
 
     /**
      * It's a good idea to add an interceptor that handles unexpected exceptions
-     * (this is especially useful for oneway methods where these are ignored and NOT passed to the client).
+     * (this is especially useful for oneWay methods where these are ignored and NOT passed to the client).
      */
     public <C> Service(final ContractId<C> contractId, final C implementation, final Interceptor... interceptors) {
         this.contractId = Check.notNull(contractId);
@@ -25,7 +25,7 @@ public final class Service {
         interceptor = Interceptors.composite(interceptors);
     }
 
-    Reply invoke(final Interceptor interceptor, final Method method, @Nullable final Object[] arguments) {
+    Reply invoke(final Interceptor interceptor, final Method method, final @Nullable Object[] arguments) {
         try {
             return new ValueReply(Interceptors.composite(interceptor, this.interceptor).invoke(method, arguments, new Invocation() {
                 @Override public Object proceed() throws Throwable {

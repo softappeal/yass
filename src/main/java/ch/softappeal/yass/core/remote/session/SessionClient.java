@@ -1,13 +1,11 @@
 package ch.softappeal.yass.core.remote.session;
 
 import ch.softappeal.yass.core.Interceptor;
-import ch.softappeal.yass.core.Interceptors;
 import ch.softappeal.yass.core.remote.Client;
 import ch.softappeal.yass.core.remote.Message;
 import ch.softappeal.yass.core.remote.Reply;
 import ch.softappeal.yass.core.remote.Request;
 import ch.softappeal.yass.core.remote.Server;
-import ch.softappeal.yass.core.remote.Tunnel;
 import ch.softappeal.yass.util.Check;
 import ch.softappeal.yass.util.Exceptions;
 import ch.softappeal.yass.util.Nullable;
@@ -27,11 +25,18 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public final class SessionClient extends Client {
 
+    public static SessionClient create(final SessionSetup setup, final Connection connection) throws Exception {
+        final SessionClient sessionClient = new SessionClient(setup, connection);
+        sessionClient.session = Check.notNull(setup.sessionFactory.create(sessionClient));
+        sessionClient.sessionInterceptor = Interceptor.threadLocal(Session.INSTANCE, sessionClient.session);
+        return sessionClient;
+    }
+
     public final Connection connection;
     private final SessionSetup setup;
     final AtomicBoolean closed = new AtomicBoolean(false);
-    private Session session = null;
-    private Interceptor interceptor = null;
+    private Session session;
+    private Interceptor sessionInterceptor;
 
     private SessionClient(final SessionSetup setup, final Connection connection) {
         super(setup.server.methodMapperFactory);
@@ -39,23 +44,20 @@ public final class SessionClient extends Client {
         this.setup = setup;
     }
 
-    public static SessionClient create(final SessionSetup setup, final Connection connection) throws Exception {
-        final SessionClient sessionClient = new SessionClient(setup, connection);
-        sessionClient.session = Check.notNull(setup.sessionFactory.create(sessionClient));
-        sessionClient.interceptor = Interceptors.threadLocal(Session.INSTANCE, sessionClient.session);
-        setup.dispatcher.opened(new Runnable() {
-            @Override public void run() {
-                try {
-                    sessionClient.session.opened();
-                } catch (final Exception e) {
-                    sessionClient.close(e);
-                }
+    /**
+     * Must be called after {@link #create(SessionSetup, Connection)}.
+     */
+    public void opened() throws Exception {
+        setup.dispatcher.opened(session, () -> {
+            try {
+                session.opened();
+            } catch (final Exception e) {
+                close(e);
             }
         });
-        return sessionClient;
     }
 
-    private void close(final boolean sendEnd, @Nullable final Throwable throwable) {
+    private void close(final boolean sendEnd, final @Nullable Throwable throwable) {
         if (closed.getAndSet(true)) {
             return;
         }
@@ -79,6 +81,21 @@ public final class SessionClient extends Client {
         }
     }
 
+    /**
+     * Must be called if communication has failed.
+     * This method is idempotent.
+     */
+    public void close(final Throwable throwable) {
+        close(false, Check.notNull(throwable));
+    }
+
+    /**
+     * This method is idempotent.
+     */
+    void close() {
+        close(true, null);
+    }
+
     private void write(final int requestNumber, final Message message) throws SessionClosedException {
         if (closed.get()) {
             throw new SessionClosedException();
@@ -90,58 +107,21 @@ public final class SessionClient extends Client {
         }
     }
 
-    private final Map<Integer, BlockingQueue<Reply>> requestNumber2replyQueue = Collections.synchronizedMap(new HashMap<Integer, BlockingQueue<Reply>>(16));
-
-    private void replyReceived(final int requestNumber, final Reply reply) throws InterruptedException {
-        @Nullable final BlockingQueue<Reply> replyQueue = requestNumber2replyQueue.remove(requestNumber);
-        if (replyQueue != null) { // needed because request can be interrupted, see below
-            replyQueue.put(reply);
-        }
-    }
-
-    private RequestInterruptedException requestInterrupted(final int requestNumber) {
-        requestNumber2replyQueue.remove(requestNumber);
-        return new RequestInterruptedException();
-    }
-
-    private Reply clientRpcInvoke(final int requestNumber, final Request request) throws RequestInterruptedException, SessionClosedException {
-        final BlockingQueue<Reply> replyQueue = new ArrayBlockingQueue<>(1, false); // we use unfair for speed
-        if (requestNumber2replyQueue.put(requestNumber, replyQueue) != null) {
-            throw new RuntimeException("already waiting for requestNumber " + requestNumber);
-        }
-        write(requestNumber, request);
-        while (true) {
-            if (Thread.interrupted()) {
-                throw requestInterrupted(requestNumber);
-            }
-            try {
-                final Reply reply = replyQueue.poll(200L, TimeUnit.MILLISECONDS);
-                if (reply != null) {
-                    return reply;
-                } else if (closed.get()) {
-                    throw new SessionClosedException();
-                }
-            } catch (final InterruptedException ignore) {
-                throw requestInterrupted(requestNumber);
-            }
-        }
-    }
-
     private void serverInvoke(final int requestNumber, final Request request) throws Exception {
         final Server.Invocation invocation = setup.server.invocation(request);
-        setup.dispatcher.invoke(invocation, new Runnable() {
-            @Override public void run() {
-                try {
-                    final Reply reply = invocation.invoke(interceptor);
-                    if (!invocation.oneWay) {
-                        SessionClient.this.write(requestNumber, reply);
-                    }
-                } catch (final Exception e) {
-                    SessionClient.this.close(e);
+        setup.dispatcher.invoke(session, invocation, () -> {
+            try {
+                final Reply reply = invocation.invoke(sessionInterceptor);
+                if (!invocation.oneWay) {
+                    write(requestNumber, reply);
                 }
+            } catch (final Exception e) {
+                close(e);
             }
         });
     }
+
+    private final Map<Integer, BlockingQueue<Reply>> requestNumber2replyQueue = Collections.synchronizedMap(new HashMap<>(16));
 
     /**
      * Must be called if a packet has been received.
@@ -157,44 +137,39 @@ public final class SessionClient extends Client {
             if (message instanceof Request) {
                 serverInvoke(packet.requestNumber(), (Request)message);
             } else {
-                replyReceived(packet.requestNumber(), (Reply)message);
+                requestNumber2replyQueue.remove(packet.requestNumber()).put((Reply)message); // client invoke
             }
         } catch (final Exception e) {
             close(e);
         }
     }
 
-    /**
-     * Must be called if communication has failed.
-     * This method is idempotent.
-     */
-    public void close(final Throwable throwable) {
-        close(false, Check.notNull(throwable));
-    }
-
     private final AtomicInteger nextRequestNumber = new AtomicInteger(Packet.END_REQUEST_NUMBER);
 
     @Override protected Object invoke(final Client.Invocation invocation) throws Throwable {
-        return invocation.invoke(interceptor, new Tunnel() {
-            @Override public Reply invoke(final Request request) throws Exception {
-                int requestNumber;
-                do { // we can't use END_REQUEST_NUMBER as regular requestNumber
-                    requestNumber = nextRequestNumber.incrementAndGet();
-                } while (requestNumber == Packet.END_REQUEST_NUMBER);
-                if (invocation.oneWay) {
-                    SessionClient.this.write(requestNumber, request);
-                    return null;
+        return invocation.invoke(sessionInterceptor, request -> {
+            int requestNumber;
+            do { // we can't use END_REQUEST_NUMBER as regular requestNumber
+                requestNumber = nextRequestNumber.incrementAndGet();
+            } while (requestNumber == Packet.END_REQUEST_NUMBER);
+            if (invocation.oneWay) {
+                write(requestNumber, request);
+                return null;
+            }
+            final BlockingQueue<Reply> replyQueue = new ArrayBlockingQueue<>(1, false); // we use unfair for speed
+            if (requestNumber2replyQueue.put(requestNumber, replyQueue) != null) {
+                throw new RuntimeException("already waiting for requestNumber " + requestNumber);
+            }
+            write(requestNumber, request);
+            while (true) {
+                final Reply reply = replyQueue.poll(200L, TimeUnit.MILLISECONDS);
+                if (reply != null) {
+                    return reply;
+                } else if (closed.get()) {
+                    throw new SessionClosedException();
                 }
-                return SessionClient.this.clientRpcInvoke(requestNumber, request);
             }
         });
-    }
-
-    /**
-     * This method is idempotent.
-     */
-    void close() {
-        close(true, null);
     }
 
 }

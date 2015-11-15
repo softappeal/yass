@@ -6,9 +6,9 @@ public final class ValueReply extends Reply {
 
     private static final long serialVersionUID = 1L;
 
-    @Nullable public final Object value;
+    public final @Nullable Object value;
 
-    public ValueReply(@Nullable final Object value) {
+    public ValueReply(final @Nullable Object value) {
         this.value = value;
     }
 

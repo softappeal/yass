@@ -1,4 +1,4 @@
-defaultTasks 'clean', 'todo', 'build', 'compileTutorialJava', 'compileAllTypeScript', 'createPom', 'dist'
+defaultTasks 'clean', 'todo', 'build', 'compileTutorialJava', 'compileAllTypeScript', 'createPom', 'collectJars', 'dist'
 
 apply plugin: 'java'
 apply plugin: 'osgi'
@@ -27,8 +27,8 @@ sourceSets {
 }
 
 def websocket_dep = 'javax.websocket:javax.websocket-api:1.0'
-def jetty_dep = 'org.eclipse.jetty.websocket:javax-websocket-server-impl:9.2.10.v20150310'
-def undertow_dep = 'io.undertow:undertow-websockets-jsr:1.1.3.Final'
+def jetty_dep = 'org.eclipse.jetty.websocket:javax-websocket-server-impl:9.3.6.v20151106'
+def undertow_dep = 'io.undertow:undertow-websockets-jsr:1.3.5.Final'
 def junit_dep = 'junit:junit:4.12'
 
 dependencies {
@@ -59,20 +59,20 @@ def isWindows() {
 task compileTestTypeScript(type: Exec, dependsOn: 'generateTypeScriptContract') {
     workingDir 'src/test/ts'
     if (isWindows()) {
-        commandLine 'cmd', '/c', 'tsc', '--out', 'all.js', '--noImplicitAny', '--target', 'ES5', '--sourcemap', 'test'
+        commandLine 'cmd', '/c', 'tsc', '--out', 'all.js', '--noImplicitAny', '--noEmitOnError', '--target', 'ES5', '--sourcemap', 'test'
     } else {
         environment PATH: '/usr/local/bin'
-        commandLine '/usr/local/bin/tsc', '--out', 'all.js', '--noImplicitAny', '--target', 'ES5', '--sourcemap', 'test'
+        commandLine '/usr/local/bin/tsc', '--out', 'all.js', '--noImplicitAny', '--noEmitOnError', '--target', 'ES5', '--sourcemap', 'test'
     }
 }
 
 task compileTutorialTypeScript(type: Exec, dependsOn: 'generateTypeScriptContract') {
     workingDir 'src/tutorial/ts'
     if (isWindows()) {
-        commandLine 'cmd', '/c', 'tsc', '--out', 'all.js', '--noImplicitAny', '--target', 'ES5', '--sourcemap', 'tutorial'
+        commandLine 'cmd', '/c', 'tsc', '--out', 'all.js', '--noImplicitAny', '--noEmitOnError', '--target', 'ES5', '--sourcemap', 'tutorial'
     } else {
         environment PATH: '/usr/local/bin'
-        commandLine '/usr/local/bin/tsc', '--out', 'all.js', '--noImplicitAny', '--target', 'ES5', '--sourcemap', 'tutorial'
+        commandLine '/usr/local/bin/tsc', '--out', 'all.js', '--noImplicitAny', '--noEmitOnError', '--target', 'ES5', '--sourcemap', 'tutorial'
     }
 }
 
@@ -121,7 +121,20 @@ task createPom << {
     }.writeTo("build/libs/${project.name}-${version}.pom")
 }
 
+task collectJars(type: Copy) {
+    into "build/allJars"
+    from configurations.tutorialRuntime
+}
+
 task dist << {
+    ant.copy(todir: "build/server") {
+        fileset(dir: ".", includes: "src/*/ts/")
+    }
+    ant.copy(todir: "build/server/libs") {
+        fileset(dir: "build/allJars", includes: "*.jar")
+    }
+    ant.jar(destfile: "build/server/libs/yass.jar", basedir: "build/classes/main")
+    ant.jar(destfile: "build/server/libs/tutorial.jar", basedir: "build/classes/tutorial")
     if (project.hasProperty('signing.password')) {
         def signPrefix = "build/libs/${project.name}-${version}"
         signing.sign(file("${signPrefix}.pom"))

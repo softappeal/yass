@@ -1,19 +1,20 @@
-### yass (Yet Another Service Solution)
+# yass (Yet Another Service Solution)
 
-* is a fast and small messaging library for
+* is a small library for efficient peer-to-peer communication
   * Java
   * TypeScript/JavaScript
+  * high throughput, low latency
 
-* allows defining a contract in a typesafe and non-invasive way with services and DTOs
+* supports type-safe contracts with DTOs and interfaces
 
-* supports request/reply and oneway style method invocations
+* supports request/reply and oneWay style method invocations
 
 * supports interceptors
 
-* supports sessions
+* provides session based bidirectional messaging
 
 * provides transports for
-  * socket (including SSL/TLS)
+  * socket (including TLS)
   * WebSocket
 
 * has a fast and compact binary serializer
@@ -25,5 +26,7 @@
 * is Open Source (BSD-style license)
   * repository: https://github.com/softappeal/yass
   * wiki: https://github.com/softappeal/yass/wiki
-  * artifacts on MavenCentral: http://search.maven.org, groupId="ch.softappeal.yass", artifactId="yass-jdk1.7"
-  * tutorial: see src/tutorial
+  * artifacts on MavenCentral: http://search.maven.org
+    * groupId="ch.softappeal.yass"
+    * artifactId="yass"
+  * tutorial: see https://github.com/softappeal/yass/tree/master/src/tutorial

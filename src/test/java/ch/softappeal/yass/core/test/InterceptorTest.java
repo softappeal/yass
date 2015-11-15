@@ -43,7 +43,7 @@ public class InterceptorTest {
             this.begin = begin;
             this.end = end;
         }
-        @Override @Nullable public Object invoke(final Method method, @Nullable final Object[] arguments, final Invocation invocation) throws Throwable {
+        @Override public @Nullable Object invoke(final Method method, final @Nullable Object[] arguments, final Invocation invocation) throws Throwable {
             System.out.println("enter: begin=" + begin + " step=" + step);
             Assert.assertSame(METHOD, method);
             Assert.assertSame(ARGUMENTS, arguments);

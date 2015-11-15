@@ -1,12 +1,13 @@
 package ch.softappeal.yass.tutorial.contract;
 
 import ch.softappeal.yass.util.Check;
+import ch.softappeal.yass.util.Tag;
 
-public final class Price {
+@Tag(11) public final class Price {
 
-    public final int instrumentId;
-    public final int value;
-    public final PriceKind kind;
+    @Tag(1) public final int instrumentId;
+    @Tag(2) public final int value;
+    @Tag(3) public final PriceKind kind;
 
     public Price(final int instrumentId, final int value, final PriceKind kind) {
         this.instrumentId = instrumentId;

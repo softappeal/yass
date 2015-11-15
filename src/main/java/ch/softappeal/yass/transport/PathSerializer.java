@@ -3,23 +3,26 @@ package ch.softappeal.yass.transport;
 import ch.softappeal.yass.serialize.Reader;
 import ch.softappeal.yass.serialize.Serializer;
 import ch.softappeal.yass.serialize.Writer;
-import ch.softappeal.yass.serialize.fast.BaseTypeHandlers;
 
-public final class StringPathSerializer implements Serializer {
+/**
+ * Writes path as an {@link Integer}.
+ */
+public final class PathSerializer implements Serializer {
 
-    private StringPathSerializer() {
+    public static final Integer DEFAULT = 0;
+
+    private PathSerializer() {
         // disable
     }
 
     @Override public Object read(final Reader reader) throws Exception {
-        return BaseTypeHandlers.STRING.read(reader);
+        return reader.readInt();
     }
 
     @Override public void write(final Object value, final Writer writer) throws Exception {
-        BaseTypeHandlers.STRING.write((String)value, writer);
-
+        writer.writeInt((Integer)value);
     }
 
-    public static final Serializer INSTANCE = new StringPathSerializer();
+    public static final Serializer INSTANCE = new PathSerializer();
 
 }

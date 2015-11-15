@@ -2,14 +2,15 @@ package ch.softappeal.yass.tutorial.contract;
 
 import ch.softappeal.yass.serialize.fast.AbstractFastSerializer;
 import ch.softappeal.yass.util.Check;
+import ch.softappeal.yass.util.Tag;
 
 import java.util.List;
 
-public final class UnknownInstrumentsException extends ApplicationException {
+@Tag(15) public final class UnknownInstrumentsException extends ApplicationException {
 
     private static final long serialVersionUID = 1L;
 
-    public final List<Integer> instrumentIds;
+    @Tag(1) public final List<Integer> instrumentIds;
 
     public UnknownInstrumentsException(final List<Integer> instrumentIds) {
         this.instrumentIds = Check.notNull(instrumentIds);

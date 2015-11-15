@@ -1,6 +1,8 @@
 package ch.softappeal.yass.tutorial.contract;
 
-public enum PriceKind {
+import ch.softappeal.yass.util.Tag;
+
+@Tag(10) public enum PriceKind {
     BID,
     ASK
 }

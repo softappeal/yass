@@ -3,7 +3,7 @@ package ch.softappeal.yass.tutorial.server.web;
 import io.undertow.Handlers;
 import io.undertow.Undertow;
 import io.undertow.server.HttpHandler;
-import io.undertow.server.HttpServerExchange;
+import io.undertow.server.XnioByteBufferPool;
 import io.undertow.server.handlers.resource.FileResourceManager;
 import io.undertow.servlet.Servlets;
 import io.undertow.servlet.api.DeploymentManager;
@@ -33,22 +33,20 @@ public final class UndertowServer extends WsServerSetup {
                         new WebSocketDeploymentInfo()
                             .addEndpoint(endpointConfig(new DefaultContainerConfigurator()))
                             .setWorker(Xnio.getInstance().createWorker(OptionMap.builder().getMap()))
-                            .setBuffers(new ByteBufferSlicePool(100, 1000))
+                            .setBuffers(new XnioByteBufferPool(new ByteBufferSlicePool(1024, 10240)))
                     )
             );
         deployment.deploy();
         final HttpHandler servletHandler = deployment.start();
-        final HttpHandler fileHandler = Handlers.resource(new FileResourceManager(new File(WEB_PATH), 100));
+        final HttpHandler fileHandler = Handlers.resource(new FileResourceManager(new File(WEB_PATH), 100, false));
         Undertow.builder()
             .addHttpListener(PORT, HOST)
-            .setHandler(new HttpHandler() {
-                @Override public void handleRequest(final HttpServerExchange exchange) throws Exception {
-                    final String path = exchange.getRequestPath();
-                    if (PATH.equals(path) || XHR_PATH.equals(path)) {
-                        servletHandler.handleRequest(exchange);
-                    } else {
-                        fileHandler.handleRequest(exchange);
-                    }
+            .setHandler(exchange -> {
+                final String path = exchange.getRequestPath();
+                if (PATH.equals(path) || XHR_PATH.equals(path)) {
+                    servletHandler.handleRequest(exchange);
+                } else {
+                    fileHandler.handleRequest(exchange);
                 }
             })
             .build()

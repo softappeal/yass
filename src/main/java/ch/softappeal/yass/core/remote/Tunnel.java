@@ -8,7 +8,7 @@ import ch.softappeal.yass.util.Nullable;
 public interface Tunnel {
 
     /**
-     * @return will be ignored if it is an oneway invocation, only then can it be null
+     * @return will be ignored if it is an oneWay invocation, only then can it be null
      */
     @Nullable Reply invoke(Request request) throws Exception;
 

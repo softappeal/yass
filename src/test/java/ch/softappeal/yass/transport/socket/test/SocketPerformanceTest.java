@@ -2,18 +2,15 @@ package ch.softappeal.yass.transport.socket.test;
 
 import ch.softappeal.yass.core.remote.Server;
 import ch.softappeal.yass.core.remote.session.Dispatcher;
+import ch.softappeal.yass.core.remote.session.Session;
 import ch.softappeal.yass.core.remote.session.test.PerformanceTest;
 import ch.softappeal.yass.core.test.InvokeTest;
 import ch.softappeal.yass.serialize.Serializer;
 import ch.softappeal.yass.serialize.test.SerializerTest;
-import ch.softappeal.yass.transport.MessageSerializer;
-import ch.softappeal.yass.transport.PacketSerializer;
-import ch.softappeal.yass.transport.PathResolver;
-import ch.softappeal.yass.transport.StringPathSerializer;
 import ch.softappeal.yass.transport.TransportSetup;
-import ch.softappeal.yass.transport.socket.SocketExecutor;
-import ch.softappeal.yass.transport.socket.SocketListenerTest;
+import ch.softappeal.yass.transport.socket.SocketHelper;
 import ch.softappeal.yass.transport.socket.SocketTransport;
+import ch.softappeal.yass.transport.socket.SyncSocketConnection;
 import ch.softappeal.yass.util.Exceptions;
 import ch.softappeal.yass.util.NamedThreadFactory;
 import ch.softappeal.yass.util.Nullable;
@@ -30,19 +27,23 @@ public class SocketPerformanceTest extends InvokeTest {
 
     public static final int COUNTER = 1;
 
-    public static final Serializer MESSAGE_SERIALIZER = new MessageSerializer(SerializerTest.TAGGED_FAST_SERIALIZER);
+    public static final Serializer PACKET_SERIALIZER = TransportSetup.packetSerializer(SerializerTest.TAGGED_FAST_SERIALIZER);
 
-    public static final Serializer PACKET_SERIALIZER = new PacketSerializer(MESSAGE_SERIALIZER);
-
-    private static TransportSetup createSetup(final Executor executor, @Nullable final CountDownLatch latch) {
+    private static TransportSetup createSetup(final Executor executor, final @Nullable CountDownLatch latch) {
         return PerformanceTest.createSetup(
             new Dispatcher() {
-                @Override public void opened(final Runnable runnable) {
-                    System.out.println("opened");
+                @Override public void opened(final Session session, final Runnable runnable) {
+                    if (false) {
+                        System.out.println("opened: " + session);
+                    }
                     executor.execute(runnable);
                 }
-                @Override public void invoke(final Server.Invocation invocation, final Runnable runnable) {
-                    System.out.println(invocation.oneWay + " " + invocation.method.getName() + " " + Arrays.toString(invocation.arguments) + " " + invocation.service.contractId.id);
+                @Override public void invoke(final Session session, final Server.Invocation invocation, final Runnable runnable) {
+                    if (false) {
+                        System.out.println(
+                            "invoke: " + session + " " + invocation.oneWay + " " + invocation.method.getName() + " " + Arrays.toString(invocation.arguments) + " " + invocation.service.contractId.id
+                        );
+                    }
                     runnable.run();
                 }
             },
@@ -54,18 +55,13 @@ public class SocketPerformanceTest extends InvokeTest {
     @Test public void test() throws InterruptedException {
         final ExecutorService executor = Executors.newCachedThreadPool(new NamedThreadFactory("executor", Exceptions.TERMINATE));
         try {
-            SocketTransport.listener(
-                StringPathSerializer.INSTANCE, new PathResolver(SocketTransportTest.PATH, createSetup(executor, null))
-            ).start(executor, new SocketExecutor(executor, Exceptions.TERMINATE), SocketListenerTest.ADDRESS);
+            new SocketTransport(executor, SyncSocketConnection.FACTORY).start(createSetup(executor, null), executor, SocketHelper.ADDRESS);
             final CountDownLatch latch = new CountDownLatch(1);
-            SocketTransport.connect(
-                createSetup(executor, latch), new SocketExecutor(executor, Exceptions.TERMINATE),
-                StringPathSerializer.INSTANCE, SocketTransportTest.PATH, SocketListenerTest.ADDRESS
-            );
+            new SocketTransport(executor, SyncSocketConnection.FACTORY).connect(createSetup(executor, latch), SocketHelper.ADDRESS);
             latch.await();
             TimeUnit.MILLISECONDS.sleep(100L);
         } finally {
-            SocketListenerTest.shutdown(executor);
+            SocketHelper.shutdown(executor);
         }
     }
 

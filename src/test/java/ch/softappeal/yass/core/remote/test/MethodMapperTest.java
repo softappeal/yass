@@ -86,7 +86,7 @@ public class MethodMapperTest {
             Assert.fail();
         } catch (final IllegalArgumentException e) {
             Assert.assertEquals(
-                "oneway method 'public abstract int ch.softappeal.yass.core.remote.test.MethodMapperTest$OnewayResult.test()' must 'return' void",
+                "oneWay method 'public abstract int ch.softappeal.yass.core.remote.test.MethodMapperTest$OnewayResult.test()' must 'return' void",
                 e.getMessage()
             );
         }
@@ -102,7 +102,7 @@ public class MethodMapperTest {
             Assert.fail();
         } catch (final IllegalArgumentException e) {
             Assert.assertEquals(
-                "oneway method 'public abstract void ch.softappeal.yass.core.remote.test.MethodMapperTest$OnewayException.test() throws java.lang.Exception' must not throw exceptions",
+                "oneWay method 'public abstract void ch.softappeal.yass.core.remote.test.MethodMapperTest$OnewayException.test() throws java.lang.Exception' must not throw exceptions",
                 e.getMessage()
             );
         }

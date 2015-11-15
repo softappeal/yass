@@ -52,7 +52,7 @@ public final class ServerSession extends Session implements PriceEngineContext {
         }
     }
 
-    @Override public void closed(@Nullable final Throwable throwable) {
+    @Override public void closed(final @Nullable Throwable throwable) {
         System.out.println("session " + this + " closed");
         if (throwable != null) {
             Exceptions.uncaughtException(Exceptions.STD_ERR, throwable);
