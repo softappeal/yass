@@ -140,7 +140,7 @@ public abstract class AbstractFastSerializer implements Serializer {
     }
 
     public final void print(final PrintWriter printer) {
-        for (final Map.Entry<Integer, TypeHandler> entry : id2typeHandler.entrySet()) {
+        for (final Map.Entry<Integer, TypeHandler> entry : id2typeHandler().entrySet()) {
             final int id = entry.getKey();
             final TypeHandler typeHandler = entry.getValue();
             if (id >= TypeDesc.FIRST_ID) {

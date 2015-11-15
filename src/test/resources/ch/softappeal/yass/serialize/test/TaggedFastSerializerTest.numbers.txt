@@ -24,17 +24,17 @@
 
 15: long[]
 
-17: float[]
-
 16: char[]
 
-19: java.lang.String
+17: float[]
 
 18: double[]
 
-21: java.math.BigDecimal
+19: java.lang.String
 
 20: java.math.BigInteger
+
+21: java.math.BigDecimal
 
 22: java.util.Date
 
@@ -42,9 +42,6 @@
     0: RED
     1: GREEN
     2: BLUE
-
-42: ch.softappeal.yass.serialize.contract.IntException (referenceable=false)
-    1: public int ch.softappeal.yass.serialize.contract.IntException.value
 
 40: ch.softappeal.yass.serialize.contract.PrimitiveTypes (referenceable=false)
     1: public byte ch.softappeal.yass.serialize.contract.PrimitiveTypes.byteField
@@ -107,6 +104,9 @@
     108: public java.lang.Object ch.softappeal.yass.serialize.contract.nested.AllTypes.objectField
     109: public java.util.List ch.softappeal.yass.serialize.contract.nested.AllTypes.objectListField
     110: public java.lang.Throwable ch.softappeal.yass.serialize.contract.nested.AllTypes.throwable
+
+42: ch.softappeal.yass.serialize.contract.IntException (referenceable=false)
+    1: public int ch.softappeal.yass.serialize.contract.IntException.value
 
 50: ch.softappeal.yass.serialize.contract.Node (referenceable=true)
     1: public int ch.softappeal.yass.serialize.contract.Node.id
