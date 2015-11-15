@@ -18,7 +18,8 @@ import java.io.EOFException;
 
 public class JavaSerializerTest {
 
-    @SuppressWarnings("unchecked") public static @Nullable <T> T copy(final Serializer serializer, final @Nullable T value) throws Exception {
+    @SuppressWarnings("unchecked")
+    public static @Nullable <T> T copy(final Serializer serializer, final @Nullable T value) throws Exception {
         final ByteArrayOutputStream buffer = new ByteArrayOutputStream();
         final Writer writer = Writer.create(buffer);
         serializer.write(value, writer);
