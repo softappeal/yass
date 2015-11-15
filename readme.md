@@ -29,4 +29,4 @@
   * artifacts on MavenCentral: http://search.maven.org
     * groupId="ch.softappeal.yass"
     * artifactId="yass"
-  * tutorial: see https://github.com/softappeal/yass/tree/master/src/tutorial
+  * tutorial: see src/tutorial
