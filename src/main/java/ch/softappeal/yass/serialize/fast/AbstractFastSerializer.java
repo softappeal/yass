@@ -135,7 +135,7 @@ public abstract class AbstractFastSerializer implements Serializer {
     }
 
     public final void print(final PrintWriter printer) {
-        id2typeHandler.forEach((id, typeHandler) -> {
+        id2typeHandler().forEach((id, typeHandler) -> {
             if (id >= TypeDesc.FIRST_ID) {
                 printer.print(id + ": " + typeHandler.type.getCanonicalName());
                 if (typeHandler instanceof BaseTypeHandler) {
