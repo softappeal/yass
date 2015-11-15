@@ -1,8 +1,11 @@
 package ch.softappeal.yass.core.remote;
 
 import ch.softappeal.yass.core.Interceptor;
+import ch.softappeal.yass.core.Interceptors;
 import ch.softappeal.yass.util.Nullable;
 
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 
 public abstract class Client extends Common implements ProxyFactory {
@@ -14,11 +17,15 @@ public abstract class Client extends Common implements ProxyFactory {
     @SuppressWarnings("unchecked")
     @Override public final <C> C proxy(final ContractId<C> contractId, final Interceptor... interceptors) {
         final MethodMapper methodMapper = methodMapper(contractId.contract);
-        final Interceptor interceptor = Interceptor.composite(interceptors);
+        final Interceptor interceptor = Interceptors.composite(interceptors);
         return (C)Proxy.newProxyInstance(
             contractId.contract.getClassLoader(),
             new Class<?>[] {contractId.contract},
-            (proxy, method, arguments) -> invoke(new Invocation(interceptor, contractId.id, methodMapper.mapMethod(method), arguments))
+            new InvocationHandler() {
+                @Override public Object invoke(final Object proxy, final Method method, final Object[] arguments) throws Throwable {
+                    return Client.this.invoke(new Invocation(interceptor, contractId.id, methodMapper.mapMethod(method), arguments));
+                }
+            }
         );
     }
 
@@ -36,12 +43,14 @@ public abstract class Client extends Common implements ProxyFactory {
             this.arguments = arguments;
         }
         public @Nullable Object invoke(final Interceptor interceptor, final Tunnel tunnel) throws Throwable {
-            return Interceptor.composite(interceptor, this.interceptor).invoke(
+            return Interceptors.composite(interceptor, this.interceptor).invoke(
                 methodMapping.method,
                 arguments,
-                () -> {
-                    final @Nullable Reply reply = tunnel.invoke(new Request(serviceId, methodMapping.id, arguments));
-                    return oneWay ? null : reply.process();
+                new ch.softappeal.yass.core.Invocation() {
+                    @Override public Object proceed() throws Throwable {
+                        final @Nullable Reply reply = tunnel.invoke(new Request(serviceId, methodMapping.id, arguments));
+                        return oneWay ? null : reply.process();
+                    }
                 }
             );
         }

@@ -4,6 +4,8 @@ import ch.softappeal.yass.core.remote.Server;
 import ch.softappeal.yass.core.remote.Service;
 import ch.softappeal.yass.core.remote.TaggedMethodMapper;
 import ch.softappeal.yass.core.remote.session.Session;
+import ch.softappeal.yass.core.remote.session.SessionClient;
+import ch.softappeal.yass.core.remote.session.SessionFactory;
 import ch.softappeal.yass.core.remote.test.ContractIdTest;
 import ch.softappeal.yass.core.test.InvokeTest;
 import ch.softappeal.yass.transport.TransportSetup;
@@ -30,12 +32,16 @@ public class ReconnectorServer {
                 ),
                 executor,
                 PacketSerializerTest.SERIALIZER,
-                sessionClient -> new Session(sessionClient) {
-                    @Override protected void opened() {
-                        System.out.println("opened");
-                    }
-                    @Override public void closed(final @Nullable Throwable throwable) {
-                        System.out.println("closed");
+                new SessionFactory() {
+                    @Override public Session create(final SessionClient sessionClient) throws Exception {
+                        return new Session(sessionClient) {
+                            @Override protected void opened() {
+                                System.out.println("opened");
+                            }
+                            @Override public void closed(final @Nullable Throwable throwable) {
+                                System.out.println("closed");
+                            }
+                        };
                     }
                 }
             ),

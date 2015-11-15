@@ -2,6 +2,9 @@ package ch.softappeal.yass.tutorial.client;
 
 import ch.softappeal.yass.core.remote.Server;
 import ch.softappeal.yass.core.remote.Service;
+import ch.softappeal.yass.core.remote.session.Session;
+import ch.softappeal.yass.core.remote.session.SessionClient;
+import ch.softappeal.yass.core.remote.session.SessionFactory;
 import ch.softappeal.yass.transport.TransportSetup;
 import ch.softappeal.yass.tutorial.contract.ClientServices;
 import ch.softappeal.yass.tutorial.contract.Config;
@@ -20,7 +23,11 @@ public abstract class ClientSetup {
     );
 
     protected static TransportSetup createTransportSetup(final Executor dispatcherExecutor) {
-        return TransportSetup.create(SERVER, dispatcherExecutor, Config.SERIALIZER, ClientSession::new);
+        return TransportSetup.create(SERVER, dispatcherExecutor, Config.SERIALIZER, new SessionFactory() {
+            @Override public Session create(final SessionClient sessionClient) throws Exception {
+                return new ClientSession(sessionClient);
+            }
+        });
     }
 
 }

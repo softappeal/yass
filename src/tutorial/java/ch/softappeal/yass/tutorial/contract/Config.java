@@ -20,7 +20,7 @@ import java.util.Collection;
 
 public final class Config {
 
-    private static final Collection<Class<?>> ENUMERATIONS = Arrays.asList(
+    private static final Collection<Class<?>> ENUMERATIONS = Arrays.<Class<?>>asList(
         PriceKind.class
     );
 
@@ -32,7 +32,7 @@ public final class Config {
         UnknownInstrumentsException.class
     );
 
-    private static final Collection<Class<?>> REFERENCEABLE_CONCRETE_CLASSES = Arrays.asList(
+    private static final Collection<Class<?>> REFERENCEABLE_CONCRETE_CLASSES = Arrays.<Class<?>>asList(
         Node.class
     );
 

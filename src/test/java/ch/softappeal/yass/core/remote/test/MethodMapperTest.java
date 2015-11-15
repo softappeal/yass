@@ -146,7 +146,7 @@ public class MethodMapperTest {
         TestUtils.compareFile(
             "ch/softappeal/yass/core/remote/test/SimpleMethodMapperTest.txt",
             new TestUtils.Printer() {
-                @Override public void print(final PrintWriter printer) {
+                @Override public void print(final PrintWriter printer) throws Exception {
                     MethodMappers.print(printer, SimpleMethodMapper.FACTORY, InvokeTest.TestService.class);
                 }
             }
@@ -157,7 +157,7 @@ public class MethodMapperTest {
         TestUtils.compareFile(
             "ch/softappeal/yass/core/remote/test/TaggedMethodMapperTest.txt",
             new TestUtils.Printer() {
-                @Override public void print(final PrintWriter printer) {
+                @Override public void print(final PrintWriter printer) throws Exception {
                     MethodMappers.print(printer, TaggedMethodMapper.FACTORY, InvokeTest.TestService.class);
                 }
             }

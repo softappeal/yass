@@ -29,7 +29,11 @@ public final class AsyncSocketConnection extends SocketConnection {
         if (writerQueueSize < 1) {
             throw new IllegalArgumentException("writerQueueSize < 1");
         }
-        return (setup, socket, out) -> new AsyncSocketConnection(setup, socket, out, writerExecutor, writerQueueSize);
+        return new Factory() {
+            @Override public SocketConnection create(final TransportSetup setup, final Socket socket, final OutputStream out) throws Exception {
+                return new AsyncSocketConnection(setup, socket, out, writerExecutor, writerQueueSize);
+            }
+        };
     }
 
     private final Executor writerExecutor;
@@ -43,27 +47,29 @@ public final class AsyncSocketConnection extends SocketConnection {
     }
 
     @Override protected void created(final SessionClient sessionClient) throws Exception {
-        writerExecutor.execute(() -> {
-            try {
-                while (true) {
-                    final ByteArrayOutputStream buffer = writerQueue.poll(200L, TimeUnit.MILLISECONDS);
-                    if (buffer == null) {
-                        if (closed) {
-                            return;
+        writerExecutor.execute(new Runnable() {
+            @Override public void run() {
+                try {
+                    while (true) {
+                        final ByteArrayOutputStream buffer = writerQueue.poll(200L, TimeUnit.MILLISECONDS);
+                        if (buffer == null) {
+                            if (closed) {
+                                return;
+                            }
+                            continue;
                         }
-                        continue;
-                    }
-                    while (true) { // drain queue -> batching of packets
-                        final ByteArrayOutputStream buffer2 = writerQueue.poll();
-                        if (buffer2 == null) {
-                            break;
+                        while (true) { // drain queue -> batching of packets
+                            final ByteArrayOutputStream buffer2 = writerQueue.poll();
+                            if (buffer2 == null) {
+                                break;
+                            }
+                            buffer2.writeTo(buffer);
                         }
-                        buffer2.writeTo(buffer);
+                        flush(buffer, out);
                     }
-                    flush(buffer, out);
+                } catch (final Exception e) {
+                    sessionClient.close(e);
                 }
-            } catch (final Exception e) {
-                sessionClient.close(e);
             }
         });
     }

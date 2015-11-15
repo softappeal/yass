@@ -13,7 +13,11 @@ import java.net.Socket;
  */
 public final class SyncSocketConnection extends SocketConnection {
 
-    public static final Factory FACTORY = SyncSocketConnection::new;
+    public static final Factory FACTORY = new Factory() {
+        @Override public SocketConnection create(final TransportSetup setup, final Socket socket, final OutputStream out) throws Exception {
+            return new SyncSocketConnection(setup, socket, out);
+        }
+    };
 
     private final Object writeMutex = new Object();
 

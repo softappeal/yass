@@ -1,6 +1,7 @@
 package ch.softappeal.yass.tutorial.client.web;
 
 import io.undertow.server.XnioByteBufferPool;
+import io.undertow.servlet.api.ThreadSetupAction;
 import io.undertow.servlet.core.CompositeThreadSetupAction;
 import io.undertow.servlet.util.DefaultClassIntrospector;
 import io.undertow.websockets.jsr.ServerWebSocketContainer;
@@ -18,7 +19,7 @@ public final class UndertowClient extends WsClientSetup {
             DefaultClassIntrospector.INSTANCE,
             Xnio.getInstance().createWorker(OptionMap.create(Options.THREAD_DAEMON, true)),
             new XnioByteBufferPool(new ByteBufferSlicePool(1024, 10240)),
-            new CompositeThreadSetupAction(Collections.emptyList()),
+            new CompositeThreadSetupAction(Collections.<ThreadSetupAction>emptyList()),
             true,
             true
         ));

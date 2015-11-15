@@ -1,11 +1,13 @@
 package ch.softappeal.yass.core.remote.session;
 
 import ch.softappeal.yass.core.Interceptor;
+import ch.softappeal.yass.core.Interceptors;
 import ch.softappeal.yass.core.remote.Client;
 import ch.softappeal.yass.core.remote.Message;
 import ch.softappeal.yass.core.remote.Reply;
 import ch.softappeal.yass.core.remote.Request;
 import ch.softappeal.yass.core.remote.Server;
+import ch.softappeal.yass.core.remote.Tunnel;
 import ch.softappeal.yass.util.Check;
 import ch.softappeal.yass.util.Exceptions;
 import ch.softappeal.yass.util.Nullable;
@@ -28,7 +30,7 @@ public final class SessionClient extends Client {
     public static SessionClient create(final SessionSetup setup, final Connection connection) throws Exception {
         final SessionClient sessionClient = new SessionClient(setup, connection);
         sessionClient.session = Check.notNull(setup.sessionFactory.create(sessionClient));
-        sessionClient.sessionInterceptor = Interceptor.threadLocal(Session.INSTANCE, sessionClient.session);
+        sessionClient.sessionInterceptor = Interceptors.threadLocal(Session.INSTANCE, sessionClient.session);
         return sessionClient;
     }
 
@@ -48,11 +50,13 @@ public final class SessionClient extends Client {
      * Must be called after {@link #create(SessionSetup, Connection)}.
      */
     public void opened() throws Exception {
-        setup.dispatcher.opened(session, () -> {
-            try {
-                session.opened();
-            } catch (final Exception e) {
-                close(e);
+        setup.dispatcher.opened(session, new Runnable() {
+            @Override public void run() {
+                try {
+                    session.opened();
+                } catch (final Exception e) {
+                    SessionClient.this.close(e);
+                }
             }
         });
     }
@@ -109,19 +113,21 @@ public final class SessionClient extends Client {
 
     private void serverInvoke(final int requestNumber, final Request request) throws Exception {
         final Server.Invocation invocation = setup.server.invocation(request);
-        setup.dispatcher.invoke(session, invocation, () -> {
-            try {
-                final Reply reply = invocation.invoke(sessionInterceptor);
-                if (!invocation.oneWay) {
-                    write(requestNumber, reply);
+        setup.dispatcher.invoke(session, invocation, new Runnable() {
+            @Override public void run() {
+                try {
+                    final Reply reply = invocation.invoke(sessionInterceptor);
+                    if (!invocation.oneWay) {
+                        SessionClient.this.write(requestNumber, reply);
+                    }
+                } catch (final Exception e) {
+                    SessionClient.this.close(e);
                 }
-            } catch (final Exception e) {
-                close(e);
             }
         });
     }
 
-    private final Map<Integer, BlockingQueue<Reply>> requestNumber2replyQueue = Collections.synchronizedMap(new HashMap<>(16));
+    private final Map<Integer, BlockingQueue<Reply>> requestNumber2replyQueue = Collections.synchronizedMap(new HashMap<Integer, BlockingQueue<Reply>>(16));
 
     /**
      * Must be called if a packet has been received.
@@ -147,26 +153,28 @@ public final class SessionClient extends Client {
     private final AtomicInteger nextRequestNumber = new AtomicInteger(Packet.END_REQUEST_NUMBER);
 
     @Override protected Object invoke(final Client.Invocation invocation) throws Throwable {
-        return invocation.invoke(sessionInterceptor, request -> {
-            int requestNumber;
-            do { // we can't use END_REQUEST_NUMBER as regular requestNumber
-                requestNumber = nextRequestNumber.incrementAndGet();
-            } while (requestNumber == Packet.END_REQUEST_NUMBER);
-            if (invocation.oneWay) {
-                write(requestNumber, request);
-                return null;
-            }
-            final BlockingQueue<Reply> replyQueue = new ArrayBlockingQueue<>(1, false); // we use unfair for speed
-            if (requestNumber2replyQueue.put(requestNumber, replyQueue) != null) {
-                throw new RuntimeException("already waiting for requestNumber " + requestNumber);
-            }
-            write(requestNumber, request);
-            while (true) {
-                final Reply reply = replyQueue.poll(200L, TimeUnit.MILLISECONDS);
-                if (reply != null) {
-                    return reply;
-                } else if (closed.get()) {
-                    throw new SessionClosedException();
+        return invocation.invoke(sessionInterceptor, new Tunnel() {
+            @Override public Reply invoke(final Request request) throws Exception {
+                int requestNumber;
+                do { // we can't use END_REQUEST_NUMBER as regular requestNumber
+                    requestNumber = nextRequestNumber.incrementAndGet();
+                } while (requestNumber == Packet.END_REQUEST_NUMBER);
+                if (invocation.oneWay) {
+                    SessionClient.this.write(requestNumber, request);
+                    return null;
+                }
+                final BlockingQueue<Reply> replyQueue = new ArrayBlockingQueue<>(1, false); // we use unfair for speed
+                if (requestNumber2replyQueue.put(requestNumber, replyQueue) != null) {
+                    throw new RuntimeException("already waiting for requestNumber " + requestNumber);
+                }
+                SessionClient.this.write(requestNumber, request);
+                while (true) {
+                    final Reply reply = replyQueue.poll(200L, TimeUnit.MILLISECONDS);
+                    if (reply != null) {
+                        return reply;
+                    } else if (closed.get()) {
+                        throw new SessionClosedException();
+                    }
                 }
             }
         });

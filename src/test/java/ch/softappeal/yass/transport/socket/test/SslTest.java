@@ -4,6 +4,7 @@ import ch.softappeal.yass.core.remote.Server;
 import ch.softappeal.yass.core.remote.Service;
 import ch.softappeal.yass.core.remote.session.Session;
 import ch.softappeal.yass.core.remote.session.SessionClient;
+import ch.softappeal.yass.core.remote.session.SessionFactory;
 import ch.softappeal.yass.core.remote.session.test.PerformanceTest;
 import ch.softappeal.yass.core.test.InvokeTest;
 import ch.softappeal.yass.transport.TransportSetup;
@@ -45,17 +46,19 @@ public class SslTest extends InvokeTest {
                     ),
                     executor,
                     SocketPerformanceTest.PACKET_SERIALIZER,
-                    sessionClient -> {
-                        if (needClientAuth) {
-                            checkName(sessionClient);
-                        }
-                        return new Session(sessionClient) {
-                            @Override protected void closed(final Throwable throwable) {
-                                if (throwable != null) {
-                                    Exceptions.TERMINATE.uncaughtException(null, throwable);
-                                }
+                    new SessionFactory() {
+                        @Override public Session create(final SessionClient sessionClient) throws Exception {
+                            if (needClientAuth) {
+                                checkName(sessionClient);
                             }
-                        };
+                            return new Session(sessionClient) {
+                                @Override protected void closed(final Throwable throwable) {
+                                    if (throwable != null) {
+                                        Exceptions.TERMINATE.uncaughtException(null, throwable);
+                                    }
+                                }
+                            };
+                        }
                     }
                 ),
                 executor,
@@ -67,20 +70,22 @@ public class SslTest extends InvokeTest {
                     new Server(PerformanceTest.METHOD_MAPPER_FACTORY),
                     executor,
                     SocketPerformanceTest.PACKET_SERIALIZER,
-                    sessionClient -> {
-                        checkName(sessionClient);
-                        return new Session(sessionClient) {
-                            @Override protected void opened() throws Exception {
-                                final TestService testService = proxy(PerformanceTest.CONTRACT_ID);
-                                Assert.assertTrue(testService.divide(12, 4) == 3);
-                                close();
-                            }
-                            @Override protected void closed(final Throwable throwable) {
-                                if (throwable != null) {
-                                    Exceptions.TERMINATE.uncaughtException(null, throwable);
+                    new SessionFactory() {
+                        @Override public Session create(final SessionClient sessionClient) throws Exception {
+                            checkName(sessionClient);
+                            return new Session(sessionClient) {
+                                @Override protected void opened() throws Exception {
+                                    final TestService testService = proxy(PerformanceTest.CONTRACT_ID);
+                                    Assert.assertTrue(testService.divide(12, 4) == 3);
+                                    close();
                                 }
-                            }
-                        };
+                                @Override protected void closed(final Throwable throwable) {
+                                    if (throwable != null) {
+                                        Exceptions.TERMINATE.uncaughtException(null, throwable);
+                                    }
+                                }
+                            };
+                        }
                     }
                 ),
                 executor,

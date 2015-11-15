@@ -13,7 +13,11 @@ import java.nio.ByteBuffer;
  */
 public final class SyncWsConnection extends WsConnection {
 
-    public static final Factory FACTORY = SyncWsConnection::new;
+    public static final Factory FACTORY = new Factory() {
+        @Override public WsConnection create(final TransportSetup setup, final Session session) throws Exception {
+            return new SyncWsConnection(setup, session);
+        }
+    };
 
     private RemoteEndpoint.Basic remoteEndpoint;
 

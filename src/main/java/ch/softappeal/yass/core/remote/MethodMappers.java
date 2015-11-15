@@ -21,7 +21,7 @@ public final class MethodMappers {
         }
         Collections.sort(mappings, new Comparator<MethodMapper.Mapping>() {
             @Override public int compare(final MethodMapper.Mapping mapping1, final MethodMapper.Mapping mapping2) {
-                return ((Integer)mapping1.id).compareTo((Integer)mapping2.id);
+                return ((Integer)mapping1.id).compareTo(mapping2.id);
             }
         });
         for (final MethodMapper.Mapping mapping : mappings) {

@@ -43,19 +43,21 @@ public final class SocketTransport {
         this(readerExecutor, connectionFactory, PathSerializer.INSTANCE);
     }
 
-    @FunctionalInterface private interface Action {
+    private interface Action {
         void action() throws Exception;
     }
 
     private void runInReaderExecutor(final Socket socket, final Action action) {
         try {
-            readerExecutor.execute(() -> {
-                try {
-                    socket.setTcpNoDelay(true); // forces immediate send
-                    action.action();
-                } catch (final Exception e) {
-                    close(socket, e);
-                    throw Exceptions.wrap(e);
+            readerExecutor.execute(new Runnable() {
+                @Override public void run() {
+                    try {
+                        socket.setTcpNoDelay(true); // forces immediate send
+                        action.action();
+                    } catch (final Exception e) {
+                        close(socket, e);
+                        throw Exceptions.wrap(e);
+                    }
                 }
             });
         } catch (final Exception e) {
@@ -79,11 +81,13 @@ public final class SocketTransport {
         } catch (final IOException e) {
             throw new RuntimeException(e);
         }
-        runInReaderExecutor(socket, () -> {
-            final OutputStream out = socket.getOutputStream();
-            pathSerializer.write(path, Writer.create(out));
-            out.flush();
-            SocketConnection.create(connectionFactory, setup, socket, Reader.create(socket.getInputStream()), out);
+        runInReaderExecutor(socket, new Action() {
+            @Override public void action() throws Exception {
+                final OutputStream out = socket.getOutputStream();
+                pathSerializer.write(path, Writer.create(out));
+                out.flush();
+                SocketConnection.create(connectionFactory, setup, socket, Reader.create(socket.getInputStream()), out);
+            }
         });
     }
 
@@ -124,10 +128,12 @@ public final class SocketTransport {
                             } catch (final InterruptedIOException ignore) {
                                 return; // needed because some VM's (for example: Sun Solaris) throw this exception if the thread gets interrupted
                             }
-                            runInReaderExecutor(socket, () -> {
-                                final Reader reader = Reader.create(socket.getInputStream());
-                                final TransportSetup setup = pathResolver.resolvePath(pathSerializer.read(reader));
-                                SocketConnection.create(connectionFactory, setup, socket, reader, socket.getOutputStream());
+                            runInReaderExecutor(socket, new Action() {
+                                @Override public void action() throws Exception {
+                                    final Reader reader = Reader.create(socket.getInputStream());
+                                    final TransportSetup setup = pathResolver.resolvePath(pathSerializer.read(reader));
+                                    SocketConnection.create(connectionFactory, setup, socket, reader, socket.getOutputStream());
+                                }
                             });
                         }
                     }

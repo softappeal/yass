@@ -8,6 +8,8 @@ import ch.softappeal.yass.core.remote.TaggedMethodMapper;
 import ch.softappeal.yass.core.remote.session.Dispatcher;
 import ch.softappeal.yass.core.remote.session.LocalConnection;
 import ch.softappeal.yass.core.remote.session.Session;
+import ch.softappeal.yass.core.remote.session.SessionClient;
+import ch.softappeal.yass.core.remote.session.SessionFactory;
 import ch.softappeal.yass.core.test.InvokeTest;
 import ch.softappeal.yass.transport.TransportSetup;
 import ch.softappeal.yass.transport.socket.test.SocketPerformanceTest;
@@ -37,36 +39,40 @@ public class PerformanceTest extends InvokeTest {
             new Server(METHOD_MAPPER_FACTORY, new Service(CONTRACT_ID, new TestServiceImpl())),
             dispatcher,
             SocketPerformanceTest.PACKET_SERIALIZER,
-            sessionClient -> new Session(sessionClient) {
-                @Override public void opened() {
-                    if (latch == null) {
-                        return;
-                    }
-                    try (Session session = this) {
-                        final TestService testService = session.proxy(CONTRACT_ID);
-                        System.out.println("*** rpc");
-                        new PerformanceTask() {
-                            @Override protected void run(final int count) throws DivisionByZeroException {
-                                int counter = count;
-                                while (counter-- > 0) {
-                                    Assert.assertTrue(testService.divide(12, 4) == 3);
-                                }
+            new SessionFactory() {
+                @Override public Session create(final SessionClient sessionClient) throws Exception {
+                    return new Session(sessionClient) {
+                        @Override public void opened() {
+                            if (latch == null) {
+                                return;
                             }
-                        }.run(samples, TimeUnit.MICROSECONDS);
-                        System.out.println("*** oneWay");
-                        new PerformanceTask() {
-                            @Override protected void run(final int count) {
-                                int counter = count;
-                                while (counter-- > 0) {
-                                    testService.oneWay(-1);
-                                }
+                            try (Session session = this) {
+                                final TestService testService = session.proxy(CONTRACT_ID);
+                                System.out.println("*** rpc");
+                                new PerformanceTask() {
+                                    @Override protected void run(final int count) throws DivisionByZeroException {
+                                        int counter = count;
+                                        while (counter-- > 0) {
+                                            Assert.assertTrue(testService.divide(12, 4) == 3);
+                                        }
+                                    }
+                                }.run(samples, TimeUnit.MICROSECONDS);
+                                System.out.println("*** oneWay");
+                                new PerformanceTask() {
+                                    @Override protected void run(final int count) {
+                                        int counter = count;
+                                        while (counter-- > 0) {
+                                            testService.oneWay(-1);
+                                        }
+                                    }
+                                }.run(samples, TimeUnit.MICROSECONDS);
                             }
-                        }.run(samples, TimeUnit.MICROSECONDS);
-                    }
-                    latch.countDown();
-                }
-                @Override public void closed(final @Nullable Throwable throwable) {
-                    // empty
+                            latch.countDown();
+                        }
+                        @Override public void closed(final @Nullable Throwable throwable) {
+                            // empty
+                        }
+                    };
                 }
             }
         );

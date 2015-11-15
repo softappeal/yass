@@ -5,6 +5,7 @@ import ch.softappeal.yass.core.remote.TaggedMethodMapper;
 import ch.softappeal.yass.core.remote.session.Link;
 import ch.softappeal.yass.core.remote.session.Reconnector;
 import ch.softappeal.yass.core.remote.session.SessionClosedException;
+import ch.softappeal.yass.core.remote.session.SessionFactory;
 import ch.softappeal.yass.core.remote.test.ContractIdTest;
 import ch.softappeal.yass.core.test.InvokeTest;
 import ch.softappeal.yass.transport.TransportSetup;
@@ -60,17 +61,21 @@ public final class ReconnectorClient {
             executor,
             5,
             link.sessionFactory,
-            sessionFactory -> new SocketTransport(executor, SyncSocketConnection.FACTORY).connect(
-                new TransportSetup(
-                    new Server(
-                        TaggedMethodMapper.FACTORY
-                    ),
-                    executor,
-                    PacketSerializerTest.SERIALIZER,
-                    sessionFactory
-                ),
-                SocketHelper.ADDRESS
-            )
+            new Reconnector.Connector() {
+                @Override public void connect(final SessionFactory sessionFactory) throws Exception {
+                    new SocketTransport(executor, SyncSocketConnection.FACTORY).connect(
+                        new TransportSetup(
+                            new Server(
+                                TaggedMethodMapper.FACTORY
+                            ),
+                            executor,
+                            PacketSerializerTest.SERIALIZER,
+                            sessionFactory
+                        ),
+                        SocketHelper.ADDRESS
+                    );
+                }
+            }
         );
         System.out.println("started");
     }
