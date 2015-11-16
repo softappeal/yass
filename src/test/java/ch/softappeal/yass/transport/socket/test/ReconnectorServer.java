@@ -3,6 +3,7 @@ package ch.softappeal.yass.transport.socket.test;
 import ch.softappeal.yass.core.remote.Server;
 import ch.softappeal.yass.core.remote.Service;
 import ch.softappeal.yass.core.remote.TaggedMethodMapper;
+import ch.softappeal.yass.core.remote.session.Dispatcher;
 import ch.softappeal.yass.core.remote.session.Session;
 import ch.softappeal.yass.core.remote.test.ContractIdTest;
 import ch.softappeal.yass.core.test.InvokeTest;
@@ -28,7 +29,14 @@ public class ReconnectorServer {
                     TaggedMethodMapper.FACTORY,
                     new Service(ContractIdTest.ID, new InvokeTest.TestServiceImpl())
                 ),
-                executor,
+                new Dispatcher() {
+                    @Override public void opened(final Session session, final Runnable runnable) {
+                        runnable.run();
+                    }
+                    @Override public void invoke(final Session session, final Server.Invocation invocation, final Runnable runnable) {
+                        runnable.run();
+                    }
+                },
                 PacketSerializerTest.SERIALIZER,
                 sessionClient -> new Session(sessionClient) {
                     @Override protected void opened() {
