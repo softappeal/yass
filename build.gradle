@@ -133,6 +133,7 @@ task collectJars(type: Copy) {
 
 task dist << {
     ant.copy(todir: "build/server") {
+        fileset(dir: "docker")
         fileset(dir: ".", includes: "src/*/ts/")
     }
     ant.copy(todir: "build/server/libs") {
