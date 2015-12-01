@@ -1,4 +1,4 @@
-// https://raw.githubusercontent.com/borisyankov/DefinitelyTyped/35119c83fe214d18c7e370a678cd85dfcfbfa42a/es6-promise/es6-promise.d.ts
+// https://raw.githubusercontent.com/DefinitelyTyped/DefinitelyTyped/1dd3cfcdfc08da5515a32fc0d8a7528c3d6bf82d/es6-promise/es6-promise.d.ts
 
 // Type definitions for es6-promise
 // Project: https://github.com/jakearchibald/ES6-Promise
@@ -14,7 +14,7 @@ declare class Promise<R> implements Thenable<R> {
 	/**
 	 * If you call resolve in the body of the callback passed to the constructor,
 	 * your promise is fulfilled with result object passed to resolve.
-	 * If you call reject your promise is rejected with the object passed to resolve.
+	 * If you call reject your promise is rejected with the object passed to reject.
 	 * For consistency and debugging (eg stack traces), obj should be an instanceof Error.
 	 * Any errors thrown in the constructor callback will be implicitly passed to reject().
 	 */
