@@ -44,7 +44,7 @@ tasks.withType(JavaCompile) {
 }
 
 task generateTypeScriptContract(type: JavaExec) {
-    main = 'ch.softappeal.yass.tutorial.client.web.GenerateTypeScriptContract'
+    main = 'ch.softappeal.yass.tutorial.initiator.web.GenerateTypeScriptContract'
     classpath = sourceSets.tutorial.runtimeClasspath
     standardOutput = new OutputStream() {
         void write(int b) {
@@ -132,15 +132,15 @@ task collectJars(type: Copy) {
 }
 
 task dist << {
-    ant.copy(todir: "build/server") {
+    ant.copy(todir: "build/acceptor") {
         fileset(dir: "docker")
         fileset(dir: ".", includes: "src/*/ts/")
     }
-    ant.copy(todir: "build/server/libs") {
+    ant.copy(todir: "build/acceptor/libs") {
         fileset(dir: "build/allJars", includes: "*.jar")
     }
-    ant.jar(destfile: "build/server/libs/yass.jar", basedir: "build/classes/main")
-    ant.jar(destfile: "build/server/libs/tutorial.jar", basedir: "build/classes/tutorial")
+    ant.jar(destfile: "build/acceptor/libs/yass.jar", basedir: "build/classes/main")
+    ant.jar(destfile: "build/acceptor/libs/tutorial.jar", basedir: "build/classes/tutorial")
     if (project.hasProperty('signing.password')) {
         def signPrefix = "build/libs/${project.name}-${version}"
         signing.sign(file("${signPrefix}.pom"))

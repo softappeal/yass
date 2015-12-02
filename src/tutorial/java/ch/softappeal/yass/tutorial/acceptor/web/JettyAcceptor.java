@@ -1,4 +1,4 @@
-package ch.softappeal.yass.tutorial.server.web;
+package ch.softappeal.yass.tutorial.acceptor.web;
 
 import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.Server;
@@ -10,7 +10,7 @@ import org.eclipse.jetty.servlet.ServletHolder;
 import org.eclipse.jetty.websocket.jsr356.server.ContainerDefaultConfigurator;
 import org.eclipse.jetty.websocket.jsr356.server.deploy.WebSocketServerContainerInitializer;
 
-public final class JettyServer extends WsServerSetup {
+public final class JettyAcceptor extends WsAcceptorSetup {
 
     public static void main(final String... args) throws Exception {
         final Server server = new Server();

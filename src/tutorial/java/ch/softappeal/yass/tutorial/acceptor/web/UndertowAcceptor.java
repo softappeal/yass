@@ -1,4 +1,4 @@
-package ch.softappeal.yass.tutorial.server.web;
+package ch.softappeal.yass.tutorial.acceptor.web;
 
 import io.undertow.Handlers;
 import io.undertow.Undertow;
@@ -15,15 +15,15 @@ import org.xnio.Xnio;
 
 import java.io.File;
 
-public final class UndertowServer extends WsServerSetup {
+public final class UndertowAcceptor extends WsAcceptorSetup {
 
     public static void main(final String... args) throws Exception {
         final DeploymentManager deployment = Servlets.defaultContainer()
             .addDeployment(
                 Servlets.deployment()
-                    .setClassLoader(UndertowServer.class.getClassLoader())
+                    .setClassLoader(UndertowAcceptor.class.getClassLoader())
                     .setContextPath("/")
-                    .setDeploymentName(UndertowServer.class.getName())
+                    .setDeploymentName(UndertowAcceptor.class.getName())
                     .addServlet(
                         Servlets.servlet("Xhr", XhrServlet.class)
                             .addMapping(XHR_PATH)

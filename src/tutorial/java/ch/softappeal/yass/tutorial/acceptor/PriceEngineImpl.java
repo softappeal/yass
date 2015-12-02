@@ -1,4 +1,4 @@
-package ch.softappeal.yass.tutorial.server;
+package ch.softappeal.yass.tutorial.acceptor;
 
 import ch.softappeal.yass.tutorial.contract.Instrument;
 import ch.softappeal.yass.tutorial.contract.PriceEngine;

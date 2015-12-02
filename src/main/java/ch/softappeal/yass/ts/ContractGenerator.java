@@ -293,8 +293,8 @@ public final class ContractGenerator extends Generator {
         println();
     }
 
-    public static final String CLIENT_SERVICES = "ClientServices";
-    public static final String SERVER_SERVICES = "ServerServices";
+    public static final String INITIATOR_SERVICES = "InitiatorServices";
+    public static final String ACCEPTOR_SERVICES = "AcceptorServices";
 
     private @Nullable Class<?> getServicesClass(final String servicesClass) {
         try {
@@ -305,7 +305,7 @@ public final class ContractGenerator extends Generator {
     }
 
     /**
-     * @param rootPackage Must contain the optional classes {@link #CLIENT_SERVICES} and {@link #SERVER_SERVICES} with static fields of type {@link ContractId}.
+     * @param rootPackage Must contain the optional classes {@link #INITIATOR_SERVICES} and {@link #ACCEPTOR_SERVICES} with static fields of type {@link ContractId}.
      * @param methodMapperFactory Optional if there are no services. You must provide a factory that doesn't allow overloading due to JavaScript restrictions.
      * @param includePath path to base types or yass module
      */
@@ -341,15 +341,15 @@ public final class ContractGenerator extends Generator {
         println();
         id2typeHandler.values().stream().map(typeHandler -> typeHandler.type).filter(Class::isEnum).forEach(type -> generateEnum((Class<Enum<?>>)type));
         id2typeHandler.values().stream().filter(typeHandler -> typeHandler instanceof ClassTypeHandler).forEach(typeHandler -> generateClass(typeHandler.type));
-        final @Nullable Class<?> clientServices = getServicesClass(CLIENT_SERVICES);
-        final @Nullable Class<?> serverServices = getServicesClass(SERVER_SERVICES);
-        final Set<Class<?>> interfaceSet = getInterfaces(clientServices);
-        interfaceSet.addAll(getInterfaces(serverServices));
+        final @Nullable Class<?> initiatorServices = getServicesClass(INITIATOR_SERVICES);
+        final @Nullable Class<?> acceptorServices = getServicesClass(ACCEPTOR_SERVICES);
+        final Set<Class<?>> interfaceSet = getInterfaces(initiatorServices);
+        interfaceSet.addAll(getInterfaces(acceptorServices));
         final List<Class<?>> interfaceList = new ArrayList<>(interfaceSet);
         Collections.sort(interfaceList, (type1, type2) -> type1.getCanonicalName().compareTo(type2.getCanonicalName()));
         interfaceList.forEach(this::generateInterface);
-        generateServices(clientServices);
-        generateServices(serverServices);
+        generateServices(initiatorServices);
+        generateServices(acceptorServices);
         tabs("export const SERIALIZER = new yass.JsFastSerializer(");
         inc();
         boolean first = true;

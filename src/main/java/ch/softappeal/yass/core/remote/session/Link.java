@@ -9,7 +9,7 @@ import java.lang.reflect.Proxy;
 import java.util.function.Consumer;
 
 /**
- * Wraps a client side {@link ch.softappeal.yass.core.remote.session.Session}.
+ * Wraps an initiator {@link ch.softappeal.yass.core.remote.session.Session}.
  * @see Reconnector
  */
 public abstract class Link {

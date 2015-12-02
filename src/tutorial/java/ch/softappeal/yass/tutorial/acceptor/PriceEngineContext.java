@@ -1,4 +1,4 @@
-package ch.softappeal.yass.tutorial.server;
+package ch.softappeal.yass.tutorial.acceptor;
 
 import java.util.Set;
 

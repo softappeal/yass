@@ -1,20 +1,20 @@
-package ch.softappeal.yass.tutorial.client.web;
+package ch.softappeal.yass.tutorial.initiator.web;
 
 import ch.softappeal.yass.transport.TransportSetup;
 import ch.softappeal.yass.transport.ws.SyncWsConnection;
 import ch.softappeal.yass.transport.ws.WsConnection;
 import ch.softappeal.yass.transport.ws.WsEndpoint;
-import ch.softappeal.yass.tutorial.client.ClientSetup;
-import ch.softappeal.yass.tutorial.server.web.WsServerSetup;
+import ch.softappeal.yass.tutorial.acceptor.web.WsAcceptorSetup;
+import ch.softappeal.yass.tutorial.initiator.InitiatorSetup;
 
 import javax.websocket.ClientEndpointConfig;
 import javax.websocket.Session;
 import javax.websocket.WebSocketContainer;
 import java.net.URI;
 
-public abstract class WsClientSetup extends ClientSetup {
+public abstract class WsInitiatorSetup extends InitiatorSetup {
 
-    private static final TransportSetup TRANSPORT_SETUP = createTransportSetup(WsServerSetup.DISPATCHER_EXECUTOR);
+    private static final TransportSetup TRANSPORT_SETUP = createTransportSetup(WsAcceptorSetup.DISPATCHER_EXECUTOR);
 
     private static final class Endpoint extends WsEndpoint {
         @Override protected WsConnection createConnection(final Session session) throws Exception {
@@ -26,7 +26,7 @@ public abstract class WsClientSetup extends ClientSetup {
         container.connectToServer(
             new Endpoint(),
             ClientEndpointConfig.Builder.create().build(),
-            URI.create("ws://" + WsServerSetup.HOST + ":" + WsServerSetup.PORT + WsServerSetup.PATH)
+            URI.create("ws://" + WsAcceptorSetup.HOST + ":" + WsAcceptorSetup.PORT + WsAcceptorSetup.PATH)
         );
         System.out.println("started");
     }

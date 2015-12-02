@@ -385,7 +385,7 @@ namespace yass {
     }
 
     /**
-     * An invocation has a Promise if and only if it is a client side rpc style invocation.
+     * An invocation has a Promise if and only if it is an initiator rpc style invocation.
      * If an invocation has a Promise, the interceptor will be called twice (first with PromiseEntry and then with PromiseExit).
      * If an invocation doesn't have a Promise, the interceptor will be called once (with NoPromise).
      */

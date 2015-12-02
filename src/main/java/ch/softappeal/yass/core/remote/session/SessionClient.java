@@ -21,7 +21,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Once a session is established, the communication is symmetrical between the two peers.
- * The only difference is that a client initiates a session and a server accepts sessions.
+ * The only difference is that an initiator initiates a session and an acceptor accepts sessions.
  */
 public final class SessionClient extends Client {
 

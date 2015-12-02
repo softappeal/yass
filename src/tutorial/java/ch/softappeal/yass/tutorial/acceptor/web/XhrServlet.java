@@ -1,4 +1,4 @@
-package ch.softappeal.yass.tutorial.server.web;
+package ch.softappeal.yass.tutorial.acceptor.web;
 
 import ch.softappeal.yass.core.Interceptor;
 import ch.softappeal.yass.core.remote.Request;
@@ -7,8 +7,8 @@ import ch.softappeal.yass.serialize.Reader;
 import ch.softappeal.yass.serialize.Serializer;
 import ch.softappeal.yass.serialize.Writer;
 import ch.softappeal.yass.transport.MessageSerializer;
+import ch.softappeal.yass.tutorial.acceptor.AcceptorSetup;
 import ch.softappeal.yass.tutorial.contract.Config;
-import ch.softappeal.yass.tutorial.server.ServerSetup;
 import ch.softappeal.yass.util.Exceptions;
 
 import javax.servlet.http.HttpServlet;
@@ -35,7 +35,7 @@ public class XhrServlet extends HttpServlet {
 
     @Override protected void doPost(final HttpServletRequest request, final HttpServletResponse response) {
         try {
-            invoke(ServerSetup.SERVER, MESSAGE_SERIALIZER, request, response);
+            invoke(AcceptorSetup.SERVER, MESSAGE_SERIALIZER, request, response);
         } catch (final Exception e) {
             throw Exceptions.wrap(e);
         }

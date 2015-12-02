@@ -1,11 +1,11 @@
-package ch.softappeal.yass.tutorial.client;
+package ch.softappeal.yass.tutorial.initiator;
 
 import ch.softappeal.yass.core.remote.session.Session;
 import ch.softappeal.yass.core.remote.session.SessionClient;
+import ch.softappeal.yass.tutorial.contract.AcceptorServices;
 import ch.softappeal.yass.tutorial.contract.EchoService;
 import ch.softappeal.yass.tutorial.contract.Logger;
 import ch.softappeal.yass.tutorial.contract.PriceEngine;
-import ch.softappeal.yass.tutorial.contract.ServerServices;
 import ch.softappeal.yass.tutorial.contract.SystemException;
 import ch.softappeal.yass.tutorial.contract.UnknownInstrumentsException;
 import ch.softappeal.yass.tutorial.contract.instrument.InstrumentService;
@@ -16,23 +16,23 @@ import java.util.Arrays;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
-public final class ClientSession extends Session {
+public final class InitiatorSession extends Session {
 
     private final PriceEngine priceEngine;
     private final InstrumentService instrumentService;
     private final EchoService echoService;
 
-    public ClientSession(final SessionClient sessionClient) {
+    public InitiatorSession(final SessionClient sessionClient) {
         super(sessionClient);
         System.out.println("session " + this + " created");
-        priceEngine = proxy(ServerServices.PriceEngine, Logger.CLIENT);
-        instrumentService = proxy(ServerServices.InstrumentService, Logger.CLIENT);
-        echoService = proxy(ServerServices.EchoService, Logger.CLIENT);
+        priceEngine = proxy(AcceptorServices.PriceEngine, Logger.CLIENT);
+        instrumentService = proxy(AcceptorServices.InstrumentService, Logger.CLIENT);
+        echoService = proxy(AcceptorServices.EchoService, Logger.CLIENT);
     }
 
     @Override public void opened() throws UnknownInstrumentsException {
         System.out.println("session " + this + " opened");
-        System.out.println("echo: " + echoService.echo("hello from client"));
+        System.out.println("echo: " + echoService.echo("hello from initiator"));
         try {
             echoService.echo("throwRuntimeException");
         } catch (final SystemException ignore) {

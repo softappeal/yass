@@ -1,4 +1,4 @@
-package ch.softappeal.yass.tutorial.client.web;
+package ch.softappeal.yass.tutorial.initiator.web;
 
 import ch.softappeal.yass.ts.ContractGenerator;
 import ch.softappeal.yass.tutorial.contract.Config;

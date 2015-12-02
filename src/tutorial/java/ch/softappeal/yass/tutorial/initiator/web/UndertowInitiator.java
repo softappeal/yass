@@ -1,4 +1,4 @@
-package ch.softappeal.yass.tutorial.client.web;
+package ch.softappeal.yass.tutorial.initiator.web;
 
 import io.undertow.server.XnioByteBufferPool;
 import io.undertow.servlet.core.CompositeThreadSetupAction;
@@ -11,7 +11,7 @@ import org.xnio.Xnio;
 
 import java.util.Collections;
 
-public final class UndertowClient extends WsClientSetup {
+public final class UndertowInitiator extends WsInitiatorSetup {
 
     public static void main(final String... args) throws Exception {
         run(new ServerWebSocketContainer(

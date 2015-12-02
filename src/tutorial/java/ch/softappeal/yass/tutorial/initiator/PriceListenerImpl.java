@@ -1,4 +1,4 @@
-package ch.softappeal.yass.tutorial.client;
+package ch.softappeal.yass.tutorial.initiator;
 
 import ch.softappeal.yass.tutorial.contract.Price;
 import ch.softappeal.yass.tutorial.contract.PriceListener;

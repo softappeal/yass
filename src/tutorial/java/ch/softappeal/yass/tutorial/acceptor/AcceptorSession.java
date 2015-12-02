@@ -1,9 +1,9 @@
-package ch.softappeal.yass.tutorial.server;
+package ch.softappeal.yass.tutorial.acceptor;
 
 import ch.softappeal.yass.core.remote.session.Session;
 import ch.softappeal.yass.core.remote.session.SessionClient;
-import ch.softappeal.yass.tutorial.contract.ClientServices;
 import ch.softappeal.yass.tutorial.contract.EchoService;
+import ch.softappeal.yass.tutorial.contract.InitiatorServices;
 import ch.softappeal.yass.tutorial.contract.Logger;
 import ch.softappeal.yass.tutorial.contract.Price;
 import ch.softappeal.yass.tutorial.contract.PriceKind;
@@ -20,23 +20,23 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public final class ServerSession extends Session implements PriceEngineContext {
+public final class AcceptorSession extends Session implements PriceEngineContext {
 
     private final Set<Integer> subscribedInstrumentIds = Collections.synchronizedSet(new HashSet<>());
 
     private final PriceListener priceListener;
     private final EchoService echoService;
 
-    public ServerSession(final SessionClient sessionClient) {
+    public AcceptorSession(final SessionClient sessionClient) {
         super(sessionClient);
         System.out.println("session " + this + " created");
-        priceListener = proxy(ClientServices.PriceListener, Logger.CLIENT);
-        echoService = proxy(ClientServices.EchoService, Logger.CLIENT);
+        priceListener = proxy(InitiatorServices.PriceListener, Logger.CLIENT);
+        echoService = proxy(InitiatorServices.EchoService, Logger.CLIENT);
     }
 
     @Override public void opened() throws InterruptedException {
         System.out.println("session " + this + " opened");
-        System.out.println("echo: " + echoService.echo("hello from server"));
+        System.out.println("echo: " + echoService.echo("hello from acceptor"));
         final Random random = new Random();
         while (!isClosed()) {
             final List<Price> prices = new ArrayList<>();

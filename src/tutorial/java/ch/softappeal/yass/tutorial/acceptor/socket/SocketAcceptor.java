@@ -1,8 +1,8 @@
-package ch.softappeal.yass.tutorial.server.socket;
+package ch.softappeal.yass.tutorial.acceptor.socket;
 
 import ch.softappeal.yass.transport.socket.AsyncSocketConnection;
 import ch.softappeal.yass.transport.socket.SocketTransport;
-import ch.softappeal.yass.tutorial.server.ServerSetup;
+import ch.softappeal.yass.tutorial.acceptor.AcceptorSetup;
 import ch.softappeal.yass.util.Exceptions;
 import ch.softappeal.yass.util.NamedThreadFactory;
 
@@ -11,7 +11,7 @@ import java.net.SocketAddress;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
-public final class SocketServer extends ServerSetup {
+public final class SocketAcceptor extends AcceptorSetup {
 
     public static final SocketAddress ADDRESS = new InetSocketAddress("localhost", 28947);
 

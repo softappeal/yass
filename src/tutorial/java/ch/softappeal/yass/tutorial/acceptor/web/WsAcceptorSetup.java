@@ -1,10 +1,10 @@
-package ch.softappeal.yass.tutorial.server.web;
+package ch.softappeal.yass.tutorial.acceptor.web;
 
 import ch.softappeal.yass.transport.TransportSetup;
 import ch.softappeal.yass.transport.ws.AsyncWsConnection;
 import ch.softappeal.yass.transport.ws.WsConnection;
 import ch.softappeal.yass.transport.ws.WsEndpoint;
-import ch.softappeal.yass.tutorial.server.ServerSetup;
+import ch.softappeal.yass.tutorial.acceptor.AcceptorSetup;
 import ch.softappeal.yass.util.Exceptions;
 import ch.softappeal.yass.util.NamedThreadFactory;
 
@@ -13,7 +13,7 @@ import javax.websocket.server.ServerEndpointConfig;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
-public abstract class WsServerSetup extends ServerSetup {
+public abstract class WsAcceptorSetup extends AcceptorSetup {
 
     public static final String HOST = "0.0.0.0";
     public static final int PORT = 9090;

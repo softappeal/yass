@@ -1,8 +1,8 @@
-package ch.softappeal.yass.tutorial.client.web;
+package ch.softappeal.yass.tutorial.initiator.web;
 
 import org.eclipse.jetty.websocket.jsr356.ClientContainer;
 
-public final class JettyClient extends WsClientSetup {
+public final class JettyInitiator extends WsInitiatorSetup {
 
     public static void main(final String... args) throws Exception {
         final ClientContainer container = new ClientContainer();

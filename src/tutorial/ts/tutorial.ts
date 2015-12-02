@@ -77,8 +77,8 @@ namespace tutorial {
 
     function subscribePrices(proxyFactory: yass.ProxyFactory): void {
         // create proxies; you can add 0..n interceptors to a proxy
-        const instrumentService = proxyFactory.proxy(contract.ServerServices.InstrumentService, clientLogger);
-        const priceEngine = proxyFactory.proxy(contract.ServerServices.PriceEngine, clientLogger);
+        const instrumentService = proxyFactory.proxy(contract.AcceptorServices.InstrumentService, clientLogger);
+        const priceEngine = proxyFactory.proxy(contract.AcceptorServices.PriceEngine, clientLogger);
         instrumentService.reload(true, new Integer(987654)); // oneWay method call
         instrumentService.getInstruments().then(instruments => {
             instruments.forEach(instrument => tableModel[instrument.id.value] = new TableRow(instrument));
@@ -111,15 +111,15 @@ namespace tutorial {
         "ws://" + hostname + ":9090/tutorial",
         contract.SERIALIZER,
         yass.server( // you can add 0..n interceptors to a service
-            new yass.Service(contract.ClientServices.PriceListener, new PriceListenerImpl, serverLogger),
-            new yass.Service(contract.ClientServices.EchoService, new EchoServiceImpl, serverLogger)
+            new yass.Service(contract.InitiatorServices.PriceListener, new PriceListenerImpl, serverLogger),
+            new yass.Service(contract.InitiatorServices.EchoService, new EchoServiceImpl, serverLogger)
         ),
         sessionClient => new Session(sessionClient),
         () => log("connect failed")
     );
 
     const proxyFactory = yass.xhr("http://" + hostname + ":9090/xhr", contract.SERIALIZER);
-    const echoService = proxyFactory.proxy(contract.ServerServices.EchoService, clientLogger);
+    const echoService = proxyFactory.proxy(contract.AcceptorServices.EchoService, clientLogger);
     export function echoClick() {
         echoService.echo((<any>document.getElementById("echoInput")).value).then(
             result => document.getElementById("echoOutput").innerHTML = result,
