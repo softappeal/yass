@@ -1,17 +1,13 @@
 package ch.softappeal.yass.core.remote.session;
 
 import ch.softappeal.yass.util.Check;
+import ch.softappeal.yass.util.Nullable;
 
 import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicReference;
 
 public final class Reconnector {
-
-    private Reconnector() {
-        // disable
-    }
 
     @FunctionalInterface public interface Connector {
         /**
@@ -23,17 +19,16 @@ public final class Reconnector {
     /**
      * @param executor must interrupt it's threads to terminate reconnects (use {@link ExecutorService#shutdownNow()})
      */
-    public static void start(
+    public Reconnector(
         final Executor executor, final long initialDelaySeconds, final long delaySeconds,
         final SessionFactory sessionFactory, final Connector connector
     ) {
         Check.notNull(sessionFactory);
         Check.notNull(connector);
-        final AtomicReference<Session> session = new AtomicReference<>(null);
         final SessionFactory factory = sessionClient -> {
-            final Session s = sessionFactory.create(sessionClient);
-            session.set(s);
-            return s;
+            final Session session = sessionFactory.create(sessionClient);
+            this.session = session;
+            return session;
         };
         executor.execute(() -> {
             if (initialDelaySeconds > 0) {
@@ -44,8 +39,9 @@ public final class Reconnector {
                 }
             }
             while (!Thread.interrupted()) {
-                final Session s = session.get();
-                if ((s == null) || s.isClosed()) {
+                final Session session = this.session;
+                if ((session == null) || session.isClosed()) {
+                    this.session = null;
                     try {
                         connector.connect(factory);
                     } catch (final Exception ignore) {
@@ -62,13 +58,31 @@ public final class Reconnector {
     }
 
     /**
-     * @see #start(Executor, long, long, SessionFactory, Connector)
+     * @see #Reconnector(Executor, long, long, SessionFactory, Connector)
      */
-    public static void start(
+    public Reconnector(
         final Executor executor, final long delaySeconds,
         final SessionFactory sessionFactory, final Connector connector
     ) {
-        start(executor, 0, delaySeconds, sessionFactory, connector);
+        this(executor, 0, delaySeconds, sessionFactory, connector);
+    }
+
+    private volatile @Nullable Session session = null;
+
+    /**
+     * @return current {@link Session}
+     * @throws SessionClosedException if no active session
+     */
+    public Session session() throws SessionClosedException {
+        final Session session = this.session;
+        if (session == null) {
+            throw new SessionClosedException();
+        }
+        return session;
+    }
+
+    public boolean connected() {
+        return (session != null);
     }
 
 }

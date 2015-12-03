@@ -5,6 +5,7 @@ import ch.softappeal.yass.transport.ws.SyncWsConnection;
 import ch.softappeal.yass.transport.ws.WsConnection;
 import ch.softappeal.yass.transport.ws.WsEndpoint;
 import ch.softappeal.yass.tutorial.acceptor.web.WsAcceptorSetup;
+import ch.softappeal.yass.tutorial.initiator.InitiatorSession;
 import ch.softappeal.yass.tutorial.initiator.InitiatorSetup;
 
 import javax.websocket.ClientEndpointConfig;
@@ -14,7 +15,7 @@ import java.net.URI;
 
 public abstract class WsInitiatorSetup extends InitiatorSetup {
 
-    private static final TransportSetup TRANSPORT_SETUP = createTransportSetup(WsAcceptorSetup.DISPATCHER_EXECUTOR);
+    private static final TransportSetup TRANSPORT_SETUP = createTransportSetup(WsAcceptorSetup.DISPATCHER_EXECUTOR, InitiatorSession::new);
 
     private static final class Endpoint extends WsEndpoint {
         @Override protected WsConnection createConnection(final Session session) throws Exception {

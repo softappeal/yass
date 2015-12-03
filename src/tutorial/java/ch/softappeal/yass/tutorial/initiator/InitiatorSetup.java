@@ -2,6 +2,7 @@ package ch.softappeal.yass.tutorial.initiator;
 
 import ch.softappeal.yass.core.remote.Server;
 import ch.softappeal.yass.core.remote.Service;
+import ch.softappeal.yass.core.remote.session.SessionFactory;
 import ch.softappeal.yass.transport.TransportSetup;
 import ch.softappeal.yass.tutorial.contract.Config;
 import ch.softappeal.yass.tutorial.contract.EchoServiceImpl;
@@ -19,8 +20,8 @@ public abstract class InitiatorSetup {
         new Service(InitiatorServices.EchoService, new EchoServiceImpl(), UnexpectedExceptionHandler.INSTANCE, Logger.SERVER)
     );
 
-    protected static TransportSetup createTransportSetup(final Executor dispatcherExecutor) {
-        return TransportSetup.create(SERVER, dispatcherExecutor, Config.SERIALIZER, InitiatorSession::new);
+    protected static TransportSetup createTransportSetup(final Executor dispatcherExecutor, final SessionFactory sessionFactory) {
+        return TransportSetup.create(SERVER, dispatcherExecutor, Config.SERIALIZER, sessionFactory);
     }
 
 }
