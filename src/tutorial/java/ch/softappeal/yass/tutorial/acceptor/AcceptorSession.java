@@ -1,13 +1,20 @@
 package ch.softappeal.yass.tutorial.acceptor;
 
-import ch.softappeal.yass.core.remote.session.Session;
-import ch.softappeal.yass.core.remote.session.SessionClient;
+import ch.softappeal.yass.core.Interceptor;
+import ch.softappeal.yass.core.remote.Server;
+import ch.softappeal.yass.core.remote.Service;
+import ch.softappeal.yass.core.remote.session.Connection;
+import ch.softappeal.yass.core.remote.session.SimpleSession;
+import ch.softappeal.yass.tutorial.contract.AcceptorServices;
+import ch.softappeal.yass.tutorial.contract.Config;
 import ch.softappeal.yass.tutorial.contract.EchoService;
+import ch.softappeal.yass.tutorial.contract.EchoServiceImpl;
 import ch.softappeal.yass.tutorial.contract.InitiatorServices;
 import ch.softappeal.yass.tutorial.contract.Logger;
 import ch.softappeal.yass.tutorial.contract.Price;
 import ch.softappeal.yass.tutorial.contract.PriceKind;
 import ch.softappeal.yass.tutorial.contract.PriceListener;
+import ch.softappeal.yass.tutorial.contract.UnexpectedExceptionHandler;
 import ch.softappeal.yass.util.Exceptions;
 import ch.softappeal.yass.util.Nullable;
 
@@ -17,24 +24,36 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
 import java.util.Set;
+import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public final class AcceptorSession extends Session {
+public final class AcceptorSession extends SimpleSession {
 
-    public final Set<Integer> subscribedInstrumentIds = Collections.synchronizedSet(new HashSet<>());
+    private final Set<Integer> subscribedInstrumentIds = Collections.synchronizedSet(new HashSet<>());
+
+    @Override protected Server server() {
+        final Interceptor interceptor = Interceptor.composite(UnexpectedExceptionHandler.INSTANCE, new Logger(this, Logger.Side.SERVER));
+        return new Server(
+            Config.METHOD_MAPPER_FACTORY,
+            new Service(AcceptorServices.InstrumentService, new InstrumentServiceImpl(), interceptor),
+            new Service(AcceptorServices.PriceEngine, new PriceEngineImpl(InstrumentServiceImpl.INSTRUMENTS, subscribedInstrumentIds), interceptor),
+            new Service(AcceptorServices.EchoService, new EchoServiceImpl(), interceptor)
+        );
+    }
 
     private final PriceListener priceListener;
     private final EchoService echoService;
 
-    public AcceptorSession(final SessionClient sessionClient) {
-        super(sessionClient);
+    public AcceptorSession(final Connection connection, final Executor dispatchExecutor) {
+        super(Config.METHOD_MAPPER_FACTORY, connection, dispatchExecutor);
         System.out.println("session " + this + " created");
-        priceListener = proxy(InitiatorServices.PriceListener, Logger.CLIENT);
-        echoService = proxy(InitiatorServices.EchoService, Logger.CLIENT);
+        final Interceptor interceptor = new Logger(this, Logger.Side.CLIENT);
+        priceListener = proxy(InitiatorServices.PriceListener, interceptor);
+        echoService = proxy(InitiatorServices.EchoService, interceptor);
     }
 
-    @Override public void opened() throws InterruptedException {
+    @Override protected void opened() throws InterruptedException {
         System.out.println("session " + this + " opened");
         System.out.println("echo: " + echoService.echo("hello from acceptor"));
         final Random random = new Random();
@@ -52,10 +71,10 @@ public final class AcceptorSession extends Session {
         }
     }
 
-    @Override public void closed(final @Nullable Throwable throwable) {
+    @Override protected void closed(final @Nullable Exception exception) {
         System.out.println("session " + this + " closed");
-        if (throwable != null) {
-            Exceptions.uncaughtException(Exceptions.STD_ERR, throwable);
+        if (exception != null) {
+            Exceptions.uncaughtException(Exceptions.STD_ERR, exception);
         }
     }
 

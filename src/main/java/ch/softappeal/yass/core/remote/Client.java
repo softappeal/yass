@@ -35,8 +35,8 @@ public abstract class Client extends Common implements ProxyFactory {
             oneWay = methodMapping.oneWay;
             this.arguments = arguments;
         }
-        public @Nullable Object invoke(final Interceptor interceptor, final Tunnel tunnel) throws Throwable {
-            return Interceptor.composite(interceptor, this.interceptor).invoke(
+        public @Nullable Object invoke(final Tunnel tunnel) throws Throwable {
+            return interceptor.invoke(
                 methodMapping.method,
                 arguments,
                 () -> {
@@ -48,7 +48,7 @@ public abstract class Client extends Common implements ProxyFactory {
     }
 
     /**
-     * @return {@link Invocation#invoke(Interceptor, Tunnel)}
+     * @return {@link Invocation#invoke(Tunnel)}
      */
     protected abstract @Nullable Object invoke(Invocation invocation) throws Throwable;
 

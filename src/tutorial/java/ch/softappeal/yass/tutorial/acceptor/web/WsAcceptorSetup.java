@@ -21,9 +21,9 @@ public abstract class WsAcceptorSetup extends AcceptorSetup {
     public static final String XHR_PATH = "/xhr";
     public static final String WEB_PATH = ".";
 
-    public static final Executor DISPATCHER_EXECUTOR = Executors.newCachedThreadPool(new NamedThreadFactory("dispatcherExecutor", Exceptions.STD_ERR));
+    public static final Executor DISPATCH_EXECUTOR = Executors.newCachedThreadPool(new NamedThreadFactory("dispatchExecutor", Exceptions.STD_ERR));
 
-    private static final TransportSetup TRANSPORT_SETUP = createTransportSetup(DISPATCHER_EXECUTOR);
+    private static final TransportSetup TRANSPORT_SETUP = createTransportSetup(DISPATCH_EXECUTOR);
 
     public static final class Endpoint extends WsEndpoint {
         @Override protected WsConnection createConnection(final Session session) throws Exception {

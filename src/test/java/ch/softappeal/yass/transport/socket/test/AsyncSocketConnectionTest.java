@@ -6,8 +6,7 @@ import ch.softappeal.yass.core.remote.OneWay;
 import ch.softappeal.yass.core.remote.Server;
 import ch.softappeal.yass.core.remote.Service;
 import ch.softappeal.yass.core.remote.SimpleMethodMapper;
-import ch.softappeal.yass.core.remote.session.Dispatcher;
-import ch.softappeal.yass.core.remote.session.Session;
+import ch.softappeal.yass.core.remote.session.SimpleSession;
 import ch.softappeal.yass.serialize.JavaSerializer;
 import ch.softappeal.yass.serialize.Serializer;
 import ch.softappeal.yass.transport.TransportSetup;
@@ -39,32 +38,26 @@ public final class AsyncSocketConnectionTest {
         final ExecutorService executor = Executors.newCachedThreadPool(new NamedThreadFactory("Executor", Exceptions.STD_ERR));
 
         new SocketTransport(executor, SyncSocketConnection.FACTORY).start(
-            new TransportSetup(
-                new Server(
-                    METHOD_MAPPER_FACTORY,
-                    new Service(BUSY_ID, () -> {
-                        System.out.println("busy");
-                        try {
-                            TimeUnit.MILLISECONDS.sleep(1_000);
-                        } catch (InterruptedException e) {
-                            throw new RuntimeException(e);
-                        }
-                    })
-                ),
-                new Dispatcher() {
-                    @Override public void opened(final Session session, final Runnable runnable) {
-                        runnable.run();
-                    }
-                    @Override public void invoke(final Session session, final Server.Invocation invocation, final Runnable runnable) {
-                        runnable.run();
-                    }
-                },
+            TransportSetup.ofPacketSerializer(
                 PACKET_SERIALIZER,
-                sessionClient -> new Session(sessionClient) {
+                connection -> new SimpleSession(METHOD_MAPPER_FACTORY, connection, executor) {
+                    @Override protected Server server() {
+                        return new Server(
+                            METHOD_MAPPER_FACTORY,
+                            new Service(BUSY_ID, () -> {
+                                System.out.println("busy");
+                                try {
+                                    TimeUnit.MILLISECONDS.sleep(1_000);
+                                } catch (InterruptedException e) {
+                                    throw new RuntimeException(e);
+                                }
+                            })
+                        );
+                    }
                     @Override protected void opened() {
                         System.out.println("acceptor opened");
                     }
-                    @Override public void closed(final @Nullable Throwable throwable) {
+                    @Override public void closed(final @Nullable Exception exception) {
                         System.out.println("acceptor closed");
                     }
                 }
@@ -74,13 +67,12 @@ public final class AsyncSocketConnectionTest {
         );
 
         new SocketTransport(executor, AsyncSocketConnection.factory(executor, 1_000)).connect(
-            new TransportSetup(
-                new Server(
-                    METHOD_MAPPER_FACTORY
-                ),
-                executor,
+            TransportSetup.ofPacketSerializer(
                 PACKET_SERIALIZER,
-                sessionClient -> new Session(sessionClient) {
+                connection -> new SimpleSession(METHOD_MAPPER_FACTORY, connection, executor) {
+                    @Override protected Server server() {
+                        return new Server(METHOD_MAPPER_FACTORY);
+                    }
                     @Override protected void opened() {
                         System.out.println("initiator opened");
                         final Busy busy = proxy(BUSY_ID);
@@ -89,9 +81,9 @@ public final class AsyncSocketConnectionTest {
                         }
                         System.out.println("initiator done");
                     }
-                    @Override public void closed(final @Nullable Throwable throwable) {
+                    @Override public void closed(final @Nullable Exception exception) {
                         System.out.println("initiator closed");
-                        throwable.printStackTrace(System.out);
+                        exception.printStackTrace(System.out);
                         System.exit(1);
                     }
                 }

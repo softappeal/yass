@@ -23,25 +23,17 @@ public class RemoteTest extends InvokeTest {
     private static Client client(final Server server) {
         return new Client(TaggedMethodMapper.FACTORY) {
             @Override public Object invoke(final Client.Invocation clientInvocation) throws Throwable {
-                return clientInvocation.invoke(
-                    Interceptor.composite(
-                        (method, arguments, invocation) -> {
-                            COUNTER = 0;
-                            try {
-                                return invocation.proceed();
-                            } finally {
-                                Assert.assertTrue(COUNTER == 4);
-                            }
-                        },
-                        stepInterceptor(1)
-                    ),
-                    request -> {
+                COUNTER = 0;
+                try {
+                    return clientInvocation.invoke(request -> {
                         Assert.assertTrue((33 == request.methodId) == clientInvocation.oneWay);
                         final Server.Invocation serverInvocation = server.invocation(request);
                         Assert.assertTrue(clientInvocation.oneWay == serverInvocation.oneWay);
-                        return serverInvocation.invoke(stepInterceptor(3));
-                    }
-                );
+                        return serverInvocation.invoke();
+                    });
+                } finally {
+                    Assert.assertTrue(COUNTER == 2);
+                }
             }
         };
     }
@@ -50,8 +42,8 @@ public class RemoteTest extends InvokeTest {
         invoke(
             client(new Server(
                 TaggedMethodMapper.FACTORY,
-                new Service(ContractIdTest.ID, new TestServiceImpl(), stepInterceptor(4), SERVER_INTERCEPTOR)
-            )).proxy(ContractIdTest.ID, PRINTLN_AFTER, stepInterceptor(2), CLIENT_INTERCEPTOR)
+                new Service(ContractIdTest.ID, new TestServiceImpl(), stepInterceptor(2), SERVER_INTERCEPTOR)
+            )).proxy(ContractIdTest.ID, PRINTLN_AFTER, stepInterceptor(1), CLIENT_INTERCEPTOR)
         );
     }
 

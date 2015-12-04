@@ -20,8 +20,8 @@ public final class SocketInitiator extends InitiatorSetup {
         final Reconnector reconnector = new Reconnector(
             executor,
             10,
-            InitiatorSession::new,
-            sessionFactory -> transport.connect(createTransportSetup(executor, sessionFactory), SocketAcceptor.ADDRESS)
+            connection -> new InitiatorSession(connection, executor),
+            sessionFactory -> transport.connect(createTransportSetup(sessionFactory), SocketAcceptor.ADDRESS)
         );
         System.out.println("connected: " + reconnector.connected());
         System.out.println("started");

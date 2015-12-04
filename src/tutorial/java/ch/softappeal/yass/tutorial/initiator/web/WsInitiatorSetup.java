@@ -15,7 +15,7 @@ import java.net.URI;
 
 public abstract class WsInitiatorSetup extends InitiatorSetup {
 
-    private static final TransportSetup TRANSPORT_SETUP = createTransportSetup(WsAcceptorSetup.DISPATCHER_EXECUTOR, InitiatorSession::new);
+    private static final TransportSetup TRANSPORT_SETUP = createTransportSetup(connection -> new InitiatorSession(connection, WsAcceptorSetup.DISPATCH_EXECUTOR));
 
     private static final class Endpoint extends WsEndpoint {
         @Override protected WsConnection createConnection(final Session session) throws Exception {

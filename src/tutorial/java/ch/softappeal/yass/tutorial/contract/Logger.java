@@ -16,9 +16,13 @@ import java.util.Date;
  */
 public final class Logger implements Interceptor {
 
-    private final String side;
+    public enum Side {CLIENT, SERVER}
 
-    private Logger(final String side) {
+    private final @Nullable Session session;
+    private final Side side;
+
+    public Logger(final @Nullable Session session, final Side side) {
+        this.session = session;
         this.side = Check.notNull(side);
     }
 
@@ -28,7 +32,6 @@ public final class Logger implements Interceptor {
     }
 
     private void log(final String type, final Method method, final Object data) {
-        final Session session = Session.get();
         System.out.printf(
             "%tT | %s | %s | %s | %s | %s\n",
             new Date(),
@@ -54,8 +57,5 @@ public final class Logger implements Interceptor {
             throw throwable;
         }
     }
-
-    public static final Interceptor CLIENT = new Logger("client");
-    public static final Interceptor SERVER = new Logger("server");
 
 }

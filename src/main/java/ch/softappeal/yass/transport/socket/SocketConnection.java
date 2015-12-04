@@ -2,7 +2,7 @@ package ch.softappeal.yass.transport.socket;
 
 import ch.softappeal.yass.core.remote.session.Connection;
 import ch.softappeal.yass.core.remote.session.Packet;
-import ch.softappeal.yass.core.remote.session.SessionClient;
+import ch.softappeal.yass.core.remote.session.Session;
 import ch.softappeal.yass.serialize.Reader;
 import ch.softappeal.yass.serialize.Serializer;
 import ch.softappeal.yass.serialize.Writer;
@@ -17,28 +17,27 @@ import java.net.Socket;
 public abstract class SocketConnection implements Connection {
 
     @FunctionalInterface public interface Factory {
-        SocketConnection create(TransportSetup setup, Socket socket, OutputStream out) throws Exception;
+        SocketConnection create(Serializer packetSerializer, Socket socket, OutputStream out) throws Exception;
     }
 
     static void create(final Factory connectionFactory, final TransportSetup setup, final Socket socket, final Reader reader, final OutputStream out) throws Exception {
-        final SocketConnection connection = connectionFactory.create(setup, socket, out);
-        final SessionClient sessionClient = SessionClient.create(setup, connection);
-        sessionClient.opened();
+        final SocketConnection connection = connectionFactory.create(setup.packetSerializer, socket, out);
+        final Session session = Session.create(setup.sessionFactory, connection);
         try {
-            connection.created(sessionClient);
+            connection.created(session);
         } catch (final Exception e) {
-            sessionClient.close(e);
-            return;
+            Session.close(session, e);
+            throw e;
         }
-        connection.read(sessionClient, reader);
+        connection.read(session, reader);
     }
 
     private final Serializer packetSerializer;
     public final Socket socket;
-    protected final OutputStream out;
+    private final OutputStream out;
 
-    protected SocketConnection(final TransportSetup setup, final Socket socket, final OutputStream out) {
-        this.packetSerializer = setup.packetSerializer;
+    protected SocketConnection(final Serializer packetSerializer, final Socket socket, final OutputStream out) {
+        this.packetSerializer = Check.notNull(packetSerializer);
         this.socket = Check.notNull(socket);
         this.out = Check.notNull(out);
     }
@@ -46,22 +45,23 @@ public abstract class SocketConnection implements Connection {
     /**
      * Called after connection has been created.
      */
-    protected void created(final SessionClient sessionClient) throws Exception {
+    protected void created(final Session session) throws Exception {
         // empty
     }
 
-    private void read(final SessionClient sessionClient, final Reader reader) {
-        while (true) {
-            try {
+    private void read(final Session session, final Reader reader) {
+        try {
+            while (true) {
                 final Packet packet = (Packet)packetSerializer.read(reader);
-                sessionClient.received(packet);
+                Session.received(session, packet);
                 if (packet.isEnd()) {
                     return;
                 }
-            } catch (final Exception e) {
-                sessionClient.close(e);
-                return;
             }
+        } catch (final Exception e) {
+            Session.close(session, e);
+            // note: exception is not rethrown
+            // there is always an exception from blocking socket read above for peer closing session
         }
     }
 
@@ -71,16 +71,16 @@ public abstract class SocketConnection implements Connection {
         return buffer;
     }
 
-    @Override public void closed() throws Exception {
-        socket.close();
-    }
-
     /**
      * Buffering of output is needed to prevent long delays due to Nagle's algorithm.
      */
-    protected static void flush(final ByteArrayOutputStream buffer, final OutputStream out) throws IOException {
+    protected final void flush(final ByteArrayOutputStream buffer) throws IOException {
         buffer.writeTo(out);
         out.flush();
+    }
+
+    @Override public void closed() throws Exception {
+        socket.close();
     }
 
 }

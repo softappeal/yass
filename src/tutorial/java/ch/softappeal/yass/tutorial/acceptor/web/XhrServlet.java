@@ -1,14 +1,17 @@
 package ch.softappeal.yass.tutorial.acceptor.web;
 
-import ch.softappeal.yass.core.Interceptor;
 import ch.softappeal.yass.core.remote.Request;
 import ch.softappeal.yass.core.remote.Server;
+import ch.softappeal.yass.core.remote.Service;
 import ch.softappeal.yass.serialize.Reader;
 import ch.softappeal.yass.serialize.Serializer;
 import ch.softappeal.yass.serialize.Writer;
 import ch.softappeal.yass.transport.MessageSerializer;
-import ch.softappeal.yass.tutorial.acceptor.AcceptorSetup;
+import ch.softappeal.yass.tutorial.contract.AcceptorServices;
 import ch.softappeal.yass.tutorial.contract.Config;
+import ch.softappeal.yass.tutorial.contract.EchoServiceImpl;
+import ch.softappeal.yass.tutorial.contract.Logger;
+import ch.softappeal.yass.tutorial.contract.UnexpectedExceptionHandler;
 import ch.softappeal.yass.util.Exceptions;
 
 import javax.servlet.http.HttpServlet;
@@ -25,17 +28,19 @@ public class XhrServlet extends HttpServlet {
         if (invocation.oneWay) {
             throw new IllegalArgumentException("xhr not allowed for oneWay method (serviceId " + request.serviceId + ", methodId " + request.methodId + ')');
         }
-        messageSerializer.write(
-            invocation.invoke(Interceptor.DIRECT), // note: we could add a http session interceptor here if needed
-            Writer.create(httpResponse.getOutputStream())
-        );
+        messageSerializer.write(invocation.invoke(), Writer.create(httpResponse.getOutputStream()));
     }
+
+    private static final Server SERVER = new Server(
+        Config.METHOD_MAPPER_FACTORY,
+        new Service(AcceptorServices.EchoService, new EchoServiceImpl(), UnexpectedExceptionHandler.INSTANCE, new Logger(null, Logger.Side.SERVER))
+    );
 
     private static final Serializer MESSAGE_SERIALIZER = new MessageSerializer(Config.SERIALIZER);
 
     @Override protected void doPost(final HttpServletRequest request, final HttpServletResponse response) {
         try {
-            invoke(AcceptorSetup.SERVER, MESSAGE_SERIALIZER, request, response);
+            invoke(SERVER, MESSAGE_SERIALIZER, request, response);
         } catch (final Exception e) {
             throw Exceptions.wrap(e);
         }

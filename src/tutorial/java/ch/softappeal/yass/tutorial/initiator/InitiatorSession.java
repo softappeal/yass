@@ -1,36 +1,54 @@
 package ch.softappeal.yass.tutorial.initiator;
 
-import ch.softappeal.yass.core.remote.session.Session;
-import ch.softappeal.yass.core.remote.session.SessionClient;
+import ch.softappeal.yass.core.Interceptor;
+import ch.softappeal.yass.core.remote.Server;
+import ch.softappeal.yass.core.remote.Service;
+import ch.softappeal.yass.core.remote.session.Connection;
+import ch.softappeal.yass.core.remote.session.SimpleSession;
 import ch.softappeal.yass.tutorial.contract.AcceptorServices;
+import ch.softappeal.yass.tutorial.contract.Config;
 import ch.softappeal.yass.tutorial.contract.EchoService;
+import ch.softappeal.yass.tutorial.contract.EchoServiceImpl;
+import ch.softappeal.yass.tutorial.contract.InitiatorServices;
 import ch.softappeal.yass.tutorial.contract.Logger;
 import ch.softappeal.yass.tutorial.contract.PriceEngine;
 import ch.softappeal.yass.tutorial.contract.SystemException;
+import ch.softappeal.yass.tutorial.contract.UnexpectedExceptionHandler;
 import ch.softappeal.yass.tutorial.contract.UnknownInstrumentsException;
 import ch.softappeal.yass.tutorial.contract.instrument.InstrumentService;
 import ch.softappeal.yass.util.Exceptions;
 import ch.softappeal.yass.util.Nullable;
 
 import java.util.Arrays;
+import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
-public final class InitiatorSession extends Session {
+public final class InitiatorSession extends SimpleSession {
+
+    @Override protected Server server() {
+        final Interceptor interceptor = Interceptor.composite(UnexpectedExceptionHandler.INSTANCE, new Logger(this, Logger.Side.SERVER));
+        return new Server(
+            Config.METHOD_MAPPER_FACTORY,
+            new Service(InitiatorServices.PriceListener, new PriceListenerImpl(), interceptor),
+            new Service(InitiatorServices.EchoService, new EchoServiceImpl(), interceptor)
+        );
+    }
 
     private final PriceEngine priceEngine;
     private final InstrumentService instrumentService;
     private final EchoService echoService;
 
-    public InitiatorSession(final SessionClient sessionClient) {
-        super(sessionClient);
+    public InitiatorSession(final Connection connection, final Executor dispatchExecutor) {
+        super(Config.METHOD_MAPPER_FACTORY, connection, dispatchExecutor);
         System.out.println("session " + this + " created");
-        priceEngine = proxy(AcceptorServices.PriceEngine, Logger.CLIENT);
-        instrumentService = proxy(AcceptorServices.InstrumentService, Logger.CLIENT);
-        echoService = proxy(AcceptorServices.EchoService, Logger.CLIENT);
+        final Interceptor interceptor = new Logger(this, Logger.Side.CLIENT);
+        priceEngine = proxy(AcceptorServices.PriceEngine, interceptor);
+        instrumentService = proxy(AcceptorServices.InstrumentService, interceptor);
+        echoService = proxy(AcceptorServices.EchoService, interceptor);
     }
 
-    @Override public void opened() throws UnknownInstrumentsException {
+    @Override protected void opened() throws UnknownInstrumentsException {
         System.out.println("session " + this + " opened");
         System.out.println("echo: " + echoService.echo("hello from initiator"));
         try {
@@ -47,10 +65,10 @@ public final class InitiatorSession extends Session {
         priceEngine.subscribe(instrumentService.getInstruments().stream().map(instrument -> instrument.id).collect(Collectors.toList()));
     }
 
-    @Override public void closed(final @Nullable Throwable throwable) {
+    @Override protected void closed(final @Nullable Exception exception) {
         System.out.println("session " + this + " closed");
-        if (throwable != null) {
-            Exceptions.uncaughtException(Exceptions.STD_ERR, throwable);
+        if (exception != null) {
+            Exceptions.uncaughtException(Exceptions.STD_ERR, exception);
         }
     }
 

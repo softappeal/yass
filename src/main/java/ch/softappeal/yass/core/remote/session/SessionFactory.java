@@ -9,8 +9,8 @@ import ch.softappeal.yass.core.remote.ProxyFactory;
     /**
      * It's allowed to call {@link ProxyFactory#proxy(ContractId, Interceptor...)} during this method,
      * but the proxies can be used not before {@link Session#opened()} is called.
-     * If this method throws an exception, the connection is rejected ({@link Session#closed(Throwable)} won't be called).
+     * If this method throws an exception, the connection is rejected ({@link Session#closed(Exception)} won't be called).
      */
-    Session create(SessionClient sessionClient) throws Exception;
+    Session create(Connection connection) throws Exception;
 
 }

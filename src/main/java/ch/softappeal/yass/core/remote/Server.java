@@ -1,6 +1,5 @@
 package ch.softappeal.yass.core.remote;
 
-import ch.softappeal.yass.core.Interceptor;
 import ch.softappeal.yass.util.Nullable;
 
 import java.lang.reflect.Method;
@@ -42,8 +41,8 @@ public final class Server extends Common {
             oneWay = methodMapping.oneWay;
             arguments = request.arguments;
         }
-        public Reply invoke(final Interceptor interceptor) {
-            return service.invoke(interceptor, method, arguments);
+        public Reply invoke() {
+            return service.invoke(method, arguments);
         }
     }
 

@@ -1,7 +1,6 @@
 package ch.softappeal.yass.serialize.fast;
 
 import ch.softappeal.yass.util.Check;
-import ch.softappeal.yass.util.Reference;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,7 +25,11 @@ public final class TypeDesc {
         handler.write(id, value, output);
     }
 
-    public static final TypeDesc NULL = new TypeDesc(0, new TypeHandler(Void.class) {
+    private static final class VoidType {
+        // empty
+    }
+
+    public static final TypeDesc NULL = new TypeDesc(0, new TypeHandler(VoidType.class) {
         @Override Object read(final Input input) {
             return null;
         }
@@ -35,7 +38,11 @@ public final class TypeDesc {
         }
     });
 
-    public static final TypeDesc REFERENCE = new TypeDesc(1, new TypeHandler(Reference.class) {
+    private static final class ReferenceType {
+        // empty
+    }
+
+    public static final TypeDesc REFERENCE = new TypeDesc(1, new TypeHandler(ReferenceType.class) {
         @Override Object read(final Input input) throws Exception {
             return input.referenceableObjects.get(input.reader.readVarInt());
         }
