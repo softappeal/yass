@@ -20,9 +20,9 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public final class AcceptorSession extends Session implements PriceEngineContext {
+public final class AcceptorSession extends Session {
 
-    private final Set<Integer> subscribedInstrumentIds = Collections.synchronizedSet(new HashSet<>());
+    public final Set<Integer> subscribedInstrumentIds = Collections.synchronizedSet(new HashSet<>());
 
     private final PriceListener priceListener;
     private final EchoService echoService;
@@ -57,10 +57,6 @@ public final class AcceptorSession extends Session implements PriceEngineContext
         if (throwable != null) {
             Exceptions.uncaughtException(Exceptions.STD_ERR, throwable);
         }
-    }
-
-    @Override public Set<Integer> subscribedInstrumentIds() {
-        return subscribedInstrumentIds;
     }
 
     private static final AtomicInteger ID = new AtomicInteger(1);

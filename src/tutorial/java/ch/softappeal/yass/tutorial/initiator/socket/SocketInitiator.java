@@ -19,7 +19,6 @@ public final class SocketInitiator extends InitiatorSetup {
         final SocketTransport transport = new SocketTransport(executor, SyncSocketConnection.FACTORY);
         final Reconnector reconnector = new Reconnector(
             executor,
-            5,
             10,
             InitiatorSession::new,
             sessionFactory -> transport.connect(createTransportSetup(executor, sessionFactory), SocketAcceptor.ADDRESS)
