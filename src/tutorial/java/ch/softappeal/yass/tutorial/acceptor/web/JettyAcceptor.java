@@ -10,7 +10,7 @@ import org.eclipse.jetty.servlet.ServletHolder;
 import org.eclipse.jetty.websocket.jsr356.server.ContainerDefaultConfigurator;
 import org.eclipse.jetty.websocket.jsr356.server.deploy.WebSocketServerContainerInitializer;
 
-public final class JettyAcceptor extends WsAcceptorSetup {
+public final class JettyAcceptor extends WebAcceptorSetup {
 
     public static void main(final String... args) throws Exception {
         final Server server = new Server();

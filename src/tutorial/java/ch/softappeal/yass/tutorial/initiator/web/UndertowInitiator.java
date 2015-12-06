@@ -11,7 +11,7 @@ import org.xnio.Xnio;
 
 import java.util.Collections;
 
-public final class UndertowInitiator extends WsInitiatorSetup {
+public final class UndertowInitiator extends WebInitiatorSetup {
 
     public static void main(final String... args) throws Exception {
         run(new ServerWebSocketContainer(

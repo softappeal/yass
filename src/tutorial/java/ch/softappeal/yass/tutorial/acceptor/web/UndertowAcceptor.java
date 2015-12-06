@@ -15,7 +15,7 @@ import org.xnio.Xnio;
 
 import java.io.File;
 
-public final class UndertowAcceptor extends WsAcceptorSetup {
+public final class UndertowAcceptor extends WebAcceptorSetup {
 
     public static void main(final String... args) throws Exception {
         final DeploymentManager deployment = Servlets.defaultContainer()

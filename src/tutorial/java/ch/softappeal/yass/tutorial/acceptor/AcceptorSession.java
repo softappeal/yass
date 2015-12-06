@@ -33,7 +33,10 @@ public final class AcceptorSession extends SimpleSession {
     private final Set<Integer> subscribedInstrumentIds = Collections.synchronizedSet(new HashSet<>());
 
     @Override protected Server server() {
-        final Interceptor interceptor = Interceptor.composite(UnexpectedExceptionHandler.INSTANCE, new Logger(this, Logger.Side.SERVER));
+        final Interceptor interceptor = Interceptor.composite(
+            UnexpectedExceptionHandler.INSTANCE,
+            new Logger(this, Logger.Side.SERVER)
+        );
         return new Server(
             Config.METHOD_MAPPER_FACTORY,
             new Service(AcceptorServices.InstrumentService, new InstrumentServiceImpl(), interceptor),

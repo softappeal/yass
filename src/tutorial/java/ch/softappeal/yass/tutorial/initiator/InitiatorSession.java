@@ -27,7 +27,10 @@ import java.util.stream.Collectors;
 public final class InitiatorSession extends SimpleSession {
 
     @Override protected Server server() {
-        final Interceptor interceptor = Interceptor.composite(UnexpectedExceptionHandler.INSTANCE, new Logger(this, Logger.Side.SERVER));
+        final Interceptor interceptor = Interceptor.composite(
+            UnexpectedExceptionHandler.INSTANCE,
+            new Logger(this, Logger.Side.SERVER)
+        );
         return new Server(
             Config.METHOD_MAPPER_FACTORY,
             new Service(InitiatorServices.PriceListener, new PriceListenerImpl(), interceptor),
@@ -62,7 +65,13 @@ public final class InitiatorSession extends SimpleSession {
             ignore.printStackTrace(System.out);
         }
         instrumentService.reload(false, 123);
-        priceEngine.subscribe(instrumentService.getInstruments().stream().map(instrument -> instrument.id).collect(Collectors.toList()));
+        priceEngine.subscribe(
+            instrumentService
+                .getInstruments()
+                .stream()
+                .map(instrument -> instrument.id)
+                .collect(Collectors.toList())
+        );
     }
 
     @Override protected void closed(final @Nullable Exception exception) {
