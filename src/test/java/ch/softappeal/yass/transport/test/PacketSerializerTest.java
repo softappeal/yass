@@ -3,6 +3,7 @@ package ch.softappeal.yass.transport.test;
 import ch.softappeal.yass.core.remote.Message;
 import ch.softappeal.yass.core.remote.ValueReply;
 import ch.softappeal.yass.core.remote.session.Packet;
+import ch.softappeal.yass.serialize.JavaSerializer;
 import ch.softappeal.yass.serialize.Serializer;
 import ch.softappeal.yass.serialize.test.JavaSerializerTest;
 import ch.softappeal.yass.transport.PacketSerializer;
@@ -11,7 +12,7 @@ import org.junit.Test;
 
 public class PacketSerializerTest {
 
-    public static final Serializer SERIALIZER = new PacketSerializer(MessageSerializerTest.SERIALIZER);
+    private static final Serializer SERIALIZER = new PacketSerializer(JavaSerializer.INSTANCE);
 
     private static Packet copy(final Packet value) throws Exception {
         return JavaSerializerTest.copy(SERIALIZER, value);

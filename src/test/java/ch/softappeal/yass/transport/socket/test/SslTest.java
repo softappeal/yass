@@ -33,9 +33,7 @@ public class SslTest extends InvokeTest {
         Assert.assertEquals("CN=Test", ((SSLSocket)((SocketConnection)connection).socket).getSession().getPeerPrincipal().getName());
     }
 
-    private static void test(
-        final ServerSocketFactory serverSocketFactory, final SocketFactory socketFactory, final boolean needClientAuth
-    ) throws Exception {
+    private static void test(final ServerSocketFactory serverSocketFactory, final SocketFactory socketFactory, final boolean needClientAuth) throws Exception {
         final ExecutorService executor = Executors.newCachedThreadPool(new NamedThreadFactory("executor", Exceptions.STD_ERR));
         try {
             new SocketTransport(executor, SyncSocketConnection.FACTORY).start(
@@ -86,7 +84,6 @@ public class SslTest extends InvokeTest {
                         };
                     }
                 ),
-                executor,
                 socketFactory, SocketHelper.ADDRESS
             );
         } finally {

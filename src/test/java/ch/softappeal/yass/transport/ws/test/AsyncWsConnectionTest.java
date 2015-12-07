@@ -8,7 +8,6 @@ import ch.softappeal.yass.core.remote.Service;
 import ch.softappeal.yass.core.remote.SimpleMethodMapper;
 import ch.softappeal.yass.core.remote.session.Session;
 import ch.softappeal.yass.serialize.JavaSerializer;
-import ch.softappeal.yass.serialize.Serializer;
 import ch.softappeal.yass.transport.TransportSetup;
 import ch.softappeal.yass.transport.ws.AsyncWsConnection;
 import ch.softappeal.yass.transport.ws.SyncWsConnection;
@@ -44,19 +43,18 @@ public final class AsyncWsConnectionTest {
     }
 
     private static final ContractId<Busy> BUSY_ID = ContractId.create(Busy.class, 0);
-    private static final Serializer PACKET_SERIALIZER = JavaSerializer.INSTANCE;
     private static final MethodMapper.Factory METHOD_MAPPER_FACTORY = SimpleMethodMapper.FACTORY;
 
-    public static final String HOST = "0.0.0.0";
-    public static final int PORT = 9090;
-    public static final String PATH = "/test";
+    private static final String HOST = "0.0.0.0";
+    private static final int PORT = 9090;
+    private static final String PATH = "/test";
 
     public static final class ServerEndpoint extends WsEndpoint {
         @Override protected WsConnection createConnection(final javax.websocket.Session session) throws Exception {
             return WsConnection.create(
                 SyncWsConnection.FACTORY,
                 TransportSetup.ofPacketSerializer(
-                    PACKET_SERIALIZER,
+                    JavaSerializer.INSTANCE,
                     connection -> new Session(METHOD_MAPPER_FACTORY, connection) {
                         @Override protected Server server() {
                             return new Server(
@@ -100,7 +98,7 @@ public final class AsyncWsConnectionTest {
             return WsConnection.create(
                 AsyncWsConnection.factory(5_000),
                 TransportSetup.ofPacketSerializer(
-                    PACKET_SERIALIZER,
+                    JavaSerializer.INSTANCE,
                     connection -> new Session(METHOD_MAPPER_FACTORY, connection) {
                         @Override protected Server server() {
                             return new Server(METHOD_MAPPER_FACTORY);

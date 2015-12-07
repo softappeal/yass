@@ -25,8 +25,8 @@ public final class Reconnector {
     ) {
         Check.notNull(sessionFactory);
         Check.notNull(connector);
-        final SessionFactory factory = sessionClient -> {
-            final Session session = sessionFactory.create(sessionClient);
+        final SessionFactory proxySessionFactory = connection -> {
+            final Session session = sessionFactory.create(connection);
             this.session = session;
             return session;
         };
@@ -43,7 +43,7 @@ public final class Reconnector {
                 if ((session == null) || session.isClosed()) {
                     this.session = null;
                     try {
-                        connector.connect(factory);
+                        connector.connect(proxySessionFactory);
                     } catch (final Exception ignore) {
                         // empty
                     }

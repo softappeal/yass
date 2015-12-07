@@ -23,9 +23,11 @@ public class SocketPerformanceTest extends InvokeTest {
     @Test public void test() throws InterruptedException {
         final ExecutorService executor = Executors.newCachedThreadPool(new NamedThreadFactory("executor", Exceptions.TERMINATE));
         try {
-            new SocketTransport(executor, SyncSocketConnection.FACTORY).start(TransportSetup.ofPacketSerializer(JavaSerializer.INSTANCE, PerformanceTest.sessionFactory(executor, null, COUNTER)), executor, SocketHelper.ADDRESS);
+            new SocketTransport(executor, SyncSocketConnection.FACTORY)
+                .start(TransportSetup.ofPacketSerializer(JavaSerializer.INSTANCE, PerformanceTest.sessionFactory(executor, null, COUNTER)), executor, SocketHelper.ADDRESS);
             final CountDownLatch latch = new CountDownLatch(1);
-            new SocketTransport(executor, SyncSocketConnection.FACTORY).connect(TransportSetup.ofPacketSerializer(JavaSerializer.INSTANCE, PerformanceTest.sessionFactory(executor, latch, COUNTER)), SocketHelper.ADDRESS);
+            new SocketTransport(executor, SyncSocketConnection.FACTORY)
+                .connect(TransportSetup.ofPacketSerializer(JavaSerializer.INSTANCE, PerformanceTest.sessionFactory(executor, latch, COUNTER)), SocketHelper.ADDRESS);
             latch.await();
             TimeUnit.MILLISECONDS.sleep(100L);
         } finally {
