@@ -19,7 +19,7 @@ public final class SocketInitiator {
     public static void main(final String... args) throws InterruptedException {
         final Executor executor = Executors.newCachedThreadPool(new NamedThreadFactory("executor", Exceptions.STD_ERR));
         final SocketTransport transport = new SocketTransport(executor, SyncSocketConnection.FACTORY);
-        final Reconnector reconnector = new Reconnector(
+        final Reconnector<InitiatorSession> reconnector = new Reconnector<>(
             executor,
             10,
             connection -> new InitiatorSession(connection, executor),

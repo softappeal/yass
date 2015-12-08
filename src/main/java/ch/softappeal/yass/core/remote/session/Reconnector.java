@@ -7,7 +7,7 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
 
-public final class Reconnector {
+public final class Reconnector<S extends Session> {
 
     @FunctionalInterface public interface Connector {
         /**
@@ -73,12 +73,13 @@ public final class Reconnector {
      * @return current {@link Session}
      * @throws SessionClosedException if no active session
      */
-    public Session session() throws SessionClosedException {
+    @SuppressWarnings("unchecked")
+    public S session() throws SessionClosedException {
         final Session session = this.session;
         if (session == null) {
             throw new SessionClosedException();
         }
-        return session;
+        return (S)session;
     }
 
     public boolean connected() {
