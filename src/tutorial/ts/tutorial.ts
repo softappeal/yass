@@ -11,7 +11,7 @@ namespace tutorial {
     function logger(side: string): yass.Interceptor {
         return (style, method, parameters, invocation) => {
             function doLog(kind: string, data: any): void {
-                log("logger:", side, yass.SESSION ? (<Session>yass.SESSION).id : null, kind, yass.InvokeStyle[style], method, data);
+                log("logger:", side, kind, yass.InvokeStyle[style], method, data);
             }
             doLog("entry", parameters);
             try {
@@ -93,14 +93,20 @@ namespace tutorial {
     class Session extends yass.Session {
         private static ID = 1;
         id = Session.ID++;
-        constructor(sessionClient: yass.SessionClient) {
-            super(sessionClient);
+        constructor(connection: yass.Connection) {
+            super(connection);
         }
-        opened(): void {
+        protected server() {
+            return yass.server( // you can add 0..n interceptors to a service
+                new yass.Service(contract.InitiatorServices.PriceListener, new PriceListenerImpl, serverLogger),
+                new yass.Service(contract.InitiatorServices.EchoService, new EchoServiceImpl, serverLogger)
+            );
+        }
+        protected opened(): void {
             log("session opened", this.id);
             subscribePrices(this);
         }
-        closed(exception: any): void {
+        protected closed(exception: any): void {
             log("session closed", this.id, exception);
         }
     }
@@ -110,11 +116,7 @@ namespace tutorial {
     yass.connect(
         "ws://" + hostname + ":9090/tutorial",
         contract.SERIALIZER,
-        yass.server( // you can add 0..n interceptors to a service
-            new yass.Service(contract.InitiatorServices.PriceListener, new PriceListenerImpl, serverLogger),
-            new yass.Service(contract.InitiatorServices.EchoService, new EchoServiceImpl, serverLogger)
-        ),
-        sessionClient => new Session(sessionClient),
+        connection => new Session(connection),
         () => log("connect failed")
     );
 

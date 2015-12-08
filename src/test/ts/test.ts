@@ -287,14 +287,19 @@ const hostname = location.hostname;
 namespace remoteTest {
 
     class Session extends yass.Session {
-        constructor(sessionClient: yass.SessionClient) {
-            super(sessionClient);
+        constructor(connection: yass.Connection) {
+            super(connection);
         }
-        opened(): void {
+        protected server() {
+            return yass.server(
+                new yass.Service(contract.InitiatorServices.EchoService, {echo: (value: any) => value})
+            );
+        }
+        protected opened(): void {
             log("session opened");
             const printer: yass.Interceptor = (style, method, parameters, invocation) => {
                 function doLog(kind: string, data: any): void {
-                    log("logger:", yass.SESSION, kind, yass.InvokeStyle[style], method, data);
+                    log("logger:", kind, yass.InvokeStyle[style], method, data);
                 }
                 doLog("entry", parameters);
                 try {
@@ -345,7 +350,7 @@ namespace remoteTest {
             priceEngine.subscribe([new Integer(987654321)]).catch(exception => log("subscribe failed with", exception));
             setTimeout(() => this.close(), 2000);
         }
-        closed(exception: any): void {
+        protected closed(exception: any): void {
             log("session closed", exception);
         }
     }
@@ -353,10 +358,7 @@ namespace remoteTest {
     yass.connect(
         "ws://" + hostname + ":9090/tutorial",
         contract.SERIALIZER,
-        yass.server(
-            new yass.Service(contract.InitiatorServices.EchoService, {echo: (value: any) => value})
-        ),
-        sessionClient => new Session(sessionClient),
+        connection => new Session(connection),
         () => log("connectFailed")
     );
 

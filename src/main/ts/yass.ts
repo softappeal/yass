@@ -334,6 +334,21 @@ namespace yass {
         write(value: any, writer: Writer): void;
     }
 
+    export function writeTo(serializer: Serializer, value: any): Uint8Array {
+        const writer = new Writer(128);
+        serializer.write(value, writer);
+        return writer.getArray();
+    }
+
+    export function readFrom(serializer: Serializer, arrayBuffer: ArrayBuffer): any {
+        const reader = new Reader(arrayBuffer);
+        const value = serializer.read(reader);
+        if (!reader.isEmpty()) {
+            throw new Error("reader is not empty");
+        }
+        return value;
+    }
+
     export class JsFastSerializer implements Serializer {
         private id2typeHandler: TypeHandler<any>[] = [];
         constructor(...Types: any[]) {
@@ -534,9 +549,9 @@ namespace yass {
             this.interceptor = service.interceptor;
             this.implementation = service.implementation;
         }
-        invoke(interceptor: Interceptor, method: string, parameters: any[]): Reply {
+        invoke(method: string, parameters: any[]): Reply {
             try {
-                return new ValueReply(composite(interceptor, this.interceptor)(InvokeStyle.NoPromise, method, parameters, () => {
+                return new ValueReply(this.interceptor(InvokeStyle.NoPromise, method, parameters, () => {
                     const result = this.implementation[method].apply(this.implementation, parameters);
                     return result ? result : null;
                 }));
@@ -554,8 +569,8 @@ namespace yass {
             this.oneWay = methodMapping.oneWay;
             this.method = methodMapping.method;
         }
-        invoke(interceptor: Interceptor): Reply {
-            return this.serverInvoker.invoke(interceptor, this.method, this.request.parameters);
+        invoke(): Reply {
+            return this.serverInvoker.invoke(this.method, this.request.parameters);
         }
     }
 
@@ -614,10 +629,9 @@ namespace yass {
         constructor(private interceptor: Interceptor, private serviceId: number, private methodMapping: MethodMapping, private parameters: any[]) {
             // empty
         }
-        invoke(interceptor: Interceptor, tunnel: Tunnel): Promise<any> {
-            const compositeInterceptor = composite(interceptor, this.interceptor);
-            const rpc: Rpc = this.methodMapping.oneWay ? null : new Rpc(compositeInterceptor, this.methodMapping.method, this.parameters);
-            compositeInterceptor(
+        invoke(tunnel: Tunnel): Promise<any> {
+            const rpc: Rpc = this.methodMapping.oneWay ? null : new Rpc(this.interceptor, this.methodMapping.method, this.parameters);
+            this.interceptor(
                 this.methodMapping.oneWay ? InvokeStyle.NoPromise : InvokeStyle.PromiseEntry,
                 this.methodMapping.method,
                 this.parameters,
@@ -672,63 +686,36 @@ namespace yass {
         }
     }
 
-    export abstract class Session implements ProxyFactory {
-        constructor(private sessionClient: SessionClient) {
-            // empty
-        }
-        abstract opened(): void;
-        /**
-         * @param exception null if regular close else reason for close
-         */
-        abstract closed(exception: any): void;
-        proxy<PC>(contractId: ContractId<any, PC>, ...interceptors: Interceptor[]): PC {
-            (<any>interceptors).unshift(contractId);
-            return this.sessionClient.proxy.apply(this.sessionClient, interceptors);
-        }
-        close(): void {
-            this.sessionClient.close();
-        }
-    }
-
-    export interface SessionFactory {
-        (sessionClient: SessionClient): Session;
-    }
-
     export interface Connection {
         write(packet: Packet): void;
         closed(): void;
     }
 
-    /**
-     * The session of the active invocation or null if no active invocation.
-     */
-    export let SESSION: Session = null;
-    function sessionInterceptor(session: Session): Interceptor {
-        return (style, method, parameters, invocation) => {
-            const oldSession = SESSION;
-            SESSION = session;
-            try {
-                return invocation();
-            } finally {
-                SESSION = oldSession;
-            }
-        };
+    export interface SessionFactory {
+        (connection: Connection): Session;
     }
 
-    export class SessionClient extends Client {
-        private closed = false;
+    export abstract class Session extends Client {
+        private serverProp: Server;
+        private closedProp = false;
         private requestNumber = Packet.END_REQUESTNUMBER;
         private requestNumber2rpc: Rpc[] = [];
-        private session: Session;
-        private sessionInterceptor: Interceptor;
-        constructor(private server: Server, sessionFactory: SessionFactory, private connection: Connection) {
+        constructor(private connection: Connection) {
             super();
-            this.session = sessionFactory(this);
-            this.sessionInterceptor = sessionInterceptor(this.session);
-            this.session.opened();
+            this.serverProp = this.server();
+            this.opened();
         }
+        /**
+         * Gets the server of this session. Called only once after creation of session.
+         */
+        protected abstract server(): Server;
+        protected abstract opened(): void;
+        /**
+         * @param exception null if regular close else reason for close
+         */
+        protected abstract closed(exception: any): void;
         protected invoke(invocation: ClientInvocation): Promise<any> {
-            return invocation.invoke(this.sessionInterceptor, (request, rpc) => {
+            return invocation.invoke((request, rpc) => {
                 if (this.requestNumber === 2147483647) {
                     this.requestNumber = Packet.END_REQUESTNUMBER;
                 }
@@ -746,12 +733,12 @@ namespace yass {
             this.doCloseSend(false, exception);
         }
         private doCloseSend(sendEnd: boolean, exception: any): void {
-            if (this.closed) {
+            if (this.closedProp) {
                 return;
             }
-            this.closed = true;
+            this.closedProp = true;
             try {
-                this.session.closed(exception);
+                this.closed(exception);
                 if (sendEnd) {
                     this.connection.write(Packet.END);
                 }
@@ -760,7 +747,7 @@ namespace yass {
             }
         }
         private write(requestNumber: number, message: Message): void {
-            if (this.closed) {
+            if (this.closedProp) {
                 throw new Error("session is already closed");
             }
             try {
@@ -780,8 +767,8 @@ namespace yass {
                 }
                 const message = packet.message;
                 if (message instanceof Request) {
-                    const invocation = this.server(message);
-                    const reply = invocation.invoke(this.sessionInterceptor);
+                    const invocation = this.serverProp(message);
+                    const reply = invocation.invoke();
                     if (!invocation.oneWay) {
                         this.write(packet.requestNumber, reply);
                     }
@@ -796,22 +783,7 @@ namespace yass {
         }
     }
 
-    export function writeTo(serializer: Serializer, value: any): Uint8Array {
-        const writer = new Writer(128);
-        serializer.write(value, writer);
-        return writer.getArray();
-    }
-
-    export function readFrom(serializer: Serializer, arrayBuffer: ArrayBuffer): any {
-        const reader = new Reader(arrayBuffer);
-        const value = serializer.read(reader);
-        if (!reader.isEmpty()) {
-            throw new Error("reader is not empty");
-        }
-        return value;
-    }
-
-    export function connect(url: string, serializer: Serializer, server: Server, sessionFactory: SessionFactory, connectFailed = () => {}): void {
+    export function connect(url: string, serializer: Serializer, sessionFactory: SessionFactory, connectFailed = () => {}): void {
         serializer = new PacketSerializer(new MessageSerializer(serializer));
         let connectFailedCalled = false;
         function callConnectFailed(): void {
@@ -825,19 +797,19 @@ namespace yass {
         ws.onerror = callConnectFailed;
         ws.onclose = callConnectFailed;
         ws.onopen = () => {
-            const sessionClient = new SessionClient(server, sessionFactory, {
+            const session = sessionFactory({
                 write: packet => ws.send(writeTo(serializer, packet)),
                 closed: () => ws.close()
             });
             ws.onmessage = event => {
                 try {
-                    sessionClient.received(readFrom(serializer, event.data));
+                    session.received(readFrom(serializer, event.data));
                 } catch (exception) {
-                    sessionClient.doClose(exception);
+                    session.doClose(exception);
                 }
             };
-            ws.onerror = () => sessionClient.doClose(new Error("WebSocket.onerror"));
-            ws.onclose = () => sessionClient.doClose(new Error("WebSocket.onclose"));
+            ws.onerror = () => session.doClose(new Error("WebSocket.onerror"));
+            ws.onclose = () => session.doClose(new Error("WebSocket.onclose"));
         };
     }
 
@@ -848,7 +820,7 @@ namespace yass {
             this.serializer = new MessageSerializer(serializer);
         }
         protected invoke(invocation: ClientInvocation): Promise<any> {
-            return invocation.invoke(DIRECT, (request, rpc) => {
+            return invocation.invoke((request, rpc) => {
                 if (!rpc) {
                     throw new Error("xhr not allowed for oneWay method (serviceId " + request.serviceId + ", methodId " + request.methodId + ")");
                 }
