@@ -8,7 +8,7 @@ public abstract class Common {
         this.methodMapperFactory = Check.notNull(methodMapperFactory);
     }
 
-    public final MethodMapper.Factory methodMapperFactory;
+    private final MethodMapper.Factory methodMapperFactory;
 
     final MethodMapper methodMapper(final Class<?> contract) {
         return methodMapperFactory.create(contract);

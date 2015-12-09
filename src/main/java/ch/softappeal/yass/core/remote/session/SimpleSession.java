@@ -11,7 +11,7 @@ import java.util.concurrent.Executor;
  */
 public abstract class SimpleSession extends Session {
 
-    public final Executor dispatchExecutor;
+    private final Executor dispatchExecutor;
 
     protected SimpleSession(final MethodMapper.Factory methodMapperFactory, final Connection connection, final Executor dispatchExecutor) {
         super(methodMapperFactory, connection);
