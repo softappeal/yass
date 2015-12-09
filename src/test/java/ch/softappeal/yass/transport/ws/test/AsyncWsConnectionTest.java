@@ -1,7 +1,6 @@
 package ch.softappeal.yass.transport.ws.test;
 
 import ch.softappeal.yass.core.remote.ContractId;
-import ch.softappeal.yass.core.remote.MethodMapper;
 import ch.softappeal.yass.core.remote.OneWay;
 import ch.softappeal.yass.core.remote.Server;
 import ch.softappeal.yass.core.remote.Service;
@@ -42,9 +41,7 @@ public final class AsyncWsConnectionTest {
         @OneWay void busy();
     }
 
-    private static final ContractId<Busy> BUSY_ID = ContractId.create(Busy.class, 0);
-    private static final MethodMapper.Factory METHOD_MAPPER_FACTORY = SimpleMethodMapper.FACTORY;
-
+    private static final ContractId<Busy> BUSY_ID = ContractId.create(Busy.class, 0, SimpleMethodMapper.FACTORY);
     private static final String HOST = "0.0.0.0";
     private static final int PORT = 9090;
     private static final String PATH = "/test";
@@ -55,10 +52,9 @@ public final class AsyncWsConnectionTest {
                 SyncWsConnection.FACTORY,
                 TransportSetup.ofPacketSerializer(
                     JavaSerializer.INSTANCE,
-                    connection -> new Session(METHOD_MAPPER_FACTORY, connection) {
+                    connection -> new Session(connection) {
                         @Override protected Server server() {
                             return new Server(
-                                METHOD_MAPPER_FACTORY,
                                 new Service(BUSY_ID, () -> {
                                     System.out.println("busy");
                                     try {
@@ -99,9 +95,9 @@ public final class AsyncWsConnectionTest {
                 AsyncWsConnection.factory(5_000),
                 TransportSetup.ofPacketSerializer(
                     JavaSerializer.INSTANCE,
-                    connection -> new Session(METHOD_MAPPER_FACTORY, connection) {
+                    connection -> new Session(connection) {
                         @Override protected Server server() {
-                            return new Server(METHOD_MAPPER_FACTORY);
+                            return Server.EMPTY;
                         }
                         @Override protected void dispatchOpened(final Runnable runnable) {
                             runnable.run();

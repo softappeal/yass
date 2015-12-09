@@ -25,14 +25,13 @@ public class XhrServlet extends HttpServlet {
     private static void invoke(final Server server, final Serializer messageSerializer, final HttpServletRequest httpRequest, final HttpServletResponse httpResponse) throws Exception {
         final Request request = (Request)messageSerializer.read(Reader.create(httpRequest.getInputStream()));
         final Server.Invocation invocation = server.invocation(request);
-        if (invocation.oneWay) {
+        if (invocation.methodMapping.oneWay) {
             throw new IllegalArgumentException("xhr not allowed for oneWay method (serviceId " + request.serviceId + ", methodId " + request.methodId + ')');
         }
         messageSerializer.write(invocation.invoke(), Writer.create(httpResponse.getOutputStream()));
     }
 
     private static final Server SERVER = new Server(
-        Config.METHOD_MAPPER_FACTORY,
         new Service(AcceptorServices.EchoService, new EchoServiceImpl(), UnexpectedExceptionHandler.INSTANCE, new Logger(null, Logger.Side.SERVER))
     );
 

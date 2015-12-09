@@ -108,6 +108,6 @@ public final class Config {
      */
     private static final MethodMapper.Factory TAGGED_METHOD_MAPPER_FACTORY = TaggedMethodMapper.FACTORY;
 
-    public static final MethodMapper.Factory METHOD_MAPPER_FACTORY = SIMPLE_METHOD_MAPPER_FACTORY;
+    static final MethodMapper.Factory METHOD_MAPPER_FACTORY = SIMPLE_METHOD_MAPPER_FACTORY;
 
 }

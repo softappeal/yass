@@ -3,7 +3,6 @@ package ch.softappeal.yass.core.remote.session.test;
 import ch.softappeal.yass.core.Interceptor;
 import ch.softappeal.yass.core.remote.Server;
 import ch.softappeal.yass.core.remote.Service;
-import ch.softappeal.yass.core.remote.TaggedMethodMapper;
 import ch.softappeal.yass.core.remote.session.LocalConnection;
 import ch.softappeal.yass.core.remote.session.Session;
 import ch.softappeal.yass.core.remote.session.SessionClosedException;
@@ -36,7 +35,7 @@ public class LocalConnectionTest extends InvokeTest {
             if (createException) {
                 throw new Exception("create failed");
             }
-            return new SimpleSession(TaggedMethodMapper.FACTORY, connection, dispatchExecutor) {
+            return new SimpleSession(connection, dispatchExecutor) {
                 {
                     if (invokeBeforeOpened) {
                         proxy(ContractIdTest.ID).nothing();
@@ -44,7 +43,6 @@ public class LocalConnectionTest extends InvokeTest {
                 }
                 @Override protected Server server() {
                     return new Server(
-                        TaggedMethodMapper.FACTORY,
                         new Service(ContractIdTest.ID, new TestServiceImpl(), invoke ? Interceptor.DIRECT : SERVER_INTERCEPTOR)
                     );
                 }

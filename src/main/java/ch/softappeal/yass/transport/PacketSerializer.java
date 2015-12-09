@@ -12,11 +12,11 @@ import ch.softappeal.yass.util.Check;
  */
 public final class PacketSerializer implements Serializer {
 
-    /**
-     * A {@link Serializer} for {@link Message}.
-     */
-    public final Serializer messageSerializer;
+    private final Serializer messageSerializer;
 
+    /**
+     * @param messageSerializer A {@link Serializer} for {@link Message}.
+     */
     public PacketSerializer(final Serializer messageSerializer) {
         this.messageSerializer = Check.notNull(messageSerializer);
     }

@@ -19,7 +19,7 @@ import java.util.List;
  */
 public final class MessageSerializer implements Serializer {
 
-    public final Serializer contractSerializer;
+    private final Serializer contractSerializer;
 
     public MessageSerializer(final Serializer contractSerializer) {
         this.contractSerializer = Check.notNull(contractSerializer);

@@ -1,6 +1,5 @@
 package ch.softappeal.yass.core.remote.session;
 
-import ch.softappeal.yass.core.remote.MethodMapper;
 import ch.softappeal.yass.core.remote.Server;
 import ch.softappeal.yass.util.Check;
 
@@ -11,10 +10,10 @@ import java.util.concurrent.Executor;
  */
 public abstract class SimpleSession extends Session {
 
-    public final Executor dispatchExecutor;
+    private final Executor dispatchExecutor;
 
-    protected SimpleSession(final MethodMapper.Factory methodMapperFactory, final Connection connection, final Executor dispatchExecutor) {
-        super(methodMapperFactory, connection);
+    protected SimpleSession(final Connection connection, final Executor dispatchExecutor) {
+        super(connection);
         this.dispatchExecutor = Check.notNull(dispatchExecutor);
     }
 
