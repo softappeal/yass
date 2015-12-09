@@ -12,7 +12,7 @@ public final class GenerateTypeScriptContract {
         final Map<Class<?>, String> java2tsBaseType = new HashMap<>();
         java2tsBaseType.put(Integer.class, "instrument.stock.Integer");
         new ContractGenerator(
-            Config.class.getPackage(), Config.SERIALIZER, Config.METHOD_MAPPER_FACTORY,
+            Config.class.getPackage(), Config.SERIALIZER,
             "baseTypes", "contract", java2tsBaseType, "src/tutorial/ts/contract.ts"
         );
     }

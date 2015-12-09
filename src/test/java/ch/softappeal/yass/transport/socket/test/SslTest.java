@@ -43,10 +43,9 @@ public class SslTest extends InvokeTest {
                         if (needClientAuth) {
                             checkName(connection);
                         }
-                        return new SimpleSession(PerformanceTest.METHOD_MAPPER_FACTORY, connection, executor) {
+                        return new SimpleSession(connection, executor) {
                             @Override protected Server server() {
                                 return new Server(
-                                    PerformanceTest.METHOD_MAPPER_FACTORY,
                                     new Service(PerformanceTest.CONTRACT_ID, new TestServiceImpl())
                                 );
                             }
@@ -67,9 +66,9 @@ public class SslTest extends InvokeTest {
                     JavaSerializer.INSTANCE,
                     connection -> {
                         checkName(connection);
-                        return new SimpleSession(PerformanceTest.METHOD_MAPPER_FACTORY, connection, executor) {
+                        return new SimpleSession(connection, executor) {
                             @Override protected Server server() {
-                                return new Server(PerformanceTest.METHOD_MAPPER_FACTORY);
+                                return Server.EMPTY;
                             }
                             @Override protected void opened() throws Exception {
                                 final TestService testService = proxy(PerformanceTest.CONTRACT_ID);

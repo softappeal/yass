@@ -6,7 +6,6 @@ import ch.softappeal.yass.core.remote.Service;
 import ch.softappeal.yass.core.remote.session.Connection;
 import ch.softappeal.yass.core.remote.session.SimpleSession;
 import ch.softappeal.yass.tutorial.contract.AcceptorServices;
-import ch.softappeal.yass.tutorial.contract.Config;
 import ch.softappeal.yass.tutorial.contract.EchoService;
 import ch.softappeal.yass.tutorial.contract.EchoServiceImpl;
 import ch.softappeal.yass.tutorial.contract.InitiatorServices;
@@ -32,7 +31,6 @@ public final class InitiatorSession extends SimpleSession {
             new Logger(this, Logger.Side.SERVER)
         );
         return new Server(
-            Config.METHOD_MAPPER_FACTORY,
             new Service(InitiatorServices.PriceListener, new PriceListenerImpl(), interceptor),
             new Service(InitiatorServices.EchoService, new EchoServiceImpl(), interceptor)
         );
@@ -43,7 +41,7 @@ public final class InitiatorSession extends SimpleSession {
     private final EchoService echoService;
 
     public InitiatorSession(final Connection connection, final Executor dispatchExecutor) {
-        super(Config.METHOD_MAPPER_FACTORY, connection, dispatchExecutor);
+        super(connection, dispatchExecutor);
         System.out.println("session " + this + " created");
         final Interceptor interceptor = new Logger(this, Logger.Side.CLIENT);
         priceEngine = proxy(AcceptorServices.PriceEngine, interceptor);

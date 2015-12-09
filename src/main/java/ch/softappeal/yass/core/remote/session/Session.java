@@ -2,7 +2,6 @@ package ch.softappeal.yass.core.remote.session;
 
 import ch.softappeal.yass.core.remote.Client;
 import ch.softappeal.yass.core.remote.Message;
-import ch.softappeal.yass.core.remote.MethodMapper;
 import ch.softappeal.yass.core.remote.Reply;
 import ch.softappeal.yass.core.remote.Request;
 import ch.softappeal.yass.core.remote.Server;
@@ -29,8 +28,7 @@ public abstract class Session extends Client implements AutoCloseable {
 
     public final Connection connection;
 
-    protected Session(final MethodMapper.Factory methodMapperFactory, final Connection connection) {
-        super(methodMapperFactory);
+    protected Session(final Connection connection) {
         this.connection = Check.notNull(connection);
     }
 
@@ -142,7 +140,7 @@ public abstract class Session extends Client implements AutoCloseable {
         dispatchServerInvoke(invocation, () -> {
             try {
                 final Reply reply = invocation.invoke();
-                if (!invocation.oneWay) {
+                if (!invocation.methodMapping.oneWay) {
                     write(requestNumber, reply);
                 }
             } catch (final Exception e) {
@@ -185,7 +183,7 @@ public abstract class Session extends Client implements AutoCloseable {
             do { // we can't use END_REQUEST_NUMBER as regular requestNumber
                 requestNumber = nextRequestNumber.incrementAndGet();
             } while (requestNumber == Packet.END_REQUEST_NUMBER);
-            if (invocation.oneWay) {
+            if (invocation.methodMapping.oneWay) {
                 write(requestNumber, request);
                 return null;
             }

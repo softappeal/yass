@@ -40,7 +40,6 @@ public final class ContractGenerator extends Generator {
     private final LinkedHashMap<Class<?>, Integer> type2id = new LinkedHashMap<>();
     private final SortedMap<Integer, TypeHandler> id2typeHandler;
     private final Set<Class<?>> visitedClasses = new HashSet<>();
-    private final MethodMapper.@Nullable Factory methodMapperFactory;
     private final Map<Class<?>, String> java2tsBaseType = new HashMap<>();
     private final String contractModuleName;
 
@@ -218,11 +217,14 @@ public final class ContractGenerator extends Generator {
     private void generateInterface(final Class<?> type) {
         checkType(type);
         final Method[] methods = getMethods(type);
-        if (methodMapperFactory == null) {
-            throw new IllegalArgumentException("methodMapperFactory must be specified if there are services");
-        }
-        SimpleMethodMapper.FACTORY.create(type); // checks for overloaded methods
-        final MethodMapper methodMapper = methodMapperFactory.create(type);
+
+        // Checks overloaded methods.
+        // You must provide a factory that doesn't allow overloading due to JavaScript restrictions. Take this from ContractId.
+        // if (methodMapperFactory == null) { // Check if there are ContractIds
+        //    throw new IllegalArgumentException("methodMapperFactory must be specified if there are services");
+        // }
+        final MethodMapper methodMapper = SimpleMethodMapper.FACTORY.create(type); // $$$ fix this
+
         generateType(type, new TypeGenerator() {
             void generateInterface(final String name, final boolean proxy) {
                 tabsln("export interface %s {", name + (proxy ? "_PROXY" : ""));
@@ -306,14 +308,12 @@ public final class ContractGenerator extends Generator {
 
     /**
      * @param rootPackage Must contain the optional classes {@link #INITIATOR_SERVICES} and {@link #ACCEPTOR_SERVICES} with static fields of type {@link ContractId}.
-     * @param methodMapperFactory Optional if there are no services. You must provide a factory that doesn't allow overloading due to JavaScript restrictions.
      * @param includePath path to base types or yass module
      */
     @SuppressWarnings("unchecked")
     public ContractGenerator(
         final Package rootPackage,
         final AbstractJsFastSerializer serializer,
-        final MethodMapper.@Nullable Factory methodMapperFactory,
         final String includePath,
         final String contractModuleName,
         final @Nullable Map<Class<?>, String> java2tsBaseType,
@@ -321,7 +321,6 @@ public final class ContractGenerator extends Generator {
     ) throws Exception {
         super(contractFilePath);
         this.rootPackage = rootPackage.getName() + '.';
-        this.methodMapperFactory = methodMapperFactory;
         if (java2tsBaseType != null) {
             java2tsBaseType.forEach((java, ts) -> this.java2tsBaseType.put(Check.notNull(java), Check.notNull(ts)));
         }

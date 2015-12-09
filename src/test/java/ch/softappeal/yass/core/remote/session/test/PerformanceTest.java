@@ -29,12 +29,14 @@ public class PerformanceTest extends InvokeTest {
 
     public static final MethodMapper.Factory METHOD_MAPPER_FACTORY = TaggedMethodMapper.FACTORY;
 
-    public static final ContractId<TestService> CONTRACT_ID = ContractId.create(TestService.class, 0);
+    public static final ContractId<TestService> CONTRACT_ID = ContractId.create(TestService.class, 0, TaggedMethodMapper.FACTORY);
 
     public static SessionFactory sessionFactory(final Executor dispatchExecutor, final @Nullable CountDownLatch latch, final int samples) {
-        return connection -> new SimpleSession(METHOD_MAPPER_FACTORY, connection, dispatchExecutor) {
+        return connection -> new SimpleSession(connection, dispatchExecutor) {
             @Override protected Server server() {
-                return new Server(METHOD_MAPPER_FACTORY, new Service(CONTRACT_ID, new TestServiceImpl()));
+                return new Server(
+                    new Service(CONTRACT_ID, new TestServiceImpl())
+                );
 
             }
             @Override public void opened() {

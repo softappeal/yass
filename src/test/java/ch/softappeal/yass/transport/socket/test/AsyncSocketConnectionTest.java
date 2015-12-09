@@ -1,7 +1,6 @@
 package ch.softappeal.yass.transport.socket.test;
 
 import ch.softappeal.yass.core.remote.ContractId;
-import ch.softappeal.yass.core.remote.MethodMapper;
 import ch.softappeal.yass.core.remote.OneWay;
 import ch.softappeal.yass.core.remote.Server;
 import ch.softappeal.yass.core.remote.Service;
@@ -29,10 +28,9 @@ public final class AsyncSocketConnectionTest {
         @OneWay void busy();
     }
 
-    private static final ContractId<Busy> BUSY_ID = ContractId.create(Busy.class, 0);
+    private static final ContractId<Busy> BUSY_ID = ContractId.create(Busy.class, 0, SimpleMethodMapper.FACTORY);
     private static final SocketAddress ADDRESS = new InetSocketAddress("localhost", 28947);
     private static final Serializer PACKET_SERIALIZER = JavaSerializer.INSTANCE;
-    private static final MethodMapper.Factory METHOD_MAPPER_FACTORY = SimpleMethodMapper.FACTORY;
 
     public static void main(final String... args) throws InterruptedException {
         final ExecutorService executor = Executors.newCachedThreadPool(new NamedThreadFactory("Executor", Exceptions.STD_ERR));
@@ -40,10 +38,9 @@ public final class AsyncSocketConnectionTest {
         new SocketTransport(executor, SyncSocketConnection.FACTORY).start(
             TransportSetup.ofPacketSerializer(
                 PACKET_SERIALIZER,
-                connection -> new SimpleSession(METHOD_MAPPER_FACTORY, connection, executor) {
+                connection -> new SimpleSession(connection, executor) {
                     @Override protected Server server() {
                         return new Server(
-                            METHOD_MAPPER_FACTORY,
                             new Service(BUSY_ID, () -> {
                                 System.out.println("busy");
                                 try {
@@ -69,9 +66,9 @@ public final class AsyncSocketConnectionTest {
         new SocketTransport(executor, AsyncSocketConnection.factory(executor, 1_000)).connect(
             TransportSetup.ofPacketSerializer(
                 PACKET_SERIALIZER,
-                connection -> new SimpleSession(METHOD_MAPPER_FACTORY, connection, executor) {
+                connection -> new SimpleSession(connection, executor) {
                     @Override protected Server server() {
-                        return new Server(METHOD_MAPPER_FACTORY);
+                        return Server.EMPTY;
                     }
                     @Override protected void opened() {
                         System.out.println("initiator opened");
