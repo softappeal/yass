@@ -1,9 +1,7 @@
 package ch.softappeal.yass.core.remote.session.test;
 
 import ch.softappeal.yass.core.remote.ContractId;
-import ch.softappeal.yass.core.remote.MethodMapper;
 import ch.softappeal.yass.core.remote.Server;
-import ch.softappeal.yass.core.remote.Service;
 import ch.softappeal.yass.core.remote.TaggedMethodMapper;
 import ch.softappeal.yass.core.remote.session.LocalConnection;
 import ch.softappeal.yass.core.remote.session.Session;
@@ -27,15 +25,13 @@ public class PerformanceTest extends InvokeTest {
 
     private static final int COUNTER = 100;
 
-    public static final MethodMapper.Factory METHOD_MAPPER_FACTORY = TaggedMethodMapper.FACTORY;
-
     public static final ContractId<TestService> CONTRACT_ID = ContractId.create(TestService.class, 0, TaggedMethodMapper.FACTORY);
 
     public static SessionFactory sessionFactory(final Executor dispatchExecutor, final @Nullable CountDownLatch latch, final int samples) {
         return connection -> new SimpleSession(connection, dispatchExecutor) {
             @Override protected Server server() {
                 return new Server(
-                    new Service(CONTRACT_ID, new TestServiceImpl())
+                    CONTRACT_ID.service(new TestServiceImpl())
                 );
 
             }

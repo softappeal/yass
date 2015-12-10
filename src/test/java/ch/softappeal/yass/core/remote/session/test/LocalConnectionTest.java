@@ -2,7 +2,6 @@ package ch.softappeal.yass.core.remote.session.test;
 
 import ch.softappeal.yass.core.Interceptor;
 import ch.softappeal.yass.core.remote.Server;
-import ch.softappeal.yass.core.remote.Service;
 import ch.softappeal.yass.core.remote.session.LocalConnection;
 import ch.softappeal.yass.core.remote.session.Session;
 import ch.softappeal.yass.core.remote.session.SessionClosedException;
@@ -43,7 +42,7 @@ public class LocalConnectionTest extends InvokeTest {
                 }
                 @Override protected Server server() {
                     return new Server(
-                        new Service(ContractIdTest.ID, new TestServiceImpl(), invoke ? Interceptor.DIRECT : SERVER_INTERCEPTOR)
+                        ContractIdTest.ID.service(new TestServiceImpl(), invoke ? Interceptor.DIRECT : SERVER_INTERCEPTOR)
                     );
                 }
                 @Override protected void opened() throws Exception {

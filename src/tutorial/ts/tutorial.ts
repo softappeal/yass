@@ -77,8 +77,8 @@ namespace tutorial {
 
     function subscribePrices(proxyFactory: yass.ProxyFactory): void {
         // create proxies; you can add 0..n interceptors to a proxy
-        const instrumentService = proxyFactory.proxy(contract.AcceptorServices.InstrumentService, clientLogger);
-        const priceEngine = proxyFactory.proxy(contract.AcceptorServices.PriceEngine, clientLogger);
+        const instrumentService = proxyFactory.proxy(contract.acceptor.instrumentService, clientLogger);
+        const priceEngine = proxyFactory.proxy(contract.acceptor.priceEngine, clientLogger);
         instrumentService.reload(true, new Integer(987654)); // oneWay method call
         instrumentService.getInstruments().then(instruments => {
             instruments.forEach(instrument => tableModel[instrument.id.value] = new TableRow(instrument));
@@ -98,8 +98,8 @@ namespace tutorial {
         }
         protected server() {
             return yass.server( // you can add 0..n interceptors to a service
-                new yass.Service(contract.InitiatorServices.PriceListener, new PriceListenerImpl, serverLogger),
-                new yass.Service(contract.InitiatorServices.EchoService, new EchoServiceImpl, serverLogger)
+                contract.initiator.priceListener.service(new PriceListenerImpl, serverLogger),
+                contract.initiator.echoService.service(new EchoServiceImpl, serverLogger)
             );
         }
         protected opened(): void {
@@ -121,7 +121,7 @@ namespace tutorial {
     );
 
     const proxyFactory = yass.xhr("http://" + hostname + ":9090/xhr", contract.SERIALIZER);
-    const echoService = proxyFactory.proxy(contract.AcceptorServices.EchoService, clientLogger);
+    const echoService = proxyFactory.proxy(contract.acceptor.echoService, clientLogger);
     export function echoClick() {
         echoService.echo((<any>document.getElementById("echoInput")).value).then(
             result => document.getElementById("echoOutput").innerHTML = result,

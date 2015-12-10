@@ -3,7 +3,6 @@ package ch.softappeal.yass.transport.ws.test;
 import ch.softappeal.yass.core.remote.ContractId;
 import ch.softappeal.yass.core.remote.OneWay;
 import ch.softappeal.yass.core.remote.Server;
-import ch.softappeal.yass.core.remote.Service;
 import ch.softappeal.yass.core.remote.SimpleMethodMapper;
 import ch.softappeal.yass.core.remote.session.Session;
 import ch.softappeal.yass.serialize.JavaSerializer;
@@ -55,7 +54,7 @@ public final class AsyncWsConnectionTest {
                     connection -> new Session(connection) {
                         @Override protected Server server() {
                             return new Server(
-                                new Service(BUSY_ID, () -> {
+                                BUSY_ID.service(() -> {
                                     System.out.println("busy");
                                     try {
                                         TimeUnit.MILLISECONDS.sleep(1_000);

@@ -14,13 +14,13 @@ public class ServerTest {
     static final Client client = new Client() {
         @Override public Object invoke(final Client.Invocation invocation) throws Throwable {
             return invocation.invoke(request -> new Server(
-                new Service(ContractIdTest.ID, new InvokeTest.TestServiceImpl())
+                ContractIdTest.ID.service(new InvokeTest.TestServiceImpl())
             ).invocation(request).invoke());
         }
     };
 
     @Test public void duplicatedService() {
-        final Service service = new Service(ContractIdTest.ID, new InvokeTest.TestServiceImpl());
+        final Service service = ContractIdTest.ID.service(new InvokeTest.TestServiceImpl());
         try {
             new Server(service, service);
             Assert.fail();
