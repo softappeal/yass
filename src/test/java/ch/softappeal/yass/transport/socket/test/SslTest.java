@@ -1,7 +1,6 @@
 package ch.softappeal.yass.transport.socket.test;
 
 import ch.softappeal.yass.core.remote.Server;
-import ch.softappeal.yass.core.remote.Service;
 import ch.softappeal.yass.core.remote.session.Connection;
 import ch.softappeal.yass.core.remote.session.SimpleSession;
 import ch.softappeal.yass.core.remote.session.test.PerformanceTest;
@@ -46,7 +45,7 @@ public class SslTest extends InvokeTest {
                         return new SimpleSession(connection, executor) {
                             @Override protected Server server() {
                                 return new Server(
-                                    new Service(PerformanceTest.CONTRACT_ID, new TestServiceImpl())
+                                    PerformanceTest.CONTRACT_ID.service(new TestServiceImpl())
                                 );
                             }
                             @Override protected void closed(final Exception exception) {

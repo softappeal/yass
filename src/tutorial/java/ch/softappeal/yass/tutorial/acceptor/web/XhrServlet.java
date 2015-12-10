@@ -2,12 +2,10 @@ package ch.softappeal.yass.tutorial.acceptor.web;
 
 import ch.softappeal.yass.core.remote.Request;
 import ch.softappeal.yass.core.remote.Server;
-import ch.softappeal.yass.core.remote.Service;
 import ch.softappeal.yass.serialize.Reader;
 import ch.softappeal.yass.serialize.Serializer;
 import ch.softappeal.yass.serialize.Writer;
 import ch.softappeal.yass.transport.MessageSerializer;
-import ch.softappeal.yass.tutorial.contract.AcceptorServices;
 import ch.softappeal.yass.tutorial.contract.Config;
 import ch.softappeal.yass.tutorial.contract.EchoServiceImpl;
 import ch.softappeal.yass.tutorial.contract.Logger;
@@ -17,6 +15,8 @@ import ch.softappeal.yass.util.Exceptions;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+import static ch.softappeal.yass.tutorial.contract.Config.ACCEPTOR;
 
 public class XhrServlet extends HttpServlet {
 
@@ -32,7 +32,7 @@ public class XhrServlet extends HttpServlet {
     }
 
     private static final Server SERVER = new Server(
-        new Service(AcceptorServices.EchoService, new EchoServiceImpl(), UnexpectedExceptionHandler.INSTANCE, new Logger(null, Logger.Side.SERVER))
+        ACCEPTOR.echoService.service(new EchoServiceImpl(), UnexpectedExceptionHandler.INSTANCE, new Logger(null, Logger.Side.SERVER))
     );
 
     private static final Serializer MESSAGE_SERIALIZER = new MessageSerializer(Config.SERIALIZER);

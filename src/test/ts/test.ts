@@ -306,9 +306,9 @@ namespace remoteTest {
                     throw e;
                 }
             };
-            const instrumentService = this.proxy(contract.AcceptorServices.InstrumentService, printer);
-            const priceEngine = this.proxy(contract.AcceptorServices.PriceEngine, printer);
-            const echoService = this.proxy(contract.AcceptorServices.EchoService, printer);
+            const instrumentService = this.proxy(contract.acceptor.instrumentService, printer);
+            const priceEngine = this.proxy(contract.acceptor.priceEngine, printer);
+            const echoService = this.proxy(contract.acceptor.echoService, printer);
             instrumentService.reload(false, new Integer(123));
             echoService.echo(null).then(result => assert(result === null));
             echoService.echo(undefined).then(result => assert(result === null));
@@ -354,7 +354,7 @@ namespace remoteTest {
         "ws://" + hostname + ":9090/tutorial",
         contract.SERIALIZER,
         yass.server(
-            new yass.Service(contract.InitiatorServices.EchoService, {echo: (value: any) => value})
+            contract.initiator.echoService.service({echo: (value: any) => value})
         ),
         sessionClient => new Session(sessionClient),
         () => log("connectFailed")
@@ -365,15 +365,15 @@ namespace remoteTest {
 namespace xhrTest {
 
     const proxyFactory = yass.xhr("http://" + hostname + ":9090/xhr", contract.SERIALIZER);
-    const instrumentService = proxyFactory.proxy(contract.AcceptorServices.InstrumentService);
-    const echoService = proxyFactory.proxy(contract.AcceptorServices.EchoService);
+    const instrumentService = proxyFactory.proxy(contract.acceptor.instrumentService);
+    const echoService = proxyFactory.proxy(contract.acceptor.echoService);
     assertThrown(() => instrumentService.reload(false, new Integer(123)));
     echoService.echo("echo").then(result => log("echo succeeded:", result));
     echoService.echo("throwRuntimeException").catch(error => log("throwRuntimeException failed:", error));
 
-    assertThrown(() => yass.xhr("dummy://" + hostname + ":9090/xhr", contract.SERIALIZER).proxy(contract.AcceptorServices.EchoService).echo("echo1"));
-    yass.xhr("http://" + hostname + ":9090/dummy", contract.SERIALIZER).proxy(contract.AcceptorServices.EchoService).echo("echo2").catch(error => log("echo2 failed:", error));
-    yass.xhr("http://" + hostname + ":9999/xhr", contract.SERIALIZER).proxy(contract.AcceptorServices.EchoService).echo("echo3").catch(error => log("echo3 failed:", error));
+    assertThrown(() => yass.xhr("dummy://" + hostname + ":9090/xhr", contract.SERIALIZER).proxy(contract.acceptor.echoService).echo("echo1"));
+    yass.xhr("http://" + hostname + ":9090/dummy", contract.SERIALIZER).proxy(contract.acceptor.echoService).echo("echo2").catch(error => log("echo2 failed:", error));
+    yass.xhr("http://" + hostname + ":9999/xhr", contract.SERIALIZER).proxy(contract.acceptor.echoService).echo("echo3").catch(error => log("echo3 failed:", error));
 
 }
 

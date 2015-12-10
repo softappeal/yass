@@ -1,5 +1,6 @@
 package ch.softappeal.yass.core.remote;
 
+import ch.softappeal.yass.core.Interceptor;
 import ch.softappeal.yass.util.Check;
 
 /**
@@ -16,6 +17,14 @@ public final class ContractId<C> {
         this.contract = Check.notNull(contract);
         this.id = id;
         methodMapper = methodMapperFactory.create(contract);
+    }
+
+    /**
+     * It's a good idea to add an interceptor that handles unexpected exceptions
+     * (this is especially useful for oneWay methods where these are ignored and NOT passed to the client).
+     */
+    public Service service(final C implementation, final Interceptor... interceptors) {
+        return new Service(this, implementation, interceptors);
     }
 
     public static <C> ContractId<C> create(final Class<C> contract, final int id, final MethodMapper.Factory methodMapperFactory) {

@@ -2,13 +2,10 @@ package ch.softappeal.yass.tutorial.acceptor;
 
 import ch.softappeal.yass.core.Interceptor;
 import ch.softappeal.yass.core.remote.Server;
-import ch.softappeal.yass.core.remote.Service;
 import ch.softappeal.yass.core.remote.session.Connection;
 import ch.softappeal.yass.core.remote.session.SimpleSession;
-import ch.softappeal.yass.tutorial.contract.AcceptorServices;
 import ch.softappeal.yass.tutorial.contract.EchoService;
 import ch.softappeal.yass.tutorial.contract.EchoServiceImpl;
-import ch.softappeal.yass.tutorial.contract.InitiatorServices;
 import ch.softappeal.yass.tutorial.contract.Logger;
 import ch.softappeal.yass.tutorial.contract.Price;
 import ch.softappeal.yass.tutorial.contract.PriceKind;
@@ -27,6 +24,9 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import static ch.softappeal.yass.tutorial.contract.Config.ACCEPTOR;
+import static ch.softappeal.yass.tutorial.contract.Config.INITIATOR;
+
 public final class AcceptorSession extends SimpleSession {
 
     private final Set<Integer> subscribedInstrumentIds = Collections.synchronizedSet(new HashSet<>());
@@ -37,9 +37,9 @@ public final class AcceptorSession extends SimpleSession {
             new Logger(this, Logger.Side.SERVER)
         );
         return new Server(
-            new Service(AcceptorServices.InstrumentService, new InstrumentServiceImpl(), interceptor),
-            new Service(AcceptorServices.PriceEngine, new PriceEngineImpl(InstrumentServiceImpl.INSTRUMENTS, subscribedInstrumentIds), interceptor),
-            new Service(AcceptorServices.EchoService, new EchoServiceImpl(), interceptor)
+            ACCEPTOR.instrumentService.service(new InstrumentServiceImpl(), interceptor),
+            ACCEPTOR.priceEngine.service(new PriceEngineImpl(InstrumentServiceImpl.INSTRUMENTS, subscribedInstrumentIds), interceptor),
+            ACCEPTOR.echoService.service(new EchoServiceImpl(), interceptor)
         );
     }
 
@@ -50,8 +50,8 @@ public final class AcceptorSession extends SimpleSession {
         super(connection, dispatchExecutor);
         System.out.println("session " + this + " created");
         final Interceptor interceptor = new Logger(this, Logger.Side.CLIENT);
-        priceListener = proxy(InitiatorServices.PriceListener, interceptor);
-        echoService = proxy(InitiatorServices.EchoService, interceptor);
+        priceListener = proxy(INITIATOR.priceListener, interceptor);
+        echoService = proxy(INITIATOR.echoService, interceptor);
     }
 
     @Override protected void opened() throws InterruptedException {

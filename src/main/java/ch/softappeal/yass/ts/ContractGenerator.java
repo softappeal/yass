@@ -3,6 +3,7 @@ package ch.softappeal.yass.ts;
 import ch.softappeal.yass.Version;
 import ch.softappeal.yass.core.remote.ContractId;
 import ch.softappeal.yass.core.remote.MethodMapper;
+import ch.softappeal.yass.core.remote.Services;
 import ch.softappeal.yass.core.remote.SimpleMethodMapper;
 import ch.softappeal.yass.serialize.fast.AbstractJsFastSerializer;
 import ch.softappeal.yass.serialize.fast.ClassTypeHandler;
@@ -42,6 +43,7 @@ public final class ContractGenerator extends Generator {
     private final Set<Class<?>> visitedClasses = new HashSet<>();
     private final Map<Class<?>, String> java2tsBaseType = new HashMap<>();
     private final String contractModuleName;
+    private MethodMapper.Factory methodMapperFactory;
 
     private void checkType(final Class<?> type) {
         if (!type.getCanonicalName().startsWith(rootPackage)) {
@@ -187,11 +189,11 @@ public final class ContractGenerator extends Generator {
         }
     }
 
-    private static List<ServiceDesc> getServiceDescs(final Class<?> services) throws Exception {
+    private static List<ServiceDesc> getServiceDescs(final Services services) throws Exception {
         final List<ServiceDesc> serviceDescs = new ArrayList<>();
-        for (final Field field : services.getFields()) {
-            if (Modifier.isStatic(field.getModifiers()) && (field.getType() == ContractId.class)) {
-                serviceDescs.add(new ServiceDesc(field.getName(), (ContractId<?>)field.get(null)));
+        for (final Field field : services.getClass().getFields()) {
+            if (!Modifier.isStatic(field.getModifiers()) && (field.getType() == ContractId.class)) {
+                serviceDescs.add(new ServiceDesc(field.getName(), (ContractId<?>)field.get(services)));
             }
         }
         Collections.sort(
@@ -201,7 +203,7 @@ public final class ContractGenerator extends Generator {
         return serviceDescs;
     }
 
-    private static Set<Class<?>> getInterfaces(final @Nullable Class<?> services) throws Exception {
+    private static Set<Class<?>> getInterfaces(final @Nullable Services services) throws Exception {
         if (services == null) {
             return new HashSet<>();
         }
@@ -217,14 +219,8 @@ public final class ContractGenerator extends Generator {
     private void generateInterface(final Class<?> type) {
         checkType(type);
         final Method[] methods = getMethods(type);
-
-        // Checks overloaded methods.
-        // You must provide a factory that doesn't allow overloading due to JavaScript restrictions. Take this from ContractId.
-        // if (methodMapperFactory == null) { // Check if there are ContractIds
-        //    throw new IllegalArgumentException("methodMapperFactory must be specified if there are services");
-        // }
-        final MethodMapper methodMapper = SimpleMethodMapper.FACTORY.create(type); // $$$ fix this
-
+        SimpleMethodMapper.FACTORY.create(type); // checks for overloaded methods (JavaScript restriction)
+        final MethodMapper methodMapper = SimpleMethodMapper.FACTORY.create(type);
         generateType(type, new TypeGenerator() {
             void generateInterface(final String name, final boolean proxy) {
                 tabsln("export interface %s {", name + (proxy ? "_PROXY" : ""));
@@ -277,11 +273,11 @@ public final class ContractGenerator extends Generator {
         });
     }
 
-    private void generateServices(final @Nullable Class<?> services) throws Exception {
+    private void generateServices(final @Nullable Services services, final String role) throws Exception {
         if (services == null) {
             return;
         }
-        tabsln("export namespace %s {", jsType(services));
+        tabsln("export namespace %s {", role);
         inc();
         for (final ServiceDesc serviceDesc : getServiceDescs(services)) {
             final String name = contractModuleName + jsType(serviceDesc.contractId.contract);
@@ -295,25 +291,15 @@ public final class ContractGenerator extends Generator {
         println();
     }
 
-    public static final String INITIATOR_SERVICES = "InitiatorServices";
-    public static final String ACCEPTOR_SERVICES = "AcceptorServices";
-
-    private @Nullable Class<?> getServicesClass(final String servicesClass) {
-        try {
-            return Class.forName(this.rootPackage + servicesClass);
-        } catch (final ClassNotFoundException ignore) {
-            return null;
-        }
-    }
-
     /**
-     * @param rootPackage Must contain the optional classes {@link #INITIATOR_SERVICES} and {@link #ACCEPTOR_SERVICES} with static fields of type {@link ContractId}.
      * @param includePath path to base types or yass module
      */
     @SuppressWarnings("unchecked")
     public ContractGenerator(
         final Package rootPackage,
         final AbstractJsFastSerializer serializer,
+        final @Nullable Services initiator,
+        final @Nullable Services acceptor,
         final String includePath,
         final String contractModuleName,
         final @Nullable Map<Class<?>, String> java2tsBaseType,
@@ -340,15 +326,22 @@ public final class ContractGenerator extends Generator {
         println();
         id2typeHandler.values().stream().map(typeHandler -> typeHandler.type).filter(Class::isEnum).forEach(type -> generateEnum((Class<Enum<?>>)type));
         id2typeHandler.values().stream().filter(typeHandler -> typeHandler instanceof ClassTypeHandler).forEach(typeHandler -> generateClass(typeHandler.type));
-        final @Nullable Class<?> initiatorServices = getServicesClass(INITIATOR_SERVICES);
-        final @Nullable Class<?> acceptorServices = getServicesClass(ACCEPTOR_SERVICES);
-        final Set<Class<?>> interfaceSet = getInterfaces(initiatorServices);
-        interfaceSet.addAll(getInterfaces(acceptorServices));
+        if ((initiator != null) && (acceptor != null) && (initiator.methodMapperFactory != acceptor.methodMapperFactory)) {
+            throw new IllegalArgumentException("initiator and acceptor must have same methodMapperFactory");
+        }
+        if (initiator != null) {
+            methodMapperFactory = initiator.methodMapperFactory;
+        }
+        if (acceptor != null) {
+            methodMapperFactory = acceptor.methodMapperFactory;
+        }
+        final Set<Class<?>> interfaceSet = getInterfaces(initiator);
+        interfaceSet.addAll(getInterfaces(acceptor));
         final List<Class<?>> interfaceList = new ArrayList<>(interfaceSet);
         Collections.sort(interfaceList, (type1, type2) -> type1.getCanonicalName().compareTo(type2.getCanonicalName()));
         interfaceList.forEach(this::generateInterface);
-        generateServices(initiatorServices);
-        generateServices(acceptorServices);
+        generateServices(initiator, "initiator");
+        generateServices(acceptor, "acceptor");
         tabs("export const SERIALIZER = new yass.JsFastSerializer(");
         inc();
         boolean first = true;

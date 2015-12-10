@@ -2,13 +2,10 @@ package ch.softappeal.yass.tutorial.initiator;
 
 import ch.softappeal.yass.core.Interceptor;
 import ch.softappeal.yass.core.remote.Server;
-import ch.softappeal.yass.core.remote.Service;
 import ch.softappeal.yass.core.remote.session.Connection;
 import ch.softappeal.yass.core.remote.session.SimpleSession;
-import ch.softappeal.yass.tutorial.contract.AcceptorServices;
 import ch.softappeal.yass.tutorial.contract.EchoService;
 import ch.softappeal.yass.tutorial.contract.EchoServiceImpl;
-import ch.softappeal.yass.tutorial.contract.InitiatorServices;
 import ch.softappeal.yass.tutorial.contract.Logger;
 import ch.softappeal.yass.tutorial.contract.PriceEngine;
 import ch.softappeal.yass.tutorial.contract.SystemException;
@@ -23,6 +20,9 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
+import static ch.softappeal.yass.tutorial.contract.Config.ACCEPTOR;
+import static ch.softappeal.yass.tutorial.contract.Config.INITIATOR;
+
 public final class InitiatorSession extends SimpleSession {
 
     @Override protected Server server() {
@@ -31,8 +31,8 @@ public final class InitiatorSession extends SimpleSession {
             new Logger(this, Logger.Side.SERVER)
         );
         return new Server(
-            new Service(InitiatorServices.PriceListener, new PriceListenerImpl(), interceptor),
-            new Service(InitiatorServices.EchoService, new EchoServiceImpl(), interceptor)
+            INITIATOR.priceListener.service(new PriceListenerImpl(), interceptor),
+            INITIATOR.echoService.service(new EchoServiceImpl(), interceptor)
         );
     }
 
@@ -44,9 +44,9 @@ public final class InitiatorSession extends SimpleSession {
         super(connection, dispatchExecutor);
         System.out.println("session " + this + " created");
         final Interceptor interceptor = new Logger(this, Logger.Side.CLIENT);
-        priceEngine = proxy(AcceptorServices.PriceEngine, interceptor);
-        instrumentService = proxy(AcceptorServices.InstrumentService, interceptor);
-        echoService = proxy(AcceptorServices.EchoService, interceptor);
+        priceEngine = proxy(ACCEPTOR.priceEngine, interceptor);
+        instrumentService = proxy(ACCEPTOR.instrumentService, interceptor);
+        echoService = proxy(ACCEPTOR.echoService, interceptor);
     }
 
     @Override protected void opened() throws UnknownInstrumentsException {

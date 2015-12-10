@@ -516,12 +516,14 @@ namespace yass {
         constructor(public id: number, public methodMapper: MethodMapper<C>) {
             // empty
         }
+        service(implementation: C, ...interceptors: Interceptor[]): Service<C> {
+            return new Service(this, implementation, composite.apply(null, interceptors));
+        }
     }
 
-    export class Service<C> {
-        interceptor: Interceptor;
-        constructor(public contractId: ContractId<C, any>, public implementation: C, ...interceptors: Interceptor[]) {
-            this.interceptor = composite.apply(null, interceptors);
+    class Service<C> {
+        constructor(public contractId: ContractId<C, any>, public implementation: C, public interceptor: Interceptor) {
+            // empty
         }
     }
 

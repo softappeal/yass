@@ -13,11 +13,7 @@ public final class Service {
     private final Object implementation;
     private final Interceptor interceptor;
 
-    /**
-     * It's a good idea to add an interceptor that handles unexpected exceptions
-     * (this is especially useful for oneWay methods where these are ignored and NOT passed to the client).
-     */
-    public <C> Service(final ContractId<C> contractId, final C implementation, final Interceptor... interceptors) {
+    <C> Service(final ContractId<C> contractId, final C implementation, final Interceptor... interceptors) {
         this.contractId = Check.notNull(contractId);
         this.implementation = Check.notNull(implementation);
         interceptor = Interceptor.composite(interceptors);

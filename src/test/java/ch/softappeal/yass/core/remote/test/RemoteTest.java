@@ -3,7 +3,6 @@ package ch.softappeal.yass.core.remote.test;
 import ch.softappeal.yass.core.Interceptor;
 import ch.softappeal.yass.core.remote.Client;
 import ch.softappeal.yass.core.remote.Server;
-import ch.softappeal.yass.core.remote.Service;
 import ch.softappeal.yass.core.test.InvokeTest;
 import org.junit.Assert;
 import org.junit.Test;
@@ -40,7 +39,7 @@ public class RemoteTest extends InvokeTest {
     @Test public void test() throws InterruptedException {
         invoke(
             client(new Server(
-                new Service(ContractIdTest.ID, new TestServiceImpl(), stepInterceptor(2), SERVER_INTERCEPTOR)
+                ContractIdTest.ID.service(new TestServiceImpl(), stepInterceptor(2), SERVER_INTERCEPTOR)
             )).proxy(ContractIdTest.ID, PRINTLN_AFTER, stepInterceptor(1), CLIENT_INTERCEPTOR)
         );
     }
