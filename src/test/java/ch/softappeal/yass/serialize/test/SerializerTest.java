@@ -65,7 +65,7 @@ public class SerializerTest {
         Assert.assertNull(allTypes.primitiveTypesListField);
         Assert.assertNull(allTypes.objectField);
         Assert.assertNull(allTypes.objectListField);
-        Assert.assertNull(allTypes.throwable);
+        Assert.assertNull(allTypes.exception);
     }
 
     public static AllTypes createValues() {
@@ -104,7 +104,7 @@ public class SerializerTest {
         allTypes.primitiveTypesListField = Arrays.asList(new PrimitiveTypes(999), new AllTypes("world"), null);
         allTypes.objectField = "bad";
         allTypes.objectListField = Arrays.asList("good", null, 123);
-        allTypes.throwable = new IntException(123);
+        allTypes.exception = new IntException(123);
         return allTypes;
     }
 
@@ -153,7 +153,7 @@ public class SerializerTest {
         Assert.assertEquals("good", objectListField.get(0));
         Assert.assertNull(objectListField.get(1));
         Assert.assertEquals(123, objectListField.get(2));
-        Assert.assertTrue(((IntException)allTypes.throwable).value == 123);
+        Assert.assertTrue(((IntException)allTypes.exception).value == 123);
     }
 
     public static Node createGraph() {

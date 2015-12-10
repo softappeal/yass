@@ -43,7 +43,7 @@ public final class Logger implements Interceptor {
         );
     }
 
-    @Override public Object invoke(final Method method, final @Nullable Object[] arguments, final Invocation invocation) throws Throwable {
+    @Override public Object invoke(final Method method, final @Nullable Object[] arguments, final Invocation invocation) throws Exception {
         final boolean oneWay = method.isAnnotationPresent(OneWay.class);
         log(oneWay ? "oneWay" : "entry", method, arguments);
         try {
@@ -52,9 +52,9 @@ public final class Logger implements Interceptor {
                 log("exit", method, result);
             }
             return result;
-        } catch (final Throwable throwable) {
-            log("exception", method, throwable);
-            throw throwable;
+        } catch (final Exception e) {
+            log("exception", method, e);
+            throw e;
         }
     }
 

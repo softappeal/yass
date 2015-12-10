@@ -174,7 +174,7 @@ public abstract class Session extends Client implements AutoCloseable {
 
     private final AtomicInteger nextRequestNumber = new AtomicInteger(Packet.END_REQUEST_NUMBER);
 
-    @Override protected final Object invoke(final Client.Invocation invocation) throws Throwable {
+    @Override protected final Object invoke(final Client.Invocation invocation) throws Exception {
         if (isClosed()) {
             throw new SessionClosedException();
         }

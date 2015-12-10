@@ -20,7 +20,7 @@ public class RemoteTest extends InvokeTest {
 
     private static Client client(final Server server) {
         return new Client() {
-            @Override public Object invoke(final Client.Invocation clientInvocation) throws Throwable {
+            @Override public Object invoke(final Client.Invocation clientInvocation) throws Exception {
                 COUNTER = 0;
                 try {
                     return clientInvocation.invoke(request -> {

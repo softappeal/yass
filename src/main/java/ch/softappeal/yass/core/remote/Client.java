@@ -5,10 +5,10 @@ import ch.softappeal.yass.util.Nullable;
 
 import java.lang.reflect.Proxy;
 
-public abstract class Client implements ProxyFactory {
+public abstract class Client {
 
     @SuppressWarnings("unchecked")
-    @Override public final <C> C proxy(final ContractId<C> contractId, final Interceptor... interceptors) {
+    public final <C> C proxy(final ContractId<C> contractId, final Interceptor... interceptors) {
         final Interceptor interceptor = Interceptor.composite(interceptors);
         return (C)Proxy.newProxyInstance(
             contractId.contract.getClassLoader(),
@@ -28,7 +28,7 @@ public abstract class Client implements ProxyFactory {
             this.methodMapping = methodMapping;
             this.arguments = arguments;
         }
-        public @Nullable Object invoke(final Tunnel tunnel) throws Throwable {
+        public @Nullable Object invoke(final Tunnel tunnel) throws Exception {
             return interceptor.invoke(
                 methodMapping.method,
                 arguments,
@@ -43,6 +43,6 @@ public abstract class Client implements ProxyFactory {
     /**
      * @return {@link Invocation#invoke(Tunnel)}
      */
-    protected abstract @Nullable Object invoke(Invocation invocation) throws Throwable;
+    protected abstract @Nullable Object invoke(Invocation invocation) throws Exception;
 
 }

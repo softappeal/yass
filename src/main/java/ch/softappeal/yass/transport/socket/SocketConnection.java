@@ -58,7 +58,7 @@ public abstract class SocketConnection implements Connection {
                     return;
                 }
             }
-        } catch (final Exception e) { // $$$
+        } catch (final Exception e) { // $$$ ?
             Session.close(session, e);
             // note: exception is not rethrown
             // there is always an exception from blocking socket read above for peer closing session

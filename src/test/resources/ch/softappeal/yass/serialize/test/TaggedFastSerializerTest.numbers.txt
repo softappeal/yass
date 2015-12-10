@@ -106,7 +106,7 @@
     107: public java.util.List ch.softappeal.yass.serialize.contract.nested.AllTypes.primitiveTypesListField
     108: public java.lang.Object ch.softappeal.yass.serialize.contract.nested.AllTypes.objectField
     109: public java.util.List ch.softappeal.yass.serialize.contract.nested.AllTypes.objectListField
-    110: public java.lang.Throwable ch.softappeal.yass.serialize.contract.nested.AllTypes.throwable
+    110: public java.lang.Exception ch.softappeal.yass.serialize.contract.nested.AllTypes.exception
 
 42: ch.softappeal.yass.serialize.contract.IntException (referenceable=false)
     1: public int ch.softappeal.yass.serialize.contract.IntException.value

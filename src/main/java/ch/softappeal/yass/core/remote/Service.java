@@ -25,11 +25,17 @@ public final class Service {
                 try {
                     return method.invoke(implementation, arguments);
                 } catch (final InvocationTargetException e) {
-                    throw e.getCause();
+                    try {
+                        throw e.getCause();
+                    } catch (final Exception | Error e2) {
+                        throw e2;
+                    } catch (final Throwable t) {
+                        throw new Error(t);
+                    }
                 }
             }));
-        } catch (final Throwable t) { // $$$
-            return new ExceptionReply(t);
+        } catch (final Exception e) {
+            return new ExceptionReply(e);
         }
     }
 

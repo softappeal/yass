@@ -8,7 +8,7 @@ import org.junit.Test;
 
 public class ReplyTest {
 
-    @Test public void value() throws Throwable {
+    @Test public void value() throws Exception {
         final String value = "xyz";
         final ValueReply reply = new ValueReply(value);
         Assert.assertSame(value, reply.value);
@@ -16,14 +16,14 @@ public class ReplyTest {
     }
 
     @Test public void exception() {
-        final Throwable throwable = new Throwable();
-        final ExceptionReply reply = new ExceptionReply(throwable);
-        Assert.assertSame(throwable, reply.throwable);
+        final Exception exception = new Exception();
+        final ExceptionReply reply = new ExceptionReply(exception);
+        Assert.assertSame(exception, reply.exception);
         try {
             ReplyVisibility.process(reply);
             Assert.fail();
-        } catch (final Throwable t) {
-            Assert.assertSame(throwable, t);
+        } catch (final Exception e) {
+            Assert.assertSame(exception, e);
         }
     }
 

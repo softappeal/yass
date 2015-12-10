@@ -10,6 +10,6 @@ public abstract class Reply extends Message {
         // empty
     }
 
-    abstract @Nullable Object process() throws Throwable;
+    abstract @Nullable Object process() throws Exception;
 
 }

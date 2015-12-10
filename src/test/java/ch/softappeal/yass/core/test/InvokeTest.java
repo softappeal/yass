@@ -68,15 +68,15 @@ public class InvokeTest {
         Logger(final String name) {
             this.name = Check.notNull(name);
         }
-        @Override public Object invoke(final Method method, final @Nullable Object[] arguments, final Invocation invocation) throws Throwable {
+        @Override public Object invoke(final Method method, final @Nullable Object[] arguments, final Invocation invocation) throws Exception {
             println(name, "entry", method.getName() + ' ' + Arrays.deepToString(arguments));
             try {
                 final Object result = invocation.proceed();
                 println(name, "exit", result);
                 return result;
-            } catch (final Throwable t) {
-                println(name, "exception", t);
-                throw t;
+            } catch (final Exception e) {
+                println(name, "exception", e);
+                throw e;
             }
         }
     }

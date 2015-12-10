@@ -17,9 +17,9 @@ import java.lang.reflect.Proxy;
      * Performs extra treatments before and after the invocation.
      * @param arguments see {@link InvocationHandler#invoke(Object, Method, Object[])}
      * @return {@link Invocation#proceed()}
-     * @throws Throwable exception of {@link Invocation#proceed()}
+     * @throws Exception exception of {@link Invocation#proceed()}
      */
-    @Nullable Object invoke(Method method, @Nullable Object[] arguments, Invocation invocation) throws Throwable;
+    @Nullable Object invoke(Method method, @Nullable Object[] arguments, Invocation invocation) throws Exception;
 
     /**
      * Calls {@link Invocation#proceed()}.
@@ -69,7 +69,13 @@ import java.lang.reflect.Proxy;
                 try {
                     return method.invoke(implementation, arguments);
                 } catch (final InvocationTargetException e) {
-                    throw e.getCause();
+                    try {
+                        throw e.getCause();
+                    } catch (final Exception | Error e2) {
+                        throw e2;
+                    } catch (final Throwable t) {
+                        throw new Error(t);
+                    }
                 }
             })
         );

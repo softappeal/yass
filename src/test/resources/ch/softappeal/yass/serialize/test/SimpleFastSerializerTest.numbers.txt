@@ -76,13 +76,13 @@
     2: public java.math.BigInteger ch.softappeal.yass.serialize.contract.nested.AllTypes.bigIntegerField
     3: public ch.softappeal.yass.serialize.contract.Color ch.softappeal.yass.serialize.contract.nested.AllTypes.colorField
     4: public java.util.Date ch.softappeal.yass.serialize.contract.nested.AllTypes.dateField
-    5: public java.time.Instant ch.softappeal.yass.serialize.contract.nested.AllTypes.instantField
-    6: public java.lang.Object ch.softappeal.yass.serialize.contract.nested.AllTypes.objectField
-    7: public java.util.List ch.softappeal.yass.serialize.contract.nested.AllTypes.objectListField
-    8: public ch.softappeal.yass.serialize.contract.PrimitiveTypes ch.softappeal.yass.serialize.contract.nested.AllTypes.primitiveTypesField
-    9: public java.util.List ch.softappeal.yass.serialize.contract.nested.AllTypes.primitiveTypesListField
-    10: public java.lang.String ch.softappeal.yass.serialize.contract.nested.AllTypes.stringField
-    11: public java.lang.Throwable ch.softappeal.yass.serialize.contract.nested.AllTypes.throwable
+    5: public java.lang.Exception ch.softappeal.yass.serialize.contract.nested.AllTypes.exception
+    6: public java.time.Instant ch.softappeal.yass.serialize.contract.nested.AllTypes.instantField
+    7: public java.lang.Object ch.softappeal.yass.serialize.contract.nested.AllTypes.objectField
+    8: public java.util.List ch.softappeal.yass.serialize.contract.nested.AllTypes.objectListField
+    9: public ch.softappeal.yass.serialize.contract.PrimitiveTypes ch.softappeal.yass.serialize.contract.nested.AllTypes.primitiveTypesField
+    10: public java.util.List ch.softappeal.yass.serialize.contract.nested.AllTypes.primitiveTypesListField
+    11: public java.lang.String ch.softappeal.yass.serialize.contract.nested.AllTypes.stringField
     12: public boolean[] ch.softappeal.yass.serialize.contract.PrimitiveTypes.booleanArrayField
     13: public boolean ch.softappeal.yass.serialize.contract.PrimitiveTypes.booleanField
     14: public java.lang.Boolean ch.softappeal.yass.serialize.contract.PrimitiveTypes.booleanWrapperField

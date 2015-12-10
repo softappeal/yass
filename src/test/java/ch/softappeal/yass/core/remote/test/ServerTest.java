@@ -12,10 +12,8 @@ import org.junit.Test;
 public class ServerTest {
 
     static final Client client = new Client() {
-        @Override public Object invoke(final Client.Invocation invocation) throws Throwable {
-            return invocation.invoke(request -> new Server(
-                ContractIdTest.ID.service(new InvokeTest.TestServiceImpl())
-            ).invocation(request).invoke());
+        @Override public Object invoke(final Client.Invocation invocation) throws Exception {
+            return invocation.invoke(request -> new Server(ContractIdTest.ID.service(new InvokeTest.TestServiceImpl())).invocation(request).invoke());
         }
     };
 
