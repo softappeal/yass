@@ -96,7 +96,7 @@ public abstract class Session extends Client implements AutoCloseable {
 
     private void close(final boolean sendEnd, final @Nullable Exception exception) throws Exception {
         if (closed.getAndSet(true)) {
-            return;
+            return; // $$$ rethrow ? add ignoredExceptionsAfterClosedHook ?
         }
         try {
             closed(exception);

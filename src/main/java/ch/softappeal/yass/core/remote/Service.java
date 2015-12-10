@@ -28,7 +28,7 @@ public final class Service {
                     throw e.getCause();
                 }
             }));
-        } catch (final Throwable t) {
+        } catch (final Throwable t) { // $$$
             return new ExceptionReply(t);
         }
     }

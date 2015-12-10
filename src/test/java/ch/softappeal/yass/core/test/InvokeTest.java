@@ -30,9 +30,7 @@ public class InvokeTest {
     public interface TestService {
         @Tag(0) void nothing();
         @Tag(11) int divide(int a, int b) throws DivisionByZeroException;
-        @Tag(22) void throwError();
         @Tag(33) @OneWay void oneWay(int sleepMillis);
-        @Tag(34) void delay(int milliSeconds);
     }
 
     public static void println(final String name, final String type, final Object message) {
@@ -52,9 +50,6 @@ public class InvokeTest {
             }
             return (a / b);
         }
-        @Override public void throwError() {
-            throw new Error("throwError");
-        }
         @Override public void oneWay(final int sleepMillis) {
             if (sleepMillis < 0) {
                 return;
@@ -62,13 +57,6 @@ public class InvokeTest {
             println("impl", "", "oneWay(" + sleepMillis + ')');
             try {
                 TimeUnit.MILLISECONDS.sleep(sleepMillis);
-            } catch (final InterruptedException e) {
-                throw new RuntimeException(e);
-            }
-        }
-        @Override public void delay(final int milliSeconds) {
-            try {
-                TimeUnit.MILLISECONDS.sleep(milliSeconds);
             } catch (final InterruptedException e) {
                 throw new RuntimeException(e);
             }
@@ -166,14 +154,6 @@ public class InvokeTest {
                 Assert.fail();
             } catch (final DivisionByZeroException e) {
                 Assert.assertTrue(e.value == 123);
-            }
-        });
-        invoke("throwError", new Class<?>[] {}, null, () -> {
-            try {
-                testService.throwError();
-                Assert.fail();
-            } catch (final Error e) {
-                Assert.assertEquals("throwError", e.getMessage());
             }
         });
         invoke("oneWay", new Class<?>[] {int.class}, new Object[] {100}, () -> testService.oneWay(100));

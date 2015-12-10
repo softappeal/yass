@@ -113,18 +113,18 @@ public final class Config {
 
     private static final MethodMapper.Factory METHOD_MAPPER_FACTORY = SIMPLE_METHOD_MAPPER_FACTORY;
 
-    public static final class Initiator extends Services {
-        private Initiator() {
+    private abstract static class Role extends Services {
+        Role() {
             super(METHOD_MAPPER_FACTORY);
         }
+    }
+
+    public static final class Initiator extends Role {
         public final ContractId<PriceListener> priceListener = create(PriceListener.class, 0);
         public final ContractId<EchoService> echoService = create(EchoService.class, 1);
     }
 
-    public static final class Acceptor extends Services {
-        private Acceptor() {
-            super(METHOD_MAPPER_FACTORY);
-        }
+    public static final class Acceptor extends Role {
         public final ContractId<PriceEngine> priceEngine = create(PriceEngine.class, 0);
         public final ContractId<InstrumentService> instrumentService = create(InstrumentService.class, 1);
         public final ContractId<EchoService> echoService = create(EchoService.class, 2);

@@ -56,10 +56,10 @@ public class MethodMapperTest {
     @Test public void taggedFactory() throws NoSuchMethodException {
         final MethodMapper mapper = TaggedMethodMapper.FACTORY.create(InvokeTest.TestService.class);
         {
-            final Method method = InvokeTest.TestService.class.getMethod("throwError");
+            final Method method = InvokeTest.TestService.class.getMethod("nothing");
             final MethodMapper.Mapping mapping = mapper.mapMethod(method);
             Assert.assertEquals(method, mapping.method);
-            Assert.assertEquals(22, mapping.id);
+            Assert.assertEquals(0, mapping.id);
             Assert.assertFalse(mapping.oneWay);
             Assert.assertFalse(mapper.mapMethod(method).oneWay);
         }
@@ -109,18 +109,18 @@ public class MethodMapperTest {
     @Test public void simpleFactory() throws NoSuchMethodException {
         final MethodMapper mapper = SimpleMethodMapper.FACTORY.create(InvokeTest.TestService.class);
         {
-            final Method method = InvokeTest.TestService.class.getMethod("throwError");
+            final Method method = InvokeTest.TestService.class.getMethod("nothing");
             final MethodMapper.Mapping mapping = mapper.mapMethod(method);
             Assert.assertEquals(method, mapping.method);
-            Assert.assertEquals(4, mapping.id);
+            Assert.assertEquals(1, mapping.id);
             Assert.assertFalse(mapping.oneWay);
             Assert.assertFalse(mapper.mapMethod(method).oneWay);
         }
         {
             final Method method = InvokeTest.TestService.class.getMethod("oneWay", int.class);
-            final MethodMapper.Mapping mapping = mapper.mapId(3);
+            final MethodMapper.Mapping mapping = mapper.mapId(2);
             Assert.assertEquals(method, mapping.method);
-            Assert.assertEquals(3, mapping.id);
+            Assert.assertEquals(2, mapping.id);
             Assert.assertTrue(mapping.oneWay);
             Assert.assertTrue(mapper.mapMethod(method).oneWay);
         }

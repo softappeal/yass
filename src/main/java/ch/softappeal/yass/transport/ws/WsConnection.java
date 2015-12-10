@@ -76,7 +76,7 @@ public abstract class WsConnection implements Connection {
     }
 
     protected final void onError(final @Nullable Throwable throwable) {
-        if ((throwable == null) || (throwable instanceof Exception)) {
+        if ((throwable == null) || (throwable instanceof Exception)) { // $$$
             Session.close(yassSession, (throwable == null) ? new Exception("<no-throwable>") : (Exception)throwable);
             // note: exception is not rethrown
             // there is always an exception for peer closing session
