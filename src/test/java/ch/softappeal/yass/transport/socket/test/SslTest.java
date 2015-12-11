@@ -48,11 +48,6 @@ public class SslTest extends InvokeTest {
                                     PerformanceTest.CONTRACT_ID.service(new TestServiceImpl())
                                 );
                             }
-                            @Override protected void closed(final Exception exception) {
-                                if (exception != null) {
-                                    Exceptions.TERMINATE.uncaughtException(null, exception);
-                                }
-                            }
                         };
                     }
                 ),
@@ -73,11 +68,6 @@ public class SslTest extends InvokeTest {
                                 final TestService testService = proxy(PerformanceTest.CONTRACT_ID);
                                 Assert.assertTrue(testService.divide(12, 4) == 3);
                                 close();
-                            }
-                            @Override protected void closed(final Exception exception) {
-                                if (exception != null) {
-                                    Exceptions.TERMINATE.uncaughtException(null, exception);
-                                }
                             }
                         };
                     }

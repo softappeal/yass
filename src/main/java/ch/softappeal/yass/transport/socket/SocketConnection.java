@@ -25,11 +25,17 @@ public abstract class SocketConnection implements Connection {
         final Session session = Session.create(setup.sessionFactory, connection);
         try {
             connection.created(session);
+            while (true) {
+                final Packet packet = (Packet)connection.packetSerializer.read(reader);
+                Session.received(session, packet);
+                if (packet.isEnd()) {
+                    return;
+                }
+            }
         } catch (final Exception e) {
             Session.close(session, e);
             throw e;
         }
-        connection.read(session, reader);
     }
 
     private final Serializer packetSerializer;
@@ -47,22 +53,6 @@ public abstract class SocketConnection implements Connection {
      */
     protected void created(final Session session) throws Exception {
         // empty
-    }
-
-    private void read(final Session session, final Reader reader) {
-        try {
-            while (true) {
-                final Packet packet = (Packet)packetSerializer.read(reader);
-                Session.received(session, packet);
-                if (packet.isEnd()) {
-                    return;
-                }
-            }
-        } catch (final Exception e) { // $$$ ?
-            Session.close(session, e);
-            // note: exception is not rethrown
-            // there is always an exception from blocking socket read above for peer closing session
-        }
     }
 
     protected final ByteArrayOutputStream writeToBuffer(final Packet packet) throws Exception {

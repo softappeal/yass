@@ -11,7 +11,6 @@ import ch.softappeal.yass.transport.ws.AsyncWsConnection;
 import ch.softappeal.yass.transport.ws.SyncWsConnection;
 import ch.softappeal.yass.transport.ws.WsConnection;
 import ch.softappeal.yass.transport.ws.WsEndpoint;
-import ch.softappeal.yass.util.Nullable;
 import io.undertow.Undertow;
 import io.undertow.server.XnioByteBufferPool;
 import io.undertow.servlet.Servlets;
@@ -74,7 +73,7 @@ public final class AsyncWsConnectionTest {
                         @Override protected void opened() {
                             System.out.println("acceptor opened");
                         }
-                        @Override protected void closed(final @Nullable Exception exception) {
+                        @Override protected void closed(final boolean exceptional) {
                             System.out.println("acceptor closed");
                         }
                     }
@@ -113,10 +112,8 @@ public final class AsyncWsConnectionTest {
                             }
                             System.out.println("initiator done");
                         }
-                        @Override protected void closed(final @Nullable Exception exception) {
+                        @Override protected void closed(final boolean exceptional) {
                             System.out.println("initiator closed");
-                            exception.printStackTrace(System.out);
-                            System.exit(1);
                         }
                     }
                 ),

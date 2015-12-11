@@ -598,10 +598,6 @@ namespace yass {
         };
     }
 
-    export interface ProxyFactory {
-        proxy<PC>(contractId: ContractId<any, PC>, ...interceptors: Interceptor[]): PC;
-    }
-
     export class Rpc {
         promise: Promise<any>;
         settle: (reply: Reply) => void;
@@ -646,7 +642,7 @@ namespace yass {
         }
     }
 
-    export abstract class Client implements ProxyFactory {
+    export abstract class Client {
         proxy<PC>(contractId: ContractId<any, PC>, ...interceptors: Interceptor[]): PC {
             const interceptor = composite.apply(null, interceptors);
             return <any>contractId.methodMapper.proxy((method, parameters) => this.invoke(
@@ -842,7 +838,7 @@ namespace yass {
         }
     }
 
-    export function xhr(url: string, serializer: Serializer): ProxyFactory {
+    export function xhr(url: string, serializer: Serializer): Client {
         return new XhrClient(url, serializer);
     }
 

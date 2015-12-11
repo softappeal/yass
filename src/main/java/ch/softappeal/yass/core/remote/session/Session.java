@@ -7,7 +7,6 @@ import ch.softappeal.yass.core.remote.Request;
 import ch.softappeal.yass.core.remote.Server;
 import ch.softappeal.yass.util.Check;
 import ch.softappeal.yass.util.Exceptions;
-import ch.softappeal.yass.util.Nullable;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -60,9 +59,12 @@ public abstract class Session extends Client implements AutoCloseable {
 
     /**
      * Called when the session has been closed.
-     * @param exception null if regular close else reason for close
+     * This implementation does nothing.
+     * @param exceptional true if exceptional close else regular close
      */
-    protected abstract void closed(@Nullable Exception exception) throws Exception;
+    protected void closed(final boolean exceptional) throws Exception {
+        // empty
+    }
 
     private final AtomicBoolean closed = new AtomicBoolean(true);
 
@@ -84,7 +86,7 @@ public abstract class Session extends Client implements AutoCloseable {
      */
     public static void close(final Session session, final Exception exception) {
         try {
-            session.close(false, Check.notNull(exception));
+            session.close(false, true);
         } catch (final Exception e2) {
             exception.addSuppressed(e2);
         }
@@ -94,12 +96,12 @@ public abstract class Session extends Client implements AutoCloseable {
         return closed.get();
     }
 
-    private void close(final boolean sendEnd, final @Nullable Exception exception) throws Exception {
+    private void close(final boolean sendEnd, final boolean exceptional) throws Exception {
         if (closed.getAndSet(true)) {
-            return; // $$$ rethrow ? add ignoredExceptionsAfterClosedHook ?
+            return;
         }
         try {
-            closed(exception);
+            closed(exceptional);
             if (sendEnd) {
                 connection.write(Packet.END);
             }
@@ -120,7 +122,7 @@ public abstract class Session extends Client implements AutoCloseable {
      */
     @Override public void close() {
         try {
-            close(true, null);
+            close(true, false);
         } catch (final Exception e) {
             throw Exceptions.wrap(e);
         }
@@ -153,7 +155,7 @@ public abstract class Session extends Client implements AutoCloseable {
 
     private void received(final Packet packet) throws Exception {
         if (packet.isEnd()) {
-            close(false, null);
+            close(false, false);
             return;
         }
         final Message message = packet.message();

@@ -12,7 +12,6 @@ import ch.softappeal.yass.core.test.InvokeTest;
 import ch.softappeal.yass.transport.socket.SocketHelper;
 import ch.softappeal.yass.util.Exceptions;
 import ch.softappeal.yass.util.NamedThreadFactory;
-import ch.softappeal.yass.util.Nullable;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -65,11 +64,8 @@ public class LocalConnectionTest extends InvokeTest {
                         }
                     }
                 }
-                @Override protected void closed(final @Nullable Exception exception) {
-                    if (invoke) {
-                        Assert.assertNull(exception);
-                    }
-                    println("", "closed", hashCode() + " " + exception);
+                @Override protected void closed(final boolean exceptional) {
+                    println("", "closed", hashCode() + " " + exceptional);
                 }
             };
         };
@@ -80,7 +76,7 @@ public class LocalConnectionTest extends InvokeTest {
     }
 
     @Test public void plain() throws InterruptedException {
-        final ExecutorService executor = Executors.newCachedThreadPool(new NamedThreadFactory("executor", Exceptions.TERMINATE));
+        final ExecutorService executor = Executors.newCachedThreadPool(new NamedThreadFactory("executor", Exceptions.STD_ERR));
         try {
             LocalConnection.connect(sessionFactory(true, executor, false), sessionFactory(false, executor, false));
             TimeUnit.MILLISECONDS.sleep(400L);
@@ -93,7 +89,7 @@ public class LocalConnectionTest extends InvokeTest {
     }
 
     @Test public void createException() throws InterruptedException {
-        final ExecutorService executor = Executors.newCachedThreadPool(new NamedThreadFactory("executor", Exceptions.TERMINATE));
+        final ExecutorService executor = Executors.newCachedThreadPool(new NamedThreadFactory("executor", Exceptions.STD_ERR));
         try {
             try {
                 LocalConnection.connect(sessionFactory(false, executor, false), sessionFactory(false, executor, true));
@@ -117,7 +113,7 @@ public class LocalConnectionTest extends InvokeTest {
     }
 
     @Test public void invokeBeforeOpened() throws InterruptedException {
-        final ExecutorService executor = Executors.newCachedThreadPool(new NamedThreadFactory("executor", Exceptions.TERMINATE));
+        final ExecutorService executor = Executors.newCachedThreadPool(new NamedThreadFactory("executor", Exceptions.STD_ERR));
         try {
             try {
                 LocalConnection.connect(sessionFactory(true, executor, false, false, true), sessionFactory(false, executor, false));

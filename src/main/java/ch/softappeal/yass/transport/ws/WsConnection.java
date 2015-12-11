@@ -71,20 +71,25 @@ public abstract class WsConnection implements Connection {
         return buffer.toByteBuffer();
     }
 
-    final void onClose(final @Nullable CloseReason closeReason) {
-        onError(new WsClosedException(closeReason));
+    final void onClose(final CloseReason closeReason) {
+        if (closeReason.getCloseCode().getCode() != CloseReason.CloseCodes.NORMAL_CLOSURE.getCode()) {
+            onError(new WsClosedException(closeReason));
+        }
     }
 
-    protected final void onError(final @Nullable Throwable throwable) {
-        if ((throwable == null) || (throwable instanceof Exception)) { // $$$ ?
-            Session.close(yassSession, (throwable == null) ? new Exception("<no-throwable>") : (Exception)throwable);
-            // note: exception is not rethrown
-            // there is always an exception for peer closing session
+    protected final void onError(@Nullable Throwable throwable) {
+        final Exception exception;
+        if (throwable == null) {
+            exception = new Exception("<no-throwable>");
+        } else if (throwable instanceof Exception) {
+            exception = (Exception)throwable;
         } else if (throwable instanceof Error) {
             throw (Error)throwable;
         } else {
             throw new Error(throwable);
         }
+        Session.close(yassSession, exception);
+        throw Exceptions.wrap(exception);
     }
 
     @Override public final void closed() throws IOException {

@@ -42,7 +42,7 @@ public class SocketTransportTest extends InvokeTest {
     }
 
     @Test public void clientInvoke() throws InterruptedException {
-        final ExecutorService executor = Executors.newCachedThreadPool(new NamedThreadFactory("executor", Exceptions.TERMINATE));
+        final ExecutorService executor = Executors.newCachedThreadPool(new NamedThreadFactory("executor", Exceptions.STD_ERR));
         try {
             new SocketTransport(executor, SyncSocketConnection.FACTORY)
                 .start(transportSetup(false, executor, false), executor, SocketHelper.ADDRESS);
@@ -55,7 +55,7 @@ public class SocketTransportTest extends InvokeTest {
     }
 
     @Test public void clientInvokeAsync() throws InterruptedException {
-        final ExecutorService executor = Executors.newCachedThreadPool(new NamedThreadFactory("executor", Exceptions.TERMINATE));
+        final ExecutorService executor = Executors.newCachedThreadPool(new NamedThreadFactory("executor", Exceptions.STD_ERR));
         try {
             new SocketTransport(executor, AsyncSocketConnection.factory(executor, 1))
                 .start(transportSetup(false, executor, false), executor, SocketHelper.ADDRESS);
@@ -68,7 +68,7 @@ public class SocketTransportTest extends InvokeTest {
     }
 
     @Test public void serverInvoke() throws InterruptedException {
-        final ExecutorService executor = Executors.newCachedThreadPool(new NamedThreadFactory("executor", Exceptions.TERMINATE));
+        final ExecutorService executor = Executors.newCachedThreadPool(new NamedThreadFactory("executor", Exceptions.STD_ERR));
         try {
             new SocketTransport(executor, SyncSocketConnection.FACTORY)
                 .start(transportSetup(true, executor, false), executor, SocketHelper.ADDRESS);
@@ -94,7 +94,7 @@ public class SocketTransportTest extends InvokeTest {
     }
 
     @Test public void multiplePathes() throws InterruptedException {
-        final ExecutorService executor = Executors.newCachedThreadPool(new NamedThreadFactory("executor", Exceptions.TERMINATE));
+        final ExecutorService executor = Executors.newCachedThreadPool(new NamedThreadFactory("executor", Exceptions.STD_ERR));
         final Integer path1 = 1;
         final Integer path2 = 2;
         final Map<Integer, TransportSetup> pathMappings = new HashMap<>(2);

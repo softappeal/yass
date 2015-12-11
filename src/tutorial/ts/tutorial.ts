@@ -75,10 +75,10 @@ namespace tutorial {
         }
     }
 
-    function subscribePrices(proxyFactory: yass.ProxyFactory): void {
+    function subscribePrices(client: yass.Client): void {
         // create proxies; you can add 0..n interceptors to a proxy
-        const instrumentService = proxyFactory.proxy(contract.acceptor.instrumentService, clientLogger);
-        const priceEngine = proxyFactory.proxy(contract.acceptor.priceEngine, clientLogger);
+        const instrumentService = client.proxy(contract.acceptor.instrumentService, clientLogger);
+        const priceEngine = client.proxy(contract.acceptor.priceEngine, clientLogger);
         instrumentService.reload(true, new Integer(987654)); // oneWay method call
         instrumentService.getInstruments().then(instruments => {
             instruments.forEach(instrument => tableModel[instrument.id.value] = new TableRow(instrument));
@@ -120,8 +120,8 @@ namespace tutorial {
         () => log("connect failed")
     );
 
-    const proxyFactory = yass.xhr("http://" + hostname + ":9090/xhr", contract.SERIALIZER);
-    const echoService = proxyFactory.proxy(contract.acceptor.echoService, clientLogger);
+    const client = yass.xhr("http://" + hostname + ":9090/xhr", contract.SERIALIZER);
+    const echoService = client.proxy(contract.acceptor.echoService, clientLogger);
     export function echoClick() {
         echoService.echo((<any>document.getElementById("echoInput")).value).then(
             result => document.getElementById("echoOutput").innerHTML = result,

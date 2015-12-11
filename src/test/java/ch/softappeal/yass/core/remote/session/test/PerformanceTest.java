@@ -62,14 +62,11 @@ public class PerformanceTest extends InvokeTest {
                 }
                 latch.countDown();
             }
-            @Override public void closed(final @Nullable Exception exception) {
-                // empty
-            }
         };
     }
 
     @Test public void test() throws InterruptedException {
-        final ExecutorService executor = Executors.newCachedThreadPool(new NamedThreadFactory("executor", Exceptions.TERMINATE));
+        final ExecutorService executor = Executors.newCachedThreadPool(new NamedThreadFactory("executor", Exceptions.STD_ERR));
         try {
             final CountDownLatch latch = new CountDownLatch(1);
             LocalConnection.connect(sessionFactory(executor, latch, COUNTER), sessionFactory(executor, null, COUNTER));
