@@ -289,14 +289,15 @@ namespace remoteTest {
     class Session extends yass.Session {
         constructor(connection: yass.Connection) {
             super(connection);
+            log("constructor", this.isClosed());
         }
         protected server() {
-            return yass.server(
+            return new yass.Server(
                 contract.initiator.echoService.service({echo: (value: any) => value})
             );
         }
         protected opened(): void {
-            log("session opened");
+            log("session opened", this.isClosed());
             const printer: yass.Interceptor = (style, method, parameters, invocation) => {
                 function doLog(kind: string, data: any): void {
                     log("logger:", kind, yass.InvokeStyle[style], method, data);
@@ -350,8 +351,8 @@ namespace remoteTest {
             priceEngine.subscribe([new Integer(987654321)]).catch(exception => log("subscribe failed with", exception));
             setTimeout(() => this.close(), 2000);
         }
-        protected closed(exception: any): void {
-            log("session closed", exception);
+        protected closed(exceptional: boolean): void {
+            log("session closed", this.isClosed(), exceptional);
         }
     }
 

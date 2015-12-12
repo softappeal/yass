@@ -531,25 +531,14 @@ namespace yass {
         constructor(public id: number, public methodMapper: MethodMapper<C>) {
             // empty
         }
-        service(implementation: C, ...interceptors: Interceptor[]): Service<C> {
+        service(implementation: C, ...interceptors: Interceptor[]): Service {
             return new Service(this, implementation, composite.apply(null, interceptors));
         }
     }
 
-    class Service<C> {
-        constructor(public contractId: ContractId<C, any>, public implementation: C, public interceptor: Interceptor) {
+    export class Service {
+        constructor(public contractId: ContractId<any, any>, private implementation: any, private interceptor: Interceptor) {
             // empty
-        }
-    }
-
-    export class ServerInvoker {
-        methodMapper: MethodMapper<any>;
-        private interceptor: Interceptor;
-        private implementation: any;
-        constructor(service: Service<any>) {
-            this.methodMapper = service.contractId.methodMapper;
-            this.interceptor = service.interceptor;
-            this.implementation = service.implementation;
         }
         invoke(method: string, parameters: any[]): Reply {
             try {
@@ -564,38 +553,35 @@ namespace yass {
     }
 
     export class ServerInvocation {
-        oneWay: boolean;
-        private method: string;
-        constructor(private serverInvoker: ServerInvoker, private request: Request) {
-            const methodMapping = serverInvoker.methodMapper.mapId(request.methodId);
-            this.oneWay = methodMapping.oneWay;
-            this.method = methodMapping.method;
+        methodMapping: MethodMapping;
+        parameters: any[];
+        constructor(public service: Service, request: Request) {
+            this.methodMapping = service.contractId.methodMapper.mapId(request.methodId);
+            this.parameters = request.parameters;
         }
         invoke(): Reply {
-            return this.serverInvoker.invoke(this.method, this.request.parameters);
+            return this.service.invoke(this.methodMapping.method, this.parameters);
         }
     }
 
-    export interface Server {
-        (request: Request): ServerInvocation;
-    }
-
-    export function server(...services: Service<any>[]): Server {
-        const serviceId2invoker: ServerInvoker[] = [];
-        services.forEach(service => {
-            const id = service.contractId.id;
-            if (serviceId2invoker[id]) {
-                throw new Error("serviceId " + id + " already added");
-            }
-            serviceId2invoker[id] = new ServerInvoker(service);
-        });
-        return request => {
-            const invoker = serviceId2invoker[request.serviceId];
-            if (!invoker) {
+    export class Server {
+        private id2service: Service[] = [];
+        constructor(...services: Service[]) {
+            services.forEach(service => {
+                const id = service.contractId.id;
+                if (this.id2service[id]) {
+                    throw new Error("serviceId " + id + " already added");
+                }
+                this.id2service[id] = service;
+            });
+        }
+        invocation(request: Request): ServerInvocation {
+            const service = this.id2service[request.serviceId];
+            if (!service) {
                 throw new Error("no serviceId " + request.serviceId + " found (methodId " + request.methodId + ")");
             }
-            return new ServerInvocation(invoker, request);
-        };
+            return new ServerInvocation(service, request);
+        }
     }
 
     export class Rpc {
@@ -694,25 +680,113 @@ namespace yass {
     }
 
     export abstract class Session extends Client {
-        private serverProp: Server;
-        private closedProp = false;
-        private requestNumber = Packet.END_REQUESTNUMBER;
-        private requestNumber2rpc: Rpc[] = [];
+        static create(sessionFactory: SessionFactory, connection: Connection): Session {
+            const session = sessionFactory(connection);
+            session.created();
+            return session;
+        }
         constructor(private connection: Connection) {
             super();
-            this.serverProp = this.server();
-            this.opened();
         }
+        private serverProp: Server;
         /**
          * Gets the server of this session. Called only once after creation of session.
          */
         protected abstract server(): Server;
-        protected abstract opened(): void;
         /**
-         * @param exception null if regular close else reason for close
+         * Called when the session has been opened.
          */
-        protected abstract closed(exception: any): void;
+        protected opened(): void {
+            // empty
+        }
+        /**
+         * Called when the session has been closed.
+         * @param exceptional true if exceptional close else regular close
+         */
+        protected closed(exceptional: boolean): void {
+            // empty
+        }
+        private closedProp = true;
+        private created(): void {
+            this.serverProp = this.server();
+            this.closedProp = false;
+            this.opened();
+        }
+        static doClose(session: Session): void {
+            try {
+                session.doCloseSend(false, true);
+            } catch (ignore) {
+                // empty
+            }
+        }
+        isClosed(): boolean {
+            return this.closedProp;
+        }
+        private doCloseSend(sendEnd: boolean, exceptional: boolean): void {
+            if (this.closedProp) {
+                return;
+            }
+            this.closedProp = true;
+            try {
+                this.closed(exceptional);
+                if (sendEnd) {
+                    this.connection.write(Packet.END);
+                }
+            } catch (exception) {
+                try {
+                    this.connection.closed();
+                } catch (ignore) {
+                    // empty
+                }
+                throw exception;
+            }
+            this.connection.closed();
+        }
+        /**
+         * Closes the session.
+         * This method is idempotent.
+         */
+        close(): void {
+            this.doCloseSend(true, false);
+        }
+        private write(requestNumber: number, message: Message): void {
+            try {
+                this.connection.write(new Packet(requestNumber, message));
+            } catch (exception) {
+                Session.doClose(this);
+                throw exception;
+            }
+        }
+        private serverInvoke(requestNumber: number, request: Request): void {
+            const invocation = this.serverProp.invocation(request);
+            const reply = invocation.invoke();
+            if (!invocation.methodMapping.oneWay) {
+                this.write(requestNumber, reply);
+            }
+        }
+        private requestNumber2rpc: Rpc[] = [];
+        private received(packet: Packet): void {
+            if (packet.isEnd()) {
+                this.doCloseSend(false, false);
+                return;
+            }
+            const message = packet.message;
+            if (message instanceof Request) {
+                this.serverInvoke(packet.requestNumber, message);
+            } else { // Reply
+                const rpc = this.requestNumber2rpc[packet.requestNumber];
+                delete this.requestNumber2rpc[packet.requestNumber];
+                rpc.settle(<Reply>message);
+            }
+        }
+        static received(session: Session, packet: Packet) {
+            session.received(packet);
+        }
+        private requestNumber = Packet.END_REQUESTNUMBER;
         protected invoke(invocation: ClientInvocation): Promise<any> {
+            if (this.isClosed()) {
+                throw new Error("session is already closed");
+            }
             return invocation.invoke((request, rpc) => {
                 if (this.requestNumber === 2147483647) {
                     this.requestNumber = Packet.END_REQUESTNUMBER;
@@ -726,58 +800,6 @@ namespace yass {
                 }
                 this.write(this.requestNumber, request);
             });
-        }
-        doClose(exception: any): void {
-            this.doCloseSend(false, exception);
-        }
-        private doCloseSend(sendEnd: boolean, exception: any): void {
-            if (this.closedProp) {
-                return;
-            }
-            this.closedProp = true;
-            try {
-                this.closed(exception);
-                if (sendEnd) {
-                    this.connection.write(Packet.END);
-                }
-            } finally {
-                this.connection.closed();
-            }
-        }
-        private write(requestNumber: number, message: Message): void {
-            if (this.closedProp) {
-                throw new Error("session is already closed");
-            }
-            try {
-                this.connection.write(new Packet(requestNumber, message));
-            } catch (exception) {
-                this.doClose(exception);
-            }
-        }
-        close(): void {
-            this.doCloseSend(true, null);
-        }
-        received(packet: Packet): void {
-            try {
-                if (packet.isEnd()) {
-                    this.doClose(null);
-                    return;
-                }
-                const message = packet.message;
-                if (message instanceof Request) {
-                    const invocation = this.serverProp(message);
-                    const reply = invocation.invoke();
-                    if (!invocation.oneWay) {
-                        this.write(packet.requestNumber, reply);
-                    }
-                } else { // Reply
-                    const rpc = this.requestNumber2rpc[packet.requestNumber];
-                    delete this.requestNumber2rpc[packet.requestNumber];
-                    rpc.settle(<Reply>message);
-                }
-            } catch (exception) {
-                this.doClose(exception);
-            }
         }
     }
 
@@ -795,19 +817,21 @@ namespace yass {
         ws.onerror = callConnectFailed;
         ws.onclose = callConnectFailed;
         ws.onopen = () => {
-            const session = sessionFactory({
+            const session = Session.create(sessionFactory, {
                 write: packet => ws.send(writeTo(serializer, packet)),
                 closed: () => ws.close()
             });
-            ws.onmessage = event => {
-                try {
-                    session.received(readFrom(serializer, event.data));
-                } catch (exception) {
-                    session.doClose(exception);
+            ws.onmessage = event => Session.received(session, readFrom(serializer, event.data));
+            ws.onerror = () => {
+                Session.doClose(session);
+                throw new Error("WebSocket.onerror");
+            };
+            ws.onclose = event => {
+                if (!event.wasClean) {
+                    Session.doClose(session);
+                    throw new Error("WebSocket.onclose");
                 }
             };
-            ws.onerror = () => session.doClose(new Error("WebSocket.onerror"));
-            ws.onclose = () => session.doClose(new Error("WebSocket.onclose"));
         };
     }
 

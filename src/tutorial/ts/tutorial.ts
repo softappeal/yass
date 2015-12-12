@@ -97,7 +97,7 @@ namespace tutorial {
             super(connection);
         }
         protected server() {
-            return yass.server( // you can add 0..n interceptors to a service
+            return new yass.Server( // you can add 0..n interceptors to a service
                 contract.initiator.priceListener.service(new PriceListenerImpl, serverLogger),
                 contract.initiator.echoService.service(new EchoServiceImpl, serverLogger)
             );
@@ -106,8 +106,8 @@ namespace tutorial {
             log("session opened", this.id);
             subscribePrices(this);
         }
-        protected closed(exception: any): void {
-            log("session closed", this.id, exception);
+        protected closed(exceptional: boolean): void {
+            log("session closed", this.id, exceptional);
         }
     }
 
