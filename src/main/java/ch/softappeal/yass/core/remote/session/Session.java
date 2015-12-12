@@ -69,7 +69,7 @@ public abstract class Session extends Client implements AutoCloseable {
     private final AtomicBoolean closed = new AtomicBoolean(true);
 
     private void created() throws Exception {
-        server = server();
+        server = Check.notNull(server());
         closed.set(false);
         dispatchOpened(() -> {
             try {
