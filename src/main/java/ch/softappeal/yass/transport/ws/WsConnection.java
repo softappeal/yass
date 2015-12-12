@@ -73,7 +73,7 @@ public abstract class WsConnection implements Connection {
 
     final void onClose(final CloseReason closeReason) {
         if (closeReason.getCloseCode().getCode() != CloseReason.CloseCodes.NORMAL_CLOSURE.getCode()) {
-            onError(new WsClosedException(closeReason));
+            onError(new RuntimeException("WebSocket closed - " + closeReason.toString()));
         }
     }
 

@@ -22,7 +22,7 @@ public final class Exceptions {
      */
     public static final UncaughtExceptionHandler STD_ERR = (thread, throwable) -> {
         try {
-            System.err.println("### " + new Date() + " - " + ((thread == null) ? "<null>" : thread.getName()) + " - " + Exceptions.class.getName() + ':');
+            System.err.println("### UncaughtExceptionHandler of '" + Exceptions.class.getName() + "' caught exception at '" + new Date() + "' in thread '" + ((thread == null) ? "<null>" : thread.getName()) + "':");
             if (throwable == null) {
                 System.err.println("throwable is null");
             } else {
