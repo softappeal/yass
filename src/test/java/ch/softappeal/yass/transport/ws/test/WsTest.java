@@ -33,7 +33,7 @@ public abstract class WsTest {
     private static volatile ExecutorService DISPATCHER_EXECUTOR;
 
     @Before public void startDispatcherExecutor() {
-        DISPATCHER_EXECUTOR = Executors.newCachedThreadPool(new NamedThreadFactory("dispatcherExecutor", Exceptions.STD_ERR));
+        DISPATCHER_EXECUTOR = Executors.newCachedThreadPool(new NamedThreadFactory("dispatcherExecutor", Exceptions.TERMINATE));
     }
 
     @After public void stopDispatcherExecutor() {

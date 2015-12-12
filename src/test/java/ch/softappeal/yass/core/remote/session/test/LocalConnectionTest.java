@@ -76,7 +76,7 @@ public class LocalConnectionTest extends InvokeTest {
     }
 
     @Test public void plain() throws InterruptedException {
-        final ExecutorService executor = Executors.newCachedThreadPool(new NamedThreadFactory("executor", Exceptions.STD_ERR));
+        final ExecutorService executor = Executors.newCachedThreadPool(new NamedThreadFactory("executor", Exceptions.TERMINATE));
         try {
             LocalConnection.connect(sessionFactory(true, executor, false), sessionFactory(false, executor, false));
             TimeUnit.MILLISECONDS.sleep(400L);
@@ -89,7 +89,7 @@ public class LocalConnectionTest extends InvokeTest {
     }
 
     @Test public void createException() throws InterruptedException {
-        final ExecutorService executor = Executors.newCachedThreadPool(new NamedThreadFactory("executor", Exceptions.STD_ERR));
+        final ExecutorService executor = Executors.newCachedThreadPool(new NamedThreadFactory("executor", Exceptions.TERMINATE));
         try {
             try {
                 LocalConnection.connect(sessionFactory(false, executor, false), sessionFactory(false, executor, true));
@@ -113,7 +113,7 @@ public class LocalConnectionTest extends InvokeTest {
     }
 
     @Test public void invokeBeforeOpened() throws InterruptedException {
-        final ExecutorService executor = Executors.newCachedThreadPool(new NamedThreadFactory("executor", Exceptions.STD_ERR));
+        final ExecutorService executor = Executors.newCachedThreadPool(new NamedThreadFactory("executor", Exceptions.TERMINATE));
         try {
             try {
                 LocalConnection.connect(sessionFactory(true, executor, false, false, true), sessionFactory(false, executor, false));

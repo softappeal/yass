@@ -107,13 +107,14 @@ public final class AsyncWsConnectionTest {
                         @Override protected void opened() {
                             System.out.println("initiator opened");
                             final Busy busy = proxy(BUSY_ID);
-                            for (int i = 0; i < 100_000; i++) {
+                            for (int i = 0; i < 1_000; i++) {
                                 busy.busy();
                             }
                             System.out.println("initiator done");
                         }
                         @Override protected void closed(final boolean exceptional) {
-                            System.out.println("initiator closed");
+                            System.out.println("initiator closed: " + exceptional);
+                            System.exit(1);
                         }
                     }
                 ),

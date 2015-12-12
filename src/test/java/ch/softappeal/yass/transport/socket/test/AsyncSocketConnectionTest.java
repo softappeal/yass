@@ -61,7 +61,7 @@ public final class AsyncSocketConnectionTest {
             ADDRESS
         );
 
-        new SocketTransport(executor, AsyncSocketConnection.factory(executor, 1_000)).connect(
+        new SocketTransport(executor, AsyncSocketConnection.factory(executor, 10)).connect(
             TransportSetup.ofPacketSerializer(
                 PACKET_SERIALIZER,
                 connection -> new SimpleSession(connection, executor) {
@@ -77,7 +77,7 @@ public final class AsyncSocketConnectionTest {
                         System.out.println("initiator done");
                     }
                     @Override protected void closed(final boolean exceptional) {
-                        System.out.println("initiator closed");
+                        System.out.println("initiator closed: " + exceptional);
                     }
                 }
             ),
