@@ -12,32 +12,35 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
-public final class Dumper {
+public class Dumper {
 
     private static final Set<Class<?>> PRIMITIVE_WRAPPER_CLASSES = new HashSet<>(Arrays.asList(
-        Boolean.class, Character.class, Byte.class, Short.class, Integer.class, Long.class, Float.class, Double.class
+        Boolean.class, Byte.class, Short.class, Integer.class, Long.class, Float.class, Double.class
     ));
 
     private final boolean compact;
-    private final boolean cycles;
+    private final boolean referenceables;
+
     private final Set<Class<?>> concreteValueClasses;
+    protected final boolean isConcreteValueClass(final Class<?> type) {
+        return concreteValueClasses.contains(type);
+    }
 
     /**
      * @param compact one-liner or multiple lines
-     * @param cycles graph can have cycles; these are marked with #
-     * @param concreteValueClasses should implement {@link Object#toString()}; only allowed if (cycles)
+     * @param referenceables true: dumps graphs (objects are marked with #); false: dumps trees
+     * @param concreteValueClasses only allowed if (referenceables); these objects should not reference others; do not print # for these classes
      */
-    public Dumper(final boolean compact, final boolean cycles, final Class<?>... concreteValueClasses) {
+    public Dumper(final boolean compact, final boolean referenceables, final Class<?>... concreteValueClasses) {
         this.compact = compact;
-        this.cycles = cycles;
-        if (!cycles && (concreteValueClasses.length != 0)) {
-            throw new IllegalArgumentException("concreteValueClasses only allowed if (cycles)");
+        this.referenceables = referenceables;
+        if (!referenceables && (concreteValueClasses.length != 0)) {
+            throw new IllegalArgumentException("concreteValueClasses only allowed if (referenceables)");
         }
         this.concreteValueClasses = new HashSet<>(Arrays.asList(concreteValueClasses));
-        this.concreteValueClasses.addAll(PRIMITIVE_WRAPPER_CLASSES);
     }
 
-    public StringBuilder append(final StringBuilder s, final @Nullable Object value) {
+    public final StringBuilder append(final StringBuilder s, final @Nullable Object value) {
         new Dump(s).dump(value);
         return s;
     }
@@ -77,21 +80,7 @@ public final class Dumper {
         }
     }
 
-    private static final class ClassDesc {
-        final boolean noToString;
-        final List<FieldDesc> fieldDescs;
-        ClassDesc(final Class<?> type) {
-            try {
-                final Class<?> toStringClass = type.getMethod("toString").getDeclaringClass();
-                noToString = (toStringClass == Object.class) || (toStringClass == Throwable.class);
-                fieldDescs = Reflect.allFields(type).stream().map(FieldDesc::new).collect(Collectors.toList());
-            } catch (final NoSuchMethodException e) {
-                throw new RuntimeException(e);
-            }
-        }
-    }
-
-    private final Map<Class<?>, ClassDesc> class2desc = new ConcurrentHashMap<>();
+    private final Map<Class<?>, List<FieldDesc>> class2fieldDescs = new ConcurrentHashMap<>();
 
     private final class Dump {
         private final StringBuilder out;
@@ -176,8 +165,8 @@ public final class Dumper {
                 dec("}");
             }
         }
-        private void dumpClassFields(final ClassDesc classDesc, final Object object) {
-            for (final FieldDesc fieldDesc : classDesc.fieldDescs) {
+        private void dumpClassFields(final List<FieldDesc> fieldDescs, final Object object) {
+            for (final FieldDesc fieldDesc : fieldDescs) {
                 final @Nullable Object value = fieldDesc.accessor.get(object);
                 if (value != null) {
                     if (compact) {
@@ -193,10 +182,11 @@ public final class Dumper {
                 }
             }
         }
-        private final Map<Object, Integer> alreadyDumpedObjects = cycles ? new IdentityHashMap<>(16) : null;
+        private final Map<Object, Integer> alreadyDumpedObjects = referenceables ? new IdentityHashMap<>(16) : null;
         private void dumpClass(final Class<?> type, final Object object) {
+            final boolean referenceables = Dumper.this.referenceables && !isConcreteValueClass(type);
             final int index;
-            if (cycles) {
+            if (referenceables) {
                 final Integer reference = alreadyDumpedObjects.get(object);
                 if (reference != null) {
                     out.append('#').append(reference);
@@ -207,55 +197,57 @@ public final class Dumper {
             } else {
                 index = 0;
             }
-            @Nullable ClassDesc classDesc = class2desc.get(type);
-            if (classDesc == null) {
-                classDesc = new ClassDesc(type);
-                class2desc.put(type, classDesc);
-            }
-            if (classDesc.noToString) {
+            if (!Dumper.this.dumpValueClass(out, type, object)) {
+                @Nullable List<FieldDesc> fieldDescs = class2fieldDescs.get(type);
+                if (fieldDescs == null) {
+                    fieldDescs = Reflect.allFields(type).stream().map(FieldDesc::new).collect(Collectors.toList());
+                    class2fieldDescs.put(type, fieldDescs);
+                }
                 if (compact) {
                     out.append(type.getSimpleName()).append("( ");
-                    dumpClassFields(classDesc, object);
+                    dumpClassFields(fieldDescs, object);
                     out.append(')');
                 } else {
                     inc(type.getSimpleName() + '(');
-                    dumpClassFields(classDesc, object);
+                    dumpClassFields(fieldDescs, object);
                     dec(")");
                 }
-            } else {
-                out.append(object);
             }
-            if (cycles) {
+            if (referenceables) {
                 out.append('#').append(index);
             }
         }
         void dump(final @Nullable Object value) {
             if (value == null) {
                 out.append("null");
-                return;
-            }
-            final Class<?> type = value.getClass();
-            if (type == Character.class) {
-                final char c = (Character)value;
-                if ((c >= (char)32) && (c <= (char)126)) {
-                    out.append('\'').append(c).append('\'');
-                } else {
-                    out.append("(char)").append((int)c);
-                }
-            } else if (type.isEnum() || concreteValueClasses.contains(type)) {
-                out.append(value);
             } else if (value instanceof CharSequence) {
                 out.append('"').append(value).append('"');
-            } else if (type.isArray()) {
-                dumpArray(value);
             } else if (value instanceof Collection) {
                 dumpCollection((Collection<?>)value);
             } else if (value instanceof Map) {
                 dumpMap((Map<?, ?>)value);
             } else {
-                dumpClass(type, value);
+                final Class<?> type = value.getClass();
+                if (type.isEnum() || PRIMITIVE_WRAPPER_CLASSES.contains(type)) {
+                    out.append(value);
+                } else if (type.isArray()) {
+                    dumpArray(value);
+                } else if (type == Character.class) {
+                    out.append('\'').append(value).append('\'');
+                } else {
+                    dumpClass(type, value);
+                }
             }
         }
+    }
+
+    /**
+     * Could dump a value class (these should not reference other objects). Should be  an one-liner.
+     * This implementation does nothing and returns false.
+     * @return true: if we dumped object of type to out; false: use default implementation
+     */
+    protected boolean dumpValueClass(final StringBuilder out, final Class<?> type, final Object object) {
+        return false;
     }
 
 }

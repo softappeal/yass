@@ -26,7 +26,7 @@ public final class Logger implements Interceptor {
         this.side = Check.notNull(side);
     }
 
-    private static final Dumper DUMPER = new Dumper(true, false);
+    private static final Dumper DUMPER = new Dumper(true, true);
     private static String dump(final Object value) {
         return DUMPER.append(new StringBuilder(256), value).toString();
     }

@@ -3,9 +3,7 @@ package ch.softappeal.yass.util.test;
 import ch.softappeal.yass.serialize.test.SerializerTest;
 import ch.softappeal.yass.util.Dumper;
 import ch.softappeal.yass.util.Nullable;
-import ch.softappeal.yass.util.PerformanceTask;
 import ch.softappeal.yass.util.TestUtils;
-import org.junit.Assert;
 import org.junit.Test;
 
 import java.io.PrintWriter;
@@ -13,11 +11,24 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.time.Instant;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.concurrent.TimeUnit;
 
 public class DumperTest {
+
+    private static final class TestDumper extends Dumper {
+        TestDumper(final boolean compact, final boolean referenceables, final Class<?>... concreteValueClasses) {
+            super(compact, referenceables, concreteValueClasses);
+        }
+        @Override protected boolean dumpValueClass(final StringBuilder out, final Class<?> type, final Object object) {
+            if (isConcreteValueClass(type) || (Date.class == type)) {
+                out.append(object);
+                return true;
+            }
+            return false;
+        }
+    }
 
     @Test public void test() {
         TestUtils.compareFile("ch/softappeal/yass/util/test/DumperTest.dump.txt", new TestUtils.Printer() {
@@ -27,10 +38,7 @@ public class DumperTest {
             void print(final Dumper dumper, final PrintWriter printer, final boolean cycles) {
                 final StringBuilder s = new StringBuilder(1024);
                 dump(dumper, s, null);
-                dump(dumper, s, '\u001F');
-                dump(dumper, s, '\u0020');
-                dump(dumper, s, '\u007E');
-                dump(dumper, s, '\u007F');
+                dump(dumper, s, 'c');
                 dump(dumper, s, SerializerTest.createNulls());
                 dump(dumper, s, SerializerTest.createValues());
                 if (cycles) {
@@ -45,25 +53,12 @@ public class DumperTest {
                 printer.append(s);
             }
             @Override public void print(final PrintWriter printer) {
-                print(new Dumper(false, true, BigInteger.class, BigDecimal.class, Instant.class), printer, true);
-                print(new Dumper(false, false), printer, false);
-                print(new Dumper(true, true, BigInteger.class, BigDecimal.class, Instant.class), printer, true);
-                print(new Dumper(true, false), printer, false);
+                print(new TestDumper(false, true, BigInteger.class, BigDecimal.class, Instant.class), printer, true);
+                print(new TestDumper(false, false), printer, false);
+                print(new TestDumper(true, true, BigInteger.class, BigDecimal.class, Instant.class), printer, true);
+                print(new TestDumper(true, false), printer, false);
             }
         });
-    }
-
-    @Test public void performance() {
-        final Object value = SerializerTest.createNulls();
-        final Dumper dumper = new Dumper(true, false);
-        new PerformanceTask() {
-            @Override protected void run(final int count) {
-                int counter = count;
-                while (counter-- > 0) {
-                    Assert.assertEquals(dumper.append(new StringBuilder(256), value).length(), 127);
-                }
-            }
-        }.run(1, TimeUnit.NANOSECONDS);
     }
 
 }

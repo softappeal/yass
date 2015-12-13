@@ -13,7 +13,7 @@ import java.io.Serializable;
     @Tag(2) public short shortField;
     @Tag(3) public int intField;
     @Tag(4) public long longField;
-    @Tag(5) public char charField;
+    @Tag(5) public char charField = ' ';
     @Tag(6) public float floatField;
     @Tag(7) public double doubleField;
 

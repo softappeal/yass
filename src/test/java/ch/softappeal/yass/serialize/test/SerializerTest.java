@@ -36,7 +36,7 @@ public class SerializerTest {
         Assert.assertTrue(allTypes.shortField == 0);
         Assert.assertTrue(allTypes.intField == 0);
         Assert.assertTrue(allTypes.longField == 0);
-        Assert.assertTrue(allTypes.charField == 0);
+        Assert.assertTrue(allTypes.charField == ' ');
         Assert.assertTrue(allTypes.floatField == 0);
         Assert.assertTrue(allTypes.doubleField == 0);
         Assert.assertNull(allTypes.booleanArrayField);
