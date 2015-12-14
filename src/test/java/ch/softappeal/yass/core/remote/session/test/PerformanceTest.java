@@ -62,6 +62,9 @@ public class PerformanceTest extends InvokeTest {
                 }
                 latch.countDown();
             }
+            @Override protected void closed(final boolean exceptional) {
+                // empty
+            }
         };
     }
 

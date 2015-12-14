@@ -51,20 +51,14 @@ public abstract class Session extends Client implements AutoCloseable {
 
     /**
      * Called when the session has been opened.
-     * This implementation does nothing.
      */
-    protected void opened() throws Exception {
-        // empty
-    }
+    protected abstract void opened() throws Exception;
 
     /**
      * Called when the session has been closed.
-     * This implementation does nothing.
-     * @param exceptional true if exceptional close else regular close
+     * * @param exceptional true if exceptional close else regular close
      */
-    protected void closed(final boolean exceptional) throws Exception {
-        // empty
-    }
+    protected abstract void closed(final boolean exceptional) throws Exception;
 
     private final AtomicBoolean closed = new AtomicBoolean(true);
 

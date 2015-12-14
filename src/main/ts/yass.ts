@@ -696,16 +696,12 @@ namespace yass {
         /**
          * Called when the session has been opened.
          */
-        protected opened(): void {
-            // empty
-        }
+        protected abstract opened(): void;
         /**
          * Called when the session has been closed.
          * @param exceptional true if exceptional close else regular close
          */
-        protected closed(exceptional: boolean): void {
-            // empty
-        }
+        protected abstract closed(exceptional: boolean): void;
         private closedProp = true;
         private created(): void {
             this.serverProp = this.server();
