@@ -29,8 +29,8 @@ public final class InitiatorSession extends SimpleSession {
             new Logger(this, Logger.Side.SERVER)
         );
         return new Server(
-            INITIATOR.priceListener.service(new PriceListenerImpl(), interceptor),
-            INITIATOR.echoService.service(new EchoServiceImpl(), interceptor)
+            INITIATOR.priceListener.service(PriceListenerImpl.INSTANCE, interceptor),
+            INITIATOR.echoService.service(EchoServiceImpl.INSTANCE, interceptor)
         );
     }
 

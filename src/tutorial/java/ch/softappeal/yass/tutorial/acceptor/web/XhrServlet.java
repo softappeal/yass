@@ -36,7 +36,7 @@ public class XhrServlet extends HttpServlet {
     }
 
     private static final Server SERVER = new Server(
-        ACCEPTOR.echoService.service(new EchoServiceImpl(), UnexpectedExceptionHandler.INSTANCE, new Logger(null, Logger.Side.SERVER))
+        ACCEPTOR.echoService.service(EchoServiceImpl.INSTANCE, UnexpectedExceptionHandler.INSTANCE, new Logger(null, Logger.Side.SERVER))
     );
 
     private static final Serializer MESSAGE_SERIALIZER = new MessageSerializer(Config.SERIALIZER);

@@ -35,9 +35,9 @@ public final class AcceptorSession extends SimpleSession {
             new Logger(this, Logger.Side.SERVER)
         );
         return new Server(
-            ACCEPTOR.instrumentService.service(new InstrumentServiceImpl(), interceptor),
+            ACCEPTOR.instrumentService.service(InstrumentServiceImpl.INSTANCE, interceptor),
             ACCEPTOR.priceEngine.service(new PriceEngineImpl(InstrumentServiceImpl.INSTRUMENTS, subscribedInstrumentIds), interceptor),
-            ACCEPTOR.echoService.service(new EchoServiceImpl(), interceptor)
+            ACCEPTOR.echoService.service(EchoServiceImpl.INSTANCE, interceptor)
         );
     }
 
@@ -58,7 +58,7 @@ public final class AcceptorSession extends SimpleSession {
         final Random random = new Random();
         while (!isClosed()) {
             final List<Price> prices = new ArrayList<>();
-            for (final int subscribedInstrumentId : subscribedInstrumentIds.toArray(new Integer[subscribedInstrumentIds.size()])) {
+            for (final int subscribedInstrumentId : subscribedInstrumentIds.toArray(new Integer[0])) {
                 if (random.nextBoolean()) {
                     prices.add(new Price(subscribedInstrumentId, random.nextInt(99) + 1, PriceKind.values()[random.nextInt(2)]));
                 }

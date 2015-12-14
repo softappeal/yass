@@ -25,6 +25,10 @@ public final class InstrumentServiceImpl implements InstrumentService {
         INSTRUMENTS = Collections.unmodifiableMap(instruments);
     }
 
+    private InstrumentServiceImpl() {
+        // disable
+    }
+
     @Override public List<Instrument> getInstruments() {
         return new ArrayList<>(INSTRUMENTS.values());
     }
@@ -32,5 +36,7 @@ public final class InstrumentServiceImpl implements InstrumentService {
     @Override public void reload(final boolean testBoolean, final int testInt) {
         // empty
     }
+
+    public static final InstrumentService INSTANCE = new InstrumentServiceImpl();
 
 }
