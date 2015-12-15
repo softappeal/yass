@@ -53,7 +53,7 @@ public class LocalConnectionTest extends InvokeTest {
                         try (Session session = this) {
                             InvokeTest.invoke(session.proxy(
                                 ContractIdTest.ID,
-                                invoke ? Interceptor.composite(PRINTLN_AFTER, CLIENT_INTERCEPTOR) : Interceptor.DIRECT
+                                Interceptor.composite(PRINTLN_AFTER, CLIENT_INTERCEPTOR)
                             ));
                         }
                         try {

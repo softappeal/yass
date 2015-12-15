@@ -50,6 +50,22 @@ import java.lang.reflect.Proxy;
         return composite;
     }
 
+    static Object invoke(final Interceptor interceptor, final Method method, final @Nullable Object[] arguments, final Object implementation) throws Exception {
+        return interceptor.invoke(method, arguments, () -> {
+            try {
+                return method.invoke(implementation, arguments);
+            } catch (final InvocationTargetException e) {
+                try {
+                    throw e.getCause();
+                } catch (final Exception | Error e2) {
+                    throw e2;
+                } catch (final Throwable t) {
+                    throw new Error(t);
+                }
+            }
+        });
+    }
+
     /**
      * @param <C> the contract type
      * @return a proxy for implementation using interceptors
@@ -65,19 +81,7 @@ import java.lang.reflect.Proxy;
         return (C)Proxy.newProxyInstance(
             contract.getClassLoader(),
             new Class<?>[] {contract},
-            (proxy, method, arguments) -> interceptor.invoke(method, arguments, () -> {
-                try {
-                    return method.invoke(implementation, arguments);
-                } catch (final InvocationTargetException e) {
-                    try {
-                        throw e.getCause();
-                    } catch (final Exception | Error e2) {
-                        throw e2;
-                    } catch (final Throwable t) {
-                        throw new Error(t);
-                    }
-                }
-            })
+            (proxy, method, arguments) -> invoke(interceptor, method, arguments, implementation)
         );
     }
 
