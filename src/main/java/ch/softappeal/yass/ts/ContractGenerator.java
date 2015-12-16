@@ -338,7 +338,7 @@ public final class ContractGenerator extends Generator {
         for (final TypeHandler typeHandler : id2typeHandler.values()) {
             final Class<?> type = typeHandler.type;
             if (type.isEnum()) {
-                generateEnum((Class<Enum<?>>)type);
+                generateEnum((Class)type);
             }
         }
         for (final TypeHandler typeHandler : id2typeHandler.values()) {

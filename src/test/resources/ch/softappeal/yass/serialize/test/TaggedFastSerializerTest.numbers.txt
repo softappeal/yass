@@ -38,8 +38,6 @@
 
 22: java.util.Date
 
-23: java.time.Instant
-
 30: ch.softappeal.yass.serialize.contract.Color
     0: RED
     1: GREEN
@@ -101,7 +99,6 @@
     102: public java.math.BigDecimal ch.softappeal.yass.serialize.contract.nested.AllTypes.bigDecimalField
     103: public java.math.BigInteger ch.softappeal.yass.serialize.contract.nested.AllTypes.bigIntegerField
     104: public java.util.Date ch.softappeal.yass.serialize.contract.nested.AllTypes.dateField
-    105: public java.time.Instant ch.softappeal.yass.serialize.contract.nested.AllTypes.instantField
     106: public ch.softappeal.yass.serialize.contract.PrimitiveTypes ch.softappeal.yass.serialize.contract.nested.AllTypes.primitiveTypesField
     107: public java.util.List ch.softappeal.yass.serialize.contract.nested.AllTypes.primitiveTypesListField
     108: public java.lang.Object ch.softappeal.yass.serialize.contract.nested.AllTypes.objectField

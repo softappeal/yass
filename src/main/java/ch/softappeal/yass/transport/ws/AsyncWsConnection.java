@@ -15,7 +15,7 @@ import javax.websocket.Session;
 public final class AsyncWsConnection extends WsConnection {
 
     /**
-     * @see RemoteEndpoint.Async#setSendTimeout(long)
+     * see RemoteEndpoint.Async#setSendTimeout(long)
      */
     public static Factory factory(final long sendTimeoutMilliSeconds) {
         if (sendTimeoutMilliSeconds < 0) {
