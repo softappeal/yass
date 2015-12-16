@@ -5,6 +5,7 @@ import ch.softappeal.yass.core.remote.Message;
 import ch.softappeal.yass.core.remote.Reply;
 import ch.softappeal.yass.core.remote.Request;
 import ch.softappeal.yass.core.remote.Server;
+import ch.softappeal.yass.core.remote.Tunnel;
 import ch.softappeal.yass.util.Check;
 import ch.softappeal.yass.util.Exceptions;
 
@@ -65,11 +66,13 @@ public abstract class Session extends Client implements AutoCloseable {
     private void created() throws Exception {
         server = Check.notNull(server());
         closed.set(false);
-        dispatchOpened(() -> {
-            try {
-                opened();
-            } catch (final Exception e) {
-                throw Exceptions.wrap(e);
+        dispatchOpened(new Runnable() {
+            @Override public void run() {
+                try {
+                    Session.this.opened();
+                } catch (final Exception e) {
+                    throw Exceptions.wrap(e);
+                }
             }
         });
     }
@@ -133,19 +136,21 @@ public abstract class Session extends Client implements AutoCloseable {
 
     private void serverInvoke(final int requestNumber, final Request request) throws Exception {
         final Server.Invocation invocation = server.invocation(request);
-        dispatchServerInvoke(invocation, () -> {
-            try {
-                final Reply reply = invocation.invoke();
-                if (!invocation.methodMapping.oneWay) {
-                    write(requestNumber, reply);
+        dispatchServerInvoke(invocation, new Runnable() {
+            @Override public void run() {
+                try {
+                    final Reply reply = invocation.invoke();
+                    if (!invocation.methodMapping.oneWay) {
+                        Session.this.write(requestNumber, reply);
+                    }
+                } catch (final Exception e) {
+                    throw Exceptions.wrap(e);
                 }
-            } catch (final Exception e) {
-                throw Exceptions.wrap(e);
             }
         });
     }
 
-    private final Map<Integer, BlockingQueue<Reply>> requestNumber2replyQueue = Collections.synchronizedMap(new HashMap<>(16));
+    private final Map<Integer, BlockingQueue<Reply>> requestNumber2replyQueue = Collections.synchronizedMap(new HashMap<Integer, BlockingQueue<Reply>>(16));
 
     private void received(final Packet packet) throws Exception {
         if (packet.isEnd()) {
@@ -174,26 +179,28 @@ public abstract class Session extends Client implements AutoCloseable {
         if (isClosed()) {
             throw new SessionClosedException();
         }
-        return invocation.invoke(request -> {
-            int requestNumber;
-            do { // we can't use END_REQUEST_NUMBER as regular requestNumber
-                requestNumber = nextRequestNumber.incrementAndGet();
-            } while (requestNumber == Packet.END_REQUEST_NUMBER);
-            if (invocation.methodMapping.oneWay) {
-                write(requestNumber, request);
-                return null;
-            }
-            final BlockingQueue<Reply> replyQueue = new ArrayBlockingQueue<>(1, false); // we use unfair for speed
-            if (requestNumber2replyQueue.put(requestNumber, replyQueue) != null) {
-                throw new RuntimeException("already waiting for requestNumber " + requestNumber);
-            }
-            write(requestNumber, request);
-            while (true) {
-                final Reply reply = replyQueue.poll(200L, TimeUnit.MILLISECONDS);
-                if (reply != null) {
-                    return reply;
-                } else if (isClosed()) {
-                    throw new SessionClosedException();
+        return invocation.invoke(new Tunnel() {
+            @Override public Reply invoke(final Request request) throws Exception {
+                int requestNumber;
+                do { // we can't use END_REQUEST_NUMBER as regular requestNumber
+                    requestNumber = nextRequestNumber.incrementAndGet();
+                } while (requestNumber == Packet.END_REQUEST_NUMBER);
+                if (invocation.methodMapping.oneWay) {
+                    Session.this.write(requestNumber, request);
+                    return null;
+                }
+                final BlockingQueue<Reply> replyQueue = new ArrayBlockingQueue<>(1, false); // we use unfair for speed
+                if (requestNumber2replyQueue.put(requestNumber, replyQueue) != null) {
+                    throw new RuntimeException("already waiting for requestNumber " + requestNumber);
+                }
+                Session.this.write(requestNumber, request);
+                while (true) {
+                    final Reply reply = replyQueue.poll(200L, TimeUnit.MILLISECONDS);
+                    if (reply != null) {
+                        return reply;
+                    } else if (Session.this.isClosed()) {
+                        throw new SessionClosedException();
+                    }
                 }
             }
         });

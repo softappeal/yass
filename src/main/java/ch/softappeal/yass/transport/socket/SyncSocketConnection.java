@@ -14,8 +14,8 @@ import java.net.Socket;
 public final class SyncSocketConnection extends SocketConnection {
 
     public static final Factory FACTORY = new Factory() {
-        @Override public SocketConnection create(final TransportSetup setup, final Socket socket, final OutputStream out) throws Exception {
-            return new SyncSocketConnection(setup, socket, out);
+        @Override public SocketConnection create(final Serializer packetSerializer, final Socket socket, final OutputStream out) throws Exception {
+            return new SyncSocketConnection(packetSerializer, socket, out);
         }
     };
 

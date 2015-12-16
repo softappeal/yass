@@ -36,7 +36,7 @@ public class PerformanceTest extends InvokeTest {
             TestService.class,
             new TestServiceImpl(),
             new Interceptor() {
-                @Override public Object invoke(final Method method, @Nullable final Object[] arguments, final Invocation invocation) throws Throwable {
+                @Override public Object invoke(final Method method, @Nullable final Object[] arguments, final Invocation invocation) throws Exception {
                     counter++;
                     return invocation.proceed();
                 }

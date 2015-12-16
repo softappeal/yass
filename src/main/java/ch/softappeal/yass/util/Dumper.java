@@ -2,6 +2,7 @@ package ch.softappeal.yass.util;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
@@ -10,11 +11,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.stream.Collectors;
 
 public class Dumper {
 
-    private static final Set<Class<?>> PRIMITIVE_WRAPPER_CLASSES = new HashSet<>(Arrays.asList(
+    private static final Set<Class<?>> PRIMITIVE_WRAPPER_CLASSES = new HashSet<>(Arrays.<Class<?>>asList(
         Boolean.class, Byte.class, Short.class, Integer.class, Long.class, Float.class, Double.class
     ));
 
@@ -45,7 +45,7 @@ public class Dumper {
         return s;
     }
 
-    @FunctionalInterface private interface Accessor {
+    private interface Accessor {
         @Nullable Object get(Object object);
     }
 
@@ -57,23 +57,59 @@ public class Dumper {
             final Class<?> type = field.getType();
             final long offset = Reflect.UNSAFE.objectFieldOffset(field);
             if (!type.isPrimitive()) {
-                accessor = object -> Reflect.UNSAFE.getObject(object, offset);
+                accessor = new Accessor() {
+                    @Override public Object get(final Object object) {
+                        return Reflect.UNSAFE.getObject(object, offset);
+                    }
+                };
             } else if (type == Boolean.TYPE) {
-                accessor = object -> Reflect.UNSAFE.getBoolean(object, offset);
+                accessor = new Accessor() {
+                    @Override public Object get(final Object object) {
+                        return Reflect.UNSAFE.getBoolean(object, offset);
+                    }
+                };
             } else if (type == Character.TYPE) {
-                accessor = object -> Reflect.UNSAFE.getChar(object, offset);
+                accessor = new Accessor() {
+                    @Override public Object get(final Object object) {
+                        return Reflect.UNSAFE.getChar(object, offset);
+                    }
+                };
             } else if (type == Byte.TYPE) {
-                accessor = object -> Reflect.UNSAFE.getByte(object, offset);
+                accessor = new Accessor() {
+                    @Override public Object get(final Object object) {
+                        return Reflect.UNSAFE.getByte(object, offset);
+                    }
+                };
             } else if (type == Short.TYPE) {
-                accessor = object -> Reflect.UNSAFE.getShort(object, offset);
+                accessor = new Accessor() {
+                    @Override public Object get(final Object object) {
+                        return Reflect.UNSAFE.getShort(object, offset);
+                    }
+                };
             } else if (type == Integer.TYPE) {
-                accessor = object -> Reflect.UNSAFE.getInt(object, offset);
+                accessor = new Accessor() {
+                    @Override public Object get(final Object object) {
+                        return Reflect.UNSAFE.getInt(object, offset);
+                    }
+                };
             } else if (type == Long.TYPE) {
-                accessor = object -> Reflect.UNSAFE.getLong(object, offset);
+                accessor = new Accessor() {
+                    @Override public Object get(final Object object) {
+                        return Reflect.UNSAFE.getLong(object, offset);
+                    }
+                };
             } else if (type == Float.TYPE) {
-                accessor = object -> Reflect.UNSAFE.getFloat(object, offset);
+                accessor = new Accessor() {
+                    @Override public Object get(final Object object) {
+                        return Reflect.UNSAFE.getFloat(object, offset);
+                    }
+                };
             } else if (type == Double.TYPE) {
-                accessor = object -> Reflect.UNSAFE.getDouble(object, offset);
+                accessor = new Accessor() {
+                    @Override public Object get(final Object object) {
+                        return Reflect.UNSAFE.getDouble(object, offset);
+                    }
+                };
             } else {
                 throw new RuntimeException("unexpected type " + type);
             }
@@ -182,7 +218,7 @@ public class Dumper {
                 }
             }
         }
-        private final Map<Object, Integer> alreadyDumpedObjects = referenceables ? new IdentityHashMap<>(16) : null;
+        private final Map<Object, Integer> alreadyDumpedObjects = referenceables ? new IdentityHashMap<Object, Integer>(16) : null;
         private void dumpClass(final Class<?> type, final Object object) {
             final boolean referenceables = Dumper.this.referenceables && !isConcreteValueClass(type);
             final int index;
@@ -200,7 +236,10 @@ public class Dumper {
             if (!Dumper.this.dumpValueClass(out, type, object)) {
                 @Nullable List<FieldDesc> fieldDescs = class2fieldDescs.get(type);
                 if (fieldDescs == null) {
-                    fieldDescs = Reflect.allFields(type).stream().map(FieldDesc::new).collect(Collectors.toList());
+                    fieldDescs = new ArrayList<>();
+                    for (final Field field : Reflect.allFields(type)) {
+                        fieldDescs.add(new FieldDesc(field));
+                    }
                     class2fieldDescs.put(type, fieldDescs);
                 }
                 if (compact) {

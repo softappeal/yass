@@ -16,7 +16,7 @@ import java.net.Socket;
 
 public abstract class SocketConnection implements Connection {
 
-    @FunctionalInterface public interface Factory {
+    public interface Factory {
         SocketConnection create(Serializer packetSerializer, Socket socket, OutputStream out) throws Exception;
     }
 

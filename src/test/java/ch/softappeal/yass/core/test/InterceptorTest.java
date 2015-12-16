@@ -26,7 +26,7 @@ public class InterceptorTest {
         final Object result = new Object();
         Assert.assertSame(
             Interceptors.DIRECT.invoke(null, null, new Invocation() {
-                @Override public Object proceed() throws Throwable {
+                @Override public Object proceed() throws Exception {
                     return result;
                 }
             }),
@@ -71,7 +71,7 @@ public class InterceptorTest {
         final int interceptors = 4;
         step = 0;
         final Invocation invocation = new Invocation() {
-            @Override public Object proceed() throws Throwable {
+            @Override public Object proceed() throws Exception {
                 Assert.assertEquals(step, interceptors);
                 step++;
                 return step + 100;
@@ -90,7 +90,7 @@ public class InterceptorTest {
         Assert.assertSame(
             result,
             Interceptors.threadLocal(threadLocal, value).invoke(null, null, new Invocation() {
-                @Override public Object proceed() throws Throwable {
+                @Override public Object proceed() throws Exception {
                     Assert.assertSame(value, threadLocal.get());
                     return result;
                 }

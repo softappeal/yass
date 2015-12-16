@@ -1,7 +1,8 @@
 package ch.softappeal.yass.core.remote.session.test;
 
-import ch.softappeal.yass.core.Interceptor;
+import ch.softappeal.yass.core.Interceptors;
 import ch.softappeal.yass.core.remote.Server;
+import ch.softappeal.yass.core.remote.session.Connection;
 import ch.softappeal.yass.core.remote.session.LocalConnection;
 import ch.softappeal.yass.core.remote.session.Session;
 import ch.softappeal.yass.core.remote.session.SessionClosedException;
@@ -29,45 +30,47 @@ public class LocalConnectionTest extends InvokeTest {
         final boolean openedException,
         final boolean invokeBeforeOpened
     ) {
-        return connection -> {
-            if (createException) {
-                throw new Exception("create failed");
-            }
-            return new SimpleSession(connection, dispatchExecutor) {
-                {
-                    if (invokeBeforeOpened) {
-                        proxy(ContractIdTest.ID).nothing();
-                    }
+        return new SessionFactory() {
+            @Override public Session create(final Connection connection) throws Exception {
+                if (createException) {
+                    throw new Exception("create failed");
                 }
-                @Override protected Server server() {
-                    return new Server(
-                        ContractIdTest.ID.service(new TestServiceImpl(), invoke ? Interceptor.DIRECT : SERVER_INTERCEPTOR)
-                    );
-                }
-                @Override protected void opened() throws Exception {
-                    println("", "opened", hashCode());
-                    if (openedException) {
-                        throw new Exception("opened failed");
-                    }
-                    if (invoke) {
-                        try (Session session = this) {
-                            InvokeTest.invoke(session.proxy(
-                                ContractIdTest.ID,
-                                Interceptor.composite(PRINTLN_AFTER, CLIENT_INTERCEPTOR)
-                            ));
-                        }
-                        try {
+                return new SimpleSession(connection, dispatchExecutor) {
+                    {
+                        if (invokeBeforeOpened) {
                             proxy(ContractIdTest.ID).nothing();
-                            Assert.fail();
-                        } catch (final SessionClosedException ignored) {
-                            // empty
                         }
                     }
-                }
-                @Override protected void closed(final boolean exceptional) {
-                    println("", "closed", hashCode() + " " + exceptional);
-                }
-            };
+                    @Override protected Server server() {
+                        return new Server(
+                            ContractIdTest.ID.service(new TestServiceImpl(), invoke ? Interceptors.DIRECT : SERVER_INTERCEPTOR)
+                        );
+                    }
+                    @Override protected void opened() throws Exception {
+                        println("", "opened", hashCode());
+                        if (openedException) {
+                            throw new Exception("opened failed");
+                        }
+                        if (invoke) {
+                            try (Session session = this) {
+                                InvokeTest.invoke(session.proxy(
+                                    ContractIdTest.ID,
+                                    Interceptors.composite(PRINTLN_AFTER, CLIENT_INTERCEPTOR)
+                                ));
+                            }
+                            try {
+                                proxy(ContractIdTest.ID).nothing();
+                                Assert.fail();
+                            } catch (final SessionClosedException ignored) {
+                                // empty
+                            }
+                        }
+                    }
+                    @Override protected void closed(final boolean exceptional) {
+                        println("", "closed", hashCode() + " " + exceptional);
+                    }
+                };
+            }
         };
     }
 

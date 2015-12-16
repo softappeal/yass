@@ -2,9 +2,12 @@ package ch.softappeal.yass.core.remote.test;
 
 import ch.softappeal.yass.core.remote.Client;
 import ch.softappeal.yass.core.remote.ContractId;
+import ch.softappeal.yass.core.remote.Reply;
+import ch.softappeal.yass.core.remote.Request;
 import ch.softappeal.yass.core.remote.Server;
 import ch.softappeal.yass.core.remote.Service;
 import ch.softappeal.yass.core.remote.TaggedMethodMapper;
+import ch.softappeal.yass.core.remote.Tunnel;
 import ch.softappeal.yass.core.test.InvokeTest;
 import org.junit.Assert;
 import org.junit.Test;
@@ -13,7 +16,11 @@ public class ServerTest {
 
     static final Client client = new Client() {
         @Override public Object invoke(final Client.Invocation invocation) throws Exception {
-            return invocation.invoke(request -> new Server(ContractIdTest.ID.service(new InvokeTest.TestServiceImpl())).invocation(request).invoke());
+            return invocation.invoke(new Tunnel() {
+                @Override public Reply invoke(final Request request) throws Exception {
+                    return new Server(ContractIdTest.ID.service(new InvokeTest.TestServiceImpl())).invocation(request).invoke();
+                }
+            });
         }
     };
 

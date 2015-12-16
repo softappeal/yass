@@ -1,5 +1,8 @@
 package ch.softappeal.yass.tutorial.acceptor.socket;
 
+import ch.softappeal.yass.core.remote.session.Connection;
+import ch.softappeal.yass.core.remote.session.Session;
+import ch.softappeal.yass.core.remote.session.SessionFactory;
 import ch.softappeal.yass.transport.TransportSetup;
 import ch.softappeal.yass.transport.socket.AsyncSocketConnection;
 import ch.softappeal.yass.transport.socket.SocketTransport;
@@ -23,7 +26,11 @@ public final class SocketAcceptor {
             .start(
                 TransportSetup.ofContractSerializer(
                     Config.SERIALIZER,
-                    connection -> new AcceptorSession(connection, executor)
+                    new SessionFactory() {
+                        @Override public Session create(final Connection connection) throws Exception {
+                            return new AcceptorSession(connection, executor);
+                        }
+                    }
                 ),
                 executor,
                 ADDRESS

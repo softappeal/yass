@@ -1,11 +1,13 @@
 package ch.softappeal.yass.tutorial.initiator;
 
 import ch.softappeal.yass.core.Interceptor;
+import ch.softappeal.yass.core.Interceptors;
 import ch.softappeal.yass.core.remote.Server;
 import ch.softappeal.yass.core.remote.session.Connection;
 import ch.softappeal.yass.core.remote.session.SimpleSession;
 import ch.softappeal.yass.tutorial.contract.EchoService;
 import ch.softappeal.yass.tutorial.contract.EchoServiceImpl;
+import ch.softappeal.yass.tutorial.contract.Instrument;
 import ch.softappeal.yass.tutorial.contract.Logger;
 import ch.softappeal.yass.tutorial.contract.PriceEngine;
 import ch.softappeal.yass.tutorial.contract.SystemException;
@@ -13,10 +15,11 @@ import ch.softappeal.yass.tutorial.contract.UnexpectedExceptionHandler;
 import ch.softappeal.yass.tutorial.contract.UnknownInstrumentsException;
 import ch.softappeal.yass.tutorial.contract.instrument.InstrumentService;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.Collectors;
 
 import static ch.softappeal.yass.tutorial.contract.Config.ACCEPTOR;
 import static ch.softappeal.yass.tutorial.contract.Config.INITIATOR;
@@ -24,7 +27,7 @@ import static ch.softappeal.yass.tutorial.contract.Config.INITIATOR;
 public final class InitiatorSession extends SimpleSession {
 
     @Override protected Server server() {
-        final Interceptor interceptor = Interceptor.composite(
+        final Interceptor interceptor = Interceptors.composite(
             UnexpectedExceptionHandler.INSTANCE,
             new Logger(this, Logger.Side.SERVER)
         );
@@ -61,13 +64,11 @@ public final class InitiatorSession extends SimpleSession {
             ignore.printStackTrace(System.out);
         }
         instrumentService.reload(false, 123);
-        priceEngine.subscribe(
-            instrumentService
-                .getInstruments()
-                .stream()
-                .map(instrument -> instrument.id)
-                .collect(Collectors.toList())
-        );
+        final List<Integer> instrumentIds = new ArrayList<>();
+        for (final Instrument instrument : instrumentService.getInstruments()) {
+            instrumentIds.add(instrument.id);
+        }
+        priceEngine.subscribe(instrumentIds);
     }
 
     @Override protected void closed(final boolean exceptional) {

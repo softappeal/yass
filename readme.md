@@ -28,5 +28,5 @@
   * wiki: https://github.com/softappeal/yass/wiki
   * artifacts on MavenCentral: http://search.maven.org
     * groupId="ch.softappeal.yass"
-    * artifactId="yass"
+    * artifactId="yass-jdk1.7"
   * tutorial: see src/tutorial

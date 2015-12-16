@@ -9,8 +9,8 @@ apply plugin: 'idea'
 
 group = "ch.softappeal.yass"
 
-sourceCompatibility = '1.8'
-targetCompatibility = '1.8'
+sourceCompatibility = '1.7'
+targetCompatibility = '1.7'
 
 configurations.all {
     resolutionStrategy {
@@ -27,7 +27,7 @@ sourceSets {
 }
 
 def websocket_dep = 'javax.websocket:javax.websocket-api:1.0'
-def jetty_dep = 'org.eclipse.jetty.websocket:javax-websocket-server-impl:9.3.6.v20151106'
+def jetty_dep = 'org.eclipse.jetty.websocket:javax-websocket-server-impl:9.2.14.v20151106'
 def undertow_dep = 'io.undertow:undertow-websockets-jsr:1.3.10.Final'
 def junit_dep = 'junit:junit:4.12'
 
@@ -39,7 +39,6 @@ dependencies {
 
 tasks.withType(JavaCompile) {
     options.compilerArgs << "-Xlint"
-    options.compilerArgs << "-parameters"
     options.encoding = "US-ASCII"
 }
 
@@ -78,10 +77,6 @@ task compileTutorialTypeScript(type: Exec, dependsOn: 'generateTypeScriptContrac
 }
 
 task compileAllTypeScript(dependsOn: ['compileTestTypeScript', 'compileTutorialTypeScript'])
-
-tasks.withType(Javadoc) {
-    options.addStringOption('Xdoclint:all,-missing', '-quiet')
-}
 
 jar {
     from "readme.md"
@@ -132,15 +127,6 @@ task collectJars(type: Copy) {
 }
 
 task dist << {
-    ant.copy(todir: "build/acceptor") {
-        fileset(dir: "docker")
-        fileset(dir: ".", includes: "src/*/ts/")
-    }
-    ant.copy(todir: "build/acceptor/libs") {
-        fileset(dir: "build/allJars", includes: "*.jar")
-    }
-    ant.jar(destfile: "build/acceptor/libs/yass.jar", basedir: "build/classes/main")
-    ant.jar(destfile: "build/acceptor/libs/tutorial.jar", basedir: "build/classes/tutorial")
     if (project.hasProperty('signing.password')) {
         def signPrefix = "build/libs/${project.name}-${version}"
         signing.sign(file("${signPrefix}.pom"))
@@ -185,8 +171,8 @@ task todo << {
 
 idea {
     project {
-        jdkName = '1.8'
-        languageLevel = '1.8'
+        jdkName = '1.7'
+        languageLevel = '1.7'
     }
     module {
         testSourceDirs += sourceSets.tutorial.java.srcDirs

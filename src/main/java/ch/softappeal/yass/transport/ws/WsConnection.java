@@ -20,7 +20,7 @@ import java.nio.ByteBuffer;
 
 public abstract class WsConnection implements Connection {
 
-    @FunctionalInterface public interface Factory {
+    public interface Factory {
         WsConnection create(Serializer packetSerializer, javax.websocket.Session session) throws Exception;
     }
 

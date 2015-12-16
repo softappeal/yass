@@ -9,7 +9,7 @@ import java.util.concurrent.TimeUnit;
 
 public final class Reconnector<S extends Session> {
 
-    @FunctionalInterface public interface Connector {
+    public interface Connector {
         /**
          * @throws Exception note: will be ignored
          */
@@ -25,33 +25,37 @@ public final class Reconnector<S extends Session> {
     ) {
         Check.notNull(sessionFactory);
         Check.notNull(connector);
-        final SessionFactory proxySessionFactory = connection -> {
-            final Session session = sessionFactory.create(connection);
-            this.session = session;
-            return session;
-        };
-        executor.execute(() -> {
-            if (initialDelaySeconds > 0) {
-                try {
-                    TimeUnit.SECONDS.sleep(initialDelaySeconds);
-                } catch (final InterruptedException ignore) {
-                    return;
-                }
+        final SessionFactory proxySessionFactory = new SessionFactory() {
+            @Override public Session create(final Connection connection) throws Exception {
+                final Session session = sessionFactory.create(connection);
+                Reconnector.this.session = session;
+                return session;
             }
-            while (!Thread.interrupted()) {
-                final Session session = this.session;
-                if ((session == null) || session.isClosed()) {
-                    this.session = null;
+        };
+        executor.execute(new Runnable() {
+            @Override public void run() {
+                if (initialDelaySeconds > 0) {
                     try {
-                        connector.connect(proxySessionFactory);
-                    } catch (final Exception ignore) {
-                        // empty
+                        TimeUnit.SECONDS.sleep(initialDelaySeconds);
+                    } catch (final InterruptedException ignore) {
+                        return;
                     }
                 }
-                try {
-                    TimeUnit.SECONDS.sleep(delaySeconds);
-                } catch (final InterruptedException ignore) {
-                    return;
+                while (!Thread.interrupted()) {
+                    final Session session = Reconnector.this.session;
+                    if ((session == null) || session.isClosed()) {
+                        Reconnector.this.session = null;
+                        try {
+                            connector.connect(proxySessionFactory);
+                        } catch (final Exception ignore) {
+                            // empty
+                        }
+                    }
+                    try {
+                        TimeUnit.SECONDS.sleep(delaySeconds);
+                    } catch (final InterruptedException ignore) {
+                        return;
+                    }
                 }
             }
         });

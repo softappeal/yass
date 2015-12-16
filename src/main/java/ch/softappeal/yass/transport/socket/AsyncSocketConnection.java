@@ -30,7 +30,11 @@ public final class AsyncSocketConnection extends SocketConnection {
         if (writerQueueSize < 1) {
             throw new IllegalArgumentException("writerQueueSize < 1");
         }
-        return (packetSerializer, socket, out) -> new AsyncSocketConnection(packetSerializer, socket, out, writerExecutor, writerQueueSize);
+        return new Factory() {
+            @Override public SocketConnection create(final Serializer packetSerializer, final Socket socket, final OutputStream out) throws Exception {
+                return new AsyncSocketConnection(packetSerializer, socket, out, writerExecutor, writerQueueSize);
+            }
+        };
     }
 
     private final Executor writerExecutor;
@@ -44,28 +48,30 @@ public final class AsyncSocketConnection extends SocketConnection {
     }
 
     @Override protected void created(final Session session) {
-        writerExecutor.execute(() -> {
-            try {
-                while (true) {
-                    final ByteArrayOutputStream buffer = writerQueue.poll(200L, TimeUnit.MILLISECONDS);
-                    if (buffer == null) {
-                        if (closed) {
-                            return;
+        writerExecutor.execute(new Runnable() {
+            @Override public void run() {
+                try {
+                    while (true) {
+                        final ByteArrayOutputStream buffer = writerQueue.poll(200L, TimeUnit.MILLISECONDS);
+                        if (buffer == null) {
+                            if (closed) {
+                                return;
+                            }
+                            continue;
                         }
-                        continue;
-                    }
-                    while (true) { // drain queue -> batching of packets
-                        final ByteArrayOutputStream buffer2 = writerQueue.poll();
-                        if (buffer2 == null) {
-                            break;
+                        while (true) { // drain queue -> batching of packets
+                            final ByteArrayOutputStream buffer2 = writerQueue.poll();
+                            if (buffer2 == null) {
+                                break;
+                            }
+                            buffer2.writeTo(buffer);
                         }
-                        buffer2.writeTo(buffer);
+                        AsyncSocketConnection.this.flush(buffer);
                     }
-                    flush(buffer);
+                } catch (final Exception e) {
+                    Session.close(session, e);
+                    throw Exceptions.wrap(e);
                 }
-            } catch (final Exception e) {
-                Session.close(session, e);
-                throw Exceptions.wrap(e);
             }
         });
     }

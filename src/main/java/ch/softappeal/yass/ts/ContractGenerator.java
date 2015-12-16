@@ -17,12 +17,12 @@ import ch.softappeal.yass.util.Reflect;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
-import java.lang.reflect.Parameter;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -30,11 +30,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.SortedMap;
-import java.util.stream.Collectors;
 
-/**
- * You must use the "-parameters" option for javac to get the real method parameter names.
- */
 public final class ContractGenerator extends Generator {
 
     private final String rootPackage;
@@ -60,7 +56,7 @@ public final class ContractGenerator extends Generator {
         return type.getCanonicalName().substring(rootPackage.length());
     }
 
-    @FunctionalInterface private interface TypeGenerator {
+    private interface TypeGenerator {
         void generateType(String name);
     }
 
@@ -81,19 +77,21 @@ public final class ContractGenerator extends Generator {
     }
 
     private void generateEnum(final Class<? extends Enum<?>> type) {
-        generateType(type, name -> {
-            tabsln("export class %s extends yass.Enum {", name);
-            inc();
-            for (final Enum<?> e : type.getEnumConstants()) {
-                tabsln("static %s = new %s(%s, '%s');", e.name(), name, e.ordinal(), e.name());
+        generateType(type, new TypeGenerator() {
+            @Override public void generateType(final String name) {
+                tabsln("export class %s extends yass.Enum {", name);
+                inc();
+                for (final Enum<?> e : type.getEnumConstants()) {
+                    tabsln("static %s = new %s(%s, '%s');", e.name(), name, e.ordinal(), e.name());
+                }
+                tabsln("static TYPE_DESC = yass.enumDesc(%s, %s);", type2id.get(type), name);
+                dec();
+                tabsln("}");
             }
-            tabsln("static TYPE_DESC = yass.enumDesc(%s, %s);", type2id.get(type), name);
-            dec();
-            tabsln("}");
         });
     }
 
-    private static final Set<Type> ROOT_CLASSES = new HashSet<>(Arrays.asList(
+    private static final Set<Type> ROOT_CLASSES = new HashSet<>(Arrays.<Type>asList(
         Object.class,
         Exception.class,
         RuntimeException.class,
@@ -154,29 +152,31 @@ public final class ContractGenerator extends Generator {
             generateClass(sc);
         }
         final Class<?> superClass = sc;
-        generateType(type, name -> {
-            tabsln(
-                "export %sclass %s extends %s {",
-                (Modifier.isAbstract(type.getModifiers()) ? "abstract " : ""), name, (superClass == null) ? "yass.Type" : (contractModuleName + jsType(superClass))
-            );
-            inc();
-            for (final Field field : Reflect.ownFields(type)) {
-                tabsln("%s: %s;", field.getName(), type(field.getGenericType()));
-            }
-            final Integer id = type2id.get(type);
-            if (id != null) {
-                tabs("static TYPE_DESC = yass.classDesc(%s, %s", id, name);
+        generateType(type, new TypeGenerator() {
+            @Override public void generateType(final String name) {
+                tabsln(
+                    "export %sclass %s extends %s {",
+                    (Modifier.isAbstract(type.getModifiers()) ? "abstract " : ""), name, (superClass == null) ? "yass.Type" : (contractModuleName + jsType(superClass))
+                );
                 inc();
-                for (final ClassTypeHandler.FieldDesc fieldDesc : ((ClassTypeHandler)id2typeHandler.get(id)).fieldDescs()) {
-                    println(",");
-                    tabs("new yass.FieldDesc(%s, '%s', %s)", fieldDesc.id, fieldDesc.handler.field.getName(), typeDescOwner(fieldDesc));
+                for (final Field field : Reflect.ownFields(type)) {
+                    tabsln("%s: %s;", field.getName(), type(field.getGenericType()));
                 }
-                println();
+                final Integer id = type2id.get(type);
+                if (id != null) {
+                    tabs("static TYPE_DESC = yass.classDesc(%s, %s", id, name);
+                    inc();
+                    for (final ClassTypeHandler.FieldDesc fieldDesc : ((ClassTypeHandler)id2typeHandler.get(id)).fieldDescs()) {
+                        println(",");
+                        tabs("new yass.FieldDesc(%s, '%s', %s)", fieldDesc.id, fieldDesc.handler.field.getName(), typeDescOwner(fieldDesc));
+                    }
+                    println();
+                    dec();
+                    tabsln(");");
+                }
                 dec();
-                tabsln(");");
+                tabsln("}");
             }
-            dec();
-            tabsln("}");
         });
     }
 
@@ -196,10 +196,11 @@ public final class ContractGenerator extends Generator {
                 serviceDescs.add(new ServiceDesc(field.getName(), (ContractId<?>)field.get(services)));
             }
         }
-        Collections.sort(
-            serviceDescs,
-            (serviceDesc1, serviceDesc2) -> ((Integer)serviceDesc1.contractId.id).compareTo((Integer)serviceDesc2.contractId.id)
-        );
+        Collections.sort(serviceDescs, new Comparator<ServiceDesc>() {
+            @Override public int compare(final ServiceDesc serviceDesc1, final ServiceDesc serviceDesc2) {
+                return ((Integer)serviceDesc1.contractId.id).compareTo((Integer)serviceDesc2.contractId.id);
+            }
+        });
         return serviceDescs;
     }
 
@@ -207,12 +208,20 @@ public final class ContractGenerator extends Generator {
         if (services == null) {
             return new HashSet<>();
         }
-        return getServiceDescs(services).stream().map(serviceDesc -> serviceDesc.contractId.contract).collect(Collectors.toSet());
+        final Set<Class<?>> interfaces = new HashSet<>();
+        for (final ServiceDesc serviceDesc : getServiceDescs(services)) {
+            interfaces.add(serviceDesc.contractId.contract);
+        }
+        return interfaces;
     }
 
     private static Method[] getMethods(final Class<?> type) {
         final Method[] methods = type.getMethods();
-        Arrays.sort(methods, (method1, method2) -> method1.getName().compareTo(method2.getName()));
+        Arrays.sort(methods, new Comparator<Method>() {
+            @Override public int compare(final Method method1, final Method method2) {
+                return method1.getName().compareTo(method2.getName());
+            }
+        });
         return methods;
     }
 
@@ -227,13 +236,12 @@ public final class ContractGenerator extends Generator {
                 inc();
                 for (final Method method : methods) {
                     tabs("%s(", method.getName());
-                    boolean first = true;
-                    for (final Parameter parameter : method.getParameters()) {
-                        if (!first) {
+                    int param = 0;
+                    for (final Type paramType : method.getGenericParameterTypes()) {
+                        if (param != 0) {
                             print(", ");
                         }
-                        first = false;
-                        print("%s: %s", parameter.getName(), type(parameter.getParameterizedType()));
+                        print("param%s: %s", param++, type(paramType));
                     }
                     print("): ");
                     if (methodMapper.mapMethod(method).oneWay) {
@@ -308,14 +316,17 @@ public final class ContractGenerator extends Generator {
         super(contractFilePath);
         this.rootPackage = rootPackage.getName() + '.';
         if (java2tsBaseType != null) {
-            java2tsBaseType.forEach((java, ts) -> this.java2tsBaseType.put(Check.notNull(java), Check.notNull(ts)));
+            for (final Map.Entry<Class<?>, String> entry : java2tsBaseType.entrySet()) {
+                this.java2tsBaseType.put(Check.notNull(entry.getKey()), Check.notNull(entry.getValue()));
+            }
         }
         id2typeHandler = serializer.id2typeHandler();
-        id2typeHandler.forEach((id, typeHandler) -> {
+        for (final Map.Entry<Integer, TypeHandler> entry : id2typeHandler.entrySet()) {
+            final int id = entry.getKey();
             if (id >= AbstractJsFastSerializer.FIRST_ID) {
-                type2id.put(typeHandler.type, id);
+                type2id.put(entry.getValue().type, id);
             }
-        });
+        }
         tabsln("/// <reference path='%s'/>", Check.notNull(includePath));
         println();
         this.contractModuleName = Check.notNull(contractModuleName) + '.';
@@ -324,8 +335,17 @@ public final class ContractGenerator extends Generator {
         inc();
         tabsln("export const GENERATED_BY_YASS_VERSION = '%s';", Version.VALUE);
         println();
-        id2typeHandler.values().stream().map(typeHandler -> typeHandler.type).filter(Class::isEnum).forEach(type -> generateEnum((Class<Enum<?>>)type));
-        id2typeHandler.values().stream().filter(typeHandler -> typeHandler instanceof ClassTypeHandler).forEach(typeHandler -> generateClass(typeHandler.type));
+        for (final TypeHandler typeHandler : id2typeHandler.values()) {
+            final Class<?> type = typeHandler.type;
+            if (type.isEnum()) {
+                generateEnum((Class<Enum<?>>)type);
+            }
+        }
+        for (final TypeHandler typeHandler : id2typeHandler.values()) {
+            if (typeHandler instanceof ClassTypeHandler) {
+                generateClass(typeHandler.type);
+            }
+        }
         if ((initiator != null) && (acceptor != null) && (initiator.methodMapperFactory != acceptor.methodMapperFactory)) {
             throw new IllegalArgumentException("initiator and acceptor must have same methodMapperFactory");
         }
@@ -338,8 +358,14 @@ public final class ContractGenerator extends Generator {
         final Set<Class<?>> interfaceSet = getInterfaces(initiator);
         interfaceSet.addAll(getInterfaces(acceptor));
         final List<Class<?>> interfaceList = new ArrayList<>(interfaceSet);
-        Collections.sort(interfaceList, (type1, type2) -> type1.getCanonicalName().compareTo(type2.getCanonicalName()));
-        interfaceList.forEach(this::generateInterface);
+        Collections.sort(interfaceList, new Comparator<Class<?>>() {
+            @Override public int compare(final Class<?> type1, final Class<?> type2) {
+                return type1.getCanonicalName().compareTo(type2.getCanonicalName());
+            }
+        });
+        for (final Class<?> aInterface : interfaceList) {
+            generateInterface(aInterface);
+        }
         generateServices(initiator, "initiator");
         generateServices(acceptor, "acceptor");
         tabs("export const SERIALIZER = new yass.JsFastSerializer(");

@@ -1,6 +1,7 @@
 package ch.softappeal.yass.core.test;
 
 import ch.softappeal.yass.core.Interceptor;
+import ch.softappeal.yass.core.Interceptors;
 import ch.softappeal.yass.core.Invocation;
 import ch.softappeal.yass.core.remote.OneWay;
 import ch.softappeal.yass.util.Check;
@@ -85,11 +86,13 @@ public class InvokeTest {
     private static final AtomicReference<Method> METHOD = new AtomicReference<>();
     private static final AtomicReference<Object[]> ARGUMENTS = new AtomicReference<>();
 
-    public static final Interceptor PRINTLN_AFTER = (method, arguments, invocation) -> {
-        try {
-            return invocation.proceed();
-        } finally {
-            System.out.println();
+    public static final Interceptor PRINTLN_AFTER = new Interceptor() {
+        @Override public Object invoke(final Method method, @Nullable final Object[] arguments, final Invocation invocation) throws Exception {
+            try {
+                return invocation.proceed();
+            } finally {
+                System.out.println();
+            }
         }
     };
 
@@ -102,20 +105,24 @@ public class InvokeTest {
         }
     }
 
-    public static final Interceptor CLIENT_INTERCEPTOR = Interceptor.composite(
-        (method, arguments, invocation) -> {
-            Assert.assertTrue(COUNTER.incrementAndGet() == 1);
-            checkArguments(method, arguments);
-            return invocation.proceed();
+    public static final Interceptor CLIENT_INTERCEPTOR = Interceptors.composite(
+        new Interceptor() {
+            @Override public Object invoke(final Method method, @Nullable final Object[] arguments, final Invocation invocation) throws Exception {
+                Assert.assertTrue(COUNTER.incrementAndGet() == 1);
+                checkArguments(method, arguments);
+                return invocation.proceed();
+            }
         },
         new Logger("client")
     );
 
-    public static final Interceptor SERVER_INTERCEPTOR = Interceptor.composite(
-        (method, arguments, invocation) -> {
-            Assert.assertTrue(COUNTER.incrementAndGet() == 2);
-            checkArguments(method, arguments);
-            return invocation.proceed();
+    public static final Interceptor SERVER_INTERCEPTOR = Interceptors.composite(
+        new Interceptor() {
+            @Override public Object invoke(final Method method, @Nullable final Object[] arguments, final Invocation invocation) throws Exception {
+                Assert.assertTrue(COUNTER.incrementAndGet() == 2);
+                checkArguments(method, arguments);
+                return invocation.proceed();
+            }
         },
         new Logger("server")
     );
@@ -140,23 +147,35 @@ public class InvokeTest {
      * @param testService must use {@link #CLIENT_INTERCEPTOR} and {@link #SERVER_INTERCEPTOR}
      */
     public static void invoke(final TestService testService) throws InterruptedException {
-        invoke("nothing", new Class<?>[] {}, null, testService::nothing);
-        invoke("divide", new Class<?>[] {int.class, int.class}, new Object[] {12, 3}, () -> {
-            try {
-                Assert.assertTrue(testService.divide(12, 3) == 4);
-            } catch (final DivisionByZeroException e) {
-                Assert.fail();
+        invoke("nothing", new Class<?>[] {}, null, new Runnable() {
+            @Override public void run() {
+                testService.nothing();
             }
         });
-        invoke("divide", new Class<?>[] {int.class, int.class}, new Object[] {123, 0}, () -> {
-            try {
-                testService.divide(123, 0);
-                Assert.fail();
-            } catch (final DivisionByZeroException e) {
-                Assert.assertTrue(e.value == 123);
+        invoke("divide", new Class<?>[] {int.class, int.class}, new Object[] {12, 3}, new Runnable() {
+            @Override public void run() {
+                try {
+                    Assert.assertTrue(testService.divide(12, 3) == 4);
+                } catch (final DivisionByZeroException e) {
+                    Assert.fail();
+                }
             }
         });
-        invoke("oneWay", new Class<?>[] {int.class}, new Object[] {100}, () -> testService.oneWay(100));
+        invoke("divide", new Class<?>[] {int.class, int.class}, new Object[] {123, 0}, new Runnable() {
+            @Override public void run() {
+                try {
+                    testService.divide(123, 0);
+                    Assert.fail();
+                } catch (final DivisionByZeroException e) {
+                    Assert.assertTrue(e.value == 123);
+                }
+            }
+        });
+        invoke("oneWay", new Class<?>[] {int.class}, new Object[] {100}, new Runnable() {
+            @Override public void run() {
+                testService.oneWay(100);
+            }
+        });
         TimeUnit.MILLISECONDS.sleep(200L);
     }
 

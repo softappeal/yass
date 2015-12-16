@@ -1,6 +1,7 @@
 package ch.softappeal.yass.tutorial.acceptor;
 
 import ch.softappeal.yass.core.Interceptor;
+import ch.softappeal.yass.core.Interceptors;
 import ch.softappeal.yass.core.remote.Server;
 import ch.softappeal.yass.core.remote.session.Connection;
 import ch.softappeal.yass.core.remote.session.SimpleSession;
@@ -27,10 +28,10 @@ import static ch.softappeal.yass.tutorial.contract.Config.INITIATOR;
 
 public final class AcceptorSession extends SimpleSession {
 
-    private final Set<Integer> subscribedInstrumentIds = Collections.synchronizedSet(new HashSet<>());
+    private final Set<Integer> subscribedInstrumentIds = Collections.synchronizedSet(new HashSet<Integer>());
 
     @Override protected Server server() {
-        final Interceptor interceptor = Interceptor.composite(
+        final Interceptor interceptor = Interceptors.composite(
             UnexpectedExceptionHandler.INSTANCE,
             new Logger(this, Logger.Side.SERVER)
         );

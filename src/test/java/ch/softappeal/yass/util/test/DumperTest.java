@@ -9,7 +9,6 @@ import org.junit.Test;
 import java.io.PrintWriter;
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.time.Instant;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.LinkedHashMap;
@@ -53,9 +52,9 @@ public class DumperTest {
                 printer.append(s);
             }
             @Override public void print(final PrintWriter printer) {
-                print(new TestDumper(false, true, BigInteger.class, BigDecimal.class, Instant.class), printer, true);
+                print(new TestDumper(false, true, BigInteger.class, BigDecimal.class), printer, true);
                 print(new TestDumper(false, false), printer, false);
-                print(new TestDumper(true, true, BigInteger.class, BigDecimal.class, Instant.class), printer, true);
+                print(new TestDumper(true, true, BigInteger.class, BigDecimal.class), printer, true);
                 print(new TestDumper(true, false), printer, false);
             }
         });

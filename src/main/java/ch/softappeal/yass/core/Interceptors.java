@@ -21,7 +21,7 @@ public final class Interceptors {
      * Calls {@link Invocation#proceed()}.
      */
     public static final Interceptor DIRECT = new Interceptor() {
-        @Override public Object invoke(final Method method, @Nullable final Object[] arguments, final Invocation invocation) throws Throwable {
+        @Override public Object invoke(final Method method, @Nullable final Object[] arguments, final Invocation invocation) throws Exception {
             return invocation.proceed();
         }
     };
@@ -36,12 +36,12 @@ public final class Interceptors {
             return interceptor1;
         }
         return new Interceptor() {
-            @Override public Object invoke(final Method method, @Nullable final Object[] arguments, final Invocation invocation) throws Throwable {
+            @Override public Object invoke(final Method method, @Nullable final Object[] arguments, final Invocation invocation) throws Exception {
                 return interceptor1.invoke(
                     method,
                     arguments,
                     new Invocation() {
-                        @Override public Object proceed() throws Throwable {
+                        @Override public Object proceed() throws Exception {
                             return interceptor2.invoke(method, arguments, invocation);
                         }
                     }
@@ -56,6 +56,24 @@ public final class Interceptors {
             composite = composite(composite, interceptor);
         }
         return composite;
+    }
+
+    public static Object invoke(final Interceptor interceptor, final Method method, final @Nullable Object[] arguments, final Object implementation) throws Exception {
+        return interceptor.invoke(method, arguments, new Invocation() {
+            @Override public Object proceed() throws Exception {
+                try {
+                    return method.invoke(implementation, arguments);
+                } catch (final InvocationTargetException e) {
+                    try {
+                        throw e.getCause();
+                    } catch (final Exception | Error e2) {
+                        throw e2;
+                    } catch (final Throwable t) {
+                        throw new Error(t);
+                    }
+                }
+            }
+        });
     }
 
     /**
@@ -75,15 +93,7 @@ public final class Interceptors {
             new Class<?>[] {contract},
             new InvocationHandler() {
                 @Override public Object invoke(final Object proxy, final Method method, final Object[] arguments) throws Throwable {
-                    return interceptor.invoke(method, arguments, new Invocation() {
-                        @Override public Object proceed() throws Throwable {
-                            try {
-                                return method.invoke(implementation, arguments);
-                            } catch (final InvocationTargetException e) {
-                                throw e.getCause();
-                            }
-                        }
-                    });
+                    return Interceptors.invoke(interceptor, method, arguments, implementation);
                 }
             }
         );
@@ -96,7 +106,7 @@ public final class Interceptors {
     public static <T> Interceptor threadLocal(final ThreadLocal<T> threadLocal, final @Nullable T value) {
         Check.notNull(threadLocal);
         return new Interceptor() {
-            @Override public Object invoke(final Method method, @Nullable final Object[] arguments, final Invocation invocation) throws Throwable {
+            @Override public Object invoke(final Method method, @Nullable final Object[] arguments, final Invocation invocation) throws Exception {
                 final @Nullable T oldValue = threadLocal.get();
                 threadLocal.set(value);
                 try {
