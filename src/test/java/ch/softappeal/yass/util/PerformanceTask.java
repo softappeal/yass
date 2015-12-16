@@ -4,9 +4,9 @@ import java.util.concurrent.TimeUnit;
 
 public abstract class PerformanceTask {
 
-    protected abstract void run(int count) throws Throwable;
+    protected abstract void run(int count) throws Exception;
 
-    private String runOne(final int count, final TimeUnit timeUnit) throws Throwable {
+    private String runOne(final int count, final TimeUnit timeUnit) throws Exception {
         final Stopwatch stopwatch = new Stopwatch();
         run(count);
         stopwatch.stop();
@@ -27,8 +27,8 @@ public abstract class PerformanceTask {
     public final void run(final int count, final TimeUnit timeUnit) {
         try {
             System.out.println(count + " iterations, one took - cold: " + runOne(count, timeUnit) + ", hot: " + runOne(count, timeUnit));
-        } catch (final Throwable t) {
-            throw new Error(t);
+        } catch (final Exception e) {
+            throw Exceptions.wrap(e);
         }
     }
 

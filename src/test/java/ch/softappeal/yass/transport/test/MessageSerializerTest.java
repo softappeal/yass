@@ -15,7 +15,7 @@ import java.io.EOFException;
 
 public class MessageSerializerTest {
 
-    public static final Serializer SERIALIZER = new MessageSerializer(JavaSerializer.INSTANCE);
+    private static final Serializer SERIALIZER = new MessageSerializer(JavaSerializer.INSTANCE);
 
     private static <T extends Message> T copy(final T value) throws Exception {
         return JavaSerializerTest.copy(SERIALIZER, value);
@@ -38,7 +38,7 @@ public class MessageSerializerTest {
 
     @Test public void exception() throws Exception {
         final ExceptionReply reply = copy(new ExceptionReply(new EOFException()));
-        Assert.assertTrue(reply.throwable instanceof EOFException);
+        Assert.assertTrue(reply.exception instanceof EOFException);
     }
 
 }

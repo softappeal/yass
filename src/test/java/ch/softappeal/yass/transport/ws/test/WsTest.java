@@ -2,6 +2,7 @@ package ch.softappeal.yass.transport.ws.test;
 
 import ch.softappeal.yass.core.remote.session.test.LocalConnectionTest;
 import ch.softappeal.yass.core.remote.session.test.PerformanceTest;
+import ch.softappeal.yass.serialize.JavaSerializer;
 import ch.softappeal.yass.transport.TransportSetup;
 import ch.softappeal.yass.transport.socket.test.SocketPerformanceTest;
 import ch.softappeal.yass.transport.ws.AsyncWsConnection;
@@ -62,13 +63,13 @@ public abstract class WsTest {
         final boolean serverInvoke, final boolean serverCreateException,
         final boolean clientInvoke, final boolean clientCreateException
     ) {
-        TRANSPORT_SETUP_SERVER = LocalConnectionTest.createSetup(serverInvoke, DISPATCHER_EXECUTOR, serverCreateException);
-        TRANSPORT_SETUP_CLIENT = LocalConnectionTest.createSetup(clientInvoke, DISPATCHER_EXECUTOR, clientCreateException);
+        TRANSPORT_SETUP_SERVER = TransportSetup.ofPacketSerializer(JavaSerializer.INSTANCE, LocalConnectionTest.sessionFactory(serverInvoke, DISPATCHER_EXECUTOR, serverCreateException));
+        TRANSPORT_SETUP_CLIENT = TransportSetup.ofPacketSerializer(JavaSerializer.INSTANCE, LocalConnectionTest.sessionFactory(clientInvoke, DISPATCHER_EXECUTOR, clientCreateException));
     }
 
     protected static void setPerformanceSetup(final CountDownLatch latch) {
-        TRANSPORT_SETUP_SERVER = PerformanceTest.createSetup(DISPATCHER_EXECUTOR, null, SocketPerformanceTest.COUNTER);
-        TRANSPORT_SETUP_CLIENT = PerformanceTest.createSetup(DISPATCHER_EXECUTOR, latch, SocketPerformanceTest.COUNTER);
+        TRANSPORT_SETUP_SERVER = TransportSetup.ofPacketSerializer(JavaSerializer.INSTANCE, PerformanceTest.sessionFactory(DISPATCHER_EXECUTOR, null, SocketPerformanceTest.COUNTER));
+        TRANSPORT_SETUP_CLIENT = TransportSetup.ofPacketSerializer(JavaSerializer.INSTANCE, PerformanceTest.sessionFactory(DISPATCHER_EXECUTOR, latch, SocketPerformanceTest.COUNTER));
     }
 
     protected static void connect(final WebSocketContainer container, final CountDownLatch latch) throws Exception {

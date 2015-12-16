@@ -1,6 +1,8 @@
 package ch.softappeal.yass.tutorial.contract;
 
+import ch.softappeal.yass.core.remote.ContractId;
 import ch.softappeal.yass.core.remote.MethodMapper;
+import ch.softappeal.yass.core.remote.Services;
 import ch.softappeal.yass.core.remote.SimpleMethodMapper;
 import ch.softappeal.yass.core.remote.TaggedMethodMapper;
 import ch.softappeal.yass.serialize.FastReflector;
@@ -13,6 +15,7 @@ import ch.softappeal.yass.serialize.fast.TaggedFastSerializer;
 import ch.softappeal.yass.serialize.fast.TaggedJsFastSerializer;
 import ch.softappeal.yass.serialize.fast.TypeDesc;
 import ch.softappeal.yass.tutorial.contract.instrument.Bond;
+import ch.softappeal.yass.tutorial.contract.instrument.InstrumentService;
 import ch.softappeal.yass.tutorial.contract.instrument.stock.Stock;
 
 import java.util.Arrays;
@@ -108,6 +111,26 @@ public final class Config {
      */
     private static final MethodMapper.Factory TAGGED_METHOD_MAPPER_FACTORY = TaggedMethodMapper.FACTORY;
 
-    public static final MethodMapper.Factory METHOD_MAPPER_FACTORY = SIMPLE_METHOD_MAPPER_FACTORY;
+    private static final MethodMapper.Factory METHOD_MAPPER_FACTORY = SIMPLE_METHOD_MAPPER_FACTORY;
+
+    private abstract static class Role extends Services {
+        Role() {
+            super(METHOD_MAPPER_FACTORY);
+        }
+    }
+
+    public static final class Initiator extends Role {
+        public final ContractId<PriceListener> priceListener = create(PriceListener.class, 0);
+        public final ContractId<EchoService> echoService = create(EchoService.class, 1);
+    }
+
+    public static final class Acceptor extends Role {
+        public final ContractId<PriceEngine> priceEngine = create(PriceEngine.class, 0);
+        public final ContractId<InstrumentService> instrumentService = create(InstrumentService.class, 1);
+        public final ContractId<EchoService> echoService = create(EchoService.class, 2);
+    }
+
+    public static final Initiator INITIATOR = new Initiator();
+    public static final Acceptor ACCEPTOR = new Acceptor();
 
 }

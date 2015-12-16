@@ -6,6 +6,10 @@ import java.util.concurrent.TimeUnit;
 
 public final class EchoServiceImpl implements EchoService {
 
+    private EchoServiceImpl() {
+        // disable
+    }
+
     @Override public @Nullable Object echo(final @Nullable Object value) {
         if ("throwRuntimeException".equals(value)) {
             throw new RuntimeException("throwRuntimeException");
@@ -17,5 +21,7 @@ public final class EchoServiceImpl implements EchoService {
         }
         return value;
     }
+
+    public static final EchoService INSTANCE = new EchoServiceImpl();
 
 }

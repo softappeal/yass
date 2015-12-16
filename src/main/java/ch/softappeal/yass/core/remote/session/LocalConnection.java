@@ -4,38 +4,32 @@ import ch.softappeal.yass.util.Exceptions;
 
 public final class LocalConnection implements Connection {
 
-    private SessionClient sessionClient;
+    private Session session;
 
     private LocalConnection() {
         // disable
     }
 
-    @Override public void write(final Packet packet) {
-        sessionClient.received(packet);
+    @Override public void write(final Packet packet) throws Exception {
+        Session.received(session, packet);
     }
 
     @Override public void closed() {
-        sessionClient.close();
+        session.close();
     }
 
     /**
      * Creates two connected local sessions.
      */
-    public static void connect(final SessionSetup setup1, final SessionSetup setup2) {
+    public static void connect(final SessionFactory sessionFactory1, final SessionFactory sessionFactory2) {
         final LocalConnection connection1 = new LocalConnection();
         final LocalConnection connection2 = new LocalConnection();
         try {
-            connection2.sessionClient = SessionClient.create(setup1, connection1);
-            connection2.sessionClient.opened();
+            connection2.session = Session.create(sessionFactory1, connection1);
             try {
-                connection1.sessionClient = SessionClient.create(setup2, connection2);
-                connection1.sessionClient.opened();
+                connection1.session = Session.create(sessionFactory2, connection2);
             } catch (final Exception e) {
-                try {
-                    connection2.sessionClient.close(e);
-                } catch (final Exception e2) {
-                    e.addSuppressed(e2);
-                }
+                Session.close(connection2.session, e);
                 throw e;
             }
         } catch (final Exception e) {

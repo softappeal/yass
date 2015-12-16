@@ -4,7 +4,7 @@ import ch.softappeal.yass.util.Nullable;
 
 public class ReplyVisibility {
 
-    public static @Nullable Object process(final Reply reply) throws Throwable {
+    public static @Nullable Object process(final Reply reply) throws Exception {
         return reply.process();
     }
 

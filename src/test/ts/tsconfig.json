@@ -1,0 +1,9 @@
+{
+    "compilerOptions": {
+        "target": "ES5",
+        "noImplicitAny": true,
+        "noEmitOnError": true,
+        "out": "./all.js",
+        "sourceMap": true
+    }
+}

@@ -1,11 +1,9 @@
 package ch.softappeal.yass.transport.ws;
 
 import ch.softappeal.yass.core.remote.session.Packet;
-import ch.softappeal.yass.transport.TransportSetup;
+import ch.softappeal.yass.serialize.Serializer;
 
 import javax.websocket.RemoteEndpoint;
-import javax.websocket.SendHandler;
-import javax.websocket.SendResult;
 import javax.websocket.Session;
 
 /**
@@ -21,34 +19,23 @@ public final class AsyncWsConnection extends WsConnection {
         if (sendTimeoutMilliSeconds < 0) {
             throw new IllegalArgumentException("sendTimeoutMilliSeconds < 0");
         }
-        return new Factory() {
-            @Override public WsConnection create(final TransportSetup setup, final Session session) throws Exception {
-                return new AsyncWsConnection(setup, session, sendTimeoutMilliSeconds);
-            }
-        };
+        return (packetSerializer, session) -> new AsyncWsConnection(packetSerializer, session, sendTimeoutMilliSeconds);
     }
 
-    private final long sendTimeoutMilliSeconds;
-    private RemoteEndpoint.Async remoteEndpoint;
-
-    private AsyncWsConnection(final TransportSetup setup, final Session session, final long sendTimeoutMilliSeconds) {
-        super(setup, session);
-        this.sendTimeoutMilliSeconds = sendTimeoutMilliSeconds;
-    }
-
-    @Override protected void created(final Session session) {
+    private AsyncWsConnection(final Serializer packetSerializer, final Session session, final long sendTimeoutMilliSeconds) {
+        super(packetSerializer, session);
         remoteEndpoint = session.getAsyncRemote();
         remoteEndpoint.setSendTimeout(sendTimeoutMilliSeconds);
     }
 
+    private final RemoteEndpoint.Async remoteEndpoint;
+
     @Override public void write(final Packet packet) throws Exception {
-        remoteEndpoint.sendBinary(writeToBuffer(packet), new SendHandler() {
-            @Override public void onResult(final SendResult result) {
-                if (result == null) {
-                    AsyncWsConnection.this.onError(null);
-                } else if (!result.isOK()) {
-                    AsyncWsConnection.this.onError(result.getException());
-                }
+        remoteEndpoint.sendBinary(writeToBuffer(packet), result -> {
+            if (result == null) {
+                onError(null);
+            } else if (!result.isOK()) {
+                onError(result.getException());
             }
         });
     }

@@ -287,14 +287,20 @@ const hostname = location.hostname;
 namespace remoteTest {
 
     class Session extends yass.Session {
-        constructor(sessionClient: yass.SessionClient) {
-            super(sessionClient);
+        constructor(connection: yass.Connection) {
+            super(connection);
+            log("constructor", this.isClosed());
         }
-        opened(): void {
-            log("session opened");
+        protected server() {
+            return new yass.Server(
+                contract.initiator.echoService.service({echo: (value: any) => value})
+            );
+        }
+        protected opened(): void {
+            log("session opened", this.isClosed());
             const printer: yass.Interceptor = (style, method, parameters, invocation) => {
                 function doLog(kind: string, data: any): void {
-                    log("logger:", yass.SESSION, kind, yass.InvokeStyle[style], method, data);
+                    log("logger:", kind, yass.InvokeStyle[style], method, data);
                 }
                 doLog("entry", parameters);
                 try {
@@ -306,9 +312,9 @@ namespace remoteTest {
                     throw e;
                 }
             };
-            const instrumentService = this.proxy(contract.ServerServices.InstrumentService, printer);
-            const priceEngine = this.proxy(contract.ServerServices.PriceEngine, printer);
-            const echoService = this.proxy(contract.ServerServices.EchoService, printer);
+            const instrumentService = this.proxy(contract.acceptor.instrumentService, printer);
+            const priceEngine = this.proxy(contract.acceptor.priceEngine, printer);
+            const echoService = this.proxy(contract.acceptor.echoService, printer);
             instrumentService.reload(false, new Integer(123));
             echoService.echo(null).then(result => assert(result === null));
             echoService.echo(undefined).then(result => assert(result === null));
@@ -345,18 +351,15 @@ namespace remoteTest {
             priceEngine.subscribe([new Integer(987654321)]).catch(exception => log("subscribe failed with", exception));
             setTimeout(() => this.close(), 2000);
         }
-        closed(exception: any): void {
-            log("session closed", exception);
+        protected closed(exceptional: boolean): void {
+            log("session closed", this.isClosed(), exceptional);
         }
     }
 
     yass.connect(
         "ws://" + hostname + ":9090/tutorial",
         contract.SERIALIZER,
-        yass.server(
-            new yass.Service(contract.ClientServices.EchoService, {echo: (value: any) => value})
-        ),
-        sessionClient => new Session(sessionClient),
+        connection => new Session(connection),
         () => log("connectFailed")
     );
 
@@ -365,15 +368,15 @@ namespace remoteTest {
 namespace xhrTest {
 
     const proxyFactory = yass.xhr("http://" + hostname + ":9090/xhr", contract.SERIALIZER);
-    const instrumentService = proxyFactory.proxy(contract.ServerServices.InstrumentService);
-    const echoService = proxyFactory.proxy(contract.ServerServices.EchoService);
+    const instrumentService = proxyFactory.proxy(contract.acceptor.instrumentService);
+    const echoService = proxyFactory.proxy(contract.acceptor.echoService);
     assertThrown(() => instrumentService.reload(false, new Integer(123)));
     echoService.echo("echo").then(result => log("echo succeeded:", result));
     echoService.echo("throwRuntimeException").catch(error => log("throwRuntimeException failed:", error));
 
-    assertThrown(() => yass.xhr("dummy://" + hostname + ":9090/xhr", contract.SERIALIZER).proxy(contract.ServerServices.EchoService).echo("echo1"));
-    yass.xhr("http://" + hostname + ":9090/dummy", contract.SERIALIZER).proxy(contract.ServerServices.EchoService).echo("echo2").catch(error => log("echo2 failed:", error));
-    yass.xhr("http://" + hostname + ":9999/xhr", contract.SERIALIZER).proxy(contract.ServerServices.EchoService).echo("echo3").catch(error => log("echo3 failed:", error));
+    assertThrown(() => yass.xhr("dummy://" + hostname + ":9090/xhr", contract.SERIALIZER).proxy(contract.acceptor.echoService).echo("echo1"));
+    yass.xhr("http://" + hostname + ":9090/dummy", contract.SERIALIZER).proxy(contract.acceptor.echoService).echo("echo2").catch(error => log("echo2 failed:", error));
+    yass.xhr("http://" + hostname + ":9999/xhr", contract.SERIALIZER).proxy(contract.acceptor.echoService).echo("echo3").catch(error => log("echo3 failed:", error));
 
 }
 

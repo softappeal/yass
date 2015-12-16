@@ -11,7 +11,7 @@ namespace tutorial {
     function logger(side: string): yass.Interceptor {
         return (style, method, parameters, invocation) => {
             function doLog(kind: string, data: any): void {
-                log("logger:", side, yass.SESSION ? (<Session>yass.SESSION).id : null, kind, yass.InvokeStyle[style], method, data);
+                log("logger:", side, kind, yass.InvokeStyle[style], method, data);
             }
             doLog("entry", parameters);
             try {
@@ -75,10 +75,10 @@ namespace tutorial {
         }
     }
 
-    function subscribePrices(proxyFactory: yass.ProxyFactory): void {
+    function subscribePrices(client: yass.Client): void {
         // create proxies; you can add 0..n interceptors to a proxy
-        const instrumentService = proxyFactory.proxy(contract.ServerServices.InstrumentService, clientLogger);
-        const priceEngine = proxyFactory.proxy(contract.ServerServices.PriceEngine, clientLogger);
+        const instrumentService = client.proxy(contract.acceptor.instrumentService, clientLogger);
+        const priceEngine = client.proxy(contract.acceptor.priceEngine, clientLogger);
         instrumentService.reload(true, new Integer(987654)); // oneWay method call
         instrumentService.getInstruments().then(instruments => {
             instruments.forEach(instrument => tableModel[instrument.id.value] = new TableRow(instrument));
@@ -93,15 +93,21 @@ namespace tutorial {
     class Session extends yass.Session {
         private static ID = 1;
         id = Session.ID++;
-        constructor(sessionClient: yass.SessionClient) {
-            super(sessionClient);
+        constructor(connection: yass.Connection) {
+            super(connection);
         }
-        opened(): void {
+        protected server() {
+            return new yass.Server( // you can add 0..n interceptors to a service
+                contract.initiator.priceListener.service(new PriceListenerImpl, serverLogger),
+                contract.initiator.echoService.service(new EchoServiceImpl, serverLogger)
+            );
+        }
+        protected opened(): void {
             log("session opened", this.id);
             subscribePrices(this);
         }
-        closed(exception: any): void {
-            log("session closed", this.id, exception);
+        protected closed(exceptional: boolean): void {
+            log("session closed", this.id, exceptional);
         }
     }
 
@@ -110,16 +116,12 @@ namespace tutorial {
     yass.connect(
         "ws://" + hostname + ":9090/tutorial",
         contract.SERIALIZER,
-        yass.server( // you can add 0..n interceptors to a service
-            new yass.Service(contract.ClientServices.PriceListener, new PriceListenerImpl, serverLogger),
-            new yass.Service(contract.ClientServices.EchoService, new EchoServiceImpl, serverLogger)
-        ),
-        sessionClient => new Session(sessionClient),
+        connection => new Session(connection),
         () => log("connect failed")
     );
 
-    const proxyFactory = yass.xhr("http://" + hostname + ":9090/xhr", contract.SERIALIZER);
-    const echoService = proxyFactory.proxy(contract.ServerServices.EchoService, clientLogger);
+    const client = yass.xhr("http://" + hostname + ":9090/xhr", contract.SERIALIZER);
+    const echoService = client.proxy(contract.acceptor.echoService, clientLogger);
     export function echoClick() {
         echoService.echo((<any>document.getElementById("echoInput")).value).then(
             result => document.getElementById("echoOutput").innerHTML = result,

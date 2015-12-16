@@ -27,7 +27,7 @@ import java.util.List;
     @Tag(108) public Object objectField;
     @Tag(109) public List<Object> objectListField;
 
-    @Tag(110) public Throwable throwable;
+    @Tag(110) public Exception exception;
 
     public AllTypes(final String stringField) {
         this.stringField = stringField;

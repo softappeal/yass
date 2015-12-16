@@ -1,7 +1,7 @@
 package ch.softappeal.yass.transport.socket;
 
 import ch.softappeal.yass.core.remote.session.Packet;
-import ch.softappeal.yass.transport.TransportSetup;
+import ch.softappeal.yass.serialize.Serializer;
 
 import java.io.ByteArrayOutputStream;
 import java.io.OutputStream;
@@ -19,16 +19,16 @@ public final class SyncSocketConnection extends SocketConnection {
         }
     };
 
-    private final Object writeMutex = new Object();
-
-    private SyncSocketConnection(final TransportSetup setup, final Socket socket, final OutputStream out) {
-        super(setup, socket, out);
+    private SyncSocketConnection(final Serializer packetSerializer, final Socket socket, final OutputStream out) {
+        super(packetSerializer, socket, out);
     }
+
+    private final Object writeMutex = new Object();
 
     @Override public void write(final Packet packet) throws Exception {
         final ByteArrayOutputStream buffer = writeToBuffer(packet);
         synchronized (writeMutex) {
-            flush(buffer, out);
+            flush(buffer);
         }
     }
 

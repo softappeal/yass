@@ -63,7 +63,7 @@ public class JavaSerializerTest {
 
     @Test public void exception() throws Exception {
         final ExceptionReply reply = copy(new ExceptionReply(new EOFException()));
-        Assert.assertTrue(reply.throwable instanceof EOFException);
+        Assert.assertTrue(reply.exception instanceof EOFException);
     }
 
 }

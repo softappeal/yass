@@ -13,9 +13,7 @@ public final class PathResolver {
     private final Map<Object, TransportSetup> pathMappings = new HashMap<>(16);
 
     public PathResolver(final Map<?, TransportSetup> pathMappings) {
-        for (final Map.Entry<?, TransportSetup> entry : pathMappings.entrySet()) {
-            this.pathMappings.put(Check.notNull(entry.getKey()), Check.notNull(entry.getValue()));
-        }
+        pathMappings.forEach((path, setup) -> this.pathMappings.put(Check.notNull(path), Check.notNull(setup)));
     }
 
     public PathResolver(final Object path, final TransportSetup setup) {

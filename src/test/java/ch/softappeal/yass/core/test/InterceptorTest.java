@@ -22,7 +22,7 @@ public class InterceptorTest {
 
     private static final Object[] ARGUMENTS = new Object[0];
 
-    @Test public void direct() throws Throwable {
+    @Test public void direct() throws Exception {
         final Object result = new Object();
         Assert.assertSame(
             Interceptors.DIRECT.invoke(null, null, new Invocation() {
@@ -43,7 +43,7 @@ public class InterceptorTest {
             this.begin = begin;
             this.end = end;
         }
-        @Override public @Nullable Object invoke(final Method method, final @Nullable Object[] arguments, final Invocation invocation) throws Throwable {
+        @Override public @Nullable Object invoke(final Method method, final @Nullable Object[] arguments, final Invocation invocation) throws Exception {
             System.out.println("enter: begin=" + begin + " step=" + step);
             Assert.assertSame(METHOD, method);
             Assert.assertSame(ARGUMENTS, arguments);
@@ -58,7 +58,7 @@ public class InterceptorTest {
         }
     }
 
-    @Test public void composite() throws Throwable {
+    @Test public void composite() throws Exception {
         final Interceptor stepInterceptor = new StepInterceptor(0, 0);
         Assert.assertSame(stepInterceptor, Interceptors.composite(stepInterceptor, Interceptors.DIRECT));
         Assert.assertSame(stepInterceptor, Interceptors.composite(Interceptors.DIRECT, stepInterceptor));
@@ -81,7 +81,7 @@ public class InterceptorTest {
         Assert.assertEquals(step, (2 * interceptors) + 1);
     }
 
-    @Test public void threadLocal() throws Throwable {
+    @Test public void threadLocal() throws Exception {
         final ThreadLocal<String> threadLocal = new ThreadLocal<>();
         final String oldValue = "oldValue";
         threadLocal.set(oldValue);

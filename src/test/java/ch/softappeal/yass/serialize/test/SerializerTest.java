@@ -9,7 +9,6 @@ import ch.softappeal.yass.serialize.contract.Node;
 import ch.softappeal.yass.serialize.contract.PrimitiveTypes;
 import ch.softappeal.yass.serialize.contract.nested.AllTypes;
 import ch.softappeal.yass.serialize.fast.AbstractFastSerializer;
-import ch.softappeal.yass.serialize.fast.BaseTypeHandler;
 import ch.softappeal.yass.serialize.fast.BaseTypeHandlers;
 import ch.softappeal.yass.serialize.fast.SimpleFastSerializer;
 import ch.softappeal.yass.serialize.fast.TaggedFastSerializer;
@@ -19,6 +18,7 @@ import org.junit.Test;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -36,7 +36,7 @@ public class SerializerTest {
         Assert.assertTrue(allTypes.shortField == 0);
         Assert.assertTrue(allTypes.intField == 0);
         Assert.assertTrue(allTypes.longField == 0);
-        Assert.assertTrue(allTypes.charField == 0);
+        Assert.assertTrue(allTypes.charField == ' ');
         Assert.assertTrue(allTypes.floatField == 0);
         Assert.assertTrue(allTypes.doubleField == 0);
         Assert.assertNull(allTypes.booleanArrayField);
@@ -60,11 +60,12 @@ public class SerializerTest {
         Assert.assertNull(allTypes.bigDecimalField);
         Assert.assertNull(allTypes.bigIntegerField);
         Assert.assertNull(allTypes.dateField);
+        Assert.assertNull(allTypes.instantField);
         Assert.assertNull(allTypes.primitiveTypesField);
         Assert.assertNull(allTypes.primitiveTypesListField);
         Assert.assertNull(allTypes.objectField);
         Assert.assertNull(allTypes.objectListField);
-        Assert.assertNull(allTypes.throwable);
+        Assert.assertNull(allTypes.exception);
     }
 
     public static AllTypes createValues() {
@@ -98,11 +99,12 @@ public class SerializerTest {
         allTypes.bigDecimalField = new BigDecimal("98.7");
         allTypes.bigIntegerField = new BigInteger("987");
         allTypes.dateField = new Date(123456789L);
+        allTypes.instantField = Instant.ofEpochSecond(123, 456789);
         allTypes.primitiveTypesField = new AllTypes("hello");
         allTypes.primitiveTypesListField = Arrays.asList(new PrimitiveTypes(999), new AllTypes("world"), null);
         allTypes.objectField = "bad";
-        allTypes.objectListField = Arrays.<Object>asList("good", null, 123);
-        allTypes.throwable = new IntException(123);
+        allTypes.objectListField = Arrays.asList("good", null, 123);
+        allTypes.exception = new IntException(123);
         return allTypes;
     }
 
@@ -136,6 +138,9 @@ public class SerializerTest {
         Assert.assertEquals(new BigDecimal("98.7"), allTypes.bigDecimalField);
         Assert.assertEquals(new BigInteger("987"), allTypes.bigIntegerField);
         Assert.assertTrue(allTypes.dateField.getTime() == 123456789L);
+        final Instant instant = allTypes.instantField;
+        Assert.assertTrue(instant.getEpochSecond() == 123);
+        Assert.assertTrue(instant.getNano() == 456789);
         Assert.assertEquals("hello", ((AllTypes)allTypes.primitiveTypesField).stringField);
         final List<PrimitiveTypes> primitiveTypesListField = allTypes.primitiveTypesListField;
         Assert.assertTrue(primitiveTypesListField.size() == 3);
@@ -148,7 +153,7 @@ public class SerializerTest {
         Assert.assertEquals("good", objectListField.get(0));
         Assert.assertNull(objectListField.get(1));
         Assert.assertEquals(123, objectListField.get(2));
-        Assert.assertTrue(((IntException)allTypes.throwable).value == 123);
+        Assert.assertTrue(((IntException)allTypes.exception).value == 123);
     }
 
     public static Node createGraph() {
@@ -275,11 +280,12 @@ public class SerializerTest {
             new TypeDesc(19, BaseTypeHandlers.STRING),
             new TypeDesc(20, BaseTypeHandlers.BIGINTEGER),
             new TypeDesc(21, BaseTypeHandlers.BIGDECIMAL),
-            new TypeDesc(22, BaseTypeHandlers.DATE)
+            new TypeDesc(22, BaseTypeHandlers.DATE),
+            new TypeDesc(23, BaseTypeHandlers.INSTANT)
         ),
-        Arrays.<Class<?>>asList(Color.class),
-        Arrays.<Class<?>>asList(PrimitiveTypes.class, AllTypes.class, IntException.class),
-        Arrays.<Class<?>>asList(Node.class)
+        Arrays.asList(Color.class),
+        Arrays.asList(PrimitiveTypes.class, AllTypes.class, IntException.class),
+        Arrays.asList(Node.class)
     );
 
     @Test public void taggedFast() throws Exception {
@@ -288,7 +294,7 @@ public class SerializerTest {
 
     public static final AbstractFastSerializer SIMPLE_FAST_SERIALIZER = new SimpleFastSerializer(
         FastReflector.FACTORY,
-        Arrays.<BaseTypeHandler<?>>asList(
+        Arrays.asList(
             BaseTypeHandlers.BOOLEAN,
             BaseTypeHandlers.BYTE,
             BaseTypeHandlers.SHORT,
@@ -308,11 +314,12 @@ public class SerializerTest {
             BaseTypeHandlers.STRING,
             BaseTypeHandlers.BIGINTEGER,
             BaseTypeHandlers.BIGDECIMAL,
-            BaseTypeHandlers.DATE
+            BaseTypeHandlers.DATE,
+            BaseTypeHandlers.INSTANT
         ),
-        Arrays.<Class<?>>asList(Color.class),
-        Arrays.<Class<?>>asList(PrimitiveTypes.class, AllTypes.class, IntException.class),
-        Arrays.<Class<?>>asList(Node.class)
+        Arrays.asList(Color.class),
+        Arrays.asList(PrimitiveTypes.class, AllTypes.class, IntException.class),
+        Arrays.asList(Node.class)
     );
 
     @Test public void simpleFast() throws Exception {

@@ -1,12 +1,11 @@
 package ch.softappeal.yass.transport.socket.test;
 
 import ch.softappeal.yass.core.remote.Server;
-import ch.softappeal.yass.core.remote.Service;
-import ch.softappeal.yass.core.remote.session.Session;
-import ch.softappeal.yass.core.remote.session.SessionClient;
-import ch.softappeal.yass.core.remote.session.SessionFactory;
+import ch.softappeal.yass.core.remote.session.Connection;
+import ch.softappeal.yass.core.remote.session.SimpleSession;
 import ch.softappeal.yass.core.remote.session.test.PerformanceTest;
 import ch.softappeal.yass.core.test.InvokeTest;
+import ch.softappeal.yass.serialize.JavaSerializer;
 import ch.softappeal.yass.transport.TransportSetup;
 import ch.softappeal.yass.transport.socket.SocketConnection;
 import ch.softappeal.yass.transport.socket.SocketHelper;
@@ -29,36 +28,33 @@ import java.util.concurrent.TimeUnit;
 
 public class SslTest extends InvokeTest {
 
-    private static void checkName(final SessionClient sessionClient) throws Exception {
-        Assert.assertEquals("CN=Test", ((SSLSocket)((SocketConnection)sessionClient.connection).socket).getSession().getPeerPrincipal().getName());
+    private static void checkName(final Connection connection) throws Exception {
+        Assert.assertEquals("CN=Test", ((SSLSocket)((SocketConnection)connection).socket).getSession().getPeerPrincipal().getName());
     }
 
-    private static void test(
-        final ServerSocketFactory serverSocketFactory, final SocketFactory socketFactory, final boolean needClientAuth
-    ) throws Exception {
+    private static void test(final ServerSocketFactory serverSocketFactory, final SocketFactory socketFactory, final boolean needClientAuth) throws Exception {
         final ExecutorService executor = Executors.newCachedThreadPool(new NamedThreadFactory("executor", Exceptions.STD_ERR));
         try {
             new SocketTransport(executor, SyncSocketConnection.FACTORY).start(
-                new TransportSetup(
-                    new Server(
-                        PerformanceTest.METHOD_MAPPER_FACTORY,
-                        new Service(PerformanceTest.CONTRACT_ID, new TestServiceImpl())
-                    ),
-                    executor,
-                    SocketPerformanceTest.PACKET_SERIALIZER,
-                    new SessionFactory() {
-                        @Override public Session create(final SessionClient sessionClient) throws Exception {
-                            if (needClientAuth) {
-                                checkName(sessionClient);
-                            }
-                            return new Session(sessionClient) {
-                                @Override protected void closed(final Throwable throwable) {
-                                    if (throwable != null) {
-                                        Exceptions.TERMINATE.uncaughtException(null, throwable);
-                                    }
-                                }
-                            };
+                TransportSetup.ofPacketSerializer(
+                    JavaSerializer.INSTANCE,
+                    connection -> {
+                        if (needClientAuth) {
+                            checkName(connection);
                         }
+                        return new SimpleSession(connection, executor) {
+                            @Override protected Server server() {
+                                return new Server(
+                                    PerformanceTest.CONTRACT_ID.service(new TestServiceImpl())
+                                );
+                            }
+                            @Override protected void opened() {
+                                // empty
+                            }
+                            @Override protected void closed(final boolean exceptional) {
+                                // empty
+                            }
+                        };
                     }
                 ),
                 executor,
@@ -66,29 +62,25 @@ public class SslTest extends InvokeTest {
                 SocketHelper.ADDRESS
             );
             new SocketTransport(executor, SyncSocketConnection.FACTORY).connect(
-                new TransportSetup(
-                    new Server(PerformanceTest.METHOD_MAPPER_FACTORY),
-                    executor,
-                    SocketPerformanceTest.PACKET_SERIALIZER,
-                    new SessionFactory() {
-                        @Override public Session create(final SessionClient sessionClient) throws Exception {
-                            checkName(sessionClient);
-                            return new Session(sessionClient) {
-                                @Override protected void opened() throws Exception {
-                                    final TestService testService = proxy(PerformanceTest.CONTRACT_ID);
-                                    Assert.assertTrue(testService.divide(12, 4) == 3);
-                                    close();
-                                }
-                                @Override protected void closed(final Throwable throwable) {
-                                    if (throwable != null) {
-                                        Exceptions.TERMINATE.uncaughtException(null, throwable);
-                                    }
-                                }
-                            };
-                        }
+                TransportSetup.ofPacketSerializer(
+                    JavaSerializer.INSTANCE,
+                    connection -> {
+                        checkName(connection);
+                        return new SimpleSession(connection, executor) {
+                            @Override protected Server server() {
+                                return Server.EMPTY;
+                            }
+                            @Override protected void opened() throws Exception {
+                                final TestService testService = proxy(PerformanceTest.CONTRACT_ID);
+                                Assert.assertTrue(testService.divide(12, 4) == 3);
+                                close();
+                            }
+                            @Override protected void closed(final boolean exceptional) {
+                                // empty
+                            }
+                        };
                     }
                 ),
-                executor,
                 socketFactory, SocketHelper.ADDRESS
             );
         } finally {

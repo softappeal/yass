@@ -16,19 +16,22 @@ import java.util.Date;
  */
 public final class Logger implements Interceptor {
 
-    private final String side;
+    public enum Side {CLIENT, SERVER}
 
-    private Logger(final String side) {
+    private final @Nullable Session session;
+    private final Side side;
+
+    public Logger(final @Nullable Session session, final Side side) {
+        this.session = session;
         this.side = Check.notNull(side);
     }
 
-    private static final Dumper DUMPER = new Dumper(true, false);
+    private static final Dumper DUMPER = new Dumper(true, true);
     private static String dump(final Object value) {
         return DUMPER.append(new StringBuilder(256), value).toString();
     }
 
     private void log(final String type, final Method method, final Object data) {
-        final Session session = Session.get();
         System.out.printf(
             "%tT | %s | %s | %s | %s | %s\n",
             new Date(),
@@ -40,7 +43,7 @@ public final class Logger implements Interceptor {
         );
     }
 
-    @Override public Object invoke(final Method method, final @Nullable Object[] arguments, final Invocation invocation) throws Throwable {
+    @Override public Object invoke(final Method method, final @Nullable Object[] arguments, final Invocation invocation) throws Exception {
         final boolean oneWay = method.isAnnotationPresent(OneWay.class);
         log(oneWay ? "oneWay" : "entry", method, arguments);
         try {
@@ -49,13 +52,10 @@ public final class Logger implements Interceptor {
                 log("exit", method, result);
             }
             return result;
-        } catch (final Throwable throwable) {
-            log("exception", method, throwable);
-            throw throwable;
+        } catch (final Exception e) {
+            log("exception", method, e);
+            throw e;
         }
     }
-
-    public static final Interceptor CLIENT = new Logger("client");
-    public static final Interceptor SERVER = new Logger("server");
 
 }

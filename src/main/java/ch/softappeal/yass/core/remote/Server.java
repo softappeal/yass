@@ -1,30 +1,18 @@
 package ch.softappeal.yass.core.remote;
 
-import ch.softappeal.yass.core.Interceptor;
 import ch.softappeal.yass.util.Nullable;
 
-import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
 
-public final class Server extends Common {
+public final class Server {
 
-    private final class ServiceDesc {
-        final Service service;
-        final MethodMapper methodMapper;
-        ServiceDesc(final Service service) {
-            this.service = service;
-            methodMapper = methodMapper(service.contractId.contract);
-        }
-    }
+    private final Map<Integer, Service> id2service;
 
-    private final Map<Integer, ServiceDesc> serviceId2serviceDesc;
-
-    public Server(final MethodMapper.Factory methodMapperFactory, final Service... services) {
-        super(methodMapperFactory);
-        serviceId2serviceDesc = new HashMap<>(services.length);
+    public Server(final Service... services) {
+        id2service = new HashMap<>(services.length);
         for (final Service service : services) {
-            if (serviceId2serviceDesc.put(service.contractId.id, new ServiceDesc(service)) != null) {
+            if (id2service.put(service.contractId.id, service) != null) {
                 throw new IllegalArgumentException("serviceId " + service.contractId.id + " already added");
             }
         }
@@ -32,27 +20,26 @@ public final class Server extends Common {
 
     public static final class Invocation {
         public final Service service;
-        public final Method method;
-        public final boolean oneWay;
+        public final MethodMapper.Mapping methodMapping;
         public final @Nullable Object[] arguments;
-        Invocation(final ServiceDesc serviceDesc, final Request request) {
-            service = serviceDesc.service;
-            final MethodMapper.Mapping methodMapping = serviceDesc.methodMapper.mapId(request.methodId);
-            method = methodMapping.method;
-            oneWay = methodMapping.oneWay;
+        Invocation(final Service service, final Request request) {
+            this.service = service;
+            methodMapping = service.contractId.methodMapper.mapId(request.methodId);
             arguments = request.arguments;
         }
-        public Reply invoke(final Interceptor interceptor) {
-            return service.invoke(interceptor, method, arguments);
+        public Reply invoke() {
+            return service.invoke(methodMapping.method, arguments);
         }
     }
 
     public Invocation invocation(final Request request) {
-        final @Nullable ServiceDesc serviceDesc = serviceId2serviceDesc.get(request.serviceId);
-        if (serviceDesc == null) {
+        final @Nullable Service service = id2service.get(request.serviceId);
+        if (service == null) {
             throw new RuntimeException("no serviceId " + request.serviceId + " found (methodId " + request.methodId + ')');
         }
-        return new Invocation(serviceDesc, request);
+        return new Invocation(service, request);
     }
+
+    public static final Server EMPTY = new Server();
 
 }

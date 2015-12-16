@@ -1,10 +1,11 @@
 package ch.softappeal.yass.transport.socket;
 
 import ch.softappeal.yass.core.remote.session.Packet;
-import ch.softappeal.yass.core.remote.session.SessionClient;
+import ch.softappeal.yass.core.remote.session.Session;
 import ch.softappeal.yass.core.remote.session.SessionClosedException;
-import ch.softappeal.yass.transport.TransportSetup;
+import ch.softappeal.yass.serialize.Serializer;
 import ch.softappeal.yass.util.Check;
+import ch.softappeal.yass.util.Exceptions;
 
 import java.io.ByteArrayOutputStream;
 import java.io.OutputStream;
@@ -29,47 +30,42 @@ public final class AsyncSocketConnection extends SocketConnection {
         if (writerQueueSize < 1) {
             throw new IllegalArgumentException("writerQueueSize < 1");
         }
-        return new Factory() {
-            @Override public SocketConnection create(final TransportSetup setup, final Socket socket, final OutputStream out) throws Exception {
-                return new AsyncSocketConnection(setup, socket, out, writerExecutor, writerQueueSize);
-            }
-        };
+        return (packetSerializer, socket, out) -> new AsyncSocketConnection(packetSerializer, socket, out, writerExecutor, writerQueueSize);
     }
 
     private final Executor writerExecutor;
     private volatile boolean closed = false;
     private final BlockingQueue<ByteArrayOutputStream> writerQueue;
 
-    private AsyncSocketConnection(final TransportSetup setup, final Socket socket, final OutputStream out, final Executor writerExecutor, final int writerQueueSize) {
-        super(setup, socket, out);
+    private AsyncSocketConnection(final Serializer packetSerializer, final Socket socket, final OutputStream out, final Executor writerExecutor, final int writerQueueSize) {
+        super(packetSerializer, socket, out);
         this.writerExecutor = writerExecutor;
         writerQueue = new ArrayBlockingQueue<>(writerQueueSize);
     }
 
-    @Override protected void created(final SessionClient sessionClient) throws Exception {
-        writerExecutor.execute(new Runnable() {
-            @Override public void run() {
-                try {
-                    while (true) {
-                        final ByteArrayOutputStream buffer = writerQueue.poll(200L, TimeUnit.MILLISECONDS);
-                        if (buffer == null) {
-                            if (closed) {
-                                return;
-                            }
-                            continue;
+    @Override protected void created(final Session session) {
+        writerExecutor.execute(() -> {
+            try {
+                while (true) {
+                    final ByteArrayOutputStream buffer = writerQueue.poll(200L, TimeUnit.MILLISECONDS);
+                    if (buffer == null) {
+                        if (closed) {
+                            return;
                         }
-                        while (true) { // drain queue -> batching of packets
-                            final ByteArrayOutputStream buffer2 = writerQueue.poll();
-                            if (buffer2 == null) {
-                                break;
-                            }
-                            buffer2.writeTo(buffer);
-                        }
-                        flush(buffer, out);
+                        continue;
                     }
-                } catch (final Exception e) {
-                    sessionClient.close(e);
+                    while (true) { // drain queue -> batching of packets
+                        final ByteArrayOutputStream buffer2 = writerQueue.poll();
+                        if (buffer2 == null) {
+                            break;
+                        }
+                        buffer2.writeTo(buffer);
+                    }
+                    flush(buffer);
                 }
+            } catch (final Exception e) {
+                Session.close(session, e);
+                throw Exceptions.wrap(e);
             }
         });
     }
@@ -80,15 +76,9 @@ public final class AsyncSocketConnection extends SocketConnection {
         }
     }
 
-    /**
-     * Note: No more calls to {@link #write(Packet)} are accepted when this method is called due to implementation of {@link SessionClient}.
-     */
     @Override public void closed() throws Exception {
         try {
-            while (!writerQueue.isEmpty()) {
-                TimeUnit.MILLISECONDS.sleep(200L);
-            }
-            TimeUnit.MILLISECONDS.sleep(200L); // give the socket a chance to write the end packet
+            TimeUnit.MILLISECONDS.sleep(400L); // give the socket a chance to write the end packet
         } finally {
             closed = true; // terminates writer thread
             super.closed();

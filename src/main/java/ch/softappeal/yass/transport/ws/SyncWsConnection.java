@@ -1,7 +1,7 @@
 package ch.softappeal.yass.transport.ws;
 
 import ch.softappeal.yass.core.remote.session.Packet;
-import ch.softappeal.yass.transport.TransportSetup;
+import ch.softappeal.yass.serialize.Serializer;
 
 import javax.websocket.RemoteEndpoint;
 import javax.websocket.Session;
@@ -19,16 +19,12 @@ public final class SyncWsConnection extends WsConnection {
         }
     };
 
-    private RemoteEndpoint.Basic remoteEndpoint;
-
-    private SyncWsConnection(final TransportSetup setup, final Session session) {
-        super(setup, session);
-    }
-
-    @Override protected void created(final Session session) {
+    private SyncWsConnection(final Serializer packetSerializer, final Session session) {
+        super(packetSerializer, session);
         remoteEndpoint = session.getBasicRemote();
     }
 
+    private final RemoteEndpoint.Basic remoteEndpoint;
     private final Object writeMutex = new Object();
 
     @Override public void write(final Packet packet) throws Exception {

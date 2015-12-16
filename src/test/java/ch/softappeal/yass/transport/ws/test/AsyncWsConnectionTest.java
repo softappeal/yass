@@ -1,28 +1,20 @@
 package ch.softappeal.yass.transport.ws.test;
 
 import ch.softappeal.yass.core.remote.ContractId;
-import ch.softappeal.yass.core.remote.MethodMapper;
 import ch.softappeal.yass.core.remote.OneWay;
 import ch.softappeal.yass.core.remote.Server;
-import ch.softappeal.yass.core.remote.Service;
 import ch.softappeal.yass.core.remote.SimpleMethodMapper;
-import ch.softappeal.yass.core.remote.session.Dispatcher;
 import ch.softappeal.yass.core.remote.session.Session;
-import ch.softappeal.yass.core.remote.session.SessionClient;
-import ch.softappeal.yass.core.remote.session.SessionFactory;
 import ch.softappeal.yass.serialize.JavaSerializer;
-import ch.softappeal.yass.serialize.Serializer;
 import ch.softappeal.yass.transport.TransportSetup;
 import ch.softappeal.yass.transport.ws.AsyncWsConnection;
 import ch.softappeal.yass.transport.ws.SyncWsConnection;
 import ch.softappeal.yass.transport.ws.WsConnection;
 import ch.softappeal.yass.transport.ws.WsEndpoint;
-import ch.softappeal.yass.util.Nullable;
 import io.undertow.Undertow;
 import io.undertow.server.XnioByteBufferPool;
 import io.undertow.servlet.Servlets;
 import io.undertow.servlet.api.DeploymentManager;
-import io.undertow.servlet.api.ThreadSetupAction;
 import io.undertow.servlet.core.CompositeThreadSetupAction;
 import io.undertow.servlet.util.DefaultClassIntrospector;
 import io.undertow.websockets.jsr.DefaultContainerConfigurator;
@@ -47,53 +39,42 @@ public final class AsyncWsConnectionTest {
         @OneWay void busy();
     }
 
-    private static final ContractId<Busy> BUSY_ID = ContractId.create(Busy.class, 0);
-    private static final Serializer PACKET_SERIALIZER = JavaSerializer.INSTANCE;
-    private static final MethodMapper.Factory METHOD_MAPPER_FACTORY = SimpleMethodMapper.FACTORY;
-
-    public static final String HOST = "0.0.0.0";
-    public static final int PORT = 9090;
-    public static final String PATH = "/test";
-
-    private static final Dispatcher DISPATCHER = new Dispatcher() {
-        @Override public void opened(final Session session, final Runnable runnable) {
-            runnable.run();
-        }
-        @Override public void invoke(final Session session, final Server.Invocation invocation, final Runnable runnable) {
-            runnable.run();
-        }
-    };
+    private static final ContractId<Busy> BUSY_ID = ContractId.create(Busy.class, 0, SimpleMethodMapper.FACTORY);
+    private static final String HOST = "0.0.0.0";
+    private static final int PORT = 9090;
+    private static final String PATH = "/test";
 
     public static final class ServerEndpoint extends WsEndpoint {
         @Override protected WsConnection createConnection(final javax.websocket.Session session) throws Exception {
             return WsConnection.create(
                 SyncWsConnection.FACTORY,
-                new TransportSetup(
-                    new Server(
-                        METHOD_MAPPER_FACTORY,
-                        new Service(BUSY_ID, new Busy() {
-                            @Override public void busy() {
-                                System.out.println("busy");
-                                try {
-                                    TimeUnit.MILLISECONDS.sleep(1_000);
-                                } catch (InterruptedException e) {
-                                    throw new RuntimeException(e);
-                                }
-                            }
-                        })
-                    ),
-                    DISPATCHER,
-                    PACKET_SERIALIZER,
-                    new SessionFactory() {
-                        @Override public Session create(final SessionClient sessionClient) throws Exception {
-                            return new Session(sessionClient) {
-                                @Override protected void opened() {
-                                    System.out.println("server opened");
-                                }
-                                @Override public void closed(final @Nullable Throwable throwable) {
-                                    System.out.println("server closed");
-                                }
-                            };
+                TransportSetup.ofPacketSerializer(
+                    JavaSerializer.INSTANCE,
+                    connection -> new Session(connection) {
+                        @Override protected Server server() {
+                            return new Server(
+                                BUSY_ID.service(() -> {
+                                    System.out.println("busy");
+                                    try {
+                                        TimeUnit.MILLISECONDS.sleep(1_000);
+                                    } catch (InterruptedException e) {
+                                        throw new RuntimeException(e);
+                                    }
+                                })
+                            );
+                        }
+                        @Override protected void dispatchOpened(final Runnable runnable) {
+                            runnable.run();
+
+                        }
+                        @Override protected void dispatchServerInvoke(final Server.Invocation invocation, final Runnable runnable) {
+                            runnable.run();
+                        }
+                        @Override protected void opened() {
+                            System.out.println("acceptor opened");
+                        }
+                        @Override protected void closed(final boolean exceptional) {
+                            System.out.println("acceptor closed");
                         }
                     }
                 ),
@@ -110,29 +91,30 @@ public final class AsyncWsConnectionTest {
         @Override protected WsConnection createConnection(final javax.websocket.Session session) throws Exception {
             return WsConnection.create(
                 AsyncWsConnection.factory(5_000),
-                new TransportSetup(
-                    new Server(
-                        METHOD_MAPPER_FACTORY
-                    ),
-                    DISPATCHER,
-                    PACKET_SERIALIZER,
-                    new SessionFactory() {
-                        @Override public Session create(final SessionClient sessionClient) throws Exception {
-                            return new Session(sessionClient) {
-                                @Override protected void opened() {
-                                    System.out.println("client opened");
-                                    final Busy busy = proxy(BUSY_ID);
-                                    for (int i = 0; i < 100_000; i++) {
-                                        busy.busy();
-                                    }
-                                    System.out.println("client done");
-                                }
-                                @Override public void closed(final @Nullable Throwable throwable) {
-                                    System.out.println("client closed");
-                                    throwable.printStackTrace(System.out);
-                                    System.exit(1);
-                                }
-                            };
+                TransportSetup.ofPacketSerializer(
+                    JavaSerializer.INSTANCE,
+                    connection -> new Session(connection) {
+                        @Override protected Server server() {
+                            return Server.EMPTY;
+                        }
+                        @Override protected void dispatchOpened(final Runnable runnable) {
+                            runnable.run();
+
+                        }
+                        @Override protected void dispatchServerInvoke(final Server.Invocation invocation, final Runnable runnable) {
+                            runnable.run();
+                        }
+                        @Override protected void opened() {
+                            System.out.println("initiator opened");
+                            final Busy busy = proxy(BUSY_ID);
+                            for (int i = 0; i < 1_000; i++) {
+                                busy.busy();
+                            }
+                            System.out.println("initiator done");
+                        }
+                        @Override protected void closed(final boolean exceptional) {
+                            System.out.println("initiator closed: " + exceptional);
+                            System.exit(1);
                         }
                     }
                 ),
@@ -176,7 +158,7 @@ public final class AsyncWsConnectionTest {
                 DefaultClassIntrospector.INSTANCE,
                 Xnio.getInstance().createWorker(OptionMap.create(Options.THREAD_DAEMON, true)),
                 new XnioByteBufferPool(new ByteBufferSlicePool(1024, 10240)),
-                new CompositeThreadSetupAction(Collections.<ThreadSetupAction>emptyList()),
+                new CompositeThreadSetupAction(Collections.emptyList()),
                 true,
                 true
             ));

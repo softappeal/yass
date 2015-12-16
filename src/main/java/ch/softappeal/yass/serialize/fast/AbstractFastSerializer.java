@@ -98,10 +98,7 @@ public abstract class AbstractFastSerializer implements Serializer {
     protected final void addClass(final int id, final Class<?> type, final boolean referenceable, final Map<Integer, Field> id2field) {
         final Reflector reflector = reflector(type);
         final Map<Integer, FieldHandler> id2fieldHandler = new HashMap<>(id2field.size());
-        for (final Map.Entry<Integer, Field> entry : id2field.entrySet()) {
-            final Field field = entry.getValue();
-            id2fieldHandler.put(entry.getKey(), new FieldHandler(field, reflector.accessor(field)));
-        }
+        id2field.forEach((fieldId, field) -> id2fieldHandler.put(fieldId, new FieldHandler(field, reflector.accessor(field))));
         addType(new TypeDesc(id, new ClassTypeHandler(type, reflector, referenceable, id2fieldHandler)));
     }
 
@@ -120,11 +117,9 @@ public abstract class AbstractFastSerializer implements Serializer {
     }
 
     protected final void fixupFields() {
-        for (final TypeDesc typeDesc : class2typeDesc.values()) {
-            if (typeDesc.handler instanceof ClassTypeHandler) {
-                ((ClassTypeHandler)typeDesc.handler).fixupFields(class2typeDesc);
-            }
-        }
+        class2typeDesc.values().stream().filter(typeDesc -> typeDesc.handler instanceof ClassTypeHandler).forEach(
+            typeDesc -> ((ClassTypeHandler)typeDesc.handler).fixupFields(class2typeDesc)
+        );
     }
 
     @Override public final Object read(final Reader reader) throws Exception {
@@ -140,9 +135,7 @@ public abstract class AbstractFastSerializer implements Serializer {
     }
 
     public final void print(final PrintWriter printer) {
-        for (final Map.Entry<Integer, TypeHandler> entry : id2typeHandler().entrySet()) {
-            final int id = entry.getKey();
-            final TypeHandler typeHandler = entry.getValue();
+        id2typeHandler().forEach((id, typeHandler) -> {
             if (id >= TypeDesc.FIRST_ID) {
                 printer.print(id + ": " + typeHandler.type.getCanonicalName());
                 if (typeHandler instanceof BaseTypeHandler) {
@@ -163,7 +156,7 @@ public abstract class AbstractFastSerializer implements Serializer {
                 }
                 printer.println();
             }
-        }
+        });
     }
 
 }

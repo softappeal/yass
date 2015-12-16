@@ -6,14 +6,14 @@ public final class ExceptionReply extends Reply {
 
     private static final long serialVersionUID = 1L;
 
-    public final Throwable throwable;
+    public final Exception exception;
 
-    public ExceptionReply(final Throwable throwable) {
-        this.throwable = Check.notNull(throwable);
+    public ExceptionReply(final Exception exception) {
+        this.exception = Check.notNull(exception);
     }
 
-    @Override Object process() throws Throwable {
-        throw throwable;
+    @Override Object process() throws Exception {
+        throw exception;
     }
 
 }

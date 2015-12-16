@@ -23,9 +23,9 @@ import java.util.concurrent.ExecutorService;
 
 public final class SocketTransport {
 
-    public final Executor readerExecutor;
-    public final SocketConnection.Factory connectionFactory;
-    public final Serializer pathSerializer;
+    private final Executor readerExecutor;
+    private final SocketConnection.Factory connectionFactory;
+    private final Serializer pathSerializer;
 
     /**
      * @param readerExecutor used once for each session

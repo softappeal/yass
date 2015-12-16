@@ -19,7 +19,7 @@ import java.util.List;
  */
 public final class MessageSerializer implements Serializer {
 
-    public final Serializer contractSerializer;
+    private final Serializer contractSerializer;
 
     public MessageSerializer(final Serializer contractSerializer) {
         this.contractSerializer = Check.notNull(contractSerializer);
@@ -48,7 +48,7 @@ public final class MessageSerializer implements Serializer {
             );
         } else {
             return new ExceptionReply(
-                (Throwable)contractSerializer.read(reader)
+                (Exception)contractSerializer.read(reader)
             );
         }
     }
@@ -67,7 +67,7 @@ public final class MessageSerializer implements Serializer {
         } else {
             writer.writeByte(EXCEPTION_REPLY);
             final ExceptionReply reply = (ExceptionReply)message;
-            contractSerializer.write(reply.throwable, writer);
+            contractSerializer.write(reply.exception, writer);
         }
     }
 

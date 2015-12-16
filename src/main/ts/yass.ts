@@ -334,6 +334,21 @@ namespace yass {
         write(value: any, writer: Writer): void;
     }
 
+    export function writeTo(serializer: Serializer, value: any): Uint8Array {
+        const writer = new Writer(128);
+        serializer.write(value, writer);
+        return writer.getArray();
+    }
+
+    export function readFrom(serializer: Serializer, arrayBuffer: ArrayBuffer): any {
+        const reader = new Reader(arrayBuffer);
+        const value = serializer.read(reader);
+        if (!reader.isEmpty()) {
+            throw new Error("reader is not empty");
+        }
+        return value;
+    }
+
     export class JsFastSerializer implements Serializer {
         private id2typeHandler: TypeHandler<any>[] = [];
         constructor(...Types: any[]) {
@@ -385,7 +400,7 @@ namespace yass {
     }
 
     /**
-     * An invocation has a Promise if and only if it is a client side rpc style invocation.
+     * An invocation has a Promise if and only if it is an initiator rpc style invocation.
      * If an invocation has a Promise, the interceptor will be called twice (first with PromiseEntry and then with PromiseExit).
      * If an invocation doesn't have a Promise, the interceptor will be called once (with NoPromise).
      */
@@ -516,27 +531,18 @@ namespace yass {
         constructor(public id: number, public methodMapper: MethodMapper<C>) {
             // empty
         }
-    }
-
-    export class Service<C> {
-        interceptor: Interceptor;
-        constructor(public contractId: ContractId<C, any>, public implementation: C, ...interceptors: Interceptor[]) {
-            this.interceptor = composite.apply(null, interceptors);
+        service(implementation: C, ...interceptors: Interceptor[]): Service {
+            return new Service(this, implementation, composite.apply(null, interceptors));
         }
     }
 
-    export class ServerInvoker {
-        methodMapper: MethodMapper<any>;
-        private interceptor: Interceptor;
-        private implementation: any;
-        constructor(service: Service<any>) {
-            this.methodMapper = service.contractId.methodMapper;
-            this.interceptor = service.interceptor;
-            this.implementation = service.implementation;
+    export class Service {
+        constructor(public contractId: ContractId<any, any>, private implementation: any, private interceptor: Interceptor) {
+            // empty
         }
-        invoke(interceptor: Interceptor, method: string, parameters: any[]): Reply {
+        invoke(method: string, parameters: any[]): Reply {
             try {
-                return new ValueReply(composite(interceptor, this.interceptor)(InvokeStyle.NoPromise, method, parameters, () => {
+                return new ValueReply(this.interceptor(InvokeStyle.NoPromise, method, parameters, () => {
                     const result = this.implementation[method].apply(this.implementation, parameters);
                     return result ? result : null;
                 }));
@@ -547,42 +553,35 @@ namespace yass {
     }
 
     export class ServerInvocation {
-        oneWay: boolean;
-        private method: string;
-        constructor(private serverInvoker: ServerInvoker, private request: Request) {
-            const methodMapping = serverInvoker.methodMapper.mapId(request.methodId);
-            this.oneWay = methodMapping.oneWay;
-            this.method = methodMapping.method;
+        methodMapping: MethodMapping;
+        parameters: any[];
+        constructor(public service: Service, request: Request) {
+            this.methodMapping = service.contractId.methodMapper.mapId(request.methodId);
+            this.parameters = request.parameters;
         }
-        invoke(interceptor: Interceptor): Reply {
-            return this.serverInvoker.invoke(interceptor, this.method, this.request.parameters);
+        invoke(): Reply {
+            return this.service.invoke(this.methodMapping.method, this.parameters);
         }
     }
 
-    export interface Server {
-        (request: Request): ServerInvocation;
-    }
-
-    export function server(...services: Service<any>[]): Server {
-        const serviceId2invoker: ServerInvoker[] = [];
-        services.forEach(service => {
-            const id = service.contractId.id;
-            if (serviceId2invoker[id]) {
-                throw new Error("serviceId " + id + " already added");
-            }
-            serviceId2invoker[id] = new ServerInvoker(service);
-        });
-        return request => {
-            const invoker = serviceId2invoker[request.serviceId];
-            if (!invoker) {
+    export class Server {
+        private id2service: Service[] = [];
+        constructor(...services: Service[]) {
+            services.forEach(service => {
+                const id = service.contractId.id;
+                if (this.id2service[id]) {
+                    throw new Error("serviceId " + id + " already added");
+                }
+                this.id2service[id] = service;
+            });
+        }
+        invocation(request: Request): ServerInvocation {
+            const service = this.id2service[request.serviceId];
+            if (!service) {
                 throw new Error("no serviceId " + request.serviceId + " found (methodId " + request.methodId + ")");
             }
-            return new ServerInvocation(invoker, request);
-        };
-    }
-
-    export interface ProxyFactory {
-        proxy<PC>(contractId: ContractId<any, PC>, ...interceptors: Interceptor[]): PC;
+            return new ServerInvocation(service, request);
+        }
     }
 
     export class Rpc {
@@ -614,10 +613,9 @@ namespace yass {
         constructor(private interceptor: Interceptor, private serviceId: number, private methodMapping: MethodMapping, private parameters: any[]) {
             // empty
         }
-        invoke(interceptor: Interceptor, tunnel: Tunnel): Promise<any> {
-            const compositeInterceptor = composite(interceptor, this.interceptor);
-            const rpc: Rpc = this.methodMapping.oneWay ? null : new Rpc(compositeInterceptor, this.methodMapping.method, this.parameters);
-            compositeInterceptor(
+        invoke(tunnel: Tunnel): Promise<any> {
+            const rpc: Rpc = this.methodMapping.oneWay ? null : new Rpc(this.interceptor, this.methodMapping.method, this.parameters);
+            this.interceptor(
                 this.methodMapping.oneWay ? InvokeStyle.NoPromise : InvokeStyle.PromiseEntry,
                 this.methodMapping.method,
                 this.parameters,
@@ -630,7 +628,7 @@ namespace yass {
         }
     }
 
-    export abstract class Client implements ProxyFactory {
+    export abstract class Client {
         proxy<PC>(contractId: ContractId<any, PC>, ...interceptors: Interceptor[]): PC {
             const interceptor = composite.apply(null, interceptors);
             return <any>contractId.methodMapper.proxy((method, parameters) => this.invoke(
@@ -672,63 +670,120 @@ namespace yass {
         }
     }
 
-    export abstract class Session implements ProxyFactory {
-        constructor(private sessionClient: SessionClient) {
-            // empty
-        }
-        abstract opened(): void;
-        /**
-         * @param exception null if regular close else reason for close
-         */
-        abstract closed(exception: any): void;
-        proxy<PC>(contractId: ContractId<any, PC>, ...interceptors: Interceptor[]): PC {
-            (<any>interceptors).unshift(contractId);
-            return this.sessionClient.proxy.apply(this.sessionClient, interceptors);
-        }
-        close(): void {
-            this.sessionClient.close();
-        }
-    }
-
-    export interface SessionFactory {
-        (sessionClient: SessionClient): Session;
-    }
-
     export interface Connection {
         write(packet: Packet): void;
         closed(): void;
     }
 
-    /**
-     * The session of the active invocation or null if no active invocation.
-     */
-    export let SESSION: Session = null;
-    function sessionInterceptor(session: Session): Interceptor {
-        return (style, method, parameters, invocation) => {
-            const oldSession = SESSION;
-            SESSION = session;
-            try {
-                return invocation();
-            } finally {
-                SESSION = oldSession;
-            }
-        };
+    export interface SessionFactory {
+        (connection: Connection): Session;
     }
 
-    export class SessionClient extends Client {
-        private closed = false;
-        private requestNumber = Packet.END_REQUESTNUMBER;
-        private requestNumber2rpc: Rpc[] = [];
-        private session: Session;
-        private sessionInterceptor: Interceptor;
-        constructor(private server: Server, sessionFactory: SessionFactory, private connection: Connection) {
-            super();
-            this.session = sessionFactory(this);
-            this.sessionInterceptor = sessionInterceptor(this.session);
-            this.session.opened();
+    export abstract class Session extends Client {
+        static create(sessionFactory: SessionFactory, connection: Connection): Session {
+            const session = sessionFactory(connection);
+            session.created();
+            return session;
         }
+        constructor(private connection: Connection) {
+            super();
+        }
+        private serverProp: Server;
+        /**
+         * Gets the server of this session. Called only once after creation of session.
+         */
+        protected abstract server(): Server;
+        /**
+         * Called when the session has been opened.
+         */
+        protected abstract opened(): void;
+        /**
+         * Called when the session has been closed.
+         * @param exceptional true if exceptional close else regular close
+         */
+        protected abstract closed(exceptional: boolean): void;
+        private closedProp = true;
+        private created(): void {
+            this.serverProp = this.server();
+            this.closedProp = false;
+            this.opened();
+        }
+        static doClose(session: Session): void {
+            try {
+                session.doCloseSend(false, true);
+            } catch (ignore) {
+                // empty
+            }
+        }
+        isClosed(): boolean {
+            return this.closedProp;
+        }
+        private doCloseSend(sendEnd: boolean, exceptional: boolean): void {
+            if (this.closedProp) {
+                return;
+            }
+            this.closedProp = true;
+            try {
+                this.closed(exceptional);
+                if (sendEnd) {
+                    this.connection.write(Packet.END);
+                }
+            } catch (exception) {
+                try {
+                    this.connection.closed();
+                } catch (ignore) {
+                    // empty
+                }
+                throw exception;
+            }
+            this.connection.closed();
+        }
+        /**
+         * Closes the session.
+         * This method is idempotent.
+         */
+        close(): void {
+            this.doCloseSend(true, false);
+        }
+        private write(requestNumber: number, message: Message): void {
+            try {
+                this.connection.write(new Packet(requestNumber, message));
+            } catch (exception) {
+                Session.doClose(this);
+                throw exception;
+            }
+        }
+        private serverInvoke(requestNumber: number, request: Request): void {
+            const invocation = this.serverProp.invocation(request);
+            const reply = invocation.invoke();
+            if (!invocation.methodMapping.oneWay) {
+                this.write(requestNumber, reply);
+            }
+        }
+        private requestNumber2rpc: Rpc[] = [];
+        private received(packet: Packet): void {
+            if (packet.isEnd()) {
+                this.doCloseSend(false, false);
+                return;
+            }
+            const message = packet.message;
+            if (message instanceof Request) {
+                this.serverInvoke(packet.requestNumber, message);
+            } else { // Reply
+                const rpc = this.requestNumber2rpc[packet.requestNumber];
+                delete this.requestNumber2rpc[packet.requestNumber];
+                rpc.settle(<Reply>message);
+            }
+        }
+        static received(session: Session, packet: Packet) {
+            session.received(packet);
+        }
+        private requestNumber = Packet.END_REQUESTNUMBER;
         protected invoke(invocation: ClientInvocation): Promise<any> {
-            return invocation.invoke(this.sessionInterceptor, (request, rpc) => {
+            if (this.isClosed()) {
+                throw new Error("session is already closed");
+            }
+            return invocation.invoke((request, rpc) => {
                 if (this.requestNumber === 2147483647) {
                     this.requestNumber = Packet.END_REQUESTNUMBER;
                 }
@@ -742,76 +797,9 @@ namespace yass {
                 this.write(this.requestNumber, request);
             });
         }
-        doClose(exception: any): void {
-            this.doCloseSend(false, exception);
-        }
-        private doCloseSend(sendEnd: boolean, exception: any): void {
-            if (this.closed) {
-                return;
-            }
-            this.closed = true;
-            try {
-                this.session.closed(exception);
-                if (sendEnd) {
-                    this.connection.write(Packet.END);
-                }
-            } finally {
-                this.connection.closed();
-            }
-        }
-        private write(requestNumber: number, message: Message): void {
-            if (this.closed) {
-                throw new Error("session is already closed");
-            }
-            try {
-                this.connection.write(new Packet(requestNumber, message));
-            } catch (exception) {
-                this.doClose(exception);
-            }
-        }
-        close(): void {
-            this.doCloseSend(true, null);
-        }
-        received(packet: Packet): void {
-            try {
-                if (packet.isEnd()) {
-                    this.doClose(null);
-                    return;
-                }
-                const message = packet.message;
-                if (message instanceof Request) {
-                    const invocation = this.server(message);
-                    const reply = invocation.invoke(this.sessionInterceptor);
-                    if (!invocation.oneWay) {
-                        this.write(packet.requestNumber, reply);
-                    }
-                } else { // Reply
-                    const rpc = this.requestNumber2rpc[packet.requestNumber];
-                    delete this.requestNumber2rpc[packet.requestNumber];
-                    rpc.settle(<Reply>message);
-                }
-            } catch (exception) {
-                this.doClose(exception);
-            }
-        }
     }
 
-    export function writeTo(serializer: Serializer, value: any): Uint8Array {
-        const writer = new Writer(128);
-        serializer.write(value, writer);
-        return writer.getArray();
-    }
-
-    export function readFrom(serializer: Serializer, arrayBuffer: ArrayBuffer): any {
-        const reader = new Reader(arrayBuffer);
-        const value = serializer.read(reader);
-        if (!reader.isEmpty()) {
-            throw new Error("reader is not empty");
-        }
-        return value;
-    }
-
-    export function connect(url: string, serializer: Serializer, server: Server, sessionFactory: SessionFactory, connectFailed = () => {}): void {
+    export function connect(url: string, serializer: Serializer, sessionFactory: SessionFactory, connectFailed = () => {}): void {
         serializer = new PacketSerializer(new MessageSerializer(serializer));
         let connectFailedCalled = false;
         function callConnectFailed(): void {
@@ -825,19 +813,21 @@ namespace yass {
         ws.onerror = callConnectFailed;
         ws.onclose = callConnectFailed;
         ws.onopen = () => {
-            const sessionClient = new SessionClient(server, sessionFactory, {
+            const session = Session.create(sessionFactory, {
                 write: packet => ws.send(writeTo(serializer, packet)),
                 closed: () => ws.close()
             });
-            ws.onmessage = event => {
-                try {
-                    sessionClient.received(readFrom(serializer, event.data));
-                } catch (exception) {
-                    sessionClient.doClose(exception);
+            ws.onmessage = event => Session.received(session, readFrom(serializer, event.data));
+            ws.onerror = () => {
+                Session.doClose(session);
+                throw new Error("WebSocket.onerror");
+            };
+            ws.onclose = event => {
+                if (!event.wasClean) {
+                    Session.doClose(session);
+                    throw new Error("WebSocket.onclose");
                 }
             };
-            ws.onerror = () => sessionClient.doClose(new Error("WebSocket.onerror"));
-            ws.onclose = () => sessionClient.doClose(new Error("WebSocket.onclose"));
         };
     }
 
@@ -848,7 +838,7 @@ namespace yass {
             this.serializer = new MessageSerializer(serializer);
         }
         protected invoke(invocation: ClientInvocation): Promise<any> {
-            return invocation.invoke(DIRECT, (request, rpc) => {
+            return invocation.invoke((request, rpc) => {
                 if (!rpc) {
                     throw new Error("xhr not allowed for oneWay method (serviceId " + request.serviceId + ", methodId " + request.methodId + ")");
                 }
@@ -868,7 +858,7 @@ namespace yass {
         }
     }
 
-    export function xhr(url: string, serializer: Serializer): ProxyFactory {
+    export function xhr(url: string, serializer: Serializer): Client {
         return new XhrClient(url, serializer);
     }
 
