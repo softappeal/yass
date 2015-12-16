@@ -229,7 +229,7 @@ public final class ContractGenerator extends Generator {
         checkType(type);
         final Method[] methods = getMethods(type);
         SimpleMethodMapper.FACTORY.create(type); // checks for overloaded methods (JavaScript restriction)
-        final MethodMapper methodMapper = SimpleMethodMapper.FACTORY.create(type);
+        final MethodMapper methodMapper = methodMapperFactory.create(type);
         generateType(type, new TypeGenerator() {
             void generateInterface(final String name, final boolean proxy) {
                 tabsln("export interface %s {", name + (proxy ? "_PROXY" : ""));
