@@ -34,9 +34,9 @@ public final class InitiatorSession extends SimpleSession {
         );
     }
 
-    private final PriceEngine priceEngine;
-    private final InstrumentService instrumentService;
-    private final EchoService echoService;
+    public final PriceEngine priceEngine;
+    public final InstrumentService instrumentService;
+    public final EchoService echoService;
 
     public InitiatorSession(final Connection connection, final Executor dispatchExecutor) {
         super(connection, dispatchExecutor);
