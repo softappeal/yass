@@ -27,7 +27,7 @@ public class Reconnector<S extends Session> {
     ) {
         Check.notNull(sessionFactory);
         Check.notNull(connector);
-        final SessionFactory proxySessionFactory = connection -> {
+        final SessionFactory reconnectorSessionFactory = connection -> {
             final Session session = sessionFactory.create(connection);
             this.session = session;
             return session;
@@ -45,7 +45,7 @@ public class Reconnector<S extends Session> {
                 if ((session == null) || session.isClosed()) {
                     this.session = null;
                     try {
-                        connector.connect(proxySessionFactory);
+                        connector.connect(reconnectorSessionFactory);
                     } catch (final Exception ignore) {
                         // empty
                     }
