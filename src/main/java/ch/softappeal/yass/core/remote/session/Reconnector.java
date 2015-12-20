@@ -11,81 +11,26 @@ import java.util.concurrent.TimeUnit;
 
 public class Reconnector<S extends Session> {
 
-    @FunctionalInterface public interface Connector {
-        /**
-         * @throws Exception note: will be ignored
-         */
-        void connect(SessionFactory sessionFactory) throws Exception;
+    private volatile @Nullable S session = null;
+
+    private static boolean connected(final Session session) {
+        return (session != null) && !session.isClosed();
     }
 
-    /**
-     * @param executor must interrupt it's threads to terminate reconnects (use {@link ExecutorService#shutdownNow()})
-     */
-    public final void start(
-        final Executor executor, final long initialDelaySeconds, final long delaySeconds,
-        final SessionFactory sessionFactory, final Connector connector
-    ) {
-        Check.notNull(sessionFactory);
-        Check.notNull(connector);
-        final SessionFactory reconnectorSessionFactory = connection -> {
-            final Session session = sessionFactory.create(connection);
-            this.session = session;
-            return session;
-        };
-        executor.execute(() -> {
-            if (initialDelaySeconds > 0) {
-                try {
-                    TimeUnit.SECONDS.sleep(initialDelaySeconds);
-                } catch (final InterruptedException ignore) {
-                    return;
-                }
-            }
-            while (!Thread.interrupted()) {
-                final Session session = this.session;
-                if ((session == null) || session.isClosed()) {
-                    this.session = null;
-                    try {
-                        connector.connect(reconnectorSessionFactory);
-                    } catch (final Exception ignore) {
-                        // empty
-                    }
-                }
-                try {
-                    TimeUnit.SECONDS.sleep(delaySeconds);
-                } catch (final InterruptedException ignore) {
-                    return;
-                }
-            }
-        });
+    public final boolean connected() {
+        return connected(session);
     }
-
-    /**
-     * @see #start(Executor, long, long, SessionFactory, Connector)
-     */
-    public final void start(
-        final Executor executor, final long delaySeconds,
-        final SessionFactory sessionFactory, final Connector connector
-    ) {
-        start(executor, 0, delaySeconds, sessionFactory, connector);
-    }
-
-    private volatile @Nullable Session session = null;
 
     /**
      * @return current {@link Session}
      * @throws SessionClosedException if no active session
      */
-    @SuppressWarnings("unchecked")
     public final S session() throws SessionClosedException {
-        final Session session = this.session;
-        if (session == null) {
+        final S session = this.session;
+        if (!connected(session)) {
             throw new SessionClosedException();
         }
-        return (S)session;
-    }
-
-    public final boolean connected() {
-        return (session != null);
+        return session;
     }
 
     @FunctionalInterface public interface SessionProxyGetter<S, C> {
@@ -109,6 +54,63 @@ public class Reconnector<S extends Session> {
                 }
             }
         );
+    }
+
+    @FunctionalInterface public interface Connector {
+        /**
+         * @throws Exception note: will be ignored
+         */
+        void connect(SessionFactory sessionFactory) throws Exception;
+    }
+
+    /**
+     * @param executor must interrupt it's threads to terminate reconnects (use {@link ExecutorService#shutdownNow()})
+     */
+    public final void start(
+        final Executor executor, final long initialDelaySeconds, final long delaySeconds,
+        final SessionFactory sessionFactory, final Connector connector
+    ) {
+        Check.notNull(sessionFactory);
+        Check.notNull(connector);
+        @SuppressWarnings("unchecked") final SessionFactory reconnectorSessionFactory = connection -> {
+            final Session session = sessionFactory.create(connection);
+            this.session = (S)session;
+            return session;
+        };
+        executor.execute(() -> {
+            if (initialDelaySeconds > 0) {
+                try {
+                    TimeUnit.SECONDS.sleep(initialDelaySeconds);
+                } catch (final InterruptedException ignore) {
+                    return;
+                }
+            }
+            while (!Thread.interrupted()) {
+                if (!connected()) {
+                    session = null;
+                    try {
+                        connector.connect(reconnectorSessionFactory);
+                    } catch (final Exception ignore) {
+                        // empty
+                    }
+                }
+                try {
+                    TimeUnit.SECONDS.sleep(delaySeconds);
+                } catch (final InterruptedException ignore) {
+                    return;
+                }
+            }
+        });
+    }
+
+    /**
+     * @see #start(Executor, long, long, SessionFactory, Connector)
+     */
+    public final void start(
+        final Executor executor, final long delaySeconds,
+        final SessionFactory sessionFactory, final Connector connector
+    ) {
+        start(executor, 0, delaySeconds, sessionFactory, connector);
     }
 
 }
