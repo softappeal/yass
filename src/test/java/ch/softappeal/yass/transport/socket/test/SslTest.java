@@ -2,6 +2,8 @@ package ch.softappeal.yass.transport.socket.test;
 
 import ch.softappeal.yass.core.remote.Server;
 import ch.softappeal.yass.core.remote.session.Connection;
+import ch.softappeal.yass.core.remote.session.Session;
+import ch.softappeal.yass.core.remote.session.SessionFactory;
 import ch.softappeal.yass.core.remote.session.SimpleSession;
 import ch.softappeal.yass.core.remote.session.test.PerformanceTest;
 import ch.softappeal.yass.core.test.InvokeTest;
@@ -39,23 +41,25 @@ public class SslTest extends InvokeTest {
             listenerCloser = new SocketTransport(executor, SyncSocketConnection.FACTORY).start(
                 TransportSetup.ofPacketSerializer(
                     JavaSerializer.INSTANCE,
-                    connection -> {
-                        if (needClientAuth) {
-                            checkName(connection);
+                    new SessionFactory() {
+                        @Override public Session create(final Connection connection) throws Exception {
+                            if (needClientAuth) {
+                                checkName(connection);
+                            }
+                            return new SimpleSession(connection, executor) {
+                                @Override protected Server server() {
+                                    return new Server(
+                                        PerformanceTest.CONTRACT_ID.service(new TestServiceImpl())
+                                    );
+                                }
+                                @Override protected void opened() {
+                                    // empty
+                                }
+                                @Override protected void closed(final boolean exceptional) {
+                                    // empty
+                                }
+                            };
                         }
-                        return new SimpleSession(connection, executor) {
-                            @Override protected Server server() {
-                                return new Server(
-                                    PerformanceTest.CONTRACT_ID.service(new TestServiceImpl())
-                                );
-                            }
-                            @Override protected void opened() {
-                                // empty
-                            }
-                            @Override protected void closed(final boolean exceptional) {
-                                // empty
-                            }
-                        };
                     }
                 ),
                 executor,
@@ -65,22 +69,24 @@ public class SslTest extends InvokeTest {
             new SocketTransport(executor, SyncSocketConnection.FACTORY).connect(
                 TransportSetup.ofPacketSerializer(
                     JavaSerializer.INSTANCE,
-                    connection -> {
-                        checkName(connection);
-                        return new SimpleSession(connection, executor) {
-                            @Override protected Server server() {
-                                return Server.EMPTY;
-                            }
-                            @Override protected void opened() throws Exception {
-                                final TestService testService = proxy(PerformanceTest.CONTRACT_ID);
-                                Assert.assertTrue(testService.divide(12, 4) == 3);
-                                System.out.println("ok");
-                                close();
-                            }
-                            @Override protected void closed(final boolean exceptional) {
-                                // empty
-                            }
-                        };
+                    new SessionFactory() {
+                        @Override public Session create(final Connection connection) throws Exception {
+                            checkName(connection);
+                            return new SimpleSession(connection, executor) {
+                                @Override protected Server server() {
+                                    return Server.EMPTY;
+                                }
+                                @Override protected void opened() throws Exception {
+                                    final TestService testService = proxy(PerformanceTest.CONTRACT_ID);
+                                    Assert.assertTrue(testService.divide(12, 4) == 3);
+                                    System.out.println("ok");
+                                    close();
+                                }
+                                @Override protected void closed(final boolean exceptional) {
+                                    // empty
+                                }
+                            };
+                        }
                     }
                 ),
                 socketFactory, SocketHelper.ADDRESS

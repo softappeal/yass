@@ -10,7 +10,7 @@ public class SocketHelper {
 
     public static final SocketAddress ADDRESS = new InetSocketAddress("localhost", 28947);
 
-    public static void shutdown(final SocketTransport.@Nullable ListenerCloser listenerCloser, final ExecutorService executorService) {
+    public static void shutdown(final @Nullable SocketTransport.ListenerCloser listenerCloser, final ExecutorService executorService) {
         if (listenerCloser != null) {
             listenerCloser.close();
         }

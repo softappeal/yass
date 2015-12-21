@@ -1,5 +1,9 @@
 package ch.softappeal.yass.tutorial.initiator.socket;
 
+import ch.softappeal.yass.core.remote.session.Connection;
+import ch.softappeal.yass.core.remote.session.Reconnector;
+import ch.softappeal.yass.core.remote.session.Session;
+import ch.softappeal.yass.core.remote.session.SessionFactory;
 import ch.softappeal.yass.transport.TransportSetup;
 import ch.softappeal.yass.transport.socket.SocketTransport;
 import ch.softappeal.yass.transport.socket.SyncSocketConnection;
@@ -22,11 +26,19 @@ public final class ReconnectingSocketInitiator {
         reconnector.start(
             executor,
             10,
-            connection -> new InitiatorSession(connection, executor),
-            sessionFactory -> new SocketTransport(executor, SyncSocketConnection.FACTORY).connect(
-                TransportSetup.ofContractSerializer(Config.SERIALIZER, sessionFactory),
-                SocketAcceptor.ADDRESS
-            )
+            new SessionFactory() {
+                @Override public Session create(final Connection connection) throws Exception {
+                    return new InitiatorSession(connection, executor);
+                }
+            },
+            new Reconnector.Connector() {
+                @Override public void connect(final SessionFactory sessionFactory) throws Exception {
+                    new SocketTransport(executor, SyncSocketConnection.FACTORY).connect(
+                        TransportSetup.ofContractSerializer(Config.SERIALIZER, sessionFactory),
+                        SocketAcceptor.ADDRESS
+                    );
+                }
+            }
         );
         System.out.println("started");
         while (true) {
