@@ -19,15 +19,14 @@ public final class SocketAcceptor {
 
     public static void main(final String... args) {
         final Executor executor = Executors.newCachedThreadPool(new NamedThreadFactory("executor", Exceptions.STD_ERR));
-        new SocketTransport(executor, AsyncSocketConnection.factory(executor, 1_000))
-            .start(
-                TransportSetup.ofContractSerializer(
-                    Config.SERIALIZER,
-                    connection -> new AcceptorSession(connection, executor)
-                ),
-                executor,
-                ADDRESS
-            );
+        new SocketTransport(executor, AsyncSocketConnection.factory(executor, 1_000)).start(
+            TransportSetup.ofContractSerializer(
+                Config.SERIALIZER,
+                connection -> new AcceptorSession(connection, executor)
+            ),
+            executor,
+            ADDRESS
+        );
         System.out.println("started");
     }
 

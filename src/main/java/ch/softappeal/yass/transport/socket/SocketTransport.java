@@ -12,14 +12,11 @@ import ch.softappeal.yass.util.Exceptions;
 import javax.net.ServerSocketFactory;
 import javax.net.SocketFactory;
 import java.io.IOException;
-import java.io.InterruptedIOException;
 import java.io.OutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketAddress;
-import java.net.SocketTimeoutException;
 import java.util.concurrent.Executor;
-import java.util.concurrent.ExecutorService;
 
 public final class SocketTransport {
 
@@ -101,54 +98,58 @@ public final class SocketTransport {
         connect(setup, SocketFactory.getDefault(), socketAddress);
     }
 
-    static final int ACCEPT_TIMEOUT_MILLISECONDS = 200;
+    public static final class ListenerCloser implements AutoCloseable {
+        private final ServerSocket serverSocket;
+        ListenerCloser(final ServerSocket serverSocket) {
+            this.serverSocket = serverSocket;
+        }
+        /**
+         * This method is idempotent.
+         */
+        @Override public void close() {
+            if (serverSocket.isClosed()) {
+                return;
+            }
+            try {
+                serverSocket.close();
+            } catch (final IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
+    }
 
     /**
-     * @param listenerExecutor used once, must interrupt it's threads to terminate the socket listener (use {@link ExecutorService#shutdownNow()})
+     * @param listenerExecutor used once
      */
-    public void start(final PathResolver pathResolver, final Executor listenerExecutor, final ServerSocketFactory socketFactory, final SocketAddress socketAddress) {
+    public ListenerCloser start(final PathResolver pathResolver, final Executor listenerExecutor, final ServerSocketFactory socketFactory, final SocketAddress socketAddress) {
         Check.notNull(pathResolver);
         try {
             final ServerSocket serverSocket = socketFactory.createServerSocket();
             try {
                 serverSocket.bind(socketAddress);
-                serverSocket.setSoTimeout(ACCEPT_TIMEOUT_MILLISECONDS);
-                listenerExecutor.execute(new Runnable() {
-                    void accept() throws IOException {
-                        while (!Thread.interrupted()) {
-                            final Socket socket;
-                            try {
-                                socket = serverSocket.accept();
-                            } catch (final SocketTimeoutException ignore) { // thrown if SoTimeout reached
-                                continue;
-                            } catch (final InterruptedIOException ignore) {
-                                return; // needed because some VM's (for example: Sun Solaris) throw this exception if the thread gets interrupted
-                            }
+                listenerExecutor.execute(() -> {
+                    try {
+                        while (true) {
+                            final Socket socket = serverSocket.accept();
                             runInReaderExecutor(socket, () -> {
                                 final Reader reader = Reader.create(socket.getInputStream());
                                 final TransportSetup setup = pathResolver.resolvePath(pathSerializer.read(reader));
                                 SocketConnection.create(connectionFactory, setup, socket, reader, socket.getOutputStream());
                             });
                         }
-                    }
-                    @Override public void run() {
-                        try {
-                            try {
-                                accept();
-                            } catch (final Exception e) {
-                                close(serverSocket, e);
-                                throw e;
-                            }
-                            serverSocket.close();
-                        } catch (final IOException e) {
-                            throw new RuntimeException(e);
+                    } catch (final Exception e) {
+                        if (serverSocket.isClosed()) {
+                            return;
                         }
+                        close(serverSocket, e);
+                        throw Exceptions.wrap(e);
                     }
                 });
             } catch (final Exception e) {
                 close(serverSocket, e);
                 throw e;
             }
+            return new ListenerCloser(serverSocket);
         } catch (final IOException e) {
             throw new RuntimeException(e);
         }
@@ -157,15 +158,15 @@ public final class SocketTransport {
     /**
      * Uses {@link PathSerializer#DEFAULT}.
      */
-    public void start(final TransportSetup setup, final Executor listenerExecutor, final ServerSocketFactory socketFactory, final SocketAddress socketAddress) {
-        start(new PathResolver(PathSerializer.DEFAULT, setup), listenerExecutor, socketFactory, socketAddress);
+    public ListenerCloser start(final TransportSetup setup, final Executor listenerExecutor, final ServerSocketFactory socketFactory, final SocketAddress socketAddress) {
+        return start(new PathResolver(PathSerializer.DEFAULT, setup), listenerExecutor, socketFactory, socketAddress);
     }
 
     /**
      * Uses {@link ServerSocketFactory#getDefault()} and {@link PathSerializer#DEFAULT}.
      */
-    public void start(final TransportSetup setup, final Executor listenerExecutor, final SocketAddress socketAddress) {
-        start(setup, listenerExecutor, ServerSocketFactory.getDefault(), socketAddress);
+    public ListenerCloser start(final TransportSetup setup, final Executor listenerExecutor, final SocketAddress socketAddress) {
+        return start(setup, listenerExecutor, ServerSocketFactory.getDefault(), socketAddress);
     }
 
     static void close(final Socket socket, final Exception e) {

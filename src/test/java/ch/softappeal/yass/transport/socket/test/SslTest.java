@@ -34,8 +34,9 @@ public class SslTest extends InvokeTest {
 
     private static void test(final ServerSocketFactory serverSocketFactory, final SocketFactory socketFactory, final boolean needClientAuth) throws Exception {
         final ExecutorService executor = Executors.newCachedThreadPool(new NamedThreadFactory("executor", Exceptions.STD_ERR));
+        SocketTransport.ListenerCloser listenerCloser = null;
         try {
-            new SocketTransport(executor, SyncSocketConnection.FACTORY).start(
+            listenerCloser = new SocketTransport(executor, SyncSocketConnection.FACTORY).start(
                 TransportSetup.ofPacketSerializer(
                     JavaSerializer.INSTANCE,
                     connection -> {
@@ -73,6 +74,7 @@ public class SslTest extends InvokeTest {
                             @Override protected void opened() throws Exception {
                                 final TestService testService = proxy(PerformanceTest.CONTRACT_ID);
                                 Assert.assertTrue(testService.divide(12, 4) == 3);
+                                System.out.println("ok");
                                 close();
                             }
                             @Override protected void closed(final boolean exceptional) {
@@ -85,7 +87,7 @@ public class SslTest extends InvokeTest {
             );
         } finally {
             TimeUnit.MILLISECONDS.sleep(200);
-            SocketHelper.shutdown(executor);
+            SocketHelper.shutdown(listenerCloser, executor);
         }
     }
 

@@ -22,8 +22,9 @@ public class SocketPerformanceTest extends InvokeTest {
 
     @Test public void test() throws InterruptedException {
         final ExecutorService executor = Executors.newCachedThreadPool(new NamedThreadFactory("executor", Exceptions.STD_ERR));
+        SocketTransport.ListenerCloser listenerCloser = null;
         try {
-            new SocketTransport(executor, SyncSocketConnection.FACTORY)
+            listenerCloser = new SocketTransport(executor, SyncSocketConnection.FACTORY)
                 .start(TransportSetup.ofPacketSerializer(JavaSerializer.INSTANCE, PerformanceTest.sessionFactory(executor, null, COUNTER)), executor, SocketHelper.ADDRESS);
             final CountDownLatch latch = new CountDownLatch(1);
             new SocketTransport(executor, SyncSocketConnection.FACTORY)
@@ -31,7 +32,7 @@ public class SocketPerformanceTest extends InvokeTest {
             latch.await();
             TimeUnit.MILLISECONDS.sleep(100L);
         } finally {
-            SocketHelper.shutdown(executor);
+            SocketHelper.shutdown(listenerCloser, executor);
         }
     }
 
