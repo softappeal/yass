@@ -26,7 +26,15 @@ public abstract class SocketConnection implements Connection {
         try {
             connection.created(session);
             while (true) {
-                final Packet packet = (Packet)connection.packetSerializer.read(reader);
+                final Packet packet;
+                try {
+                    packet = (Packet)connection.packetSerializer.read(reader);
+                } catch (final Exception e) {
+                    if (session.isClosed()) {
+                        return; // note: the blocked socket read (of the peer closing the session) always throws an exception
+                    }
+                    throw e;
+                }
                 Session.received(session, packet);
                 if (packet.isEnd()) {
                     return;

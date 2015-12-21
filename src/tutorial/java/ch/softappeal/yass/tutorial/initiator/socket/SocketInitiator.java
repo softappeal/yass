@@ -1,9 +1,5 @@
 package ch.softappeal.yass.tutorial.initiator.socket;
 
-import ch.softappeal.yass.core.remote.session.Connection;
-import ch.softappeal.yass.core.remote.session.Reconnector;
-import ch.softappeal.yass.core.remote.session.Session;
-import ch.softappeal.yass.core.remote.session.SessionFactory;
 import ch.softappeal.yass.transport.TransportSetup;
 import ch.softappeal.yass.transport.socket.SocketTransport;
 import ch.softappeal.yass.transport.socket.SyncSocketConnection;
@@ -15,37 +11,15 @@ import ch.softappeal.yass.util.NamedThreadFactory;
 
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
 
 public final class SocketInitiator {
 
-    public static void main(final String... args) throws InterruptedException {
+    public static void main(final String... args) {
         final Executor executor = Executors.newCachedThreadPool(new NamedThreadFactory("executor", Exceptions.STD_ERR));
-        final SocketTransport transport = new SocketTransport(executor, SyncSocketConnection.FACTORY);
-        final Reconnector<InitiatorSession> reconnector = new Reconnector<>(
-            executor,
-            10,
-            new SessionFactory() {
-                @Override public Session create(final Connection connection) throws Exception {
-                    return new InitiatorSession(connection, executor);
-                }
-            },
-            new Reconnector.Connector() {
-                @Override public void connect(final SessionFactory sessionFactory) throws Exception {
-                    transport.connect(
-                        TransportSetup.ofContractSerializer(Config.SERIALIZER, sessionFactory),
-                        SocketAcceptor.ADDRESS
-                    );
-                }
-            }
+        new SocketTransport(executor, SyncSocketConnection.FACTORY).connect(
+            TransportSetup.ofContractSerializer(Config.SERIALIZER, connection -> new InitiatorSession(connection, executor)),
+            SocketAcceptor.ADDRESS
         );
-        System.out.println("started");
-        while (true) {
-            TimeUnit.SECONDS.sleep(1L);
-            if (!reconnector.connected()) {
-                System.out.println("not connected");
-            }
-        }
     }
 
 }

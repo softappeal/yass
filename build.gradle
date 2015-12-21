@@ -52,28 +52,24 @@ task generateTypeScriptContract(type: JavaExec) {
     }
 }
 
-def isWindows() {
-    return System.getProperty("os.name").toLowerCase().contains("windows")
+class CompileTypeScript extends Exec {
+    public CompileTypeScript() {
+        super();
+        if (System.getProperty("os.name").toLowerCase().contains("windows")) {
+            commandLine 'cmd', '/c', 'tsc'
+        } else {
+            environment PATH: '/usr/local/bin'
+            commandLine '/usr/local/bin/tsc'
+        }
+    }
 }
 
-task compileTestTypeScript(type: Exec, dependsOn: 'generateTypeScriptContract') {
+task compileTestTypeScript(type: CompileTypeScript, dependsOn: 'generateTypeScriptContract') {
     workingDir 'src/test/ts'
-    if (isWindows()) {
-        commandLine 'cmd', '/c', 'tsc'
-    } else {
-        environment PATH: '/usr/local/bin'
-        commandLine '/usr/local/bin/tsc'
-    }
 }
 
-task compileTutorialTypeScript(type: Exec, dependsOn: 'generateTypeScriptContract') {
+task compileTutorialTypeScript(type: CompileTypeScript, dependsOn: 'generateTypeScriptContract') {
     workingDir 'src/tutorial/ts'
-    if (isWindows()) {
-        commandLine 'cmd', '/c', 'tsc'
-    } else {
-        environment PATH: '/usr/local/bin'
-        commandLine '/usr/local/bin/tsc'
-    }
 }
 
 task compileAllTypeScript(dependsOn: ['compileTestTypeScript', 'compileTutorialTypeScript'])

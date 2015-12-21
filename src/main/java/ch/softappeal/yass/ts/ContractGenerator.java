@@ -39,7 +39,7 @@ public final class ContractGenerator extends Generator {
     private final Set<Class<?>> visitedClasses = new HashSet<>();
     private final Map<Class<?>, String> java2tsBaseType = new HashMap<>();
     private final String contractModuleName;
-    private MethodMapper.Factory methodMapperFactory;
+    private MethodMapper.@Nullable Factory methodMapperFactory;
 
     private void checkType(final Class<?> type) {
         if (!type.getCanonicalName().startsWith(rootPackage)) {

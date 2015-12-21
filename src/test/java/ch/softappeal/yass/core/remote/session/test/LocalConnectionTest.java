@@ -101,7 +101,7 @@ public class LocalConnectionTest extends InvokeTest {
                 Assert.assertEquals(e.getMessage(), "java.lang.Exception: create failed");
             }
         } finally {
-            SocketHelper.shutdown(executor);
+            SocketHelper.shutdown(null, executor);
         }
     }
 
@@ -111,7 +111,7 @@ public class LocalConnectionTest extends InvokeTest {
             LocalConnection.connect(sessionFactory(false, executor, false, false, false), sessionFactory(false, executor, false, true, false));
             TimeUnit.MILLISECONDS.sleep(100L);
         } finally {
-            SocketHelper.shutdown(executor);
+            SocketHelper.shutdown(null, executor);
         }
     }
 
@@ -125,7 +125,7 @@ public class LocalConnectionTest extends InvokeTest {
                 e.printStackTrace();
             }
         } finally {
-            SocketHelper.shutdown(executor);
+            SocketHelper.shutdown(null, executor);
         }
     }
 
