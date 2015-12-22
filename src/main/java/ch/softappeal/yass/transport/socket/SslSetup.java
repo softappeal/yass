@@ -23,18 +23,6 @@ import java.security.SecureRandom;
 
 public final class SslSetup {
 
-    public static KeyStore readKeyStore(final Resource keyStoreResource, final @Nullable char[] keyStorePwd) {
-        try {
-            final KeyStore keyStore = KeyStore.getInstance("JKS");
-            try (InputStream in = keyStoreResource.create()) {
-                keyStore.load(in, keyStorePwd);
-            }
-            return keyStore;
-        } catch (final Exception e) {
-            throw Exceptions.wrap(e);
-        }
-    }
-
     private final SSLContext context;
     private final String[] protocols;
     private final String[] cipherSuites;
@@ -116,5 +104,17 @@ public final class SslSetup {
             return serverSocket;
         }
     };
+
+    public static KeyStore readKeyStore(final Resource keyStoreResource, final @Nullable char[] keyStorePwd) {
+        try {
+            final KeyStore keyStore = KeyStore.getInstance("JKS");
+            try (InputStream in = keyStoreResource.create()) {
+                keyStore.load(in, keyStorePwd);
+            }
+            return keyStore;
+        } catch (final Exception e) {
+            throw Exceptions.wrap(e);
+        }
+    }
 
 }

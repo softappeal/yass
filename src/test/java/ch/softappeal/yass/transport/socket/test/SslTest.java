@@ -3,15 +3,14 @@ package ch.softappeal.yass.transport.socket.test;
 import ch.softappeal.yass.core.remote.Server;
 import ch.softappeal.yass.core.remote.session.Connection;
 import ch.softappeal.yass.core.remote.session.SimpleSession;
-import ch.softappeal.yass.core.remote.session.test.PerformanceTest;
 import ch.softappeal.yass.core.test.InvokeTest;
 import ch.softappeal.yass.serialize.JavaSerializer;
 import ch.softappeal.yass.transport.TransportSetup;
 import ch.softappeal.yass.transport.socket.SocketConnection;
-import ch.softappeal.yass.transport.socket.SocketHelper;
 import ch.softappeal.yass.transport.socket.SocketTransport;
 import ch.softappeal.yass.transport.socket.SslSetup;
 import ch.softappeal.yass.transport.socket.SyncSocketConnection;
+import ch.softappeal.yass.transport.test.TransportTest;
 import ch.softappeal.yass.util.ClassLoaderResource;
 import ch.softappeal.yass.util.Exceptions;
 import ch.softappeal.yass.util.NamedThreadFactory;
@@ -46,14 +45,8 @@ public class SslTest extends InvokeTest {
                         return new SimpleSession(connection, executor) {
                             @Override protected Server server() {
                                 return new Server(
-                                    PerformanceTest.CONTRACT_ID.service(new TestServiceImpl())
+                                    TransportTest.CONTRACT_ID.service(new TestServiceImpl())
                                 );
-                            }
-                            @Override protected void opened() {
-                                // empty
-                            }
-                            @Override protected void closed(final boolean exceptional) {
-                                // empty
                             }
                         };
                     }
@@ -68,17 +61,11 @@ public class SslTest extends InvokeTest {
                     connection -> {
                         checkName(connection);
                         return new SimpleSession(connection, executor) {
-                            @Override protected Server server() {
-                                return Server.EMPTY;
-                            }
                             @Override protected void opened() throws Exception {
-                                final TestService testService = proxy(PerformanceTest.CONTRACT_ID);
+                                final TestService testService = proxy(TransportTest.CONTRACT_ID);
                                 Assert.assertTrue(testService.divide(12, 4) == 3);
                                 System.out.println("ok");
                                 close();
-                            }
-                            @Override protected void closed(final boolean exceptional) {
-                                // empty
                             }
                         };
                     }

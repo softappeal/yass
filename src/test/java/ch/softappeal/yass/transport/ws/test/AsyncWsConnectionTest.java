@@ -74,7 +74,7 @@ public final class AsyncWsConnectionTest {
                             System.out.println("acceptor opened");
                         }
                         @Override protected void closed(final boolean exceptional) {
-                            System.out.println("acceptor closed");
+                            System.out.println("acceptor closed: " + exceptional);
                         }
                     }
                 ),
@@ -94,12 +94,8 @@ public final class AsyncWsConnectionTest {
                 TransportSetup.ofPacketSerializer(
                     JavaSerializer.INSTANCE,
                     connection -> new Session(connection) {
-                        @Override protected Server server() {
-                            return Server.EMPTY;
-                        }
                         @Override protected void dispatchOpened(final Runnable runnable) {
                             runnable.run();
-
                         }
                         @Override protected void dispatchServerInvoke(final Server.Invocation invocation, final Runnable runnable) {
                             runnable.run();

@@ -13,8 +13,6 @@ import java.net.Socket;
  */
 public final class SyncSocketConnection extends SocketConnection {
 
-    public static final Factory FACTORY = SyncSocketConnection::new;
-
     private SyncSocketConnection(final Serializer packetSerializer, final Socket socket, final OutputStream out) {
         super(packetSerializer, socket, out);
     }
@@ -27,5 +25,7 @@ public final class SyncSocketConnection extends SocketConnection {
             flush(buffer);
         }
     }
+
+    public static final Factory FACTORY = SyncSocketConnection::new;
 
 }

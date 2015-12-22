@@ -1,6 +1,7 @@
 package ch.softappeal.yass.transport.ws;
 
 import ch.softappeal.yass.util.Exceptions;
+import ch.softappeal.yass.util.Nullable;
 
 import javax.websocket.CloseReason;
 import javax.websocket.Endpoint;
@@ -30,7 +31,10 @@ public abstract class WsEndpoint extends Endpoint {
     }
 
     @Override public final void onError(final Session session, final Throwable throwable) {
-        getConnection(session).onError(throwable);
+        final @Nullable WsConnection connection = getConnection(session);
+        if (connection != null) {
+            connection.onError(throwable);
+        }
     }
 
 }

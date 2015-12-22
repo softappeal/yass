@@ -582,6 +582,7 @@ namespace yass {
             }
             return new ServerInvocation(service, request);
         }
+        static EMPTY = new Server;
     }
 
     export class Rpc {
@@ -676,45 +677,42 @@ namespace yass {
     }
 
     export interface SessionFactory {
+        /**
+         * It's allowed to call Client#proxy(ContractId, Interceptor...) during this method,
+         * but the proxies can be used not before Session#opened() is called.
+         * If this method throws an exception, the connection is rejected and Session#closed(boolean) won't be called.
+         */
         (connection: Connection): Session;
     }
 
     export abstract class Session extends Client {
-        static create(sessionFactory: SessionFactory, connection: Connection): Session {
-            const session = sessionFactory(connection);
-            session.created();
-            return session;
-        }
         constructor(private connection: Connection) {
             super();
         }
         private serverProp: Server;
         /**
          * Gets the server of this session. Called only once after creation of session.
+         * This implementation returns Server#EMPTY.
          */
-        protected abstract server(): Server;
+        protected server(): Server {
+            return Server.EMPTY;
+        }
         /**
          * Called when the session has been opened.
+         * This implementation does nothing.
          */
-        protected abstract opened(): void;
+        protected opened(): void {
+            // empty
+        }
         /**
          * Called when the session has been closed.
+         * This implementation does nothing.
          * @param exceptional true if exceptional close else regular close
          */
-        protected abstract closed(exceptional: boolean): void;
+        protected closed(exceptional: boolean): void {
+            // empty
+        }
         private closedProp = true;
-        private created(): void {
-            this.serverProp = this.server();
-            this.closedProp = false;
-            this.opened();
-        }
-        static doClose(session: Session): void {
-            try {
-                session.doCloseSend(false, true);
-            } catch (ignore) {
-                // empty
-            }
-        }
         isClosed(): boolean {
             return this.closedProp;
         }
@@ -737,6 +735,13 @@ namespace yass {
                 throw exception;
             }
             this.connection.closed();
+        }
+        static doClose(session: Session): void {
+            try {
+                session.doCloseSend(false, true);
+            } catch (ignore) {
+                // empty
+            }
         }
         /**
          * Closes the session.
@@ -781,7 +786,7 @@ namespace yass {
         private requestNumber = Packet.END_REQUESTNUMBER;
         protected invoke(invocation: ClientInvocation): Promise<any> {
             if (this.isClosed()) {
-                throw new Error("session is already closed");
+                throw new Error("session is already closed or not yet opened");
             }
             return invocation.invoke((request, rpc) => {
                 if (this.requestNumber === 2147483647) {
@@ -796,6 +801,21 @@ namespace yass {
                 }
                 this.write(this.requestNumber, request);
             });
+        }
+        private created(): void {
+            this.closedProp = false;
+            try {
+                this.serverProp = this.server();
+                this.opened();
+            } catch (exception) {
+                Session.doClose(this);
+                throw exception;
+            }
+        }
+        static create(sessionFactory: SessionFactory, connection: Connection): Session {
+            const session = sessionFactory(connection);
+            session.created();
+            return session;
         }
     }
 
@@ -817,7 +837,16 @@ namespace yass {
                 write: packet => ws.send(writeTo(serializer, packet)),
                 closed: () => ws.close()
             });
-            ws.onmessage = event => Session.received(session, readFrom(serializer, event.data));
+            ws.onmessage = event => {
+                let packet: Packet;
+                try {
+                    packet = readFrom(serializer, event.data);
+                } catch (exception) {
+                    Session.doClose(session);
+                    throw exception;
+                }
+                Session.received(session, packet);
+            };
             ws.onerror = () => {
                 Session.doClose(session);
                 throw new Error("WebSocket.onerror");

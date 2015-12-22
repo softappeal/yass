@@ -12,16 +12,6 @@ import javax.websocket.Session;
  */
 public final class AsyncWsConnection extends WsConnection {
 
-    /**
-     * @see RemoteEndpoint.Async#setSendTimeout(long)
-     */
-    public static Factory factory(final long sendTimeoutMilliSeconds) {
-        if (sendTimeoutMilliSeconds < 0) {
-            throw new IllegalArgumentException("sendTimeoutMilliSeconds < 0");
-        }
-        return (packetSerializer, session) -> new AsyncWsConnection(packetSerializer, session, sendTimeoutMilliSeconds);
-    }
-
     private AsyncWsConnection(final Serializer packetSerializer, final Session session, final long sendTimeoutMilliSeconds) {
         super(packetSerializer, session);
         remoteEndpoint = session.getAsyncRemote();
@@ -38,6 +28,16 @@ public final class AsyncWsConnection extends WsConnection {
                 onError(result.getException());
             }
         });
+    }
+
+    /**
+     * @see RemoteEndpoint.Async#setSendTimeout(long)
+     */
+    public static Factory factory(final long sendTimeoutMilliSeconds) {
+        if (sendTimeoutMilliSeconds < 0) {
+            throw new IllegalArgumentException("sendTimeoutMilliSeconds < 0");
+        }
+        return (packetSerializer, session) -> new AsyncWsConnection(packetSerializer, session, sendTimeoutMilliSeconds);
     }
 
 }

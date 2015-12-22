@@ -53,7 +53,7 @@ public final class AsyncSocketConnectionTest {
                         System.out.println("acceptor opened");
                     }
                     @Override protected void closed(final boolean exceptional) {
-                        System.out.println("acceptor closed");
+                        System.out.println("acceptor closed: " + exceptional);
                     }
                 }
             ),
@@ -65,9 +65,6 @@ public final class AsyncSocketConnectionTest {
             TransportSetup.ofPacketSerializer(
                 PACKET_SERIALIZER,
                 connection -> new SimpleSession(connection, executor) {
-                    @Override protected Server server() {
-                        return Server.EMPTY;
-                    }
                     @Override protected void opened() {
                         System.out.println("initiator opened");
                         final Busy busy = proxy(BUSY_ID);

@@ -13,17 +13,12 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public abstract class Session extends Client implements AutoCloseable {
-
-    public static Session create(final SessionFactory sessionFactory, final Connection connection) throws Exception {
-        final Session session = sessionFactory.create(connection);
-        session.created();
-        return session;
-    }
 
     public final Connection connection;
 
@@ -46,46 +41,33 @@ public abstract class Session extends Client implements AutoCloseable {
     private Server server;
     /**
      * Gets the server of this session. Called only once after creation of session.
+     * This implementation returns {@link Server#EMPTY}.
      */
-    protected abstract Server server();
+    protected Server server() throws Exception {
+        return Server.EMPTY;
+    }
 
     /**
      * Called when the session has been opened.
+     * This implementation does nothing.
+     * Due to race conditions or exceptions it could not be called or be called after {@link #closed(boolean)}.
+     * @see SessionFactory#create(Connection)
      */
-    protected abstract void opened() throws Exception;
+    protected void opened() throws Exception {
+        // empty
+    }
 
     /**
      * Called when the session has been closed.
-     * * @param exceptional true if exceptional close else regular close
+     * This implementation does nothing.
+     * @param exceptional true if exceptional close else regular close
+     * @see SessionFactory#create(Connection)
      */
-    protected abstract void closed(final boolean exceptional) throws Exception;
+    protected void closed(final boolean exceptional) throws Exception {
+        // empty
+    }
 
     private final AtomicBoolean closed = new AtomicBoolean(true);
-
-    private void created() throws Exception {
-        server = Check.notNull(server());
-        closed.set(false);
-        dispatchOpened(() -> {
-            try {
-                opened();
-            } catch (final Exception e) {
-                throw Exceptions.wrap(e);
-            }
-        });
-    }
-
-    /**
-     * Must be called if communication has failed.
-     * This method is idempotent.
-     */
-    public static void close(final Session session, final Exception exception) {
-        try {
-            session.close(false, true);
-        } catch (final Exception e2) {
-            exception.addSuppressed(e2);
-        }
-    }
-
     public final boolean isClosed() {
         return closed.get();
     }
@@ -111,7 +93,18 @@ public abstract class Session extends Client implements AutoCloseable {
     }
 
     /**
-     * Closes the session.
+     * Must be called if communication has failed.
+     * This method is idempotent.
+     */
+    public static void close(final Session session, final Exception e) {
+        try {
+            session.close(false, true);
+        } catch (final Exception e2) {
+            e.addSuppressed(e2);
+        }
+    }
+
+    /**
      * This method is idempotent.
      */
     @Override public void close() {
@@ -122,29 +115,23 @@ public abstract class Session extends Client implements AutoCloseable {
         }
     }
 
-    private void write(final int requestNumber, final Message message) throws Exception {
-        try {
-            connection.write(new Packet(requestNumber, message));
-        } catch (final Exception e) {
-            close(this, e);
-            throw e;
-        }
-    }
-
     private void serverInvoke(final int requestNumber, final Request request) throws Exception {
         final Server.Invocation invocation = server.invocation(request);
         dispatchServerInvoke(invocation, () -> {
-            try {
-                final Reply reply = invocation.invoke();
-                if (!invocation.methodMapping.oneWay) {
-                    write(requestNumber, reply);
+            final Reply reply = invocation.invoke();
+            if (!invocation.methodMapping.oneWay) {
+                try {
+                    connection.write(new Packet(requestNumber, reply));
+                } catch (final Exception ignore) {
+                    close(this, ignore);
                 }
-            } catch (final Exception e) {
-                throw Exceptions.wrap(e);
             }
         });
     }
 
+    /**
+     * note: it's not worth to use {@link ConcurrentHashMap} here
+     */
     private final Map<Integer, BlockingQueue<Reply>> requestNumber2replyQueue = Collections.synchronizedMap(new HashMap<>(16));
 
     private void received(final Packet packet) throws Exception {
@@ -168,6 +155,15 @@ public abstract class Session extends Client implements AutoCloseable {
         session.received(packet);
     }
 
+    private void write(final int requestNumber, final Request request) throws Exception {
+        try {
+            connection.write(new Packet(requestNumber, request));
+        } catch (final Exception e) {
+            close(this, e);
+            throw e;
+        }
+    }
+
     private final AtomicInteger nextRequestNumber = new AtomicInteger(Packet.END_REQUEST_NUMBER);
 
     @Override protected final Object invoke(final Client.Invocation invocation) throws Exception {
@@ -189,7 +185,7 @@ public abstract class Session extends Client implements AutoCloseable {
             }
             write(requestNumber, request);
             while (true) {
-                final Reply reply = replyQueue.poll(200L, TimeUnit.MILLISECONDS);
+                final Reply reply = replyQueue.poll(1L, TimeUnit.SECONDS);
                 if (reply != null) {
                     return reply;
                 } else if (isClosed()) {
@@ -197,6 +193,32 @@ public abstract class Session extends Client implements AutoCloseable {
                 }
             }
         });
+    }
+
+    private void created() throws Exception {
+        closed.set(false);
+        try {
+            server = Check.notNull(server());
+            dispatchOpened(() -> {
+                try {
+                    opened();
+                } catch (final Exception e) {
+                    throw Exceptions.wrap(e);
+                }
+            });
+        } catch (final Exception e) {
+            close(this, e);
+            throw e;
+        }
+    }
+
+    /**
+     * If this method throws an exception, the resource behind the connection must be closed by the caller.
+     */
+    public static Session create(final SessionFactory sessionFactory, final Connection connection) throws Exception {
+        final Session session = sessionFactory.create(connection);
+        session.created();
+        return session;
     }
 
 }

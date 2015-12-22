@@ -13,8 +13,6 @@ import java.nio.ByteBuffer;
  */
 public final class SyncWsConnection extends WsConnection {
 
-    public static final Factory FACTORY = SyncWsConnection::new;
-
     private SyncWsConnection(final Serializer packetSerializer, final Session session) {
         super(packetSerializer, session);
         remoteEndpoint = session.getBasicRemote();
@@ -28,7 +26,8 @@ public final class SyncWsConnection extends WsConnection {
         synchronized (writeMutex) {
             remoteEndpoint.sendBinary(buffer);
         }
-
     }
+
+    public static final Factory FACTORY = SyncWsConnection::new;
 
 }

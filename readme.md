@@ -3,7 +3,7 @@
 * is a small library for efficient peer-to-peer communication
   * Java
   * TypeScript/JavaScript
-  * high throughput, low latency
+  * high throughput, low latency, reactive services
 
 * supports type-safe contracts with DTOs and interfaces
 
