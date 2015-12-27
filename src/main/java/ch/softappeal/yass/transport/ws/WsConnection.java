@@ -52,7 +52,7 @@ public abstract class WsConnection implements Connection {
         } else {
             throw new Error(throwable);
         }
-        Session.close(yassSession, ignore);
+        Session.close(yassSession, ignore); // note: we don't rethrow communication exceptions
     }
 
     @Override public final void closed() throws IOException {
@@ -66,13 +66,13 @@ public abstract class WsConnection implements Connection {
                     final Packet packet;
                     try {
                         packet = (Packet)packetSerializer.read(Reader.create(in));
-                    } catch (final Exception ignore) {
+                    } catch (final Exception ignore) { // note: we don't rethrow communication exceptions
                         Session.close(yassSession, ignore);
                         return;
                     }
                     Session.received(yassSession, packet);
                     if (in.hasRemaining()) {
-                        Session.close(yassSession, new RuntimeException("input buffer is not empty"));
+                        Session.close(yassSession, new RuntimeException("input buffer is not empty")); // note: we don't rethrow communication exceptions
                     }
                 } catch (final Exception e) {
                     Session.close(yassSession, e);

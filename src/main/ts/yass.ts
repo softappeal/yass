@@ -678,9 +678,9 @@ namespace yass {
 
     export interface SessionFactory {
         /**
-         * It's allowed to call Client#proxy(ContractId, Interceptor...) during this method,
-         * but the proxies can be used not before Session#opened() is called.
-         * If this method throws an exception, the connection is rejected and Session#closed(boolean) won't be called.
+         * It's allowed to call Client.proxy(ContractId, Interceptor...) during this method,
+         * but the proxies can be used not before Session.opened() is called.
+         * If this method throws an exception, the connection is rejected and Session.closed(boolean) won't be called.
          */
         (connection: Connection): Session;
     }
@@ -692,7 +692,7 @@ namespace yass {
         private serverProp: Server;
         /**
          * Gets the server of this session. Called only once after creation of session.
-         * This implementation returns Server#EMPTY.
+         * This implementation returns Server.EMPTY.
          */
         protected server(): Server {
             return Server.EMPTY;

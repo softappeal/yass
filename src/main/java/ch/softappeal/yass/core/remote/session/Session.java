@@ -122,7 +122,7 @@ public abstract class Session extends Client implements AutoCloseable {
             if (!invocation.methodMapping.oneWay) {
                 try {
                     connection.write(new Packet(requestNumber, reply));
-                } catch (final Exception ignore) {
+                } catch (final Exception ignore) { // note: we don't rethrow communication exceptions
                     close(this, ignore);
                 }
             }
