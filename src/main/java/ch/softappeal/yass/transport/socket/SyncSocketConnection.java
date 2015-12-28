@@ -26,6 +26,10 @@ public final class SyncSocketConnection extends SocketConnection {
         }
     }
 
-    public static final Factory FACTORY = SyncSocketConnection::new;
+    public static final Factory FACTORY = new Factory() {
+        @Override public SocketConnection create(final Serializer packetSerializer, final Socket socket1, final OutputStream out) throws Exception {
+            return new SyncSocketConnection(packetSerializer, socket1, out);
+        }
+    };
 
 }

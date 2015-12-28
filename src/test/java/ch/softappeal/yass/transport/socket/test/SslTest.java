@@ -2,6 +2,8 @@ package ch.softappeal.yass.transport.socket.test;
 
 import ch.softappeal.yass.core.remote.Server;
 import ch.softappeal.yass.core.remote.session.Connection;
+import ch.softappeal.yass.core.remote.session.Session;
+import ch.softappeal.yass.core.remote.session.SessionFactory;
 import ch.softappeal.yass.core.remote.session.SimpleSession;
 import ch.softappeal.yass.core.test.InvokeTest;
 import ch.softappeal.yass.serialize.JavaSerializer;
@@ -38,17 +40,19 @@ public class SslTest extends InvokeTest {
             listenerCloser = new SocketTransport(executor, SyncSocketConnection.FACTORY).start(
                 TransportSetup.ofPacketSerializer(
                     JavaSerializer.INSTANCE,
-                    connection -> {
-                        if (needClientAuth) {
-                            checkName(connection);
-                        }
-                        return new SimpleSession(connection, executor) {
-                            @Override protected Server server() {
-                                return new Server(
-                                    TransportTest.CONTRACT_ID.service(new TestServiceImpl())
-                                );
+                    new SessionFactory() {
+                        @Override public Session create(final Connection connection) throws Exception {
+                            if (needClientAuth) {
+                                checkName(connection);
                             }
-                        };
+                            return new SimpleSession(connection, executor) {
+                                @Override protected Server server() {
+                                    return new Server(
+                                        TransportTest.CONTRACT_ID.service(new TestServiceImpl())
+                                    );
+                                }
+                            };
+                        }
                     }
                 ),
                 executor,
@@ -58,16 +62,18 @@ public class SslTest extends InvokeTest {
             new SocketTransport(executor, SyncSocketConnection.FACTORY).connect(
                 TransportSetup.ofPacketSerializer(
                     JavaSerializer.INSTANCE,
-                    connection -> {
-                        checkName(connection);
-                        return new SimpleSession(connection, executor) {
-                            @Override protected void opened() throws Exception {
-                                final TestService testService = proxy(TransportTest.CONTRACT_ID);
-                                Assert.assertTrue(testService.divide(12, 4) == 3);
-                                System.out.println("ok");
-                                close();
-                            }
-                        };
+                    new SessionFactory() {
+                        @Override public Session create(final Connection connection) throws Exception {
+                            checkName(connection);
+                            return new SimpleSession(connection, executor) {
+                                @Override protected void opened() throws Exception {
+                                    final TestService testService = proxy(TransportTest.CONTRACT_ID);
+                                    Assert.assertTrue(testService.divide(12, 4) == 3);
+                                    System.out.println("ok");
+                                    close();
+                                }
+                            };
+                        }
                     }
                 ),
                 socketFactory, SocketHelper.ADDRESS

@@ -51,7 +51,7 @@ public abstract class SocketConnection implements Connection {
         // empty
     }
 
-    @FunctionalInterface public interface Factory {
+    public interface Factory {
         SocketConnection create(Serializer packetSerializer, Socket socket, OutputStream out) throws Exception;
     }
 
