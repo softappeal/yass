@@ -1,10 +1,7 @@
 package ch.softappeal.yass.transport.ws.test;
 
-import ch.softappeal.yass.core.remote.session.test.LocalConnectionTest;
-import ch.softappeal.yass.core.remote.session.test.PerformanceTest;
-import ch.softappeal.yass.serialize.JavaSerializer;
 import ch.softappeal.yass.transport.TransportSetup;
-import ch.softappeal.yass.transport.socket.test.SocketPerformanceTest;
+import ch.softappeal.yass.transport.test.TransportTest;
 import ch.softappeal.yass.transport.ws.AsyncWsConnection;
 import ch.softappeal.yass.transport.ws.SyncWsConnection;
 import ch.softappeal.yass.transport.ws.WsConnection;
@@ -24,7 +21,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
-public abstract class WsTest {
+public abstract class WsTest extends TransportTest {
 
     protected static final int PORT = 9090;
     protected static final String PATH = "/test";
@@ -59,17 +56,14 @@ public abstract class WsTest {
         return ServerEndpointConfig.Builder.create(ServerEndpoint.class, PATH).configurator(configurator).build();
     }
 
-    protected static void setTransportSetup(
-        final boolean serverInvoke, final boolean serverCreateException,
-        final boolean clientInvoke, final boolean clientCreateException
-    ) {
-        TRANSPORT_SETUP_SERVER = TransportSetup.ofPacketSerializer(JavaSerializer.INSTANCE, LocalConnectionTest.sessionFactory(serverInvoke, DISPATCHER_EXECUTOR, serverCreateException));
-        TRANSPORT_SETUP_CLIENT = TransportSetup.ofPacketSerializer(JavaSerializer.INSTANCE, LocalConnectionTest.sessionFactory(clientInvoke, DISPATCHER_EXECUTOR, clientCreateException));
+    protected static void setTransportSetup(final boolean serverInvoke, final boolean serverCreateException, final boolean clientInvoke, final boolean clientCreateException) {
+        TRANSPORT_SETUP_SERVER = transportSetup(serverInvoke, serverCreateException, DISPATCHER_EXECUTOR);
+        TRANSPORT_SETUP_CLIENT = transportSetup(clientInvoke, clientCreateException, DISPATCHER_EXECUTOR);
     }
 
     protected static void setPerformanceSetup(final CountDownLatch latch) {
-        TRANSPORT_SETUP_SERVER = TransportSetup.ofPacketSerializer(JavaSerializer.INSTANCE, PerformanceTest.sessionFactory(DISPATCHER_EXECUTOR, null, SocketPerformanceTest.COUNTER));
-        TRANSPORT_SETUP_CLIENT = TransportSetup.ofPacketSerializer(JavaSerializer.INSTANCE, PerformanceTest.sessionFactory(DISPATCHER_EXECUTOR, latch, SocketPerformanceTest.COUNTER));
+        TRANSPORT_SETUP_SERVER = transportSetup(DISPATCHER_EXECUTOR);
+        TRANSPORT_SETUP_CLIENT = transportSetup(DISPATCHER_EXECUTOR, latch, 100);
     }
 
     protected static void connect(final WebSocketContainer container, final CountDownLatch latch) throws Exception {

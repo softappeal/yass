@@ -4,8 +4,6 @@ import ch.softappeal.yass.core.remote.session.Packet;
 import ch.softappeal.yass.serialize.Serializer;
 
 import javax.websocket.RemoteEndpoint;
-import javax.websocket.SendHandler;
-import javax.websocket.SendResult;
 import javax.websocket.Session;
 
 /**
@@ -13,20 +11,6 @@ import javax.websocket.Session;
  * Closes session if timeout reached.
  */
 public final class AsyncWsConnection extends WsConnection {
-
-    /**
-     * see RemoteEndpoint.Async#setSendTimeout(long)
-     */
-    public static Factory factory(final long sendTimeoutMilliSeconds) {
-        if (sendTimeoutMilliSeconds < 0) {
-            throw new IllegalArgumentException("sendTimeoutMilliSeconds < 0");
-        }
-        return new Factory() {
-            @Override public WsConnection create(final Serializer packetSerializer, final Session session) throws Exception {
-                return new AsyncWsConnection(packetSerializer, session, sendTimeoutMilliSeconds);
-            }
-        };
-    }
 
     private AsyncWsConnection(final Serializer packetSerializer, final Session session, final long sendTimeoutMilliSeconds) {
         super(packetSerializer, session);
@@ -37,15 +21,23 @@ public final class AsyncWsConnection extends WsConnection {
     private final RemoteEndpoint.Async remoteEndpoint;
 
     @Override public void write(final Packet packet) throws Exception {
-        remoteEndpoint.sendBinary(writeToBuffer(packet), new SendHandler() {
-            @Override public void onResult(final SendResult result) {
-                if (result == null) {
-                    AsyncWsConnection.this.onError(null);
-                } else if (!result.isOK()) {
-                    AsyncWsConnection.this.onError(result.getException());
-                }
+        remoteEndpoint.sendBinary(writeToBuffer(packet), result -> {
+            if (result == null) {
+                onError(null);
+            } else if (!result.isOK()) {
+                onError(result.getException());
             }
         });
+    }
+
+    /**
+     * @see RemoteEndpoint.Async#setSendTimeout(long)
+     */
+    public static Factory factory(final long sendTimeoutMilliSeconds) {
+        if (sendTimeoutMilliSeconds < 0) {
+            throw new IllegalArgumentException("sendTimeoutMilliSeconds < 0");
+        }
+        return (packetSerializer, session) -> new AsyncWsConnection(packetSerializer, session, sendTimeoutMilliSeconds);
     }
 
 }

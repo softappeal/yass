@@ -16,36 +16,6 @@ import java.net.Socket;
 
 public abstract class SocketConnection implements Connection {
 
-    public interface Factory {
-        SocketConnection create(Serializer packetSerializer, Socket socket, OutputStream out) throws Exception;
-    }
-
-    static void create(final Factory connectionFactory, final TransportSetup setup, final Socket socket, final Reader reader, final OutputStream out) throws Exception {
-        final SocketConnection connection = connectionFactory.create(setup.packetSerializer, socket, out);
-        final Session session = Session.create(setup.sessionFactory, connection);
-        try {
-            connection.created(session);
-            while (true) {
-                final Packet packet;
-                try {
-                    packet = (Packet)connection.packetSerializer.read(reader);
-                } catch (final Exception e) {
-                    if (session.isClosed()) {
-                        return; // note: the blocked socket read (of the peer closing the session) always throws an exception
-                    }
-                    throw e;
-                }
-                Session.received(session, packet);
-                if (packet.isEnd()) {
-                    return;
-                }
-            }
-        } catch (final Exception e) {
-            Session.close(session, e);
-            throw e;
-        }
-    }
-
     private final Serializer packetSerializer;
     public final Socket socket;
     private final OutputStream out;
@@ -54,13 +24,6 @@ public abstract class SocketConnection implements Connection {
         this.packetSerializer = Check.notNull(packetSerializer);
         this.socket = Check.notNull(socket);
         this.out = Check.notNull(out);
-    }
-
-    /**
-     * Called after connection has been created.
-     */
-    protected void created(final Session session) throws Exception {
-        // empty
     }
 
     protected final ByteArrayOutputStream writeToBuffer(final Packet packet) throws Exception {
@@ -79,6 +42,41 @@ public abstract class SocketConnection implements Connection {
 
     @Override public void closed() throws Exception {
         socket.close();
+    }
+
+    /**
+     * Called after connection has been created.
+     */
+    protected void created(final Session session) throws Exception {
+        // empty
+    }
+
+    @FunctionalInterface public interface Factory {
+        SocketConnection create(Serializer packetSerializer, Socket socket, OutputStream out) throws Exception;
+    }
+
+    static void create(final Factory connectionFactory, final TransportSetup setup, final Socket socket, final Reader reader, final OutputStream out) throws Exception {
+        final SocketConnection connection = connectionFactory.create(setup.packetSerializer, socket, out);
+        final Session session = Session.create(setup.sessionFactory, connection);
+        try {
+            connection.created(session);
+            while (true) {
+                final Packet packet;
+                try {
+                    packet = (Packet)connection.packetSerializer.read(reader);
+                } catch (final Exception ignore) { // note: we don't rethrow communication exceptions
+                    Session.close(session, ignore);
+                    return;
+                }
+                Session.received(session, packet);
+                if (packet.isEnd()) {
+                    return;
+                }
+            }
+        } catch (final Exception e) {
+            Session.close(session, e);
+            throw e;
+        }
     }
 
 }

@@ -111,9 +111,6 @@ public final class SocketTransport {
          * This method is idempotent.
          */
         @Override public void close() {
-            if (serverSocket.isClosed()) {
-                return;
-            }
             try {
                 serverSocket.close();
             } catch (final IOException e) {
