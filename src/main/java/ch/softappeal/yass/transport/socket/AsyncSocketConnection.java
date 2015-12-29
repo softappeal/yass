@@ -50,7 +50,7 @@ public final class AsyncSocketConnection extends SocketConnection {
                     }
                     flush(buffer);
                 }
-            } catch (final Exception ignore) { // note: we don't rethrow communication exceptions
+            } catch (final Exception ignore) {
                 Session.close(session, ignore);
             }
         });

@@ -11,6 +11,7 @@ import ch.softappeal.yass.tutorial.contract.Price;
 import ch.softappeal.yass.tutorial.contract.PriceKind;
 import ch.softappeal.yass.tutorial.contract.PriceListener;
 import ch.softappeal.yass.tutorial.contract.UnexpectedExceptionHandler;
+import ch.softappeal.yass.util.Nullable;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -70,8 +71,8 @@ public final class AcceptorSession extends SimpleSession {
         }
     }
 
-    @Override protected void closed(final boolean exceptional) {
-        System.out.println("session " + this + " closed: " + exceptional);
+    @Override protected void closed(final @Nullable Exception exception) {
+        System.out.println("session " + this + " closed: " + exception);
     }
 
     private static final AtomicInteger ID = new AtomicInteger(1);

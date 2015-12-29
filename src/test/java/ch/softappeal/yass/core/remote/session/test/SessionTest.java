@@ -60,12 +60,12 @@ public abstract class SessionTest extends InvokeTest {
                     }
                 }
             }
-            @Override protected void closed(final boolean exceptional) {
+            @Override protected void closed(final @Nullable Exception exception) {
                 if (createException) {
                     Assert.fail();
                 }
                 Assert.assertTrue(isClosed());
-                println("", "closed", hashCode() + " " + exceptional);
+                println("", "closed", hashCode() + " " + exception);
             }
         };
     }

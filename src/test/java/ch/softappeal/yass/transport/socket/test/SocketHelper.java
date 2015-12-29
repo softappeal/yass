@@ -14,7 +14,7 @@ public class SocketHelper {
     public static void shutdown(final SocketTransport.ListenerCloser listenerCloser, final ExecutorService executorService) throws InterruptedException {
         listenerCloser.close();
         TimeUnit.MILLISECONDS.sleep(100L);
-        executorService.shutdownNow();
+        executorService.shutdown();
     }
 
 }

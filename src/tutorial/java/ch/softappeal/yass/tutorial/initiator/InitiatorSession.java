@@ -12,6 +12,7 @@ import ch.softappeal.yass.tutorial.contract.SystemException;
 import ch.softappeal.yass.tutorial.contract.UnexpectedExceptionHandler;
 import ch.softappeal.yass.tutorial.contract.UnknownInstrumentsException;
 import ch.softappeal.yass.tutorial.contract.instrument.InstrumentService;
+import ch.softappeal.yass.util.Nullable;
 
 import java.util.Arrays;
 import java.util.concurrent.Executor;
@@ -70,8 +71,8 @@ public final class InitiatorSession extends SimpleSession {
         );
     }
 
-    @Override protected void closed(final boolean exceptional) {
-        System.out.println("session " + this + " closed: " + exceptional);
+    @Override protected void closed(final @Nullable Exception exception) {
+        System.out.println("session " + this + " closed: " + exception);
     }
 
     private static final AtomicInteger ID = new AtomicInteger(1);

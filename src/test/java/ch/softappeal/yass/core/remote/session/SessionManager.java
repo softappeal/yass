@@ -21,7 +21,7 @@ public class SessionManager<S extends Session> {
     }
 
     /**
-     * Call in {@link Session#closed(boolean)}.
+     * Call in {@link Session#closed(Exception)}.
      */
     public final void remove(final S session) {
         if (!modifiableSessions.remove(Check.notNull(session))) {

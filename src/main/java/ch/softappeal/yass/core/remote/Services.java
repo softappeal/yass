@@ -15,6 +15,9 @@ public abstract class Services {
 
     private final Set<Integer> identifiers = new HashSet<>();
 
+    /**
+     * @since 36.0.0
+     */
     protected final <C> ContractId<C> contractId(final Class<C> contract, final int id) {
         if (!identifiers.add(id)) {
             throw new IllegalArgumentException("service with id " + id + " already added");

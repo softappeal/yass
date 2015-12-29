@@ -61,21 +61,14 @@ public abstract class SocketConnection implements Connection {
         try {
             connection.created(session);
             while (true) {
-                final Packet packet;
-                try {
-                    packet = (Packet)connection.packetSerializer.read(reader);
-                } catch (final Exception ignore) { // note: we don't rethrow communication exceptions
-                    Session.close(session, ignore);
-                    return;
-                }
+                final Packet packet = (Packet)connection.packetSerializer.read(reader);
                 Session.received(session, packet);
                 if (packet.isEnd()) {
                     return;
                 }
             }
-        } catch (final Exception e) {
-            Session.close(session, e);
-            throw e;
+        } catch (final Exception ignore) {
+            Session.close(session, ignore);
         }
     }
 

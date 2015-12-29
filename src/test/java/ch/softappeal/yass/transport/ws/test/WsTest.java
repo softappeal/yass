@@ -27,28 +27,31 @@ public abstract class WsTest extends TransportTest {
     protected static final String PATH = "/test";
     protected static final URI THE_URI = URI.create("ws://localhost:" + PORT + PATH);
 
-    private static volatile ExecutorService DISPATCHER_EXECUTOR;
+    private static volatile ExecutorService INITIATOR_EXECUTOR;
+    private static volatile ExecutorService ACCEPTOR_EXECUTOR;
 
     @Before public void startDispatcherExecutor() {
-        DISPATCHER_EXECUTOR = Executors.newCachedThreadPool(new NamedThreadFactory("dispatcherExecutor", Exceptions.TERMINATE));
+        INITIATOR_EXECUTOR = Executors.newCachedThreadPool(new NamedThreadFactory("initiatorExecutor", Exceptions.TERMINATE));
+        ACCEPTOR_EXECUTOR = Executors.newCachedThreadPool(new NamedThreadFactory("acceptorExecutor", Exceptions.TERMINATE));
     }
 
     @After public void stopDispatcherExecutor() {
-        DISPATCHER_EXECUTOR.shutdown();
+        INITIATOR_EXECUTOR.shutdown();
+        ACCEPTOR_EXECUTOR.shutdown();
     }
 
-    private static volatile TransportSetup TRANSPORT_SETUP_CLIENT;
-    private static volatile TransportSetup TRANSPORT_SETUP_SERVER;
+    private static volatile TransportSetup TRANSPORT_SETUP_INITIATOR;
+    private static volatile TransportSetup TRANSPORT_SETUP_ACCEPTOR;
 
     public static final class ClientEndpoint extends WsEndpoint {
         @Override protected WsConnection createConnection(final Session session) throws Exception {
-            return WsConnection.create(SyncWsConnection.FACTORY, TRANSPORT_SETUP_CLIENT, session);
+            return WsConnection.create(SyncWsConnection.FACTORY, TRANSPORT_SETUP_INITIATOR, session);
         }
     }
 
     public static final class ServerEndpoint extends WsEndpoint {
         @Override protected WsConnection createConnection(final Session session) throws Exception {
-            return WsConnection.create(AsyncWsConnection.factory(100), TRANSPORT_SETUP_SERVER, session);
+            return WsConnection.create(AsyncWsConnection.factory(100), TRANSPORT_SETUP_ACCEPTOR, session);
         }
     }
 
@@ -57,13 +60,13 @@ public abstract class WsTest extends TransportTest {
     }
 
     protected static void setTransportSetup(final boolean serverInvoke, final boolean serverCreateException, final boolean clientInvoke, final boolean clientCreateException) {
-        TRANSPORT_SETUP_SERVER = transportSetup(serverInvoke, serverCreateException, DISPATCHER_EXECUTOR);
-        TRANSPORT_SETUP_CLIENT = transportSetup(clientInvoke, clientCreateException, DISPATCHER_EXECUTOR);
+        TRANSPORT_SETUP_ACCEPTOR = transportSetup(serverInvoke, serverCreateException, ACCEPTOR_EXECUTOR);
+        TRANSPORT_SETUP_INITIATOR = transportSetup(clientInvoke, clientCreateException, INITIATOR_EXECUTOR);
     }
 
     protected static void setPerformanceSetup(final CountDownLatch latch) {
-        TRANSPORT_SETUP_SERVER = transportSetup(DISPATCHER_EXECUTOR);
-        TRANSPORT_SETUP_CLIENT = transportSetup(DISPATCHER_EXECUTOR, latch, 100);
+        TRANSPORT_SETUP_ACCEPTOR = transportSetup(ACCEPTOR_EXECUTOR);
+        TRANSPORT_SETUP_INITIATOR = transportSetup(INITIATOR_EXECUTOR, latch, 100);
     }
 
     protected static void connect(final WebSocketContainer container, final CountDownLatch latch) throws Exception {
