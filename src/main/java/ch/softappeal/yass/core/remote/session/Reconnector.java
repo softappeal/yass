@@ -7,7 +7,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
 
 /**
- * Provieds proxies surviving reconnects.
+ * Provides proxies surviving reconnects.
  */
 public class Reconnector<S extends Session> extends ProxyDelegate<S> {
 
