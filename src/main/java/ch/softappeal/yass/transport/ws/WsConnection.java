@@ -34,7 +34,9 @@ public abstract class WsConnection implements Connection {
     }
 
     final void onClose(final CloseReason closeReason) {
-        if (closeReason.getCloseCode().getCode() != CloseReason.CloseCodes.NORMAL_CLOSURE.getCode()) {
+        if (closeReason.getCloseCode().getCode() == CloseReason.CloseCodes.NORMAL_CLOSURE.getCode()) {
+            yassSession.close();
+        } else {
             onError(new RuntimeException("WebSocket closed - " + closeReason.toString()));
         }
     }
