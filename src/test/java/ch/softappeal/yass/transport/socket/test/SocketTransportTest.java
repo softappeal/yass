@@ -62,6 +62,7 @@ public class SocketTransportTest extends TransportTest {
         try {
             listenerCloser = new SocketTransport(executor, SyncSocketConnection.FACTORY).start(transportSetup(false, false, executor), executor, SocketHelper.ADDRESS);
             new SocketTransport(executor, SyncSocketConnection.FACTORY).connect(transportSetup(false, true, executor), SocketHelper.ADDRESS);
+            TimeUnit.MILLISECONDS.sleep(100L);
         } finally {
             SocketHelper.shutdown(listenerCloser, executor);
         }
