@@ -96,7 +96,7 @@ public abstract class Session extends Client implements AutoCloseable {
      * This method is idempotent.
      */
     public static void close(final Session session, final Exception e) {
-        session.close(false, e);
+        session.close(false, Check.notNull(e));
     }
 
     /**

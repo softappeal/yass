@@ -91,8 +91,6 @@ namespace tutorial {
     }
 
     class Session extends yass.Session {
-        private static ID = 1;
-        id = Session.ID++;
         constructor(connection: yass.Connection) {
             super(connection);
         }
@@ -103,11 +101,11 @@ namespace tutorial {
             );
         }
         protected opened(): void {
-            log("session opened", this.id);
+            log("session opened");
             subscribePrices(this);
         }
-        protected closed(exceptional: boolean): void {
-            log("session closed", this.id, exceptional);
+        protected closed(exception: any): void {
+            log("session closed", exception);
         }
     }
 
@@ -116,8 +114,7 @@ namespace tutorial {
     yass.connect(
         "ws://" + hostname + ":9090/tutorial",
         contract.SERIALIZER,
-        connection => new Session(connection),
-        () => log("connect failed")
+        connection => new Session(connection)
     );
 
     const client = yass.xhr("http://" + hostname + ":9090/xhr", contract.SERIALIZER);
