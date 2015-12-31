@@ -120,14 +120,14 @@ public final class Config {
     }
 
     public static final class Initiator extends Role {
-        public final ContractId<PriceListener> priceListener = create(PriceListener.class, 0);
-        public final ContractId<EchoService> echoService = create(EchoService.class, 1);
+        public final ContractId<PriceListener> priceListener = contractId(PriceListener.class, 0);
+        public final ContractId<EchoService> echoService = contractId(EchoService.class, 1);
     }
 
     public static final class Acceptor extends Role {
-        public final ContractId<PriceEngine> priceEngine = create(PriceEngine.class, 0);
-        public final ContractId<InstrumentService> instrumentService = create(InstrumentService.class, 1);
-        public final ContractId<EchoService> echoService = create(EchoService.class, 2);
+        public final ContractId<PriceEngine> priceEngine = contractId(PriceEngine.class, 0);
+        public final ContractId<InstrumentService> instrumentService = contractId(InstrumentService.class, 1);
+        public final ContractId<EchoService> echoService = contractId(EchoService.class, 2);
     }
 
     public static final Initiator INITIATOR = new Initiator();

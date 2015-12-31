@@ -351,16 +351,15 @@ namespace remoteTest {
             priceEngine.subscribe([new Integer(987654321)]).catch(exception => log("subscribe failed with", exception));
             setTimeout(() => this.close(), 2000);
         }
-        protected closed(exceptional: boolean): void {
-            log("session closed", this.isClosed(), exceptional);
+        protected closed(exception: any): void {
+            log("session closed", this.isClosed(), exception);
         }
     }
 
     yass.connect(
         "ws://" + hostname + ":9090/tutorial",
         contract.SERIALIZER,
-        connection => new Session(connection),
-        () => log("connectFailed")
+        connection => new Session(connection)
     );
 
 }

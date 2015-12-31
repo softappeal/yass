@@ -10,7 +10,6 @@ import org.junit.Test;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
 
 public class SocketPerformanceTest extends TransportTest {
 
@@ -22,7 +21,6 @@ public class SocketPerformanceTest extends TransportTest {
             final CountDownLatch latch = new CountDownLatch(1);
             new SocketTransport(executor, SyncSocketConnection.FACTORY).connect(transportSetup(executor, latch, 100), SocketHelper.ADDRESS);
             latch.await();
-            TimeUnit.MILLISECONDS.sleep(100L);
         } finally {
             SocketHelper.shutdown(listenerCloser, executor);
         }

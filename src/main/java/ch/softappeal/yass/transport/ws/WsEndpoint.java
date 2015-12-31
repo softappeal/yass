@@ -30,9 +30,11 @@ public abstract class WsEndpoint extends Endpoint {
         getConnection(session).onClose(closeReason);
     }
 
-    @Override public final void onError(final Session session, final Throwable throwable) {
+    @Override public final void onError(final Session session, final @Nullable Throwable throwable) {
         final @Nullable WsConnection connection = getConnection(session);
-        if (connection != null) {
+        if (connection == null) {
+            throw Exceptions.wrap(WsConnection.wrap(throwable));
+        } else {
             connection.onError(throwable);
         }
     }

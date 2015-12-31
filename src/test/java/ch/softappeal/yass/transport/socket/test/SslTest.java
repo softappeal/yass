@@ -78,8 +78,8 @@ public class SslTest extends InvokeTest {
                 ),
                 socketFactory, SocketHelper.ADDRESS
             );
-        } finally {
             TimeUnit.MILLISECONDS.sleep(200);
+        } finally {
             SocketHelper.shutdown(listenerCloser, executor);
         }
     }

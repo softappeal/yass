@@ -16,6 +16,7 @@ import ch.softappeal.yass.transport.socket.SocketTransport;
 import ch.softappeal.yass.transport.socket.SyncSocketConnection;
 import ch.softappeal.yass.util.Exceptions;
 import ch.softappeal.yass.util.NamedThreadFactory;
+import ch.softappeal.yass.util.Nullable;
 
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
@@ -59,8 +60,8 @@ public final class AsyncSocketConnectionTest {
                             @Override protected void opened() {
                                 System.out.println("acceptor opened");
                             }
-                            @Override protected void closed(final boolean exceptional) {
-                                System.out.println("acceptor closed: " + exceptional);
+                            @Override protected void closed(final @Nullable Exception exception) {
+                                System.out.println("acceptor closed: " + exception);
                             }
                         };
                     }
@@ -84,8 +85,8 @@ public final class AsyncSocketConnectionTest {
                                 }
                                 System.out.println("initiator done");
                             }
-                            @Override protected void closed(final boolean exceptional) {
-                                System.out.println("initiator closed: " + exceptional);
+                            @Override protected void closed(final @Nullable Exception exception) {
+                                System.out.println("initiator closed: " + exception);
                             }
                         };
                     }

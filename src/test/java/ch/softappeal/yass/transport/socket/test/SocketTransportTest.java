@@ -62,6 +62,7 @@ public class SocketTransportTest extends TransportTest {
         try {
             listenerCloser = new SocketTransport(executor, SyncSocketConnection.FACTORY).start(transportSetup(false, false, executor), executor, SocketHelper.ADDRESS);
             new SocketTransport(executor, SyncSocketConnection.FACTORY).connect(transportSetup(false, true, executor), SocketHelper.ADDRESS);
+            TimeUnit.MILLISECONDS.sleep(100L);
         } finally {
             SocketHelper.shutdown(listenerCloser, executor);
         }
@@ -91,6 +92,7 @@ public class SocketTransportTest extends TransportTest {
             listenerCloser = new SocketTransport(executor, SyncSocketConnection.FACTORY).start(new PathResolver(pathMappings), executor, ServerSocketFactory.getDefault(), SocketHelper.ADDRESS);
             new SocketTransport(executor, SyncSocketConnection.FACTORY).connect(transportSetup(false, false, executor), path1, SocketFactory.getDefault(), SocketHelper.ADDRESS);
             TimeUnit.MILLISECONDS.sleep(400L);
+            System.out.println();
             new SocketTransport(executor, SyncSocketConnection.FACTORY).connect(transportSetup(false, false, executor), path2, SocketFactory.getDefault(), SocketHelper.ADDRESS);
             TimeUnit.MILLISECONDS.sleep(400L);
         } finally {

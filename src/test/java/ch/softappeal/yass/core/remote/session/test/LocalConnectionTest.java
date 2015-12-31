@@ -32,7 +32,7 @@ public class LocalConnectionTest extends SessionTest {
         }
     }
 
-    @Test public void createException() throws InterruptedException {
+    @Test public void createException() {
         final ExecutorService executor = Executors.newCachedThreadPool(new NamedThreadFactory("executor", Exceptions.TERMINATE));
         try {
             try {
@@ -42,7 +42,6 @@ public class LocalConnectionTest extends SessionTest {
                 Assert.assertEquals(e.getMessage(), "java.lang.Exception: create failed");
             }
         } finally {
-            TimeUnit.MILLISECONDS.sleep(400L);
             executor.shutdown();
         }
     }

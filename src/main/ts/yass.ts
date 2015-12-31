@@ -680,7 +680,7 @@ namespace yass {
         /**
          * It's allowed to call Client.proxy(ContractId, Interceptor...) during this method,
          * but the proxies can be used not before Session.opened() is called.
-         * If this method throws an exception, the connection is rejected and Session.closed(boolean) won't be called.
+         * If this method throws an exception, the connection is rejected and Session.closed(Exception) won't be called.
          */
         (connection: Connection): Session;
     }
@@ -705,79 +705,71 @@ namespace yass {
             // empty
         }
         /**
-         * Called when the session has been closed.
+         * Called once when the session has been closed.
          * This implementation does nothing.
-         * @param exceptional true if exceptional close else regular close
+         * @param exception if (exception == null) regular close else reason for close
+         * @throws Exception note: will be ignored
          */
-        protected closed(exceptional: boolean): void {
+        protected closed(exception: any): void {
             // empty
         }
         private closedProp = true;
         isClosed(): boolean {
             return this.closedProp;
         }
-        private doCloseSend(sendEnd: boolean, exceptional: boolean): void {
+        private doCloseSend(sendEnd: boolean, exception: any): void {
             if (this.closedProp) {
                 return;
             }
             this.closedProp = true;
             try {
-                this.closed(exceptional);
-                if (sendEnd) {
-                    this.connection.write(Packet.END);
-                }
-            } catch (exception) {
                 try {
+                    this.closed(exception);
+                    if (sendEnd) {
+                        this.connection.write(Packet.END);
+                    }
+                } finally {
                     this.connection.closed();
-                } catch (ignore) {
-                    // empty
                 }
-                throw exception;
-            }
-            this.connection.closed();
-        }
-        static doClose(session: Session): void {
-            try {
-                session.doCloseSend(false, true);
             } catch (ignore) {
                 // empty
             }
+        }
+        static doClose(session: Session, exception: any): void {
+            session.doCloseSend(false, exception);
         }
         /**
          * Closes the session.
          * This method is idempotent.
          */
         close(): void {
-            this.doCloseSend(true, false);
-        }
-        private write(requestNumber: number, message: Message): void {
-            try {
-                this.connection.write(new Packet(requestNumber, message));
-            } catch (exception) {
-                Session.doClose(this);
-                throw exception;
-            }
+            this.doCloseSend(true, null);
         }
         private serverInvoke(requestNumber: number, request: Request): void {
             const invocation = this.serverProp.invocation(request);
             const reply = invocation.invoke();
             if (!invocation.methodMapping.oneWay) {
-                this.write(requestNumber, reply);
+                this.connection.write(new Packet(requestNumber, reply));
             }
         }
         private requestNumber2rpc: Rpc[] = [];
         private received(packet: Packet): void {
-            if (packet.isEnd()) {
-                this.doCloseSend(false, false);
-                return;
-            }
-            const message = packet.message;
-            if (message instanceof Request) {
-                this.serverInvoke(packet.requestNumber, message);
-            } else { // Reply
-                const rpc = this.requestNumber2rpc[packet.requestNumber];
-                delete this.requestNumber2rpc[packet.requestNumber];
-                rpc.settle(<Reply>message);
+            try {
+                if (packet.isEnd()) {
+                    this.doCloseSend(false, null);
+                    return;
+                }
+                const message = packet.message;
+                if (message instanceof Request) {
+                    this.serverInvoke(packet.requestNumber, message);
+                } else { // Reply
+                    const rpc = this.requestNumber2rpc[packet.requestNumber];
+                    delete this.requestNumber2rpc[packet.requestNumber];
+                    rpc.settle(<Reply>message);
+                }
+            } catch (exception) {
+                Session.doClose(this, exception);
+                throw exception;
             }
         }
         static received(session: Session, packet: Packet) {
@@ -789,17 +781,22 @@ namespace yass {
                 throw new Error("session is already closed or not yet opened");
             }
             return invocation.invoke((request, rpc) => {
-                if (this.requestNumber === 2147483647) {
-                    this.requestNumber = Packet.END_REQUESTNUMBER;
-                }
-                this.requestNumber++;
-                if (rpc) {
-                    if (this.requestNumber2rpc[this.requestNumber]) {
-                        throw new Error("already waiting for requestNumber " + this.requestNumber);
+                try {
+                    if (this.requestNumber === 2147483647) {
+                        this.requestNumber = Packet.END_REQUESTNUMBER;
                     }
-                    this.requestNumber2rpc[this.requestNumber] = rpc;
+                    this.requestNumber++;
+                    if (rpc) {
+                        if (this.requestNumber2rpc[this.requestNumber]) {
+                            throw new Error("already waiting for requestNumber " + this.requestNumber);
+                        }
+                        this.requestNumber2rpc[this.requestNumber] = rpc;
+                    }
+                    this.connection.write(new Packet(this.requestNumber, request));
+                } catch (exception) {
+                    Session.doClose(this, exception);
+                    throw exception;
                 }
-                this.write(this.requestNumber, request);
             });
         }
         private created(): void {
@@ -807,9 +804,8 @@ namespace yass {
             try {
                 this.serverProp = this.server();
                 this.opened();
-            } catch (exception) {
-                Session.doClose(this);
-                throw exception;
+            } catch (ignore) {
+                Session.doClose(this, ignore);
             }
         }
         static create(sessionFactory: SessionFactory, connection: Connection): Session {
@@ -819,44 +815,42 @@ namespace yass {
         }
     }
 
-    export function connect(url: string, serializer: Serializer, sessionFactory: SessionFactory, connectFailed = () => {}): void {
+    export function connect(url: string, serializer: Serializer, sessionFactory: SessionFactory): void {
         serializer = new PacketSerializer(new MessageSerializer(serializer));
-        let connectFailedCalled = false;
-        function callConnectFailed(): void {
-            if (!connectFailedCalled) {
-                connectFailedCalled = true;
-                connectFailed();
-            }
-        }
         const ws = new WebSocket(url);
         ws.binaryType = "arraybuffer";
-        ws.onerror = callConnectFailed;
-        ws.onclose = callConnectFailed;
+        ws.onerror = () => {
+            throw new Error("WebSocket.onerror");
+        };
+        ws.onclose = () => {
+            throw new Error("WebSocket.onclose");
+        };
         ws.onopen = () => {
-            const session = Session.create(sessionFactory, {
-                write: packet => ws.send(writeTo(serializer, packet)),
-                closed: () => ws.close()
-            });
-            ws.onmessage = event => {
-                let packet: Packet;
-                try {
-                    packet = readFrom(serializer, event.data);
-                } catch (exception) {
-                    Session.doClose(session);
-                    throw exception;
+            try {
+                const session = Session.create(sessionFactory, {
+                    write: packet => ws.send(writeTo(serializer, packet)),
+                    closed: () => ws.close()
+                });
+                ws.onmessage = event => {
+                    try {
+                        Session.received(session, readFrom(serializer, event.data));
+                    } catch (ignore) {
+                        Session.doClose(session, ignore);
+                    }
+                };
+                ws.onerror = () => Session.doClose(session, new Error("WebSocket.onerror"));
+                ws.onclose = event => {
+                    if (event.wasClean) {
+                        session.close();
+                    } else {
+                        Session.doClose(session, new Error("WebSocket.onclose"));
+                    }
                 }
-                Session.received(session, packet);
-            };
-            ws.onerror = () => {
-                Session.doClose(session);
-                throw new Error("WebSocket.onerror");
-            };
-            ws.onclose = event => {
-                if (!event.wasClean) {
-                    Session.doClose(session);
-                    throw new Error("WebSocket.onclose");
-                }
-            };
+            } catch (exception) {
+                ws.close();
+                throw exception;
+            }
+
         };
     }
 
