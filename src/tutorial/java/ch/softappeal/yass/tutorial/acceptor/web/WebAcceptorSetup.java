@@ -24,16 +24,16 @@ public abstract class WebAcceptorSetup {
 
     public static final Executor DISPATCH_EXECUTOR = Executors.newCachedThreadPool(new NamedThreadFactory("dispatchExecutor", Exceptions.STD_ERR));
 
+    private static final WsConnection.Factory CONNECTION_FACTORY = AsyncWsConnection.factory(1_000);
+
+    private static final TransportSetup TRANSPORT_SETUP = TransportSetup.ofContractSerializer(
+        Config.SERIALIZER,
+        connection -> new AcceptorSession(connection, DISPATCH_EXECUTOR)
+    );
+
     public static final class Endpoint extends WsEndpoint {
         @Override protected WsConnection createConnection(final Session session) throws Exception {
-            return WsConnection.create(
-                AsyncWsConnection.factory(1_000),
-                TransportSetup.ofContractSerializer(
-                    Config.SERIALIZER,
-                    connection -> new AcceptorSession(connection, DISPATCH_EXECUTOR)
-                ),
-                session
-            );
+            return WsConnection.create(CONNECTION_FACTORY, TRANSPORT_SETUP, session);
         }
     }
 

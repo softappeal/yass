@@ -15,16 +15,14 @@ import java.net.URI;
 
 public abstract class WebInitiatorSetup {
 
+    private static final TransportSetup TRANSPORT_SETUP = TransportSetup.ofContractSerializer(
+        Config.SERIALIZER,
+        connection -> new InitiatorSession(connection, WebAcceptorSetup.DISPATCH_EXECUTOR)
+    );
+
     private static final class Endpoint extends WsEndpoint {
         @Override protected WsConnection createConnection(final Session session) throws Exception {
-            return WsConnection.create(
-                SyncWsConnection.FACTORY,
-                TransportSetup.ofContractSerializer(
-                    Config.SERIALIZER,
-                    connection -> new InitiatorSession(connection, WebAcceptorSetup.DISPATCH_EXECUTOR)
-                ),
-                session
-            );
+            return WsConnection.create(SyncWsConnection.FACTORY, TRANSPORT_SETUP, session);
         }
     }
 
