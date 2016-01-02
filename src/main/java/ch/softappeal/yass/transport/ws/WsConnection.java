@@ -7,8 +7,8 @@ import ch.softappeal.yass.serialize.Reader;
 import ch.softappeal.yass.serialize.Serializer;
 import ch.softappeal.yass.serialize.Writer;
 import ch.softappeal.yass.serialize.Writer.ByteBufferOutputStream;
-import ch.softappeal.yass.transport.TransportSetup;
 import ch.softappeal.yass.util.Check;
+import ch.softappeal.yass.util.Exceptions;
 import ch.softappeal.yass.util.Nullable;
 
 import javax.websocket.CloseReason;
@@ -19,11 +19,13 @@ import java.nio.ByteBuffer;
 public abstract class WsConnection implements Connection {
 
     private final Serializer packetSerializer;
+    private final Thread.UncaughtExceptionHandler uncaughtExceptionHandler;
     public final javax.websocket.Session session;
     private Session yassSession;
 
-    protected WsConnection(final Serializer packetSerializer, final javax.websocket.Session session) {
-        this.packetSerializer = Check.notNull(packetSerializer);
+    protected WsConnection(final WsConfigurator configurator, final javax.websocket.Session session) {
+        packetSerializer = configurator.setup.packetSerializer;
+        uncaughtExceptionHandler = configurator.uncaughtExceptionHandler;
         this.session = Check.notNull(session);
     }
 
@@ -41,20 +43,14 @@ public abstract class WsConnection implements Connection {
         }
     }
 
-    static Exception wrap(final @Nullable Throwable throwable) {
-        if (throwable == null) {
-            return new Exception("<no-throwable>");
-        } else if (throwable instanceof Exception) {
-            return (Exception)throwable;
-        } else if (throwable instanceof Error) {
-            throw (Error)throwable;
-        } else {
-            throw new Error(throwable);
-        }
-    }
-
     protected final void onError(final @Nullable Throwable ignore) {
-        Session.close(yassSession, wrap(ignore));
+        if (ignore == null) {
+            Session.close(yassSession, new Exception("<no-throwable>"));
+        } else if (ignore instanceof Exception) {
+            Session.close(yassSession, (Exception)ignore);
+        } else {
+            Exceptions.uncaughtException(uncaughtExceptionHandler, ignore);
+        }
     }
 
     @Override public final void closed() throws IOException {
@@ -77,14 +73,14 @@ public abstract class WsConnection implements Connection {
     }
 
     @FunctionalInterface public interface Factory {
-        WsConnection create(Serializer packetSerializer, javax.websocket.Session session) throws Exception;
+        WsConnection create(WsConfigurator configurator, javax.websocket.Session session) throws Exception;
     }
 
-    public static WsConnection create(final Factory connectionFactory, final TransportSetup setup, final javax.websocket.Session session) throws Exception {
+    static WsConnection create(final WsConfigurator configurator, final javax.websocket.Session session) throws Exception {
         try {
-            final WsConnection connection = connectionFactory.create(setup.packetSerializer, session);
+            final WsConnection connection = configurator.connectionFactory.create(configurator, session);
             connection.created();
-            connection.yassSession = Session.create(setup.sessionFactory, connection);
+            connection.yassSession = Session.create(configurator.setup.sessionFactory, connection);
             return connection;
         } catch (final Exception e) {
             try {

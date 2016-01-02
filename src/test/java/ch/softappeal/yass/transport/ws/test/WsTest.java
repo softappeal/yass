@@ -4,15 +4,14 @@ import ch.softappeal.yass.transport.TransportSetup;
 import ch.softappeal.yass.transport.test.TransportTest;
 import ch.softappeal.yass.transport.ws.AsyncWsConnection;
 import ch.softappeal.yass.transport.ws.SyncWsConnection;
-import ch.softappeal.yass.transport.ws.WsConnection;
-import ch.softappeal.yass.transport.ws.WsEndpoint;
+import ch.softappeal.yass.transport.ws.WsConfigurator;
 import ch.softappeal.yass.util.Exceptions;
 import ch.softappeal.yass.util.NamedThreadFactory;
 import org.junit.After;
 import org.junit.Before;
 
 import javax.websocket.ClientEndpointConfig;
-import javax.websocket.Session;
+import javax.websocket.Endpoint;
 import javax.websocket.WebSocketContainer;
 import javax.websocket.server.ServerEndpointConfig;
 import java.net.URI;
@@ -43,20 +42,11 @@ public abstract class WsTest extends TransportTest {
     private static volatile TransportSetup TRANSPORT_SETUP_INITIATOR;
     private static volatile TransportSetup TRANSPORT_SETUP_ACCEPTOR;
 
-    public static final class ClientEndpoint extends WsEndpoint {
-        @Override protected WsConnection createConnection(final Session session) throws Exception {
-            return WsConnection.create(SyncWsConnection.FACTORY, TRANSPORT_SETUP_INITIATOR, session);
-        }
-    }
-
-    public static final class ServerEndpoint extends WsEndpoint {
-        @Override protected WsConnection createConnection(final Session session) throws Exception {
-            return WsConnection.create(AsyncWsConnection.factory(100), TRANSPORT_SETUP_ACCEPTOR, session);
-        }
-    }
-
-    protected static ServerEndpointConfig serverEndpointConfig(final ServerEndpointConfig.Configurator configurator) {
-        return ServerEndpointConfig.Builder.create(ServerEndpoint.class, PATH).configurator(configurator).build();
+    protected static ServerEndpointConfig serverEndpointConfig() {
+        return ServerEndpointConfig.Builder
+            .create(Endpoint.class, PATH)
+            .configurator(new WsConfigurator(AsyncWsConnection.factory(100), TRANSPORT_SETUP_ACCEPTOR, Exceptions.STD_ERR))
+            .build();
     }
 
     protected static void setTransportSetup(final boolean serverInvoke, final boolean serverCreateException, final boolean clientInvoke, final boolean clientCreateException) {
@@ -70,7 +60,11 @@ public abstract class WsTest extends TransportTest {
     }
 
     protected static void connect(final WebSocketContainer container, final CountDownLatch latch) throws Exception {
-        container.connectToServer(new ClientEndpoint(), ClientEndpointConfig.Builder.create().build(), THE_URI);
+        container.connectToServer(
+            new WsConfigurator(SyncWsConnection.FACTORY, TRANSPORT_SETUP_INITIATOR, Exceptions.STD_ERR).getEndpointInstance(),
+            ClientEndpointConfig.Builder.create().build(),
+            THE_URI
+        );
         latch.await();
         TimeUnit.MILLISECONDS.sleep(400L);
     }

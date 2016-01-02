@@ -1,7 +1,6 @@
 package ch.softappeal.yass.transport.ws;
 
 import ch.softappeal.yass.core.remote.session.Packet;
-import ch.softappeal.yass.serialize.Serializer;
 
 import javax.websocket.RemoteEndpoint;
 import javax.websocket.Session;
@@ -13,8 +12,8 @@ import java.nio.ByteBuffer;
  */
 public final class SyncWsConnection extends WsConnection {
 
-    private SyncWsConnection(final Serializer packetSerializer, final Session session) {
-        super(packetSerializer, session);
+    private SyncWsConnection(final WsConfigurator configurator, final Session session) {
+        super(configurator, session);
         remoteEndpoint = session.getBasicRemote();
     }
 

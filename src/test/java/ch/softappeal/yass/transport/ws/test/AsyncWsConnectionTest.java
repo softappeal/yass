@@ -9,8 +9,8 @@ import ch.softappeal.yass.serialize.JavaSerializer;
 import ch.softappeal.yass.transport.TransportSetup;
 import ch.softappeal.yass.transport.ws.AsyncWsConnection;
 import ch.softappeal.yass.transport.ws.SyncWsConnection;
-import ch.softappeal.yass.transport.ws.WsConnection;
-import ch.softappeal.yass.transport.ws.WsEndpoint;
+import ch.softappeal.yass.transport.ws.WsConfigurator;
+import ch.softappeal.yass.util.Exceptions;
 import ch.softappeal.yass.util.Nullable;
 import io.undertow.Undertow;
 import io.undertow.server.XnioByteBufferPool;
@@ -18,7 +18,6 @@ import io.undertow.servlet.Servlets;
 import io.undertow.servlet.api.DeploymentManager;
 import io.undertow.servlet.core.CompositeThreadSetupAction;
 import io.undertow.servlet.util.DefaultClassIntrospector;
-import io.undertow.websockets.jsr.DefaultContainerConfigurator;
 import io.undertow.websockets.jsr.ServerWebSocketContainer;
 import io.undertow.websockets.jsr.WebSocketDeploymentInfo;
 import org.eclipse.jetty.websocket.jsr356.ClientContainer;
@@ -28,6 +27,7 @@ import org.xnio.Options;
 import org.xnio.Xnio;
 
 import javax.websocket.ClientEndpointConfig;
+import javax.websocket.Endpoint;
 import javax.websocket.WebSocketContainer;
 import javax.websocket.server.ServerEndpointConfig;
 import java.net.URI;
@@ -45,52 +45,46 @@ public final class AsyncWsConnectionTest {
     private static final int PORT = 9090;
     private static final String PATH = "/test";
 
-    public static final class ServerEndpoint extends WsEndpoint {
-        @Override protected WsConnection createConnection(final javax.websocket.Session session) throws Exception {
-            return WsConnection.create(
-                SyncWsConnection.FACTORY,
-                TransportSetup.ofPacketSerializer(
-                    JavaSerializer.INSTANCE,
-                    connection -> new Session(connection) {
-                        @Override protected Server server() {
-                            return new Server(
-                                BUSY_ID.service(() -> {
-                                    System.out.println("busy");
-                                    try {
-                                        TimeUnit.MILLISECONDS.sleep(1_000);
-                                    } catch (InterruptedException e) {
-                                        throw new RuntimeException(e);
-                                    }
-                                })
-                            );
-                        }
-                        @Override protected void dispatchOpened(final Runnable runnable) {
-                            runnable.run();
-
-                        }
-                        @Override protected void dispatchServerInvoke(final Server.Invocation invocation, final Runnable runnable) {
-                            runnable.run();
-                        }
-                        @Override protected void opened() {
-                            System.out.println("acceptor opened");
-                        }
-                        @Override protected void closed(final @Nullable Exception exception) {
-                            System.out.println("acceptor closed: " + exception);
-                        }
+    private static ServerEndpointConfig serverEndpointConfig() {
+        return ServerEndpointConfig.Builder.create(Endpoint.class, PATH).configurator(new WsConfigurator(
+            SyncWsConnection.FACTORY,
+            TransportSetup.ofPacketSerializer(
+                JavaSerializer.INSTANCE,
+                connection -> new Session(connection) {
+                    @Override protected Server server() {
+                        return new Server(
+                            BUSY_ID.service(() -> {
+                                System.out.println("busy");
+                                try {
+                                    TimeUnit.MILLISECONDS.sleep(1_000);
+                                } catch (InterruptedException e) {
+                                    throw new RuntimeException(e);
+                                }
+                            })
+                        );
                     }
-                ),
-                session
-            );
-        }
+                    @Override protected void dispatchOpened(final Runnable runnable) {
+                        runnable.run();
+
+                    }
+                    @Override protected void dispatchServerInvoke(final Server.Invocation invocation, final Runnable runnable) {
+                        runnable.run();
+                    }
+                    @Override protected void opened() {
+                        System.out.println("acceptor opened");
+                    }
+                    @Override protected void closed(final @Nullable Exception exception) {
+                        System.out.println("acceptor closed: " + exception);
+                    }
+                }
+            ),
+            Exceptions.STD_ERR
+        )).build();
     }
 
-    private static ServerEndpointConfig serverEndpointConfig(final ServerEndpointConfig.Configurator configurator) {
-        return ServerEndpointConfig.Builder.create(ServerEndpoint.class, PATH).configurator(configurator).build();
-    }
-
-    public static final class ClientEndpoint extends WsEndpoint {
-        @Override protected WsConnection createConnection(final javax.websocket.Session session) throws Exception {
-            return WsConnection.create(
+    private static void client(final WebSocketContainer container) throws Exception {
+        container.connectToServer(
+            new WsConfigurator(
                 AsyncWsConnection.factory(5_000),
                 TransportSetup.ofPacketSerializer(
                     JavaSerializer.INSTANCE,
@@ -115,14 +109,8 @@ public final class AsyncWsConnectionTest {
                         }
                     }
                 ),
-                session
-            );
-        }
-    }
-
-    private static void client(final WebSocketContainer container) throws Exception {
-        container.connectToServer(
-            new ClientEndpoint(),
+                Exceptions.STD_ERR
+            ).getEndpointInstance(),
             ClientEndpointConfig.Builder.create().build(),
             URI.create("ws://" + HOST + ":" + PORT + PATH)
         );
@@ -138,7 +126,7 @@ public final class AsyncWsConnectionTest {
                     .addServletContextAttribute(
                         WebSocketDeploymentInfo.ATTRIBUTE_NAME,
                         new WebSocketDeploymentInfo()
-                            .addEndpoint(serverEndpointConfig(new DefaultContainerConfigurator()))
+                            .addEndpoint(serverEndpointConfig())
                             .setWorker(Xnio.getInstance().createWorker(OptionMap.builder().getMap()))
                             .setBuffers(new XnioByteBufferPool(new ByteBufferSlicePool(1024, 10240)))
                     )
