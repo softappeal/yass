@@ -56,16 +56,16 @@ public class WsConfigurator extends ServerEndpointConfig.Configurator {
     }
 
     @Override public String getNegotiatedSubprotocol(final List<String> supported, final List<String> requested) {
-        for (final String protocol : requested) {
-            if (supported.contains(protocol)) {
-                return protocol;
+        for (final String r : requested) {
+            if (supported.contains(r)) {
+                return r;
             }
         }
         return "";
     }
 
     @Override public List<Extension> getNegotiatedExtensions(final List<Extension> installed, final List<Extension> requested) {
-        final List<Extension> extensions = new ArrayList<>();
+        final List<Extension> extensions = new ArrayList<>(requested.size());
         for (final Extension r : requested) {
             for (final Extension i : installed) {
                 if (i.getName().equals(r.getName())) {
