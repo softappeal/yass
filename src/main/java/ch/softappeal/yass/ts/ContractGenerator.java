@@ -57,7 +57,7 @@ public final class ContractGenerator extends Generator {
             return tsBaseType;
         }
         checkType(type);
-        return type.getCanonicalName().substring(rootPackage.length());
+        return contractModuleName + type.getCanonicalName().substring(rootPackage.length());
     }
 
     @FunctionalInterface private interface TypeGenerator {
@@ -65,7 +65,8 @@ public final class ContractGenerator extends Generator {
     }
 
     private void generateType(final Class<?> type, final TypeGenerator typeGenerator) {
-        final String jsType = jsType(type);
+        checkType(type);
+        final String jsType = type.getCanonicalName().substring(rootPackage.length());
         final int dot = jsType.lastIndexOf('.');
         final String name = type.getSimpleName();
         if (dot < 0) {
@@ -122,7 +123,7 @@ public final class ContractGenerator extends Generator {
         } else if (type == void.class) {
             return "void";
         }
-        return contractModuleName + jsType((Class<?>)type);
+        return jsType((Class<?>)type);
     }
 
     private String typeDescOwner(final ClassTypeHandler.FieldDesc fieldDesc) {
@@ -140,7 +141,7 @@ public final class ContractGenerator extends Generator {
         } else if (typeHandler == null) {
             return "null";
         }
-        return contractModuleName + jsType(typeHandler.type) + ".TYPE_DESC";
+        return jsType(typeHandler.type) + ".TYPE_DESC";
     }
 
     private void generateClass(final Class<?> type) {
@@ -157,7 +158,7 @@ public final class ContractGenerator extends Generator {
         generateType(type, name -> {
             tabsln(
                 "export %sclass %s extends %s {",
-                (Modifier.isAbstract(type.getModifiers()) ? "abstract " : ""), name, (superClass == null) ? "yass.Type" : (contractModuleName + jsType(superClass))
+                (Modifier.isAbstract(type.getModifiers()) ? "abstract " : ""), name, (superClass == null) ? "yass.Type" : jsType(superClass)
             );
             inc();
             for (final Field field : Reflect.ownFields(type)) {
@@ -280,7 +281,7 @@ public final class ContractGenerator extends Generator {
         tabsln("export namespace %s {", role);
         inc();
         for (final ServiceDesc serviceDesc : getServiceDescs(services)) {
-            final String name = contractModuleName + jsType(serviceDesc.contractId.contract);
+            final String name = jsType(serviceDesc.contractId.contract);
             tabsln(
                 "export const %s: yass.ContractId<%s, %s_PROXY> = new yass.ContractId<%s, %s_PROXY>(%s, %s_MAPPER);",
                 serviceDesc.name, name, name, name, name, serviceDesc.contractId.id, name
@@ -351,7 +352,7 @@ public final class ContractGenerator extends Generator {
             }
             first = false;
             println();
-            tabs(this.contractModuleName + jsType(type));
+            tabs(jsType(type));
         }
         println();
         dec();
