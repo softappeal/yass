@@ -73,12 +73,18 @@ public abstract class SessionTest extends InvokeTest {
     public static final ContractId<TestService> CONTRACT_ID = ContractId.create(TestService.class, 0, TaggedMethodMapper.FACTORY);
 
     protected static SessionFactory sessionFactory(final Executor dispatchExecutor, final @Nullable CountDownLatch latch, final int samples) {
-        return connection -> new SimpleSession(connection, dispatchExecutor) {
+        return connection -> new Session(connection) {
             @Override protected Server server() {
                 return new Server(
                     CONTRACT_ID.service(new TestServiceImpl())
                 );
 
+            }
+            @Override protected void dispatchOpened(final Runnable runnable) {
+                dispatchExecutor.execute(runnable);
+            }
+            @Override protected void dispatchServerInvoke(final Server.Invocation invocation, final Runnable runnable) {
+                runnable.run();
             }
             @Override public void opened() {
                 if (latch == null) {
