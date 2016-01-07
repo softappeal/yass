@@ -1,5 +1,9 @@
-package ch.softappeal.yass.core.remote.session;
+package ch.softappeal.yass.core.remote.session.test;
 
+import ch.softappeal.yass.core.remote.session.Connection;
+import ch.softappeal.yass.core.remote.session.Packet;
+import ch.softappeal.yass.core.remote.session.Session;
+import ch.softappeal.yass.core.remote.session.SessionFactory;
 import ch.softappeal.yass.util.Exceptions;
 
 public final class LocalConnection implements Connection {
@@ -18,9 +22,6 @@ public final class LocalConnection implements Connection {
         session.close();
     }
 
-    /**
-     * Creates two connected local sessions.
-     */
     public static void connect(final SessionFactory sessionFactory1, final SessionFactory sessionFactory2) {
         final LocalConnection connection1 = new LocalConnection();
         final LocalConnection connection2 = new LocalConnection();
