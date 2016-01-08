@@ -14,7 +14,7 @@ public class TransportConnectionPerformanceTest extends TransportTest {
         final ExecutorService executor = Executors.newCachedThreadPool(new NamedThreadFactory("executor", Exceptions.TERMINATE));
         try {
             final CountDownLatch latch = new CountDownLatch(1);
-            TransportConnection.connect(transportSetup(executor, latch, 100), transportSetup(executor));
+            TransportConnection.connect(performanceTransportSetup(executor, latch, 100, 16), performanceTransportSetup(executor));
             latch.await();
         } finally {
             executor.shutdown();

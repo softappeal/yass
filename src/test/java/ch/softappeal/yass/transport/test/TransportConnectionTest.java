@@ -14,7 +14,7 @@ public class TransportConnectionTest extends TransportTest {
     @Test public void plain1() throws InterruptedException {
         final ExecutorService executor = Executors.newCachedThreadPool(new NamedThreadFactory("executor", Exceptions.TERMINATE));
         try {
-            TransportConnection.connect(transportSetup(true, false, executor), transportSetup(false, false, executor));
+            TransportConnection.connect(invokeTransportSetup(true, false, executor), invokeTransportSetup(false, false, executor));
             TimeUnit.MILLISECONDS.sleep(400L);
         } finally {
             executor.shutdown();
@@ -24,7 +24,7 @@ public class TransportConnectionTest extends TransportTest {
     @Test public void plain2() throws InterruptedException {
         final ExecutorService executor = Executors.newCachedThreadPool(new NamedThreadFactory("executor", Exceptions.TERMINATE));
         try {
-            TransportConnection.connect(transportSetup(false, false, executor), transportSetup(true, false, executor));
+            TransportConnection.connect(invokeTransportSetup(false, false, executor), invokeTransportSetup(true, false, executor));
             TimeUnit.MILLISECONDS.sleep(400L);
         } finally {
             executor.shutdown();
@@ -35,7 +35,7 @@ public class TransportConnectionTest extends TransportTest {
         final ExecutorService executor = Executors.newCachedThreadPool(new NamedThreadFactory("executor", Exceptions.TERMINATE));
         try {
             try {
-                TransportConnection.connect(transportSetup(false, false, executor), transportSetup(false, true, executor));
+                TransportConnection.connect(invokeTransportSetup(false, false, executor), invokeTransportSetup(false, true, executor));
                 Assert.fail();
             } catch (final RuntimeException e) {
                 Assert.assertEquals(e.getMessage(), "java.lang.Exception: create failed");

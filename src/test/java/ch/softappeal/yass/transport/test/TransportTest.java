@@ -8,6 +8,7 @@ import ch.softappeal.yass.serialize.fast.SimpleFastSerializer;
 import ch.softappeal.yass.transport.TransportSetup;
 import ch.softappeal.yass.util.Nullable;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executor;
@@ -16,30 +17,30 @@ public abstract class TransportTest extends SessionTest {
 
     private static final Serializer CONTRACT_SERIALIZER = new SimpleFastSerializer(
         FastReflector.FACTORY,
-        Collections.singletonList(BaseTypeHandlers.INTEGER),
+        Arrays.asList(BaseTypeHandlers.INTEGER, BaseTypeHandlers.BYTE_ARRAY),
         Collections.emptyList(),
         Collections.singletonList(DivisionByZeroException.class),
         Collections.emptyList()
     );
 
-    protected static TransportSetup transportSetup(final boolean invoke, final boolean createException, final Executor dispatchExecutor) {
+    protected static TransportSetup invokeTransportSetup(final boolean invoke, final boolean createException, final Executor dispatchExecutor) {
         return TransportSetup.ofContractSerializer(
             CONTRACT_SERIALIZER,
-            sessionFactory(invoke, createException, dispatchExecutor)
+            invokeSessionFactory(invoke, createException, dispatchExecutor)
         );
     }
 
-    protected static TransportSetup transportSetup(final Executor dispatchExecutor, final @Nullable CountDownLatch latch, final int samples) {
+    protected static TransportSetup performanceTransportSetup(final Executor dispatchExecutor, final @Nullable CountDownLatch latch, final int samples, final int bytes) {
         return TransportSetup.ofContractSerializer(
             CONTRACT_SERIALIZER,
-            sessionFactory(dispatchExecutor, latch, samples)
+            performanceSessionFactory(dispatchExecutor, latch, samples, bytes)
         );
     }
 
-    protected static TransportSetup transportSetup(final Executor dispatchExecutor) {
+    protected static TransportSetup performanceTransportSetup(final Executor dispatchExecutor) {
         return TransportSetup.ofContractSerializer(
             CONTRACT_SERIALIZER,
-            sessionFactory(dispatchExecutor, null, 0)
+            performanceSessionFactory(dispatchExecutor)
         );
     }
 

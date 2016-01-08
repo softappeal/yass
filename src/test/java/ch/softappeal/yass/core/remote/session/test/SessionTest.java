@@ -3,7 +3,7 @@ package ch.softappeal.yass.core.remote.session.test;
 import ch.softappeal.yass.core.Interceptor;
 import ch.softappeal.yass.core.remote.ContractId;
 import ch.softappeal.yass.core.remote.Server;
-import ch.softappeal.yass.core.remote.TaggedMethodMapper;
+import ch.softappeal.yass.core.remote.SimpleMethodMapper;
 import ch.softappeal.yass.core.remote.session.Session;
 import ch.softappeal.yass.core.remote.session.SessionClosedException;
 import ch.softappeal.yass.core.remote.session.SessionFactory;
@@ -20,7 +20,7 @@ import java.util.concurrent.TimeUnit;
 
 public abstract class SessionTest extends InvokeTest {
 
-    protected static SessionFactory sessionFactory(final boolean invoke, final boolean createException, final Executor dispatchExecutor) {
+    protected static SessionFactory invokeSessionFactory(final boolean invoke, final boolean createException, final Executor dispatchExecutor) {
         return connection -> new SimpleSession(connection, dispatchExecutor) {
             {
                 if (createException) {
@@ -70,13 +70,23 @@ public abstract class SessionTest extends InvokeTest {
         };
     }
 
-    public static final ContractId<TestService> CONTRACT_ID = ContractId.create(TestService.class, 0, TaggedMethodMapper.FACTORY);
+    public interface EchoService {
+        byte[] echo(byte[] value);
+    }
 
-    protected static SessionFactory sessionFactory(final Executor dispatchExecutor, final @Nullable CountDownLatch latch, final int samples) {
+    private static final class EchoServiceImpl implements EchoService {
+        @Override public byte[] echo(final byte[] value) {
+            return value;
+        }
+    }
+
+    private static final ContractId<EchoService> ECHO_ID = ContractId.create(EchoService.class, 0, SimpleMethodMapper.FACTORY);
+
+    protected static SessionFactory performanceSessionFactory(final Executor dispatchExecutor, final @Nullable CountDownLatch latch, final int samples, final int bytes) {
         return connection -> new Session(connection) {
             @Override protected Server server() {
                 return new Server(
-                    CONTRACT_ID.service(new TestServiceImpl())
+                    ECHO_ID.service(new EchoServiceImpl())
                 );
 
             }
@@ -91,22 +101,15 @@ public abstract class SessionTest extends InvokeTest {
                     return;
                 }
                 try (Session session = this) {
-                    final TestService testService = session.proxy(CONTRACT_ID);
-                    System.out.println("*** rpc");
-                    new PerformanceTask() {
-                        @Override protected void run(final int count) throws DivisionByZeroException {
-                            int counter = count;
-                            while (counter-- > 0) {
-                                Assert.assertTrue(testService.divide(12, 4) == 3);
-                            }
-                        }
-                    }.run(samples, TimeUnit.MICROSECONDS);
-                    System.out.println("*** oneWay");
+                    final EchoService echoService = session.proxy(ECHO_ID);
+                    final byte[] value = new byte[bytes];
                     new PerformanceTask() {
                         @Override protected void run(final int count) {
                             int counter = count;
                             while (counter-- > 0) {
-                                testService.oneWay(-1);
+                                if (echoService.echo(value).length != bytes) {
+                                    throw new RuntimeException();
+                                }
                             }
                         }
                     }.run(samples, TimeUnit.MICROSECONDS);
@@ -116,8 +119,8 @@ public abstract class SessionTest extends InvokeTest {
         };
     }
 
-    protected static SessionFactory sessionFactory(final Executor dispatchExecutor) {
-        return sessionFactory(dispatchExecutor, null, 0);
+    protected static SessionFactory performanceSessionFactory(final Executor dispatchExecutor) {
+        return performanceSessionFactory(dispatchExecutor, null, 0, 0);
     }
 
 }

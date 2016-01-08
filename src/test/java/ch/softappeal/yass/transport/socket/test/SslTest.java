@@ -1,6 +1,8 @@
 package ch.softappeal.yass.transport.socket.test;
 
+import ch.softappeal.yass.core.remote.ContractId;
 import ch.softappeal.yass.core.remote.Server;
+import ch.softappeal.yass.core.remote.TaggedMethodMapper;
 import ch.softappeal.yass.core.remote.session.Connection;
 import ch.softappeal.yass.core.remote.session.SimpleSession;
 import ch.softappeal.yass.core.test.InvokeTest;
@@ -10,7 +12,6 @@ import ch.softappeal.yass.transport.socket.SocketConnection;
 import ch.softappeal.yass.transport.socket.SocketTransport;
 import ch.softappeal.yass.transport.socket.SslSetup;
 import ch.softappeal.yass.transport.socket.SyncSocketConnection;
-import ch.softappeal.yass.transport.test.TransportTest;
 import ch.softappeal.yass.util.ClassLoaderResource;
 import ch.softappeal.yass.util.Exceptions;
 import ch.softappeal.yass.util.NamedThreadFactory;
@@ -26,6 +27,8 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 public class SslTest extends InvokeTest {
+
+    private static final ContractId<TestService> CONTRACT_ID = ContractId.create(TestService.class, 0, TaggedMethodMapper.FACTORY);
 
     private static void checkName(final Connection connection) throws Exception {
         Assert.assertEquals("CN=Test", ((SSLSocket)((SocketConnection)connection).socket).getSession().getPeerPrincipal().getName());
@@ -45,7 +48,7 @@ public class SslTest extends InvokeTest {
                         return new SimpleSession(connection, executor) {
                             @Override protected Server server() {
                                 return new Server(
-                                    TransportTest.CONTRACT_ID.service(new TestServiceImpl())
+                                    CONTRACT_ID.service(new TestServiceImpl())
                                 );
                             }
                         };
@@ -62,7 +65,7 @@ public class SslTest extends InvokeTest {
                         checkName(connection);
                         return new SimpleSession(connection, executor) {
                             @Override protected void opened() throws Exception {
-                                final TestService testService = proxy(TransportTest.CONTRACT_ID);
+                                final TestService testService = proxy(CONTRACT_ID);
                                 Assert.assertTrue(testService.divide(12, 4) == 3);
                                 System.out.println("ok");
                                 close();

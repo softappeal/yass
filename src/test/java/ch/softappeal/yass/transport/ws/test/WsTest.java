@@ -50,13 +50,13 @@ public abstract class WsTest extends TransportTest {
     }
 
     protected static void setTransportSetup(final boolean serverInvoke, final boolean serverCreateException, final boolean clientInvoke, final boolean clientCreateException) {
-        TRANSPORT_SETUP_ACCEPTOR = transportSetup(serverInvoke, serverCreateException, ACCEPTOR_EXECUTOR);
-        TRANSPORT_SETUP_INITIATOR = transportSetup(clientInvoke, clientCreateException, INITIATOR_EXECUTOR);
+        TRANSPORT_SETUP_ACCEPTOR = invokeTransportSetup(serverInvoke, serverCreateException, ACCEPTOR_EXECUTOR);
+        TRANSPORT_SETUP_INITIATOR = invokeTransportSetup(clientInvoke, clientCreateException, INITIATOR_EXECUTOR);
     }
 
     protected static void setPerformanceSetup(final CountDownLatch latch) {
-        TRANSPORT_SETUP_ACCEPTOR = transportSetup(ACCEPTOR_EXECUTOR);
-        TRANSPORT_SETUP_INITIATOR = transportSetup(INITIATOR_EXECUTOR, latch, 100);
+        TRANSPORT_SETUP_ACCEPTOR = performanceTransportSetup(ACCEPTOR_EXECUTOR);
+        TRANSPORT_SETUP_INITIATOR = performanceTransportSetup(INITIATOR_EXECUTOR, latch, 100, 16);
     }
 
     protected static void connect(final WebSocketContainer container, final CountDownLatch latch) throws Exception {

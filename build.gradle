@@ -128,15 +128,16 @@ task collectJars(type: Copy) {
 }
 
 task dist << {
-    ant.copy(todir: "build/acceptor") {
+    ant.copy(todir: "build/dist") {
         fileset(dir: "docker")
         fileset(dir: ".", includes: "src/*/ts/")
     }
-    ant.copy(todir: "build/acceptor/libs") {
+    ant.copy(todir: "build/dist/libs") {
         fileset(dir: "build/allJars", includes: "*.jar")
     }
-    ant.jar(destfile: "build/acceptor/libs/yass.jar", basedir: "build/classes/main")
-    ant.jar(destfile: "build/acceptor/libs/tutorial.jar", basedir: "build/classes/tutorial")
+    ant.jar(destfile: "build/dist/libs/yass.jar", basedir: "build/classes/main")
+    ant.jar(destfile: "build/dist/libs/tutorial.jar", basedir: "build/classes/tutorial")
+    ant.jar(destfile: "build/dist/libs/test.jar", basedir: "build/classes/test")
     if (project.hasProperty('signing.password')) {
         def signPrefix = "build/libs/${project.name}-${version}"
         signing.sign(file("${signPrefix}.pom"))

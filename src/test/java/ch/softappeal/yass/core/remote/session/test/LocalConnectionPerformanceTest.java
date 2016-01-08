@@ -14,7 +14,7 @@ public class LocalConnectionPerformanceTest extends SessionTest {
         final ExecutorService executor = Executors.newCachedThreadPool(new NamedThreadFactory("executor", Exceptions.TERMINATE));
         try {
             final CountDownLatch latch = new CountDownLatch(1);
-            LocalConnection.connect(sessionFactory(executor, latch, 100), sessionFactory(executor));
+            LocalConnection.connect(performanceSessionFactory(executor, latch, 100, 16), performanceSessionFactory(executor));
             latch.await();
         } finally {
             executor.shutdown();
