@@ -83,7 +83,7 @@ public final class SslSetup {
                 socket.setEnabledProtocols(protocols);
                 socket.setEnabledCipherSuites(cipherSuites);
             } catch (final Exception e) {
-                SocketTransport.close(socket, e);
+                AbstractSocketTransport.close(socket, e);
                 throw e;
             }
             return socket;
@@ -98,7 +98,7 @@ public final class SslSetup {
                 serverSocket.setEnabledProtocols(protocols);
                 serverSocket.setEnabledCipherSuites(cipherSuites);
             } catch (final Exception e) {
-                SocketTransport.close(serverSocket, e);
+                AbstractSocketTransport.close(serverSocket, e);
                 throw e;
             }
             return serverSocket;

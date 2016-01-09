@@ -15,7 +15,7 @@ import java.util.concurrent.Executor;
 
 public abstract class TransportTest extends SessionTest {
 
-    private static final Serializer CONTRACT_SERIALIZER = new SimpleFastSerializer(
+    protected static final Serializer CONTRACT_SERIALIZER = new SimpleFastSerializer(
         FastReflector.FACTORY,
         Arrays.asList(BaseTypeHandlers.INTEGER, BaseTypeHandlers.BYTE_ARRAY),
         Collections.emptyList(),
