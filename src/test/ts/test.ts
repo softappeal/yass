@@ -131,13 +131,18 @@ namespace ioTest {
 
 namespace enumTest {
 
-    const ask = contract.PriceKind.ASK;
+    import PriceKind = contract.PriceKind;
+
+    const ask = PriceKind.ASK;
     log(ask);
     assert(ask.number === 1);
     assert(ask.name === "ASK");
-    assert(ask === contract.PriceKind.ASK);
-    assert(ask !== contract.PriceKind.BID);
+    assert(ask === PriceKind.ASK);
+    assert(ask !== PriceKind.BID);
     log(">" + ask + "<");
+    assert(PriceKind.VALUES.length == 2);
+    assert(PriceKind.VALUES[PriceKind.BID.number] === PriceKind.BID);
+    assert(PriceKind.VALUES[PriceKind.ASK.number] === PriceKind.ASK);
 
 }
 
