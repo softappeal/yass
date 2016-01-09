@@ -15,11 +15,12 @@ import java.util.concurrent.Executors;
 
 public class SocketPerformanceTest extends TransportTest {
 
-    @Test public void test() throws InterruptedException {
-        main(SocketHelper.HOSTNAME, String.valueOf(SocketHelper.PORT), "100", "16");
+    @Test public void test() throws Exception {
+        main(SocketTransportTest.HOSTNAME, String.valueOf(SocketTransportTest.PORT), "100", "16");
     }
 
-    public static void main(final String... args) throws InterruptedException {
+    @SuppressWarnings("try")
+    public static void main(final String... args) throws Exception {
         if (args.length != 4) {
             throw new RuntimeException("usage: hostname port samples bytes");
         }
@@ -29,14 +30,12 @@ public class SocketPerformanceTest extends TransportTest {
         final int bytes = Integer.valueOf(args[3]);
         final SocketAddress address = new InetSocketAddress(hostname, port);
         final ExecutorService executor = Executors.newCachedThreadPool(new NamedThreadFactory("executor", Exceptions.TERMINATE));
-        SocketTransport.ListenerCloser listenerCloser = null;
-        try {
-            listenerCloser = new SocketTransport(executor, SyncSocketConnection.FACTORY).start(performanceTransportSetup(executor), executor, address);
+        try (AutoCloseable closer = new SocketTransport(executor, SyncSocketConnection.FACTORY).start(performanceTransportSetup(executor), executor, address)) {
             final CountDownLatch latch = new CountDownLatch(1);
             new SocketTransport(executor, SyncSocketConnection.FACTORY).connect(performanceTransportSetup(executor, latch, samples, bytes), address);
             latch.await();
         } finally {
-            SocketHelper.shutdown(listenerCloser, executor);
+            executor.shutdown();
         }
     }
 

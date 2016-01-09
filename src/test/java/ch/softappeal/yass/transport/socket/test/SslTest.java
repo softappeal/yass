@@ -34,11 +34,11 @@ public class SslTest extends InvokeTest {
         Assert.assertEquals("CN=Test", ((SSLSocket)((SocketConnection)connection).socket).getSession().getPeerPrincipal().getName());
     }
 
+    @SuppressWarnings("try")
     private static void test(final ServerSocketFactory serverSocketFactory, final SocketFactory socketFactory, final boolean needClientAuth) throws Exception {
         final ExecutorService executor = Executors.newCachedThreadPool(new NamedThreadFactory("executor", Exceptions.STD_ERR));
-        SocketTransport.ListenerCloser listenerCloser = null;
-        try {
-            listenerCloser = new SocketTransport(executor, SyncSocketConnection.FACTORY).start(
+        try (
+            AutoCloseable closer = new SocketTransport(executor, SyncSocketConnection.FACTORY).start(
                 TransportSetup.ofPacketSerializer(
                     JavaSerializer.INSTANCE,
                     connection -> {
@@ -56,8 +56,9 @@ public class SslTest extends InvokeTest {
                 ),
                 executor,
                 serverSocketFactory,
-                SocketHelper.ADDRESS
-            );
+                SocketTransportTest.ADDRESS
+            )
+        ) {
             new SocketTransport(executor, SyncSocketConnection.FACTORY).connect(
                 TransportSetup.ofPacketSerializer(
                     JavaSerializer.INSTANCE,
@@ -73,11 +74,11 @@ public class SslTest extends InvokeTest {
                         };
                     }
                 ),
-                socketFactory, SocketHelper.ADDRESS
+                socketFactory, SocketTransportTest.ADDRESS
             );
             TimeUnit.MILLISECONDS.sleep(200);
         } finally {
-            SocketHelper.shutdown(listenerCloser, executor);
+            executor.shutdown();
         }
     }
 
