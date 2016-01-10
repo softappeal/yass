@@ -9,6 +9,8 @@ import ch.softappeal.yass.serialize.Reader;
 import ch.softappeal.yass.serialize.Serializer;
 import ch.softappeal.yass.serialize.Writer;
 import ch.softappeal.yass.util.Check;
+import ch.softappeal.yass.util.Closer;
+import ch.softappeal.yass.util.Nullable;
 
 import javax.net.ServerSocketFactory;
 import javax.net.SocketFactory;
@@ -18,6 +20,9 @@ import java.net.Socket;
 import java.net.SocketAddress;
 import java.util.concurrent.Executor;
 
+/**
+ * Each request gets its own socket.
+ */
 public final class SimpleSocketTransport extends AbstractSocketTransport {
 
     /**
@@ -29,23 +34,30 @@ public final class SimpleSocketTransport extends AbstractSocketTransport {
 
     /**
      * @param listenerExecutor used once
+     * @return closer for socket listener
      */
     @SuppressWarnings("try")
-    public ListenerCloser start(final Server server, final Serializer messageSerializer, final Executor listenerExecutor, final ServerSocketFactory socketFactory, final SocketAddress socketAddress) {
+    public Closer start(final Server server, final Serializer messageSerializer, final Executor listenerExecutor, final ServerSocketFactory socketFactory, final SocketAddress socketAddress) {
         Check.notNull(server);
         Check.notNull(messageSerializer);
         return start(listenerExecutor, socketFactory, socketAddress, socket -> {
             try (Socket closer = socket) {
-                final Server.Invocation invocation = server.invocation((Request)messageSerializer.read(Reader.create(socket.getInputStream())));
-                final Reply reply = invocation.invoke();
-                if (!invocation.methodMapping.oneWay) {
-                    write(reply, socket, messageSerializer);
+                final @Nullable Socket oldSocket = SOCKET.get();
+                SOCKET.set(socket);
+                try {
+                    final Server.Invocation invocation = server.invocation((Request)messageSerializer.read(Reader.create(socket.getInputStream())));
+                    final Reply reply = invocation.invoke();
+                    if (!invocation.methodMapping.oneWay) {
+                        write(reply, socket, messageSerializer);
+                    }
+                } finally {
+                    SOCKET.set(oldSocket);
                 }
             }
         });
     }
 
-    public ListenerCloser start(final Server server, final Serializer messageSerializer, final Executor listenerExecutor, final SocketAddress socketAddress) {
+    public Closer start(final Server server, final Serializer messageSerializer, final Executor listenerExecutor, final SocketAddress socketAddress) {
         return start(server, messageSerializer, listenerExecutor, ServerSocketFactory.getDefault(), socketAddress);
     }
 
@@ -66,19 +78,33 @@ public final class SimpleSocketTransport extends AbstractSocketTransport {
         Check.notNull(socketAddress);
         return new Client() {
             @Override public Object invoke(final Client.Invocation invocation) throws Exception {
-                return invocation.invoke(request -> {
-                    try (Socket socket = connect(socketFactory, socketAddress)) {
-                        setForceImmediateSend(socket);
-                        write(request, socket, messageSerializer);
-                        return invocation.methodMapping.oneWay ? null : (Reply)messageSerializer.read(Reader.create(socket.getInputStream()));
+                try (Socket socket = connect(socketFactory, socketAddress)) {
+                    final @Nullable Socket oldSocket = SOCKET.get();
+                    SOCKET.set(socket);
+                    try {
+                        return invocation.invoke(request -> {
+                            setForceImmediateSend(socket);
+                            write(request, socket, messageSerializer);
+                            return invocation.methodMapping.oneWay ? null : (Reply)messageSerializer.read(Reader.create(socket.getInputStream()));
+                        });
+                    } finally {
+                        SOCKET.set(oldSocket);
                     }
-                });
+                }
             }
         };
     }
 
     public static Client client(final Serializer messageSerializer, final SocketAddress socketAddress) {
         return client(messageSerializer, SocketFactory.getDefault(), socketAddress);
+    }
+
+    private static final ThreadLocal<Socket> SOCKET = new ThreadLocal<>();
+    /**
+     * @return socket of current request (if any)
+     */
+    public static @Nullable Socket socket() {
+        return SOCKET.get();
     }
 
 }

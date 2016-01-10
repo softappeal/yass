@@ -1,18 +1,12 @@
 package ch.softappeal.yass.transport.socket.test;
 
-import ch.softappeal.yass.core.remote.ContractId;
 import ch.softappeal.yass.core.remote.Server;
-import ch.softappeal.yass.core.remote.TaggedMethodMapper;
-import ch.softappeal.yass.core.remote.session.Connection;
-import ch.softappeal.yass.core.remote.session.SimpleSession;
-import ch.softappeal.yass.core.test.InvokeTest;
-import ch.softappeal.yass.serialize.JavaSerializer;
-import ch.softappeal.yass.transport.TransportSetup;
-import ch.softappeal.yass.transport.socket.SocketConnection;
-import ch.softappeal.yass.transport.socket.SocketTransport;
+import ch.softappeal.yass.core.remote.test.ContractIdTest;
+import ch.softappeal.yass.transport.socket.SimpleSocketTransport;
 import ch.softappeal.yass.transport.socket.SslSetup;
-import ch.softappeal.yass.transport.socket.SyncSocketConnection;
+import ch.softappeal.yass.transport.test.TransportTest;
 import ch.softappeal.yass.util.ClassLoaderResource;
+import ch.softappeal.yass.util.Closer;
 import ch.softappeal.yass.util.Exceptions;
 import ch.softappeal.yass.util.NamedThreadFactory;
 import org.junit.Assert;
@@ -26,58 +20,49 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
-public class SslTest extends InvokeTest {
+public class SslTest extends TransportTest {
 
-    private static final ContractId<TestService> CONTRACT_ID = ContractId.create(TestService.class, 0, TaggedMethodMapper.FACTORY);
-
-    private static void checkName(final Connection connection) throws Exception {
-        Assert.assertEquals("CN=Test", ((SSLSocket)((SocketConnection)connection).socket).getSession().getPeerPrincipal().getName());
+    private static void checkName() throws Exception {
+        System.out.println("checkName");
+        Assert.assertEquals("CN=Test", ((SSLSocket)SimpleSocketTransport.socket()).getSession().getPeerPrincipal().getName());
     }
 
     @SuppressWarnings("try")
     private static void test(final ServerSocketFactory serverSocketFactory, final SocketFactory socketFactory, final boolean needClientAuth) throws Exception {
         final ExecutorService executor = Executors.newCachedThreadPool(new NamedThreadFactory("executor", Exceptions.STD_ERR));
         try (
-            AutoCloseable closer = new SocketTransport(executor, SyncSocketConnection.FACTORY).start(
-                TransportSetup.ofPacketSerializer(
-                    JavaSerializer.INSTANCE,
-                    connection -> {
-                        if (needClientAuth) {
-                            checkName(connection);
-                        }
-                        return new SimpleSession(connection, executor) {
-                            @Override protected Server server() {
-                                return new Server(
-                                    CONTRACT_ID.service(new TestServiceImpl())
-                                );
+            Closer closer = new SimpleSocketTransport(executor).start(
+                new Server(
+                    ContractIdTest.ID.service(
+                        new TestServiceImpl(),
+                        (method, arguments, invocation) -> {
+                            if (needClientAuth) {
+                                checkName();
                             }
-                        };
-                    }
+                            return invocation.proceed();
+                        }
+                    )
                 ),
+                MESSAGE_SERIALIZER,
                 executor,
                 serverSocketFactory,
                 SocketTransportTest.ADDRESS
             )
         ) {
-            new SocketTransport(executor, SyncSocketConnection.FACTORY).connect(
-                TransportSetup.ofPacketSerializer(
-                    JavaSerializer.INSTANCE,
-                    connection -> {
-                        checkName(connection);
-                        return new SimpleSession(connection, executor) {
-                            @Override protected void opened() throws Exception {
-                                final TestService testService = proxy(CONTRACT_ID);
-                                Assert.assertTrue(testService.divide(12, 4) == 3);
-                                System.out.println("ok");
-                                close();
-                            }
-                        };
-                    }
-                ),
-                socketFactory, SocketTransportTest.ADDRESS
+            Assert.assertTrue(
+                SimpleSocketTransport.client(MESSAGE_SERIALIZER, socketFactory, SocketTransportTest.ADDRESS)
+                    .proxy(
+                        ContractIdTest.ID,
+                        (method, arguments, invocation) -> {
+                            checkName();
+                            return invocation.proceed();
+                        }
+                    )
+                    .divide(12, 4) == 3
             );
-            TimeUnit.MILLISECONDS.sleep(200);
+            System.out.println("ok");
         } finally {
+            TimeUnit.MILLISECONDS.sleep(200);
             executor.shutdown();
         }
     }
@@ -119,19 +104,29 @@ public class SslTest extends InvokeTest {
     }
 
     @Test public void wrongServerCA() throws Exception {
-        test(
-            new SslSetup(PROTOCOL, CIPHER, TEST, PASSWORD, OTHER_CA).serverSocketFactory,
-            new SslSetup(PROTOCOL, CIPHER, TEST, PASSWORD, TEST_CA).socketFactory,
-            true
-        );
+        try {
+            test(
+                new SslSetup(PROTOCOL, CIPHER, TEST, PASSWORD, OTHER_CA).serverSocketFactory,
+                new SslSetup(PROTOCOL, CIPHER, TEST, PASSWORD, TEST_CA).socketFactory,
+                true
+            );
+            Assert.fail();
+        } catch (final Exception e) {
+            e.printStackTrace();
+        }
     }
 
     @Test public void expiredServerCertificate() throws Exception {
-        test(
-            new SslSetup(PROTOCOL, CIPHER, TEST, PASSWORD, TEST_CA).serverSocketFactory,
-            new SslSetup(PROTOCOL, CIPHER, TEST_EXPIRED, PASSWORD, TEST_CA).socketFactory,
-            true
-        );
+        try {
+            test(
+                new SslSetup(PROTOCOL, CIPHER, TEST, PASSWORD, TEST_CA).serverSocketFactory,
+                new SslSetup(PROTOCOL, CIPHER, TEST_EXPIRED, PASSWORD, TEST_CA).socketFactory,
+                true
+            );
+            Assert.fail();
+        } catch (final Exception e) {
+            e.printStackTrace();
+        }
     }
 
 }

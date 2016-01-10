@@ -7,6 +7,7 @@ import ch.softappeal.yass.transport.PathResolver;
 import ch.softappeal.yass.transport.PathSerializer;
 import ch.softappeal.yass.transport.TransportSetup;
 import ch.softappeal.yass.util.Check;
+import ch.softappeal.yass.util.Closer;
 
 import javax.net.ServerSocketFactory;
 import javax.net.SocketFactory;
@@ -15,6 +16,9 @@ import java.io.OutputStream;
 import java.net.SocketAddress;
 import java.util.concurrent.Executor;
 
+/**
+ * Each session gets its own socket.
+ */
 public final class SocketTransport extends AbstractSocketTransport {
 
     private final SocketConnection.Factory connectionFactory;
@@ -40,7 +44,7 @@ public final class SocketTransport extends AbstractSocketTransport {
         Check.notNull(setup);
         Check.notNull(path);
         try {
-            runInReaderExecutor(connect(socketFactory, socketAddress), socket -> {
+            runInAcceptExecutor(connect(socketFactory, socketAddress), socket -> {
                 final OutputStream out = socket.getOutputStream();
                 pathSerializer.write(path, Writer.create(out));
                 out.flush();
@@ -67,8 +71,9 @@ public final class SocketTransport extends AbstractSocketTransport {
 
     /**
      * @param listenerExecutor used once
+     * @return closer for socket listener
      */
-    public ListenerCloser start(final PathResolver pathResolver, final Executor listenerExecutor, final ServerSocketFactory socketFactory, final SocketAddress socketAddress) {
+    public Closer start(final PathResolver pathResolver, final Executor listenerExecutor, final ServerSocketFactory socketFactory, final SocketAddress socketAddress) {
         Check.notNull(pathResolver);
         return start(listenerExecutor, socketFactory, socketAddress, socket -> {
             final Reader reader = Reader.create(socket.getInputStream());
@@ -80,14 +85,14 @@ public final class SocketTransport extends AbstractSocketTransport {
     /**
      * Uses {@link PathSerializer#DEFAULT}.
      */
-    public ListenerCloser start(final TransportSetup setup, final Executor listenerExecutor, final ServerSocketFactory socketFactory, final SocketAddress socketAddress) {
+    public Closer start(final TransportSetup setup, final Executor listenerExecutor, final ServerSocketFactory socketFactory, final SocketAddress socketAddress) {
         return start(new PathResolver(PathSerializer.DEFAULT, setup), listenerExecutor, socketFactory, socketAddress);
     }
 
     /**
      * Uses {@link ServerSocketFactory#getDefault()} and {@link PathSerializer#DEFAULT}.
      */
-    public ListenerCloser start(final TransportSetup setup, final Executor listenerExecutor, final SocketAddress socketAddress) {
+    public Closer start(final TransportSetup setup, final Executor listenerExecutor, final SocketAddress socketAddress) {
         return start(setup, listenerExecutor, ServerSocketFactory.getDefault(), socketAddress);
     }
 

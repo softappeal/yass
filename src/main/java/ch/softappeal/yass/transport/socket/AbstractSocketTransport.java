@@ -1,6 +1,7 @@
 package ch.softappeal.yass.transport.socket;
 
 import ch.softappeal.yass.util.Check;
+import ch.softappeal.yass.util.Closer;
 import ch.softappeal.yass.util.Exceptions;
 
 import javax.net.ServerSocketFactory;
@@ -12,21 +13,24 @@ import java.net.SocketAddress;
 import java.net.SocketException;
 import java.util.concurrent.Executor;
 
-public abstract class AbstractSocketTransport {
+abstract class AbstractSocketTransport {
 
-    private final Executor readerExecutor;
+    private final Executor acceptExecutor;
 
-    AbstractSocketTransport(final Executor readerExecutor) {
-        this.readerExecutor = Check.notNull(readerExecutor);
+    /**
+     * @param acceptExecutor used once for each accept
+     */
+    AbstractSocketTransport(final Executor acceptExecutor) {
+        this.acceptExecutor = Check.notNull(acceptExecutor);
     }
 
     @FunctionalInterface interface SocketAction {
         void action(Socket socket) throws Exception;
     }
 
-    final void runInReaderExecutor(final Socket socket, final SocketAction socketAction) {
+    final void runInAcceptExecutor(final Socket socket, final SocketAction socketAction) {
         try {
-            readerExecutor.execute(() -> {
+            acceptExecutor.execute(() -> {
                 try {
                     setForceImmediateSend(socket);
                     socketAction.action(socket);
@@ -41,27 +45,11 @@ public abstract class AbstractSocketTransport {
         }
     }
 
-    public static final class ListenerCloser implements AutoCloseable {
-        private final ServerSocket serverSocket;
-        ListenerCloser(final ServerSocket serverSocket) {
-            this.serverSocket = serverSocket;
-        }
-        /**
-         * This method is idempotent.
-         */
-        @Override public void close() {
-            try {
-                serverSocket.close();
-            } catch (final IOException e) {
-                throw new RuntimeException(e);
-            }
-        }
-    }
-
     /**
      * @param listenerExecutor used once
+     * @return closer for socket listener
      */
-    final ListenerCloser start(final Executor listenerExecutor, final ServerSocketFactory socketFactory, final SocketAddress socketAddress, final SocketAction socketAction) {
+    final Closer start(final Executor listenerExecutor, final ServerSocketFactory socketFactory, final SocketAddress socketAddress, final SocketAction socketAction) {
         Check.notNull(socketAction);
         try {
             final ServerSocket serverSocket = socketFactory.createServerSocket();
@@ -70,7 +58,7 @@ public abstract class AbstractSocketTransport {
                 listenerExecutor.execute(() -> {
                     try {
                         while (true) {
-                            runInReaderExecutor(serverSocket.accept(), socketAction);
+                            runInAcceptExecutor(serverSocket.accept(), socketAction);
                         }
                     } catch (final Exception e) {
                         if (serverSocket.isClosed()) {
@@ -84,7 +72,13 @@ public abstract class AbstractSocketTransport {
                 close(serverSocket, e);
                 throw e;
             }
-            return new ListenerCloser(serverSocket);
+            return () -> {
+                try {
+                    serverSocket.close();
+                } catch (final IOException e) {
+                    throw new RuntimeException(e);
+                }
+            };
         } catch (final IOException e) {
             throw new RuntimeException(e);
         }

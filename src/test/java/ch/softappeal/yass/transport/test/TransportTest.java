@@ -5,6 +5,7 @@ import ch.softappeal.yass.serialize.FastReflector;
 import ch.softappeal.yass.serialize.Serializer;
 import ch.softappeal.yass.serialize.fast.BaseTypeHandlers;
 import ch.softappeal.yass.serialize.fast.SimpleFastSerializer;
+import ch.softappeal.yass.transport.MessageSerializer;
 import ch.softappeal.yass.transport.TransportSetup;
 import ch.softappeal.yass.util.Nullable;
 
@@ -15,13 +16,15 @@ import java.util.concurrent.Executor;
 
 public abstract class TransportTest extends SessionTest {
 
-    protected static final Serializer CONTRACT_SERIALIZER = new SimpleFastSerializer(
+    private static final Serializer CONTRACT_SERIALIZER = new SimpleFastSerializer(
         FastReflector.FACTORY,
         Arrays.asList(BaseTypeHandlers.INTEGER, BaseTypeHandlers.BYTE_ARRAY),
         Collections.emptyList(),
         Collections.singletonList(DivisionByZeroException.class),
         Collections.emptyList()
     );
+
+    protected static final Serializer MESSAGE_SERIALIZER = new MessageSerializer(CONTRACT_SERIALIZER);
 
     protected static TransportSetup invokeTransportSetup(final boolean invoke, final boolean createException, final Executor dispatchExecutor) {
         return TransportSetup.ofContractSerializer(
