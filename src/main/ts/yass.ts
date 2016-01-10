@@ -160,6 +160,7 @@ namespace yass {
         toString(): string {
             return this.name;
         }
+        static VALUES: Enum[];
     }
 
     export interface TypeHandler<T> {
@@ -392,6 +393,7 @@ namespace yass {
                 values[value.number] = value;
             }
         });
+        Type.VALUES = values;
         return new TypeDesc(id, new EnumTypeHandler(values));
     }
 

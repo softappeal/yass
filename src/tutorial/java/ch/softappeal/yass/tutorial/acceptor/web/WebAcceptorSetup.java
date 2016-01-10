@@ -4,14 +4,13 @@ import ch.softappeal.yass.core.remote.session.Connection;
 import ch.softappeal.yass.core.remote.session.SessionFactory;
 import ch.softappeal.yass.transport.TransportSetup;
 import ch.softappeal.yass.transport.ws.AsyncWsConnection;
-import ch.softappeal.yass.transport.ws.WsConnection;
-import ch.softappeal.yass.transport.ws.WsEndpoint;
+import ch.softappeal.yass.transport.ws.WsConfigurator;
 import ch.softappeal.yass.tutorial.acceptor.AcceptorSession;
 import ch.softappeal.yass.tutorial.contract.Config;
 import ch.softappeal.yass.util.Exceptions;
 import ch.softappeal.yass.util.NamedThreadFactory;
 
-import javax.websocket.Session;
+import javax.websocket.Endpoint;
 import javax.websocket.server.ServerEndpointConfig;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
@@ -26,9 +25,10 @@ public abstract class WebAcceptorSetup {
 
     public static final Executor DISPATCH_EXECUTOR = Executors.newCachedThreadPool(new NamedThreadFactory("dispatchExecutor", Exceptions.STD_ERR));
 
-    public static final class Endpoint extends WsEndpoint {
-        @Override protected WsConnection createConnection(final Session session) throws Exception {
-            return WsConnection.create(
+    protected static final ServerEndpointConfig ENDPOINT_CONFIG = ServerEndpointConfig.Builder
+        .create(Endpoint.class, PATH)
+        .configurator(
+            new WsConfigurator(
                 AsyncWsConnection.factory(1_000),
                 TransportSetup.ofContractSerializer(
                     Config.SERIALIZER,
@@ -38,13 +38,8 @@ public abstract class WebAcceptorSetup {
                         }
                     }
                 ),
-                session
-            );
-        }
-    }
-
-    protected static ServerEndpointConfig endpointConfig(final ServerEndpointConfig.Configurator configurator) {
-        return ServerEndpointConfig.Builder.create(Endpoint.class, PATH).configurator(configurator).build();
-    }
+                Exceptions.STD_ERR
+            )
+        ).build();
 
 }

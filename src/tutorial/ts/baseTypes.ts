@@ -2,8 +2,25 @@
 
 /// <reference path="../../main/ts/yass"/>
 
-namespace contract {
+class Integer_HANDLER implements yass.TypeHandler<Integer> {
+    read(reader: yass.Reader): Integer {
+        return new Integer(reader.readZigZagInt());
+    }
+    write(value: Integer, writer: yass.Writer): void {
+        writer.writeZigZagInt(value.value);
+    }
+}
+class Integer extends yass.Type {
+    constructor(private v: number) {
+        super(); // note: check if v is really a Java Integer should be implemented here
+    }
+    get value(): number {
+        return this.v;
+    }
+    static TYPE_DESC = new yass.TypeDesc(yass.FIRST_ID, new Integer_HANDLER);
+}
 
+namespace contract {
     class Expiration_HANDLER implements yass.TypeHandler<Expiration> {
         read(reader: yass.Reader): Expiration {
             return new Expiration(
@@ -22,27 +39,6 @@ namespace contract {
         constructor(public year: number, public month: number, public day: number) {
             super();
         }
-        static TYPE_DESC = new yass.TypeDesc(yass.FIRST_ID, new Expiration_HANDLER);
+        static TYPE_DESC = new yass.TypeDesc(yass.FIRST_ID + 1, new Expiration_HANDLER);
     }
-
-    export namespace instrument.stock {
-        class Integer_HANDLER implements yass.TypeHandler<Integer> {
-            read(reader: yass.Reader): Integer {
-                return new Integer(reader.readZigZagInt());
-            }
-            write(value: Integer, writer: yass.Writer): void {
-                writer.writeZigZagInt(value.value);
-            }
-        }
-        export class Integer extends yass.Type {
-            constructor(private v: number) {
-                super(); // note: check if v is really a Java Integer should be implemented here
-            }
-            get value(): number {
-                return this.v;
-            }
-            static TYPE_DESC = new yass.TypeDesc(yass.FIRST_ID + 1, new Integer_HANDLER);
-        }
-    }
-
 }

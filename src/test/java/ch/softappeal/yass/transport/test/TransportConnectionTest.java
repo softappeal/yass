@@ -1,4 +1,4 @@
-package ch.softappeal.yass.core.remote.session.test;
+package ch.softappeal.yass.transport.test;
 
 import ch.softappeal.yass.util.Exceptions;
 import ch.softappeal.yass.util.NamedThreadFactory;
@@ -9,12 +9,12 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
-public class LocalConnectionTest extends SessionTest {
+public class TransportConnectionTest extends TransportTest {
 
     @Test public void plain1() throws InterruptedException {
         final ExecutorService executor = Executors.newCachedThreadPool(new NamedThreadFactory("executor", Exceptions.TERMINATE));
         try {
-            LocalConnection.connect(invokeSessionFactory(true, false, executor), invokeSessionFactory(false, false, executor));
+            TransportConnection.connect(invokeTransportSetup(true, false, executor), invokeTransportSetup(false, false, executor));
             TimeUnit.MILLISECONDS.sleep(400L);
         } finally {
             executor.shutdown();
@@ -24,7 +24,7 @@ public class LocalConnectionTest extends SessionTest {
     @Test public void plain2() throws InterruptedException {
         final ExecutorService executor = Executors.newCachedThreadPool(new NamedThreadFactory("executor", Exceptions.TERMINATE));
         try {
-            LocalConnection.connect(invokeSessionFactory(false, false, executor), invokeSessionFactory(true, false, executor));
+            TransportConnection.connect(invokeTransportSetup(false, false, executor), invokeTransportSetup(true, false, executor));
             TimeUnit.MILLISECONDS.sleep(400L);
         } finally {
             executor.shutdown();
@@ -35,7 +35,7 @@ public class LocalConnectionTest extends SessionTest {
         final ExecutorService executor = Executors.newCachedThreadPool(new NamedThreadFactory("executor", Exceptions.TERMINATE));
         try {
             try {
-                LocalConnection.connect(invokeSessionFactory(false, false, executor), invokeSessionFactory(false, true, executor));
+                TransportConnection.connect(invokeTransportSetup(false, false, executor), invokeTransportSetup(false, true, executor));
                 Assert.fail();
             } catch (final RuntimeException e) {
                 Assert.assertEquals(e.getMessage(), "java.lang.Exception: create failed");

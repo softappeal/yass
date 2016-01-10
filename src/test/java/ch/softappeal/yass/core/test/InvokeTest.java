@@ -52,9 +52,6 @@ public class InvokeTest {
             return (a / b);
         }
         @Override public void oneWay(final int sleepMillis) {
-            if (sleepMillis < 0) {
-                return;
-            }
             println("impl", "", "oneWay(" + sleepMillis + ')');
             try {
                 TimeUnit.MILLISECONDS.sleep(sleepMillis);

@@ -7,6 +7,7 @@ import ch.softappeal.yass.core.remote.Request;
 import ch.softappeal.yass.core.remote.Server;
 import ch.softappeal.yass.core.remote.Tunnel;
 import ch.softappeal.yass.util.Check;
+import ch.softappeal.yass.util.Closer;
 import ch.softappeal.yass.util.Nullable;
 
 import java.util.Collections;
@@ -19,7 +20,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public abstract class Session extends Client implements AutoCloseable {
+public abstract class Session extends Client implements Closer {
 
     public final Connection connection;
 
@@ -100,9 +101,6 @@ public abstract class Session extends Client implements AutoCloseable {
         session.close(false, Check.notNull(e));
     }
 
-    /**
-     * This method is idempotent.
-     */
     @Override public void close() {
         close(true, null);
     }

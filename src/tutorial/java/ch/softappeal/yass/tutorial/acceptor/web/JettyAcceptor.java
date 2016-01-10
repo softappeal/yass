@@ -7,7 +7,6 @@ import org.eclipse.jetty.server.handler.HandlerList;
 import org.eclipse.jetty.server.handler.ResourceHandler;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
-import org.eclipse.jetty.websocket.jsr356.server.BasicServerEndpointConfigurator;
 import org.eclipse.jetty.websocket.jsr356.server.deploy.WebSocketServerContainerInitializer;
 
 public final class JettyAcceptor extends WebAcceptorSetup {
@@ -27,7 +26,7 @@ public final class JettyAcceptor extends WebAcceptorSetup {
         final HandlerList handlers = new HandlerList();
         handlers.setHandlers(new Handler[] {resourceHandler, contextHandler});
         server.setHandler(handlers);
-        WebSocketServerContainerInitializer.configureContext(contextHandler).addEndpoint(endpointConfig(new BasicServerEndpointConfigurator()));
+        WebSocketServerContainerInitializer.configureContext(contextHandler).addEndpoint(ENDPOINT_CONFIG);
         server.start();
         System.out.println("started");
     }

@@ -1,7 +1,6 @@
 package ch.softappeal.yass.transport.ws;
 
 import ch.softappeal.yass.core.remote.session.Packet;
-import ch.softappeal.yass.serialize.Serializer;
 
 import javax.websocket.RemoteEndpoint;
 import javax.websocket.SendHandler;
@@ -14,8 +13,8 @@ import javax.websocket.Session;
  */
 public final class AsyncWsConnection extends WsConnection {
 
-    private AsyncWsConnection(final Serializer packetSerializer, final Session session, final long sendTimeoutMilliSeconds) {
-        super(packetSerializer, session);
+    private AsyncWsConnection(final WsConfigurator configurator, final Session session, final long sendTimeoutMilliSeconds) {
+        super(configurator, session);
         remoteEndpoint = session.getAsyncRemote();
         remoteEndpoint.setSendTimeout(sendTimeoutMilliSeconds);
     }
@@ -42,7 +41,7 @@ public final class AsyncWsConnection extends WsConnection {
             throw new IllegalArgumentException("sendTimeoutMilliSeconds < 0");
         }
         return new Factory() {
-            @Override public WsConnection create(final Serializer packetSerializer, final Session session) throws Exception {
+            @Override public WsConnection create(final WsConfigurator packetSerializer, final Session session) throws Exception {
                 return new AsyncWsConnection(packetSerializer, session, sendTimeoutMilliSeconds);
             }
         };

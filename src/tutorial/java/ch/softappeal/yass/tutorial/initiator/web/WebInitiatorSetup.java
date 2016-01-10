@@ -4,22 +4,21 @@ import ch.softappeal.yass.core.remote.session.Connection;
 import ch.softappeal.yass.core.remote.session.SessionFactory;
 import ch.softappeal.yass.transport.TransportSetup;
 import ch.softappeal.yass.transport.ws.SyncWsConnection;
-import ch.softappeal.yass.transport.ws.WsConnection;
-import ch.softappeal.yass.transport.ws.WsEndpoint;
+import ch.softappeal.yass.transport.ws.WsConfigurator;
 import ch.softappeal.yass.tutorial.acceptor.web.WebAcceptorSetup;
 import ch.softappeal.yass.tutorial.contract.Config;
 import ch.softappeal.yass.tutorial.initiator.InitiatorSession;
+import ch.softappeal.yass.util.Exceptions;
 
 import javax.websocket.ClientEndpointConfig;
-import javax.websocket.Session;
 import javax.websocket.WebSocketContainer;
 import java.net.URI;
 
 public abstract class WebInitiatorSetup {
 
-    private static final class Endpoint extends WsEndpoint {
-        @Override protected WsConnection createConnection(final Session session) throws Exception {
-            return WsConnection.create(
+    protected static void run(final WebSocketContainer container) throws Exception {
+        container.connectToServer(
+            new WsConfigurator(
                 SyncWsConnection.FACTORY,
                 TransportSetup.ofContractSerializer(
                     Config.SERIALIZER,
@@ -29,14 +28,8 @@ public abstract class WebInitiatorSetup {
                         }
                     }
                 ),
-                session
-            );
-        }
-    }
-
-    protected static void run(final WebSocketContainer container) throws Exception {
-        container.connectToServer(
-            new Endpoint(),
+                Exceptions.STD_ERR
+            ).getEndpointInstance(),
             ClientEndpointConfig.Builder.create().build(),
             URI.create("ws://" + WebAcceptorSetup.HOST + ":" + WebAcceptorSetup.PORT + WebAcceptorSetup.PATH)
         );

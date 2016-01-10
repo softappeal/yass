@@ -45,8 +45,8 @@ public final class Config {
     private static final AbstractJsFastSerializer SIMPLE_JS_SERIALIZER = new SimpleJsFastSerializer(
         FastReflector.FACTORY,
         Arrays.asList(
-            Expiration.TYPE_HANDLER,
-            BaseTypeHandlers.INTEGER
+            BaseTypeHandlers.INTEGER,
+            Expiration.TYPE_HANDLER
         ),
         ENUMERATIONS,
         CONCRETE_CLASSES
@@ -58,8 +58,8 @@ public final class Config {
     private static final AbstractJsFastSerializer TAGGED_JS_SERIALIZER = new TaggedJsFastSerializer(
         FastReflector.FACTORY,
         Arrays.asList(
-            new TypeDesc(AbstractJsFastSerializer.FIRST_ID, Expiration.TYPE_HANDLER),
-            new TypeDesc(AbstractJsFastSerializer.FIRST_ID + 1, BaseTypeHandlers.INTEGER)
+            new TypeDesc(AbstractJsFastSerializer.FIRST_ID, BaseTypeHandlers.INTEGER),
+            new TypeDesc(AbstractJsFastSerializer.FIRST_ID + 1, Expiration.TYPE_HANDLER)
         ),
         ENUMERATIONS,
         CONCRETE_CLASSES

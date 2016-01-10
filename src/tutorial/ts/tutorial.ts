@@ -2,8 +2,6 @@
 
 namespace tutorial {
 
-    import Integer = contract.instrument.stock.Integer;
-
     function log(...args: any[]): void {
         console.log.apply(console, args);
     }

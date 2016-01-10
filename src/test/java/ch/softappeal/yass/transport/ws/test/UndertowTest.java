@@ -7,7 +7,6 @@ import io.undertow.servlet.api.DeploymentManager;
 import io.undertow.servlet.api.ThreadSetupAction;
 import io.undertow.servlet.core.CompositeThreadSetupAction;
 import io.undertow.servlet.util.DefaultClassIntrospector;
-import io.undertow.websockets.jsr.DefaultContainerConfigurator;
 import io.undertow.websockets.jsr.ServerWebSocketContainer;
 import io.undertow.websockets.jsr.WebSocketDeploymentInfo;
 import org.xnio.ByteBufferSlicePool;
@@ -31,7 +30,7 @@ public abstract class UndertowTest extends WsTest {
                     .addServletContextAttribute(
                         WebSocketDeploymentInfo.ATTRIBUTE_NAME,
                         new WebSocketDeploymentInfo()
-                            .addEndpoint(serverEndpointConfig(new DefaultContainerConfigurator()))
+                            .addEndpoint(serverEndpointConfig())
                             .setWorker(xnio.createWorker(OptionMap.builder().getMap()))
                             .setBuffers(new XnioByteBufferPool(new ByteBufferSlicePool(1024, 10240)))
                     )

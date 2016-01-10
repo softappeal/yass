@@ -10,7 +10,7 @@ public final class GenerateTypeScriptContract {
 
     public static void main(final String... args) throws Exception {
         final Map<Class<?>, String> java2tsBaseType = new HashMap<>();
-        java2tsBaseType.put(Integer.class, "instrument.stock.Integer");
+        java2tsBaseType.put(Integer.class, "Integer");
         new ContractGenerator(
             Config.class.getPackage(), Config.SERIALIZER, Config.INITIATOR, Config.ACCEPTOR,
             "baseTypes", "contract", java2tsBaseType, "src/tutorial/ts/contract.ts"
