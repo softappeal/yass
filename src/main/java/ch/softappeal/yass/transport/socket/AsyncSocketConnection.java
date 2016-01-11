@@ -58,7 +58,7 @@ public final class AsyncSocketConnection extends SocketConnection {
 
     @Override public void write(final Packet packet) throws Exception {
         if (!writerQueue.offer(writeToBuffer(packet))) {
-            throw new RuntimeException("writer queue full");
+            throw new Exception("writer queue full");
         }
     }
 
