@@ -47,24 +47,10 @@ public class JettyWebSocketLeak {
             return getEndpointInstance(null);
         }
         @Override public String getNegotiatedSubprotocol(List<String> supported, List<String> requested) {
-            for (String r : requested) {
-                if (supported.contains(r)) {
-                    return r;
-                }
-            }
             return "";
         }
         @Override public List<Extension> getNegotiatedExtensions(List<Extension> installed, List<Extension> requested) {
-            List<Extension> extensions = new ArrayList<>(requested.size());
-            for (Extension r : requested) {
-                for (Extension i : installed) {
-                    if (i.getName().equals(r.getName())) {
-                        extensions.add(r);
-                        break;
-                    }
-                }
-            }
-            return extensions;
+            return new ArrayList<>();
         }
         @Override public boolean checkOrigin(String originHeaderValue) {
             return true;
