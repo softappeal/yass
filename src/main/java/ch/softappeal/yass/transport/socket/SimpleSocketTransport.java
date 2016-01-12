@@ -79,11 +79,11 @@ public final class SimpleSocketTransport extends AbstractSocketTransport {
         return new Client() {
             @Override public Object invoke(final Client.Invocation invocation) throws Exception {
                 try (Socket socket = connect(socketFactory, socketAddress)) {
+                    setForceImmediateSend(socket);
                     final @Nullable Socket oldSocket = SOCKET.get();
                     SOCKET.set(socket);
                     try {
                         return invocation.invoke(request -> {
-                            setForceImmediateSend(socket);
                             write(request, socket, messageSerializer);
                             return invocation.methodMapping.oneWay ? null : (Reply)messageSerializer.read(Reader.create(socket.getInputStream()));
                         });
