@@ -90,7 +90,7 @@ public class JettyWebSocketLeak {
         server.start();
         connectClient();
         connectClient();
-        System.out.println("printing leaked server side sessions ...");
+        System.out.println("printing leaked server sessions ...");
         serverContainer.getBeans(WebSocketServerFactory.class).forEach(factory -> factory.getBeans(JsrSession.class).forEach(session -> System.out.println(session.hashCode())));
     }
 
@@ -108,7 +108,7 @@ public class JettyWebSocketLeak {
     closed client CloseReason[1005] 1389119041
     closed server CloseReason[1005] 1421996380
 
-    printing leaked server side sessions ...
+    printing leaked server sessions ...
     1235546038
     1421996380
 
