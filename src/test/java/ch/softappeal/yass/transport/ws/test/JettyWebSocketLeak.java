@@ -43,9 +43,6 @@ public class JettyWebSocketLeak {
                 }
             };
         }
-        public Endpoint getEndpointInstance() {
-            return getEndpointInstance(null);
-        }
         @Override public String getNegotiatedSubprotocol(List<String> supported, List<String> requested) {
             return "";
         }
@@ -66,7 +63,7 @@ public class JettyWebSocketLeak {
     private static void connectClient() throws Exception {
         ClientContainer clientContainer = new ClientContainer();
         clientContainer.start();
-        clientContainer.connectToServer(new WsConfigurator().getEndpointInstance(), ClientEndpointConfig.Builder.create().build(), THE_URI);
+        clientContainer.connectToServer(new WsConfigurator().getEndpointInstance(Endpoint.class), ClientEndpointConfig.Builder.create().build(), THE_URI);
         clientContainer.stop();
     }
 
