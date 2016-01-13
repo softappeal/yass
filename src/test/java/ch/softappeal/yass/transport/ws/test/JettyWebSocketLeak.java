@@ -34,19 +34,22 @@ public class JettyWebSocketLeak {
         @Override public <T> T getEndpointInstance(Class<T> endpointClass) {
             return (T)new Endpoint() {
                 @Override public void onOpen(Session session, EndpointConfig config) {
-                    System.out.println("opening " + side + " " + session.hashCode());
+                    System.out.println("opening " + side + " session " + session.hashCode());
                     if ("client".equals(side)) {
-                        try {
-                            TimeUnit.SECONDS.sleep(5);
-                            System.out.println("closing " + side + " " + session.hashCode());
-                            session.close();
-                        } catch (Exception e) {
-                            throw new RuntimeException(e);
-                        }
+                        new Thread(() -> {
+                            try {
+                                TimeUnit.SECONDS.sleep(5);
+                                System.out.println();
+                                System.out.println("closing " + side + " session " + session.hashCode());
+                                session.close();
+                            } catch (Exception e) {
+                                throw new RuntimeException(e);
+                            }
+                        }).start();
                     }
                 }
                 @Override public void onClose(Session session, CloseReason closeReason) {
-                    System.out.println("closed " + side + " " + closeReason + " " + session.hashCode());
+                    System.out.println(side + " session " + session.hashCode() + " closed with " + closeReason);
                 }
                 @Override public void onError(Session session, Throwable throwable) {
                 }
@@ -65,17 +68,9 @@ public class JettyWebSocketLeak {
         }
     }
 
-    private static int PORT = 9090;
-    private static String PATH = "/test";
-    private static URI THE_URI = URI.create("ws://localhost:" + PORT + PATH);
-
-    private static void connectClient() throws Exception {
-        ClientContainer clientContainer = new ClientContainer();
-        clientContainer.start();
-        clientContainer.connectToServer(new WsConfigurator("client").getEndpointInstance(Endpoint.class), ClientEndpointConfig.Builder.create().build(), THE_URI);
-        TimeUnit.SECONDS.sleep(5);
-        System.out.println();
-    }
+    public static int PORT = 9090;
+    public static String PATH = "/test";
+    public static URI THE_URI = URI.create("ws://localhost:" + PORT + PATH);
 
     public static void main(String... args) throws Exception {
         Server server = new Server();
@@ -86,32 +81,38 @@ public class JettyWebSocketLeak {
         servletContextHandler.setContextPath("/");
         server.setHandler(servletContextHandler);
         ServerContainer serverContainer = WebSocketServerContainerInitializer.configureContext(servletContextHandler);
-        serverContainer.addEndpoint(ServerEndpointConfig.Builder.create(Endpoint.class, PATH).configurator(new WsConfigurator("server")).build());
+        serverContainer.addEndpoint(
+            ServerEndpointConfig.Builder.create(Endpoint.class, PATH).configurator(new WsConfigurator("server")).build()
+        );
         server.start();
-        connectClient();
-        connectClient();
+        ClientContainer clientContainer = new ClientContainer();
+        clientContainer.start();
+        clientContainer.connectToServer(
+            new WsConfigurator("client").getEndpointInstance(Endpoint.class),
+            ClientEndpointConfig.Builder.create().build(),
+            THE_URI
+        );
+        TimeUnit.SECONDS.sleep(10);
+        System.out.println();
         System.out.println("printing leaked server sessions ...");
-        serverContainer.getBeans(WebSocketServerFactory.class).forEach(factory -> factory.getBeans(JsrSession.class).forEach(session -> System.out.println(session.hashCode())));
+        serverContainer.getBeans(WebSocketServerFactory.class).forEach(
+            factory -> factory.getBeans(JsrSession.class).forEach(
+                session -> System.out.println("    session " + session.hashCode())
+            )
+        );
+        /* program output:
+
+        opening server session 678919052
+        opening client session 342587933
+
+        closing client session 342587933
+        client session 342587933 closed with CloseReason[1000]
+        server session 678919052 closed with CloseReason[1000]
+
+        printing leaked server sessions ...
+            session 678919052
+
+        */
     }
-
-    /* program output:
-
-    opening client 1460681129
-    opening server 1235546038
-    closing client 1460681129
-    closed client CloseReason[1005] 1460681129
-    closed server CloseReason[1005] 1235546038
-
-    opening server 1421996380
-    opening client 1389119041
-    closing client 1389119041
-    closed client CloseReason[1005] 1389119041
-    closed server CloseReason[1005] 1421996380
-
-    printing leaked server sessions ...
-    1235546038
-    1421996380
-
-     */
 
 }
