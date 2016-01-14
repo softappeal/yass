@@ -33,12 +33,10 @@ public class Reconnector<S extends Session> extends ProxyDelegate<S> {
             return session;
         };
         executor.execute(() -> {
-            if (initialDelaySeconds > 0) {
-                try {
-                    TimeUnit.SECONDS.sleep(initialDelaySeconds);
-                } catch (final InterruptedException ignore) {
-                    return;
-                }
+            try {
+                TimeUnit.SECONDS.sleep(initialDelaySeconds);
+            } catch (final InterruptedException ignore) {
+                return;
             }
             while (!Thread.interrupted()) {
                 if (!connected()) {

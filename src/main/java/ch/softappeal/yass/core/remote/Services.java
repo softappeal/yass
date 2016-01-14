@@ -22,4 +22,12 @@ public abstract class Services {
         return ContractId.create(contract, id, methodMapperFactory);
     }
 
+    /**
+     * @deprecated use {@link #contractId(Class, int)} instead
+     */
+    @Deprecated
+    protected final <C> ContractId<C> create(final Class<C> contract, final int id) {
+        return contractId(contract, id);
+    }
+
 }
