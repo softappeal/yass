@@ -50,7 +50,7 @@ public class SslTest extends TransportTest {
             )
         ) {
             Assert.assertTrue(
-                SimpleSocketTransport.client(MESSAGE_SERIALIZER, socketFactory, SocketTransportTest.ADDRESS)
+                SimpleSocketTransport.client(MESSAGE_SERIALIZER, socketFactory, SocketTransportTest.ADDRESS, 0)
                     .proxy(
                         ContractIdTest.ID,
                         (method, arguments, invocation) -> {
