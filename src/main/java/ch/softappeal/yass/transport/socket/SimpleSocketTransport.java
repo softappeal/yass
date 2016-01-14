@@ -106,22 +106,6 @@ public final class SimpleSocketTransport extends AbstractSocketTransport {
         return client(messageSerializer, SocketFactory.getDefault(), socketAddress, socketTimeoutMilliSeconds);
     }
 
-    /**
-     * @deprecated use {@link #client(Serializer, SocketFactory, SocketAddress, int)} instead
-     */
-    @Deprecated
-    public static Client client(final Serializer messageSerializer, final SocketFactory socketFactory, final SocketAddress socketAddress) {
-        return client(messageSerializer, socketFactory, socketAddress, 0);
-    }
-
-    /**
-     * @deprecated use {@link #client(Serializer, SocketAddress, int)} instead
-     */
-    @Deprecated
-    public static Client client(final Serializer messageSerializer, final SocketAddress socketAddress) {
-        return client(messageSerializer, socketAddress, 0);
-    }
-
     private static final ThreadLocal<Socket> SOCKET = new ThreadLocal<>();
     /**
      * @return socket of current request (if any)
