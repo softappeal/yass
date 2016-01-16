@@ -8,23 +8,23 @@ import java.util.Map;
 /**
  * Allows having different contracts (and multiple versions of the same contract) on one listener.
  */
-public final class PathResolver {
+public final class SimplePathResolver {
 
-    private final Map<Object, TransportSetup> pathMappings = new HashMap<>(16);
-    private void put(final Object path, final TransportSetup setup) {
+    private final Map<Object, SimpleTransportSetup> pathMappings = new HashMap<>(16);
+    private void put(final Object path, final SimpleTransportSetup setup) {
         pathMappings.put(Check.notNull(path), Check.notNull(setup));
     }
 
-    public PathResolver(final Map<?, TransportSetup> pathMappings) {
+    public SimplePathResolver(final Map<?, SimpleTransportSetup> pathMappings) {
         pathMappings.forEach(this::put);
     }
 
-    public PathResolver(final Object path, final TransportSetup setup) {
+    public SimplePathResolver(final Object path, final SimpleTransportSetup setup) {
         put(path, setup);
     }
 
-    public TransportSetup resolvePath(final Object path) {
-        final TransportSetup setup = pathMappings.get(Check.notNull(path));
+    public SimpleTransportSetup resolvePath(final Object path) {
+        final SimpleTransportSetup setup = pathMappings.get(Check.notNull(path));
         if (setup == null) {
             throw new RuntimeException("no mapping for path '" + path + '\'');
         }

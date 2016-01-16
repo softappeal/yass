@@ -32,6 +32,7 @@ public class SslTest extends TransportTest {
         final ExecutorService executor = Executors.newCachedThreadPool(new NamedThreadFactory("executor", Exceptions.STD_ERR));
         try (
             Closer closer = new SimpleSocketTransport(executor).start(
+                MESSAGE_SERIALIZER,
                 new Server(
                     ContractIdTest.ID.service(
                         new TestServiceImpl(),
@@ -43,7 +44,6 @@ public class SslTest extends TransportTest {
                         }
                     )
                 ),
-                MESSAGE_SERIALIZER,
                 executor,
                 serverSocketFactory,
                 SocketTransportTest.ADDRESS
