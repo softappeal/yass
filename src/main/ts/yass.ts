@@ -295,7 +295,7 @@ namespace yass {
         }
         write(id: number, object: any, writer: Writer) {
             const value = object[this.field];
-            if (value) {
+            if ((value !== null) && (value !== undefined)) {
                 writer.writeVarInt(id);
                 if (this.typeHandler) {
                     this.typeHandler.write(value, writer);
@@ -546,7 +546,7 @@ namespace yass {
             try {
                 return new ValueReply(this.interceptor(InvokeStyle.NoPromise, method, parameters, () => {
                     const result = this.implementation[method].apply(this.implementation, parameters);
-                    return result ? result : null;
+                    return ((result !== null) && (result !== undefined)) ? result : null;
                 }));
             } catch (exception) {
                 return new ExceptionReply(exception);
@@ -617,7 +617,7 @@ namespace yass {
             // empty
         }
         invoke(tunnel: Tunnel): Promise<any> {
-            const rpc: Rpc = this.methodMapping.oneWay ? null : new Rpc(this.interceptor, this.methodMapping.method, this.parameters);
+            const rpc = this.methodMapping.oneWay ? null : new Rpc(this.interceptor, this.methodMapping.method, this.parameters);
             this.interceptor(
                 this.methodMapping.oneWay ? InvokeStyle.NoPromise : InvokeStyle.PromiseEntry,
                 this.methodMapping.method,
