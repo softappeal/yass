@@ -27,9 +27,8 @@ public class WsConfigurator extends ServerEndpointConfig.Configurator {
         this.uncaughtExceptionHandler = Check.notNull(uncaughtExceptionHandler);
     }
 
-    @SuppressWarnings("unchecked")
     @Override public final <T> T getEndpointInstance(final Class<T> endpointClass) {
-        return (T)new Endpoint() {
+        return endpointClass.cast(new Endpoint() {
             volatile WsConnection connection = null;
             @Override public void onOpen(final Session session, final EndpointConfig config) {
                 try {
@@ -48,11 +47,11 @@ public class WsConfigurator extends ServerEndpointConfig.Configurator {
                     connection.onError(throwable);
                 }
             }
-        };
+        });
     }
 
     public final Endpoint getEndpointInstance() {
-        return getEndpointInstance(null);
+        return getEndpointInstance(Endpoint.class);
     }
 
     @Override public String getNegotiatedSubprotocol(final List<String> supported, final List<String> requested) {

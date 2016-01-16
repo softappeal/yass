@@ -30,9 +30,8 @@ public class JettyWebSocketLeak {
         public WsConfigurator(String side) {
             this.side = side;
         }
-        @SuppressWarnings("unchecked")
         @Override public <T> T getEndpointInstance(Class<T> endpointClass) {
-            return (T)new Endpoint() {
+            return endpointClass.cast(new Endpoint() {
                 @Override public void onOpen(Session session, EndpointConfig config) {
                     System.out.println("opening " + side + " session " + session.hashCode());
                     if ("client".equals(side)) {
@@ -53,7 +52,7 @@ public class JettyWebSocketLeak {
                 }
                 @Override public void onError(Session session, Throwable throwable) {
                 }
-            };
+            });
         }
         @Override public String getNegotiatedSubprotocol(List<String> supported, List<String> requested) {
             return "";
