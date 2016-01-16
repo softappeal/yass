@@ -363,20 +363,4 @@ public final class ContractGenerator extends Generator {
         close();
     }
 
-    /**
-     * @see #ContractGenerator(String, AbstractJsFastSerializer, Services, Services, String, String, Map, String)
-     */
-    public ContractGenerator(
-        final Package rootPackage,
-        final AbstractJsFastSerializer serializer,
-        final @Nullable Services initiator,
-        final @Nullable Services acceptor,
-        final String includePath,
-        final String contractModuleName,
-        final @Nullable Map<Class<?>, String> java2tsBaseType,
-        final String contractFilePath
-    ) throws Exception {
-        this(rootPackage.getName(), serializer, initiator, acceptor, includePath, contractModuleName, java2tsBaseType, contractFilePath);
-    }
-
 }
