@@ -13,6 +13,7 @@ import javax.net.ServerSocketFactory;
 import javax.net.SocketFactory;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.net.Socket;
 import java.net.SocketAddress;
 import java.util.concurrent.Executor;
 
@@ -40,11 +41,17 @@ public final class SocketTransport extends AbstractSocketTransport {
         this(readerExecutor, connectionFactory, PathSerializer.INSTANCE);
     }
 
-    public void connect(final TransportSetup setup, final Object path, final SocketFactory socketFactory, final SocketAddress socketAddress) {
+    /**
+     * @param connectTimeoutMilliSeconds see {@link Socket#connect(SocketAddress, int)}
+     */
+    public void connect(
+        final TransportSetup setup, final Object path,
+        final SocketFactory socketFactory, final SocketAddress socketAddress, final int connectTimeoutMilliSeconds
+    ) {
         Check.notNull(setup);
         Check.notNull(path);
         try {
-            runInAcceptExecutor(connect(socketFactory, socketAddress), socket -> {
+            runInAcceptExecutor(connect(socketFactory, socketAddress, connectTimeoutMilliSeconds), socket -> {
                 final OutputStream out = socket.getOutputStream();
                 pathSerializer.write(path, Writer.create(out));
                 out.flush();
@@ -58,15 +65,21 @@ public final class SocketTransport extends AbstractSocketTransport {
     /**
      * Uses {@link PathSerializer#DEFAULT}.
      */
-    public void connect(final TransportSetup setup, final SocketFactory socketFactory, final SocketAddress socketAddress) {
-        connect(setup, PathSerializer.DEFAULT, socketFactory, socketAddress);
+    public void connect(
+        final TransportSetup setup,
+        final SocketFactory socketFactory, final SocketAddress socketAddress, final int connectTimeoutMilliSeconds
+    ) {
+        connect(setup, PathSerializer.DEFAULT, socketFactory, socketAddress, connectTimeoutMilliSeconds);
     }
 
     /**
      * Uses {@link SocketFactory#getDefault()} and {@link PathSerializer#DEFAULT}.
      */
-    public void connect(final TransportSetup setup, final SocketAddress socketAddress) {
-        connect(setup, SocketFactory.getDefault(), socketAddress);
+    public void connect(
+        final TransportSetup setup,
+        final SocketAddress socketAddress, final int connectTimeoutMilliSeconds
+    ) {
+        connect(setup, SocketFactory.getDefault(), socketAddress, connectTimeoutMilliSeconds);
     }
 
     /**

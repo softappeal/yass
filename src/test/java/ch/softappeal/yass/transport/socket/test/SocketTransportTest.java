@@ -31,7 +31,7 @@ public class SocketTransportTest extends TransportTest {
     @Test public void clientInvoke() throws Exception {
         final ExecutorService executor = Executors.newCachedThreadPool(new NamedThreadFactory("executor", Exceptions.TERMINATE));
         try (Closer closer = new SocketTransport(executor, SyncSocketConnection.FACTORY).start(invokeTransportSetup(false, false, executor), executor, ADDRESS)) {
-            new SocketTransport(executor, SyncSocketConnection.FACTORY).connect(invokeTransportSetup(true, false, executor), ADDRESS);
+            new SocketTransport(executor, SyncSocketConnection.FACTORY).connect(invokeTransportSetup(true, false, executor), ADDRESS, 0);
             TimeUnit.MILLISECONDS.sleep(400L);
         } finally {
             executor.shutdown();
@@ -41,7 +41,7 @@ public class SocketTransportTest extends TransportTest {
     @Test public void clientInvokeAsync() throws Exception {
         final ExecutorService executor = Executors.newCachedThreadPool(new NamedThreadFactory("executor", Exceptions.TERMINATE));
         try (Closer closer = new SocketTransport(executor, AsyncSocketConnection.factory(executor, 1)).start(invokeTransportSetup(false, false, executor), executor, ADDRESS)) {
-            new SocketTransport(executor, AsyncSocketConnection.factory(executor, 1)).connect(invokeTransportSetup(true, false, executor), ADDRESS);
+            new SocketTransport(executor, AsyncSocketConnection.factory(executor, 1)).connect(invokeTransportSetup(true, false, executor), ADDRESS, 0);
             TimeUnit.MILLISECONDS.sleep(400L);
         } finally {
             executor.shutdown();
@@ -51,7 +51,7 @@ public class SocketTransportTest extends TransportTest {
     @Test public void serverInvoke() throws Exception {
         final ExecutorService executor = Executors.newCachedThreadPool(new NamedThreadFactory("executor", Exceptions.TERMINATE));
         try (Closer closer = new SocketTransport(executor, SyncSocketConnection.FACTORY).start(invokeTransportSetup(true, false, executor), executor, ADDRESS)) {
-            new SocketTransport(executor, SyncSocketConnection.FACTORY).connect(invokeTransportSetup(false, false, executor), ADDRESS);
+            new SocketTransport(executor, SyncSocketConnection.FACTORY).connect(invokeTransportSetup(false, false, executor), ADDRESS, 0);
             TimeUnit.MILLISECONDS.sleep(400L);
         } finally {
             executor.shutdown();
@@ -61,7 +61,7 @@ public class SocketTransportTest extends TransportTest {
     @Test public void createException() throws Exception {
         final ExecutorService executor = Executors.newCachedThreadPool(new NamedThreadFactory("executor", Exceptions.STD_ERR));
         try (Closer closer = new SocketTransport(executor, SyncSocketConnection.FACTORY).start(invokeTransportSetup(false, false, executor), executor, ADDRESS)) {
-            new SocketTransport(executor, SyncSocketConnection.FACTORY).connect(invokeTransportSetup(false, true, executor), ADDRESS);
+            new SocketTransport(executor, SyncSocketConnection.FACTORY).connect(invokeTransportSetup(false, true, executor), ADDRESS, 0);
             TimeUnit.MILLISECONDS.sleep(100L);
         } finally {
             executor.shutdown();
@@ -71,7 +71,7 @@ public class SocketTransportTest extends TransportTest {
     @Test public void wrongPath() throws Exception {
         final ExecutorService executor = Executors.newCachedThreadPool(new NamedThreadFactory("executor", Exceptions.STD_ERR));
         try (Closer closer = new SocketTransport(executor, SyncSocketConnection.FACTORY).start(new PathResolver(1, invokeTransportSetup(true, false, executor)), executor, ServerSocketFactory.getDefault(), ADDRESS)) {
-            new SocketTransport(executor, SyncSocketConnection.FACTORY).connect(invokeTransportSetup(false, false, executor), 2, SocketFactory.getDefault(), ADDRESS);
+            new SocketTransport(executor, SyncSocketConnection.FACTORY).connect(invokeTransportSetup(false, false, executor), 2, SocketFactory.getDefault(), ADDRESS, 0);
             TimeUnit.MILLISECONDS.sleep(400L);
         } finally {
             executor.shutdown();
@@ -86,10 +86,10 @@ public class SocketTransportTest extends TransportTest {
         pathMappings.put(path1, invokeTransportSetup(true, false, executor));
         pathMappings.put(path2, invokeTransportSetup(true, false, executor));
         try (Closer closer = new SocketTransport(executor, SyncSocketConnection.FACTORY).start(new PathResolver(pathMappings), executor, ServerSocketFactory.getDefault(), ADDRESS)) {
-            new SocketTransport(executor, SyncSocketConnection.FACTORY).connect(invokeTransportSetup(false, false, executor), path1, SocketFactory.getDefault(), ADDRESS);
+            new SocketTransport(executor, SyncSocketConnection.FACTORY).connect(invokeTransportSetup(false, false, executor), path1, SocketFactory.getDefault(), ADDRESS, 0);
             TimeUnit.MILLISECONDS.sleep(400L);
             System.out.println();
-            new SocketTransport(executor, SyncSocketConnection.FACTORY).connect(invokeTransportSetup(false, false, executor), path2, SocketFactory.getDefault(), ADDRESS);
+            new SocketTransport(executor, SyncSocketConnection.FACTORY).connect(invokeTransportSetup(false, false, executor), path2, SocketFactory.getDefault(), ADDRESS, 0);
             TimeUnit.MILLISECONDS.sleep(400L);
         } finally {
             executor.shutdown();

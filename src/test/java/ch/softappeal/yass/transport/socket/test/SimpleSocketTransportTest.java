@@ -44,7 +44,7 @@ public class SimpleSocketTransportTest extends TransportTest {
                 )
         ) {
             invoke(
-                SimpleSocketTransport.client(MESSAGE_SERIALIZER, SocketTransportTest.ADDRESS, 0)
+                SimpleSocketTransport.client(MESSAGE_SERIALIZER, SocketTransportTest.ADDRESS, 0, 0)
                     .proxy(
                         ContractIdTest.ID,
                         socketInterceptor("client"),

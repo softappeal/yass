@@ -18,7 +18,7 @@ public final class SocketInitiator {
         final Executor executor = Executors.newCachedThreadPool(new NamedThreadFactory("executor", Exceptions.STD_ERR));
         new SocketTransport(executor, SyncSocketConnection.FACTORY).connect(
             TransportSetup.ofContractSerializer(Config.SERIALIZER, connection -> new InitiatorSession(connection, executor)),
-            SocketAcceptor.ADDRESS
+            SocketAcceptor.ADDRESS, 0
         );
     }
 

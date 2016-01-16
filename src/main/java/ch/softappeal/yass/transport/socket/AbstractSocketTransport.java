@@ -84,10 +84,13 @@ abstract class AbstractSocketTransport {
         }
     }
 
-    static Socket connect(final SocketFactory socketFactory, final SocketAddress socketAddress) throws IOException {
+    /**
+     * @param connectTimeoutMilliSeconds see {@link Socket#connect(SocketAddress, int)}
+     */
+    static Socket connect(final SocketFactory socketFactory, final SocketAddress socketAddress, final int connectTimeoutMilliSeconds) throws IOException {
         final Socket socket = socketFactory.createSocket();
         try {
-            socket.connect(socketAddress);
+            socket.connect(socketAddress, connectTimeoutMilliSeconds);
             return socket;
         } catch (final Exception e) {
             close(socket, e);

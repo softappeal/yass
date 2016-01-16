@@ -73,20 +73,27 @@ public final class SimpleSocketTransport extends AbstractSocketTransport {
     }
 
     /**
-     * @param socketTimeoutMilliSeconds see {@link Socket#setSoTimeout(int)}
+     * @param connectTimeoutMilliSeconds see {@link Socket#connect(SocketAddress, int)}
+     * @param readTimeoutMilliSeconds see {@link Socket#setSoTimeout(int)}
      */
-    public static Client client(final Serializer messageSerializer, final SocketFactory socketFactory, final SocketAddress socketAddress, final int socketTimeoutMilliSeconds) {
+    public static Client client(
+        final Serializer messageSerializer,
+        final SocketFactory socketFactory, final SocketAddress socketAddress, final int connectTimeoutMilliSeconds, final int readTimeoutMilliSeconds
+    ) {
         Check.notNull(messageSerializer);
         Check.notNull(socketFactory);
         Check.notNull(socketAddress);
-        if (socketTimeoutMilliSeconds < 0) {
-            throw new IllegalArgumentException("socketTimeoutMilliSeconds < 0");
+        if (connectTimeoutMilliSeconds < 0) {
+            throw new IllegalArgumentException("connectTimeoutMilliSeconds < 0");
+        }
+        if (readTimeoutMilliSeconds < 0) {
+            throw new IllegalArgumentException("readTimeoutMilliSeconds < 0");
         }
         return new Client() {
             @Override public Object invoke(final Client.Invocation invocation) throws Exception {
-                try (Socket socket = connect(socketFactory, socketAddress)) {
+                try (Socket socket = connect(socketFactory, socketAddress, connectTimeoutMilliSeconds)) {
                     setForceImmediateSend(socket);
-                    socket.setSoTimeout(socketTimeoutMilliSeconds);
+                    socket.setSoTimeout(readTimeoutMilliSeconds);
                     final @Nullable Socket oldSocket = SOCKET.get();
                     SOCKET.set(socket);
                     try {
@@ -102,8 +109,11 @@ public final class SimpleSocketTransport extends AbstractSocketTransport {
         };
     }
 
-    public static Client client(final Serializer messageSerializer, final SocketAddress socketAddress, final int socketTimeoutMilliSeconds) {
-        return client(messageSerializer, SocketFactory.getDefault(), socketAddress, socketTimeoutMilliSeconds);
+    public static Client client(
+        final Serializer messageSerializer,
+        final SocketAddress socketAddress, final int connectTimeoutMilliSeconds, final int readTimeoutMilliSeconds
+    ) {
+        return client(messageSerializer, SocketFactory.getDefault(), socketAddress, connectTimeoutMilliSeconds, readTimeoutMilliSeconds);
     }
 
     private static final ThreadLocal<Socket> SOCKET = new ThreadLocal<>();

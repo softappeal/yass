@@ -33,7 +33,7 @@ public class SocketPerformanceTest extends TransportTest {
         final ExecutorService executor = Executors.newCachedThreadPool(new NamedThreadFactory("executor", Exceptions.TERMINATE));
         try (Closer closer = new SocketTransport(executor, SyncSocketConnection.FACTORY).start(performanceTransportSetup(executor), executor, address)) {
             final CountDownLatch latch = new CountDownLatch(1);
-            new SocketTransport(executor, SyncSocketConnection.FACTORY).connect(performanceTransportSetup(executor, latch, samples, bytes), address);
+            new SocketTransport(executor, SyncSocketConnection.FACTORY).connect(performanceTransportSetup(executor, latch, samples, bytes), address, 0);
             latch.await();
         } finally {
             executor.shutdown();

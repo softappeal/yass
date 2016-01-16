@@ -79,7 +79,7 @@ public final class AsyncSocketConnectionTest {
                     }
                 }
             ),
-            ADDRESS
+            ADDRESS, 0
         );
 
     }
