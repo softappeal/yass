@@ -18,15 +18,13 @@ public final class SimpleSocketAcceptor {
 
     public static void main(final String... args) {
         final Executor executor = Executors.newCachedThreadPool(new NamedThreadFactory("executor", Exceptions.STD_ERR));
-        new SimpleSocketTransport(executor)
-            .start(
-                Config.MESSAGE_SERIALIZER,
-                new Server(
-                    ACCEPTOR.echoService.service(EchoServiceImpl.INSTANCE, UnexpectedExceptionHandler.INSTANCE, new Logger(null, Logger.Side.SERVER))
-                ),
-                executor,
-                SocketAcceptor.ADDRESS
-            );
+        new SimpleSocketTransport(
+            executor,
+            Config.MESSAGE_SERIALIZER,
+            new Server(
+                ACCEPTOR.echoService.service(EchoServiceImpl.INSTANCE, UnexpectedExceptionHandler.INSTANCE, new Logger(null, Logger.Side.SERVER))
+            )
+        ).start(executor, SocketAcceptor.ADDRESS);
         System.out.println("started");
     }
 

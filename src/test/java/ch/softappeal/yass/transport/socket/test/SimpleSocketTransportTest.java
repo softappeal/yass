@@ -6,6 +6,7 @@ import ch.softappeal.yass.core.remote.test.ContractIdTest;
 import ch.softappeal.yass.transport.PathSerializer;
 import ch.softappeal.yass.transport.SimplePathResolver;
 import ch.softappeal.yass.transport.SimpleTransportSetup;
+import ch.softappeal.yass.transport.socket.SimpleSocketConnector;
 import ch.softappeal.yass.transport.socket.SimpleSocketTransport;
 import ch.softappeal.yass.transport.test.TransportTest;
 import ch.softappeal.yass.util.Check;
@@ -15,8 +16,6 @@ import ch.softappeal.yass.util.NamedThreadFactory;
 import org.junit.Assert;
 import org.junit.Test;
 
-import javax.net.ServerSocketFactory;
-import javax.net.SocketFactory;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
@@ -37,22 +36,20 @@ public class SimpleSocketTransportTest extends TransportTest {
         Assert.assertNull(SimpleSocketTransport.socket());
         final ExecutorService executor = Executors.newCachedThreadPool(new NamedThreadFactory("executor", Exceptions.TERMINATE));
         try (
-            Closer closer = new SimpleSocketTransport(executor)
-                .start(
-                    MESSAGE_SERIALIZER,
-                    new Server(
-                        ContractIdTest.ID.service(
-                            new TestServiceImpl(),
-                            socketInterceptor("server"),
-                            SERVER_INTERCEPTOR
-                        )
-                    ),
-                    executor,
-                    SocketTransportTest.ADDRESS
+            Closer closer = new SimpleSocketTransport(
+                executor,
+                MESSAGE_SERIALIZER,
+                new Server(
+                    ContractIdTest.ID.service(
+                        new TestServiceImpl(),
+                        socketInterceptor("server"),
+                        SERVER_INTERCEPTOR
+                    )
                 )
+            ).start(executor, SocketTransportTest.ADDRESS)
         ) {
             invoke(
-                SimpleSocketTransport.client(MESSAGE_SERIALIZER, SocketTransportTest.ADDRESS, 0, 0)
+                SimpleSocketTransport.client(MESSAGE_SERIALIZER, new SimpleSocketConnector(SocketTransportTest.ADDRESS))
                     .proxy(
                         ContractIdTest.ID,
                         socketInterceptor("client"),
@@ -67,16 +64,14 @@ public class SimpleSocketTransportTest extends TransportTest {
     @Test public void wrongPath() throws Exception {
         final ExecutorService executor = Executors.newCachedThreadPool(new NamedThreadFactory("executor", Exceptions.STD_ERR));
         try (
-            Closer closer = new SimpleSocketTransport(executor)
-                .start(
-                    MESSAGE_SERIALIZER,
-                    new Server(ECHO_ID.service(new EchoServiceImpl())),
-                    executor,
-                    SocketTransportTest.ADDRESS
-                )
+            Closer closer = new SimpleSocketTransport(
+                executor,
+                MESSAGE_SERIALIZER,
+                new Server(ECHO_ID.service(new EchoServiceImpl()))
+            ).start(executor, SocketTransportTest.ADDRESS)
         ) {
             try {
-                SimpleSocketTransport.client(PathSerializer.INSTANCE, 123, MESSAGE_SERIALIZER, SocketFactory.getDefault(), SocketTransportTest.ADDRESS, 0, 0)
+                SimpleSocketTransport.client(MESSAGE_SERIALIZER, new SimpleSocketConnector(SocketTransportTest.ADDRESS), PathSerializer.INSTANCE, 123)
                     .proxy(ECHO_ID).echo(null);
                 Assert.fail();
             } catch (final RuntimeException ignore) {
@@ -102,16 +97,15 @@ public class SimpleSocketTransportTest extends TransportTest {
             return invocation.proceed();
         }))));
         try (
-            Closer closer = new SimpleSocketTransport(executor)
-                .start(
-                    new SimplePathResolver(pathMappings), PathSerializer.INSTANCE,
-                    executor,
-                    ServerSocketFactory.getDefault(), SocketTransportTest.ADDRESS
-                )
+            Closer closer = new SimpleSocketTransport(
+                executor,
+                PathSerializer.INSTANCE,
+                new SimplePathResolver(pathMappings)
+            ).start(executor, SocketTransportTest.ADDRESS)
         ) {
-            SimpleSocketTransport.client(PathSerializer.INSTANCE, 1, MESSAGE_SERIALIZER, SocketFactory.getDefault(), SocketTransportTest.ADDRESS, 0, 0)
+            SimpleSocketTransport.client(MESSAGE_SERIALIZER, new SimpleSocketConnector(SocketTransportTest.ADDRESS), PathSerializer.INSTANCE, 1)
                 .proxy(ECHO_ID).echo(null);
-            SimpleSocketTransport.client(PathSerializer.INSTANCE, 2, MESSAGE_SERIALIZER, SocketFactory.getDefault(), SocketTransportTest.ADDRESS, 0, 0)
+            SimpleSocketTransport.client(MESSAGE_SERIALIZER, new SimpleSocketConnector(SocketTransportTest.ADDRESS), PathSerializer.INSTANCE, 2)
                 .proxy(ECHO_ID).echo(null);
         } finally {
             executor.shutdown();

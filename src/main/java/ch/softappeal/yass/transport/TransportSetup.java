@@ -23,9 +23,6 @@ public final class TransportSetup {
         return new TransportSetup(packetSerializer, sessionFactory);
     }
 
-    /**
-     * Uses {@link PacketSerializer} and {@link MessageSerializer}.
-     */
     public static TransportSetup ofContractSerializer(final Serializer contractSerializer, final SessionFactory sessionFactory) {
         return new TransportSetup(new PacketSerializer(new MessageSerializer(contractSerializer)), sessionFactory);
     }

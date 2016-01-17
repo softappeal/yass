@@ -39,7 +39,7 @@ public abstract class WsConnection implements Connection {
         if (closeReason.getCloseCode().getCode() == CloseReason.CloseCodes.NORMAL_CLOSURE.getCode()) {
             yassSession.close();
         } else {
-            onError(new Exception(closeReason.toString()));
+            onError(new RuntimeException(closeReason.toString()));
         }
     }
 
@@ -70,7 +70,7 @@ public abstract class WsConnection implements Connection {
                     try {
                         Session.received(connection.yassSession, (Packet)connection.packetSerializer.read(Reader.create(in)));
                         if (in.hasRemaining()) {
-                            throw new Exception("input buffer is not empty");
+                            throw new RuntimeException("input buffer is not empty");
                         }
                     } catch (final Exception ignore) {
                         Session.close(connection.yassSession, ignore);

@@ -9,6 +9,7 @@ import ch.softappeal.yass.serialize.JavaSerializer;
 import ch.softappeal.yass.serialize.Serializer;
 import ch.softappeal.yass.transport.TransportSetup;
 import ch.softappeal.yass.transport.socket.AsyncSocketConnection;
+import ch.softappeal.yass.transport.socket.SimpleSocketConnector;
 import ch.softappeal.yass.transport.socket.SocketTransport;
 import ch.softappeal.yass.transport.socket.SyncSocketConnection;
 import ch.softappeal.yass.util.Exceptions;
@@ -33,8 +34,9 @@ public final class AsyncSocketConnectionTest {
 
     public static void main(final String... args) throws InterruptedException {
         final ExecutorService executor = Executors.newCachedThreadPool(new NamedThreadFactory("Executor", Exceptions.STD_ERR));
-
-        new SocketTransport(executor, SyncSocketConnection.FACTORY).start(
+        new SocketTransport(
+            executor,
+            SyncSocketConnection.FACTORY,
             TransportSetup.ofPacketSerializer(
                 PACKET_SERIALIZER,
                 connection -> new SimpleSession(connection, executor) {
@@ -57,12 +59,11 @@ public final class AsyncSocketConnectionTest {
                         System.out.println("acceptor closed: " + exception);
                     }
                 }
-            ),
+            )
+        ).start(executor, ADDRESS);
+        SocketTransport.connect(
             executor,
-            ADDRESS
-        );
-
-        new SocketTransport(executor, AsyncSocketConnection.factory(executor, 10)).connect(
+            AsyncSocketConnection.factory(executor, 10),
             TransportSetup.ofPacketSerializer(
                 PACKET_SERIALIZER,
                 connection -> new SimpleSession(connection, executor) {
@@ -79,9 +80,8 @@ public final class AsyncSocketConnectionTest {
                     }
                 }
             ),
-            ADDRESS, 0
+            new SimpleSocketConnector(ADDRESS)
         );
-
     }
 
 }
