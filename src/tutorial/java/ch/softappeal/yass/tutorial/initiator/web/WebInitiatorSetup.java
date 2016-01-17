@@ -19,7 +19,7 @@ public abstract class WebInitiatorSetup {
             new WsConfigurator(
                 SyncWsConnection.FACTORY,
                 TransportSetup.ofContractSerializer(
-                    Config.SERIALIZER,
+                    Config.CONTRACT_SERIALIZER,
                     connection -> new InitiatorSession(connection, WebAcceptorSetup.DISPATCH_EXECUTOR)
                 ),
                 Exceptions.STD_ERR

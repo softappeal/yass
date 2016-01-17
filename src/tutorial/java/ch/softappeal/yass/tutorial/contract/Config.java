@@ -14,6 +14,7 @@ import ch.softappeal.yass.serialize.fast.SimpleJsFastSerializer;
 import ch.softappeal.yass.serialize.fast.TaggedFastSerializer;
 import ch.softappeal.yass.serialize.fast.TaggedJsFastSerializer;
 import ch.softappeal.yass.serialize.fast.TypeDesc;
+import ch.softappeal.yass.transport.MessageSerializer;
 import ch.softappeal.yass.tutorial.contract.instrument.Bond;
 import ch.softappeal.yass.tutorial.contract.instrument.InstrumentService;
 import ch.softappeal.yass.tutorial.contract.instrument.stock.Stock;
@@ -99,7 +100,9 @@ public final class Config {
         REFERENCEABLE_CONCRETE_CLASSES
     );
 
-    public static final AbstractJsFastSerializer SERIALIZER = SIMPLE_JS_SERIALIZER;
+    public static final AbstractJsFastSerializer CONTRACT_SERIALIZER = SIMPLE_JS_SERIALIZER;
+
+    public static final Serializer MESSAGE_SERIALIZER = new MessageSerializer(CONTRACT_SERIALIZER);
 
     /**
      * Shows how to use {@link SimpleMethodMapper}.

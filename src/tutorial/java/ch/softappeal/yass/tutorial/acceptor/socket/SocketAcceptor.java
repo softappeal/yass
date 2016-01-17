@@ -21,7 +21,7 @@ public final class SocketAcceptor {
         final Executor executor = Executors.newCachedThreadPool(new NamedThreadFactory("executor", Exceptions.STD_ERR));
         new SocketTransport(executor, AsyncSocketConnection.factory(executor, 1_000)).start(
             TransportSetup.ofContractSerializer(
-                Config.SERIALIZER,
+                Config.CONTRACT_SERIALIZER,
                 connection -> new AcceptorSession(connection, executor)
             ),
             executor,

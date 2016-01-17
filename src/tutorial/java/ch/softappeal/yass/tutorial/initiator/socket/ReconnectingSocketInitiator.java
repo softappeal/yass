@@ -24,7 +24,7 @@ public final class ReconnectingSocketInitiator {
             10,
             connection -> new InitiatorSession(connection, executor),
             sessionFactory -> new SocketTransport(executor, SyncSocketConnection.FACTORY).connect(
-                TransportSetup.ofContractSerializer(Config.SERIALIZER, sessionFactory),
+                TransportSetup.ofContractSerializer(Config.CONTRACT_SERIALIZER, sessionFactory),
                 SocketAcceptor.ADDRESS, 0
             )
         );

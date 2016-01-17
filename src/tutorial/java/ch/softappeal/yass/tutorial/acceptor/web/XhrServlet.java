@@ -5,7 +5,6 @@ import ch.softappeal.yass.core.remote.Server;
 import ch.softappeal.yass.serialize.Reader;
 import ch.softappeal.yass.serialize.Serializer;
 import ch.softappeal.yass.serialize.Writer;
-import ch.softappeal.yass.transport.MessageSerializer;
 import ch.softappeal.yass.tutorial.contract.Config;
 import ch.softappeal.yass.tutorial.contract.EchoServiceImpl;
 import ch.softappeal.yass.tutorial.contract.Logger;
@@ -39,10 +38,8 @@ public class XhrServlet extends HttpServlet {
         ACCEPTOR.echoService.service(EchoServiceImpl.INSTANCE, UnexpectedExceptionHandler.INSTANCE, new Logger(null, Logger.Side.SERVER))
     );
 
-    private static final Serializer MESSAGE_SERIALIZER = new MessageSerializer(Config.SERIALIZER);
-
     @Override protected void doPost(final HttpServletRequest request, final HttpServletResponse response) {
-        invoke(SERVER, MESSAGE_SERIALIZER, request, response);
+        invoke(SERVER, Config.MESSAGE_SERIALIZER, request, response);
     }
 
 }

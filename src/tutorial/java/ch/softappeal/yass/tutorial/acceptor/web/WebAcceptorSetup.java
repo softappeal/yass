@@ -29,7 +29,7 @@ public abstract class WebAcceptorSetup {
             new WsConfigurator(
                 AsyncWsConnection.factory(1_000),
                 TransportSetup.ofContractSerializer(
-                    Config.SERIALIZER,
+                    Config.CONTRACT_SERIALIZER,
                     connection -> new AcceptorSession(connection, DISPATCH_EXECUTOR)
                 ),
                 Exceptions.STD_ERR
