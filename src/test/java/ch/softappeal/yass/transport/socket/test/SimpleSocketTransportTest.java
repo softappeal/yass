@@ -6,7 +6,6 @@ import ch.softappeal.yass.core.remote.test.ContractIdTest;
 import ch.softappeal.yass.transport.PathSerializer;
 import ch.softappeal.yass.transport.SimplePathResolver;
 import ch.softappeal.yass.transport.SimpleTransportSetup;
-import ch.softappeal.yass.transport.socket.SimpleSocketConnector;
 import ch.softappeal.yass.transport.socket.SimpleSocketTransport;
 import ch.softappeal.yass.transport.test.TransportTest;
 import ch.softappeal.yass.util.Check;
@@ -49,7 +48,7 @@ public class SimpleSocketTransportTest extends TransportTest {
             ).start(executor, SocketTransportTest.ADDRESS)
         ) {
             invoke(
-                SimpleSocketTransport.client(MESSAGE_SERIALIZER, new SimpleSocketConnector(SocketTransportTest.ADDRESS))
+                SimpleSocketTransport.client(MESSAGE_SERIALIZER, SocketTransportTest.CONNECTOR)
                     .proxy(
                         ContractIdTest.ID,
                         socketInterceptor("client"),
@@ -71,7 +70,7 @@ public class SimpleSocketTransportTest extends TransportTest {
             ).start(executor, SocketTransportTest.ADDRESS)
         ) {
             try {
-                SimpleSocketTransport.client(MESSAGE_SERIALIZER, new SimpleSocketConnector(SocketTransportTest.ADDRESS), PathSerializer.INSTANCE, 123)
+                SimpleSocketTransport.client(MESSAGE_SERIALIZER, SocketTransportTest.CONNECTOR, PathSerializer.INSTANCE, 123)
                     .proxy(ECHO_ID).echo(null);
                 Assert.fail();
             } catch (final RuntimeException ignore) {
@@ -103,9 +102,9 @@ public class SimpleSocketTransportTest extends TransportTest {
                 new SimplePathResolver(pathMappings)
             ).start(executor, SocketTransportTest.ADDRESS)
         ) {
-            SimpleSocketTransport.client(MESSAGE_SERIALIZER, new SimpleSocketConnector(SocketTransportTest.ADDRESS), PathSerializer.INSTANCE, 1)
+            SimpleSocketTransport.client(MESSAGE_SERIALIZER, SocketTransportTest.CONNECTOR, PathSerializer.INSTANCE, 1)
                 .proxy(ECHO_ID).echo(null);
-            SimpleSocketTransport.client(MESSAGE_SERIALIZER, new SimpleSocketConnector(SocketTransportTest.ADDRESS), PathSerializer.INSTANCE, 2)
+            SimpleSocketTransport.client(MESSAGE_SERIALIZER, SocketTransportTest.CONNECTOR, PathSerializer.INSTANCE, 2)
                 .proxy(ECHO_ID).echo(null);
         } finally {
             executor.shutdown();

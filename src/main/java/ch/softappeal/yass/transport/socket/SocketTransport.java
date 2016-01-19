@@ -71,7 +71,9 @@ public final class SocketTransport extends SocketListener {
         }
     }
 
-    public static void connect(final Executor readerExecutor, final SocketConnection.Factory connectionFactory, final TransportSetup setup, final SocketConnector socketConnector) {
+    public static void connect(
+        final Executor readerExecutor, final SocketConnection.Factory connectionFactory, final TransportSetup setup, final SocketConnector socketConnector
+    ) {
         connect(
             readerExecutor, connectionFactory, setup, socketConnector,
             PathSerializer.INSTANCE, PathSerializer.DEFAULT

@@ -9,16 +9,17 @@ import java.net.SocketAddress;
 public final class SimpleSocketConnector implements SocketConnector {
 
     private final SocketFactory socketFactory;
+    private final SocketAddress socketAddress;
     private final int connectTimeoutMilliSeconds;
     private final int readTimeoutMilliSeconds;
-    private final SocketAddress socketAddress;
 
     /**
      * @param connectTimeoutMilliSeconds see {@link Socket#connect(SocketAddress, int)}
      * @param readTimeoutMilliSeconds see {@link Socket#setSoTimeout(int)}
      */
-    public SimpleSocketConnector(final SocketFactory socketFactory, final int connectTimeoutMilliSeconds, final int readTimeoutMilliSeconds, final SocketAddress socketAddress) {
+    public SimpleSocketConnector(final SocketFactory socketFactory, final SocketAddress socketAddress, final int connectTimeoutMilliSeconds, final int readTimeoutMilliSeconds) {
         this.socketFactory = Check.notNull(socketFactory);
+        this.socketAddress = Check.notNull(socketAddress);
         if (connectTimeoutMilliSeconds < 0) {
             throw new IllegalArgumentException("connectTimeoutMilliSeconds < 0");
         }
@@ -27,7 +28,6 @@ public final class SimpleSocketConnector implements SocketConnector {
             throw new IllegalArgumentException("readTimeoutMilliSeconds < 0");
         }
         this.readTimeoutMilliSeconds = readTimeoutMilliSeconds;
-        this.socketAddress = Check.notNull(socketAddress);
     }
 
     public Socket connect() throws Exception {
@@ -42,24 +42,24 @@ public final class SimpleSocketConnector implements SocketConnector {
         }
     }
 
-    public SimpleSocketConnector(final SocketFactory socketFactory, final int connectTimeoutMilliSeconds, final SocketAddress socketAddress) {
-        this(socketFactory, connectTimeoutMilliSeconds, 0, socketAddress);
+    public SimpleSocketConnector(final SocketFactory socketFactory, final SocketAddress socketAddress, final int connectTimeoutMilliSeconds) {
+        this(socketFactory, socketAddress, connectTimeoutMilliSeconds, 0);
     }
 
     public SimpleSocketConnector(final SocketFactory socketFactory, final SocketAddress socketAddress) {
-        this(socketFactory, 0, socketAddress);
+        this(socketFactory, socketAddress, 0);
     }
 
-    public SimpleSocketConnector(final int connectTimeoutMilliSeconds, final int readTimeoutMilliSeconds, final SocketAddress socketAddress) {
-        this(SocketFactory.getDefault(), connectTimeoutMilliSeconds, readTimeoutMilliSeconds, socketAddress);
+    public SimpleSocketConnector(final SocketAddress socketAddress, final int connectTimeoutMilliSeconds, final int readTimeoutMilliSeconds) {
+        this(SocketFactory.getDefault(), socketAddress, connectTimeoutMilliSeconds, readTimeoutMilliSeconds);
     }
 
-    public SimpleSocketConnector(final int connectTimeoutMilliSeconds, final SocketAddress socketAddress) {
-        this(connectTimeoutMilliSeconds, 0, socketAddress);
+    public SimpleSocketConnector(final SocketAddress socketAddress, final int connectTimeoutMilliSeconds) {
+        this(socketAddress, connectTimeoutMilliSeconds, 0);
     }
 
     public SimpleSocketConnector(final SocketAddress socketAddress) {
-        this(0, socketAddress);
+        this(socketAddress, 0);
     }
 
 }
