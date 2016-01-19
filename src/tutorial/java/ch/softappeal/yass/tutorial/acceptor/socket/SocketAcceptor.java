@@ -2,6 +2,7 @@ package ch.softappeal.yass.tutorial.acceptor.socket;
 
 import ch.softappeal.yass.transport.TransportSetup;
 import ch.softappeal.yass.transport.socket.AsyncSocketConnection;
+import ch.softappeal.yass.transport.socket.SimpleSocketBinder;
 import ch.softappeal.yass.transport.socket.SocketTransport;
 import ch.softappeal.yass.tutorial.acceptor.AcceptorSession;
 import ch.softappeal.yass.tutorial.contract.Config;
@@ -26,7 +27,7 @@ public final class SocketAcceptor {
                 Config.CONTRACT_SERIALIZER,
                 connection -> new AcceptorSession(connection, executor)
             )
-        ).start(executor, ADDRESS);
+        ).start(executor, new SimpleSocketBinder(ADDRESS));
         System.out.println("started");
     }
 

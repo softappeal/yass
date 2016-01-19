@@ -4,11 +4,9 @@ import ch.softappeal.yass.util.Check;
 import ch.softappeal.yass.util.Closer;
 import ch.softappeal.yass.util.Exceptions;
 
-import javax.net.ServerSocketFactory;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.net.SocketAddress;
 import java.util.concurrent.Executor;
 
 public abstract class SocketListener {
@@ -28,11 +26,10 @@ public abstract class SocketListener {
      * @param listenerExecutor used once
      * @return closer for socket listener
      */
-    public final Closer start(final Executor listenerExecutor, final ServerSocketFactory socketFactory, final SocketAddress socketAddress) {
+    public final Closer start(final Executor listenerExecutor, final SocketBinder socketBinder) {
         try {
-            final ServerSocket serverSocket = socketFactory.createServerSocket();
+            final ServerSocket serverSocket = socketBinder.bind();
             try {
-                serverSocket.bind(socketAddress);
                 listenerExecutor.execute(() -> {
                     try {
                         while (true) {
@@ -57,13 +54,9 @@ public abstract class SocketListener {
                     throw new RuntimeException(e);
                 }
             };
-        } catch (final IOException e) {
-            throw new RuntimeException(e);
+        } catch (final Exception e) {
+            throw Exceptions.wrap(e);
         }
-    }
-
-    public final Closer start(final Executor listenerExecutor, final SocketAddress socketAddress) {
-        return start(listenerExecutor, ServerSocketFactory.getDefault(), socketAddress);
     }
 
 }

@@ -7,7 +7,7 @@ import java.net.Socket;
 import java.net.SocketException;
 import java.util.concurrent.Executor;
 
-final class SocketUtils {
+public final class SocketUtils {
 
     private SocketUtils() {
         // disable
@@ -17,7 +17,7 @@ final class SocketUtils {
         socket.setTcpNoDelay(true);
     }
 
-    static void close(final Socket socket, final Exception e) {
+    public static void close(final Socket socket, final Exception e) {
         try {
             socket.close();
         } catch (final Exception e2) {
@@ -25,7 +25,7 @@ final class SocketUtils {
         }
     }
 
-    static void close(final ServerSocket serverSocket, final Exception e) {
+    public static void close(final ServerSocket serverSocket, final Exception e) {
         try {
             serverSocket.close();
         } catch (final Exception e2) {

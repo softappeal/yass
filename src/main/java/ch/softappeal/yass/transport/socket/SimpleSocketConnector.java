@@ -13,6 +13,18 @@ public final class SimpleSocketConnector implements SocketConnector {
     private final int connectTimeoutMilliSeconds;
     private final int readTimeoutMilliSeconds;
 
+    @Override public Socket connect() throws Exception {
+        final Socket socket = socketFactory.createSocket();
+        try {
+            socket.connect(socketAddress, connectTimeoutMilliSeconds);
+            socket.setSoTimeout(readTimeoutMilliSeconds);
+            return socket;
+        } catch (final Exception e) {
+            SocketUtils.close(socket, e);
+            throw e;
+        }
+    }
+
     /**
      * @param connectTimeoutMilliSeconds see {@link Socket#connect(SocketAddress, int)}
      * @param readTimeoutMilliSeconds see {@link Socket#setSoTimeout(int)}
@@ -28,18 +40,6 @@ public final class SimpleSocketConnector implements SocketConnector {
             throw new IllegalArgumentException("readTimeoutMilliSeconds < 0");
         }
         this.readTimeoutMilliSeconds = readTimeoutMilliSeconds;
-    }
-
-    public Socket connect() throws Exception {
-        final Socket socket = socketFactory.createSocket();
-        try {
-            socket.connect(socketAddress, connectTimeoutMilliSeconds);
-            socket.setSoTimeout(readTimeoutMilliSeconds);
-            return socket;
-        } catch (final Exception e) {
-            SocketUtils.close(socket, e);
-            throw e;
-        }
     }
 
     public SimpleSocketConnector(final SocketFactory socketFactory, final SocketAddress socketAddress, final int connectTimeoutMilliSeconds) {

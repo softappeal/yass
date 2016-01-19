@@ -1,5 +1,6 @@
 package ch.softappeal.yass.transport.socket.test;
 
+import ch.softappeal.yass.transport.socket.SimpleSocketBinder;
 import ch.softappeal.yass.transport.socket.SimpleSocketConnector;
 import ch.softappeal.yass.transport.socket.SocketTransport;
 import ch.softappeal.yass.transport.socket.SyncSocketConnection;
@@ -37,7 +38,7 @@ public class SocketPerformanceTest extends TransportTest {
                 executor,
                 SyncSocketConnection.FACTORY,
                 performanceTransportSetup(executor)
-            ).start(executor, address)
+            ).start(executor, new SimpleSocketBinder(address))
         ) {
             final CountDownLatch latch = new CountDownLatch(1);
             SocketTransport.connect(

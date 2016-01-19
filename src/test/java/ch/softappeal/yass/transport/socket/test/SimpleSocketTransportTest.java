@@ -45,7 +45,7 @@ public class SimpleSocketTransportTest extends TransportTest {
                         SERVER_INTERCEPTOR
                     )
                 )
-            ).start(executor, SocketTransportTest.ADDRESS)
+            ).start(executor, SocketTransportTest.BINDER)
         ) {
             invoke(
                 SimpleSocketTransport.client(MESSAGE_SERIALIZER, SocketTransportTest.CONNECTOR)
@@ -67,7 +67,7 @@ public class SimpleSocketTransportTest extends TransportTest {
                 executor,
                 MESSAGE_SERIALIZER,
                 new Server(ECHO_ID.service(new EchoServiceImpl()))
-            ).start(executor, SocketTransportTest.ADDRESS)
+            ).start(executor, SocketTransportTest.BINDER)
         ) {
             try {
                 SimpleSocketTransport.client(MESSAGE_SERIALIZER, SocketTransportTest.CONNECTOR, PathSerializer.INSTANCE, 123)
@@ -100,7 +100,7 @@ public class SimpleSocketTransportTest extends TransportTest {
                 executor,
                 PathSerializer.INSTANCE,
                 new SimplePathResolver(pathMappings)
-            ).start(executor, SocketTransportTest.ADDRESS)
+            ).start(executor, SocketTransportTest.BINDER)
         ) {
             SimpleSocketTransport.client(MESSAGE_SERIALIZER, SocketTransportTest.CONNECTOR, PathSerializer.INSTANCE, 1)
                 .proxy(ECHO_ID).echo(null);

@@ -1,6 +1,7 @@
 package ch.softappeal.yass.tutorial.acceptor.socket;
 
 import ch.softappeal.yass.core.remote.Server;
+import ch.softappeal.yass.transport.socket.SimpleSocketBinder;
 import ch.softappeal.yass.transport.socket.SimpleSocketTransport;
 import ch.softappeal.yass.tutorial.contract.Config;
 import ch.softappeal.yass.tutorial.contract.EchoServiceImpl;
@@ -24,7 +25,7 @@ public final class SimpleSocketAcceptor {
             new Server(
                 ACCEPTOR.echoService.service(EchoServiceImpl.INSTANCE, UnexpectedExceptionHandler.INSTANCE, new Logger(null, Logger.Side.SERVER))
             )
-        ).start(executor, SocketAcceptor.ADDRESS);
+        ).start(executor, new SimpleSocketBinder(SocketAcceptor.ADDRESS));
         System.out.println("started");
     }
 
