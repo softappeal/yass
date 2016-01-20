@@ -7,98 +7,79 @@ import ch.softappeal.yass.transport.PathResolver;
 import ch.softappeal.yass.transport.PathSerializer;
 import ch.softappeal.yass.transport.TransportSetup;
 import ch.softappeal.yass.util.Check;
-import ch.softappeal.yass.util.Closer;
+import ch.softappeal.yass.util.Exceptions;
 
-import javax.net.ServerSocketFactory;
-import javax.net.SocketFactory;
-import java.io.IOException;
 import java.io.OutputStream;
 import java.net.Socket;
-import java.net.SocketAddress;
 import java.util.concurrent.Executor;
 
 /**
  * Each session gets its own socket.
  */
-public final class SocketTransport extends AbstractSocketTransport {
+public final class SocketTransport extends SocketListener {
 
     private final SocketConnection.Factory connectionFactory;
     private final Serializer pathSerializer;
+    private final PathResolver pathResolver;
 
     /**
      * @param readerExecutor used once for each session
      */
-    public SocketTransport(final Executor readerExecutor, final SocketConnection.Factory connectionFactory, final Serializer pathSerializer) {
+    public SocketTransport(
+        final Executor readerExecutor, final SocketConnection.Factory connectionFactory,
+        final Serializer pathSerializer, final PathResolver pathResolver
+    ) {
         super(readerExecutor);
         this.connectionFactory = Check.notNull(connectionFactory);
         this.pathSerializer = Check.notNull(pathSerializer);
+        this.pathResolver = Check.notNull(pathResolver);
     }
 
-    /**
-     * Uses {@link PathSerializer}.
-     */
-    public SocketTransport(final Executor readerExecutor, final SocketConnection.Factory connectionFactory) {
-        this(readerExecutor, connectionFactory, PathSerializer.INSTANCE);
+    public SocketTransport(
+        final Executor readerExecutor, final SocketConnection.Factory connectionFactory,
+        final TransportSetup setup
+    ) {
+        this(
+            readerExecutor, connectionFactory,
+            PathSerializer.INSTANCE, new PathResolver(PathSerializer.DEFAULT, setup)
+        );
     }
 
-    public void connect(final TransportSetup setup, final Object path, final SocketFactory socketFactory, final SocketAddress socketAddress) {
+    @Override void accept(final Socket socket) throws Exception {
+        final Reader reader = Reader.create(socket.getInputStream());
+        final TransportSetup setup = pathResolver.resolvePath(pathSerializer.read(reader));
+        SocketConnection.create(connectionFactory, setup, socket, reader, socket.getOutputStream());
+    }
+
+    public static void connect(
+        final Executor readerExecutor, final SocketConnection.Factory connectionFactory, final TransportSetup setup, final SocketConnector socketConnector,
+        final Serializer pathSerializer, final Object path
+    ) {
+        Check.notNull(connectionFactory);
         Check.notNull(setup);
+        Check.notNull(pathSerializer);
         Check.notNull(path);
         try {
-            runInAcceptExecutor(connect(socketFactory, socketAddress), new SocketAction() {
-                @Override public void action(final Socket socket) throws Exception {
+            SocketUtils.execute(readerExecutor, socketConnector.connect(), new SocketUtils.SocketExecutor() {
+                @Override public void execute(final Socket socket) throws Exception {
                     final OutputStream out = socket.getOutputStream();
                     pathSerializer.write(path, Writer.create(out));
                     out.flush();
                     SocketConnection.create(connectionFactory, setup, socket, Reader.create(socket.getInputStream()), out);
                 }
             });
-        } catch (final IOException e) {
-            throw new RuntimeException(e);
+        } catch (final Exception e) {
+            throw Exceptions.wrap(e);
         }
     }
 
-    /**
-     * Uses {@link PathSerializer#DEFAULT}.
-     */
-    public void connect(final TransportSetup setup, final SocketFactory socketFactory, final SocketAddress socketAddress) {
-        connect(setup, PathSerializer.DEFAULT, socketFactory, socketAddress);
-    }
-
-    /**
-     * Uses {@link SocketFactory#getDefault()} and {@link PathSerializer#DEFAULT}.
-     */
-    public void connect(final TransportSetup setup, final SocketAddress socketAddress) {
-        connect(setup, SocketFactory.getDefault(), socketAddress);
-    }
-
-    /**
-     * @param listenerExecutor used once
-     * @return closer for socket listener
-     */
-    public Closer start(final PathResolver pathResolver, final Executor listenerExecutor, final ServerSocketFactory socketFactory, final SocketAddress socketAddress) {
-        Check.notNull(pathResolver);
-        return start(listenerExecutor, socketFactory, socketAddress, new SocketAction() {
-            @Override public void action(final Socket socket) throws Exception {
-                final Reader reader = Reader.create(socket.getInputStream());
-                final TransportSetup setup = pathResolver.resolvePath(pathSerializer.read(reader));
-                SocketConnection.create(connectionFactory, setup, socket, reader, socket.getOutputStream());
-            }
-        });
-    }
-
-    /**
-     * Uses {@link PathSerializer#DEFAULT}.
-     */
-    public Closer start(final TransportSetup setup, final Executor listenerExecutor, final ServerSocketFactory socketFactory, final SocketAddress socketAddress) {
-        return start(new PathResolver(PathSerializer.DEFAULT, setup), listenerExecutor, socketFactory, socketAddress);
-    }
-
-    /**
-     * Uses {@link ServerSocketFactory#getDefault()} and {@link PathSerializer#DEFAULT}.
-     */
-    public Closer start(final TransportSetup setup, final Executor listenerExecutor, final SocketAddress socketAddress) {
-        return start(setup, listenerExecutor, ServerSocketFactory.getDefault(), socketAddress);
+    public static void connect(
+        final Executor readerExecutor, final SocketConnection.Factory connectionFactory, final TransportSetup setup, final SocketConnector socketConnector
+    ) {
+        connect(
+            readerExecutor, connectionFactory, setup, socketConnector,
+            PathSerializer.INSTANCE, PathSerializer.DEFAULT
+        );
     }
 
 }

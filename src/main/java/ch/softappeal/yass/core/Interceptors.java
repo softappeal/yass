@@ -80,7 +80,6 @@ public final class Interceptors {
      * @param <C> the contract type
      * @return a proxy for implementation using interceptors
      */
-    @SuppressWarnings("unchecked")
     public static <C> C proxy(final Class<C> contract, final C implementation, final Interceptor... interceptors) {
         Check.notNull(implementation);
         final Interceptor interceptor = composite(interceptors);
@@ -88,7 +87,7 @@ public final class Interceptors {
             Check.notNull(contract);
             return implementation;
         }
-        return (C)Proxy.newProxyInstance(
+        return contract.cast(Proxy.newProxyInstance(
             contract.getClassLoader(),
             new Class<?>[] {contract},
             new InvocationHandler() {
@@ -96,7 +95,7 @@ public final class Interceptors {
                     return Interceptors.invoke(interceptor, method, arguments, implementation);
                 }
             }
-        );
+        ));
     }
 
     /**

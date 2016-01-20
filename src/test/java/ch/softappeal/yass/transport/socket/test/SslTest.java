@@ -4,6 +4,8 @@ import ch.softappeal.yass.core.Interceptor;
 import ch.softappeal.yass.core.Invocation;
 import ch.softappeal.yass.core.remote.Server;
 import ch.softappeal.yass.core.remote.test.ContractIdTest;
+import ch.softappeal.yass.transport.socket.SimpleSocketBinder;
+import ch.softappeal.yass.transport.socket.SimpleSocketConnector;
 import ch.softappeal.yass.transport.socket.SimpleSocketTransport;
 import ch.softappeal.yass.transport.socket.SslSetup;
 import ch.softappeal.yass.transport.test.TransportTest;
@@ -35,7 +37,9 @@ public class SslTest extends TransportTest {
     private static void test(final ServerSocketFactory serverSocketFactory, final SocketFactory socketFactory, final boolean needClientAuth) throws Exception {
         final ExecutorService executor = Executors.newCachedThreadPool(new NamedThreadFactory("executor", Exceptions.STD_ERR));
         try (
-            Closer closer = new SimpleSocketTransport(executor).start(
+            Closer closer = new SimpleSocketTransport(
+                executor,
+                MESSAGE_SERIALIZER,
                 new Server(
                     ContractIdTest.ID.service(
                         new TestServiceImpl(),
@@ -48,15 +52,11 @@ public class SslTest extends TransportTest {
                             }
                         }
                     )
-                ),
-                MESSAGE_SERIALIZER,
-                executor,
-                serverSocketFactory,
-                SocketTransportTest.ADDRESS
-            )
+                )
+            ).start(executor, new SimpleSocketBinder(serverSocketFactory, SocketTransportTest.ADDRESS))
         ) {
             Assert.assertTrue(
-                SimpleSocketTransport.client(MESSAGE_SERIALIZER, socketFactory, SocketTransportTest.ADDRESS)
+                SimpleSocketTransport.client(MESSAGE_SERIALIZER, new SimpleSocketConnector(socketFactory, SocketTransportTest.ADDRESS))
                     .proxy(
                         ContractIdTest.ID,
                         new Interceptor() {

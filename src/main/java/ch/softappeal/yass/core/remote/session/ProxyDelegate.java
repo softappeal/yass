@@ -43,10 +43,9 @@ public abstract class ProxyDelegate<S extends Session> {
     /**
      * @return a proxy delegating to {@link #session()}
      */
-    @SuppressWarnings("unchecked")
     protected final <C> C proxy(final Class<C> contract, final SessionProxyGetter<S, C> sessionProxyGetter) {
         Check.notNull(sessionProxyGetter);
-        return (C)Proxy.newProxyInstance(
+        return contract.cast(Proxy.newProxyInstance(
             contract.getClassLoader(),
             new Class<?>[] {contract},
             new InvocationHandler() {
@@ -58,7 +57,7 @@ public abstract class ProxyDelegate<S extends Session> {
                     }
                 }
             }
-        );
+        ));
     }
 
 }

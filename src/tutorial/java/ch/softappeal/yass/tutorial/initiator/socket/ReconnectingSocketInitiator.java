@@ -5,6 +5,7 @@ import ch.softappeal.yass.core.remote.session.Reconnector;
 import ch.softappeal.yass.core.remote.session.Session;
 import ch.softappeal.yass.core.remote.session.SessionFactory;
 import ch.softappeal.yass.transport.TransportSetup;
+import ch.softappeal.yass.transport.socket.SimpleSocketConnector;
 import ch.softappeal.yass.transport.socket.SocketTransport;
 import ch.softappeal.yass.transport.socket.SyncSocketConnection;
 import ch.softappeal.yass.tutorial.acceptor.socket.SocketAcceptor;
@@ -33,9 +34,11 @@ public final class ReconnectingSocketInitiator {
             },
             new Reconnector.Connector() {
                 @Override public void connect(final SessionFactory sessionFactory) throws Exception {
-                    new SocketTransport(executor, SyncSocketConnection.FACTORY).connect(
-                        TransportSetup.ofContractSerializer(Config.SERIALIZER, sessionFactory),
-                        SocketAcceptor.ADDRESS
+                    SocketTransport.connect(
+                        executor,
+                        SyncSocketConnection.FACTORY,
+                        TransportSetup.ofContractSerializer(Config.CONTRACT_SERIALIZER, sessionFactory),
+                        new SimpleSocketConnector(SocketAcceptor.ADDRESS)
                     );
                 }
             }

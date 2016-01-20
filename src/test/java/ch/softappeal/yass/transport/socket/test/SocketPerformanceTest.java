@@ -1,5 +1,7 @@
 package ch.softappeal.yass.transport.socket.test;
 
+import ch.softappeal.yass.transport.socket.SimpleSocketBinder;
+import ch.softappeal.yass.transport.socket.SimpleSocketConnector;
 import ch.softappeal.yass.transport.socket.SocketTransport;
 import ch.softappeal.yass.transport.socket.SyncSocketConnection;
 import ch.softappeal.yass.transport.test.TransportTest;
@@ -31,9 +33,20 @@ public class SocketPerformanceTest extends TransportTest {
         final int bytes = Integer.valueOf(args[3]);
         final SocketAddress address = new InetSocketAddress(hostname, port);
         final ExecutorService executor = Executors.newCachedThreadPool(new NamedThreadFactory("executor", Exceptions.TERMINATE));
-        try (Closer closer = new SocketTransport(executor, SyncSocketConnection.FACTORY).start(performanceTransportSetup(executor), executor, address)) {
+        try (
+            Closer closer = new SocketTransport(
+                executor,
+                SyncSocketConnection.FACTORY,
+                performanceTransportSetup(executor)
+            ).start(executor, new SimpleSocketBinder(address))
+        ) {
             final CountDownLatch latch = new CountDownLatch(1);
-            new SocketTransport(executor, SyncSocketConnection.FACTORY).connect(performanceTransportSetup(executor, latch, samples, bytes), address);
+            SocketTransport.connect(
+                executor,
+                SyncSocketConnection.FACTORY,
+                performanceTransportSetup(executor, latch, samples, bytes),
+                new SimpleSocketConnector(address)
+            );
             latch.await();
         } finally {
             executor.shutdown();

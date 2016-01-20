@@ -1,6 +1,7 @@
 package ch.softappeal.yass.tutorial.initiator.web;
 
 import ch.softappeal.yass.core.remote.session.Connection;
+import ch.softappeal.yass.core.remote.session.Session;
 import ch.softappeal.yass.core.remote.session.SessionFactory;
 import ch.softappeal.yass.transport.TransportSetup;
 import ch.softappeal.yass.transport.ws.SyncWsConnection;
@@ -21,9 +22,9 @@ public abstract class WebInitiatorSetup {
             new WsConfigurator(
                 SyncWsConnection.FACTORY,
                 TransportSetup.ofContractSerializer(
-                    Config.SERIALIZER,
+                    Config.CONTRACT_SERIALIZER,
                     new SessionFactory() {
-                        @Override public ch.softappeal.yass.core.remote.session.Session create(final Connection connection) throws Exception {
+                        @Override public Session create(final Connection connection) throws Exception {
                             return new InitiatorSession(connection, WebAcceptorSetup.DISPATCH_EXECUTOR);
                         }
                     }

@@ -321,14 +321,16 @@ namespace remoteTest {
             instrumentService.reload(false, new Integer(123));
             echoService.echo(null).then(result => assert(result === null));
             echoService.echo(undefined).then(result => assert(result === null));
+            echoService.echo(true).then(result => assert(result === true));
+            echoService.echo(false).then(result => assert(result === false));
             const stock = new contract.instrument.stock.Stock;
             stock.id = new Integer(123);
             stock.name = null;
-            stock.paysDividend = undefined;
+            stock.paysDividend = false;
             echoService.echo(stock).then(result => {
                 assert(result.id.value === 123);
                 assert(result.name === undefined);
-                assert(result.paysDividend === undefined);
+                assert(result.paysDividend === false);
             });
             echoService.echo(new Integer(12345678)).then(result =>  assert(result.value === 12345678));
             echoService.echo(new Integer(-87654321)).then(result  => assert(result.value === -87654321));

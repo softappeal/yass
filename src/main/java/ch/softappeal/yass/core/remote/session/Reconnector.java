@@ -36,12 +36,10 @@ public class Reconnector<S extends Session> extends ProxyDelegate<S> {
         };
         executor.execute(new Runnable() {
             @Override public void run() {
-                if (initialDelaySeconds > 0) {
-                    try {
-                        TimeUnit.SECONDS.sleep(initialDelaySeconds);
-                    } catch (final InterruptedException ignore) {
-                        return;
-                    }
+                try {
+                    TimeUnit.SECONDS.sleep(initialDelaySeconds);
+                } catch (final InterruptedException ignore) {
+                    return;
                 }
                 while (!Thread.interrupted()) {
                     if (!Reconnector.this.connected()) {

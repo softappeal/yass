@@ -10,10 +10,9 @@ import java.lang.reflect.Proxy;
 
 public abstract class Client {
 
-    @SuppressWarnings("unchecked")
     public final <C> C proxy(final ContractId<C> contractId, final Interceptor... interceptors) {
         final Interceptor interceptor = Interceptors.composite(interceptors);
-        return (C)Proxy.newProxyInstance(
+        return contractId.contract.cast(Proxy.newProxyInstance(
             contractId.contract.getClassLoader(),
             new Class<?>[] {contractId.contract},
             new InvocationHandler() {
@@ -21,7 +20,7 @@ public abstract class Client {
                     return Client.this.invoke(new Invocation(interceptor, contractId.id, contractId.methodMapper.mapMethod(method), arguments));
                 }
             }
-        );
+        ));
     }
 
     public static final class Invocation {

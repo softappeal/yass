@@ -1,7 +1,6 @@
 package ch.softappeal.yass.transport.socket;
 
 import ch.softappeal.yass.core.remote.Client;
-import ch.softappeal.yass.core.remote.Message;
 import ch.softappeal.yass.core.remote.Reply;
 import ch.softappeal.yass.core.remote.Request;
 import ch.softappeal.yass.core.remote.Server;
@@ -9,86 +8,104 @@ import ch.softappeal.yass.core.remote.Tunnel;
 import ch.softappeal.yass.serialize.Reader;
 import ch.softappeal.yass.serialize.Serializer;
 import ch.softappeal.yass.serialize.Writer;
+import ch.softappeal.yass.transport.PathSerializer;
+import ch.softappeal.yass.transport.SimplePathResolver;
+import ch.softappeal.yass.transport.SimpleTransportSetup;
 import ch.softappeal.yass.util.Check;
-import ch.softappeal.yass.util.Closer;
 import ch.softappeal.yass.util.Nullable;
 
-import javax.net.ServerSocketFactory;
-import javax.net.SocketFactory;
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.OutputStream;
 import java.net.Socket;
-import java.net.SocketAddress;
 import java.util.concurrent.Executor;
 
 /**
  * Each request gets its own socket.
  */
-public final class SimpleSocketTransport extends AbstractSocketTransport {
+public final class SimpleSocketTransport extends SocketListener {
+
+    private final Serializer pathSerializer;
+    private final SimplePathResolver pathResolver;
 
     /**
      * @param requestExecutor used once for each request
      */
-    public SimpleSocketTransport(final Executor requestExecutor) {
+    public SimpleSocketTransport(
+        final Executor requestExecutor,
+        final Serializer pathSerializer, final SimplePathResolver pathResolver
+    ) {
         super(requestExecutor);
+        this.pathSerializer = Check.notNull(pathSerializer);
+        this.pathResolver = Check.notNull(pathResolver);
     }
 
-    /**
-     * @param listenerExecutor used once
-     * @return closer for socket listener
-     */
-    @SuppressWarnings("try")
-    public Closer start(final Server server, final Serializer messageSerializer, final Executor listenerExecutor, final ServerSocketFactory socketFactory, final SocketAddress socketAddress) {
-        Check.notNull(server);
-        Check.notNull(messageSerializer);
-        return start(listenerExecutor, socketFactory, socketAddress, new SocketAction() {
-            @Override public void action(final Socket socket) throws Exception {
-                try (Socket closer = socket) {
-                    final @Nullable Socket oldSocket = SOCKET.get();
-                    SOCKET.set(socket);
-                    try {
-                        final Server.Invocation invocation = server.invocation((Request)messageSerializer.read(Reader.create(socket.getInputStream())));
-                        final Reply reply = invocation.invoke();
-                        if (!invocation.methodMapping.oneWay) {
-                            write(reply, socket, messageSerializer);
-                        }
-                    } finally {
-                        SOCKET.set(oldSocket);
-                    }
-                }
-            }
-        });
-    }
-
-    public Closer start(final Server server, final Serializer messageSerializer, final Executor listenerExecutor, final SocketAddress socketAddress) {
-        return start(server, messageSerializer, listenerExecutor, ServerSocketFactory.getDefault(), socketAddress);
+    public SimpleSocketTransport(
+        final Executor requestExecutor,
+        final Serializer messageSerializer, final Server server
+    ) {
+        this(
+            requestExecutor,
+            PathSerializer.INSTANCE, new SimplePathResolver(PathSerializer.DEFAULT, new SimpleTransportSetup(messageSerializer, server))
+        );
     }
 
     /**
      * Buffering of output is needed to prevent long delays due to Nagle's algorithm.
      */
-    private static void write(final Message message, final Socket socket, final Serializer messageSerializer) throws Exception {
-        final ByteArrayOutputStream buffer = new ByteArrayOutputStream(128);
-        messageSerializer.write(message, Writer.create(buffer));
+    private static ByteArrayOutputStream createBuffer() {
+        return new ByteArrayOutputStream(128);
+    }
+
+    private static void flush(final ByteArrayOutputStream buffer, final Socket socket) throws IOException {
         final OutputStream out = socket.getOutputStream();
         buffer.writeTo(out);
         out.flush();
     }
 
-    public static Client client(final Serializer messageSerializer, final SocketFactory socketFactory, final SocketAddress socketAddress) {
+    @SuppressWarnings("try")
+    @Override void accept(final Socket socket) throws Exception {
+        try (Socket closer = socket) {
+            final @Nullable Socket oldSocket = SOCKET.get();
+            SOCKET.set(socket);
+            try {
+                final Reader reader = Reader.create(socket.getInputStream());
+                final SimpleTransportSetup setup = pathResolver.resolvePath(pathSerializer.read(reader));
+                final Server.Invocation invocation = setup.server.invocation((Request)setup.messageSerializer.read(reader));
+                final Reply reply = invocation.invoke();
+                if (!invocation.methodMapping.oneWay) {
+                    final ByteArrayOutputStream buffer = createBuffer();
+                    setup.messageSerializer.write(reply, Writer.create(buffer));
+                    flush(buffer, socket);
+                }
+            } finally {
+                SOCKET.set(oldSocket);
+            }
+        }
+    }
+
+    public static Client client(
+        final Serializer messageSerializer, final SocketConnector socketConnector,
+        final Serializer pathSerializer, final Object path
+    ) {
         Check.notNull(messageSerializer);
-        Check.notNull(socketFactory);
-        Check.notNull(socketAddress);
+        Check.notNull(socketConnector);
+        Check.notNull(pathSerializer);
+        Check.notNull(path);
         return new Client() {
             @Override public Object invoke(final Client.Invocation invocation) throws Exception {
-                try (Socket socket = connect(socketFactory, socketAddress)) {
+                try (Socket socket = socketConnector.connect()) {
+                    SocketUtils.setForceImmediateSend(socket);
                     final @Nullable Socket oldSocket = SOCKET.get();
                     SOCKET.set(socket);
                     try {
                         return invocation.invoke(new Tunnel() {
                             @Override public Reply invoke(final Request request) throws Exception {
-                                setForceImmediateSend(socket);
-                                write(request, socket, messageSerializer);
+                                final ByteArrayOutputStream buffer = createBuffer();
+                                final Writer writer = Writer.create(buffer);
+                                pathSerializer.write(path, writer);
+                                messageSerializer.write(request, writer);
+                                flush(buffer, socket);
                                 return invocation.methodMapping.oneWay ? null : (Reply)messageSerializer.read(Reader.create(socket.getInputStream()));
                             }
                         });
@@ -100,8 +117,11 @@ public final class SimpleSocketTransport extends AbstractSocketTransport {
         };
     }
 
-    public static Client client(final Serializer messageSerializer, final SocketAddress socketAddress) {
-        return client(messageSerializer, SocketFactory.getDefault(), socketAddress);
+    public static Client client(final Serializer messageSerializer, final SocketConnector socketConnector) {
+        return client(
+            messageSerializer, socketConnector,
+            PathSerializer.INSTANCE, PathSerializer.DEFAULT
+        );
     }
 
     private static final ThreadLocal<Socket> SOCKET = new ThreadLocal<>();

@@ -79,13 +79,13 @@ public abstract class SessionTest extends InvokeTest {
         byte[] echo(byte[] value);
     }
 
-    private static final class EchoServiceImpl implements EchoService {
+    public static final class EchoServiceImpl implements EchoService {
         @Override public byte[] echo(final byte[] value) {
             return value;
         }
     }
 
-    private static final ContractId<EchoService> ECHO_ID = ContractId.create(EchoService.class, 0, SimpleMethodMapper.FACTORY);
+    public static final ContractId<EchoService> ECHO_ID = ContractId.create(EchoService.class, 0, SimpleMethodMapper.FACTORY);
 
     protected static SessionFactory performanceSessionFactory(final Executor dispatchExecutor, final @Nullable CountDownLatch latch, final int samples, final int bytes) {
         return new SessionFactory() {
