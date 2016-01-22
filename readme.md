@@ -46,9 +46,12 @@ static class CalculatorImpl implements Calculator {
 
 static ContractId<Calculator> CALCULATOR = ContractId.create(Calculator.class, 0, METHOD_MAPPER_FACTORY);
 
+static Server SERVER = new Server(
+    CALCULATOR.service(new CalculatorImpl())
+);
+
 // start server
-new SimpleSocketTransport(EXECUTOR, SERIALIZER, new Server(CALCULATOR.service(new CalculatorImpl())))
-    .start(EXECUTOR, new SimpleSocketBinder(ADDRESS));
+new SimpleSocketTransport(EXECUTOR, SERIALIZER, SERVER).start(EXECUTOR, new SimpleSocketBinder(ADDRESS));
 
 // use client
 Client client = SimpleSocketTransport.client(SERIALIZER, new SimpleSocketConnector(ADDRESS));

@@ -38,14 +38,20 @@ public final class HelloWorld {
 
     static ContractId<Calculator> CALCULATOR = ContractId.create(Calculator.class, 0, METHOD_MAPPER_FACTORY);
 
-    public static void main(String... args) {
+    static Server SERVER = new Server(
+        CALCULATOR.service(new CalculatorImpl())
+    );
+
+    public static void main(final String... args) {
+
         // start server
-        new SimpleSocketTransport(EXECUTOR, SERIALIZER, new Server(CALCULATOR.service(new CalculatorImpl())))
-            .start(EXECUTOR, new SimpleSocketBinder(ADDRESS));
+        new SimpleSocketTransport(EXECUTOR, SERIALIZER, SERVER).start(EXECUTOR, new SimpleSocketBinder(ADDRESS));
+
         // use client
         Client client = SimpleSocketTransport.client(SERIALIZER, new SimpleSocketConnector(ADDRESS));
         Calculator calculator = client.proxy(CALCULATOR);
         System.out.println("2 + 3 = " + calculator.add(2, 3));
+
     }
 
 }
