@@ -242,7 +242,7 @@ public class Dumper {
     }
 
     /**
-     * Could dump a value class (these should not reference other objects). Should be  an one-liner.
+     * Could dump a value class (these should not reference other objects). Should be an one-liner.
      * This implementation does nothing and returns false.
      * @return true: if we dumped object of type to out; false: use default implementation
      */

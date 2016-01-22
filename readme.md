@@ -30,3 +30,28 @@
     * groupId="ch.softappeal.yass"
     * artifactId="yass"
   * tutorial: see src/tutorial
+
+## HelloWorld
+
+```java
+public interface Calculator {
+    int add(int a, int b);
+}
+
+static class CalculatorImpl implements Calculator {
+    public int add(int a, int b) {
+        return a + b;
+    }
+}
+
+static ContractId<Calculator> CALCULATOR = ContractId.create(Calculator.class, 0, METHOD_MAPPER_FACTORY);
+
+// start server
+new SimpleSocketTransport(EXECUTOR, SERIALIZER, new Server(CALCULATOR.service(new CalculatorImpl())))
+    .start(EXECUTOR, new SimpleSocketBinder(ADDRESS));
+
+// use client
+Client client = SimpleSocketTransport.client(SERIALIZER, new SimpleSocketConnector(ADDRESS));
+Calculator calculator = client.proxy(CALCULATOR);
+System.out.println("2 + 3 = " + calculator.add(2, 3));
+```
