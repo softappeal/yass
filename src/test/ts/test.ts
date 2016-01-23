@@ -149,7 +149,7 @@ namespace enumTest {
 namespace classTest {
 
     const stock = new contract.instrument.stock.Stock;
-    stock.id = new Integer(1344);
+    stock.id = new IntegerImpl(1344);
     stock.name = "IBM";
     stock.paysDividend = true;
     log(stock);
@@ -157,7 +157,7 @@ namespace classTest {
     assert(stock instanceof contract.instrument.stock.Stock);
     assert(!(stock instanceof contract.instrument.Bond));
     const exception = new contract.UnknownInstrumentsException;
-    exception.instrumentIds = [new Integer(23), new Integer(454)];
+    exception.instrumentIds = [new IntegerImpl(23), new IntegerImpl(454)];
 
 }
 
@@ -181,8 +181,8 @@ namespace serializerTest {
     assert(copy("blabli") === "blabli");
     assert(copy(contract.PriceKind.ASK) === contract.PriceKind.ASK);
     assert(copy(contract.PriceKind.BID) === contract.PriceKind.BID);
-    assert(copy(new Integer(123456)).value === 123456);
-    assert(copy(new Integer(-987654)).value === -987654);
+    assert(copy(new IntegerImpl(123456)).get() === 123456);
+    assert(copy(new IntegerImpl(-987654)).get() === -987654);
 
     function compare(array1: any[], array2: any[]): boolean {
         if (array1.length !== array2.length) {
@@ -191,8 +191,8 @@ namespace serializerTest {
         for (let i = 0; i < array1.length; i++) {
             const e1 = array1[i];
             const e2 = array2[i];
-            if (e1 instanceof Integer) {
-                if (e1.value !== e2.value) {
+            if (e1 instanceof IntegerImpl) {
+                if (e1.get() !== e2.get()) {
                     return false;
                 }
             } else if (e1 !== e2) {
@@ -208,11 +208,11 @@ namespace serializerTest {
     assert(compare(copy([12, true, "bla"]), [12, true, "bla"]));
 
     let stock = new contract.instrument.stock.Stock;
-    stock.id = new Integer(1344);
+    stock.id = new IntegerImpl(1344);
     stock.name = "IBM";
     stock.paysDividend = true;
     stock = copy(stock);
-    assert(stock.id.value === 1344);
+    assert(stock.id.get() === 1344);
     assert(stock.name === "IBM");
     assert(stock.paysDividend);
     stock.paysDividend = false;
@@ -232,18 +232,18 @@ namespace serializerTest {
     assert(bond.expiration.day === 20);
 
     let e = new contract.UnknownInstrumentsException;
-    e.instrumentIds = [new Integer(100), new Integer(200)];
+    e.instrumentIds = [new IntegerImpl(100), new IntegerImpl(200)];
     e = copy(e);
-    assert(compare(e.instrumentIds, [new Integer(100), new Integer(200)]));
+    assert(compare(e.instrumentIds, [new IntegerImpl(100), new IntegerImpl(200)]));
 
     let price = new contract.Price;
-    price.instrumentId = new Integer(123);
+    price.instrumentId = new IntegerImpl(123);
     price.kind = contract.PriceKind.ASK;
-    price.value = new Integer(999);
+    price.value = new IntegerImpl(999);
     price = copy(price);
-    assert(price.instrumentId.value === 123);
+    assert(price.instrumentId.get() === 123);
     assert(price.kind === contract.PriceKind.ASK);
-    assert(price.value.value === 999);
+    assert(price.value.get() === 999);
 
     const writer = new yass.Writer(1);
     writer.writeByte(123);
@@ -318,22 +318,22 @@ namespace remoteTest {
             const instrumentService = this.proxy(contract.acceptor.instrumentService, printer);
             const priceEngine = this.proxy(contract.acceptor.priceEngine, printer);
             const echoService = this.proxy(contract.acceptor.echoService, printer);
-            instrumentService.reload(false, new Integer(123));
+            instrumentService.reload(false, new IntegerImpl(123));
             echoService.echo(null).then(result => assert(result === null));
             echoService.echo(undefined).then(result => assert(result === null));
             echoService.echo(true).then(result => assert(result === true));
             echoService.echo(false).then(result => assert(result === false));
             const stock = new contract.instrument.stock.Stock;
-            stock.id = new Integer(123);
+            stock.id = new IntegerImpl(123);
             stock.name = null;
             stock.paysDividend = false;
             echoService.echo(stock).then(result => {
-                assert(result.id.value === 123);
+                assert(result.id.get() === 123);
                 assert(result.name === undefined);
                 assert(result.paysDividend === false);
             });
-            echoService.echo(new Integer(12345678)).then(result =>  assert(result.value === 12345678));
-            echoService.echo(new Integer(-87654321)).then(result  => assert(result.value === -87654321));
+            echoService.echo(new IntegerImpl(12345678)).then(result =>  assert(result.get() === 12345678));
+            echoService.echo(new IntegerImpl(-87654321)).then(result  => assert(result.get() === -87654321));
             echoService.echo(123.456e98).then(result => assert(result === 123.456e98));
             echoService.echo(-9.384762637432E-12).then(result => assert(result === -9.384762637432E-12));
             echoService.echo(new contract.Expiration(9, 8, 7)).then(result => {
@@ -353,7 +353,7 @@ namespace remoteTest {
                 assert(reader.readByte() === 210);
                 assert(reader.isEmpty());
             });
-            priceEngine.subscribe([new Integer(987654321)]).catch(exception => log("subscribe failed with", exception));
+            priceEngine.subscribe([new IntegerImpl(987654321)]).catch(exception => log("subscribe failed with", exception));
             setTimeout(() => this.close(), 2000);
         }
         protected closed(exception: any): void {
@@ -374,7 +374,7 @@ namespace xhrTest {
     const proxyFactory = yass.xhr("http://" + hostname + ":9090/xhr", contract.SERIALIZER);
     const instrumentService = proxyFactory.proxy(contract.acceptor.instrumentService);
     const echoService = proxyFactory.proxy(contract.acceptor.echoService);
-    assertThrown(() => instrumentService.reload(false, new Integer(123)));
+    assertThrown(() => instrumentService.reload(false, new IntegerImpl(123)));
     echoService.echo("echo").then(result => log("echo succeeded:", result));
     echoService.echo("throwRuntimeException").catch(error => log("throwRuntimeException failed:", error));
 

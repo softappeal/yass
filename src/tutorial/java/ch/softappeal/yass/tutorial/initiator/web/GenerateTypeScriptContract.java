@@ -9,11 +9,11 @@ import java.util.Map;
 public final class GenerateTypeScriptContract {
 
     public static void main(final String... args) throws Exception {
-        final Map<Class<?>, String> java2tsBaseType = new HashMap<>();
-        java2tsBaseType.put(Integer.class, "Integer");
+        final Map<Class<?>, ContractGenerator.TypeDesc> externalTypes = new HashMap<>();
+        externalTypes.put(Integer.class, new ContractGenerator.TypeDesc("Integer", "IntegerHandler")); // shows how to use a contract external base type
         new ContractGenerator(
             Config.class.getPackage().getName(), Config.CONTRACT_SERIALIZER, Config.INITIATOR, Config.ACCEPTOR,
-            "baseTypes", "contract", java2tsBaseType, "src/tutorial/ts/contract.ts"
+            "baseTypes", "contract", externalTypes, "src/tutorial/ts/contract.ts"
         );
     }
 

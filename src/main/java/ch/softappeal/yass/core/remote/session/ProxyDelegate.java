@@ -47,8 +47,9 @@ public abstract class ProxyDelegate<S extends Session> {
             contract.getClassLoader(),
             new Class<?>[] {contract},
             (proxy, method, arguments) -> {
+                final C impl = sessionProxyGetter.get(session());
                 try {
-                    return method.invoke(sessionProxyGetter.get(session()), arguments);
+                    return method.invoke(impl, arguments);
                 } catch (final InvocationTargetException e) {
                     throw e.getCause();
                 }

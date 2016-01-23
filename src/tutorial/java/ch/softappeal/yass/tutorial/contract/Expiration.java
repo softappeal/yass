@@ -6,7 +6,7 @@ import ch.softappeal.yass.serialize.fast.BaseTypeHandler;
 import ch.softappeal.yass.serialize.fast.BaseTypeHandlers;
 
 /**
- * Shows how to use a new base type.
+ * Shows how to use a contract internal base type.
  */
 public final class Expiration {
 
