@@ -149,13 +149,9 @@ namespace yass {
         }
     }
 
-    export abstract class Type {
-        // empty
-    }
-
-    export class Enum extends Type {
+    export class Enum {
         constructor(public number: number, public name: string) {
-            super();
+            // empty
         }
         toString(): string {
             return this.name;
@@ -277,12 +273,15 @@ namespace yass {
             BOOLEAN_DESC.write(value, writer);
         } else if (Array.isArray(value)) {
             LIST_DESC.write(value, writer);
-        } else if (value instanceof Type) {
-            value.constructor.TYPE_DESC.write(value, writer);
         } else if (value instanceof Uint8Array) {
             BYTES_DESC.write(value, writer);
         } else {
-            throw new Error("unexpected value '" + value + "'");
+            const typeDesc = value.constructor.TYPE_DESC;
+            if (typeDesc) {
+                typeDesc.write(value, writer);
+            } else {
+                throw new Error("unexpected value '" + value + "'");
+            }
         }
     }
 
@@ -308,14 +307,14 @@ namespace yass {
 
     class ClassTypeHandler implements TypeHandler<any> {
         private fieldId2handler: FieldHandler[] = [];
-        constructor(private Constructor: any) {
+        constructor(private Type: any) {
             // empty
         }
         addField(id: number, handler: FieldHandler): void {
             this.fieldId2handler[id] = handler;
         }
         read(reader: Reader, id2typeHandler: TypeHandler<any>[]): any {
-            const object = new this.Constructor;
+            const object = new this.Type;
             while (true) {
                 const id = reader.readVarInt();
                 if (id === 0) {
@@ -352,7 +351,7 @@ namespace yass {
 
     export class JsFastSerializer implements Serializer {
         private id2typeHandler: TypeHandler<any>[] = [];
-        constructor(...Types: any[]) {
+        constructor(...typeDescHolders: any[]) {
             const add = (typeDesc: TypeDesc) => {
                 if (this.id2typeHandler[typeDesc.id]) {
                     throw new Error("TypeDesc with id " + typeDesc.id + " already added");
@@ -360,7 +359,7 @@ namespace yass {
                 this.id2typeHandler[typeDesc.id] = typeDesc.handler;
             };
             [NULL_DESC, LIST_DESC, BOOLEAN_DESC, NUMBER_DESC, STRING_DESC, BYTES_DESC].forEach(add);
-            Types.forEach(Type => add(Type.TYPE_DESC));
+            typeDescHolders.forEach(typeDescHolder => add(typeDescHolder.TYPE_DESC));
         }
         read(reader: Reader): any {
             return read(reader, this.id2typeHandler);

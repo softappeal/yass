@@ -45,9 +45,9 @@ public final class Config {
      */
     private static final AbstractJsFastSerializer SIMPLE_JS_SERIALIZER = new SimpleJsFastSerializer(
         FastReflector.FACTORY,
-        Arrays.asList(
-            BaseTypeHandlers.INTEGER,
-            Expiration.TYPE_HANDLER
+        Arrays.asList(                // note: order is important; id's must match with TypeScript implementations
+            BaseTypeHandlers.INTEGER, // FIRST_ID
+            Expiration.TYPE_HANDLER   // FIRST_ID + 1
         ),
         ENUMERATIONS,
         CONCRETE_CLASSES

@@ -42,13 +42,13 @@ namespace tutorial {
         tableModel.forEach(row => {
             html += "<tr>";
             const instrument = row.instrument;
-            [instrument.id.value, instrument.name].forEach(value => html += "<td>" + value + "</td>");
-            ["bid", "ask"].forEach(kind => html += "<td id='" + instrument.id.value + ":" + kind + "'></td>");
+            [instrument.id.get(), instrument.name].forEach(value => html += "<td>" + value + "</td>");
+            ["bid", "ask"].forEach(kind => html += "<td id='" + instrument.id.get() + ":" + kind + "'></td>");
             html += "</tr>";
         });
         document.getElementById("table").innerHTML = html + "</tbody></table>";
         tableModel.forEach(row => {
-            const find = (kind: string) => document.getElementById(row.instrument.id.value + ":" + kind);
+            const find = (kind: string) => document.getElementById(row.instrument.id.get() + ":" + kind);
             row.bidElement = find("bid");
             row.askElement = find("ask");
         });
@@ -57,11 +57,11 @@ namespace tutorial {
     class PriceListenerImpl implements contract.PriceListener {
         newPrices(prices: contract.Price[]): void {
             prices.forEach(price => {
-                const tableRow = tableModel[price.instrumentId.value];
+                const tableRow = tableModel[price.instrumentId.get()];
                 if (price.kind === contract.PriceKind.BID) {
-                    tableRow.bidElement.innerHTML = price.value.value.toString();
+                    tableRow.bidElement.innerHTML = price.value.get().toString();
                 } else {
-                    tableRow.askElement.innerHTML = price.value.value.toString();
+                    tableRow.askElement.innerHTML = price.value.get().toString();
                 }
             });
         }
@@ -77,15 +77,15 @@ namespace tutorial {
         // create proxies; you can add 0..n interceptors to a proxy
         const instrumentService = client.proxy(contract.acceptor.instrumentService, clientLogger);
         const priceEngine = client.proxy(contract.acceptor.priceEngine, clientLogger);
-        instrumentService.reload(true, new Integer(987654)); // oneWay method call
+        instrumentService.reload(true, new IntegerImpl(987654)); // oneWay method call
         instrumentService.getInstruments().then(instruments => {
-            instruments.forEach(instrument => tableModel[instrument.id.value] = new TableRow(instrument));
+            instruments.forEach(instrument => tableModel[instrument.id.get()] = new TableRow(instrument));
             createTable();
             return priceEngine.subscribe(instruments.map(instrument => instrument.id));
         }).then(
             () => log("subscribe succeeded")
         );
-        priceEngine.subscribe([new Integer(987654321)]).catch(exception => log("subscribe failed with", exception));
+        priceEngine.subscribe([new IntegerImpl(987654321)]).catch(exception => log("subscribe failed with", exception));
     }
 
     class Session extends yass.Session {

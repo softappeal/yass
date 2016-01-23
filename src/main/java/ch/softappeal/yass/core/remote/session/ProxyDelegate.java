@@ -50,8 +50,9 @@ public abstract class ProxyDelegate<S extends Session> {
             new Class<?>[] {contract},
             new InvocationHandler() {
                 @Override public Object invoke(final Object proxy, final Method method, final Object[] arguments) throws Throwable {
+                    final C impl = sessionProxyGetter.get(ProxyDelegate.this.session());
                     try {
-                        return method.invoke(sessionProxyGetter.get(ProxyDelegate.this.session()), arguments);
+                        return method.invoke(impl, arguments);
                     } catch (final InvocationTargetException e) {
                         throw e.getCause();
                     }

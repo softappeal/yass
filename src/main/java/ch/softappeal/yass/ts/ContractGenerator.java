@@ -8,7 +8,6 @@ import ch.softappeal.yass.core.remote.SimpleMethodMapper;
 import ch.softappeal.yass.serialize.fast.AbstractJsFastSerializer;
 import ch.softappeal.yass.serialize.fast.ClassTypeHandler;
 import ch.softappeal.yass.serialize.fast.FieldHandler;
-import ch.softappeal.yass.serialize.fast.TypeDesc;
 import ch.softappeal.yass.serialize.fast.TypeHandler;
 import ch.softappeal.yass.util.Check;
 import ch.softappeal.yass.util.Nullable;
@@ -33,11 +32,20 @@ import java.util.SortedMap;
 
 public final class ContractGenerator extends Generator {
 
+    public static final class TypeDesc {
+        final String name;
+        final String typeDescHolder;
+        public TypeDesc(final String name, final String typeDescHolder) {
+            this.name = Check.notNull(name);
+            this.typeDescHolder = Check.notNull(typeDescHolder);
+        }
+    }
+
     private final String rootPackage;
     private final LinkedHashMap<Class<?>, Integer> type2id = new LinkedHashMap<>();
     private final SortedMap<Integer, TypeHandler> id2typeHandler;
     private final Set<Class<?>> visitedClasses = new HashSet<>();
-    private final Map<Class<?>, String> java2tsBaseType = new HashMap<>();
+    private final Map<Class<?>, TypeDesc> externalTypes = new HashMap<>();
     private final String contractModuleName;
     private @Nullable MethodMapper.Factory methodMapperFactory;
 
@@ -47,10 +55,10 @@ public final class ContractGenerator extends Generator {
         }
     }
 
-    private String jsType(final Class<?> type) {
-        final @Nullable String tsBaseType = java2tsBaseType.get(FieldHandler.primitiveWrapperType(type));
-        if (tsBaseType != null) {
-            return tsBaseType;
+    private String jsType(final Class<?> type, final boolean name) {
+        final @Nullable TypeDesc typeDesc = externalTypes.get(FieldHandler.primitiveWrapperType(type));
+        if (typeDesc != null) {
+            return name ? typeDesc.name : typeDesc.typeDescHolder;
         }
         checkType(type);
         return contractModuleName + type.getCanonicalName().substring(rootPackage.length());
@@ -121,12 +129,12 @@ public final class ContractGenerator extends Generator {
         } else if (type == void.class) {
             return "void";
         }
-        return jsType((Class<?>)type);
+        return jsType((Class<?>)type, true);
     }
 
-    private String typeDescOwner(final ClassTypeHandler.FieldDesc fieldDesc) {
+    private String typeDesc(final ClassTypeHandler.FieldDesc fieldDesc) {
         final TypeHandler typeHandler = fieldDesc.handler.typeHandler();
-        if (TypeDesc.LIST.handler == typeHandler) {
+        if (ch.softappeal.yass.serialize.fast.TypeDesc.LIST.handler == typeHandler) {
             return "yass.LIST_DESC";
         } else if (AbstractJsFastSerializer.BOOLEAN_TYPEDESC.handler == typeHandler) {
             return "yass.BOOLEAN_DESC";
@@ -139,7 +147,7 @@ public final class ContractGenerator extends Generator {
         } else if (typeHandler == null) {
             return "null";
         }
-        return jsType(typeHandler.type) + ".TYPE_DESC";
+        return jsType(typeHandler.type, false) + ".TYPE_DESC";
     }
 
     private void generateClass(final Class<?> type) {
@@ -156,8 +164,8 @@ public final class ContractGenerator extends Generator {
         generateType(type, new TypeGenerator() {
             @Override public void generateType(final String name) {
                 tabsln(
-                    "export %sclass %s extends %s {",
-                    (Modifier.isAbstract(type.getModifiers()) ? "abstract " : ""), name, (superClass == null) ? "yass.Type" : jsType(superClass)
+                    "export %sclass %s%s {",
+                    (Modifier.isAbstract(type.getModifiers()) ? "abstract " : ""), name, (superClass == null) ? "" : (" extends " + jsType(superClass, true))
                 );
                 inc();
                 for (final Field field : Reflect.ownFields(type)) {
@@ -169,7 +177,7 @@ public final class ContractGenerator extends Generator {
                     inc();
                     for (final ClassTypeHandler.FieldDesc fieldDesc : ((ClassTypeHandler)id2typeHandler.get(id)).fieldDescs()) {
                         println(",");
-                        tabs("new yass.FieldDesc(%s, '%s', %s)", fieldDesc.id, fieldDesc.handler.field.getName(), typeDescOwner(fieldDesc));
+                        tabs("new yass.FieldDesc(%s, '%s', %s)", fieldDesc.id, fieldDesc.handler.field.getName(), typeDesc(fieldDesc));
                     }
                     println();
                     dec();
@@ -289,7 +297,7 @@ public final class ContractGenerator extends Generator {
         tabsln("export namespace %s {", role);
         inc();
         for (final ServiceDesc serviceDesc : getServiceDescs(services)) {
-            final String name = jsType(serviceDesc.contractId.contract);
+            final String name = jsType(serviceDesc.contractId.contract, true);
             tabsln(
                 "export const %s: yass.ContractId<%s, %s_PROXY> = new yass.ContractId<%s, %s_PROXY>(%s, %s_MAPPER);",
                 serviceDesc.name, name, name, name, name, serviceDesc.contractId.id, name
@@ -311,14 +319,14 @@ public final class ContractGenerator extends Generator {
         final @Nullable Services acceptor,
         final String includePath,
         final String contractModuleName,
-        final @Nullable Map<Class<?>, String> java2tsBaseType,
+        final @Nullable Map<Class<?>, TypeDesc> externalTypes,
         final String contractFilePath
     ) throws Exception {
         super(contractFilePath);
         this.rootPackage = rootPackage.isEmpty() ? "" : rootPackage + '.';
-        if (java2tsBaseType != null) {
-            for (final Map.Entry<Class<?>, String> entry : java2tsBaseType.entrySet()) {
-                this.java2tsBaseType.put(Check.notNull(entry.getKey()), Check.notNull(entry.getValue()));
+        if (externalTypes != null) {
+            for (final Map.Entry<Class<?>, TypeDesc> entry : externalTypes.entrySet()) {
+                this.externalTypes.put(Check.notNull(entry.getKey()), Check.notNull(entry.getValue()));
             }
         }
         id2typeHandler = serializer.id2typeHandler();
@@ -378,7 +386,7 @@ public final class ContractGenerator extends Generator {
             }
             first = false;
             println();
-            tabs(jsType(type));
+            tabs(jsType(type, false));
         }
         println();
         dec();
