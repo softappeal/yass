@@ -6,7 +6,6 @@ import ch.softappeal.yass.core.remote.session.Session;
 import ch.softappeal.yass.serialize.Reader;
 import ch.softappeal.yass.serialize.Serializer;
 import ch.softappeal.yass.serialize.Writer;
-import ch.softappeal.yass.serialize.Writer.ByteBufferOutputStream;
 import ch.softappeal.yass.util.Check;
 import ch.softappeal.yass.util.Exceptions;
 import ch.softappeal.yass.util.Nullable;
@@ -30,7 +29,7 @@ public abstract class WsConnection implements Connection {
     }
 
     protected final ByteBuffer writeToBuffer(final Packet packet) throws Exception {
-        final ByteBufferOutputStream buffer = new ByteBufferOutputStream(128);
+        final Writer.ByteBufferOutputStream buffer = new Writer.ByteBufferOutputStream(128);
         packetSerializer.write(packet, Writer.create(buffer));
         return buffer.toByteBuffer();
     }
