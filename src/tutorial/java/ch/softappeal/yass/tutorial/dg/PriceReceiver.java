@@ -8,6 +8,7 @@ import ch.softappeal.yass.tutorial.contract.PriceListener;
 
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
+import java.net.NetworkInterface;
 import java.net.StandardProtocolFamily;
 import java.net.StandardSocketOptions;
 import java.nio.channels.DatagramChannel;
@@ -28,9 +29,8 @@ public final class PriceReceiver {
         );
         final DatagramChannel channel = DatagramChannel.open(StandardProtocolFamily.INET)
             .setOption(StandardSocketOptions.SO_REUSEADDR, true)
-            .setOption(StandardSocketOptions.IP_MULTICAST_IF, PriceSender.NI);
-        channel.bind(new InetSocketAddress(PriceSender.PORT));
-        channel.join(InetAddress.getByName(PriceSender.GROUP), PriceSender.NI);
+            .bind(new InetSocketAddress(PriceSender.PORT));
+        channel.join(InetAddress.getByName(PriceSender.GROUP), NetworkInterface.getByInetAddress(InetAddress.getLocalHost()));
         while (true) {
             DatagramTransport.invoke(setup, channel, 128);
         }
