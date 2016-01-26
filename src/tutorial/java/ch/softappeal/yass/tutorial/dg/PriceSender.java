@@ -17,8 +17,9 @@ public final class PriceSender {
     public static final int PORT = 8989;
 
     public static void main(final String... args) throws Exception {
-        final DatagramChannel channel = DatagramChannel.open();
-        final Client client = DatagramTransport.client(Config.MESSAGE_SERIALIZER, channel, new InetSocketAddress(GROUP, PORT));
+        final DatagramChannel channel = DatagramChannel.open().
+            connect(new InetSocketAddress(GROUP, PORT));
+        final Client client = DatagramTransport.client(Config.MESSAGE_SERIALIZER, channel);
         final PriceListener priceListener = client.proxy(Config.INITIATOR.priceListener);
         for (int value = 1; true; value++) {
             System.out.println(value);
