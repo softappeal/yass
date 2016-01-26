@@ -22,7 +22,8 @@ public final class PriceReceiver {
             new Server(
                 Config.INITIATOR.priceListener.service(new PriceListener() {
                     @Override public void newPrices(final List<Price> prices) {
-                        System.out.println(prices.get(0).value);
+                        final Price price = prices.get(0);
+                        System.out.println("received " + price.kind + ": " + price.value);
                     }
                 })
             )
@@ -30,7 +31,9 @@ public final class PriceReceiver {
         final DatagramChannel channel = DatagramChannel.open(StandardProtocolFamily.INET)
             .setOption(StandardSocketOptions.SO_REUSEADDR, true)
             .bind(new InetSocketAddress(PriceSender.PORT));
-        channel.join(InetAddress.getByName(PriceSender.GROUP), NetworkInterface.getByInetAddress(InetAddress.getLocalHost()));
+        final NetworkInterface networkInterface = NetworkInterface.getByInetAddress(InetAddress.getLocalHost());
+        channel.join(InetAddress.getByName(PriceSender.GROUP_BID), networkInterface);
+        channel.join(InetAddress.getByName(PriceSender.GROUP_ASK), networkInterface);
         while (true) {
             DatagramTransport.invoke(setup, channel, 128);
         }

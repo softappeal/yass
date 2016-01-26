@@ -10,6 +10,7 @@ import ch.softappeal.yass.serialize.Writer;
 import ch.softappeal.yass.transport.SimpleTransportSetup;
 import ch.softappeal.yass.util.Check;
 
+import java.net.SocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.DatagramChannel;
 
@@ -27,16 +28,17 @@ public final class DatagramTransport {
         }
     }
 
-    public static Client client(final Serializer messageSerializer, final DatagramChannel channel) {
+    public static Client client(final Serializer messageSerializer, final DatagramChannel channel, final SocketAddress target) {
         Check.notNull(messageSerializer);
         Check.notNull(channel);
+        Check.notNull(target);
         return new Client() {
             @Override public Object invoke(final Invocation invocation) throws Exception {
                 return invocation.invoke(request -> {
                     checkOneWay(invocation.methodMapping, request);
                     final Writer.ByteBufferOutputStream out = new Writer.ByteBufferOutputStream(128);
                     messageSerializer.write(request, Writer.create(out));
-                    channel.write(out.toByteBuffer());
+                    channel.send(out.toByteBuffer(), target);
                     return null;
                 });
             }
