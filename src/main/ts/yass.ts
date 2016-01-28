@@ -1,5 +1,3 @@
-/// <reference path="es6-promise"/> // $note: could probably be removed in future
-
 namespace yass {
 
     export class Writer {

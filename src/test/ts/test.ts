@@ -1,3 +1,4 @@
+/// <reference path="../../tutorial/ts/es6-promise"/>
 /// <reference path="../../tutorial/ts/contract"/>
 
 function log(...args: any[]): void {

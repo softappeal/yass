@@ -1,4 +1,4 @@
-// https://raw.githubusercontent.com/DefinitelyTyped/DefinitelyTyped/1dd3cfcdfc08da5515a32fc0d8a7528c3d6bf82d/es6-promise/es6-promise.d.ts
+// https://raw.githubusercontent.com/DefinitelyTyped/DefinitelyTyped/5bff5f871a0ea58be885fb52146cb67b86bcc1ae/es6-promise/es6-promise.d.ts
 
 // Type definitions for es6-promise
 // Project: https://github.com/jakearchibald/ES6-Promise
@@ -8,6 +8,7 @@
 interface Thenable<R> {
 	then<U>(onFulfilled?: (value: R) => U | Thenable<U>, onRejected?: (error: any) => U | Thenable<U>): Thenable<U>;
 	then<U>(onFulfilled?: (value: R) => U | Thenable<U>, onRejected?: (error: any) => void): Thenable<U>;
+	catch<U>(onRejected?: (error: any) => U | Thenable<U>): Thenable<U>;
 }
 
 declare class Promise<R> implements Thenable<R> {

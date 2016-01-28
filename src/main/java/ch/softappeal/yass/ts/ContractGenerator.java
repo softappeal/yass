@@ -50,7 +50,7 @@ public final class ContractGenerator extends Generator {
     private final SortedMap<Integer, TypeHandler> id2typeHandler;
     private final Set<Class<?>> visitedClasses = new HashSet<>();
     private final Map<Class<?>, TypeDesc> externalTypes = new HashMap<>();
-    private final String contractModuleName;
+    private final String contractNamespace;
     private MethodMapper.@Nullable Factory methodMapperFactory;
 
     private void checkType(final Class<?> type) {
@@ -65,7 +65,7 @@ public final class ContractGenerator extends Generator {
             return name ? typeDesc.name : typeDesc.typeDescHolder;
         }
         checkType(type);
-        return contractModuleName + type.getCanonicalName().substring(rootPackage.length());
+        return contractNamespace + type.getCanonicalName().substring(rootPackage.length());
     }
 
     @FunctionalInterface private interface TypeGenerator {
@@ -300,17 +300,14 @@ public final class ContractGenerator extends Generator {
         println();
     }
 
-    /**
-     * @param includePath path to base types or yass module
-     */
     @SuppressWarnings("unchecked")
     public ContractGenerator(
         final String rootPackage,
         final AbstractJsFastSerializer serializer,
         final @Nullable Services initiator,
         final @Nullable Services acceptor,
-        final String includePath,
-        final String contractModuleName,
+        final String referencePath,
+        final String contractNamespace,
         final @Nullable Map<Class<?>, TypeDesc> externalTypes,
         final String contractFilePath
     ) throws Exception {
@@ -325,10 +322,10 @@ public final class ContractGenerator extends Generator {
                 type2id.put(typeHandler.type, id);
             }
         });
-        tabsln("/// <reference path='%s'/>", Check.notNull(includePath));
+        tabsln("/// <reference path='%s'/>", Check.notNull(referencePath));
         println();
-        this.contractModuleName = Check.notNull(contractModuleName) + '.';
-        tabsln("namespace %s {", contractModuleName);
+        this.contractNamespace = Check.notNull(contractNamespace) + '.';
+        tabsln("namespace %s {", contractNamespace);
         println();
         inc();
         tabsln("export const GENERATED_BY_YASS_VERSION = '%s';", Version.VALUE);

@@ -49,13 +49,14 @@ namespace contract {
             writer.writeZigZagInt(value.month);
             writer.writeZigZagInt(value.day);
         }
+        static TYPE_DESC = new yass.TypeDesc(yass.FIRST_ID + 1, new ExpirationHandler);
     }
 
     export class Expiration {
         constructor(public year: number, public month: number, public day: number) {
             // empty
         }
-        static TYPE_DESC = new yass.TypeDesc(yass.FIRST_ID + 1, new ExpirationHandler);
+        static TYPE_DESC = ExpirationHandler.TYPE_DESC;
     }
 
 }
