@@ -3,6 +3,8 @@
         "target": "ES5",
         "noImplicitAny": true,
         "noEmitOnError": true,
+        "noImplicitReturns": true,
+        "noFallthroughCasesInSwitch": true,
         "out": "./all.js",
         "sourceMap": true
     }
