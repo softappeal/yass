@@ -1,5 +1,4 @@
-/// <reference path="../../tutorial/ts/es6-promise"/>
-/// <reference path="../../tutorial/ts/contract"/>
+/// <reference path="../../../tutorial/ts/namespace/contract"/>
 
 function log(...args: any[]): void {
     console.log.apply(console, args);

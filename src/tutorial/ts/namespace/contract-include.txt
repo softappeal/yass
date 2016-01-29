@@ -1,2 +1,4 @@
+/// <reference path="../es6-promise"/>
 /// <reference path="./baseTypes-external"/>
 /// <reference path="./baseTypes-internal"/>
+

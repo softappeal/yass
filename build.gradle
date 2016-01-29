@@ -65,15 +65,19 @@ class CompileTypeScript extends Exec {
     }
 }
 
-task compileTestTypeScript(type: CompileTypeScript, dependsOn: 'generateTypeScriptContract') {
-    workingDir 'src/test/ts'
+task compileTestNamespaceTypeScript(type: CompileTypeScript, dependsOn: 'generateTypeScriptContract') {
+    workingDir 'src/test/ts/namespace'
 }
 
-task compileTutorialTypeScript(type: CompileTypeScript, dependsOn: 'generateTypeScriptContract') {
-    workingDir 'src/tutorial/ts'
+task compileTutorialNamespaceTypeScript(type: CompileTypeScript, dependsOn: 'generateTypeScriptContract') {
+    workingDir 'src/tutorial/ts/namespace'
 }
 
-task compileAllTypeScript(dependsOn: ['compileTestTypeScript', 'compileTutorialTypeScript'])
+task compileTutorialModuleTypeScript(type: CompileTypeScript, dependsOn: 'generateTypeScriptContract') {
+    workingDir 'src/tutorial/ts/module'
+}
+
+task compileAllTypeScript(dependsOn: ['compileTestNamespaceTypeScript', 'compileTutorialNamespaceTypeScript', 'compileTutorialModuleTypeScript'])
 
 tasks.withType(Javadoc) {
     options.addStringOption('Xdoclint:all,-missing', '-quiet')
@@ -137,7 +141,6 @@ task dist << {
     }
     ant.jar(destfile: "build/dist/libs/yass.jar", basedir: "build/classes/main")
     ant.jar(destfile: "build/dist/libs/tutorial.jar", basedir: "build/classes/tutorial")
-    ant.jar(destfile: "build/dist/libs/test.jar", basedir: "build/classes/test")
     if (project.hasProperty('signing.password')) {
         def signPrefix = "build/libs/${project.name}-${version}"
         signing.sign(file("${signPrefix}.pom"))

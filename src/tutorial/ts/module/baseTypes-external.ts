@@ -1,12 +1,12 @@
 // shows how to use contract external base types
 
-/// <reference path="../../main/ts/yass"/>
+import * as yass from "../../../main/ts/module/yass";
 
-interface Integer {
+export interface Integer {
     get(): number;
 }
 
-class IntegerHandler implements yass.TypeHandler<Integer> {
+export class IntegerHandler implements yass.TypeHandler<Integer> {
     read(reader: yass.Reader): Integer {
         return new IntegerImpl(reader.readZigZagInt());
     }
@@ -16,7 +16,7 @@ class IntegerHandler implements yass.TypeHandler<Integer> {
     static TYPE_DESC = new yass.TypeDesc(yass.FIRST_ID, new IntegerHandler);
 }
 
-class IntegerImpl implements Integer {
+export class IntegerImpl implements Integer {
     constructor(private value: number) {
         // note: check if value is really a Java Integer should be implemented here
     }

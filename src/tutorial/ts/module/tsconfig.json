@@ -1,0 +1,11 @@
+{
+    "compilerOptions": {
+        "target": "ES5",
+        "noImplicitAny": true,
+        "noEmitOnError": true,
+        "noImplicitReturns": true,
+        "noFallthroughCasesInSwitch": true,
+        "module": "amd",
+        "sourceMap": true
+    }
+}

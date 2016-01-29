@@ -1,3 +1,5 @@
+/// <reference path="./contract"/>
+
 namespace tutorial {
 
     function log(...args: any[]): void {

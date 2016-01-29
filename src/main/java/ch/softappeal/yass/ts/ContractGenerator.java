@@ -50,7 +50,7 @@ public final class ContractGenerator extends Generator {
     private final SortedMap<Integer, TypeHandler> id2typeHandler;
     private final Set<Class<?>> visitedClasses = new HashSet<>();
     private final Map<Class<?>, TypeDesc> externalTypes = new HashMap<>();
-    private final String contractNamespace;
+    private final @Nullable String contractNamespace;
     private MethodMapper.@Nullable Factory methodMapperFactory;
 
     private void checkType(final Class<?> type) {
@@ -65,7 +65,10 @@ public final class ContractGenerator extends Generator {
             return name ? typeDesc.name : typeDesc.typeDescHolder;
         }
         checkType(type);
-        return contractNamespace + type.getCanonicalName().substring(rootPackage.length());
+        if (type.isArray()) {
+            throw new IllegalArgumentException("illegal type " + type.getCanonicalName() + " (use List instead [])");
+        }
+        return (contractNamespace == null ? "" : contractNamespace) + type.getCanonicalName().substring(rootPackage.length());
     }
 
     @FunctionalInterface private interface TypeGenerator {
@@ -300,18 +303,21 @@ public final class ContractGenerator extends Generator {
         println();
     }
 
+    /**
+     * @param contractNamespace if null generate module else namespace
+     */
     @SuppressWarnings("unchecked")
     public ContractGenerator(
         final String rootPackage,
         final AbstractJsFastSerializer serializer,
         final @Nullable Services initiator,
         final @Nullable Services acceptor,
-        final String referencePath,
-        final String contractNamespace,
+        final String includeFile,
+        final @Nullable String contractNamespace,
         final @Nullable Map<Class<?>, TypeDesc> externalTypes,
-        final String contractFilePath
+        final String contractFile
     ) throws Exception {
-        super(contractFilePath);
+        super(contractFile);
         this.rootPackage = rootPackage.isEmpty() ? "" : rootPackage + '.';
         if (externalTypes != null) {
             externalTypes.forEach((java, ts) -> this.externalTypes.put(Check.notNull(java), Check.notNull(ts)));
@@ -322,12 +328,13 @@ public final class ContractGenerator extends Generator {
                 type2id.put(typeHandler.type, id);
             }
         });
-        tabsln("/// <reference path='%s'/>", Check.notNull(referencePath));
-        println();
-        this.contractNamespace = Check.notNull(contractNamespace) + '.';
-        tabsln("namespace %s {", contractNamespace);
-        println();
-        inc();
+        includeFile(includeFile);
+        this.contractNamespace = contractNamespace == null ? null : contractNamespace + '.';
+        if (this.contractNamespace != null) {
+            tabsln("namespace %s {", contractNamespace);
+            println();
+            inc();
+        }
         tabsln("export const GENERATED_BY_YASS_VERSION = '%s';", Version.VALUE);
         println();
         id2typeHandler.values().stream().map(typeHandler -> typeHandler.type).filter(Class::isEnum).forEach(type -> generateEnum((Class<Enum<?>>)type));
@@ -362,9 +369,11 @@ public final class ContractGenerator extends Generator {
         println();
         dec();
         tabsln(");");
-        dec();
-        println();
-        tabsln("}");
+        if (this.contractNamespace != null) {
+            dec();
+            println();
+            tabsln("}");
+        }
         close();
     }
 

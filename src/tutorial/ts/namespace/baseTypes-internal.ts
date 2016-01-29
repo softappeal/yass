@@ -1,6 +1,6 @@
 // shows how to use contract internal base types
 
-/// <reference path="../../main/ts/yass"/>
+/// <reference path="../../../main/ts/namespace/yass"/>
 
 namespace contract {
 

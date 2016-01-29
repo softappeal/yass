@@ -5,7 +5,7 @@
         "noEmitOnError": true,
         "noImplicitReturns": true,
         "noFallthroughCasesInSwitch": true,
-        "out": "./all.js",
+        "outFile": "./all.js",
         "sourceMap": true
     }
 }

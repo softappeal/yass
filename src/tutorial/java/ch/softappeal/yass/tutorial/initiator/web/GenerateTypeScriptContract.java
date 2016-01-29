@@ -13,7 +13,11 @@ public final class GenerateTypeScriptContract {
         externalTypes.put(Integer.class, new ContractGenerator.TypeDesc("Integer", "IntegerHandler")); // shows how to use a contract external base type
         new ContractGenerator(
             Config.class.getPackage().getName(), Config.CONTRACT_SERIALIZER, Config.INITIATOR, Config.ACCEPTOR,
-            "./baseTypes", "contract", externalTypes, "src/tutorial/ts/contract.ts"
+            "src/tutorial/ts/namespace/contract-include.txt", "contract", externalTypes, "src/tutorial/ts/namespace/contract.ts"
+        );
+        new ContractGenerator(
+            Config.class.getPackage().getName(), Config.CONTRACT_SERIALIZER, Config.INITIATOR, Config.ACCEPTOR,
+            "src/tutorial/ts/module/contract-include.txt", null, externalTypes, "src/tutorial/ts/module/contract.ts"
         );
     }
 
