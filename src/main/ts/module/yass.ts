@@ -145,16 +145,6 @@ export class Reader {
     }
 }
 
-export class Enum {
-    constructor(public number: number, public name: string) {
-        // empty
-    }
-    toString(): string {
-        return this.name;
-    }
-    static VALUES: Enum[];
-}
-
 export interface TypeHandler<T> {
     read (reader: Reader, id2typeHandler?: TypeHandler<any>[]): T;
     write(value: T, writer: Writer): void;
@@ -242,18 +232,6 @@ export const BYTES_DESC = new TypeDesc(6, new BytesTypeHandler);
 
 export const FIRST_ID = 7;
 
-class EnumTypeHandler implements TypeHandler<Enum> {
-    constructor(private values: Enum[]) {
-        // empty
-    }
-    read(reader: Reader): Enum {
-        return this.values[reader.readVarInt()];
-    }
-    write(value: Enum, writer: Writer): void {
-        writer.writeVarInt(value.number);
-    }
-}
-
 function read(reader: Reader, id2typeHandler: TypeHandler<any>[]): any {
     return id2typeHandler[reader.readVarInt()].read(reader, id2typeHandler);
 }
@@ -278,6 +256,28 @@ function write(value: any, writer: Writer): void {
         } else {
             throw new Error("unexpected value '" + value + "'");
         }
+    }
+}
+
+export class Enum {
+    constructor(public number: number, public name: string) {
+        // empty
+    }
+    toString(): string {
+        return this.name;
+    }
+    static VALUES: Enum[];
+}
+
+class EnumTypeHandler implements TypeHandler<Enum> {
+    constructor(private values: Enum[]) {
+        // empty
+    }
+    read(reader: Reader): Enum {
+        return this.values[reader.readVarInt()];
+    }
+    write(value: Enum, writer: Writer): void {
+        writer.writeVarInt(value.number);
     }
 }
 
@@ -330,21 +330,6 @@ export interface Serializer {
     write(value: any, writer: Writer): void;
 }
 
-export function writeTo(serializer: Serializer, value: any): Uint8Array {
-    const writer = new Writer(128);
-    serializer.write(value, writer);
-    return writer.getArray();
-}
-
-export function readFrom(serializer: Serializer, arrayBuffer: ArrayBuffer): any {
-    const reader = new Reader(arrayBuffer);
-    const value = serializer.read(reader);
-    if (!reader.isEmpty()) {
-        throw new Error("reader is not empty");
-    }
-    return value;
-}
-
 export class JsFastSerializer implements Serializer {
     private id2typeHandler: TypeHandler<any>[] = [];
     constructor(...typeDescHolders: any[]) {
@@ -390,37 +375,6 @@ export function enumDesc(id: number, Type: any): TypeDesc {
     });
     Type.VALUES = values;
     return new TypeDesc(id, new EnumTypeHandler(values));
-}
-
-export interface Invocation {
-    (): any;
-}
-
-/**
- * An invocation has a Promise if and only if it is an initiator rpc style invocation.
- * If an invocation has a Promise, the interceptor will be called twice (first with PromiseEntry and then with PromiseExit).
- * If an invocation doesn't have a Promise, the interceptor will be called once (with NoPromise).
- */
-export enum InvokeStyle { NoPromise, PromiseEntry, PromiseExit }
-
-export interface Interceptor {
-    /**
-     * @return invocation()
-     */
-    (style: InvokeStyle, method: string, parameters: any[], invocation: Invocation): any;
-}
-
-export const DIRECT: Interceptor = (style, method, parameters, invocation) => invocation();
-
-export function composite(...interceptors: Interceptor[]): Interceptor {
-    function composite2(interceptor1: Interceptor, interceptor2: Interceptor): Interceptor {
-        return (style, method, parameters, invocation) => interceptor1(
-            style, method, parameters, () => interceptor2(style, method, parameters, invocation)
-        );
-    }
-    let i1 = DIRECT;
-    interceptors.forEach(i2 => i1 = (i1 === DIRECT) ? i2 : ((i2 === DIRECT) ? i1 : composite2(i1, i2)));
-    return i1;
 }
 
 export abstract class Message {
@@ -522,6 +476,37 @@ export class MethodMapper<C> {
         Object.keys(this.name2Mapping).forEach(method => stub[method] = (...parameters: any[]) => interceptor(method, parameters));
         return stub;
     }
+}
+
+export interface Invocation {
+    (): any;
+}
+
+/**
+ * An invocation has a Promise if and only if it is an initiator rpc style invocation.
+ * If an invocation has a Promise, the interceptor will be called twice (first with PromiseEntry and then with PromiseExit).
+ * If an invocation doesn't have a Promise, the interceptor will be called once (with NoPromise).
+ */
+export enum InvokeStyle { NoPromise, PromiseEntry, PromiseExit }
+
+export interface Interceptor {
+    /**
+     * @return invocation()
+     */
+    (style: InvokeStyle, method: string, parameters: any[], invocation: Invocation): any;
+}
+
+export const DIRECT: Interceptor = (style, method, parameters, invocation) => invocation();
+
+export function composite(...interceptors: Interceptor[]): Interceptor {
+    function composite2(interceptor1: Interceptor, interceptor2: Interceptor): Interceptor {
+        return (style, method, parameters, invocation) => interceptor1(
+            style, method, parameters, () => interceptor2(style, method, parameters, invocation)
+        );
+    }
+    let i1 = DIRECT;
+    interceptors.forEach(i2 => i1 = (i1 === DIRECT) ? i2 : ((i2 === DIRECT) ? i1 : composite2(i1, i2)));
+    return i1;
 }
 
 export class ContractId<C, PC> {
@@ -810,6 +795,21 @@ export abstract class Session extends Client {
         session.created();
         return session;
     }
+}
+
+export function writeTo(serializer: Serializer, value: any): Uint8Array {
+    const writer = new Writer(128);
+    serializer.write(value, writer);
+    return writer.getArray();
+}
+
+export function readFrom(serializer: Serializer, arrayBuffer: ArrayBuffer): any {
+    const reader = new Reader(arrayBuffer);
+    const value = serializer.read(reader);
+    if (!reader.isEmpty()) {
+        throw new Error("reader is not empty");
+    }
+    return value;
 }
 
 export function connect(url: string, serializer: Serializer, sessionFactory: SessionFactory): void {
