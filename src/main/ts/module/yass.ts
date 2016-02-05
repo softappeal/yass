@@ -145,6 +145,26 @@ export class Reader {
     }
 }
 
+export interface Serializer {
+    read(reader: Reader): any;
+    write(value: any, writer: Writer): void;
+}
+
+export function writeTo(serializer: Serializer, value: any): Uint8Array {
+    const writer = new Writer(128);
+    serializer.write(value, writer);
+    return writer.getArray();
+}
+
+export function readFrom(serializer: Serializer, arrayBuffer: ArrayBuffer): any {
+    const reader = new Reader(arrayBuffer);
+    const value = serializer.read(reader);
+    if (!reader.isEmpty()) {
+        throw new Error("reader is not empty");
+    }
+    return value;
+}
+
 export interface TypeHandler<T> {
     read (reader: Reader, id2typeHandler?: TypeHandler<any>[]): T;
     write(value: T, writer: Writer): void;
@@ -323,11 +343,6 @@ class ClassTypeHandler implements TypeHandler<any> {
         this.fieldId2handler.forEach((handler, id) => handler.write(id, value, writer));
         writer.writeVarInt(0);
     }
-}
-
-export interface Serializer {
-    read(reader: Reader): any;
-    write(value: any, writer: Writer): void;
 }
 
 export class JsFastSerializer implements Serializer {
@@ -795,21 +810,6 @@ export abstract class Session extends Client {
         session.created();
         return session;
     }
-}
-
-export function writeTo(serializer: Serializer, value: any): Uint8Array {
-    const writer = new Writer(128);
-    serializer.write(value, writer);
-    return writer.getArray();
-}
-
-export function readFrom(serializer: Serializer, arrayBuffer: ArrayBuffer): any {
-    const reader = new Reader(arrayBuffer);
-    const value = serializer.read(reader);
-    if (!reader.isEmpty()) {
-        throw new Error("reader is not empty");
-    }
-    return value;
 }
 
 export function connect(url: string, serializer: Serializer, sessionFactory: SessionFactory): void {
