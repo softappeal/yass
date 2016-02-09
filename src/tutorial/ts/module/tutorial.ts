@@ -1,4 +1,3 @@
-/// <reference path="../es6-promise"/>
 import * as yass from "../../../main/ts/module/yass";
 import * as contract from "./contract";
 import { IntegerImpl } from "./baseTypes-external";

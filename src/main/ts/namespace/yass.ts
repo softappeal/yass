@@ -1,3 +1,5 @@
+/// <reference path="../es6-promise"/>
+
 namespace yass {
 
     export class Writer {
