@@ -473,7 +473,7 @@ export class MethodMapping {
     }
 }
 
-export class MethodMapper<C> {
+export class MethodMapper {
     private id2mapping: MethodMapping[] = [];
     private name2Mapping: {[methodName: string]: MethodMapping} = {};
     constructor(...mappings: MethodMapping[]) {
@@ -488,7 +488,7 @@ export class MethodMapper<C> {
     mapMethod(method: string): MethodMapping {
         return this.name2Mapping[method];
     }
-    proxy(interceptor: (method: string, parameters: any[]) => any): C {
+    proxy(interceptor: (method: string, parameters: any[]) => any): any {
         const stub: any = {};
         Object.keys(this.name2Mapping).forEach(method => stub[method] = (...parameters: any[]) => interceptor(method, parameters));
         return stub;
@@ -527,11 +527,11 @@ export function composite(...interceptors: Interceptor[]): Interceptor {
     return i1;
 }
 
-export class ContractId<C, PC> {
-    constructor(public id: number, public methodMapper: MethodMapper<C>) {
+export class ContractId<C, CB> {
+    constructor(public id: number, public methodMapper: MethodMapper) {
         // empty
     }
-    service(implementation: C, ...interceptors: Interceptor[]): Service {
+    service(implementation: CB, ...interceptors: Interceptor[]): Service {
         return new Service(this, implementation, composite.apply(null, interceptors));
     }
 }
@@ -632,7 +632,7 @@ export class ClientInvocation {
 }
 
 export abstract class Client {
-    proxy<PC>(contractId: ContractId<any, PC>, ...interceptors: Interceptor[]): PC {
+    proxy<C>(contractId: ContractId<C, any>, ...interceptors: Interceptor[]): C {
         const interceptor = composite.apply(null, interceptors);
         return <any>contractId.methodMapper.proxy((method, parameters) => this.invoke(
             new ClientInvocation(interceptor, contractId.id, contractId.methodMapper.mapMethod(method), parameters)

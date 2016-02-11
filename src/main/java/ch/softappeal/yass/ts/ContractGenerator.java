@@ -234,8 +234,8 @@ public final class ContractGenerator extends Generator {
         SimpleMethodMapper.FACTORY.create(type); // checks for overloaded methods (JavaScript restriction)
         final MethodMapper methodMapper = methodMapperFactory.create(type);
         generateType(type, new TypeGenerator() {
-            void generateInterface(final String name, final boolean proxy) {
-                tabsln("export interface %s {", name + (proxy ? "_PROXY" : ""));
+            void generateInterface(final String name, final boolean callback) {
+                tabsln("export interface %s {", name + (callback ? "Callback" : ""));
                 inc();
                 for (final Method method : methods) {
                     tabs("%s(", method.getName());
@@ -252,10 +252,10 @@ public final class ContractGenerator extends Generator {
                         print("void");
                     } else {
                         final String type = type(method.getGenericReturnType());
-                        if (proxy) {
-                            print("Promise<%s>", type);
-                        } else {
+                        if (callback) {
                             print(type);
+                        } else {
+                            print("Promise<%s>", type);
                         }
                     }
                     println(";");
@@ -266,7 +266,7 @@ public final class ContractGenerator extends Generator {
             @Override public void generateType(final String name) {
                 generateInterface(name, false);
                 generateInterface(name, true);
-                tabs("export const %s_MAPPER: yass.MethodMapper<%s> = new yass.MethodMapper<%s>(", name, name, name);
+                tabs("export const %s_MAPPER = new yass.MethodMapper(", name);
                 inc();
                 boolean first = true;
                 for (final Method method : methods) {
@@ -294,8 +294,8 @@ public final class ContractGenerator extends Generator {
         for (final ServiceDesc serviceDesc : getServiceDescs(services)) {
             final String name = jsType(serviceDesc.contractId.contract, true);
             tabsln(
-                "export const %s: yass.ContractId<%s, %s_PROXY> = new yass.ContractId<%s, %s_PROXY>(%s, %s_MAPPER);",
-                serviceDesc.name, name, name, name, name, serviceDesc.contractId.id, name
+                "export const %s = new yass.ContractId<%s, %sCallback>(%s, %s_MAPPER);",
+                serviceDesc.name, name, name, serviceDesc.contractId.id, name
             );
         }
         dec();
