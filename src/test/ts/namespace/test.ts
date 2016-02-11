@@ -336,8 +336,8 @@ namespace remoteTest {
             echoService.echo(new IntegerImpl(-87654321)).then(result  => assert(result.get() === -87654321));
             echoService.echo(123.456e98).then(result => assert(result === 123.456e98));
             echoService.echo(-9.384762637432E-12).then(result => assert(result === -9.384762637432E-12));
-            echoService.echo(new contract.Expiration(9, 8, 7)).then(result => {
-                const expiration = <contract.Expiration>result;
+            echoService.echo(new contract.Expiration(9, 8, 7)).then(expiration => {
+                log("then", expiration);
                 assert(expiration.year === 9);
                 assert(expiration.month === 8);
                 assert(expiration.day === 7);

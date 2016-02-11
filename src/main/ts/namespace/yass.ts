@@ -503,10 +503,11 @@ namespace yass {
 
     /**
      * An invocation has a Promise if and only if it is an initiator rpc style invocation.
-     * If an invocation has a Promise, the interceptor will be called twice (first with PromiseEntry and then with PromiseExit).
+     * If an invocation has a Promise, the interceptor will be called twice (first with PromiseRequest and then with PromiseReply).
+     * PromiseReply is called after the promise is resolved.
      * If an invocation doesn't have a Promise, the interceptor will be called once (with NoPromise).
      */
-    export enum InvokeStyle { NoPromise, PromiseEntry, PromiseExit }
+    export enum InvokeStyle { NoPromise, PromiseRequest, PromiseReply }
 
     export interface Interceptor {
         /**
@@ -593,15 +594,17 @@ namespace yass {
             this.promise = new Promise<any>((resolve, reject) => {
                 this.settle = reply => {
                     try {
-                        interceptor(InvokeStyle.PromiseExit, method, parameters, () => reply.process());
-                    } catch (ignore) {
-                        // empty
-                    }
-                    try {
                         resolve(reply.process());
                     } catch (exception) {
                         reject(exception);
                     }
+                    Promise.resolve().then(() => {
+                        try {
+                            interceptor(InvokeStyle.PromiseReply, method, parameters, () => reply.process());
+                        } catch (ignore) {
+                            // empty
+                        }
+                    });
                 };
             });
         }
@@ -618,7 +621,7 @@ namespace yass {
         invoke(tunnel: Tunnel): Promise<any> {
             const rpc = this.methodMapping.oneWay ? null : new Rpc(this.interceptor, this.methodMapping.method, this.parameters);
             this.interceptor(
-                this.methodMapping.oneWay ? InvokeStyle.NoPromise : InvokeStyle.PromiseEntry,
+                this.methodMapping.oneWay ? InvokeStyle.NoPromise : InvokeStyle.PromiseRequest,
                 this.methodMapping.method,
                 this.parameters,
                 (): any => {
