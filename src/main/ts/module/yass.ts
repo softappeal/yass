@@ -634,7 +634,7 @@ export class ClientInvocation {
 export abstract class Client {
     proxy<C>(contractId: ContractId<C, any>, ...interceptors: Interceptor[]): C {
         const interceptor = composite.apply(null, interceptors);
-        return <any>contractId.methodMapper.proxy((method, parameters) => this.invoke(
+        return contractId.methodMapper.proxy((method, parameters) => this.invoke(
             new ClientInvocation(interceptor, contractId.id, contractId.methodMapper.mapMethod(method), parameters)
         ));
     }
