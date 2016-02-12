@@ -54,7 +54,7 @@ namespace tutorial {
         });
     }
 
-    class PriceListenerImpl implements contract.PriceListenerCallback {
+    class PriceListenerImpl implements contract.PriceListener_IMPL {
         newPrices(prices: contract.Price[]): void {
             prices.forEach(price => {
                 const tableRow = tableModel[price.instrumentId.get()];
@@ -67,7 +67,7 @@ namespace tutorial {
         }
     }
 
-    class EchoServiceImpl implements contract.EchoServiceCallback {
+    class EchoServiceImpl implements contract.EchoService_IMPL {
         echo(value: any): any {
             return value;
         }

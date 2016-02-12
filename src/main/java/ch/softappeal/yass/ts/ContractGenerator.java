@@ -235,7 +235,7 @@ public final class ContractGenerator extends Generator {
         final MethodMapper methodMapper = methodMapperFactory.create(type);
         generateType(type, new TypeGenerator() {
             void generateInterface(final String name, final boolean callback) {
-                tabsln("export interface %s {", name + (callback ? "Callback" : ""));
+                tabsln("export interface %s {", name + (callback ? "_IMPL" : ""));
                 inc();
                 for (final Method method : methods) {
                     tabs("%s(", method.getName());
@@ -294,7 +294,7 @@ public final class ContractGenerator extends Generator {
         for (final ServiceDesc serviceDesc : getServiceDescs(services)) {
             final String name = jsType(serviceDesc.contractId.contract, true);
             tabsln(
-                "export const %s = new yass.ContractId<%s, %sCallback>(%s, %s_MAPPER);",
+                "export const %s = new yass.ContractId<%s, %s_IMPL>(%s, %s_MAPPER);",
                 serviceDesc.name, name, name, serviceDesc.contractId.id, name
             );
         }
