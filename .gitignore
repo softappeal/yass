@@ -1,8 +1,8 @@
+.DS_Store
 /.gradle/
-/.idea/
 /build/
+/.idea/
 *.iml
 *.js
 *.js.map
-/src/tutorial/ts/contract.ts
-.DS_Store
+contract.ts

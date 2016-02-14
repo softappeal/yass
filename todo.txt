@@ -1,0 +1,5 @@
+$todo
+
+- add to tsconfig.json (TypeScript >= 1.8):
+  "noImplicitReturns": true,
+  "noFallthroughCasesInSwitch": true,
