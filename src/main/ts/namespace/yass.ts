@@ -529,11 +529,11 @@ namespace yass {
         return i1;
     }
 
-    export class ContractId<C, CI> {
+    export class ContractId<C, I> {
         constructor(public id: number, public methodMapper: MethodMapper) {
             // empty
         }
-        service(implementation: CI, ...interceptors: Interceptor[]): Service {
+        service(implementation: I, ...interceptors: Interceptor[]): Service {
             return new Service(this, implementation, composite.apply(null, interceptors));
         }
     }

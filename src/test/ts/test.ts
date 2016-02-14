@@ -1,4 +1,4 @@
-/// <reference path="../../../tutorial/ts/namespace/contract"/>
+/// <reference path="../../tutorial/ts/namespace/contract"/>
 
 function log(...args: any[]): void {
     console.log.apply(console, args);

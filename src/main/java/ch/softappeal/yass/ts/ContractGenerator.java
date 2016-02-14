@@ -234,8 +234,8 @@ public final class ContractGenerator extends Generator {
         SimpleMethodMapper.FACTORY.create(type); // checks for overloaded methods (JavaScript restriction)
         final MethodMapper methodMapper = methodMapperFactory.create(type);
         generateType(type, new TypeGenerator() {
-            void generateInterface(final String name, final boolean callback) {
-                tabsln("export interface %s {", name + (callback ? "_IMPL" : ""));
+            void generateInterface(final String name, final boolean implementation) {
+                tabsln("export interface %s {", name + (implementation ? "_IMPL" : ""));
                 inc();
                 for (final Method method : methods) {
                     tabs("%s(", method.getName());
@@ -252,7 +252,7 @@ public final class ContractGenerator extends Generator {
                         print("void");
                     } else {
                         final String type = type(method.getGenericReturnType());
-                        if (callback) {
+                        if (implementation) {
                             print(type);
                         } else {
                             print("Promise<%s>", type);

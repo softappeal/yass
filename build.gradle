@@ -5,12 +5,8 @@ apply plugin: 'osgi'
 apply plugin: 'maven'
 apply plugin: 'signing'
 apply plugin: 'idea'
-// apply plugin: 'findbugs'
 
 group = "ch.softappeal.yass"
-
-sourceCompatibility = '1.8'
-targetCompatibility = '1.8'
 
 configurations.all {
     resolutionStrategy {
@@ -65,8 +61,8 @@ class CompileTypeScript extends Exec {
     }
 }
 
-task compileTestNamespaceTypeScript(type: CompileTypeScript, dependsOn: 'generateTypeScriptContract') {
-    workingDir 'src/test/ts/namespace'
+task compileTestTypeScript(type: CompileTypeScript, dependsOn: 'generateTypeScriptContract') {
+    workingDir 'src/test/ts'
 }
 
 task compileTutorialNamespaceTypeScript(type: CompileTypeScript, dependsOn: 'generateTypeScriptContract') {
@@ -77,7 +73,7 @@ task compileTutorialModuleTypeScript(type: CompileTypeScript, dependsOn: 'genera
     workingDir 'src/tutorial/ts/module'
 }
 
-task compileAllTypeScript(dependsOn: ['compileTestNamespaceTypeScript', 'compileTutorialNamespaceTypeScript', 'compileTutorialModuleTypeScript'])
+task compileAllTypeScript(dependsOn: ['compileTestTypeScript', 'compileTutorialNamespaceTypeScript', 'compileTutorialModuleTypeScript'])
 
 tasks.withType(Javadoc) {
     options.addStringOption('Xdoclint:all,-missing', '-quiet')
@@ -132,15 +128,6 @@ task collectJars(type: Copy) {
 }
 
 task dist << {
-    ant.copy(todir: "build/dist") {
-        fileset(dir: "docker")
-        fileset(dir: ".", includes: "src/*/ts/")
-    }
-    ant.copy(todir: "build/dist/libs") {
-        fileset(dir: "build/allJars", includes: "*.jar")
-    }
-    ant.jar(destfile: "build/dist/libs/yass.jar", basedir: "build/classes/main")
-    ant.jar(destfile: "build/dist/libs/tutorial.jar", basedir: "build/classes/tutorial")
     if (project.hasProperty('signing.password')) {
         def signPrefix = "build/libs/${project.name}-${version}"
         signing.sign(file("${signPrefix}.pom"))
