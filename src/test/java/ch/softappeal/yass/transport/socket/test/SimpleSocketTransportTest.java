@@ -8,7 +8,6 @@ import ch.softappeal.yass.transport.SimplePathResolver;
 import ch.softappeal.yass.transport.SimpleTransportSetup;
 import ch.softappeal.yass.transport.socket.SimpleSocketTransport;
 import ch.softappeal.yass.transport.test.TransportTest;
-import ch.softappeal.yass.util.Check;
 import ch.softappeal.yass.util.Closer;
 import ch.softappeal.yass.util.Exceptions;
 import ch.softappeal.yass.util.NamedThreadFactory;
@@ -26,13 +25,13 @@ public class SimpleSocketTransportTest extends TransportTest {
 
     private static Interceptor socketInterceptor(final String side) {
         return (method, arguments, invocation) -> {
-            System.out.println(side + ": " + Check.notNull(SimpleSocketTransport.socket()));
+            System.out.println(side + ": " + SimpleSocketTransport.socket().get());
             return invocation.proceed();
         };
     }
 
     @Test public void invoke() throws Exception {
-        Assert.assertNull(SimpleSocketTransport.socket());
+        Assert.assertFalse(SimpleSocketTransport.socket().isPresent());
         final ExecutorService executor = Executors.newCachedThreadPool(new NamedThreadFactory("executor", Exceptions.TERMINATE));
         try (
             Closer closer = new SimpleSocketTransport(

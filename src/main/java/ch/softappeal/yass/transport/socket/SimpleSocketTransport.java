@@ -17,6 +17,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.Socket;
+import java.util.Optional;
 import java.util.concurrent.Executor;
 
 /**
@@ -125,8 +126,8 @@ public final class SimpleSocketTransport extends SocketListener {
     /**
      * @return socket of current request (if any)
      */
-    public static @Nullable Socket socket() {
-        return SOCKET.get();
+    public static Optional<Socket> socket() {
+        return Optional.ofNullable(SOCKET.get());
     }
 
 }

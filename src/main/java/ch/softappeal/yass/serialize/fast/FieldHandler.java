@@ -6,6 +6,7 @@ import ch.softappeal.yass.util.Nullable;
 
 import java.lang.reflect.Field;
 import java.util.Map;
+import java.util.Optional;
 
 public final class FieldHandler {
 
@@ -17,10 +18,10 @@ public final class FieldHandler {
 
     private @Nullable TypeHandler typeHandler;
     /**
-     * Note: null if {@link ClassTypeHandler} or type not in class2typeDesc (Object, Throwable, abstract classes, ...).
+     * Note: !{@link Optional#isPresent()} if {@link ClassTypeHandler} or type not in class2typeDesc (Object, Throwable, abstract classes, ...).
      */
-    public @Nullable TypeHandler typeHandler() {
-        return typeHandler;
+    public Optional<TypeHandler> typeHandler() {
+        return Optional.ofNullable(typeHandler);
     }
 
     FieldHandler(final Field field, final Reflector.Accessor accessor) {
@@ -29,7 +30,7 @@ public final class FieldHandler {
     }
 
     void fixup(final Map<Class<?>, TypeDesc> class2typeDesc) {
-        final TypeDesc typeDesc = class2typeDesc.get(
+        final @Nullable TypeDesc typeDesc = class2typeDesc.get(
             primitiveWrapperType(field.getType()) // note: prevents that primitive types are written with type id
         );
         typeHandler = (typeDesc == null) ? null : typeDesc.handler;

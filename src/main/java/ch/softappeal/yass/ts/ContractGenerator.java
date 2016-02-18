@@ -138,7 +138,10 @@ public final class ContractGenerator extends Generator {
     }
 
     private String typeDesc(final ClassTypeHandler.FieldDesc fieldDesc) {
-        final TypeHandler typeHandler = fieldDesc.handler.typeHandler();
+        if (!fieldDesc.handler.typeHandler().isPresent()) {
+            return "null";
+        }
+        final TypeHandler typeHandler = fieldDesc.handler.typeHandler().get();
         if (ch.softappeal.yass.serialize.fast.TypeDesc.LIST.handler == typeHandler) {
             return "yass.LIST_DESC";
         } else if (AbstractJsFastSerializer.BOOLEAN_TYPEDESC.handler == typeHandler) {
@@ -149,8 +152,6 @@ public final class ContractGenerator extends Generator {
             return "yass.STRING_DESC";
         } else if (AbstractJsFastSerializer.BYTES_TYPEDESC.handler == typeHandler) {
             return "yass.BYTES_DESC";
-        } else if (typeHandler == null) {
-            return "null";
         }
         return jsType(typeHandler.type, false) + ".TYPE_DESC";
     }
