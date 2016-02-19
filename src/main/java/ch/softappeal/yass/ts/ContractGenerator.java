@@ -160,13 +160,13 @@ public final class ContractGenerator extends Generator {
         if (!visitedClasses.add(type)) {
             return;
         }
-        Class<?> sc = type.getSuperclass();
+        @Nullable Class<?> sc = type.getSuperclass();
         if (ROOT_CLASSES.contains(sc)) {
             sc = null;
         } else {
             generateClass(sc);
         }
-        final Class<?> superClass = sc;
+        final @Nullable Class<?> superClass = sc;
         generateType(type, name -> {
             tabsln(
                 "export %sclass %s%s {",
@@ -176,7 +176,7 @@ public final class ContractGenerator extends Generator {
             for (final Field field : Reflect.ownFields(type)) {
                 tabsln("%s: %s;", field.getName(), type(field.getGenericType()));
             }
-            final Integer id = type2id.get(type);
+            final @Nullable Integer id = type2id.get(type);
             if (id != null) {
                 tabs("static TYPE_DESC = yass.classDesc(%s, %s", id, name);
                 inc();
@@ -313,7 +313,7 @@ public final class ContractGenerator extends Generator {
         final AbstractJsFastSerializer serializer,
         final @Nullable Services initiator,
         final @Nullable Services acceptor,
-        final String includeFile,
+        final @Nullable String includeFile,
         final @Nullable String contractNamespace,
         final @Nullable Map<Class<?>, TypeDesc> externalTypes,
         final String contractFile
@@ -329,7 +329,9 @@ public final class ContractGenerator extends Generator {
                 type2id.put(typeHandler.type, id);
             }
         });
-        includeFile(includeFile);
+        if (includeFile != null) {
+            includeFile(includeFile);
+        }
         this.contractNamespace = contractNamespace == null ? null : contractNamespace + '.';
         if (this.contractNamespace != null) {
             tabsln("namespace %s {", contractNamespace);

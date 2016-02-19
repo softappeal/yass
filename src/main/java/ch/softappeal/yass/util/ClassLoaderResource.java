@@ -13,7 +13,7 @@ public final class ClassLoaderResource implements Resource {
     }
 
     @Override public InputStream create() {
-        final InputStream in = classLoader.getResourceAsStream(name);
+        final @Nullable InputStream in = classLoader.getResourceAsStream(name);
         if (in == null) {
             throw new RuntimeException("resource '" + name + "' not found");
         }

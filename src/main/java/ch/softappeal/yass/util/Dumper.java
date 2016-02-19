@@ -182,12 +182,12 @@ public class Dumper {
                 }
             }
         }
-        private final Map<Object, Integer> alreadyDumpedObjects = referenceables ? new IdentityHashMap<>(16) : null;
+        private final @Nullable Map<Object, Integer> alreadyDumpedObjects = referenceables ? new IdentityHashMap<>(16) : null;
         private void dumpClass(final Class<?> type, final Object object) {
             final boolean referenceables = Dumper.this.referenceables && !isConcreteValueClass(type);
             final int index;
             if (referenceables) {
-                final Integer reference = alreadyDumpedObjects.get(object);
+                final @Nullable Integer reference = alreadyDumpedObjects.get(object);
                 if (reference != null) {
                     out.append('#').append(reference);
                     return;

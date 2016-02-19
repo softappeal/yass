@@ -47,7 +47,7 @@ public final class FieldHandler {
      * @see ClassTypeHandler#read(Input)
      */
     void write(final int id, final Object object, final Output output) throws Exception {
-        final Object value = accessor.get(object);
+        final @Nullable Object value = accessor.get(object);
         if (value != null) {
             output.writer.writeVarInt(id);
             if (typeHandler == null) {

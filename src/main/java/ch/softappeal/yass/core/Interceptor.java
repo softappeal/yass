@@ -50,7 +50,7 @@ import java.lang.reflect.Proxy;
         return composite;
     }
 
-    static Object invoke(final Interceptor interceptor, final Method method, final @Nullable Object[] arguments, final Object implementation) throws Exception {
+    static @Nullable Object invoke(final Interceptor interceptor, final Method method, final @Nullable Object[] arguments, final Object implementation) throws Exception {
         return interceptor.invoke(method, arguments, () -> {
             try {
                 return method.invoke(implementation, arguments);

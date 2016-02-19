@@ -2,6 +2,7 @@ package ch.softappeal.yass.serialize.fast;
 
 import ch.softappeal.yass.serialize.Reflector;
 import ch.softappeal.yass.util.Check;
+import ch.softappeal.yass.util.Nullable;
 import ch.softappeal.yass.util.Reflect;
 import ch.softappeal.yass.util.Tag;
 
@@ -20,7 +21,7 @@ public final class TaggedFastSerializer extends AbstractFastSerializer {
         final Map<Integer, Field> id2field = new HashMap<>(16);
         for (final Field field : Reflect.allFields(type)) {
             final int id = Check.hasTag(field);
-            final Field oldField = id2field.put(id, field);
+            final @Nullable Field oldField = id2field.put(id, field);
             if (oldField != null) {
                 throw new IllegalArgumentException("tag " + id + " used for fields '" + field + "' and '" + oldField + '\'');
             }

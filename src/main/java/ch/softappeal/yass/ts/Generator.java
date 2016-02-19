@@ -1,5 +1,7 @@
 package ch.softappeal.yass.ts;
 
+import ch.softappeal.yass.util.Nullable;
+
 import java.io.BufferedReader;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -60,7 +62,7 @@ abstract class Generator {
     final void includeFile(final String file) throws IOException {
         try (BufferedReader in = new BufferedReader(new InputStreamReader(new FileInputStream(file), StandardCharsets.UTF_8))) {
             while (true) {
-                final String s = in.readLine();
+                final @Nullable String s = in.readLine();
                 if (s == null) {
                     break;
                 }

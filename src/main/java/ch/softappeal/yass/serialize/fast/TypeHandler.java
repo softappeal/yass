@@ -1,6 +1,7 @@
 package ch.softappeal.yass.serialize.fast;
 
 import ch.softappeal.yass.util.Check;
+import ch.softappeal.yass.util.Nullable;
 
 public abstract class TypeHandler {
 
@@ -10,9 +11,9 @@ public abstract class TypeHandler {
         this.type = Check.notNull(type);
     }
 
-    abstract Object read(Input input) throws Exception;
+    abstract @Nullable Object read(Input input) throws Exception;
 
-    abstract void write(Object value, Output output) throws Exception;
+    abstract void write(@Nullable Object value, Output output) throws Exception;
 
     /**
      * @see Input#read()

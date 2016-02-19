@@ -37,12 +37,10 @@ public final class Reflect {
         return fields;
     }
 
-    public static List<Field> allFields(Class<?> type) {
-        Check.notNull(type);
+    public static List<Field> allFields(final Class<?> type) {
         final List<Field> fields = new ArrayList<>(16);
-        while ((type != null) && (type != Throwable.class)) {
-            fields.addAll(ownFields(type));
-            type = type.getSuperclass();
+        for (Class<?> t = Check.notNull(type); (t != null) && (t != Throwable.class); t = t.getSuperclass()) {
+            fields.addAll(ownFields(t));
         }
         return fields;
     }

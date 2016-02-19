@@ -43,7 +43,7 @@ public final class Logger implements Interceptor {
         );
     }
 
-    @Override public Object invoke(final Method method, final @Nullable Object[] arguments, final Invocation invocation) throws Exception {
+    @Override public @Nullable Object invoke(final Method method, final @Nullable Object[] arguments, final Invocation invocation) throws Exception {
         final boolean oneWay = method.isAnnotationPresent(OneWay.class);
         log(oneWay ? "oneWay" : "entry", method, arguments);
         try {

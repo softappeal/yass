@@ -62,7 +62,7 @@ public abstract class AbstractFastSerializer implements Serializer {
         if (class2typeDesc.put(typeDesc.handler.type, typeDesc) != null) {
             throw new IllegalArgumentException("type '" + typeDesc.handler.type.getCanonicalName() + "' already added");
         }
-        final TypeHandler oldTypeHandler = id2typeHandler.put(typeDesc.id, typeDesc.handler);
+        final @Nullable TypeHandler oldTypeHandler = id2typeHandler.put(typeDesc.id, typeDesc.handler);
         if (oldTypeHandler != null) {
             throw new IllegalArgumentException(
                 "type id " + typeDesc.id + " used for '" + typeDesc.handler.type.getCanonicalName() + "' and '" + oldTypeHandler.type.getCanonicalName() + '\''
@@ -122,11 +122,11 @@ public abstract class AbstractFastSerializer implements Serializer {
         );
     }
 
-    @Override public final Object read(final Reader reader) throws Exception {
+    @Override public final @Nullable Object read(final Reader reader) throws Exception {
         return new Input(reader, id2typeHandler).read();
     }
 
-    @Override public final void write(final Object value, final Writer writer) throws Exception {
+    @Override public final void write(final @Nullable Object value, final Writer writer) throws Exception {
         new Output(writer, class2typeDesc).write(value);
     }
 

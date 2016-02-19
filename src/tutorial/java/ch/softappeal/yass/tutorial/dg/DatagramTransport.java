@@ -9,6 +9,7 @@ import ch.softappeal.yass.serialize.Serializer;
 import ch.softappeal.yass.serialize.Writer;
 import ch.softappeal.yass.transport.SimpleTransportSetup;
 import ch.softappeal.yass.util.Check;
+import ch.softappeal.yass.util.Nullable;
 
 import java.net.SocketAddress;
 import java.nio.ByteBuffer;
@@ -33,7 +34,7 @@ public final class DatagramTransport {
         Check.notNull(channel);
         Check.notNull(target);
         return new Client() {
-            @Override public Object invoke(final Invocation invocation) throws Exception {
+            @Override public @Nullable Object invoke(final Invocation invocation) throws Exception {
                 return invocation.invoke(request -> {
                     checkOneWay(invocation.methodMapping, request);
                     final Writer.ByteBufferOutputStream out = new Writer.ByteBufferOutputStream(128);

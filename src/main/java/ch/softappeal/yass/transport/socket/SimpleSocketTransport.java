@@ -93,7 +93,7 @@ public final class SimpleSocketTransport extends SocketListener {
         Check.notNull(pathSerializer);
         Check.notNull(path);
         return new Client() {
-            @Override public Object invoke(final Client.Invocation invocation) throws Exception {
+            @Override public @Nullable Object invoke(final Client.Invocation invocation) throws Exception {
                 try (Socket socket = socketConnector.connect()) {
                     SocketUtils.setForceImmediateSend(socket);
                     final @Nullable Socket oldSocket = SOCKET.get();

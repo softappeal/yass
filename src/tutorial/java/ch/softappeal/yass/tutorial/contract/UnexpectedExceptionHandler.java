@@ -12,7 +12,7 @@ public final class UnexpectedExceptionHandler implements Interceptor {
         // disable
     }
 
-    @Override public Object invoke(final Method method, final @Nullable Object[] arguments, final Invocation invocation) throws Exception {
+    @Override public @Nullable Object invoke(final Method method, final @Nullable Object[] arguments, final Invocation invocation) throws Exception {
         try {
             return invocation.proceed();
         } catch (final ApplicationException e) { // pass through contract exception

@@ -1,6 +1,7 @@
 package ch.softappeal.yass.serialize.fast;
 
 import ch.softappeal.yass.util.Check;
+import ch.softappeal.yass.util.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,10 +31,10 @@ public final class TypeDesc {
     }
 
     public static final TypeDesc NULL = new TypeDesc(0, new TypeHandler(VoidType.class) {
-        @Override Object read(final Input input) {
+        @Override @Nullable Object read(final Input input) {
             return null;
         }
-        @Override void write(final Object value, final Output output) {
+        @Override void write(final @Nullable Object value, final Output output) {
             // empty
         }
     });

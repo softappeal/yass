@@ -1,6 +1,7 @@
 package ch.softappeal.yass.serialize.fast;
 
 import ch.softappeal.yass.serialize.Reflector;
+import ch.softappeal.yass.util.Nullable;
 import ch.softappeal.yass.util.Reflect;
 
 import java.lang.reflect.Field;
@@ -19,7 +20,7 @@ public final class SimpleJsFastSerializer extends AbstractJsFastSerializer {
         final List<Field> fields = Reflect.allFields(type);
         final Map<String, Field> name2field = new HashMap<>(fields.size());
         for (final Field field : fields) {
-            final Field oldField = name2field.put(field.getName(), field);
+            final @Nullable Field oldField = name2field.put(field.getName(), field);
             if (oldField != null) {
                 throw new IllegalArgumentException("duplicated fields '" + field + "' and '" + oldField + "' in class hierarchy");
             }

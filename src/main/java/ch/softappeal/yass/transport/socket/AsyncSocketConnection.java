@@ -4,6 +4,7 @@ import ch.softappeal.yass.core.remote.session.Packet;
 import ch.softappeal.yass.core.remote.session.Session;
 import ch.softappeal.yass.serialize.Serializer;
 import ch.softappeal.yass.util.Check;
+import ch.softappeal.yass.util.Nullable;
 
 import java.io.ByteArrayOutputStream;
 import java.io.OutputStream;
@@ -34,7 +35,7 @@ public final class AsyncSocketConnection extends SocketConnection {
         writerExecutor.execute(() -> {
             try {
                 while (true) {
-                    final ByteArrayOutputStream buffer = writerQueue.poll(1L, TimeUnit.SECONDS);
+                    final @Nullable ByteArrayOutputStream buffer = writerQueue.poll(1L, TimeUnit.SECONDS);
                     if (buffer == null) {
                         if (closed) {
                             return;
@@ -42,7 +43,7 @@ public final class AsyncSocketConnection extends SocketConnection {
                         continue;
                     }
                     while (true) { // drain queue -> batching of packets
-                        final ByteArrayOutputStream buffer2 = writerQueue.poll();
+                        final @Nullable ByteArrayOutputStream buffer2 = writerQueue.poll();
                         if (buffer2 == null) {
                             break;
                         }

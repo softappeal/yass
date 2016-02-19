@@ -1,5 +1,7 @@
 package ch.softappeal.yass.core.remote;
 
+import ch.softappeal.yass.util.Nullable;
+
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -22,7 +24,7 @@ public final class SimpleMethodMapper implements MethodMapper {
         int id = 0;
         for (final Method method : methods) {
             final Mapping mapping = new Mapping(method, id);
-            final Mapping oldMapping = name2mapping.put(method.getName(), mapping);
+            final @Nullable Mapping oldMapping = name2mapping.put(method.getName(), mapping);
             if (oldMapping != null) {
                 throw new IllegalArgumentException("methods '" + method + "' and '" + oldMapping.method + "' are overloaded");
             }

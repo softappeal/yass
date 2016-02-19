@@ -151,7 +151,7 @@ public abstract class Session extends Client implements Closer {
 
     private final AtomicInteger nextRequestNumber = new AtomicInteger(Packet.END_REQUEST_NUMBER);
 
-    @Override protected final Object invoke(final Client.Invocation invocation) throws Exception {
+    @Override protected final @Nullable Object invoke(final Client.Invocation invocation) throws Exception {
         if (isClosed()) {
             throw new SessionClosedException();
         }
@@ -171,7 +171,7 @@ public abstract class Session extends Client implements Closer {
                 }
                 connection.write(new Packet(requestNumber, request));
                 while (true) {
-                    final Reply reply = replyQueue.poll(1L, TimeUnit.SECONDS);
+                    final @Nullable Reply reply = replyQueue.poll(1L, TimeUnit.SECONDS);
                     if (reply != null) {
                         return reply;
                     } else if (isClosed()) {

@@ -10,7 +10,7 @@ final class Output {
 
     final Writer writer;
     private final Map<Class<?>, TypeDesc> class2typeDesc;
-    Map<Object, Integer> object2reference;
+    @Nullable Map<Object, Integer> object2reference;
 
     Output(final Writer writer, final Map<Class<?>, TypeDesc> class2typeDesc) {
         this.writer = writer;
@@ -23,7 +23,7 @@ final class Output {
         } else if (value instanceof List) {
             TypeDesc.LIST.write(value, this);
         } else {
-            final TypeDesc typeDesc = class2typeDesc.get(value.getClass());
+            final @Nullable TypeDesc typeDesc = class2typeDesc.get(value.getClass());
             if (typeDesc == null) {
                 throw new IllegalArgumentException("missing type '" + value.getClass().getCanonicalName() + '\'');
             }

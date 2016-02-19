@@ -2,6 +2,7 @@ package ch.softappeal.yass.serialize.fast;
 
 import ch.softappeal.yass.serialize.Reflector;
 import ch.softappeal.yass.util.Check;
+import ch.softappeal.yass.util.Nullable;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -76,7 +77,7 @@ public final class ClassTypeHandler extends TypeHandler {
                 output.object2reference = new IdentityHashMap<>(16);
             }
             final Map<Object, Integer> object2reference = output.object2reference;
-            final Integer reference = object2reference.get(value);
+            final @Nullable Integer reference = object2reference.get(value);
             if (reference != null) {
                 TypeDesc.REFERENCE.write(reference, output);
                 return;

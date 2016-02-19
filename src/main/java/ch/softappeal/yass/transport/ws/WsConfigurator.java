@@ -3,6 +3,7 @@ package ch.softappeal.yass.transport.ws;
 import ch.softappeal.yass.transport.TransportSetup;
 import ch.softappeal.yass.util.Check;
 import ch.softappeal.yass.util.Exceptions;
+import ch.softappeal.yass.util.Nullable;
 
 import javax.websocket.CloseReason;
 import javax.websocket.Endpoint;
@@ -29,7 +30,7 @@ public class WsConfigurator extends ServerEndpointConfig.Configurator {
 
     @Override public final <T> T getEndpointInstance(final Class<T> endpointClass) {
         return endpointClass.cast(new Endpoint() {
-            volatile WsConnection connection = null;
+            volatile @Nullable WsConnection connection = null;
             @Override public void onOpen(final Session session, final EndpointConfig config) {
                 try {
                     connection = WsConnection.create(WsConfigurator.this, session);

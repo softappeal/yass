@@ -1,6 +1,7 @@
 package ch.softappeal.yass.core.remote;
 
 import ch.softappeal.yass.util.Check;
+import ch.softappeal.yass.util.Nullable;
 import ch.softappeal.yass.util.Tag;
 
 import java.lang.reflect.Method;
@@ -20,7 +21,7 @@ public final class TaggedMethodMapper implements MethodMapper {
         id2mapping = new HashMap<>(methods.length);
         for (final Method method : methods) {
             final int id = Check.hasTag(method);
-            final Mapping oldMapping = id2mapping.put(id, new Mapping(method, id));
+            final @Nullable Mapping oldMapping = id2mapping.put(id, new Mapping(method, id));
             if (oldMapping != null) {
                 throw new IllegalArgumentException("tag " + id + " used for methods '" + method + "' and '" + oldMapping.method + '\'');
             }
