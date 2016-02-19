@@ -39,8 +39,8 @@ tasks.withType(JavaCompile) {
     options.encoding = "US-ASCII"
 }
 
-task generateTypeScriptContract(type: JavaExec) {
-    main = 'ch.softappeal.yass.tutorial.initiator.web.GenerateTypeScriptContract'
+task generateTypeScript(type: JavaExec) {
+    main = 'ch.softappeal.yass.tutorial.initiator.web.GenerateTypeScript'
     classpath = sourceSets.tutorial.runtimeClasspath
     standardOutput = new OutputStream() {
         void write(int b) {
@@ -61,15 +61,15 @@ class CompileTypeScript extends Exec {
     }
 }
 
-task compileTestTypeScript(type: CompileTypeScript, dependsOn: 'generateTypeScriptContract') {
+task compileTestTypeScript(type: CompileTypeScript, dependsOn: 'generateTypeScript') {
     workingDir 'src/test/ts'
 }
 
-task compileTutorialNamespaceTypeScript(type: CompileTypeScript, dependsOn: 'generateTypeScriptContract') {
+task compileTutorialNamespaceTypeScript(type: CompileTypeScript, dependsOn: 'generateTypeScript') {
     workingDir 'src/tutorial/ts/namespace'
 }
 
-task compileTutorialModuleTypeScript(type: CompileTypeScript, dependsOn: 'generateTypeScriptContract') {
+task compileTutorialModuleTypeScript(type: CompileTypeScript, dependsOn: 'generateTypeScript') {
     workingDir 'src/tutorial/ts/module'
 }
 

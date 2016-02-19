@@ -1,4 +1,4 @@
-package ch.softappeal.yass.ts;
+package ch.softappeal.yass.generate;
 
 import ch.softappeal.yass.Version;
 import ch.softappeal.yass.core.remote.ContractId;
@@ -34,7 +34,7 @@ import java.util.stream.Collectors;
 /**
  * You must use the "-parameters" option for javac to get the real method parameter names.
  */
-public final class ContractGenerator extends Generator {
+public final class TypeScriptGenerator extends Generator {
 
     public static final class TypeDesc {
         final String name;
@@ -308,7 +308,7 @@ public final class ContractGenerator extends Generator {
      * @param contractNamespace if null generate module else namespace
      */
     @SuppressWarnings("unchecked")
-    public ContractGenerator(
+    public TypeScriptGenerator(
         final String rootPackage,
         final AbstractJsFastSerializer serializer,
         final @Nullable Services initiator,
