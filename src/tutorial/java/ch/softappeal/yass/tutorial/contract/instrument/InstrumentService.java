@@ -14,6 +14,6 @@ public interface InstrumentService {
      * This method does nothing meaningful.
      * It just shows how to make {@link OneWay} method calls.
      */
-    @Tag(1) @OneWay void reload(boolean testBoolean, int testInt);
+    @Tag(1) @OneWay void showOneWay(boolean testBoolean, int testInt);
 
 }

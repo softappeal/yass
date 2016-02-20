@@ -1,4 +1,4 @@
-package ch.softappeal.yass.tutorial.dg;
+package ch.softappeal.yass.tutorial.datagram;
 
 import ch.softappeal.yass.core.remote.Client;
 import ch.softappeal.yass.core.remote.MethodMapper;
@@ -24,7 +24,7 @@ public final class DatagramTransport {
     private static void checkOneWay(final MethodMapper.Mapping methodMapping, final Request request) {
         if (!methodMapping.oneWay) {
             throw new IllegalArgumentException(
-                "transport not allowed for oneWay method (serviceId " + request.serviceId + ", methodId " + request.methodId + ')'
+                "transport not allowed for rpc  method (serviceId " + request.serviceId + ", methodId " + request.methodId + ')'
             );
         }
     }

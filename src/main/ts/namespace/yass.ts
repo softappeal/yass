@@ -866,9 +866,6 @@ namespace yass {
         }
         protected invoke(invocation: ClientInvocation): Promise<any> {
             return invocation.invoke((request, rpc) => {
-                if (!rpc) {
-                    throw new Error("xhr not allowed for oneWay method (serviceId " + request.serviceId + ", methodId " + request.methodId + ")");
-                }
                 const xhr = new XMLHttpRequest();
                 xhr.open("POST", this.url);
                 xhr.responseType = "arraybuffer";

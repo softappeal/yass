@@ -61,7 +61,7 @@ public final class InitiatorSession extends SimpleSession {
         } catch (final UnknownInstrumentsException ignore) {
             ignore.printStackTrace(System.out);
         }
-        instrumentService.reload(false, 123);
+        instrumentService.showOneWay(false, 123);
         priceEngine.subscribe(
             instrumentService
                 .getInstruments()

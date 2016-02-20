@@ -28,9 +28,6 @@ public final class XhrInitiator {
                     connection.setRequestMethod("POST");
                     return invocation.invoke(request -> {
                         messageSerializer.write(request, Writer.create(connection.getOutputStream()));
-                        if (invocation.methodMapping.oneWay) {
-                            throw new IllegalArgumentException("xhr not allowed for oneWay method (serviceId " + request.serviceId + ", methodId " + request.methodId + ')');
-                        }
                         return (Reply)messageSerializer.read(Reader.create(connection.getInputStream()));
                     });
                 } finally {

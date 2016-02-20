@@ -71,13 +71,14 @@ public final class SimpleSocketTransport extends SocketListener {
             try {
                 final Reader reader = Reader.create(socket.getInputStream());
                 final SimpleTransportSetup setup = pathResolver.resolvePath(pathSerializer.read(reader));
-                final Server.Invocation invocation = setup.server.invocation((Request)setup.messageSerializer.read(reader));
-                final Reply reply = invocation.invoke();
-                if (!invocation.methodMapping.oneWay) {
-                    final ByteArrayOutputStream buffer = createBuffer();
-                    setup.messageSerializer.write(reply, Writer.create(buffer));
-                    flush(buffer, socket);
-                }
+                final ByteArrayOutputStream buffer = createBuffer();
+                setup.messageSerializer.write(
+                    setup.server.invocation(
+                        (Request)setup.messageSerializer.read(reader)
+                    ).invoke(),
+                    Writer.create(buffer)
+                );
+                flush(buffer, socket);
             } finally {
                 SOCKET.set(oldSocket);
             }
@@ -105,7 +106,7 @@ public final class SimpleSocketTransport extends SocketListener {
                             pathSerializer.write(path, writer);
                             messageSerializer.write(request, writer);
                             flush(buffer, socket);
-                            return invocation.methodMapping.oneWay ? null : (Reply)messageSerializer.read(Reader.create(socket.getInputStream()));
+                            return (Reply)messageSerializer.read(Reader.create(socket.getInputStream()));
                         });
                     } finally {
                         SOCKET.set(oldSocket);

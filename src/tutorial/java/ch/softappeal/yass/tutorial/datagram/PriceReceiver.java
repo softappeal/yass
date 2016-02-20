@@ -1,4 +1,4 @@
-package ch.softappeal.yass.tutorial.dg;
+package ch.softappeal.yass.tutorial.datagram;
 
 import ch.softappeal.yass.core.remote.Server;
 import ch.softappeal.yass.transport.SimpleTransportSetup;

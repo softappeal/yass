@@ -23,12 +23,12 @@ public class XhrServlet extends HttpServlet {
 
     private static void invoke(final SimpleTransportSetup setup, final HttpServletRequest httpRequest, final HttpServletResponse httpResponse) {
         try {
-            final Request request = (Request)setup.messageSerializer.read(Reader.create(httpRequest.getInputStream()));
-            final Server.Invocation invocation = setup.server.invocation(request);
-            if (invocation.methodMapping.oneWay) {
-                throw new IllegalArgumentException("xhr not allowed for oneWay method (serviceId " + request.serviceId + ", methodId " + request.methodId + ')');
-            }
-            setup.messageSerializer.write(invocation.invoke(), Writer.create(httpResponse.getOutputStream()));
+            setup.messageSerializer.write(
+                setup.server.invocation(
+                    (Request)setup.messageSerializer.read(Reader.create(httpRequest.getInputStream()))
+                ).invoke(),
+                Writer.create(httpResponse.getOutputStream())
+            );
         } catch (final Exception e) {
             throw Exceptions.wrap(e);
         }

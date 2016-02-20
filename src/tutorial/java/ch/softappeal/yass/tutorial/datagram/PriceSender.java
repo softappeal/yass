@@ -1,4 +1,4 @@
-package ch.softappeal.yass.tutorial.dg;
+package ch.softappeal.yass.tutorial.datagram;
 
 import ch.softappeal.yass.core.remote.Client;
 import ch.softappeal.yass.tutorial.contract.Config;

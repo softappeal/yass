@@ -13,7 +13,9 @@ import java.util.List;
 
     @Tag(1) public final List<Integer> instrumentIds;
 
-    @Tag(2) public @Nullable Object onlyNeededForTests;
+    @Tag(2) public @Nullable Object onlyNeededForTests1;
+
+    @Tag(3) public @Nullable byte[] onlyNeededForTests2;
 
     public UnknownInstrumentsException(final List<Integer> instrumentIds) {
         this.instrumentIds = Check.notNull(instrumentIds);

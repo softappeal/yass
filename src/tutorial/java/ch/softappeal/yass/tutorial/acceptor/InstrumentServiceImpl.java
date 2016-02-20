@@ -33,7 +33,7 @@ public final class InstrumentServiceImpl implements InstrumentService {
         return new ArrayList<>(INSTRUMENTS.values());
     }
 
-    @Override public void reload(final boolean testBoolean, final int testInt) {
+    @Override public void showOneWay(final boolean testBoolean, final int testInt) {
         // empty
     }
 
