@@ -1,9 +1,11 @@
 {
     "compilerOptions": {
         "target": "ES5",
-        "noImplicitAny": true,
         "noEmitOnError": true,
-        "module": "system",
-        "sourceMap": true
+        "noImplicitAny": true,
+        "noImplicitReturns": true,
+        "noFallthroughCasesInSwitch": true,
+        "sourceMap": true,
+        "module": "system"
     }
 }
