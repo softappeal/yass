@@ -1,4 +1,6 @@
-/// <reference path="../../tutorial/ts/namespace/contract"/>
+import * as yass from "../../main/ts/yass";
+import { IntegerImpl } from "../../tutorial/ts/baseTypes-external"
+import * as contract from "../../tutorial/ts/contract"
 
 function log(...args: any[]): void {
     console.log.apply(console, args);

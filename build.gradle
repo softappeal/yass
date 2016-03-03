@@ -65,15 +65,11 @@ task compileTestTypeScript(type: CompileTypeScript, dependsOn: 'generateTypeScri
     workingDir 'src/test/ts'
 }
 
-task compileTutorialNamespaceTypeScript(type: CompileTypeScript, dependsOn: 'generateTypeScript') {
-    workingDir 'src/tutorial/ts/namespace'
+task compileTutorialTypeScript(type: CompileTypeScript, dependsOn: 'generateTypeScript') {
+    workingDir 'src/tutorial/ts'
 }
 
-task compileTutorialModuleTypeScript(type: CompileTypeScript, dependsOn: 'generateTypeScript') {
-    workingDir 'src/tutorial/ts/module'
-}
-
-task compileAllTypeScript(dependsOn: ['compileTestTypeScript', 'compileTutorialNamespaceTypeScript', 'compileTutorialModuleTypeScript'])
+task compileAllTypeScript(dependsOn: ['compileTestTypeScript', 'compileTutorialTypeScript'])
 
 tasks.withType(Javadoc) {
     options.addStringOption('Xdoclint:all,-missing', '-quiet')

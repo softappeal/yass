@@ -1,4 +1,4 @@
-/// <reference path="../es6-promise"/>
+/// <reference path="./es6-promise"/>
 
 export class Writer {
     private capacity: number;
@@ -622,7 +622,7 @@ export class ClientInvocation {
             this.methodMapping.oneWay ? InvokeStyle.NoPromise : InvokeStyle.PromiseRequest,
             this.methodMapping.method,
             this.parameters,
-            (): any => {
+            () => {
                 tunnel(new Request(this.serviceId, this.methodMapping.id, this.parameters), rpc);
                 return null;
             }

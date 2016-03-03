@@ -378,4 +378,16 @@ public final class TypeScriptGenerator extends Generator {
         close();
     }
 
+    public TypeScriptGenerator(
+        final String rootPackage,
+        final AbstractJsFastSerializer serializer,
+        final @Nullable Services initiator,
+        final @Nullable Services acceptor,
+        final String includeFile,
+        final @Nullable Map<Class<?>, TypeDesc> externalTypes,
+        final String contractFile
+    ) throws Exception {
+        this(rootPackage, serializer, initiator, acceptor, includeFile, null, externalTypes, contractFile);
+    }
+
 }

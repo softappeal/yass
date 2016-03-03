@@ -1,4 +1,4 @@
-import * as yass from "../../../main/ts/module/yass";
+import * as yass from "../../main/ts/yass";
 import * as contract from "./contract";
 import { IntegerImpl } from "./baseTypes-external";
 
