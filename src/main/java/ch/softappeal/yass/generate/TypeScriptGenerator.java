@@ -313,7 +313,7 @@ public final class TypeScriptGenerator extends Generator {
         final AbstractJsFastSerializer serializer,
         final @Nullable Services initiator,
         final @Nullable Services acceptor,
-        final @Nullable String includeFile,
+        final String includeFile,
         final @Nullable String contractNamespace,
         final @Nullable Map<Class<?>, TypeDesc> externalTypes,
         final String contractFile
@@ -329,9 +329,7 @@ public final class TypeScriptGenerator extends Generator {
                 type2id.put(typeHandler.type, id);
             }
         });
-        if (includeFile != null) {
-            includeFile(includeFile);
-        }
+        includeFile(includeFile);
         this.contractNamespace = contractNamespace == null ? null : contractNamespace + '.';
         if (this.contractNamespace != null) {
             tabsln("namespace %s {", contractNamespace);
