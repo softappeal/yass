@@ -5,4 +5,5 @@
 *.iml
 *.js
 *.js.map
-contract.ts
+/src/tutorial/ts/contract.ts
+!/ext/**

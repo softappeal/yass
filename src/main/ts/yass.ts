@@ -1,4 +1,4 @@
-/// <reference path="./es6-promise"/>
+/// <reference path="../../../ext/es6-promise"/>
 
 export class Writer {
     private capacity: number;
