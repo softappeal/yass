@@ -39,11 +39,6 @@ public class Reconnector<S extends Session> extends ProxyDelegate<S> {
                 return;
             }
             while (!Thread.interrupted()) {
-                try {
-                    TimeUnit.SECONDS.sleep(intervalSeconds);
-                } catch (final InterruptedException ignore) {
-                    return;
-                }
                 if (!connected()) {
                     session(null);
                     try {
@@ -51,6 +46,11 @@ public class Reconnector<S extends Session> extends ProxyDelegate<S> {
                     } catch (final Exception ignore) {
                         // empty
                     }
+                }
+                try {
+                    TimeUnit.SECONDS.sleep(intervalSeconds);
+                } catch (final InterruptedException ignore) {
+                    return;
                 }
             }
         });
