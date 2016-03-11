@@ -7,6 +7,7 @@ import ch.softappeal.yass.core.remote.Request;
 import ch.softappeal.yass.core.remote.Server;
 import ch.softappeal.yass.util.Check;
 import ch.softappeal.yass.util.Closer;
+import ch.softappeal.yass.util.Exceptions;
 import ch.softappeal.yass.util.Nullable;
 
 import java.util.Collections;
@@ -62,7 +63,6 @@ public abstract class Session extends Client implements Closer {
      * Called once when the session has been closed.
      * This implementation does nothing.
      * @param exception if (exception == null) regular close else reason for close
-     * @throws Exception note: will be ignored
      * @see SessionFactory#create(Connection)
      */
     protected void closed(final @Nullable Exception exception) throws Exception {
@@ -87,8 +87,8 @@ public abstract class Session extends Client implements Closer {
             } finally {
                 connection.closed();
             }
-        } catch (final Exception ignore) {
-            // empty
+        } catch (final Exception e) {
+            throw Exceptions.wrap(e);
         }
     }
 
@@ -112,8 +112,8 @@ public abstract class Session extends Client implements Closer {
                 if (!invocation.methodMapping.oneWay) {
                     connection.write(new Packet(requestNumber, reply));
                 }
-            } catch (final Exception ignore) {
-                close(this, ignore);
+            } catch (final Exception e) {
+                close(this, e);
             }
         });
     }
@@ -192,12 +192,12 @@ public abstract class Session extends Client implements Closer {
             dispatchOpened(() -> {
                 try {
                     opened();
-                } catch (final Exception ignore) {
-                    close(this, ignore);
+                } catch (final Exception e) {
+                    close(this, e);
                 }
             });
-        } catch (final Exception ignore) {
-            close(this, ignore);
+        } catch (final Exception e) {
+            close(this, e);
         }
     }
 

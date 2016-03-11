@@ -19,7 +19,9 @@ public final class LocalConnection implements Connection {
     }
 
     @Override public void closed() {
-        session.close();
+        if (session != null) {
+            session.close();
+        }
     }
 
     public static void connect(final SessionFactory sessionFactory1, final SessionFactory sessionFactory2) {

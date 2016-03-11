@@ -34,8 +34,8 @@ public class WsConfigurator extends ServerEndpointConfig.Configurator {
             @Override public void onOpen(final Session session, final EndpointConfig config) {
                 try {
                     connection = WsConnection.create(WsConfigurator.this, session);
-                } catch (final Throwable ignore) {
-                    Exceptions.uncaughtException(uncaughtExceptionHandler, ignore);
+                } catch (final Throwable t) {
+                    Exceptions.uncaughtException(uncaughtExceptionHandler, t);
                 }
             }
             @Override public void onClose(final Session session, final CloseReason closeReason) {

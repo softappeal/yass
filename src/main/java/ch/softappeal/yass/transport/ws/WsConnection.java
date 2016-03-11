@@ -42,13 +42,13 @@ public abstract class WsConnection implements Connection {
         }
     }
 
-    protected final void onError(final @Nullable Throwable ignore) {
-        if (ignore == null) {
+    protected final void onError(final @Nullable Throwable t) {
+        if (t == null) {
             Session.close(yassSession, new Exception());
-        } else if (ignore instanceof Exception) {
-            Session.close(yassSession, (Exception)ignore);
+        } else if (t instanceof Exception) {
+            Session.close(yassSession, (Exception)t);
         } else {
-            Exceptions.uncaughtException(uncaughtExceptionHandler, ignore);
+            Exceptions.uncaughtException(uncaughtExceptionHandler, t);
         }
     }
 
@@ -71,8 +71,8 @@ public abstract class WsConnection implements Connection {
                         if (in.hasRemaining()) {
                             throw new RuntimeException("input buffer is not empty");
                         }
-                    } catch (final Exception ignore) {
-                        Session.close(connection.yassSession, ignore);
+                    } catch (final Exception e) {
+                        Session.close(connection.yassSession, e);
                     }
                 }
             });

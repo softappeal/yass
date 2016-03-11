@@ -51,8 +51,8 @@ public final class AsyncSocketConnection extends SocketConnection {
                     }
                     flush(buffer);
                 }
-            } catch (final Exception ignore) {
-                Session.close(session, ignore);
+            } catch (final Exception e) {
+                Session.close(session, e);
             }
         });
     }

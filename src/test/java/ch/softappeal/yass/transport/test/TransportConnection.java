@@ -28,7 +28,9 @@ public final class TransportConnection implements Connection {
     }
 
     @Override public void closed() {
-        session.close();
+        if (session != null) {
+            session.close();
+        }
     }
 
     public static void connect(final TransportSetup setup1, final TransportSetup setup2) {

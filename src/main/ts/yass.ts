@@ -710,7 +710,6 @@ export abstract class Session extends Client {
      * Called once when the session has been closed.
      * This implementation does nothing.
      * @param exception if (exception == null) regular close else reason for close
-     * @throws Exception note: will be ignored
      */
     protected closed(exception: any): void {
         // empty
@@ -725,16 +724,12 @@ export abstract class Session extends Client {
         }
         this.closedProp = true;
         try {
-            try {
-                this.closed(exception);
-                if (sendEnd) {
-                    this.connection.write(Packet.END);
-                }
-            } finally {
-                this.connection.closed();
+            this.closed(exception);
+            if (sendEnd) {
+                this.connection.write(Packet.END);
             }
-        } catch (ignore) {
-            // empty
+        } finally {
+            this.connection.closed();
         }
     }
     static doClose(session: Session, exception: any): void {
@@ -806,8 +801,8 @@ export abstract class Session extends Client {
         try {
             this.serverProp = this.server();
             this.opened();
-        } catch (ignore) {
-            Session.doClose(this, ignore);
+        } catch (e) {
+            Session.doClose(this, e);
         }
     }
     static create(sessionFactory: SessionFactory, connection: Connection): Session {
@@ -836,8 +831,8 @@ export function connect(url: string, serializer: Serializer, sessionFactory: Ses
             ws.onmessage = event => {
                 try {
                     Session.received(session, readFrom(serializer, event.data));
-                } catch (ignore) {
-                    Session.doClose(session, ignore);
+                } catch (e) {
+                    Session.doClose(session, e);
                 }
             };
             ws.onerror = () => Session.doClose(session, new Error("WebSocket.onerror"));
