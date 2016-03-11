@@ -3,6 +3,7 @@ package ch.softappeal.yass.tutorial.initiator;
 import ch.softappeal.yass.core.Interceptor;
 import ch.softappeal.yass.core.remote.Server;
 import ch.softappeal.yass.core.remote.session.Connection;
+import ch.softappeal.yass.core.remote.session.SessionWatcher;
 import ch.softappeal.yass.core.remote.session.SimpleSession;
 import ch.softappeal.yass.tutorial.contract.EchoService;
 import ch.softappeal.yass.tutorial.contract.EchoServiceImpl;
@@ -49,6 +50,7 @@ public final class InitiatorSession extends SimpleSession {
     }
 
     @Override protected void opened() throws UnknownInstrumentsException {
+        SessionWatcher.watchSession(dispatchExecutor, this, 60L, 2L, () -> echoService.echo("checkFromInitiator")); // optional
         System.out.println("session " + this + " opened");
         System.out.println("echo: " + echoService.echo("hello from initiator"));
         try {

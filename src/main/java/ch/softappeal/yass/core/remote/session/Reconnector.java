@@ -22,7 +22,7 @@ public class Reconnector<S extends Session> extends ProxyDelegate<S> {
      * @param executor must interrupt it's threads to terminate reconnects (use {@link ExecutorService#shutdownNow()})
      */
     public final void start(
-        final Executor executor, final long initialDelaySeconds, final long delaySeconds,
+        final Executor executor, final long delaySeconds, final long intervalSeconds,
         final SessionFactory sessionFactory, final Connector connector
     ) {
         Check.notNull(sessionFactory);
@@ -34,11 +34,16 @@ public class Reconnector<S extends Session> extends ProxyDelegate<S> {
         };
         executor.execute(() -> {
             try {
-                TimeUnit.SECONDS.sleep(initialDelaySeconds);
+                TimeUnit.SECONDS.sleep(delaySeconds);
             } catch (final InterruptedException ignore) {
                 return;
             }
             while (!Thread.interrupted()) {
+                try {
+                    TimeUnit.SECONDS.sleep(intervalSeconds);
+                } catch (final InterruptedException ignore) {
+                    return;
+                }
                 if (!connected()) {
                     session(null);
                     try {
@@ -47,23 +52,15 @@ public class Reconnector<S extends Session> extends ProxyDelegate<S> {
                         // empty
                     }
                 }
-                try {
-                    TimeUnit.SECONDS.sleep(delaySeconds);
-                } catch (final InterruptedException ignore) {
-                    return;
-                }
             }
         });
     }
 
-    /**
-     * @see #start(Executor, long, long, SessionFactory, Connector)
-     */
     public final void start(
-        final Executor executor, final long delaySeconds,
+        final Executor executor, final long intervalSeconds,
         final SessionFactory sessionFactory, final Connector connector
     ) {
-        start(executor, 0, delaySeconds, sessionFactory, connector);
+        start(executor, 0L, intervalSeconds, sessionFactory, connector);
     }
 
 }

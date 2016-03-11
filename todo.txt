@@ -1,1 +1,0 @@
-$todo: add HeartBeat with RPC and timeout for initiator and acceptor

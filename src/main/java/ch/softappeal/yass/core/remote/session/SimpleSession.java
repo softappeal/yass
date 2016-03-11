@@ -10,7 +10,7 @@ import java.util.concurrent.Executor;
  */
 public abstract class SimpleSession extends Session {
 
-    private final Executor dispatchExecutor;
+    protected final Executor dispatchExecutor;
 
     protected SimpleSession(final Connection connection, final Executor dispatchExecutor) {
         super(connection);

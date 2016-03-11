@@ -3,6 +3,7 @@ package ch.softappeal.yass.tutorial.acceptor;
 import ch.softappeal.yass.core.Interceptor;
 import ch.softappeal.yass.core.remote.Server;
 import ch.softappeal.yass.core.remote.session.Connection;
+import ch.softappeal.yass.core.remote.session.SessionWatcher;
 import ch.softappeal.yass.core.remote.session.SimpleSession;
 import ch.softappeal.yass.tutorial.contract.EchoService;
 import ch.softappeal.yass.tutorial.contract.EchoServiceImpl;
@@ -54,6 +55,7 @@ public final class AcceptorSession extends SimpleSession {
     }
 
     @Override protected void opened() throws InterruptedException {
+        SessionWatcher.watchSession(dispatchExecutor, this, 60L, 2L, () -> echoService.echo("checkFromAcceptor")); // optional
         System.out.println("session " + this + " opened");
         System.out.println("echo: " + echoService.echo("hello from acceptor"));
         final Random random = new Random();
