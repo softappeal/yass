@@ -55,13 +55,13 @@ public final class InitiatorSession extends SimpleSession {
         System.out.println("echo: " + echoService.echo("hello from initiator"));
         try {
             echoService.echo("throwRuntimeException");
-        } catch (final SystemException ignore) {
-            ignore.printStackTrace(System.out);
+        } catch (final SystemException e) {
+            e.printStackTrace(System.out);
         }
         try {
             priceEngine.subscribe(Arrays.asList(123456789, 987654321));
-        } catch (final UnknownInstrumentsException ignore) {
-            ignore.printStackTrace(System.out);
+        } catch (final UnknownInstrumentsException e) {
+            e.printStackTrace(System.out);
         }
         instrumentService.showOneWay(false, 123);
         priceEngine.subscribe(

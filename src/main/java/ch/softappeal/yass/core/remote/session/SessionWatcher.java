@@ -24,7 +24,7 @@ public final class SessionWatcher {
     }
 
     /**
-     * @param executor used twice, must interrupt it's threads to terminate checks (use {@link ExecutorService#shutdownNow()})
+     * @param executor used twice; must interrupt it's threads to terminate checks (use {@link ExecutorService#shutdownNow()}), checks are also terminated if session is closed
      */
     public static void watchSession(
         final Executor executor, final Session session,
@@ -51,8 +51,8 @@ public final class SessionWatcher {
                         if (!latch.await(timeoutSeconds, TimeUnit.SECONDS)) {
                             Session.close(session, new Exception("check timeout"));
                         }
-                    } catch (final InterruptedException e) {
-                        Session.close(session, e);
+                    } catch (final InterruptedException ignore) {
+                        // empty
                     }
                 });
                 try {

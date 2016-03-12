@@ -19,7 +19,7 @@ public class Reconnector<S extends Session> extends ProxyDelegate<S> {
     }
 
     /**
-     * @param executor must interrupt it's threads to terminate reconnects (use {@link ExecutorService#shutdownNow()})
+     * @param executor used once; must interrupt it's threads to terminate reconnects (use {@link ExecutorService#shutdownNow()})
      */
     public final void start(
         final Executor executor, final long delaySeconds, final long intervalSeconds,

@@ -101,15 +101,14 @@ public class JettyWebSocketLeak {
         );
         /* program output:
 
-        opening server session 678919052
-        opening client session 342587933
+        opening client session -535211443
+        opening server session -536534893
 
-        closing client session 342587933
-        client session 342587933 closed with CloseReason[1000]
-        server session 678919052 closed with CloseReason[1000]
+        closing client session -535211443
+        server session -536534893 closed with CloseReason[1000]
+        client session -535211443 closed with CloseReason[1000]
 
         printing leaked server sessions ...
-            session 678919052
 
         */
     }
