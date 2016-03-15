@@ -7,6 +7,6 @@ cmd /c npm install -g typescript@1.8.7
 
 set JAVA_HOME=C:\Program Files\Java\jdk1.8.0_73
 
-cmd /c C:\development\gradle-2.11\bin\gradle.bat -Pversion=%version%
+cmd /c C:\development\gradle-2.12\bin\gradle.bat -Pversion=%version%
 
 pause

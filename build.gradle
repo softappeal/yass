@@ -4,7 +4,7 @@ apply plugin: 'java'
 apply plugin: 'osgi'
 apply plugin: 'maven'
 apply plugin: 'signing'
-apply plugin: 'idea'
+apply plugin: 'idea' // $todo remove
 
 group = "ch.softappeal.yass"
 
@@ -19,7 +19,7 @@ repositories {
 }
 
 sourceSets {
-    tutorial { java.srcDir file('src/tutorial/java') }
+    tutorial
 }
 
 def websocket_dep = 'javax.websocket:javax.websocket-api:1.0'
@@ -28,7 +28,7 @@ def undertow_dep = 'io.undertow:undertow-websockets-jsr:1.3.18.Final'
 def junit_dep = 'junit:junit:4.12'
 
 dependencies {
-    compile websocket_dep
+    compile websocket_dep // $todo: use compileOnly if IntelliJ supports it
     tutorialCompile sourceSets.main.output, jetty_dep, undertow_dep
     testCompile junit_dep, jetty_dep, undertow_dep
 }
@@ -167,11 +167,7 @@ task todo << {
 }
 
 idea {
-    project {
-        jdkName = '1.8'
-        languageLevel = '1.8'
-    }
     module {
-        testSourceDirs += sourceSets.tutorial.java.srcDirs
+        testSourceDirs += sourceSets.tutorial.java.srcDirs // $todo: remove this if IntelliJ supports custom source sets
     }
 }
