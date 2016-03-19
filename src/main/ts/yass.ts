@@ -501,11 +501,13 @@ export interface Invocation {
 
 /**
  * An invocation has a Promise if and only if it is an initiator rpc style invocation.
- * If an invocation has a Promise, the interceptor will be called twice (first with PromiseRequest and then with PromiseReply).
- * PromiseReply is called after the promise is resolved.
- * If an invocation doesn't have a Promise, the interceptor will be called once (with NoPromise).
+ * If an invocation doesn't have a Promise, the interceptor will be called once with NoPromise.
+ * If an invocation has a Promise, the interceptor will be called three times in the following order:
+ *   PromiseRequest    : before the request will be sent
+ *   PromiseReplyBefore: after  the reply   has been received and BEFORE the Promise will be resolved
+ *   PromiseReplyAfter : after  the reply   has been received and AFTER  the Promise has been resolved
  */
-export enum InvokeStyle { NoPromise, PromiseRequest, PromiseReply }
+export enum InvokeStyle { NoPromise, PromiseRequest, PromiseReplyBefore, PromiseReplyAfter }
 
 export interface Interceptor {
     /**
@@ -592,13 +594,18 @@ export class Rpc {
         this.promise = new Promise<any>((resolve, reject) => {
             this.settle = reply => {
                 try {
+                    interceptor(InvokeStyle.PromiseReplyBefore, method, parameters, () => reply.process());
+                } catch (ignore) {
+                    // empty
+                }
+                try {
                     resolve(reply.process());
                 } catch (exception) {
                     reject(exception);
                 }
                 Promise.resolve().then(() => {
                     try {
-                        interceptor(InvokeStyle.PromiseReply, method, parameters, () => reply.process());
+                        interceptor(InvokeStyle.PromiseReplyAfter, method, parameters, () => reply.process());
                     } catch (ignore) {
                         // empty
                     }
