@@ -392,7 +392,10 @@ namespace xhrTest {
     const echoService = proxyFactory.proxy(contract.acceptor.echoService);
     echoService.echo("echo").then(result => log("echo succeeded:", result));
     echoService.echo("throwRuntimeException").catch(error => log("throwRuntimeException failed:", error));
-
+    yass
+        .xhr("http://" + hostname + ":9090/xhr", contract.SERIALIZER, 500)
+        .proxy(contract.acceptor.echoService)
+        .echo("timeout").catch(error => log("timeout failed:", error));
     yass.xhr("dummy://" + hostname + ":9090/xhr", contract.SERIALIZER).proxy(contract.acceptor.echoService).echo("echo1").catch(error => log("echo1 failed:", error));
     yass.xhr("http://" + hostname + ":9090/dummy", contract.SERIALIZER).proxy(contract.acceptor.echoService).echo("echo2").catch(error => log("echo2 failed:", error));
     yass.xhr("http://" + hostname + ":9999/xhr", contract.SERIALIZER).proxy(contract.acceptor.echoService).echo("echo3").catch(error => log("echo3 failed:", error));

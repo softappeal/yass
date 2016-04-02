@@ -860,7 +860,7 @@ export function connect(url: string, serializer: Serializer, sessionFactory: Ses
 
 class XhrClient extends Client {
     private serializer: Serializer;
-    constructor(private url: string, serializer: Serializer) {
+    constructor(private url: string, serializer: Serializer, private timeoutMilliSeconds: number) {
         super();
         this.serializer = new MessageSerializer(serializer);
     }
@@ -869,6 +869,8 @@ class XhrClient extends Client {
             const xhr = new XMLHttpRequest();
             xhr.open("POST", this.url);
             xhr.responseType = "arraybuffer";
+            xhr.timeout = this.timeoutMilliSeconds;
+            xhr.ontimeout = () => rpc.settle(new ExceptionReply(new Error("XMLHttpRequest.ontimeout")));
             xhr.onerror = () => rpc.settle(new ExceptionReply(new Error("XMLHttpRequest.onerror")));
             xhr.onload = () => {
                 try {
@@ -882,6 +884,6 @@ class XhrClient extends Client {
     }
 }
 
-export function xhr(url: string, serializer: Serializer): Client {
-    return new XhrClient(url, serializer);
+export function xhr(url: string, serializer: Serializer, timeoutMilliSeconds = 0): Client {
+    return new XhrClient(url, serializer, timeoutMilliSeconds);
 }
