@@ -1,4 +1,4 @@
-defaultTasks 'clean', 'todo', 'build', 'compileTutorialJava', 'compileAllTypeScript', 'createPom', 'collectJars', 'dist'
+defaultTasks 'clean', 'todo', 'build', 'compileAllTypeScript', 'createPom', 'dist'
 
 apply plugin: 'java'
 apply plugin: 'osgi'
@@ -115,11 +115,6 @@ task createPom << {
             }
         }
     }.writeTo("build/libs/${project.name}-${version}.pom")
-}
-
-task collectJars(type: Copy) {
-    into "build/allJars"
-    from configurations.tutorialRuntime
 }
 
 task dist << {
