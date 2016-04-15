@@ -504,8 +504,8 @@ export interface Invocation {
  * If an invocation doesn't have a Promise, the interceptor will be called once with NoPromise.
  * If an invocation has a Promise, the interceptor will be called three times in the following order:
  *   PromiseRequest    : before the request will be sent
- *   PromiseReplyBefore: after  the reply   has been received and BEFORE the Promise will be resolved
- *   PromiseReplyAfter : after  the reply   has been received and AFTER  the Promise has been resolved
+ *   PromiseReplyBefore: after the reply has been received and before the Promise will be resolved
+ *   PromiseReplyAfter : after the reply has been received and after the Promise has been resolved
  */
 export enum InvokeStyle { NoPromise, PromiseRequest, PromiseReplyBefore, PromiseReplyAfter }
 
@@ -529,7 +529,7 @@ export function composite(...interceptors: Interceptor[]): Interceptor {
     return i1;
 }
 
-export class ContractId<C, I> {
+export class ContractId<P, I> {
     constructor(public id: number, public methodMapper: MethodMapper) {
         // empty
     }
@@ -639,7 +639,7 @@ export class ClientInvocation {
 }
 
 export abstract class Client {
-    proxy<C>(contractId: ContractId<C, any>, ...interceptors: Interceptor[]): C {
+    proxy<P>(contractId: ContractId<P, any>, ...interceptors: Interceptor[]): P {
         const interceptor = composite.apply(null, interceptors);
         return contractId.methodMapper.proxy((method, parameters) => this.invoke(
             new ClientInvocation(interceptor, contractId.id, contractId.methodMapper.mapMethod(method), parameters)

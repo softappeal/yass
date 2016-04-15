@@ -54,7 +54,7 @@ function createTable(): void {
     });
 }
 
-class PriceListenerImpl implements contract.PriceListener_IMPL {
+class PriceListenerImpl implements contract.impl.PriceListener {
     newPrices(prices: contract.Price[]): void {
         prices.forEach(price => {
             const tableRow = tableModel[price.instrumentId.get()];
@@ -67,7 +67,7 @@ class PriceListenerImpl implements contract.PriceListener_IMPL {
     }
 }
 
-class EchoServiceImpl implements contract.EchoService_IMPL {
+class EchoServiceImpl implements contract.impl.EchoService {
     echo(value: any): any {
         return value;
     }

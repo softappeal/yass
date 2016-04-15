@@ -236,7 +236,9 @@ public final class TypeScriptGenerator extends Generator {
         final MethodMapper methodMapper = methodMapperFactory.create(type);
         generateType(type, new TypeGenerator() {
             void generateInterface(final String name, final boolean implementation) {
-                tabsln("export interface %s {", name + (implementation ? "_IMPL" : ""));
+                tabsln("export namespace %s {", implementation ? "impl" : "proxy");
+                inc();
+                tabsln("export interface %s {", name);
                 inc();
                 for (final Method method : methods) {
                     tabs("%s(", method.getName());
@@ -263,11 +265,15 @@ public final class TypeScriptGenerator extends Generator {
                 }
                 dec();
                 tabsln("}");
+                dec();
+                tabsln("}");
             }
             @Override public void generateType(final String name) {
                 generateInterface(name, false);
                 generateInterface(name, true);
-                tabs("export const %s_MAPPER = new yass.MethodMapper(", name);
+                tabsln("export namespace mapper {");
+                inc();
+                tabs("export const %s = new yass.MethodMapper(", name);
                 inc();
                 boolean first = true;
                 for (final Method method : methods) {
@@ -282,6 +288,8 @@ public final class TypeScriptGenerator extends Generator {
                 println();
                 dec();
                 tabsln(");");
+                dec();
+                tabsln("}");
             }
         });
     }
@@ -293,10 +301,19 @@ public final class TypeScriptGenerator extends Generator {
         tabsln("export namespace %s {", role);
         inc();
         for (final ServiceDesc serviceDesc : getServiceDescs(services)) {
-            final String name = jsType(serviceDesc.contractId.contract, true);
+            String name = serviceDesc.contractId.contract.getCanonicalName().substring(rootPackage.length());
+            String namespace = "";
+            final int dot = name.lastIndexOf('.') + 1;
+            if (dot > 0) {
+                namespace = name.substring(0, dot);
+                name = name.substring(dot);
+            }
+            if (contractNamespace != null) {
+                namespace = contractNamespace + namespace;
+            }
             tabsln(
-                "export const %s = new yass.ContractId<%s, %s_IMPL>(%s, %s_MAPPER);",
-                serviceDesc.name, name, name, serviceDesc.contractId.id, name
+                "export const %s = new yass.ContractId<%sproxy.%s, %simpl.%s>(%s, %smapper.%s);",
+                serviceDesc.name, namespace, name, namespace, name, serviceDesc.contractId.id, namespace, name
             );
         }
         dec();

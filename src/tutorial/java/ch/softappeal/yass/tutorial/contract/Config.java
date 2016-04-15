@@ -122,12 +122,12 @@ public final class Config {
         }
     }
 
-    public static final class Initiator extends Role {
+    public static final class Initiator extends Role { // to be implemented by initiator
         public final ContractId<PriceListener> priceListener = contractId(PriceListener.class, 0);
         public final ContractId<EchoService> echoService = contractId(EchoService.class, 1);
     }
 
-    public static final class Acceptor extends Role {
+    public static final class Acceptor extends Role { // to be implemented by acceptor
         public final ContractId<PriceEngine> priceEngine = contractId(PriceEngine.class, 0);
         public final ContractId<InstrumentService> instrumentService = contractId(InstrumentService.class, 1);
         public final ContractId<EchoService> echoService = contractId(EchoService.class, 2);
