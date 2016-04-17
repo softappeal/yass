@@ -16,6 +16,13 @@ public abstract class Client {
         ));
     }
 
+    @FunctionalInterface public interface Tunnel {
+        /**
+         * @return will be ignored if it is an oneWay invocation, only then can it be null
+         */
+        @Nullable Reply invoke(Request request) throws Exception;
+    }
+
     public static final class Invocation {
         private final Interceptor interceptor;
         private final int serviceId;
@@ -40,7 +47,7 @@ public abstract class Client {
     }
 
     /**
-     * @return {@link Invocation#invoke(Tunnel)}
+     * @return {@link Invocation#invoke(Client.Tunnel)}
      */
     protected abstract @Nullable Object invoke(Invocation invocation) throws Exception;
 
