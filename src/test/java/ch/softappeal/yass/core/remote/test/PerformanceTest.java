@@ -9,7 +9,7 @@ public class PerformanceTest extends InvokeTest {
 
     @Test public void test() {
         ch.softappeal.yass.core.test.PerformanceTest.task(
-            ServerTest.client.proxy(ContractIdTest.ID)
+            ServerTest.CLIENT.proxy(ContractIdTest.ID)
         ).run(1_000, TimeUnit.NANOSECONDS);
     }
 

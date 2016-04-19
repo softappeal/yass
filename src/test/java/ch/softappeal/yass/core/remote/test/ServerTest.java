@@ -11,7 +11,7 @@ import org.junit.Test;
 
 public class ServerTest {
 
-    static final Client client = new Client() {
+    static final Client CLIENT = new Client() {
         @Override public Object invoke(final Client.Invocation invocation) throws Exception {
             return invocation.invoke(request -> new Server(ContractIdTest.ID.service(new InvokeTest.TestServiceImpl())).invocation(request).invoke());
         }
@@ -29,7 +29,7 @@ public class ServerTest {
 
     @Test public void noService() {
         try {
-            client.proxy(ContractId.create(InvokeTest.TestService.class, 123456, TaggedMethodMapper.FACTORY)).nothing();
+            CLIENT.proxy(ContractId.create(InvokeTest.TestService.class, 123456, TaggedMethodMapper.FACTORY)).nothing();
             Assert.fail();
         } catch (final RuntimeException e) {
             Assert.assertEquals("no serviceId 123456 found (methodId 0)", e.getMessage());
