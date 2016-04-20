@@ -12,8 +12,12 @@ import org.junit.Test;
 public class ServerTest {
 
     static final Client CLIENT = new Client() {
-        @Override public Object invoke(final Client.Invocation invocation) throws Exception {
-            return invocation.invoke(request -> new Server(ContractIdTest.ID.service(new InvokeTest.TestServiceImpl())).invocation(request).invoke());
+        @Override public void invoke(final Client.Invocation invocation) throws Exception {
+            invocation.invoke(
+                false,
+                request -> new Server(ContractIdTest.ID.service(new InvokeTest.TestServiceImpl()))
+                    .invocation(false, request).invoke(invocation::settle)
+            );
         }
     };
 

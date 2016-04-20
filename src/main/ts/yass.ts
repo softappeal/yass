@@ -1,3 +1,5 @@
+// $todo sync with Java implementation
+
 /// <reference path="./es6-promise"/>
 
 export class Writer {

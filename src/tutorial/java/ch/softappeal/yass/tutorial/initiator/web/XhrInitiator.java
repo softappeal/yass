@@ -21,14 +21,14 @@ public final class XhrInitiator {
         Check.notNull(messageSerializer);
         Check.notNull(url);
         return new Client() {
-            @Override public Object invoke(final Client.Invocation invocation) throws Exception {
+            @Override public void invoke(final Client.Invocation invocation) throws Exception {
                 final HttpURLConnection connection = (HttpURLConnection)url.openConnection();
                 try {
                     connection.setDoOutput(true);
                     connection.setRequestMethod("POST");
-                    return invocation.invoke(request -> {
+                    invocation.invoke(false, request -> {
                         messageSerializer.write(request, Writer.create(connection.getOutputStream()));
-                        return (Reply)messageSerializer.read(Reader.create(connection.getInputStream()));
+                        invocation.settle((Reply)messageSerializer.read(Reader.create(connection.getInputStream())));
                     });
                 } finally {
                     connection.disconnect();

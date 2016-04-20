@@ -1,6 +1,8 @@
 package ch.softappeal.yass.transport.socket;
 
+import ch.softappeal.yass.core.Interceptor;
 import ch.softappeal.yass.core.remote.Client;
+import ch.softappeal.yass.core.remote.ContractId;
 import ch.softappeal.yass.core.remote.Reply;
 import ch.softappeal.yass.core.remote.Request;
 import ch.softappeal.yass.core.remote.Server;
@@ -16,6 +18,7 @@ import ch.softappeal.yass.util.Nullable;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.lang.reflect.Method;
 import java.net.Socket;
 import java.util.Optional;
 import java.util.concurrent.Executor;
@@ -71,14 +74,11 @@ public final class SimpleSocketTransport extends SocketListener {
             try {
                 final Reader reader = Reader.create(socket.getInputStream());
                 final SimpleTransportSetup setup = pathResolver.resolvePath(pathSerializer.read(reader));
-                final ByteArrayOutputStream buffer = createBuffer();
-                setup.messageSerializer.write(
-                    setup.server.invocation(
-                        (Request)setup.messageSerializer.read(reader)
-                    ).invoke(),
-                    Writer.create(buffer)
-                );
-                flush(buffer, socket);
+                setup.server.invocation(false, (Request)setup.messageSerializer.read(reader)).invoke(reply -> {
+                    final ByteArrayOutputStream buffer = createBuffer();
+                    setup.messageSerializer.write(reply, Writer.create(buffer));
+                    flush(buffer, socket);
+                });
             } finally {
                 SOCKET.set(oldSocket);
             }
@@ -94,24 +94,30 @@ public final class SimpleSocketTransport extends SocketListener {
         Check.notNull(pathSerializer);
         Check.notNull(path);
         return new Client() {
-            @Override public @Nullable Object invoke(final Client.Invocation invocation) throws Exception {
+            @Override protected Object invokeSync(
+                final ContractId<?> contractId, final Interceptor interceptor, final Method method, final @Nullable Object[] arguments
+            ) throws Exception {
                 try (Socket socket = socketConnector.connect()) {
                     SocketUtils.setForceImmediateSend(socket);
                     final @Nullable Socket oldSocket = SOCKET.get();
                     SOCKET.set(socket);
                     try {
-                        return invocation.invoke(request -> {
-                            final ByteArrayOutputStream buffer = createBuffer();
-                            final Writer writer = Writer.create(buffer);
-                            pathSerializer.write(path, writer);
-                            messageSerializer.write(request, writer);
-                            flush(buffer, socket);
-                            return (Reply)messageSerializer.read(Reader.create(socket.getInputStream()));
-                        });
+                        return super.invokeSync(contractId, interceptor, method, arguments);
                     } finally {
                         SOCKET.set(oldSocket);
                     }
                 }
+            }
+            @Override public void invoke(final Client.Invocation invocation) throws Exception {
+                invocation.invoke(false, request -> {
+                    final ByteArrayOutputStream buffer = createBuffer();
+                    final Writer writer = Writer.create(buffer);
+                    pathSerializer.write(path, writer);
+                    messageSerializer.write(request, writer);
+                    final Socket socket = SOCKET.get();
+                    flush(buffer, socket);
+                    invocation.settle((Reply)messageSerializer.read(Reader.create(socket.getInputStream())));
+                });
             }
         };
     }

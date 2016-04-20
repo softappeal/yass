@@ -9,18 +9,39 @@ import java.lang.reflect.Method;
 public final class Service {
 
     public final ContractId<?> contractId;
-    private final Object implementation;
-    private final Interceptor interceptor;
+    final Object implementation;
+    private final Object interceptor;
 
-    <C> Service(final ContractId<C> contractId, final C implementation, final Interceptor... interceptors) {
+    private <C> Service(final ContractId<C> contractId, final C implementation, final Object interceptor) {
         this.contractId = Check.notNull(contractId);
         this.implementation = Check.notNull(implementation);
-        interceptor = Interceptor.composite(interceptors);
+        this.interceptor = Check.notNull(interceptor);
     }
 
-    Reply invoke(final Method method, final @Nullable Object[] arguments) {
+    <C> Service(final ContractId<C> contractId, final C implementation, final Interceptor interceptor) {
+        this(contractId, implementation, (Object)interceptor);
+    }
+
+    <C> Service(final ContractId<C> contractId, final C implementation, final InterceptorAsync<?> interceptor) {
+        this(contractId, implementation, (Object)interceptor);
+    }
+
+    boolean async() {
+        return interceptor instanceof InterceptorAsync;
+    }
+
+    private Interceptor interceptor() {
+        return (Interceptor)interceptor;
+    }
+
+    @SuppressWarnings("unchecked")
+    InterceptorAsync<Object> interceptorAsync() {
+        return (InterceptorAsync)interceptor;
+    }
+
+    Reply invokeSync(final Method method, final @Nullable Object[] arguments) {
         try {
-            return new ValueReply(Interceptor.invoke(interceptor, method, arguments, implementation));
+            return new ValueReply(Interceptor.invoke(interceptor(), method, arguments, implementation));
         } catch (final Exception e) {
             return new ExceptionReply(e);
         }

@@ -9,6 +9,8 @@
 
 * supports request/reply and oneWay style method invocations
 
+* supports sync/async client/server invocations
+
 * supports interceptors
 
 * provides session based bidirectional messaging

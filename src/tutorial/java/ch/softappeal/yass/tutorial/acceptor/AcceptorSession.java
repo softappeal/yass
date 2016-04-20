@@ -8,6 +8,7 @@ import ch.softappeal.yass.core.remote.session.SimpleSession;
 import ch.softappeal.yass.tutorial.contract.EchoService;
 import ch.softappeal.yass.tutorial.contract.EchoServiceImpl;
 import ch.softappeal.yass.tutorial.contract.Logger;
+import ch.softappeal.yass.tutorial.contract.LoggerAsync;
 import ch.softappeal.yass.tutorial.contract.Price;
 import ch.softappeal.yass.tutorial.contract.PriceKind;
 import ch.softappeal.yass.tutorial.contract.PriceListener;
@@ -37,8 +38,8 @@ public final class AcceptorSession extends SimpleSession {
             new Logger(this, Logger.Side.SERVER)
         );
         return new Server(
-            ACCEPTOR.instrumentService.service(InstrumentServiceImpl.INSTANCE, interceptor),
-            ACCEPTOR.priceEngine.service(new PriceEngineImpl(InstrumentServiceImpl.INSTRUMENTS, subscribedInstrumentIds), interceptor),
+            ACCEPTOR.instrumentService.serviceAsync(InstrumentServiceImplAsync.INSTANCE, new LoggerAsync()),
+            ACCEPTOR.priceEngine.service(new PriceEngineImpl(InstrumentServiceImplAsync.INSTRUMENTS, subscribedInstrumentIds), interceptor),
             ACCEPTOR.echoService.service(EchoServiceImpl.INSTANCE, interceptor)
         );
     }

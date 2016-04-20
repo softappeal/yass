@@ -1,6 +1,7 @@
 package ch.softappeal.yass.tutorial.initiator;
 
 import ch.softappeal.yass.core.Interceptor;
+import ch.softappeal.yass.core.remote.Client;
 import ch.softappeal.yass.core.remote.Server;
 import ch.softappeal.yass.core.remote.session.Connection;
 import ch.softappeal.yass.core.remote.session.SessionWatcher;
@@ -8,6 +9,7 @@ import ch.softappeal.yass.core.remote.session.SimpleSession;
 import ch.softappeal.yass.tutorial.contract.EchoService;
 import ch.softappeal.yass.tutorial.contract.EchoServiceImpl;
 import ch.softappeal.yass.tutorial.contract.Logger;
+import ch.softappeal.yass.tutorial.contract.LoggerAsync;
 import ch.softappeal.yass.tutorial.contract.PriceEngine;
 import ch.softappeal.yass.tutorial.contract.SystemException;
 import ch.softappeal.yass.tutorial.contract.UnexpectedExceptionHandler;
@@ -37,7 +39,7 @@ public final class InitiatorSession extends SimpleSession {
     }
 
     public final PriceEngine priceEngine;
-    public final InstrumentService instrumentService;
+    public final InstrumentService instrumentServiceAsync;
     public final EchoService echoService;
 
     public InitiatorSession(final Connection connection, final Executor dispatchExecutor) {
@@ -45,7 +47,7 @@ public final class InitiatorSession extends SimpleSession {
         System.out.println("session " + this + " created");
         final Interceptor interceptor = new Logger(this, Logger.Side.CLIENT);
         priceEngine = proxy(ACCEPTOR.priceEngine, interceptor);
-        instrumentService = proxy(ACCEPTOR.instrumentService, interceptor);
+        instrumentServiceAsync = proxyAsync(ACCEPTOR.instrumentService, new LoggerAsync());
         echoService = proxy(ACCEPTOR.echoService, interceptor);
     }
 
@@ -63,14 +65,14 @@ public final class InitiatorSession extends SimpleSession {
         } catch (final UnknownInstrumentsException e) {
             e.printStackTrace(System.out);
         }
-        instrumentService.showOneWay(false, 123);
-        priceEngine.subscribe(
-            instrumentService
-                .getInstruments()
-                .stream()
-                .map(instrument -> instrument.id)
-                .collect(Collectors.toList())
-        );
+        instrumentServiceAsync.showOneWay(false, 123);
+        Client.promise(instrumentServiceAsync::getInstruments).thenAcceptAsync(instruments -> {
+            try {
+                priceEngine.subscribe(instruments.stream().map(instrument -> instrument.id).collect(Collectors.toList()));
+            } catch (final UnknownInstrumentsException ignore) {
+                // empty
+            }
+        }, dispatchExecutor);
     }
 
     @Override protected void closed(final @Nullable Exception exception) {

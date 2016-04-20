@@ -1,5 +1,7 @@
 package ch.softappeal.yass.tutorial.acceptor;
 
+import ch.softappeal.yass.core.remote.Completer;
+import ch.softappeal.yass.core.remote.Server;
 import ch.softappeal.yass.tutorial.contract.Instrument;
 import ch.softappeal.yass.tutorial.contract.instrument.InstrumentService;
 import ch.softappeal.yass.tutorial.contract.instrument.stock.Stock;
@@ -11,7 +13,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public final class InstrumentServiceImpl implements InstrumentService {
+public final class InstrumentServiceImplAsync implements InstrumentService {
 
     public static final Map<Integer, Instrument> INSTRUMENTS;
     static {
@@ -25,18 +27,24 @@ public final class InstrumentServiceImpl implements InstrumentService {
         INSTRUMENTS = Collections.unmodifiableMap(instruments);
     }
 
-    private InstrumentServiceImpl() {
+    private InstrumentServiceImplAsync() {
         // disable
     }
 
     @Override public List<Instrument> getInstruments() {
-        return new ArrayList<>(INSTRUMENTS.values());
+        final Completer completer = Server.completer();
+        new Thread() { // setting result asynchronously
+            @Override public void run() {
+                completer.complete(new ArrayList<>(INSTRUMENTS.values()));
+            }
+        }.start();
+        return null; // needed for compiler; returned result is not used
     }
 
     @Override public void showOneWay(final boolean testBoolean, final int testInt) {
         // empty
     }
 
-    public static final InstrumentService INSTANCE = new InstrumentServiceImpl();
+    public static final InstrumentService INSTANCE = new InstrumentServiceImplAsync();
 
 }

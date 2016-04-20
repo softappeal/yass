@@ -9,7 +9,6 @@ import ch.softappeal.yass.serialize.Serializer;
 import ch.softappeal.yass.serialize.Writer;
 import ch.softappeal.yass.transport.SimpleTransportSetup;
 import ch.softappeal.yass.util.Check;
-import ch.softappeal.yass.util.Nullable;
 
 import java.net.SocketAddress;
 import java.nio.ByteBuffer;
@@ -34,13 +33,12 @@ public final class DatagramTransport {
         Check.notNull(channel);
         Check.notNull(target);
         return new Client() {
-            @Override public @Nullable Object invoke(final Invocation invocation) throws Exception {
-                return invocation.invoke(request -> {
+            @Override public void invoke(final Invocation invocation) throws Exception {
+                invocation.invoke(false, request -> {
                     checkOneWay(invocation.methodMapping, request);
                     final Writer.ByteBufferOutputStream out = new Writer.ByteBufferOutputStream(128);
                     messageSerializer.write(request, Writer.create(out));
                     channel.send(out.toByteBuffer(), target);
-                    return null;
                 });
             }
         };
@@ -54,9 +52,10 @@ public final class DatagramTransport {
         if (in.hasRemaining()) {
             throw new RuntimeException("input buffer is not empty");
         }
-        final Server.Invocation invocation = setup.server.invocation(request);
+        final Server.Invocation invocation = setup.server.invocation(false, request);
         checkOneWay(invocation.methodMapping, request);
-        invocation.invoke();
+        invocation.invoke(reply -> {
+        });
     }
 
 }

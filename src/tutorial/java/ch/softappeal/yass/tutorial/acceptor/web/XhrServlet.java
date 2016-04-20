@@ -23,11 +23,8 @@ public class XhrServlet extends HttpServlet {
 
     private static void invoke(final SimpleTransportSetup setup, final HttpServletRequest httpRequest, final HttpServletResponse httpResponse) {
         try {
-            setup.messageSerializer.write(
-                setup.server.invocation(
-                    (Request)setup.messageSerializer.read(Reader.create(httpRequest.getInputStream()))
-                ).invoke(),
-                Writer.create(httpResponse.getOutputStream())
+            setup.server.invocation(false, (Request)setup.messageSerializer.read(Reader.create(httpRequest.getInputStream()))).invoke(
+                reply -> setup.messageSerializer.write(reply, Writer.create(httpResponse.getOutputStream()))
             );
         } catch (final Exception e) {
             throw Exceptions.wrap(e);

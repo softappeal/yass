@@ -1,6 +1,7 @@
 package ch.softappeal.yass.core.remote.session;
 
 import ch.softappeal.yass.core.remote.Client;
+import ch.softappeal.yass.core.remote.ExceptionReply;
 import ch.softappeal.yass.core.remote.Message;
 import ch.softappeal.yass.core.remote.Reply;
 import ch.softappeal.yass.core.remote.Request;
@@ -10,13 +11,12 @@ import ch.softappeal.yass.util.Closer;
 import ch.softappeal.yass.util.Exceptions;
 import ch.softappeal.yass.util.Nullable;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -74,13 +74,28 @@ public abstract class Session extends Client implements Closer {
         return closed.get();
     }
 
+    private void unblockPromises() {
+        final List<Invocation> invocations = new ArrayList<>(requestNumber2invocation.values());
+        for (final Invocation invocation : invocations) {
+            try {
+                invocation.settle(new ExceptionReply(new SessionClosedException()));
+            } catch (final Exception ignore) {
+                // empty
+            }
+        }
+    }
+
     private void close(final boolean sendEnd, final @Nullable Exception exception) {
         if (closed.getAndSet(true)) {
             return;
         }
         try {
             try {
-                closed(exception);
+                try {
+                    closed(exception);
+                } finally {
+                    unblockPromises();
+                }
                 if (sendEnd) {
                     connection.write(Packet.END);
                 }
@@ -105,13 +120,18 @@ public abstract class Session extends Client implements Closer {
     }
 
     private void serverInvoke(final int requestNumber, final Request request) throws Exception {
-        final Server.Invocation invocation = server.invocation(request);
+        final Server.Invocation invocation = server.invocation(true, request);
         dispatchServerInvoke(invocation, () -> {
             try {
-                final Reply reply = invocation.invoke();
-                if (!invocation.methodMapping.oneWay) {
-                    connection.write(new Packet(requestNumber, reply));
-                }
+                invocation.invoke(reply -> {
+                    if (!invocation.methodMapping.oneWay) {
+                        try {
+                            connection.write(new Packet(requestNumber, reply));
+                        } catch (final Exception e) {
+                            close(this, e);
+                        }
+                    }
+                });
             } catch (final Exception e) {
                 close(this, e);
             }
@@ -121,7 +141,7 @@ public abstract class Session extends Client implements Closer {
     /**
      * note: it's not worth to use {@link ConcurrentHashMap} here
      */
-    private final Map<Integer, BlockingQueue<Reply>> requestNumber2replyQueue = Collections.synchronizedMap(new HashMap<>(16));
+    private final Map<Integer, Invocation> requestNumber2invocation = Collections.synchronizedMap(new HashMap<>(16));
 
     private void received(final Packet packet) throws Exception {
         try {
@@ -133,7 +153,7 @@ public abstract class Session extends Client implements Closer {
             if (message instanceof Request) {
                 serverInvoke(packet.requestNumber(), (Request)message);
             } else {
-                requestNumber2replyQueue.remove(packet.requestNumber()).put((Reply)message); // client invoke
+                requestNumber2invocation.remove(packet.requestNumber()).settle((Reply)message); // client invoke
             }
         } catch (final Exception e) {
             close(this, e);
@@ -151,33 +171,23 @@ public abstract class Session extends Client implements Closer {
 
     private final AtomicInteger nextRequestNumber = new AtomicInteger(Packet.END_REQUEST_NUMBER);
 
-    @Override protected final @Nullable Object invoke(final Client.Invocation invocation) throws Exception {
+    @Override protected final void invoke(final Client.Invocation invocation) throws Exception {
         if (isClosed()) {
             throw new SessionClosedException();
         }
-        return invocation.invoke(request -> {
+        invocation.invoke(true, request -> {
             try {
                 int requestNumber;
                 do { // we can't use END_REQUEST_NUMBER as regular requestNumber
                     requestNumber = nextRequestNumber.incrementAndGet();
                 } while (requestNumber == Packet.END_REQUEST_NUMBER);
-                if (invocation.methodMapping.oneWay) {
-                    connection.write(new Packet(requestNumber, request));
-                    return null;
-                }
-                final BlockingQueue<Reply> replyQueue = new ArrayBlockingQueue<>(1, false); // we use unfair for speed
-                if (requestNumber2replyQueue.put(requestNumber, replyQueue) != null) {
-                    throw new RuntimeException("already waiting for requestNumber " + requestNumber);
-                }
-                connection.write(new Packet(requestNumber, request));
-                while (true) {
-                    final @Nullable Reply reply = replyQueue.poll(1L, TimeUnit.SECONDS);
-                    if (reply != null) {
-                        return reply;
-                    } else if (isClosed()) {
-                        throw new SessionClosedException();
+                if (!invocation.methodMapping.oneWay) {
+                    requestNumber2invocation.put(requestNumber, invocation);
+                    if (isClosed()) {
+                        unblockPromises(); // needed due to race conditions
                     }
                 }
+                connection.write(new Packet(requestNumber, request));
             } catch (final Exception e) {
                 close(this, e);
                 throw e;

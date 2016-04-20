@@ -60,9 +60,9 @@ public class InvokeTest {
         }
     }
 
-    private static final class Logger implements Interceptor {
+    public static final class Logger implements Interceptor {
         private final String name;
-        Logger(final String name) {
+        public Logger(final String name) {
             this.name = Check.notNull(name);
         }
         @Override public Object invoke(final Method method, final @Nullable Object[] arguments, final Invocation invocation) throws Exception {
