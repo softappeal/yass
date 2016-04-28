@@ -7,6 +7,7 @@ import ch.softappeal.yass.core.remote.InterceptorAsync;
 import ch.softappeal.yass.core.remote.MethodMapper;
 import ch.softappeal.yass.core.remote.OneWay;
 import ch.softappeal.yass.core.remote.Server;
+import ch.softappeal.yass.core.remote.SimpleInterceptorContext;
 import ch.softappeal.yass.core.remote.SimpleMethodMapper;
 import ch.softappeal.yass.core.remote.session.SimpleSession;
 import ch.softappeal.yass.core.test.InvokeTest;
@@ -21,7 +22,6 @@ import java.util.Arrays;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 
 public class AsyncTest {
@@ -36,7 +36,7 @@ public class AsyncTest {
 
     private static void println(final String name, final String type, final String method, final @Nullable Integer id, final Object message) {
         System.out.printf(
-            "%10s | %7s | %9s | %10s | %11s | %1s | %s\n",
+            "%10s | %7s | %9s | %10s | %11s | %2s | %s\n",
             System.nanoTime() / 1000000L, name, type, Thread.currentThread().getName(), method, id == null ? "" : id, message
         );
     }
@@ -92,22 +92,21 @@ public class AsyncTest {
         }
     }
 
-    private static final class Logger implements InterceptorAsync<Integer> {
-        private final AtomicInteger id = new AtomicInteger(0);
+    private static final class Logger implements InterceptorAsync<SimpleInterceptorContext> {
         private final String name;
         Logger(final String name) {
             this.name = Check.notNull(name);
         }
-        @Override public Integer entry(final MethodMapper.Mapping methodMapping, final @Nullable Object[] arguments) {
-            final Integer context = id.getAndIncrement();
-            println(name, "entry", methodMapping.method.getName(), context, Arrays.deepToString(arguments));
+        @Override public SimpleInterceptorContext entry(final MethodMapper.Mapping methodMapping, final @Nullable Object[] arguments) {
+            final SimpleInterceptorContext context = new SimpleInterceptorContext(methodMapping, arguments);
+            println(name, "entry", methodMapping.method.getName(), context.id, Arrays.deepToString(arguments));
             return context;
         }
-        @Override public void exit(final Integer context, final @Nullable Object result) {
-            println(name, "exit", "", context, result);
+        @Override public void exit(final SimpleInterceptorContext context, final @Nullable Object result) {
+            println(name, "exit", context.methodMapping.method.getName(), context.id, result);
         }
-        @Override public void exception(final Integer context, final Exception exception) {
-            println(name, "exception", "", context, exception);
+        @Override public void exception(final SimpleInterceptorContext context, final Exception exception) {
+            println(name, "exception", context.methodMapping.method.getName(), context.id, exception);
         }
     }
 
