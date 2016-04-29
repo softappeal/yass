@@ -43,7 +43,7 @@ public final class SimpleJsFastSerializer extends AbstractJsFastSerializer {
         final Collection<Class<?>> concreteClasses
     ) {
         super(reflectorFactory);
-        int id = FIRST_ID;
+        int id = FIRST_DESC_ID;
         for (final BaseTypeHandler<?> typeHandler : baseTypeHandlers) {
             addBaseType(new TypeDesc(id++, typeHandler));
         }

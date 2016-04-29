@@ -12,7 +12,7 @@ public abstract class AbstractJsFastSerializer extends AbstractFastSerializer {
     public static final TypeDesc DOUBLE_TYPEDESC = new TypeDesc(TypeDesc.FIRST_ID + 1, BaseTypeHandlers.DOUBLE);
     public static final TypeDesc STRING_TYPEDESC = new TypeDesc(TypeDesc.FIRST_ID + 2, BaseTypeHandlers.STRING);
     public static final TypeDesc BYTES_TYPEDESC = new TypeDesc(TypeDesc.FIRST_ID + 3, BaseTypeHandlers.BYTE_ARRAY);
-    public static final int FIRST_ID = TypeDesc.FIRST_ID + 4;
+    public static final int FIRST_DESC_ID = TypeDesc.FIRST_ID + 4;
 
     protected AbstractJsFastSerializer(final Reflector.Factory reflectorFactory) {
         super(reflectorFactory);

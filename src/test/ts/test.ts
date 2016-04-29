@@ -1,5 +1,5 @@
 import * as yass from "../../main/ts/yass";
-import { IntegerImpl } from "../../tutorial/ts/baseTypes-external"
+import {IntegerImpl} from "../../tutorial/ts/baseTypes-external"
 import * as contract from "../../tutorial/ts/contract"
 
 function log(...args: any[]): void {
@@ -276,32 +276,6 @@ namespace serializerTest {
 
 }
 
-namespace interceptorTest {
-
-    function i(id: number): yass.Interceptor {
-        return (style, method, parameters, invocation) => {
-            parameters[0] = (parameters[0] * 10) + id;
-            return invocation();
-        };
-    }
-
-    function invoke(...interceptors: yass.Interceptor[]): number {
-        const parameters = [0];
-        yass.composite.apply(null, interceptors)(null, null, parameters, () => "fkjskfjksjfl");
-        return parameters[0];
-    }
-
-    assert(yass.composite() === yass.DIRECT);
-
-    assert(invoke() === 0);
-    assert(invoke(yass.DIRECT) === 0);
-    assert(invoke(i(123)) === 123);
-    assert(invoke(yass.DIRECT, i(123)) === 123);
-    assert(invoke(i(123), yass.DIRECT) === 123);
-    assert(invoke(i(9), i(8), i(7)) === 987);
-
-}
-
 const hostname = location.hostname;
 
 namespace remoteTest {
@@ -318,18 +292,23 @@ namespace remoteTest {
         }
         protected opened(): void {
             log("session opened", this.isClosed());
-            const printer: yass.Interceptor = (style, method, parameters, invocation) => {
-                function doLog(kind: string, data: any): void {
-                    log("logger:", kind, yass.InvokeStyle[style], method, data);
-                }
-                doLog("entry", parameters);
-                try {
-                    const result = invocation();
-                    doLog("exit", result);
-                    return result;
-                } catch (e) {
-                    doLog("exception", e);
-                    throw e;
+            function doLog(context: yass.SimpleInterceptorContext, kind: string, data: any): void {
+                log("logger:", kind, context.id, context.methodMapping.method, data);
+            }
+            const printer: yass.Interceptor<yass.SimpleInterceptorContext> = {
+                entry(methodMapping: yass.MethodMapping, parameters: any[]): yass.SimpleInterceptorContext {
+                    const context = new yass.SimpleInterceptorContext(methodMapping, parameters);
+                    doLog(context, "entry", parameters);
+                    return context;
+                },
+                exit(context: yass.SimpleInterceptorContext, result: any): void {
+                    doLog(context, "exit", result);
+                },
+                exception(context: yass.SimpleInterceptorContext, exception: any): void {
+                    doLog(context, "exception", exception);
+                },
+                resolved(context: yass.SimpleInterceptorContext): void {
+                    doLog(context, "resolved", "");
                 }
             };
             const instrumentService = this.proxy(contract.acceptor.instrumentService, printer);

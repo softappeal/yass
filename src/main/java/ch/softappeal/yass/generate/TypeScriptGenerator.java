@@ -342,7 +342,7 @@ public final class TypeScriptGenerator extends Generator {
         }
         id2typeHandler = serializer.id2typeHandler();
         id2typeHandler.forEach((id, typeHandler) -> {
-            if (id >= AbstractJsFastSerializer.FIRST_ID) {
+            if (id >= AbstractJsFastSerializer.FIRST_DESC_ID) {
                 type2id.put(typeHandler.type, id);
             }
         });

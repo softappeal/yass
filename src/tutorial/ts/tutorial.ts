@@ -1,29 +1,36 @@
 import * as yass from "../../main/ts/yass";
 import * as contract from "./contract";
-import { IntegerImpl } from "./baseTypes-external";
+import {IntegerImpl} from "./baseTypes-external";
 
 function log(...args: any[]): void {
     console.log.apply(console, args);
 }
 
-function logger(side: string): yass.Interceptor {
-    return (style, method, parameters, invocation) => {
-        function doLog(kind: string, data: any): void {
-            log("logger:", side, kind, yass.InvokeStyle[style], method, data);
-        }
-        doLog("entry", parameters);
-        try {
-            const result = invocation();
-            doLog("exit", result);
-            return result;
-        } catch (e) {
-            doLog("exception", e);
-            throw e;
-        }
-    };
+class Logger implements yass.Interceptor<yass.SimpleInterceptorContext> {
+    constructor(private side: string) {
+        // empty
+    }
+    private doLog(context: yass.SimpleInterceptorContext, kind: string, data: any): void {
+        log("logger:", this.side, kind, context.id, context.methodMapping.method, data);
+    }
+    entry(methodMapping: yass.MethodMapping, parameters: any[]): yass.SimpleInterceptorContext {
+        const context = new yass.SimpleInterceptorContext(methodMapping, parameters);
+        this.doLog(context, "entry", parameters);
+        return context;
+    }
+    exit(context: yass.SimpleInterceptorContext, result: any): void {
+        this.doLog(context, "exit", result);
+    }
+    exception(context: yass.SimpleInterceptorContext, exception: any): void {
+        this.doLog(context, "exception", exception);
+    }
+    resolved(context: yass.SimpleInterceptorContext): void {
+        this.doLog(context, "resolved", "");
+    }
 }
-const clientLogger = logger("client");
-const serverLogger = logger("server");
+
+const clientLogger = new Logger("client");
+const serverLogger = new Logger("server");
 
 class TableRow {
     bidElement: HTMLElement;

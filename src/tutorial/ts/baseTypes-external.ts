@@ -13,7 +13,7 @@ export class IntegerHandler implements yass.TypeHandler<Integer> {
     write(value: Integer, writer: yass.Writer): void {
         writer.writeZigZagInt(value.get());
     }
-    static TYPE_DESC = new yass.TypeDesc(yass.FIRST_ID, new IntegerHandler);
+    static TYPE_DESC = new yass.TypeDesc(yass.FIRST_DESC_ID, new IntegerHandler);
 }
 
 export class IntegerImpl implements Integer {

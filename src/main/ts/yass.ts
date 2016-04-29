@@ -1,5 +1,3 @@
-// $todo sync with Java implementation
-
 /// <reference path="./es6-promise"/>
 
 export class Writer {
@@ -254,7 +252,7 @@ class BytesTypeHandler implements TypeHandler<Uint8Array> {
 }
 export const BYTES_DESC = new TypeDesc(6, new BytesTypeHandler);
 
-export const FIRST_ID = 7;
+export const FIRST_DESC_ID = 7;
 
 function read(reader: Reader, id2typeHandler: TypeHandler<any>[]): any {
     return id2typeHandler[reader.readVarInt()].read(reader, id2typeHandler);
@@ -497,74 +495,92 @@ export class MethodMapper {
     }
 }
 
-export interface Invocation {
-    (): any;
-}
-
-/**
- * An invocation has a Promise if and only if it is an initiator rpc style invocation.
- * If an invocation doesn't have a Promise, the interceptor will be called once with NoPromise.
- * If an invocation has a Promise, the interceptor will be called three times in the following order:
- *   PromiseRequest    : before the request will be sent
- *   PromiseReplyBefore: after the reply has been received and before the Promise will be resolved
- *   PromiseReplyAfter : after the reply has been received and after the Promise has been resolved
- */
-export enum InvokeStyle { NoPromise, PromiseRequest, PromiseReplyBefore, PromiseReplyAfter }
-
-export interface Interceptor {
-    /**
-     * @return invocation()
-     */
-    (style: InvokeStyle, method: string, parameters: any[], invocation: Invocation): any;
-}
-
-export const DIRECT: Interceptor = (style, method, parameters, invocation) => invocation();
-
-export function composite(...interceptors: Interceptor[]): Interceptor {
-    function composite2(interceptor1: Interceptor, interceptor2: Interceptor): Interceptor {
-        return (style, method, parameters, invocation) => interceptor1(
-            style, method, parameters, () => interceptor2(style, method, parameters, invocation)
-        );
+export class SimpleInterceptorContext {
+    private static ID = 0;
+    id = SimpleInterceptorContext.ID++;
+    constructor(public methodMapping: MethodMapping, public parameters: any[]) {
+        // empty
     }
-    let i1 = DIRECT;
-    interceptors.forEach(i2 => i1 = (i1 === DIRECT) ? i2 : ((i2 === DIRECT) ? i1 : composite2(i1, i2)));
-    return i1;
 }
+
+export interface Interceptor<C> {
+    /**
+     * @return context
+     */
+    entry(methodMapping: MethodMapping, parameters: any[]): C;
+    exit(context: C, result: any): void;
+    exception(context: C, exception: any): void;
+    /**
+     * Called after promise has been resolved.
+     */
+    resolved(context: C): void;
+}
+
+export const EMPTY_INTERCEPTOR: Interceptor<any> = {
+    entry(methodMapping: MethodMapping, parameters: any[]): any {
+        return 0;
+    },
+    exit(context: any, result: any): void {
+        // empty
+    },
+    exception(context: any, exception: any): void {
+        // empty
+    },
+    resolved(context: any): void {
+        // empty
+    }
+};
 
 export class ContractId<P, I> {
     constructor(public id: number, public methodMapper: MethodMapper) {
         // empty
     }
-    service(implementation: I, ...interceptors: Interceptor[]): Service {
-        return new Service(this, implementation, composite.apply(null, interceptors));
+    service(implementation: I, interceptor = EMPTY_INTERCEPTOR): Service {
+        return new Service(this, implementation, interceptor);
     }
 }
 
 export class Service {
-    constructor(public contractId: ContractId<any, any>, private implementation: any, private interceptor: Interceptor) {
+    constructor(public contractId: ContractId<any, any>, public implementation: any, public interceptor: Interceptor<any>) {
         // empty
-    }
-    invoke(method: string, parameters: any[]): Reply {
-        try {
-            return new ValueReply(this.interceptor(InvokeStyle.NoPromise, method, parameters, () => {
-                const result = this.implementation[method].apply(this.implementation, parameters);
-                return ((result !== null) && (result !== undefined)) ? result : null;
-            }));
-        } catch (exception) {
-            return new ExceptionReply(exception);
-        }
     }
 }
 
-export class ServerInvocation {
-    methodMapping: MethodMapping;
-    parameters: any[];
+export abstract class AbstractInvocation {
+    private context: any;
+    constructor(public methodMapping: MethodMapping, public parameters: any[], private interceptor: Interceptor<any>) {
+        // empty
+    }
+    entry(): void {
+        this.context = this.interceptor.entry(this.methodMapping, this.parameters);
+    }
+    exit(result: any): void {
+        this.interceptor.exit(this.context, result);
+    }
+    exception(exception: any): void {
+        this.interceptor.exception(this.context, exception);
+    }
+    resolved(): void {
+        this.interceptor.resolved(this.context);
+    }
+}
+
+export class ServerInvocation extends AbstractInvocation {
     constructor(public service: Service, request: Request) {
-        this.methodMapping = service.contractId.methodMapper.mapId(request.methodId);
-        this.parameters = request.parameters;
+        super(service.contractId.methodMapper.mapId(request.methodId), request.parameters, service.interceptor);
     }
     invoke(): Reply {
-        return this.service.invoke(this.methodMapping.method, this.parameters);
+        this.entry();
+        try {
+            const implementation = this.service.implementation;
+            let result = implementation[this.methodMapping.method].apply(implementation, this.parameters);
+            result = ((result !== null) && (result !== undefined)) ? result : null;
+            this.exit(result);
+            return new ValueReply(result);
+        } catch (exception) {
+            this.exception(exception);
+            return new ExceptionReply(exception);
+        }
     }
 }
 
@@ -589,16 +605,24 @@ export class Server {
     static EMPTY = new Server;
 }
 
-export class Rpc {
+export interface Tunnel {
+    (request: Request): void;
+}
+
+export class ClientInvocation extends AbstractInvocation {
     promise: Promise<any>;
     settle: (reply: Reply) => void;
-    constructor(interceptor: Interceptor, method: string, parameters: any[]) {
+    constructor(methodMapping: MethodMapping, parameters: any[], interceptor: Interceptor<any>, private serviceId: number) {
+        super(methodMapping, parameters, interceptor);
+        if (methodMapping.oneWay) {
+            return;
+        }
         this.promise = new Promise<any>((resolve, reject) => {
             this.settle = reply => {
                 try {
-                    interceptor(InvokeStyle.PromiseReplyBefore, method, parameters, () => reply.process());
-                } catch (ignore) {
-                    // empty
+                    this.exit(reply.process());
+                } catch (exception) {
+                    this.exception(exception);
                 }
                 try {
                     resolve(reply.process());
@@ -606,51 +630,26 @@ export class Rpc {
                     reject(exception);
                 }
                 Promise.resolve().then(() => {
-                    try {
-                        interceptor(InvokeStyle.PromiseReplyAfter, method, parameters, () => reply.process());
-                    } catch (ignore) {
-                        // empty
-                    }
+                    this.resolved();
                 });
             };
         });
     }
-}
-
-export interface Tunnel {
-    (request: Request, rpc: Rpc): void;
-}
-
-export class ClientInvocation {
-    constructor(private interceptor: Interceptor, private serviceId: number, private methodMapping: MethodMapping, private parameters: any[]) {
-        // empty
-    }
-    invoke(tunnel: Tunnel): Promise<any> {
-        const rpc = this.methodMapping.oneWay ? null : new Rpc(this.interceptor, this.methodMapping.method, this.parameters);
-        this.interceptor(
-            this.methodMapping.oneWay ? InvokeStyle.NoPromise : InvokeStyle.PromiseRequest,
-            this.methodMapping.method,
-            this.parameters,
-            () => {
-                tunnel(new Request(this.serviceId, this.methodMapping.id, this.parameters), rpc);
-                return null;
-            }
-        );
-        return rpc ? rpc.promise : null;
+    invoke(tunnel: Tunnel): void {
+        this.entry();
+        tunnel(new Request(this.serviceId, this.methodMapping.id, this.parameters));
     }
 }
 
 export abstract class Client {
-    proxy<P>(contractId: ContractId<P, any>, ...interceptors: Interceptor[]): P {
-        const interceptor = composite.apply(null, interceptors);
-        return contractId.methodMapper.proxy((method, parameters) => this.invoke(
-            new ClientInvocation(interceptor, contractId.id, contractId.methodMapper.mapMethod(method), parameters)
-        ));
+    proxy<P>(contractId: ContractId<P, any>, interceptor = EMPTY_INTERCEPTOR): P {
+        return contractId.methodMapper.proxy((method, parameters) => {
+            const invocation = new ClientInvocation(contractId.methodMapper.mapMethod(method), parameters, interceptor, contractId.id);
+            this.invoke(invocation);
+            return invocation.promise;
+        });
     }
-    /**
-     * @return ClientInvocation.invoke(Interceptor, Tunnel)
-     */
-    protected abstract invoke(invocation: ClientInvocation): Promise<any>;
+    protected abstract invoke(invocation: ClientInvocation): void;
 }
 
 export class Packet {
@@ -758,7 +757,7 @@ export abstract class Session extends Client {
             this.connection.write(new Packet(requestNumber, reply));
         }
     }
-    private requestNumber2rpc: Rpc[] = [];
+    private requestNumber2invocation: ClientInvocation[] = [];
     private received(packet: Packet): void {
         try {
             if (packet.isEnd()) {
@@ -768,10 +767,10 @@ export abstract class Session extends Client {
             const message = packet.message;
             if (message instanceof Request) {
                 this.serverInvoke(packet.requestNumber, message);
-            } else { // Reply
-                const rpc = this.requestNumber2rpc[packet.requestNumber];
-                delete this.requestNumber2rpc[packet.requestNumber];
-                rpc.settle(<Reply>message);
+            } else { // client invoke
+                const invocation = this.requestNumber2invocation[packet.requestNumber];
+                delete this.requestNumber2invocation[packet.requestNumber];
+                invocation.settle(<Reply>message);
             }
         } catch (exception) {
             Session.doClose(this, exception);
@@ -782,21 +781,18 @@ export abstract class Session extends Client {
         session.received(packet);
     }
     private requestNumber = Packet.END_REQUESTNUMBER;
-    protected invoke(invocation: ClientInvocation): Promise<any> {
+    protected invoke(invocation: ClientInvocation): void {
         if (this.isClosed()) {
             throw new Error("session is already closed or not yet opened");
         }
-        return invocation.invoke((request, rpc) => {
+        invocation.invoke(request => {
             try {
                 if (this.requestNumber === 2147483647) {
                     this.requestNumber = Packet.END_REQUESTNUMBER;
                 }
                 this.requestNumber++;
-                if (rpc) {
-                    if (this.requestNumber2rpc[this.requestNumber]) {
-                        throw new Error("already waiting for requestNumber " + this.requestNumber);
-                    }
-                    this.requestNumber2rpc[this.requestNumber] = rpc;
+                if (!invocation.methodMapping.oneWay) {
+                    this.requestNumber2invocation[this.requestNumber] = invocation;
                 }
                 this.connection.write(new Packet(this.requestNumber, request));
             } catch (exception) {
@@ -866,19 +862,19 @@ class XhrClient extends Client {
         super();
         this.serializer = new MessageSerializer(serializer);
     }
-    protected invoke(invocation: ClientInvocation): Promise<any> {
-        return invocation.invoke((request, rpc) => {
+    protected invoke(invocation: ClientInvocation): void {
+        invocation.invoke(request => {
             const xhr = new XMLHttpRequest();
             xhr.open("POST", this.url);
             xhr.responseType = "arraybuffer";
             xhr.timeout = this.timeoutMilliSeconds;
-            xhr.ontimeout = () => rpc.settle(new ExceptionReply(new Error("XMLHttpRequest.ontimeout")));
-            xhr.onerror = () => rpc.settle(new ExceptionReply(new Error("XMLHttpRequest.onerror")));
+            xhr.ontimeout = () => invocation.settle(new ExceptionReply(new Error("XMLHttpRequest.ontimeout")));
+            xhr.onerror = () => invocation.settle(new ExceptionReply(new Error("XMLHttpRequest.onerror")));
             xhr.onload = () => {
                 try {
-                    rpc.settle(readFrom(this.serializer, xhr.response));
+                    invocation.settle(readFrom(this.serializer, xhr.response));
                 } catch (exception) {
-                    rpc.settle(new ExceptionReply(exception));
+                    invocation.settle(new ExceptionReply(exception));
                 }
             };
             xhr.send(writeTo(this.serializer, request));

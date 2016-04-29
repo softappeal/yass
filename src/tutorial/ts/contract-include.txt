@@ -1,5 +1,5 @@
 import * as yass from "../../main/ts/yass";
-import { Integer, IntegerHandler } from "./baseTypes-external";
+import {Integer, IntegerHandler} from "./baseTypes-external";
 
 // shows how to use contract internal base types
 class ExpirationHandler implements yass.TypeHandler<Expiration> {
@@ -15,7 +15,7 @@ class ExpirationHandler implements yass.TypeHandler<Expiration> {
         writer.writeZigZagInt(value.month);
         writer.writeZigZagInt(value.day);
     }
-    static TYPE_DESC = new yass.TypeDesc(yass.FIRST_ID + 1, new ExpirationHandler);
+    static TYPE_DESC = new yass.TypeDesc(yass.FIRST_DESC_ID + 1, new ExpirationHandler);
 }
 export class Expiration {
     constructor(public year: number, public month: number, public day: number) {
