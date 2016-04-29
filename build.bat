@@ -5,8 +5,8 @@ set /p version=Version [ MAJOR.MINOR.PATCH or 'enter' for %version% ]?:
 
 cmd /c npm install -g typescript@1.8.10
 
-set JAVA_HOME=C:\Program Files\Java\jdk1.8.0_77
+set JAVA_HOME=C:\Program Files\Java\jdk1.8.0_92
 
-cmd /c C:\Users\guru\development\gradle-2.12\bin\gradle.bat -Pversion=%version%
+cmd /c C:\Users\guru\development\gradle-2.13\bin\gradle.bat -Pversion=%version%
 
 pause
