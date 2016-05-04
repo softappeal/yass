@@ -19,6 +19,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import java.util.Arrays;
+import java.util.concurrent.CompletionStage;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -32,6 +33,34 @@ public class AsyncTest {
         Integer getInteger();
         String getString();
         @OneWay void oneWay();
+    }
+
+    /**
+     * Transformation rules:
+     * - Don't change oneWay methods.
+     * - Remove exceptions.
+     * - Replace return type with CompletionStage (void -> Void, primitive type -> wrapper type).
+     */
+    private static final class TestServiceAsync {
+        private final TestService asyncProxy;
+        TestServiceAsync(final TestService asyncProxy) {
+            this.asyncProxy = asyncProxy;
+        }
+        public CompletionStage<Void> noResult() {
+            return Client.promise(() -> asyncProxy.noResult());
+        }
+        public CompletionStage<Integer> divide(final int a, final int b) {
+            return Client.promise(() -> asyncProxy.divide(a, b));
+        }
+        public CompletionStage<Integer> getInteger() {
+            return Client.promise(() -> asyncProxy.getInteger());
+        }
+        public CompletionStage<String> getString() {
+            return Client.promise(() -> asyncProxy.getString());
+        }
+        public void oneWay() {
+            asyncProxy.oneWay();
+        }
     }
 
     private static void println(final String name, final String type, final String method, final @Nullable Integer id, final Object message) {
@@ -55,9 +84,15 @@ public class AsyncTest {
         }.start();
     }
 
+    public interface Completer2<R, E extends Exception> {
+        void complete(@Nullable R result);
+        void complete();
+        void completeExceptionally(E exception);
+    }
+
     private static final class TestServiceImpl implements TestService {
         @Override public void noResult() {
-            sleep(completer -> completer.complete(null));
+            sleep(completer -> completer.complete());
             println("impl", "", "noResult", null, "");
         }
         @Override public int divide(final int a, final int b) {
@@ -89,6 +124,36 @@ public class AsyncTest {
                 // empty
             }
             println("impl", "", "oneWay", null, "");
+        }
+    }
+
+    /**
+     * Transformation rules:
+     * - Don't change oneWay methods.
+     * - Replace return type with void.
+     * - Remove exceptions.
+     * - Append completer parameter.
+     */
+    private static final class TestServiceImplAsync {
+        public void noResult(final Completer2<Void, RuntimeException> completer) {
+            completer.complete();
+        }
+        public void divide(final int a, final int b, final Completer2<Integer, InvokeTest.DivisionByZeroException> completer) {
+            if (b == 0) {
+                completer.completeExceptionally(new InvokeTest.DivisionByZeroException(a));
+            } else {
+                completer.complete(a / b);
+            }
+        }
+        public void getInteger(final Completer2<Integer, RuntimeException> completer) {
+            completer.complete(123);
+        }
+        public void getString(final Completer2<String, RuntimeException> completer) {
+            completer.complete("string");
+
+        }
+        public void oneWay() {
+            // empty
         }
     }
 
@@ -131,13 +196,14 @@ public class AsyncTest {
                     }
                     @Override protected void opened() {
                         final TestService test = proxyAsync(ID, new Logger("client"));
-                        Client.promise(test::noResult).thenAccept(r -> println("proxy", "", "noResult", null, r));
-                        Client.promise(() -> test.divide(12, 3)).thenAccept(r -> println("proxy", "", "divide", null, r));
-                        Client.promise(() -> test.divide(12, 4)).thenAcceptAsync(r -> println("proxy", "", "divide", null, r), executor);
-                        Client.promise(() -> test.divide(123, 0)).whenComplete((r, e) -> println("proxy", "", "divide", null, e));
-                        Client.promise(test::getInteger).thenAccept(r -> println("proxy", "", "getInteger", null, r.intValue()));
-                        Client.promise(test::getString).thenAccept(r -> println("proxy", "", "getString", null, r.substring(0)));
-                        test.oneWay();
+                        final TestServiceAsync testAsync = new TestServiceAsync(test);
+                        testAsync.noResult().thenAccept(r -> println("proxy", "", "noResult", null, r));
+                        testAsync.divide(12, 3).thenAccept(r -> println("proxy", "", "divide", null, r));
+                        testAsync.divide(12, 4).thenAcceptAsync(r -> println("proxy", "", "divide", null, r), executor);
+                        testAsync.divide(123, 0).whenComplete((r, e) -> println("proxy", "", "divide", null, e));
+                        testAsync.getInteger().thenAccept(r -> println("proxy", "", "getInteger", null, r.intValue()));
+                        testAsync.getString().thenAccept(r -> println("proxy", "", "getString", null, r.substring(0)));
+                        testAsync.oneWay();
                         try {
                             Client.promise(test::oneWay);
                             Assert.fail();

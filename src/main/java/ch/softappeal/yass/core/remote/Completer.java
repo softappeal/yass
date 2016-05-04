@@ -2,10 +2,17 @@ package ch.softappeal.yass.core.remote;
 
 import ch.softappeal.yass.util.Nullable;
 
-public interface Completer {
+public abstract class Completer {
 
-    void complete(@Nullable Object result);
+    public abstract void complete(@Nullable Object result);
 
-    void completeExceptionally(Exception exception);
+    /**
+     * Calls {@link #complete(Object) complete(null)}
+     */
+    public final void complete() {
+        complete(null);
+    }
+
+    public abstract void completeExceptionally(Exception exception);
 
 }

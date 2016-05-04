@@ -157,7 +157,7 @@ public abstract class Client {
 
     /**
      * Gets a promise for an asynchronous service invocation.
-     * The usage patter is:
+     * The usage pattern is:
      * <pre>
      * EchoService echoService = client.proxyAsync(ECHO_SERVICE_ID);
      * Client.promise(() -&gt; echoService.echo("hello")).thenAccept(r -&gt; System.out.println("result: " + r));
