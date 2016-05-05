@@ -1,4 +1,4 @@
-defaultTasks 'clean', 'todo', 'build', 'compileAllTypeScript', 'createPom', 'dist'
+defaultTasks 'clean', 'todo', 'build', 'compileTypeScript', 'createPom', 'dist'
 
 apply plugin: 'java'
 apply plugin: 'osgi'
@@ -60,15 +60,9 @@ class CompileTypeScript extends Exec {
     }
 }
 
-task compileTestTypeScript(type: CompileTypeScript, dependsOn: 'generateTypeScript') {
-    workingDir 'src/test/ts'
+task compileTypeScript(type: CompileTypeScript, dependsOn: 'generateTypeScript') {
+    workingDir 'ts'
 }
-
-task compileTutorialTypeScript(type: CompileTypeScript, dependsOn: 'generateTypeScript') {
-    workingDir 'src/tutorial/ts'
-}
-
-task compileAllTypeScript(dependsOn: ['compileTestTypeScript', 'compileTutorialTypeScript'])
 
 tasks.withType(Javadoc) {
     options.addStringOption('Xdoclint:all,-missing', '-quiet')

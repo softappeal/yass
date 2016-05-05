@@ -4,5 +4,5 @@
 /.idea/
 *.js
 *.js.map
-/src/tutorial/ts/contract.ts
-!/src/tutorial/ts/system.js
+/ts/tutorial/contract.ts
+!/ts/system.js

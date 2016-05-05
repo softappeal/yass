@@ -1,6 +1,6 @@
-import * as yass from "../../main/ts/yass";
-import {IntegerImpl} from "../../tutorial/ts/baseTypes-external"
-import * as contract from "../../tutorial/ts/contract"
+import * as yass from "../yass";
+import {IntegerImpl} from "../tutorial/baseTypes-external"
+import * as contract from "../tutorial/contract"
 
 function log(...args: any[]): void {
     console.log.apply(console, args);

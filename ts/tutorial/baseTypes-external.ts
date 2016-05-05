@@ -1,6 +1,6 @@
 // shows how to use contract external base types
 
-import * as yass from "../../main/ts/yass";
+import * as yass from "../yass";
 
 export interface Integer {
     get(): number;
