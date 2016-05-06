@@ -1,5 +1,5 @@
-import * as yass from "../yass";
-import {Integer, IntegerHandler} from "./baseTypes-external";
+import * as yass from "../../yass";
+import {Integer, IntegerHandler} from "../baseTypes-external";
 
 // shows how to use contract internal base types
 class ExpirationHandler implements yass.TypeHandler<Expiration> {

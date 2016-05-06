@@ -1,0 +1,15 @@
+{
+    "name": "yass",
+    "version": "0.0.0",
+    "dependencies": {
+        "systemjs": "0.19.27"
+    },
+    "devDependencies": {
+        "typescript": "1.8.10"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/softappeal/yass.git"
+    },
+    "license": "BSD-3-Clause"
+}

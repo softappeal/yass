@@ -1,6 +1,6 @@
 import * as yass from "../yass";
 import {IntegerImpl} from "../tutorial/baseTypes-external"
-import * as contract from "../tutorial/contract"
+import * as contract from "../tutorial/generated/contract"
 
 function log(...args: any[]): void {
     console.log.apply(console, args);

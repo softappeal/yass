@@ -3,6 +3,7 @@ package ch.softappeal.yass.generate;
 import ch.softappeal.yass.util.Nullable;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -79,6 +80,7 @@ public abstract class Generator {
     }
 
     protected Generator(final String file) throws IOException {
+        new File(file).getParentFile().mkdirs();
         printer = new PrintWriter(file, StandardCharsets.UTF_8.name());
     }
 

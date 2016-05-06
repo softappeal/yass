@@ -52,10 +52,9 @@ class CompileTypeScript extends Exec {
     public CompileTypeScript() {
         super();
         if (System.getProperty("os.name").toLowerCase().contains("windows")) {
-            commandLine 'cmd', '/c', 'tsc'
+            commandLine 'cmd', '/c', 'node_modules\\.bin\\tsc'
         } else {
-            environment PATH: '/usr/local/bin'
-            commandLine '/usr/local/bin/tsc'
+            commandLine 'node_modules/.bin/tsc'
         }
     }
 }

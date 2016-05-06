@@ -1,5 +1,5 @@
 import * as yass from "../yass";
-import * as contract from "./contract";
+import * as contract from "./generated/contract";
 import {IntegerImpl} from "./baseTypes-external";
 
 function log(...args: any[]): void {

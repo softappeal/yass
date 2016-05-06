@@ -1,5 +1,3 @@
-/// <reference path="./es6-promise"/>
-
 export class Writer {
     private capacity: number;
     private position = 0;
