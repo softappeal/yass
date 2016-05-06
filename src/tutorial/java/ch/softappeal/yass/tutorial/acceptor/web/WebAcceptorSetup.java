@@ -19,7 +19,7 @@ public abstract class WebAcceptorSetup {
     public static final int PORT = 9090;
     public static final String PATH = "/tutorial";
     protected static final String XHR_PATH = "/xhr";
-    protected static final String WEB_PATH = ".";
+    protected static final String WEB_PATH = "";
 
     public static final Executor DISPATCH_EXECUTOR = Executors.newCachedThreadPool(new NamedThreadFactory("dispatchExecutor", Exceptions.STD_ERR));
 
