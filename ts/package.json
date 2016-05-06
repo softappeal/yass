@@ -1,11 +1,9 @@
 {
     "name": "yass",
     "version": "0.0.0",
-    "dependencies": {
-        "systemjs": "0.19.27"
-    },
     "devDependencies": {
-        "typescript": "1.8.10"
+        "typescript": "1.8.10",
+        "systemjs": "0.19.27"
     },
     "repository": {
         "type": "git",
