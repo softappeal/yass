@@ -4,5 +4,3 @@
 /.idea/
 /ts/node_modules/
 /ts/tutorial/generated/
-*.js
-*.js.map

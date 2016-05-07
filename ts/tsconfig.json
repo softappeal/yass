@@ -6,6 +6,10 @@
         "noImplicitReturns": true,
         "noFallthroughCasesInSwitch": true,
         "sourceMap": true,
-        "module": "commonjs"
-    }
+        "module": "commonjs",
+        "outDir": "../build/ts"
+    },
+    "exclude": [
+        "node_modules"
+    ]
 }

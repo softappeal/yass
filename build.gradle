@@ -70,6 +70,7 @@ tasks.withType(Javadoc) {
 jar {
     from "readme.md"
     from "license.txt"
+    from "ts/yass.ts"
     manifest { attributes("Implementation-Version": "${version}") }
 }
 
