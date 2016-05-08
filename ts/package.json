@@ -1,10 +1,9 @@
 {
-    "name": "yass-dev",
+    "name": "dev",
     "version": "0.0.0",
     "devDependencies": {
         "typescript": "1.8.10",
-        "systemjs": "0.19.27",
-        "yass": "./yass"
+        "systemjs": "0.19.27"
     },
     "repository": {
         "type": "git",

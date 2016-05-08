@@ -2,5 +2,6 @@
 /.gradle/
 /build/
 /.idea/
-/ts/node_modules/
 /ts/tutorial/generated/
+/ts/node_modules/*
+!/ts/node_modules/yass
