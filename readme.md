@@ -31,7 +31,7 @@
   * Java artifacts on MavenCentral: http://search.maven.org
     * groupId="ch.softappeal.yass"
     * artifactId="yass"
-  * npm package for TypeScript: https://github.com/softappeal/yass-npm
+  * npm package for TypeScript on GitHub: https://github.com/softappeal/yass-npm
   * tutorial: see src/tutorial
 
 ## HelloWorld
