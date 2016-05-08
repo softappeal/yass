@@ -10,7 +10,6 @@
         "outDir": "../build/ts"
     },
     "exclude": [
-        "yass",
         "node_modules"
     ]
 }
