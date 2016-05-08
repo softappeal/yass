@@ -1,6 +1,7 @@
 {
     "name": "yass",
     "version": "0.0.0",
+    "typings": "./yass.ts",
     "devDependencies": {
         "typescript": "1.8.10",
         "systemjs": "0.19.27"

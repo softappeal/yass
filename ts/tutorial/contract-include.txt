@@ -1,4 +1,6 @@
-import * as yass from "../../yass";
+   import * as yass from "../../yass"; // needed for     relative import of yass
+// import * as yass from "yass";       // needed for non-relative import of yass
+
 import {Integer, IntegerHandler} from "../baseTypes-external";
 
 // shows how to use contract internal base types

@@ -1,6 +1,7 @@
 // shows how to use contract external base types
 
-import * as yass from "../yass";
+   import * as yass from "../yass"; // needed for     relative import of yass
+// import * as yass from "yass";    // needed for non-relative import of yass
 
 export interface Integer {
     get(): number;
