@@ -6,7 +6,7 @@
     <script>
         System.baseURL = '/build/ts/tutorial';
         System.defaultJSExtensions = true;
-        // System.paths['yass'] = '/build/ts/node_modules/yass/yass.js'; // needed for non-relative import of yass
+        System.paths['yass'] = '/build/ts/node_modules/yass/yass.js';
         var tutorial;
         System.import('tutorial').then(function (m) {
             tutorial = m;

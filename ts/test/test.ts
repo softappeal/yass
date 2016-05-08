@@ -1,6 +1,4 @@
-   import * as yass from "../yass"; // needed for     relative import of yass
-// import * as yass from "yass";    // needed for non-relative import of yass
-
+import * as yass from "yass";
 import {IntegerImpl} from "../tutorial/baseTypes-external"
 import * as contract from "../tutorial/generated/contract"
 
