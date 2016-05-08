@@ -28,9 +28,10 @@
 * is Open Source (BSD-style license)
   * repository: https://github.com/softappeal/yass
   * wiki: https://github.com/softappeal/yass/wiki
-  * artifacts on MavenCentral: http://search.maven.org
+  * Java artifacts on MavenCentral: http://search.maven.org
     * groupId="ch.softappeal.yass"
     * artifactId="yass"
+  * npm package for TypeScript: https://github.com/softappeal/yass-npm
   * tutorial: see src/tutorial
 
 ## HelloWorld
