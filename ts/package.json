@@ -1,10 +1,13 @@
 {
-    "name": "dev",
+    "name": "yass",
     "version": "0.0.0",
+    "typings": "./yass.ts",
     "devDependencies": {
         "typescript": "1.8.10",
-        "systemjs": "0.19.27"
+        "systemjs": "0.19.27",
+        "yass": "."
     },
+    "description": "Yet Another Service Solution",
     "repository": {
         "type": "git",
         "url": "git+https://github.com/softappeal/yass.git"

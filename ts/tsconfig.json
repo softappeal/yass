@@ -8,8 +8,5 @@
         "sourceMap": true,
         "module": "commonjs",
         "outDir": "../build/ts"
-    },
-    "exclude": [
-        "node_modules"
-    ]
+    }
 }

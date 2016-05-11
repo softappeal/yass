@@ -1,7 +1,5 @@
-.DS_Store
+/.idea/
 /.gradle/
 /build/
-/.idea/
-/ts/tutorial/generated/
-/ts/node_modules/*
-!/ts/node_modules/yass
+/ts/src/tutorial/generated/
+/ts/node_modules/
