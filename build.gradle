@@ -1,4 +1,4 @@
-defaultTasks 'clean', 'todo', 'build', 'compileTypeScript', 'createPom', 'dist'
+defaultTasks 'clean', 'todo', 'build', 'generateTypeScript', 'createPom', 'dist'
 
 apply plugin: 'java'
 apply plugin: 'osgi'
@@ -46,21 +46,6 @@ task generateTypeScript(type: JavaExec) {
             // empty
         }
     }
-}
-
-class CompileTypeScript extends Exec {
-    public CompileTypeScript() {
-        super();
-        if (System.getProperty("os.name").toLowerCase().contains("windows")) {
-            commandLine 'cmd', '/c', 'node_modules\\.bin\\tsc'
-        } else {
-            commandLine 'node_modules/.bin/tsc'
-        }
-    }
-}
-
-task compileTypeScript(type: CompileTypeScript, dependsOn: 'generateTypeScript') {
-    workingDir 'ts'
 }
 
 tasks.withType(Javadoc) {
