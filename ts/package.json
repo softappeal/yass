@@ -1,15 +1,17 @@
 {
     "name": "yass",
+    "description": "Yet Another Service Solution",
     "version": "0.0.0",
     "typings": "./yass.ts",
+    "main": "./yass.js",
     "devDependencies": {
         "typescript": "1.8.10",
         "systemjs": "0.19.27",
         "ws": "1.1.0",
+        "istanbul": "0.4.3",
+        "remap-istanbul": "0.6.4",
         "yass": "."
     },
-    "main": "./yass.js",
-    "description": "Yet Another Service Solution",
     "repository": {
         "type": "git",
         "url": "git+https://github.com/softappeal/yass.git"
