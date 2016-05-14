@@ -5,8 +5,10 @@
     "devDependencies": {
         "typescript": "1.8.10",
         "systemjs": "0.19.27",
+        "ws": "1.1.0",
         "yass": "."
     },
+    "main": "./yass.js",
     "description": "Yet Another Service Solution",
     "repository": {
         "type": "git",
