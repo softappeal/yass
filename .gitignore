@@ -2,3 +2,5 @@
 /.gradle/
 /build/
 /ts/node_modules/
+*.js
+*.js.map

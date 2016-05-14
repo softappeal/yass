@@ -4,9 +4,9 @@
     <title>yass Tutorial</title>
     <script src="../../node_modules/systemjs/dist/system.js"></script>
     <script>
-        System.baseURL = '/build/ts/src/tutorial';
+        System.baseURL = '/ts/src/tutorial';
         System.defaultJSExtensions = true;
-        System.paths['yass'] = '/build/ts/node_modules/yass/yass.js';
+        System.paths['yass'] = '/ts/node_modules/yass/yass.js';
         var tutorial;
         System.import('tutorial').then(function (m) {
             tutorial = m;
