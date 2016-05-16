@@ -12,6 +12,7 @@ import ch.softappeal.yass.tutorial.contract.LoggerAsync;
 import ch.softappeal.yass.tutorial.contract.Price;
 import ch.softappeal.yass.tutorial.contract.PriceKind;
 import ch.softappeal.yass.tutorial.contract.PriceListener;
+import ch.softappeal.yass.tutorial.contract.SystemException;
 import ch.softappeal.yass.tutorial.contract.UnexpectedExceptionHandler;
 import ch.softappeal.yass.util.Nullable;
 
@@ -59,6 +60,11 @@ public final class AcceptorSession extends SimpleSession {
         SessionWatcher.watchSession(dispatchExecutor, this, 60L, 2L, () -> echoService.echo("checkFromAcceptor")); // optional
         System.out.println("session " + this + " opened");
         System.out.println("echo: " + echoService.echo("hello from acceptor"));
+        try {
+            echoService.echo("throwRuntimeException");
+        } catch (final SystemException e) {
+            System.out.println("echo: " + e.message);
+        }
         final Random random = new Random();
         while (!isClosed()) {
             final List<Price> prices = new ArrayList<>();

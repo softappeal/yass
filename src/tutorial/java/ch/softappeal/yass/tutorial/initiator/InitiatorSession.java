@@ -11,7 +11,6 @@ import ch.softappeal.yass.tutorial.contract.EchoServiceImpl;
 import ch.softappeal.yass.tutorial.contract.Logger;
 import ch.softappeal.yass.tutorial.contract.LoggerAsync;
 import ch.softappeal.yass.tutorial.contract.PriceEngine;
-import ch.softappeal.yass.tutorial.contract.SystemException;
 import ch.softappeal.yass.tutorial.contract.UnexpectedExceptionHandler;
 import ch.softappeal.yass.tutorial.contract.UnknownInstrumentsException;
 import ch.softappeal.yass.tutorial.contract.instrument.InstrumentService;
@@ -55,11 +54,6 @@ public final class InitiatorSession extends SimpleSession {
         SessionWatcher.watchSession(dispatchExecutor, this, 60L, 2L, () -> echoService.echo("checkFromInitiator")); // optional
         System.out.println("session " + this + " opened");
         System.out.println("echo: " + echoService.echo("hello from initiator"));
-        try {
-            echoService.echo("throwRuntimeException");
-        } catch (final SystemException e) {
-            e.printStackTrace(System.out);
-        }
         try {
             priceEngine.subscribe(Arrays.asList(123456789, 987654321));
         } catch (final UnknownInstrumentsException e) {

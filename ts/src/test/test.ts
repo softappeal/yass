@@ -109,6 +109,7 @@ namespace ioTest {
     });
 
     function utf8(bytes: number, value: string): void {
+        assert(yass.Writer.calcUtf8bytes(value) === bytes);
         const writer = new yass.Writer(100);
         writer.writeUtf8(value);
         assert(writer.getArray().length === bytes);
@@ -287,7 +288,16 @@ namespace remoteTest {
         }
         protected server() {
             return new yass.Server(
-                contract.initiator.echoService.service({echo: (value: any) => value})
+                contract.initiator.echoService.service({
+                    echo: (value: any) => {
+                        if ("throwRuntimeException" === value) {
+                            const e = new contract.SystemException;
+                            e.message = value;
+                            throw e;
+                        }
+                        return value;
+                    }
+                })
             );
         }
         protected opened(): void {
@@ -361,6 +371,21 @@ namespace remoteTest {
         "ws://" + hostname + ":9090/tutorial",
         contract.SERIALIZER,
         connection => new Session(connection)
+    );
+
+    class Session2 extends yass.Session { // needed for more coverage (exception cases)
+        constructor(connection: yass.Connection) {
+            super(connection);
+        }
+        protected closed(exception: any): void {
+            log("session 2 closed", exception);
+        }
+    }
+
+    yass.connect(
+        "ws://" + hostname + ":9090/tutorial",
+        contract.SERIALIZER,
+        connection => new Session2(connection)
     );
 
 }
