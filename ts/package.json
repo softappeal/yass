@@ -1,5 +1,5 @@
 {
-    "name": "yass",
+    "name": "softappeal-yass",
     "description": "Yet Another Service Solution",
     "version": "0.0.0",
     "typings": "./yass.ts",
@@ -10,7 +10,7 @@
         "ws": "1.1.0",
         "istanbul": "0.4.3",
         "remap-istanbul": "0.6.4",
-        "yass": "."
+        "softappeal-yass": "."
     },
     "repository": {
         "type": "git",
