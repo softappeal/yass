@@ -18,12 +18,21 @@ public abstract class Generator {
         printer.format(format, args);
     }
 
+    protected final void print(final String s) {
+        printer.print(s);
+    }
+
     protected final void println() {
         printer.print('\n');
     }
 
     protected final void println(final String format, final Object... args) {
         print(format, args);
+        println();
+    }
+
+    protected final void println(final String s) {
+        print(s);
         println();
     }
 
@@ -55,8 +64,18 @@ public abstract class Generator {
         print(format, args);
     }
 
+    protected final void tabs(final String s) {
+        tabs();
+        print(s);
+    }
+
     protected final void tabsln(final String format, final Object... args) {
         tabs(format, args);
+        println();
+    }
+
+    protected final void tabsln(final String s) {
+        tabs(s);
         println();
     }
 
