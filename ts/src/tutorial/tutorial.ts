@@ -2,6 +2,11 @@ import * as yass from "softappeal-yass";
 import * as contract from "./generated/contract";
 import {IntegerImpl} from "./baseTypes-external";
 
+// shows how to work with namespace alias
+import PriceListener = contract.impl.PriceListener; // interface, vanishes after compile
+import Stock = contract.instrument.stock.Stock; // class, survives compile
+const showsThatImportWorked = new Stock;
+
 function log(...args: any[]): void {
     console.log.apply(console, args);
 }
@@ -61,7 +66,7 @@ function createTable(): void {
     });
 }
 
-class PriceListenerImpl implements contract.impl.PriceListener {
+class PriceListenerImpl implements PriceListener {
     newPrices(prices: contract.Price[]): void {
         prices.forEach(price => {
             const tableRow = tableModel[price.instrumentId.get()];
