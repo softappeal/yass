@@ -16,7 +16,7 @@ public class CompilerTest {
         map.put(
             source,
             Compiler.readFile(
-                new File("src/test/resources", source.replace('.', '/') + ".txt"),
+                new File("java/test", source.replace('.', '/') + ".txt"),
                 StandardCharsets.US_ASCII
             )
         );

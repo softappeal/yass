@@ -27,7 +27,7 @@ public class TestUtils {
             final BufferedReader testReader = new BufferedReader(new CharArrayReader(buffer.toCharArray()));
             try (
                 BufferedReader refReader = new BufferedReader(new InputStreamReader(
-                    new ClassLoaderResource(TestUtils.class.getClassLoader(), fileResourcePath).create(),
+                    new FileResource("java/test/" + fileResourcePath).create(),
                     StandardCharsets.UTF_8
                 ))
             ) {

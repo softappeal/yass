@@ -18,7 +18,9 @@ repositories {
 }
 
 sourceSets {
-    tutorial
+    main { java { srcDir 'java/main' } }
+    test { java { srcDir 'java/test' } }
+    tutorial { java { srcDir 'java/tutorial' } }
 }
 
 def websocket_dep = 'javax.websocket:javax.websocket-api:1.0'
@@ -132,7 +134,7 @@ def searchMarker(tree, divider1, divider2, title, marker) {
 task todo << {
     def divider1 = "========================================================================================================================"
     def divider2 = "------------------------------------------------------------------------------------------------------------------------"
-    def searchTree = fileTree(dir: '.').exclude('.git/').exclude('.gradle/').exclude('.idea/').exclude('build/')
+    def searchTree = fileTree(dir: '.').exclude('.git/').exclude('.gradle/').exclude('.idea/').exclude('build/').exclude('ts/node_modules/')
     searchMarker(searchTree, divider1, divider2, 'abort', '$' + '$$' /* abort, not allowed for building a release */)
     searchMarker(searchTree, divider1, divider2, 'todo', '$' + 'todo' /* under construction, yet a release can still be built */)
     searchMarker(searchTree, divider1, divider2, 'note', '$' + 'note' /* important comment */)

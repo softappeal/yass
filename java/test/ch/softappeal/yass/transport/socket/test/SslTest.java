@@ -7,9 +7,9 @@ import ch.softappeal.yass.transport.socket.SimpleSocketConnector;
 import ch.softappeal.yass.transport.socket.SimpleSocketTransport;
 import ch.softappeal.yass.transport.socket.SslSetup;
 import ch.softappeal.yass.transport.test.TransportTest;
-import ch.softappeal.yass.util.ClassLoaderResource;
 import ch.softappeal.yass.util.Closer;
 import ch.softappeal.yass.util.Exceptions;
+import ch.softappeal.yass.util.FileResource;
 import ch.softappeal.yass.util.NamedThreadFactory;
 import org.junit.Assert;
 import org.junit.Test;
@@ -71,10 +71,7 @@ public class SslTest extends TransportTest {
 
     private static KeyStore readKeyStore(final String name) {
         return SslSetup.readKeyStore(
-            new ClassLoaderResource(
-                SslTest.class.getClassLoader(),
-                SslTest.class.getPackage().getName().replace('.', '/') + '/' + name + ".jks"
-            ),
+            new FileResource("java/test/" + SslTest.class.getPackage().getName().replace('.', '/') + '/' + name + ".jks"),
             PASSWORD
         );
     }
