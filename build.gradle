@@ -1,4 +1,4 @@
-defaultTasks 'clean', 'todo', 'build', 'generateTypeScript', 'createPom', 'dist'
+defaultTasks 'clean', 'todo', 'build', 'generateTypeScript', 'dist'
 
 apply plugin: 'java'
 apply plugin: 'osgi'
@@ -43,11 +43,6 @@ tasks.withType(JavaCompile) {
 task generateTypeScript(type: JavaExec) {
     main = 'ch.softappeal.yass.tutorial.initiator.web.GenerateTypeScript'
     classpath = sourceSets.tutorial.runtimeClasspath
-    standardOutput = new OutputStream() {
-        void write(int b) {
-            // empty
-        }
-    }
 }
 
 tasks.withType(Javadoc) {
@@ -80,7 +75,7 @@ artifacts {
     archives(packageJavadoc)
 }
 
-task createPom << {
+task dist << {
     pom {
         project {
             name project.name
@@ -96,10 +91,7 @@ task createPom << {
             }
         }
     }.writeTo("build/libs/${project.name}-${version}.pom")
-}
-
-task dist << {
-    if (project.hasProperty('signing.password')) {
+    if (hasProperty('signing.password')) {
         def signPrefix = "build/libs/${project.name}-${version}"
         signing.sign(file("${signPrefix}.pom"))
         signing.sign(file("${signPrefix}.jar"))
