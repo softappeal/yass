@@ -6,7 +6,7 @@
     "main": "./yass.js",
     "devDependencies": {
         "typescript": "1.8.10",
-        "systemjs": "0.19.27",
+        "systemjs": "0.19.29",
         "ws": "1.1.0",
         "istanbul": "0.4.3",
         "remap-istanbul": "0.6.4",
