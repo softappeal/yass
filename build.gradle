@@ -91,7 +91,7 @@ task dist << {
             }
         }
     }.writeTo("build/libs/${project.name}-${version}.pom")
-    if (hasProperty('signing.password')) {
+    if (project.hasProperty('signing.password')) {
         def signPrefix = "build/libs/${project.name}-${version}"
         signing.sign(file("${signPrefix}.pom"))
         signing.sign(file("${signPrefix}.jar"))
