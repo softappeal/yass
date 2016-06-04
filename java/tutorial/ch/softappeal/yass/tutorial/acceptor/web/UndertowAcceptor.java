@@ -42,7 +42,7 @@ public final class UndertowAcceptor extends WebAcceptorSetup {
             .addHttpListener(PORT, HOST)
             .setHandler(exchange -> {
                 final String path = exchange.getRequestPath();
-                if (PATH.equals(path) || XHR_PATH.equals(path)) {
+                if (WS_PATH.equals(path) || XHR_PATH.equals(path)) {
                     servletHandler.handleRequest(exchange);
                 } else {
                     fileHandler.handleRequest(exchange);

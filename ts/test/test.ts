@@ -368,7 +368,7 @@ namespace remoteTest {
     }
 
     yass.connect(
-        "ws://" + hostname + ":9090/tutorial",
+        "ws://" + hostname + ":9090/ws",
         contract.SERIALIZER,
         connection => new Session(connection)
     );
@@ -383,7 +383,7 @@ namespace remoteTest {
     }
 
     yass.connect(
-        "ws://" + hostname + ":9090/tutorial",
+        "ws://" + hostname + ":9090/ws",
         contract.SERIALIZER,
         connection => new Session2(connection)
     );

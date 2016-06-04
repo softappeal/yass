@@ -2,11 +2,11 @@
 <html>
 <head>
     <title>yass Tutorial</title>
-    <script src="../../node_modules/systemjs/dist/system.js"></script>
+    <script src="../node_modules/systemjs/dist/system.js"></script>
     <script>
-        System.baseURL = '/ts/src/tutorial';
+        System.baseURL = '/tutorial';
         System.defaultJSExtensions = true;
-        System.paths['softappeal-yass'] = '/ts/node_modules/softappeal-yass/yass.js';
+        System.paths['softappeal-yass'] = '/node_modules/softappeal-yass/yass.js';
         var tutorial;
         System.import('tutorial').then(function (m) {
             tutorial = m;

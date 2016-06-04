@@ -122,7 +122,7 @@ class Session extends yass.Session {
 const hostname = location.hostname;
 
 yass.connect(
-    "ws://" + hostname + ":9090/tutorial",
+    "ws://" + hostname + ":9090/ws",
     contract.SERIALIZER,
     connection => new Session(connection)
 );

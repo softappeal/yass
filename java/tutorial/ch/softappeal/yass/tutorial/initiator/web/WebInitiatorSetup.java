@@ -25,7 +25,7 @@ public abstract class WebInitiatorSetup {
                 Exceptions.STD_ERR
             ).getEndpointInstance(),
             ClientEndpointConfig.Builder.create().build(),
-            URI.create("ws://" + WebAcceptorSetup.HOST + ":" + WebAcceptorSetup.PORT + WebAcceptorSetup.PATH)
+            URI.create("ws://" + WebAcceptorSetup.HOST + ":" + WebAcceptorSetup.PORT + WebAcceptorSetup.WS_PATH)
         );
         System.out.println("started");
     }
