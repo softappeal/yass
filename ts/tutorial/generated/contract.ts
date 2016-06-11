@@ -173,7 +173,7 @@ export namespace acceptor {
     export const echoService = new yass.ContractId<proxy.EchoService, impl.EchoService>(2, mapper.EchoService);
 }
 
-export const SERIALIZER = new yass.JsFastSerializer(
+export const SERIALIZER = new yass.FastSerializer(
     IntegerHandler,
     Expiration,
     PriceKind,

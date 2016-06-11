@@ -43,7 +43,7 @@ import java.util.TreeMap;
  * </li>
  * </ul>
  */
-public abstract class AbstractFastSerializer implements Serializer {
+public abstract class FastSerializer implements Serializer {
 
     private final Reflector.Factory reflectorFactory;
 
@@ -87,18 +87,22 @@ public abstract class AbstractFastSerializer implements Serializer {
         }));
     }
 
-    protected static void checkClass(final Class<?> type) {
+    protected final void addClass(final int id, final Class<?> type, final boolean referenceable, final Map<Integer, Field> id2field) {
         if (Modifier.isAbstract(type.getModifiers())) {
             throw new IllegalArgumentException("type '" + type.getCanonicalName() + "' is abstract");
         } else if (type.isEnum()) {
             throw new IllegalArgumentException("type '" + type.getCanonicalName() + "' is an enumeration");
         }
-    }
-
-    protected final void addClass(final int id, final Class<?> type, final boolean referenceable, final Map<Integer, Field> id2field) {
         final Reflector reflector = reflector(type);
         final Map<Integer, FieldHandler> id2fieldHandler = new HashMap<>(id2field.size());
-        id2field.forEach((fieldId, field) -> id2fieldHandler.put(fieldId, new FieldHandler(field, reflector.accessor(field))));
+        final Map<String, Field> name2field = new HashMap<>(id2field.size());
+        id2field.forEach((fieldId, field) -> {
+            final @Nullable Field oldField = name2field.put(field.getName(), field);
+            if (oldField != null) { // reason: too confusing
+                throw new IllegalArgumentException("duplicated field name '" + field + "' and '" + oldField + "' not allowed in class hierarchy");
+            }
+            id2fieldHandler.put(fieldId, new FieldHandler(field, reflector.accessor(field)));
+        });
         addType(new TypeDesc(id, new ClassTypeHandler(type, reflector, referenceable, id2fieldHandler)));
     }
 
@@ -109,7 +113,7 @@ public abstract class AbstractFastSerializer implements Serializer {
         addType(typeDesc);
     }
 
-    protected AbstractFastSerializer(final Reflector.Factory reflectorFactory) {
+    protected FastSerializer(final Reflector.Factory reflectorFactory) {
         this.reflectorFactory = Check.notNull(reflectorFactory);
         addType(TypeDesc.NULL);
         addType(TypeDesc.REFERENCE);

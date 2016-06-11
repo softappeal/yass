@@ -19,9 +19,7 @@ public abstract class TransportTest extends SessionTest {
     private static final Serializer CONTRACT_SERIALIZER = new SimpleFastSerializer(
         FastReflector.FACTORY,
         Arrays.asList(BaseTypeHandlers.INTEGER, BaseTypeHandlers.BYTE_ARRAY),
-        Collections.emptyList(),
-        Collections.singletonList(DivisionByZeroException.class),
-        Collections.emptyList()
+        Collections.singletonList(DivisionByZeroException.class)
     );
 
     protected static final Serializer MESSAGE_SERIALIZER = new MessageSerializer(CONTRACT_SERIALIZER);

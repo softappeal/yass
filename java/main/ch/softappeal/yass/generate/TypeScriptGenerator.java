@@ -5,9 +5,12 @@ import ch.softappeal.yass.core.remote.ContractId;
 import ch.softappeal.yass.core.remote.MethodMapper;
 import ch.softappeal.yass.core.remote.Services;
 import ch.softappeal.yass.core.remote.SimpleMethodMapper;
-import ch.softappeal.yass.serialize.fast.AbstractJsFastSerializer;
+import ch.softappeal.yass.serialize.fast.BaseTypeHandler;
+import ch.softappeal.yass.serialize.fast.BaseTypeHandlers;
 import ch.softappeal.yass.serialize.fast.ClassTypeHandler;
+import ch.softappeal.yass.serialize.fast.FastSerializer;
 import ch.softappeal.yass.serialize.fast.FieldHandler;
+import ch.softappeal.yass.serialize.fast.TypeDesc;
 import ch.softappeal.yass.serialize.fast.TypeHandler;
 import ch.softappeal.yass.util.Check;
 import ch.softappeal.yass.util.Nullable;
@@ -21,6 +24,7 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -36,10 +40,36 @@ import java.util.stream.Collectors;
  */
 public final class TypeScriptGenerator extends Generator {
 
-    public static final class TypeDesc {
+    public static final TypeDesc BOOLEAN_DESC = new TypeDesc(TypeDesc.FIRST_ID, BaseTypeHandlers.BOOLEAN);
+    public static final TypeDesc DOUBLE_DESC = new TypeDesc(TypeDesc.FIRST_ID + 1, BaseTypeHandlers.DOUBLE);
+    public static final TypeDesc STRING_DESC = new TypeDesc(TypeDesc.FIRST_ID + 2, BaseTypeHandlers.STRING);
+    public static final TypeDesc BYTES_DESC = new TypeDesc(TypeDesc.FIRST_ID + 3, BaseTypeHandlers.BYTE_ARRAY);
+    public static final int FIRST_DESC_ID = TypeDesc.FIRST_ID + 4;
+
+    public static List<BaseTypeHandler<?>> baseTypeHandlers(final BaseTypeHandler<?>... handlers) {
+        final List<BaseTypeHandler<?>> h = new ArrayList<>();
+        h.add((BaseTypeHandler<?>)BOOLEAN_DESC.handler);
+        h.add((BaseTypeHandler<?>)DOUBLE_DESC.handler);
+        h.add((BaseTypeHandler<?>)STRING_DESC.handler);
+        h.add((BaseTypeHandler<?>)BYTES_DESC.handler);
+        h.addAll(Arrays.asList(handlers));
+        return h;
+    }
+
+    public static Collection<TypeDesc> baseTypeDescs(final TypeDesc... descs) {
+        final List<TypeDesc> d = new ArrayList<>();
+        d.add(BOOLEAN_DESC);
+        d.add(DOUBLE_DESC);
+        d.add(STRING_DESC);
+        d.add(BYTES_DESC);
+        d.addAll(Arrays.asList(descs));
+        return d;
+    }
+
+    public static final class ExternalDesc {
         final String name;
         final String typeDescHolder;
-        public TypeDesc(final String name, final String typeDescHolder) {
+        public ExternalDesc(final String name, final String typeDescHolder) {
             this.name = Check.notNull(name);
             this.typeDescHolder = Check.notNull(typeDescHolder);
         }
@@ -49,7 +79,7 @@ public final class TypeScriptGenerator extends Generator {
     private final LinkedHashMap<Class<?>, Integer> type2id = new LinkedHashMap<>();
     private final SortedMap<Integer, TypeHandler> id2typeHandler;
     private final Set<Class<?>> visitedClasses = new HashSet<>();
-    private final Map<Class<?>, TypeDesc> externalTypes = new HashMap<>();
+    private final Map<Class<?>, ExternalDesc> externalTypes = new HashMap<>();
     private final @Nullable String contractNamespace;
     private MethodMapper.@Nullable Factory methodMapperFactory;
 
@@ -60,9 +90,9 @@ public final class TypeScriptGenerator extends Generator {
     }
 
     private String jsType(final Class<?> type, final boolean name) {
-        final @Nullable TypeDesc typeDesc = externalTypes.get(FieldHandler.primitiveWrapperType(type));
-        if (typeDesc != null) {
-            return name ? typeDesc.name : typeDesc.typeDescHolder;
+        final @Nullable ExternalDesc externalDesc = externalTypes.get(FieldHandler.primitiveWrapperType(type));
+        if (externalDesc != null) {
+            return name ? externalDesc.name : externalDesc.typeDescHolder;
         }
         checkType(type);
         if (type.isArray()) {
@@ -142,15 +172,15 @@ public final class TypeScriptGenerator extends Generator {
             return "null";
         }
         final TypeHandler typeHandler = fieldDesc.handler.typeHandler().get();
-        if (ch.softappeal.yass.serialize.fast.TypeDesc.LIST.handler == typeHandler) {
+        if (TypeDesc.LIST.handler == typeHandler) {
             return "yass.LIST_DESC";
-        } else if (AbstractJsFastSerializer.BOOLEAN_TYPEDESC.handler == typeHandler) {
+        } else if (BOOLEAN_DESC.handler == typeHandler) {
             return "yass.BOOLEAN_DESC";
-        } else if (AbstractJsFastSerializer.DOUBLE_TYPEDESC.handler == typeHandler) {
+        } else if (DOUBLE_DESC.handler == typeHandler) {
             return "yass.NUMBER_DESC";
-        } else if (AbstractJsFastSerializer.STRING_TYPEDESC.handler == typeHandler) {
+        } else if (STRING_DESC.handler == typeHandler) {
             return "yass.STRING_DESC";
-        } else if (AbstractJsFastSerializer.BYTES_TYPEDESC.handler == typeHandler) {
+        } else if (BYTES_DESC.handler == typeHandler) {
             return "yass.BYTES_DESC";
         }
         return jsType(typeHandler.type, false) + ".TYPE_DESC";
@@ -180,7 +210,11 @@ public final class TypeScriptGenerator extends Generator {
             if (id != null) {
                 tabs("static TYPE_DESC = yass.classDesc(%s, %s", id, name);
                 inc();
-                for (final ClassTypeHandler.FieldDesc fieldDesc : ((ClassTypeHandler)id2typeHandler.get(id)).fieldDescs()) {
+                final ClassTypeHandler typeHandler = (ClassTypeHandler)id2typeHandler.get(id);
+                if (typeHandler.referenceable) {
+                    throw new IllegalArgumentException("class '" + type + "' is referenceable (not implemented in TypeScript)");
+                }
+                for (final ClassTypeHandler.FieldDesc fieldDesc : typeHandler.fieldDescs()) {
                     println(",");
                     tabs("new yass.FieldDesc(%s, '%s', %s)", fieldDesc.id, fieldDesc.handler.field.getName(), typeDesc(fieldDesc));
                 }
@@ -327,12 +361,12 @@ public final class TypeScriptGenerator extends Generator {
     @SuppressWarnings("unchecked")
     public TypeScriptGenerator(
         final String rootPackage,
-        final AbstractJsFastSerializer serializer,
+        final FastSerializer serializer,
         final @Nullable Services initiator,
         final @Nullable Services acceptor,
         final String includeFile,
         final @Nullable String contractNamespace,
-        final @Nullable Map<Class<?>, TypeDesc> externalTypes,
+        final @Nullable Map<Class<?>, ExternalDesc> externalTypes,
         final String contractFile
     ) throws Exception {
         super(contractFile);
@@ -342,7 +376,7 @@ public final class TypeScriptGenerator extends Generator {
         }
         id2typeHandler = serializer.id2typeHandler();
         id2typeHandler.forEach((id, typeHandler) -> {
-            if (id >= AbstractJsFastSerializer.FIRST_DESC_ID) {
+            if (id >= FIRST_DESC_ID) {
                 type2id.put(typeHandler.type, id);
             }
         });
@@ -373,7 +407,7 @@ public final class TypeScriptGenerator extends Generator {
         interfaceList.forEach(this::generateInterface);
         generateServices(initiator, "initiator");
         generateServices(acceptor, "acceptor");
-        tabs("export const SERIALIZER = new yass.JsFastSerializer(");
+        tabs("export const SERIALIZER = new yass.FastSerializer(");
         inc();
         boolean first = true;
         for (final Class<?> type : type2id.keySet()) {
@@ -397,11 +431,11 @@ public final class TypeScriptGenerator extends Generator {
 
     public TypeScriptGenerator(
         final String rootPackage,
-        final AbstractJsFastSerializer serializer,
+        final FastSerializer serializer,
         final @Nullable Services initiator,
         final @Nullable Services acceptor,
         final String includeFile,
-        final @Nullable Map<Class<?>, TypeDesc> externalTypes,
+        final @Nullable Map<Class<?>, ExternalDesc> externalTypes,
         final String contractFile
     ) throws Exception {
         this(rootPackage, serializer, initiator, acceptor, includeFile, null, externalTypes, contractFile);

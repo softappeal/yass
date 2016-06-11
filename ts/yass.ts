@@ -345,7 +345,7 @@ class ClassTypeHandler implements TypeHandler<any> {
     }
 }
 
-export class JsFastSerializer implements Serializer {
+export class FastSerializer implements Serializer {
     private id2typeHandler: TypeHandler<any>[] = [];
     constructor(...typeDescHolders: any[]) {
         const add = (typeDesc: TypeDesc) => {
