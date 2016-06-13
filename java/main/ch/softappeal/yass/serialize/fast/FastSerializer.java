@@ -35,8 +35,12 @@ import java.util.TreeMap;
  * There is some support for contract versioning:
  * <ul>
  * <li>
- * Deserialization of old classes to new classes with new {@link Nullable} fields is allowed. These fields will be set to {@code null}.
+ * Deserialization of old classes to new classes with new {@link Nullable} fields is allowed.
+ * These fields will be set to {@code null} (ignoring constructors).
  * Default values for these fields could be implemented with a getter method checking for {@code null}.
+ * </li>
+ * <li>
+ * Serialization of new classes with new {@link Nullable} fields to old classes is allowed if the new values are {@code null}.
  * </li>
  * <li>
  * Deserialization of old enumerations to new enumerations with new constants at the end is allowed.
