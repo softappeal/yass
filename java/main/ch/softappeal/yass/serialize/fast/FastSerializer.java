@@ -27,7 +27,7 @@ import java.util.TreeMap;
  * <li>enumeration types (an enumeration constant is serialized with its ordinal number)</li>
  * <li>
  * class hierarchies with all non-static and non-transient fields
- * (field id's must be &gt;= {@link FieldHandler#FIRST_ID} and must be unique in the path to its super classes)
+ * (field names and id's must be unique in the path to its super classes and id's must be &gt;= {@link FieldHandler#FIRST_ID})
  * </li>
  * <li>exceptions (but without fields of {@link Throwable}; therefore, you should implement {@link Throwable#getMessage()})</li>
  * <li>graphs with cycles</li>

@@ -4,6 +4,7 @@ import ch.softappeal.yass.serialize.Reflector;
 import ch.softappeal.yass.util.Reflect;
 
 import java.lang.reflect.Field;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -57,6 +58,34 @@ public final class SimpleFastSerializer extends FastSerializer {
         final List<Class<?>> concreteClasses
     ) {
         this(reflectorFactory, baseTypeHandlers, concreteClasses, Collections.emptyList());
+    }
+
+    /**
+     * @deprecated needed for backward compatibility
+     */
+    @Deprecated
+    public SimpleFastSerializer(
+        final Reflector.Factory reflectorFactory,
+        final Collection<BaseTypeHandler<?>> baseTypeHandlers,
+        final Collection<Class<?>> enumerations,
+        final Collection<Class<?>> concreteClasses,
+        final Collection<Class<?>> referenceableConcreteClasses
+    ) {
+        super(reflectorFactory);
+        int id = TypeDesc.FIRST_ID;
+        for (final BaseTypeHandler<?> typeHandler : baseTypeHandlers) {
+            addBaseType(new TypeDesc(id++, typeHandler));
+        }
+        for (final Class<?> type : enumerations) {
+            addEnum(id++, type);
+        }
+        for (final Class<?> type : concreteClasses) {
+            addClass(id++, type, false);
+        }
+        for (final Class<?> type : referenceableConcreteClasses) {
+            addClass(id++, type, true);
+        }
+        fixupFields();
     }
 
 }
