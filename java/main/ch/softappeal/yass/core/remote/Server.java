@@ -1,5 +1,6 @@
 package ch.softappeal.yass.core.remote;
 
+import ch.softappeal.yass.util.Check;
 import ch.softappeal.yass.util.Exceptions;
 import ch.softappeal.yass.util.Nullable;
 
@@ -61,6 +62,7 @@ public final class Server {
                         }
                     }
                     @Override public void completeExceptionally(final Exception exception) {
+                        Check.notNull(exception);
                         try {
                             exception(exception);
                             replyWriter.writeReply(new ExceptionReply(exception));
