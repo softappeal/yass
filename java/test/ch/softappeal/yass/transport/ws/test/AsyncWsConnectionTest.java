@@ -148,7 +148,7 @@ public final class AsyncWsConnectionTest {
                 true
             ));
         } else {
-            final ClientContainer container = new ClientContainer(); // todo: setSendTimeout not yet implemented in Jetty
+            final ClientContainer container = new ClientContainer(); // note: setSendTimeout not yet implemented in Jetty
             container.start();
             client(container);
         }

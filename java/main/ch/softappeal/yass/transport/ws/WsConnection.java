@@ -64,7 +64,7 @@ public abstract class WsConnection implements Connection {
         try {
             final WsConnection connection = configurator.connectionFactory.create(configurator, session);
             connection.yassSession = Session.create(configurator.setup.sessionFactory, connection);
-            session.addMessageHandler(new MessageHandler.Whole<ByteBuffer>() { // todo: this could be replaced with a lambda in WebSocket API 1.1
+            session.addMessageHandler(new MessageHandler.Whole<ByteBuffer>() { // note: could be replaced with a lambda in WebSocket API 1.1 but we would loose compatibility with 1.0
                 @Override public void onMessage(final ByteBuffer in) {
                     try {
                         Session.received(connection.yassSession, (Packet)connection.packetSerializer.read(Reader.create(in)));
