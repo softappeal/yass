@@ -166,7 +166,7 @@ export function readFrom(serializer: Serializer, arrayBuffer: ArrayBuffer): any 
 }
 
 export interface TypeHandler<T> {
-    read (reader: Reader, id2typeHandler?: TypeHandler<any>[]): T;
+    read(reader: Reader, id2typeHandler?: TypeHandler<any>[]): T;
     write(value: T, writer: Writer): void;
 }
 
