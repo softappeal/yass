@@ -86,10 +86,12 @@ export class UnknownInstrumentsException extends ApplicationException {
     instrumentIds: Integer[];
     onlyNeededForTests1: any;
     onlyNeededForTests2: Uint8Array;
+    onlyNeededForTests3: any;
     static TYPE_DESC = yass.classDesc(14, UnknownInstrumentsException,
         new yass.FieldDesc(1, 'instrumentIds', yass.LIST_DESC),
         new yass.FieldDesc(2, 'onlyNeededForTests1', null),
-        new yass.FieldDesc(3, 'onlyNeededForTests2', yass.BYTES_DESC)
+        new yass.FieldDesc(3, 'onlyNeededForTests2', yass.BYTES_DESC),
+        new yass.FieldDesc(4, 'onlyNeededForTests3', null)
     );
 }
 

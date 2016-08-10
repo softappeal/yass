@@ -4,7 +4,7 @@ import ch.softappeal.yass.tutorial.contract.Expiration;
 import ch.softappeal.yass.tutorial.contract.Instrument;
 import ch.softappeal.yass.util.Check;
 
-public final class Bond extends Instrument {
+public class Bond extends Instrument {
 
     public final double coupon;
     public final Expiration expiration;

@@ -1,4 +1,4 @@
-defaultTasks 'clean', 'build', 'generateTypeScript', 'dist'
+defaultTasks 'clean', 'build', 'generateTypeScript', 'generatePython3', 'dist'
 
 apply plugin: 'java'
 apply plugin: 'osgi'
@@ -42,6 +42,11 @@ tasks.withType(JavaCompile) {
 
 task generateTypeScript(type: JavaExec) {
     main = 'ch.softappeal.yass.tutorial.initiator.web.GenerateTypeScript'
+    classpath = sourceSets.tutorial.runtimeClasspath
+}
+
+task generatePython3(type: JavaExec) {
+    main = 'ch.softappeal.yass.tutorial.py3.GeneratePython'
     classpath = sourceSets.tutorial.runtimeClasspath
 }
 

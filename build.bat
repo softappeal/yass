@@ -11,4 +11,7 @@ cd ts
 cmd /c npm install
 cmd /c node_modules\.bin\tsc
 
+cd ..\py3
+cmd /c test.bat
+
 pause

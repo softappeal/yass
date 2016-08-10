@@ -13,17 +13,35 @@ import java.nio.charset.StandardCharsets;
 public abstract class Generator {
 
     private final PrintWriter printer;
+    private @Nullable Appendable buffer = null;
 
-    protected final void print(final String format, final Object... args) {
-        printer.format(format, args);
+    protected final void redirect(final @Nullable Appendable buffer) {
+        this.buffer = buffer;
     }
 
-    protected final void print(final String s) {
-        printer.print(s);
+    protected final void print(final CharSequence s) {
+        if (buffer != null) {
+            try {
+                buffer.append(s);
+            } catch (final IOException e) {
+                throw new RuntimeException(e);
+            }
+        } else {
+            printer.print(s);
+        }
+    }
+
+    protected final void print(final String format, final Object... args) {
+        print(String.format(format, args));
     }
 
     protected final void println() {
-        printer.print('\n');
+        print("\n");
+    }
+
+    protected final void println2() {
+        println();
+        println();
     }
 
     protected final void println(final String format, final Object... args) {
@@ -31,7 +49,7 @@ public abstract class Generator {
         println();
     }
 
-    protected final void println(final String s) {
+    protected final void println(final CharSequence s) {
         print(s);
         println();
     }
@@ -50,7 +68,7 @@ public abstract class Generator {
     }
 
     protected final void tab() {
-        printer.print("    ");
+        print("    ");
     }
 
     protected final void tabs() {
@@ -64,7 +82,7 @@ public abstract class Generator {
         print(format, args);
     }
 
-    protected final void tabs(final String s) {
+    protected final void tabs(final CharSequence s) {
         tabs();
         print(s);
     }
@@ -74,7 +92,7 @@ public abstract class Generator {
         println();
     }
 
-    protected final void tabsln(final String s) {
+    protected final void tabsln(final CharSequence s) {
         tabs(s);
         println();
     }

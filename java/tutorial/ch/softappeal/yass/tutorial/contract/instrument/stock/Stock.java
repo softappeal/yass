@@ -6,7 +6,7 @@ import ch.softappeal.yass.util.Nullable;
 /**
  * Shows deep nesting.
  */
-public final class Stock extends Instrument {
+public class Stock extends Instrument {
 
     public final @Nullable Boolean paysDividend;
 

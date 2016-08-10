@@ -16,6 +16,8 @@ public final class UnknownInstrumentsException extends ApplicationException {
 
     public @Nullable byte[] onlyNeededForTests2;
 
+    public @Nullable Throwable onlyNeededForTests3;
+
     public UnknownInstrumentsException(final List<Integer> instrumentIds) {
         this.instrumentIds = Check.notNull(instrumentIds);
     }
