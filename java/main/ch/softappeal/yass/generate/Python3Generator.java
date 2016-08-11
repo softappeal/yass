@@ -1,7 +1,6 @@
 package ch.softappeal.yass.generate;
 
 import ch.softappeal.yass.Version;
-import ch.softappeal.yass.core.remote.ContractId;
 import ch.softappeal.yass.core.remote.MethodMapper;
 import ch.softappeal.yass.core.remote.Services;
 import ch.softappeal.yass.core.remote.SimpleMethodMapper;
@@ -26,25 +25,21 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 import java.util.SortedMap;
 import java.util.SortedSet;
 import java.util.TreeMap;
 import java.util.TreeSet;
-import java.util.stream.Collectors;
 
 /**
  * You must use the "-parameters" option for javac to get the real method parameter names.
  */
-public final class Python3Generator { // todo: extract common code with TypeScriptGenerator
+public final class Python3Generator extends Generator {
 
     public static final TypeDesc BOOLEAN_DESC = new TypeDesc(TypeDesc.FIRST_ID, BaseTypeHandlers.BOOLEAN);
     public static final TypeDesc DOUBLE_DESC = new TypeDesc(TypeDesc.FIRST_ID + 1, BaseTypeHandlers.DOUBLE);
@@ -74,44 +69,22 @@ public final class Python3Generator { // todo: extract common code with TypeScri
 
     private static final String INIT_PY = "/__init__.py";
     private static final String ROOT_MODULE = "contract";
-    private static final Set<Type> ROOT_CLASSES = new HashSet<>(Arrays.asList(
-        Object.class,
-        Exception.class,
-        RuntimeException.class,
-        Error.class,
-        Throwable.class
-    ));
-
-    private static boolean isRootClass(final Class<?> type) {
-        return ROOT_CLASSES.contains(Check.notNull(type));
-    }
 
     public static final class ExternalDesc {
         final String name;
-        final String typeDesc; // todo: change also in TypeScript
+        final String typeDesc;
         public ExternalDesc(final String name, final String typeDesc) {
             this.name = Check.notNull(name);
             this.typeDesc = Check.notNull(typeDesc);
         }
     }
 
-    private final String rootPackage;
-    private final SortedMap<Integer, TypeHandler> id2typeHandler;
-    private final @Nullable Services initiator;
-    private final @Nullable Services acceptor;
-    private MethodMapper.@Nullable Factory methodMapperFactory;
     private final @Nullable String includeFileForEachModule;
     private final Map<String, String> module2includeFile = new HashMap<>();
     private final SortedMap<Class<?>, ExternalDesc> externalTypes = new TreeMap<>((c1, c2) -> c1.getCanonicalName().compareTo(c2.getCanonicalName()));
     private final Namespace rootNamespace = new Namespace(null, null, ROOT_MODULE, 0);
     private final LinkedHashMap<Class<?>, Namespace> type2namespace = new LinkedHashMap<>();
     private final Map<Class<?>, Integer> type2id = new HashMap<>();
-
-    private void checkType(final Class<?> type) {
-        if (!type.getCanonicalName().startsWith(rootPackage)) {
-            throw new RuntimeException("type '" + type.getCanonicalName() + "' doesn't have root package '" + rootPackage + "'");
-        }
-    }
 
     private final class Namespace {
         final @Nullable Namespace parent;
@@ -149,11 +122,11 @@ public final class Python3Generator { // todo: extract common code with TypeScri
             }
         }
         void add(final Class<?> type) {
-            add(type.getCanonicalName().substring(rootPackage.length()), type);
+            add(qualifiedName(type), type);
         }
         void generate(final String path) {
             try {
-                new PythonGenerator(Check.notNull(path) + INIT_PY, this);
+                new PythonOut(Check.notNull(path) + INIT_PY, this);
             } catch (final Exception e) {
                 throw Exceptions.wrap(e);
             }
@@ -161,58 +134,12 @@ public final class Python3Generator { // todo: extract common code with TypeScri
         }
     }
 
-    private static final class ServiceDesc {
-        final String name;
-        final ContractId<?> contractId;
-        ServiceDesc(final String name, final ContractId<?> contractId) {
-            this.name = Check.notNull(name);
-            this.contractId = Check.notNull(contractId);
-        }
-    }
-
-    private static List<ServiceDesc> getServiceDescs(final Services services) throws Exception {
-        final List<ServiceDesc> serviceDescs = new ArrayList<>();
-        for (final Field field : services.getClass().getFields()) {
-            if (!Modifier.isStatic(field.getModifiers()) && (field.getType() == ContractId.class)) {
-                serviceDescs.add(new ServiceDesc(field.getName(), (ContractId<?>)field.get(services)));
-            }
-        }
-        Collections.sort(serviceDescs, (s1, s2) -> ((Integer)s1.contractId.id).compareTo((Integer)s2.contractId.id));
-        return serviceDescs;
-    }
-
-    private static Set<Class<?>> getInterfaces(final @Nullable Services services) throws Exception {
-        if (services == null) {
-            return new HashSet<>();
-        }
-        return getServiceDescs(services).stream().map(serviceDesc -> serviceDesc.contractId.contract).collect(Collectors.toSet());
-    }
-
     public Python3Generator(
-        final String rootPackage,
-        final FastSerializer serializer,
-        final @Nullable Services initiator,
-        final @Nullable Services acceptor,
-        final @Nullable String includeFileForEachModule,
-        final @Nullable Map<String, String> module2includeFile,
-        final @Nullable Map<Class<?>, ExternalDesc> externalTypes,
-        final String generatedDir
+        final String rootPackage, final FastSerializer serializer, final @Nullable Services initiator, final @Nullable Services acceptor,
+        final @Nullable String includeFileForEachModule, final @Nullable Map<String, String> module2includeFile, final @Nullable Map<Class<?>, ExternalDesc> externalTypes, final String generatedDir
     ) throws Exception {
-        this.rootPackage = rootPackage.isEmpty() ? "" : rootPackage + '.';
-        this.id2typeHandler = serializer.id2typeHandler();
-        this.initiator = initiator;
-        this.acceptor = acceptor;
-        if ((initiator != null) && (acceptor != null) && (initiator.methodMapperFactory != acceptor.methodMapperFactory)) {
-            throw new IllegalArgumentException("initiator and acceptor must have same methodMapperFactory");
-        }
-        if (initiator != null) {
-            methodMapperFactory = initiator.methodMapperFactory;
-        }
-        if (acceptor != null) {
-            methodMapperFactory = acceptor.methodMapperFactory;
-        }
+        super(rootPackage, serializer, initiator, acceptor);
         this.includeFileForEachModule = includeFileForEachModule;
-
         if (module2includeFile != null) {
             module2includeFile.forEach((m, i) -> this.module2includeFile.put(Check.notNull(m), Check.notNull(i)));
         }
@@ -228,13 +155,9 @@ public final class Python3Generator { // todo: extract common code with TypeScri
                 }
             }
         });
-        final Set<Class<?>> interfaceSet = getInterfaces(initiator);
-        interfaceSet.addAll(getInterfaces(acceptor));
-        final List<Class<?>> interfaceList = new ArrayList<>(interfaceSet);
-        Collections.sort(interfaceList, (t1, t2) -> t1.getCanonicalName().compareTo(t2.getCanonicalName()));
-        interfaceList.forEach(rootNamespace::add);
+        interfaces.forEach(rootNamespace::add);
         rootNamespace.generate(generatedDir + '/' + ROOT_MODULE);
-        new Generator(generatedDir + INIT_PY) {
+        new Out(generatedDir + INIT_PY) {
             // empty
         }.close();
     }
@@ -251,7 +174,7 @@ public final class Python3Generator { // todo: extract common code with TypeScri
         return !type.isEnum() && !Modifier.isAbstract(type.getModifiers()) && (typeHandler(type) instanceof ClassTypeHandler);
     }
 
-    private final class PythonGenerator extends Generator {
+    private final class PythonOut extends Out {
         private final Namespace namespace;
         private final SortedSet<Namespace> modules = new TreeSet<>((n1, n2) -> n1.moduleName.compareTo(n2.moduleName));
         private String getQualifiedName(final Class<?> type) {
@@ -270,7 +193,7 @@ public final class Python3Generator { // todo: extract common code with TypeScri
                 println("%s import %s as %s", module.parent.moduleName.replace('_', '.'), module.name, module.moduleName);
             }
         }
-        @SuppressWarnings("unchecked") PythonGenerator(final String file, final Namespace namespace) throws Exception {
+        @SuppressWarnings("unchecked") PythonOut(final String file, final Namespace namespace) throws Exception {
             super(file);
             this.namespace = Check.notNull(namespace);
             println("from enum import Enum");
@@ -380,10 +303,9 @@ public final class Python3Generator { // todo: extract common code with TypeScri
             dec();
         }
         private void generateInterface(final Class<?> type) {
-            final Method[] methods = type.getMethods();
-            Arrays.sort(methods, (method1, method2) -> method1.getName().compareTo(method2.getName()));
             SimpleMethodMapper.FACTORY.create(type); // checks for overloaded methods (Python restriction)
-            final MethodMapper methodMapper = methodMapperFactory.create(type);
+            final Method[] methods = getMethods(type);
+            final MethodMapper methodMapper = methodMapper(type);
             println2();
             println("class %s:", type.getSimpleName());
             inc();
