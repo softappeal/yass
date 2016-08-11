@@ -549,6 +549,7 @@ class PathSerializer(Serializer):
         writer.writeInt(value)
 
 
+@abstract
 class Stream:
     def writeBytes(self, value: bytes) -> None:
         raise NotImplementedError()
