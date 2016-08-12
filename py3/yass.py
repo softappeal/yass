@@ -1,7 +1,9 @@
 import inspect
 from collections import OrderedDict
+from enum import Enum
+from io import StringIO
 from struct import Struct
-from typing import cast, Any, Dict, List, TypeVar, Generic, Optional, Callable
+from typing import cast, Any, Dict, List, TypeVar, Generic, Optional, Callable, Set
 
 
 def abstract(abstractClass):
@@ -605,3 +607,101 @@ class ClientTransport:
 
 def defaultClientTransport(contractSerializer: Serializer) -> ClientTransport:
     return ClientTransport(PathSerializer(), PathSerializer.DEFAULT, MessageSerializer(contractSerializer))
+
+
+class Dumper:
+    def __init__(self, compact: bool, referenceables: bool, concreteValueClasses: Set[Any] = set()) -> None:
+        """
+        :param compact: one-liner or multiple lines
+        :param referenceables: True: dumps graphs (objects are marked with #); False: dumps trees
+        :param concreteValueClasses: only allowed if (referenceables); these objects should not reference others; do not print # for these classes
+        """
+        if (not referenceables) and (len(concreteValueClasses) != 0):
+            raise RuntimeError("concreteValueClasses only allowed if (referenceables)")
+        self.compact = compact
+        self.referenceables = referenceables
+        self.concreteValueClasses = concreteValueClasses
+
+    def dumpValueClass(self, value: Any, write: Callable[[str], None]) -> bool:
+        """
+        Could dump a value class (these should not reference other objects). Should be an one-liner.
+        This implementation does nothing and returns False.
+        :return: True: if we dumped value; False: use default implementation
+        """
+        return False
+
+    def isConcreteValueClass(self, value: Any) -> bool:
+        return value.__class__ in self.concreteValueClasses
+
+    def dump(self, value: Optional[Any], write: Callable[[str], None]) -> None:
+        alreadyDumped = {} if self.referenceables else None  # type: Optional[Dict[int, Any]]
+        tabs = 0
+
+        def dumpValue(value: Optional[Any]) -> None:
+            nonlocal tabs
+            if value is None:
+                write("null")
+            elif isinstance(value, str):
+                write('"' + value + '"')
+            elif isinstance(value, (bool, float, bytes)):
+                write(str(value))
+            elif isinstance(value, Enum):
+                write(value.name)
+            elif isinstance(value, list):
+                if self.compact:
+                    write("[ ")
+                    for element in value:
+                        dumpValue(element)
+                        write(" ")
+                    write("]")
+                else:
+                    write("[\n")
+                    tabs += 1
+                    for element in value:
+                        write(tabs * "    ")
+                        dumpValue(element)
+                        write("\n")
+                    tabs -= 1
+                    write(tabs * "    " + "]")
+            else:
+                referenceables = self.referenceables and (not self.isConcreteValueClass(value))
+                index = 0
+                if referenceables:
+                    index = alreadyDumped.get(value)
+                    if index is not None:
+                        write("#" + str(index))
+                        return
+                    index = len(alreadyDumped)
+                    alreadyDumped[value] = index
+                if not self.dumpValueClass(value, write):
+                    if self.compact:
+                        write(value.__class__.__name__ + "( ")
+                        for name, value in sorted(value.__dict__.items(), key=lambda item: item[0]):
+                            if value is not None:
+                                write(name + "=")
+                                dumpValue(value)
+                                write(" ")
+                        write(")")
+                    else:
+                        write(value.__class__.__name__ + "(\n")
+                        tabs += 1
+                        for name, value in sorted(value.__dict__.items(), key=lambda item: item[0]):
+                            if value is not None:
+                                write(tabs * "    " + name + " = ")
+                                dumpValue(value)
+                                write("\n")
+                        tabs -= 1
+                        write(tabs * "    " + ")")
+                if referenceables:
+                    write("#" + str(index))
+
+        dumpValue(value)
+
+    def toString(self, value: Optional[Any]) -> str:
+        io = StringIO()
+
+        def write(s: str) -> None:
+            io.write(s)
+
+        self.dump(value, write)
+        return io.getvalue()

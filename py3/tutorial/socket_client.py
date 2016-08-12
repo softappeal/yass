@@ -1,14 +1,14 @@
 import socket
 from functools import partial
-from typing import Any, Optional, cast, List
+from typing import Any, Optional, cast, List, Callable
 
 from tutorial.base_types_external import Integer
 from tutorial.generated.contract import PriceKind, Expiration, UnknownInstrumentsException, Node, SERIALIZER, acceptor, SystemException
 from tutorial.generated.contract.instrument.stock import Stock
-from yass import Client, Request, Reply, defaultClientTransport, MethodMapping, Invocation, Interceptor, ClientTransport, Stream
+from yass import Client, Request, Reply, defaultClientTransport, MethodMapping, Invocation, Interceptor, ClientTransport, Stream, Dumper
 
 
-def createObjects() -> Any:
+def createObjects(withCycles=True) -> Any:
     stock = Stock()
     stock.id = Integer(123)
     stock.name = "YASS"
@@ -24,7 +24,7 @@ def createObjects() -> Any:
     node2.links = []
     node1.links = [node1, node2]
 
-    return [
+    result = [
         None,
         False,
         True,
@@ -38,23 +38,36 @@ def createObjects() -> Any:
         PriceKind.ASK,
         PriceKind.BID,
         stock,
-        unknownInstrumentsException,
-        node1
+        unknownInstrumentsException
     ]
+    return result + [node1] if withCycles else result
+
+
+class MyDumper(Dumper):
+    def __init__(self, compact: bool) -> None:
+        super().__init__(compact, True, {Integer, Expiration})
+
+    def dumpValueClass(self, value: Any, write: Callable[[str], None]) -> bool:
+        if self.isConcreteValueClass(value):
+            write(str(value))
+            return True
+        return False
+
+
+myDumper = MyDumper(True)
 
 
 def printer(side: str, mapping: MethodMapping, arguments: List[Optional[Any]], invocation: Invocation) -> Optional[Any]:
     def out(type: str, s: str) -> None:
-        if True:
-            print("%s | %9s | %s" % (side, type, s))
+        print("%s | %9s | %s" % (side, type, s))
 
-    out("entry", "%s(%s)" % (mapping.method, arguments))
+    out("entry", "%s(%s)" % (mapping.method, myDumper.toString(arguments)))
     try:
         result = invocation()
-        out("exit", result)
+        out("exit", myDumper.toString(result))
         return result
     except Exception as e:
-        out("exception", str(e.__class__))
+        out("exception", myDumper.toString(e))
         raise
 
 
@@ -105,7 +118,7 @@ if __name__ == "__main__":
     echoService = client.proxy(acceptor.echoService)
     instrumentService = client.proxy(acceptor.instrumentService, clientPrinter)
     print(echoService.echo("hello"))
-    print(echoService.echo(createObjects()))
+    print(MyDumper(False).toString(echoService.echo(createObjects())))
     try:
         echoService.echo("exception")
     except SystemException as e:
