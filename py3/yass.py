@@ -252,7 +252,7 @@ class FieldHandler:
     def read(self, object: Any, input: Input) -> None:
         setattr(object, self.field, input.read() if self.typeHandler is None else self.typeHandler.read(input))
 
-    def write(self, id: int, object: Any, output: Output):
+    def write(self, id: int, object: Any, output: Output) -> None:
         value = getattr(object, self.field)
         if value is not None:
             output.writer.writeVarInt(id)
