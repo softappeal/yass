@@ -3,7 +3,8 @@ from functools import partial
 from typing import Any, Optional, cast, List, Callable
 
 from tutorial.base_types_external import Integer
-from tutorial.generated.contract import PriceKind, Expiration, UnknownInstrumentsException, Node, SERIALIZER, acceptor, SystemException
+from tutorial.generated import ACCEPTOR, SERIALIZER
+from tutorial.generated.contract import PriceKind, Expiration, UnknownInstrumentsException, Node, SystemException
 from tutorial.generated.contract.instrument.stock import Stock
 from yass import Client, Request, Reply, defaultClientTransport, MethodMapping, Invocation, Interceptor, ClientTransport, Stream, Dumper
 
@@ -115,8 +116,8 @@ def socketClient(transport: ClientTransport, address: Any) -> Client:
 
 if __name__ == "__main__":
     client = socketClient(defaultClientTransport(serializer), address)
-    echoService = client.proxy(acceptor.echoService)
-    instrumentService = client.proxy(acceptor.instrumentService, clientPrinter)
+    echoService = client.proxy(ACCEPTOR.echoService)
+    instrumentService = client.proxy(ACCEPTOR.instrumentService, clientPrinter)
     print(echoService.echo("hello"))
     print(MyDumper(False).toString(echoService.echo(createObjects())))
     try:

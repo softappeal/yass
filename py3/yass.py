@@ -405,6 +405,13 @@ class MethodMapper:
         return self.method2Mapping.get(method)
 
 
+MAPPER = "MAPPER"
+
+
+def methodMapper(type: Any, mappings: List[MethodMapping]) -> None:
+    setattr(type, MAPPER, MethodMapper(mappings))
+
+
 Invocation = Callable[[], Optional[Any]]
 Interceptor = Callable[
     [MethodMapping, List[Optional[Any]], Invocation],  # mapping, arguments, invocation
@@ -458,7 +465,7 @@ C = TypeVar('C')
 
 class ContractId(Generic[C]):
     def __init__(self, contract: Any, id: int) -> None:
-        self.mapper = getattr(contract, "MAPPER")  # type: MethodMapper
+        self.mapper = getattr(contract, MAPPER)  # type: MethodMapper
         self.id = id
 
     def service(self, implementation: C, interceptor: Interceptor = directInterceptor) -> Service:

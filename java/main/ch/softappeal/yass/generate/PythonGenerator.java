@@ -126,7 +126,7 @@ public final class PythonGenerator extends Generator {
         }
         void generate(final String path) {
             try {
-                new PythonOut(Check.notNull(path) + INIT_PY, this);
+                new ContractPythonOut(Check.notNull(path) + INIT_PY, this);
             } catch (final Exception e) {
                 throw Exceptions.wrap(e);
             }
@@ -135,10 +135,13 @@ public final class PythonGenerator extends Generator {
     }
 
     public PythonGenerator(
-        final String rootPackage, final FastSerializer serializer, final @Nullable Services initiator, final @Nullable Services acceptor,
+        final String rootPackage, final FastSerializer serializer, final @Nullable Services initiator, final @Nullable Services acceptor, final boolean python3,
         final @Nullable String includeFileForEachModule, final @Nullable Map<String, String> module2includeFile, final @Nullable Map<Class<?>, ExternalDesc> externalTypes, final String generatedDir
     ) throws Exception {
         super(rootPackage, serializer, initiator, acceptor);
+        if (!python3) {
+            throw new UnsupportedOperationException("python 2 not yet supported");
+        }
         this.includeFileForEachModule = includeFileForEachModule;
         if (module2includeFile != null) {
             module2includeFile.forEach((m, i) -> this.module2includeFile.put(Check.notNull(m), Check.notNull(i)));
@@ -157,9 +160,7 @@ public final class PythonGenerator extends Generator {
         });
         interfaces.forEach(rootNamespace::add);
         rootNamespace.generate(generatedDir + '/' + ROOT_MODULE);
-        new Out(generatedDir + INIT_PY) {
-            // empty
-        }.close();
+        new MetaPythonOut(generatedDir + INIT_PY);
     }
 
     private TypeHandler typeHandler(final Class<?> type) {
@@ -174,7 +175,7 @@ public final class PythonGenerator extends Generator {
         return !type.isEnum() && !Modifier.isAbstract(type.getModifiers()) && (typeHandler(type) instanceof ClassTypeHandler);
     }
 
-    private final class PythonOut extends Out {
+    private final class ContractPythonOut extends Out {
         private final Namespace namespace;
         private final SortedSet<Namespace> modules = new TreeSet<>((n1, n2) -> n1.moduleName.compareTo(n2.moduleName));
         private String getQualifiedName(final Class<?> type) {
@@ -193,7 +194,7 @@ public final class PythonGenerator extends Generator {
                 println("%s import %s as %s", module.parent.moduleName.replace('_', '.'), module.name, module.moduleName);
             }
         }
-        @SuppressWarnings("unchecked") PythonOut(final String file, final Namespace namespace) throws Exception {
+        @SuppressWarnings("unchecked") ContractPythonOut(final String file, final Namespace namespace) throws Exception {
             super(file);
             this.namespace = Check.notNull(namespace);
             println("from enum import Enum");
@@ -220,9 +221,6 @@ public final class PythonGenerator extends Generator {
             redirect(null);
             modules.stream().filter(module -> module != namespace).forEach(this::importModule);
             print(buffer);
-            if (namespace == rootNamespace) {
-                generateOnlyForRootNamespace();
-            }
             close();
         }
         private void generateEnum(final Class<? extends Enum<?>> type) {
@@ -232,17 +230,6 @@ public final class PythonGenerator extends Generator {
                 tab();
                 tabsln("%s = %s", e.name(), e.ordinal());
             }
-        }
-        private String contractType(final Class<?> type, final boolean name) {
-            final @Nullable ExternalDesc externalDesc = externalTypes.get(FieldHandler.primitiveWrapperType(type));
-            if (externalDesc != null) {
-                return name ? externalDesc.name : externalDesc.typeDesc;
-            }
-            checkType(type);
-            if (type.isArray()) {
-                throw new IllegalArgumentException("illegal type " + type.getCanonicalName() + " (use List instead [])");
-            }
-            return getQualifiedName(type);
         }
         private String pythonType(final Type type) {
             if (type instanceof ParameterizedType) {
@@ -267,7 +254,16 @@ public final class PythonGenerator extends Generator {
             } else if (Throwable.class.isAssignableFrom((Class<?>)type)) {
                 return "Exception";
             }
-            return contractType((Class<?>)type, true);
+            final Class<?> t = (Class<?>)type;
+            final @Nullable ExternalDesc externalDesc = externalTypes.get(FieldHandler.primitiveWrapperType(t));
+            if (externalDesc != null) {
+                return externalDesc.name;
+            }
+            checkType(t);
+            if (t.isArray()) {
+                throw new IllegalArgumentException("illegal type " + t.getCanonicalName() + " (use List instead [])");
+            }
+            return getQualifiedName(t);
         }
         private void generateClass(final Class<?> type) {
             println2();
@@ -289,7 +285,7 @@ public final class PythonGenerator extends Generator {
             tabsln("def __init__(self) -> None:");
             inc();
             if (hasSuper) {
-                tabsln("super().__init__()");
+                tabsln("%s.__init__(self)", getQualifiedName(superClass));
             }
             final List<Field> ownFields = Reflect.ownFields(type);
             if (ownFields.isEmpty() && !hasSuper) {
@@ -304,20 +300,17 @@ public final class PythonGenerator extends Generator {
         }
         private void generateInterface(final Class<?> type) {
             SimpleMethodMapper.FACTORY.create(type); // checks for overloaded methods (Python restriction)
-            final Method[] methods = getMethods(type);
             final MethodMapper methodMapper = methodMapper(type);
             println2();
             println("class %s:", type.getSimpleName());
             inc();
-            tabsln("MAPPER = yass.MethodMapper([");
-            for (final Method method : methods) {
-                final MethodMapper.Mapping mapping = methodMapper.mapMethod(method);
-                tab();
-                tabsln("yass.MethodMapping(%s, '%s', %s),", mapping.id, mapping.method.getName(), pyBool(mapping.oneWay));
-            }
-            tabsln("])");
-            for (final Method method : methods) {
-                println();
+            boolean first = true;
+            for (final Method method : getMethods(type)) {
+                if (first) {
+                    first = false;
+                } else {
+                    println();
+                }
                 tabs("def %s(self", method.getName());
                 for (final Parameter parameter : method.getParameters()) {
                     print(", %s: %s", parameter.getName(), pythonType(parameter.getParameterizedType()));
@@ -327,6 +320,61 @@ public final class PythonGenerator extends Generator {
                 tabsln("raise NotImplementedError()");
             }
             dec();
+        }
+    }
+
+    private final class MetaPythonOut extends Out {
+        private String getQualifiedName(final Class<?> type) {
+            final Namespace ns = Check.notNull(type2namespace.get(Check.notNull(type)));
+            return ns.moduleName + '.' + type.getSimpleName();
+        }
+        private void importModule(final Namespace module) {
+            print("from .");
+            if (module == rootNamespace) {
+                println(" import " + ROOT_MODULE);
+            } else {
+                println("%s import %s as %s", module.parent.moduleName.replace('_', '.'), module.name, module.moduleName);
+            }
+        }
+        MetaPythonOut(final String file) throws Exception {
+            super(file);
+            println("import yass");
+            if (includeFileForEachModule != null) {
+                includeFile(includeFileForEachModule);
+            }
+            new LinkedHashSet<>(type2namespace.values()).forEach(this::importModule);
+            println();
+            println("GENERATED_BY_YASS_VERSION = '%s'", Version.VALUE);
+            println();
+            type2namespace.keySet().forEach(type -> {
+                final String qn = getQualifiedName(type);
+                if (type.isEnum()) {
+                    println("yass.enumDesc(%s, %s)", type2id.get(type), qn);
+                } else if (hasClassDesc(type)) {
+                    println("yass.classDesc(%s, %s, %s)", type2id.get(type), qn, pyBool(((ClassTypeHandler)typeHandler(type)).referenceable));
+                }
+            });
+            println();
+            type2namespace.keySet().stream().filter(PythonGenerator.this::hasClassDesc).forEach(type -> {
+                tabsln("yass.fieldDescs(%s, [", getQualifiedName(type));
+                for (final ClassTypeHandler.FieldDesc fieldDesc : ((ClassTypeHandler)typeHandler(type)).fieldDescs()) {
+                    tab();
+                    tabsln("yass.FieldDesc(%s, '%s', %s),", fieldDesc.id, fieldDesc.handler.field.getName(), typeDesc(fieldDesc));
+                }
+                tabsln("])");
+            });
+            println();
+            println("SERIALIZER = yass.FastSerializer([");
+            inc();
+            externalTypes.values().forEach(externalDesc -> tabsln("%s,", externalDesc.typeDesc));
+            type2namespace.keySet().stream().filter(t -> !Modifier.isAbstract(t.getModifiers())).forEach(t -> tabsln("%s,", getQualifiedName(t)));
+            dec();
+            println("])");
+            println();
+            interfaces.forEach(this::generateMapper);
+            generateServices(initiator, "INITIATOR");
+            generateServices(acceptor, "ACCEPTOR");
+            close();
         }
         private void generateServices(final @Nullable Services services, final String role) throws Exception {
             if (services == null) {
@@ -357,40 +405,21 @@ public final class PythonGenerator extends Generator {
             } else if (BYTES_DESC.handler == typeHandler) {
                 return "yass.BYTES_DESC";
             }
-            return contractType(typeHandler.type, false);
+            final @Nullable ExternalDesc externalDesc = externalTypes.get(FieldHandler.primitiveWrapperType(typeHandler.type));
+            if (externalDesc != null) {
+                return externalDesc.typeDesc;
+            }
+            return getQualifiedName(typeHandler.type);
         }
-        private void generateOnlyForRootNamespace() throws Exception {
-            println2();
-            println("GENERATED_BY_YASS_VERSION = '%s'", Version.VALUE);
-            println();
-            new LinkedHashSet<>(type2namespace.values()).stream().filter(module -> module != rootNamespace).forEach(this::importModule);
-            println();
-            type2namespace.keySet().forEach(type -> {
-                final String qn = getQualifiedName(type);
-                if (type.isEnum()) {
-                    println("yass.enumDesc(%s, %s)", type2id.get(type), qn);
-                } else if (hasClassDesc(type)) {
-                    println("yass.classDesc(%s, %s, %s)", type2id.get(type), qn, pyBool(((ClassTypeHandler)typeHandler(type)).referenceable));
-                }
-            });
-            println();
-            type2namespace.keySet().stream().filter(PythonGenerator.this::hasClassDesc).forEach(type -> {
-                tabsln("yass.fieldDescs(%s, [", getQualifiedName(type));
-                for (final ClassTypeHandler.FieldDesc fieldDesc : ((ClassTypeHandler)typeHandler(type)).fieldDescs()) {
-                    tab();
-                    tabsln("yass.FieldDesc(%s, '%s', %s),", fieldDesc.id, fieldDesc.handler.field.getName(), typeDesc(fieldDesc));
-                }
-                tabsln("])");
-            });
-            println();
-            println("SERIALIZER = yass.FastSerializer([");
-            inc();
-            externalTypes.values().forEach(externalDesc -> tabsln("%s,", externalDesc.typeDesc));
-            type2namespace.keySet().stream().filter(t -> !Modifier.isAbstract(t.getModifiers())).forEach(t -> tabsln("%s,", getQualifiedName(t)));
-            dec();
-            println("])");
-            generateServices(initiator, "initiator");
-            generateServices(acceptor, "acceptor");
+        private void generateMapper(final Class<?> type) {
+            final MethodMapper methodMapper = methodMapper(type);
+            tabsln("yass.methodMapper(%s, [", getQualifiedName(type));
+            for (final Method method : getMethods(type)) {
+                final MethodMapper.Mapping mapping = methodMapper.mapMethod(method);
+                tab();
+                tabsln("yass.MethodMapping(%s, '%s', %s),", mapping.id, mapping.method.getName(), pyBool(mapping.oneWay));
+            }
+            tabsln("])");
         }
     }
 

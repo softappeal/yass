@@ -2,9 +2,8 @@ import unittest
 from io import BytesIO
 from typing import Any, List
 
-from tutorial.generated.contract import Expiration, PriceKind, SERIALIZER
-from tutorial.generated.contract import Node
-from tutorial.generated.contract import UnknownInstrumentsException
+from tutorial.generated import SERIALIZER
+from tutorial.generated.contract import Expiration, PriceKind, Node, UnknownInstrumentsException
 from tutorial.generated.contract.instrument.stock import Stock
 from tutorial.socket_client import createObjects
 from yass import Writer, Reader

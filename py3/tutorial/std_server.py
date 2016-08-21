@@ -1,7 +1,7 @@
 import sys
 from typing import cast
 
-from tutorial.generated.contract import acceptor
+from tutorial.generated import ACCEPTOR
 from tutorial.socket_client import serializer
 from tutorial.socket_server import EchoServiceImpl, InstrumentServiceImpl
 from yass import Server, Serializer, Writer, MessageSerializer, Reader, Request
@@ -38,8 +38,8 @@ def stdServer(server: Server, contractSerializer: Serializer):
 
 stdServer(
     Server([
-        acceptor.echoService.service(EchoServiceImpl()),
-        acceptor.instrumentService.service(InstrumentServiceImpl())
+        ACCEPTOR.echoService.service(EchoServiceImpl()),
+        ACCEPTOR.instrumentService.service(InstrumentServiceImpl())
     ]),
     serializer
 )

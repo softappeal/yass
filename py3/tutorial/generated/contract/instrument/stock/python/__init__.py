@@ -9,9 +9,9 @@ from .....contract.instrument import stock as contract_instrument_stock
 
 class PythonBond(contract_instrument.Bond):
     def __init__(self) -> None:
-        super().__init__()
+        contract_instrument.Bond.__init__(self)
 
 
 class PythonStock(contract_instrument_stock.Stock):
     def __init__(self) -> None:
-        super().__init__()
+        contract_instrument_stock.Stock.__init__(self)

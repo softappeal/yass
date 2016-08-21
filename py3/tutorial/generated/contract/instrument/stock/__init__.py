@@ -8,5 +8,5 @@ from .... import contract
 
 class Stock(contract.Instrument):
     def __init__(self) -> None:
-        super().__init__()
+        contract.Instrument.__init__(self)
         self.paysDividend = None  # type: bool

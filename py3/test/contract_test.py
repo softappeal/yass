@@ -3,10 +3,11 @@ from typing import Any
 
 import yass
 from tutorial.base_types_external import Integer
-from tutorial.generated import contract as contract
-from tutorial.generated.contract import instrument as contract_instrument
-from tutorial.generated.contract.instrument import stock as contract_instrument_stock
-from tutorial.generated.contract.instrument.stock import python as contract_instrument_stock_python
+from tutorial.generated import contract, GENERATED_BY_YASS_VERSION
+from tutorial.generated.contract import UnknownInstrumentsException, ApplicationException, PriceKind, Node, EchoService, Expiration
+from tutorial.generated.contract.instrument import Bond
+from tutorial.generated.contract.instrument.stock import Stock
+from tutorial.generated.contract.instrument.stock.python import PythonStock, PythonBond
 
 
 @yass.abstract
@@ -16,7 +17,7 @@ class NoInit:
 
 class Test(unittest.TestCase):
     def testVersion(self):
-        self.assertEqual(contract.GENERATED_BY_YASS_VERSION, 'null')
+        self.assertEqual(GENERATED_BY_YASS_VERSION, 'null')
 
     def testInteger(self):
         i = Integer(123)
@@ -25,7 +26,7 @@ class Test(unittest.TestCase):
         self.assertEqual(str(i), '123')
 
     def testExpiration(self):
-        e = contract.Expiration(2017, 11, 30)
+        e = Expiration(2017, 11, 30)
         self.assertEqual(yass.typeDesc(e).id, 8)
         self.assertEqual(e.year, 2017)
         self.assertEqual(e.month, 11)
@@ -33,47 +34,41 @@ class Test(unittest.TestCase):
         self.assertEqual(str(e), '2017-11-30')
 
     def testClasses(self):
-        pythonStock = contract_instrument_stock_python.PythonStock()
+        pythonStock = PythonStock()
         pythonStock.name = "ABB"
-        pythonBond = contract_instrument_stock_python.PythonBond()
+        pythonBond = PythonBond()
         pythonBond.name = "ABB"
-        bond = contract_instrument.Bond()
+        bond = Bond()
         bond.name = "ABB"
         bond.coupon = 1.5
-        stock = contract_instrument_stock.Stock()
+        stock = Stock()
         stock.name = "ABB"
         stock.paysDividend = True
-        node1 = contract.Node()
+        node1 = Node()
         self.assertEqual(yass.typeDesc(node1).id, 17)
         node1.id = 1.
-        node2 = contract.Node()
+        node2 = Node()
         node2.id = 2.
         node2.links = [node1, node2]
         try:
-            uie = contract.UnknownInstrumentsException()
+            uie = UnknownInstrumentsException()
             uie.instrumentIds = [Integer(333), Integer(444)]
             uie.onlyNeededForTests2 = b'abc'
             raise uie
-        except contract.UnknownInstrumentsException as e:
+        except UnknownInstrumentsException as e:
             pass
 
     def testEnum(self):
-        self.assertEqual(yass.typeDesc(contract.PriceKind.ASK).id, 9)
-        self.assertEqual(str(contract.PriceKind.ASK), 'PriceKind.ASK')
-        self.assertEqual(contract.PriceKind.BID.value, 0)
-        self.assertEqual(contract.PriceKind.ASK.value, 1)
-        self.assertEqual(contract.PriceKind.ASK.name, 'ASK')
-        self.assertTrue(contract.PriceKind(0) is contract.PriceKind.BID)
-        self.assertTrue(contract.PriceKind(1) is contract.PriceKind.ASK)
-        '''
-        self.assertEqual(
-            str(contract.PriceKind.__members__),
-            "OrderedDict([('BID', <PriceKind.BID: 0>), ('ASK', <PriceKind.ASK: 1>)])"
-        )
-        '''
+        self.assertEqual(yass.typeDesc(PriceKind.ASK).id, 9)
+        self.assertEqual(str(PriceKind.ASK), 'PriceKind.ASK')
+        self.assertEqual(PriceKind.BID.value, 0)
+        self.assertEqual(PriceKind.ASK.value, 1)
+        self.assertEqual(PriceKind.ASK.name, 'ASK')
+        self.assertTrue(PriceKind(0) is PriceKind.BID)
+        self.assertTrue(PriceKind(1) is PriceKind.ASK)
 
     def testInterface(self):
-        class EchoServiceImpl(contract.EchoService):
+        class EchoServiceImpl(EchoService):
             def __init__(self) -> None:
                 super().__init__()
 
@@ -103,8 +98,8 @@ class Test(unittest.TestCase):
         self.assertTrue(isinstance([], list))
         self.assertTrue(isinstance([True, 1], list))
         self.assertFalse(hasattr(1, yass.TYPE_DESC))
-        self.assertTrue(hasattr(contract.PriceKind.ASK, yass.TYPE_DESC))
-        self.assertTrue(hasattr(contract.Node(), yass.TYPE_DESC))
+        self.assertTrue(hasattr(PriceKind.ASK, yass.TYPE_DESC))
+        self.assertTrue(hasattr(Node(), yass.TYPE_DESC))
 
     def testAbstract(self):
         try:
@@ -115,16 +110,16 @@ class Test(unittest.TestCase):
                 str(e),
                 "can't instantiate abstract <class 'tutorial.generated.contract.Instrument'>"
             )
-        contract.UnknownInstrumentsException()
+        UnknownInstrumentsException()
         try:
-            contract.ApplicationException()
+            ApplicationException()
             self.fail()
         except RuntimeError as e:
             self.assertEqual(
                 str(e),
                 "can't instantiate abstract <class 'tutorial.generated.contract.ApplicationException'>"
             )
-        contract_instrument.Bond()
+        Bond()
         try:
             NoInit()
             self.fail()

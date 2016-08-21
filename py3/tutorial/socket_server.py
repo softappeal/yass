@@ -2,8 +2,8 @@ import socket
 from typing import Any, List
 
 from tutorial.base_types_external import Integer
-from tutorial.generated import contract
-from tutorial.generated.contract import acceptor, EchoService, SystemException
+from tutorial.generated import contract, ACCEPTOR
+from tutorial.generated.contract import EchoService, SystemException
 from tutorial.generated.contract.instrument import InstrumentService
 from tutorial.socket_client import serializer, address, serverPrinter, SocketStream
 from yass import Server, defaultServerTransport, ServerTransport
@@ -44,8 +44,8 @@ if __name__ == "__main__":
         defaultServerTransport(
             serializer,
             Server([
-                acceptor.echoService.service(EchoServiceImpl()),
-                acceptor.instrumentService.service(InstrumentServiceImpl(), serverPrinter)
+                ACCEPTOR.echoService.service(EchoServiceImpl()),
+                ACCEPTOR.instrumentService.service(InstrumentServiceImpl(), serverPrinter)
             ])
         ),
         address,

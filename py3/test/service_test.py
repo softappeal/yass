@@ -4,13 +4,14 @@ from typing import Any, cast
 
 from test.serialize_test import createWriter, createReader
 from tutorial.base_types_external import Integer
-from tutorial.generated.contract import acceptor, SystemException
+from tutorial.generated import ACCEPTOR
+from tutorial.generated.contract import SystemException
 from tutorial.socket_client import serializer
 from tutorial.socket_server import EchoServiceImpl, InstrumentServiceImpl
 from yass import Server, Client, Request, Reply, MessageSerializer
 
-echo_service = acceptor.echoService.service(EchoServiceImpl())
-instrument_service = acceptor.instrumentService.service(InstrumentServiceImpl())
+echo_service = ACCEPTOR.echoService.service(EchoServiceImpl())
+instrument_service = ACCEPTOR.instrumentService.service(InstrumentServiceImpl())
 server = Server([echo_service, instrument_service])
 
 
@@ -60,13 +61,13 @@ class Test(unittest.TestCase):
         client = LocalClient()
 
         try:
-            cast(Any, client.proxy(acceptor.echoService)).xxx()
+            cast(Any, client.proxy(ACCEPTOR.echoService)).xxx()
             self.fail()
         except RuntimeError as e:
             self.assertEqual(str(e), "no method 'xxx' found for serviceId 2")
 
-        echoService = client.proxy(acceptor.echoService)
-        instrumentService = client.proxy(acceptor.instrumentService)
+        echoService = client.proxy(ACCEPTOR.echoService)
+        instrumentService = client.proxy(ACCEPTOR.instrumentService)
         self.assertEqual(echoService.echo("world"), "world")
         try:
             echoService.echo("exception")
