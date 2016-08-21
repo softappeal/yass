@@ -1,4 +1,4 @@
-package ch.softappeal.yass.tutorial.py3;
+package ch.softappeal.yass.tutorial.py;
 
 import ch.softappeal.yass.core.remote.Client;
 import ch.softappeal.yass.core.remote.Reply;
@@ -12,7 +12,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
 
-public final class StdClient {
+public final class StdClient3 {
 
     public static void main(final String... args) throws IOException {
         final Stopwatch stopwatch = new Stopwatch();

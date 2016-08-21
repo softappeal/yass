@@ -39,7 +39,7 @@ import java.util.TreeSet;
 /**
  * You must use the "-parameters" option for javac to get the real method parameter names.
  */
-public final class Python3Generator extends Generator {
+public final class PythonGenerator extends Generator {
 
     public static final TypeDesc BOOLEAN_DESC = new TypeDesc(TypeDesc.FIRST_ID, BaseTypeHandlers.BOOLEAN);
     public static final TypeDesc DOUBLE_DESC = new TypeDesc(TypeDesc.FIRST_ID + 1, BaseTypeHandlers.DOUBLE);
@@ -134,7 +134,7 @@ public final class Python3Generator extends Generator {
         }
     }
 
-    public Python3Generator(
+    public PythonGenerator(
         final String rootPackage, final FastSerializer serializer, final @Nullable Services initiator, final @Nullable Services acceptor,
         final @Nullable String includeFileForEachModule, final @Nullable Map<String, String> module2includeFile, final @Nullable Map<Class<?>, ExternalDesc> externalTypes, final String generatedDir
     ) throws Exception {
@@ -374,7 +374,7 @@ public final class Python3Generator extends Generator {
                 }
             });
             println();
-            type2namespace.keySet().stream().filter(Python3Generator.this::hasClassDesc).forEach(type -> {
+            type2namespace.keySet().stream().filter(PythonGenerator.this::hasClassDesc).forEach(type -> {
                 tabsln("yass.fieldDescs(%s, [", getQualifiedName(type));
                 for (final ClassTypeHandler.FieldDesc fieldDesc : ((ClassTypeHandler)typeHandler(type)).fieldDescs()) {
                     tab();

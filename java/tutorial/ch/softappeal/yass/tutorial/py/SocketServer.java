@@ -1,4 +1,4 @@
-package ch.softappeal.yass.tutorial.py3;
+package ch.softappeal.yass.tutorial.py;
 
 import ch.softappeal.yass.core.Interceptor;
 import ch.softappeal.yass.transport.MessageSerializer;

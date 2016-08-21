@@ -1,4 +1,4 @@
-package ch.softappeal.yass.tutorial.py3;
+package ch.softappeal.yass.tutorial.py;
 
 import ch.softappeal.yass.core.Interceptor;
 import ch.softappeal.yass.core.remote.Client;
@@ -48,7 +48,7 @@ public final class SocketClient {
         );
     }
 
-    static final Serializer SERIALIZER = Config.PY3_CONTRACT_SERIALIZER;
+    static final Serializer SERIALIZER = Config.PY_CONTRACT_SERIALIZER;
 
     static void client(final Client client) {
         final Interceptor logger = new Logger(null, Logger.Side.CLIENT);

@@ -46,7 +46,7 @@ task generateTypeScript(type: JavaExec) {
 }
 
 task generatePython3(type: JavaExec) {
-    main = 'ch.softappeal.yass.tutorial.py3.GeneratePython'
+    main = 'ch.softappeal.yass.tutorial.py.GeneratePython3'
     classpath = sourceSets.tutorial.runtimeClasspath
 }
 

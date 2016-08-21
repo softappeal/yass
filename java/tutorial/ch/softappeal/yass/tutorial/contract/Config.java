@@ -3,7 +3,7 @@ package ch.softappeal.yass.tutorial.contract;
 import ch.softappeal.yass.core.remote.ContractId;
 import ch.softappeal.yass.core.remote.Services;
 import ch.softappeal.yass.core.remote.SimpleMethodMapper;
-import ch.softappeal.yass.generate.Python3Generator;
+import ch.softappeal.yass.generate.PythonGenerator;
 import ch.softappeal.yass.generate.TypeScriptGenerator;
 import ch.softappeal.yass.serialize.FastReflector;
 import ch.softappeal.yass.serialize.Serializer;
@@ -37,11 +37,11 @@ public final class Config {
         )
     );
 
-    public static final FastSerializer PY3_CONTRACT_SERIALIZER = new SimpleFastSerializer(
+    public static final FastSerializer PY_CONTRACT_SERIALIZER = new SimpleFastSerializer(
         FastReflector.FACTORY,
-        Python3Generator.baseTypeHandlers( // note: order is important; id's must match with Python implementations
-            BaseTypeHandlers.INTEGER,      // Python3Generator.FIRST_DESC_ID
-            Expiration.TYPE_HANDLER        // Python3Generator.FIRST_DESC_ID + 1
+        PythonGenerator.baseTypeHandlers( // note: order is important; id's must match with Python implementations
+            BaseTypeHandlers.INTEGER,     // PythonGenerator.FIRST_DESC_ID
+            Expiration.TYPE_HANDLER       // PythonGenerator.FIRST_DESC_ID + 1
         ),
         Arrays.asList(
             PriceKind.class,
