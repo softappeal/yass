@@ -9,7 +9,7 @@ from yass import Dumper
 
 class MyDumper(Dumper):
     def __init__(self, compact: bool, referenceables: bool, concreteValueClasses: Set[Any]) -> None:
-        super().__init__(compact, referenceables, concreteValueClasses)
+        Dumper.__init__(self, compact, referenceables, concreteValueClasses)
 
     def dumpValueClass(self, value: Any, write: Callable[[str], None]) -> bool:
         if self.isConcreteValueClass(value) or (value.__class__ in {Integer, Expiration}):

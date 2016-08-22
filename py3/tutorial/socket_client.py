@@ -46,7 +46,7 @@ def createObjects(withCycles=True) -> Any:
 
 class MyDumper(Dumper):
     def __init__(self, compact: bool) -> None:
-        super().__init__(compact, True, {Integer, Expiration})
+        Dumper.__init__(self, compact, True, {Integer, Expiration})
 
     def dumpValueClass(self, value: Any, write: Callable[[str], None]) -> bool:
         if self.isConcreteValueClass(value):

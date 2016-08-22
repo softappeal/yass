@@ -311,7 +311,7 @@ class ClassTypeHandler(TypeHandler):
                 REFERENCE_DESC.write(reference, output)
                 return
             object2reference[value] = len(object2reference)
-        super().writeWithId(id, value, output)
+        TypeHandler.writeWithId(self, id, value, output)
 
 
 def fieldDescs(type: Any, fieldDescs: List[FieldDesc]) -> None:
@@ -367,7 +367,7 @@ class Reply(Message):
 
 class ValueReply(Reply):
     def __init__(self, value: Optional[Any]) -> None:
-        super().__init__()
+        Reply.__init__(self)
         self.value = value
 
     def process(self) -> Optional[Any]:
@@ -376,7 +376,7 @@ class ValueReply(Reply):
 
 class ExceptionReply(Reply):
     def __init__(self, exception: Exception) -> None:
-        super().__init__()
+        Reply.__init__(self)
         self.exception = exception
 
     def process(self) -> None:

@@ -70,7 +70,7 @@ class Test(unittest.TestCase):
     def testInterface(self):
         class EchoServiceImpl(EchoService):
             def __init__(self) -> None:
-                super().__init__()
+                EchoService.__init__(self)
 
             def echo(self, value: Any) -> Any:
                 return value

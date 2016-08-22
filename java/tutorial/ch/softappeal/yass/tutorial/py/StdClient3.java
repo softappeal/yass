@@ -14,9 +14,9 @@ import java.io.OutputStream;
 
 public final class StdClient3 {
 
-    public static void main(final String... args) throws IOException {
+    public static void start(final String pythonPgm, final String pythonDirectory) throws IOException {
         final Stopwatch stopwatch = new Stopwatch();
-        final Process process = new ProcessBuilder("python", "-m", "tutorial.std_server").directory(new File("py3")).start();
+        final Process process = new ProcessBuilder(pythonPgm, "-m", "tutorial.std_server").directory(new File(pythonDirectory)).start();
         final OutputStream out = process.getOutputStream();
         final Writer writer = Writer.create(out);
         final Reader reader = Reader.create(process.getInputStream());
@@ -32,6 +32,10 @@ public final class StdClient3 {
         });
         stopwatch.stop();
         System.out.println("time: " + stopwatch.milliSeconds() + "ms");
+    }
+
+    public static void main(final String... args) throws IOException {
+        start("C:\\Users\\guru\\Miniconda3\\envs\\py3.5\\python.exe", "py3");
     }
 
 }
