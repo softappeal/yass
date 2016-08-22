@@ -79,6 +79,7 @@ public final class PythonGenerator extends Generator {
         }
     }
 
+    private final boolean python3;
     private final @Nullable String includeFileForEachModule;
     private final Map<String, String> module2includeFile = new HashMap<>();
     private final SortedMap<Class<?>, ExternalDesc> externalTypes = new TreeMap<>((c1, c2) -> c1.getCanonicalName().compareTo(c2.getCanonicalName()));
@@ -139,9 +140,7 @@ public final class PythonGenerator extends Generator {
         final @Nullable String includeFileForEachModule, final @Nullable Map<String, String> module2includeFile, final @Nullable Map<Class<?>, ExternalDesc> externalTypes, final String generatedDir
     ) throws Exception {
         super(rootPackage, serializer, initiator, acceptor);
-        if (!python3) {
-            throw new UnsupportedOperationException("python 2 not yet supported");
-        }
+        this.python3 = python3;
         this.includeFileForEachModule = includeFileForEachModule;
         if (module2includeFile != null) {
             module2includeFile.forEach((m, i) -> this.module2includeFile.put(Check.notNull(m), Check.notNull(i)));
@@ -248,7 +247,7 @@ public final class PythonGenerator extends Generator {
             } else if (type == String.class) {
                 return "str";
             } else if (type == byte[].class) {
-                return "bytes";
+                return python3 ? "bytes" : "yass.Bytes";
             } else if (type == Object.class) {
                 return "Any";
             } else if (Throwable.class.isAssignableFrom((Class<?>)type)) {
@@ -282,7 +281,7 @@ public final class PythonGenerator extends Generator {
             }
             println(":");
             inc();
-            tabsln("def __init__(self) -> None:");
+            tabsln("def __init__(self)%s", python3 ? " -> None:" : ":  # type: () -> None");
             inc();
             if (hasSuper) {
                 tabsln("%s.__init__(self)", getQualifiedName(superClass));
@@ -312,10 +311,27 @@ public final class PythonGenerator extends Generator {
                     println();
                 }
                 tabs("def %s(self", method.getName());
-                for (final Parameter parameter : method.getParameters()) {
-                    print(", %s: %s", parameter.getName(), pythonType(parameter.getParameterizedType()));
+                if (python3) {
+                    for (final Parameter parameter : method.getParameters()) {
+                        print(", %s: %s", parameter.getName(), pythonType(parameter.getParameterizedType()));
+                    }
+                    println(") -> %s:", methodMapper.mapMethod(method).oneWay ? "None" : pythonType(method.getGenericReturnType()));
+                } else {
+                    for (final Parameter parameter : method.getParameters()) {
+                        print(", %s", parameter.getName());
+                    }
+                    print("):  # type: (");
+                    boolean firstType = true;
+                    for (final Parameter parameter : method.getParameters()) {
+                        if (firstType) {
+                            firstType = false;
+                        } else {
+                            print(", ");
+                        }
+                        print(pythonType(parameter.getParameterizedType()));
+                    }
+                    println(") -> %s", methodMapper.mapMethod(method).oneWay ? "None" : pythonType(method.getGenericReturnType()));
                 }
-                println(") -> %s:", methodMapper.mapMethod(method).oneWay ? "None" : pythonType(method.getGenericReturnType()));
                 tab();
                 tabsln("raise NotImplementedError()");
             }

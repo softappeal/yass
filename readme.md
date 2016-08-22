@@ -3,7 +3,7 @@
 * is a small library for efficient peer-to-peer communication
   * Java
   * TypeScript/JavaScript
-  * Python 3 (with support for optional static type checker 'mypy')
+  * Python 2 & 3 (with support for optional static type checker 'mypy')
   * high throughput, low latency, reactive services
 
 * supports type-safe contracts with DTOs and interfaces

@@ -14,4 +14,7 @@ cmd /c node_modules\.bin\tsc
 cd ..\py3
 cmd /c test.bat
 
+cd ..\py2
+cmd /c test.bat
+
 pause
