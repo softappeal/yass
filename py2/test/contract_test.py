@@ -1,4 +1,5 @@
 import unittest
+from typing import Any
 
 import yass
 from tutorial.base_types_external import Integer
@@ -23,6 +24,7 @@ class Test(unittest.TestCase):
         self.assertEqual(yass.typeDesc(i).id, 7)
         self.assertEqual(i.value, 123)
         self.assertEqual(str(i), '123')
+        self.assertEqual(unicode(i), u'123')
 
     def testExpiration(self):
         e = Expiration(2017, 11, 30)
@@ -31,6 +33,7 @@ class Test(unittest.TestCase):
         self.assertEqual(e.month, 11)
         self.assertEqual(e.day, 30)
         self.assertEqual(str(e), '2017-11-30')
+        self.assertEqual(unicode(e), u'2017-11-30')
 
     def testClasses(self):
         pythonStock = PythonStock()
@@ -52,7 +55,7 @@ class Test(unittest.TestCase):
         try:
             uie = UnknownInstrumentsException()
             uie.instrumentIds = [Integer(333), Integer(444)]
-            uie.onlyNeededForTests2 = b'abc'
+            uie.onlyNeededForTests2 = yass.Bytes(b'abc')
             raise uie
         except UnknownInstrumentsException as e:
             pass
@@ -100,7 +103,7 @@ class Test(unittest.TestCase):
         self.assertTrue(hasattr(PriceKind.ASK, yass.TYPE_DESC))
         self.assertTrue(hasattr(Node(), yass.TYPE_DESC))
 
-    def todotestAbstract(self):
+    def todo_testAbstract(self):
         try:
             contract.Instrument()
             self.fail()

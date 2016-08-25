@@ -1,10 +1,12 @@
 import socket
+from typing import Any, List
 
-from tutorial.generated import ACCEPTOR
+from tutorial.base_types_external import Integer
+from tutorial.generated import contract, ACCEPTOR
 from tutorial.generated.contract import EchoService, SystemException
 from tutorial.generated.contract.instrument import InstrumentService
 from tutorial.socket_client import serializer, address, serverPrinter, SocketStream
-from yass import Server, defaultServerTransport
+from yass import Server, defaultServerTransport, ServerTransport
 
 
 class EchoServiceImpl(EchoService):

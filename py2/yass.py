@@ -1,4 +1,3 @@
-import inspect
 from collections import OrderedDict
 from io import StringIO
 from struct import Struct
@@ -7,16 +6,7 @@ from enum import Enum
 from typing import cast, Any, Dict, List, TypeVar, Generic, Optional, Callable
 
 
-def abstract(abstractClass):
-    def newDecorator(abstractNew):
-        def decoratedNew(subClass, *args, **kwargs):
-            if abstractClass is subClass:
-                raise RuntimeError("can't instantiate abstract %s" % abstractClass)
-            return abstractNew(subClass) if inspect.isbuiltin(abstractNew) else abstractNew(subClass, *args, **kwargs)
-
-        return decoratedNew
-
-    # todo abstractClass.__new__ = newDecorator(abstractClass.__new__)
+def abstract(abstractClass):  # todo: implement for Python 2.7
     return abstractClass
 
 
@@ -37,7 +27,7 @@ class Writer:
         self.writeBytes = writeBytes
 
     def writeByte(self, value):  # type: (int) -> None
-        self.writeBytes(chr(value))
+        self.writeBytes(cast(bytes, chr(value)))
 
     def writeVarInt(self, value):  # type: (int) -> None
         while True:
@@ -485,7 +475,7 @@ class Client:
         client = self
 
         class Proxy:
-            def __getattr__(self, method):  # type: (str) -> Method
+            def __getattr__(self, method):  # type: (str) -> Any
                 mapping = contractId.mapper.mapMethod(method)
                 if mapping is None:
                     raise RuntimeError("no method '%s' found for serviceId %s" % (method, contractId.id))
@@ -657,7 +647,7 @@ class Dumper:
             elif isinstance(value, unicode):
                 write(u'"' + value + u'"')
             elif isinstance(value, (bool, float)):
-                write(unicode(str(value)))
+                write(unicode(value))
             elif isinstance(value, Bytes):
                 write(unicode(repr(value.value)))
             elif isinstance(value, Enum):

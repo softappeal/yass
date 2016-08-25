@@ -8,14 +8,14 @@ from tutorial.base_types_external import Integer
 # shows how to use contract internal base types
 
 class ExpirationHandler(yass.BaseTypeHandler):
-    def readBase(self, reader):
+    def readBase(self, reader):  # type: (yass.Reader) -> Expiration
         return Expiration(
             reader.readZigZagInt(),
             reader.readZigZagInt(),
             reader.readZigZagInt()
         )
 
-    def writeBase(self, value, writer):
+    def writeBase(self, value, writer):  # type: (Expiration, yass.Writer) -> None
         writer.writeZigZagInt(value.year)
         writer.writeZigZagInt(value.month)
         writer.writeZigZagInt(value.day)
@@ -24,7 +24,7 @@ class ExpirationHandler(yass.BaseTypeHandler):
 class Expiration:
     TYPE_DESC = yass.TypeDesc(yass.FIRST_DESC_ID + 1, ExpirationHandler())
 
-    def __init__(self, year, month, day):
+    def __init__(self, year, month, day):  # type: (int, int, int) -> None
         self.year = year
         self.month = month
         self.day = day

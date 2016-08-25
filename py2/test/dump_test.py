@@ -1,4 +1,5 @@
 import unittest
+from typing import Any, Callable
 
 from tutorial.base_types_external import Integer
 from tutorial.generated.contract import Expiration

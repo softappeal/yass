@@ -1,5 +1,6 @@
 import unittest
 from io import BytesIO
+from typing import cast, Any
 
 from tutorial.generated import SERIALIZER
 from tutorial.generated.contract import Expiration, PriceKind, Node, UnknownInstrumentsException
@@ -27,7 +28,7 @@ def createReader(io):  # type: (BytesIO) -> Reader
 
 
 def fromJava(b):  # type: (List[int]) -> bytes
-    return "".join([chr(i if i >= 0 else i + 256) for i in b])
+    return cast(bytes, "".join([chr(i if i >= 0 else i + 256) for i in b]))
 
 
 class Test(unittest.TestCase):
