@@ -1,5 +1,3 @@
-rem todo: review this folder
-
 call activate py2.7
 
 pip install typing==3.5.2.2

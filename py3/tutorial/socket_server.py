@@ -26,7 +26,7 @@ class InstrumentServiceImpl(InstrumentService):
         pass
 
 
-def socketServer(transport: ServerTransport, address: Any, backlog: int):
+def socketServer(transport: ServerTransport, address: Any, backlog: int) -> None:
     serverSocket = socket.socket()
     serverSocket.bind(address)
     serverSocket.listen(backlog)

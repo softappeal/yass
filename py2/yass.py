@@ -1,3 +1,5 @@
+# todo: review this file
+
 from collections import OrderedDict
 from io import StringIO
 from struct import Struct
@@ -649,7 +651,7 @@ class Dumper:
             elif isinstance(value, (bool, float)):
                 write(unicode(value))
             elif isinstance(value, Bytes):
-                write(unicode(repr(value.value)))
+                write(u"b" + unicode(repr(value.value)))
             elif isinstance(value, Enum):
                 write(unicode(value.name))
             elif isinstance(value, list):

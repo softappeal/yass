@@ -1,5 +1,5 @@
 import unittest
-from typing import Any, Callable
+from typing import Callable, Any, Set
 
 from tutorial.base_types_external import Integer
 from tutorial.generated.contract import Expiration
@@ -27,7 +27,7 @@ RESULT_WITH_CYCLES_EXTENDED = u'''[
     1.34545e+98
     "Hello"
     ">\u0001\u0012\u007F\u0080\u0234\u07FF\u0800\u4321\uFFFF<"
-    '\\x00\\x7f\\xff\\n\\xd3'
+    b'\\x00\\x7f\\xff\\n\\xd3'
     2017-11-29
     ASK
     BID
@@ -65,7 +65,7 @@ RESULT_WITHOUT_CYCLES_EXTENDED = u'''[
     1.34545e+98
     "Hello"
     ">\u0001\u0012\u007F\u0080\u0234\u07FF\u0800\u4321\uFFFF<"
-    '\\x00\\x7f\\xff\\n\\xd3'
+    b'\\x00\\x7f\\xff\\n\\xd3'
     2017-11-29
     ASK
     BID
@@ -83,9 +83,9 @@ RESULT_WITHOUT_CYCLES_EXTENDED = u'''[
     )
 ]'''
 
-RESULT_WITH_CYCLES_COMPACT = u'''[ null False True 123456 -987654 1.34545e+98 "Hello" ">\u0001\u0012\u007F\u0080\u0234\u07FF\u0800\u4321\uFFFF<" '\\x00\\x7f\\xff\\n\\xd3' 2017-11-29 ASK BID Stock( id=123 name="YASS" paysDividend=True )#0 UnknownInstrumentsException( instrumentIds=[ 1 2 3 ] )#1 Node( id=1.0 links=[ #2 Node( id=2.0 links=[ ] )#3 ] )#2 ]'''
+RESULT_WITH_CYCLES_COMPACT = u'''[ null False True 123456 -987654 1.34545e+98 "Hello" ">\u0001\u0012\u007F\u0080\u0234\u07FF\u0800\u4321\uFFFF<" b'\\x00\\x7f\\xff\\n\\xd3' 2017-11-29 ASK BID Stock( id=123 name="YASS" paysDividend=True )#0 UnknownInstrumentsException( instrumentIds=[ 1 2 3 ] )#1 Node( id=1.0 links=[ #2 Node( id=2.0 links=[ ] )#3 ] )#2 ]'''
 
-RESULT_WITHOUT_CYCLES_COMPACT = u'''[ null False True 123456 -987654 1.34545e+98 "Hello" ">\u0001\u0012\u007F\u0080\u0234\u07FF\u0800\u4321\uFFFF<" '\\x00\\x7f\\xff\\n\\xd3' 2017-11-29 ASK BID Stock( id=123 name="YASS" paysDividend=True ) UnknownInstrumentsException( instrumentIds=[ 1 2 3 ] ) ]'''
+RESULT_WITHOUT_CYCLES_COMPACT = u'''[ null False True 123456 -987654 1.34545e+98 "Hello" ">\u0001\u0012\u007F\u0080\u0234\u07FF\u0800\u4321\uFFFF<" b'\\x00\\x7f\\xff\\n\\xd3' 2017-11-29 ASK BID Stock( id=123 name="YASS" paysDividend=True ) UnknownInstrumentsException( instrumentIds=[ 1 2 3 ] ) ]'''
 
 
 class Test(unittest.TestCase):

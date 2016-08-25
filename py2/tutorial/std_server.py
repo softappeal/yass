@@ -1,4 +1,4 @@
-# todo: todo: does not yet work
+# todo: does not yet work
 
 import os
 import sys
