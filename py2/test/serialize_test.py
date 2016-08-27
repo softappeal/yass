@@ -130,7 +130,7 @@ class Test(unittest.TestCase):
         self.assertEqual(result[5], 1.34545e98)
         self.assertEqual(result[6], "Hello")
         self.assertEqual(result[7], u">\u0001\u0012\u007F\u0080\u0234\u07FF\u0800\u4321\uFFFF<")
-        self.assertEqual(result[8].value, b'\x00\x7f\xff\x0a\xd3')
+        self.assertEqual(result[8], b'\x00\x7f\xff\x0a\xd3')
         expiration = result[9]  # type: Expiration
         self.assertEqual(expiration.year, 2017)
         self.assertEqual(expiration.month, 11)

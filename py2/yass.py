@@ -12,14 +12,6 @@ def abstract(abstractClass):  # todo: implement for Python 2.7
     return abstractClass
 
 
-class Bytes:
-    def __init__(self, value):  # type: (bytes) -> None
-        self.value = value
-
-    def __str__(self):
-        return self.value
-
-
 DOUBLE_STRUCT = Struct('>d')
 INT_STRUCT = Struct('>i')
 
@@ -133,7 +125,7 @@ class Output:
             DOUBLE_DESC.write(value, self)
         elif isinstance(value, unicode):
             STRING_DESC.write(value, self)
-        elif isinstance(value, Bytes):
+        elif isinstance(value, str):
             BYTES_DESC.write(value, self)
         else:
             try:
@@ -211,12 +203,12 @@ class StringTypeHandler(BaseTypeHandler):
 
 
 class BytesTypeHandler(BaseTypeHandler):
-    def readBase(self, reader):  # type: (Reader) -> Bytes
-        return Bytes(reader.readBytes(reader.readVarInt()))
+    def readBase(self, reader):  # type: (Reader) -> bytes
+        return reader.readBytes(reader.readVarInt())
 
-    def writeBase(self, value, writer):  # type: (Bytes, Writer) -> None
-        writer.writeVarInt(len(value.value))
-        writer.writeBytes(value.value)
+    def writeBase(self, value, writer):  # type: (bytes, Writer) -> None
+        writer.writeVarInt(len(value))
+        writer.writeBytes(value)
 
 
 NULL_DESC = TypeDesc(0, NullTypeHandler())
@@ -650,8 +642,8 @@ class Dumper:
                 write(u'"' + value + u'"')
             elif isinstance(value, (bool, float)):
                 write(unicode(value))
-            elif isinstance(value, Bytes):
-                write(u"b" + unicode(repr(value.value)))
+            elif isinstance(value, str):
+                write(u"b" + unicode(repr(value)))
             elif isinstance(value, Enum):
                 write(unicode(value.name))
             elif isinstance(value, list):

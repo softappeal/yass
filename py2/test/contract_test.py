@@ -55,7 +55,7 @@ class Test(unittest.TestCase):
         try:
             uie = UnknownInstrumentsException()
             uie.instrumentIds = [Integer(333), Integer(444)]
-            uie.onlyNeededForTests2 = yass.Bytes(b'abc')
+            uie.onlyNeededForTests2 = b'abc'
             raise uie
         except UnknownInstrumentsException as e:
             pass

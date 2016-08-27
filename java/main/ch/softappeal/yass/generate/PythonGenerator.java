@@ -247,7 +247,7 @@ public final class PythonGenerator extends Generator {
             } else if (type == String.class) {
                 return "str";
             } else if (type == byte[].class) {
-                return python3 ? "bytes" : "yass.Bytes";
+                return "bytes";
             } else if (type == Object.class) {
                 return "Any";
             } else if (Throwable.class.isAssignableFrom((Class<?>)type)) {

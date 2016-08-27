@@ -68,7 +68,7 @@ class UnknownInstrumentsException(ApplicationException):
         ApplicationException.__init__(self)
         self.instrumentIds = None  # type: List[Integer]
         self.onlyNeededForTests1 = None  # type: Any
-        self.onlyNeededForTests2 = None  # type: yass.Bytes
+        self.onlyNeededForTests2 = None  # type: bytes
         self.onlyNeededForTests3 = None  # type: Exception
 
 

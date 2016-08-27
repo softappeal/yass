@@ -7,7 +7,7 @@ from tutorial.base_types_external import Integer
 from tutorial.generated import ACCEPTOR, SERIALIZER
 from tutorial.generated.contract import PriceKind, Expiration, UnknownInstrumentsException, Node, SystemException
 from tutorial.generated.contract.instrument.stock import Stock
-from yass import Bytes, Client, Request, Reply, defaultClientTransport, MethodMapping, Invocation, Interceptor, ClientTransport, Stream, Dumper
+from yass import Client, Request, Reply, defaultClientTransport, MethodMapping, Invocation, Interceptor, ClientTransport, Stream, Dumper
 
 
 def createObjects(withCycles=True):  # type: (bool) -> Any
@@ -35,7 +35,7 @@ def createObjects(withCycles=True):  # type: (bool) -> Any
         1.34545e98,
         u"Hello",
         u">\u0001\u0012\u007F\u0080\u0234\u07FF\u0800\u4321\uFFFF<",
-        Bytes(b'\x00\x7f\xff\x0a\xd3'),
+        b'\x00\x7f\xff\x0a\xd3',
         Expiration(2017, 11, 29),
         PriceKind.ASK,
         PriceKind.BID,
@@ -125,8 +125,8 @@ if __name__ == "__main__":
         echoService.echo(u"exception")
     except SystemException as e:
         print(e.message)
-    big = Bytes(1000000 * b' ')
-    if len(echoService.echo(big).value) != len(big.value):
+    big = 1000000 * b' '
+    if len(echoService.echo(big)) != len(big):
         raise RuntimeError()
     instrumentService.showOneWay(True, Integer(123))
     print(instrumentService.getInstruments())
