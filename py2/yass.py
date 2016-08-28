@@ -1,11 +1,8 @@
-# todo: review this file
-
 from collections import OrderedDict
+from enum import Enum
 from io import StringIO
 from struct import Struct
-
-from enum import Enum
-from typing import cast, Any, Dict, List, TypeVar, Generic, Optional, Callable
+from typing import cast, Any, Dict, List, TypeVar, Generic, Optional, Callable, Set
 
 
 def abstract(abstractClass):  # todo: implement for Python 2.7
@@ -692,7 +689,7 @@ class Dumper:
                         tabs[0] -= 1
                         write(tabs[0] * u"    " + u")")
                 if referenceables:
-                    write(u"#" + str(index))
+                    write(u"#" + unicode(index))
 
         dumpValue(value)
 
