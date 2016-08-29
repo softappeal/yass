@@ -7,7 +7,7 @@ from tutorial.socket_server import EchoServiceImpl, InstrumentServiceImpl
 from yass import Server, Serializer, Writer, MessageSerializer, Reader, Request
 
 
-def stdServer(server: Server, contractSerializer: Serializer):
+def stdServer(server: Server, contractSerializer: Serializer) -> None:
     sout = sys.stdout.buffer
     sin = sys.stdin.buffer
 
@@ -35,6 +35,8 @@ def stdServer(server: Server, contractSerializer: Serializer):
         messageSerializer.write(server.invoke(cast(Request, messageSerializer.read(reader))), writer)
         sout.flush()
 
+
+print('server started', file=sys.stderr)
 
 stdServer(
     Server([
