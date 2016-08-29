@@ -1,6 +1,6 @@
 call activate py3.5
 
-pip install mypy-lang==0.4.3
+pip install mypy-lang==0.4.4
 pip list
 
 python -m unittest test.all_tests

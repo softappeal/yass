@@ -8,7 +8,7 @@ python -m unittest test.all_tests
 
 call activate py3.5
 
-pip install mypy-lang==0.4.3
+pip install mypy-lang==0.4.4
 pip list
 
 cmd /c mypy --check-untyped-defs -p tutorial
