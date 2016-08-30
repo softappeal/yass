@@ -1,4 +1,5 @@
 import unittest
+from typing import cast, Any
 
 
 def load_tests(loader, tests, pattern):
@@ -6,4 +7,4 @@ def load_tests(loader, tests, pattern):
 
 
 if __name__ == '__main__':
-    unittest.main(verbosity=1)
+    cast(Any, unittest).main(verbosity=1)

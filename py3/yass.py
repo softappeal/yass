@@ -633,7 +633,7 @@ class Dumper:
         """
         Could dump a value class (these should not reference other objects). Should be an one-liner.
         This implementation does nothing and returns False.
-        :return: True: if we dumped value; False: use default implementation
+        :return True: if we dumped value; False: use default implementation
         """
         return False
 

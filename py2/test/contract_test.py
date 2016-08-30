@@ -37,14 +37,14 @@ class Test(unittest.TestCase):
 
     def testClasses(self):
         pythonStock = PythonStock()
-        pythonStock.name = "ABB"
+        pythonStock.name = u"ABB"
         pythonBond = PythonBond()
-        pythonBond.name = "ABB"
+        pythonBond.name = u"ABB"
         bond = Bond()
-        bond.name = "ABB"
+        bond.name = u"ABB"
         bond.coupon = 1.5
         stock = Stock()
-        stock.name = "ABB"
+        stock.name = u"ABB"
         stock.paysDividend = True
         node1 = Node()
         self.assertEqual(yass.typeDesc(node1).id, 17)

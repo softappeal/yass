@@ -18,7 +18,7 @@ class Writer:
         self.writeBytes = writeBytes
 
     def writeByte(self, value):  # type: (int) -> None
-        self.writeBytes(cast(bytes, chr(value)))
+        self.writeBytes(chr(value))
 
     def writeVarInt(self, value):  # type: (int) -> None
         while True:
@@ -190,10 +190,10 @@ class DoubleTypeHandler(BaseTypeHandler):
 
 
 class StringTypeHandler(BaseTypeHandler):
-    def readBase(self, reader):  # type: (Reader) -> str
+    def readBase(self, reader):  # type: (Reader) -> unicode
         return unicode(reader.readBytes(reader.readVarInt()), 'utf-8')
 
-    def writeBase(self, value, writer):  # type: (str, Writer) -> None
+    def writeBase(self, value, writer):  # type: (unicode, Writer) -> None
         b = value.encode('utf-8')
         writer.writeVarInt(len(b))
         writer.writeBytes(b)
@@ -617,18 +617,18 @@ class Dumper:
         self.referenceables = referenceables
         self.concreteValueClasses = concreteValueClasses
 
-    def dumpValueClass(self, value, write):  # type: (Any, Callable[[str], None]) -> bool
+    def dumpValueClass(self, value, write):  # type: (Any, Callable[[unicode], None]) -> bool
         """
         Could dump a value class (these should not reference other objects). Should be an one-liner.
         This implementation does nothing and returns False.
-        :return: True: if we dumped value; False: use default implementation
+        :return True: if we dumped value; False: use default implementation
         """
         return False
 
     def isConcreteValueClass(self, value):  # type: (Any) -> bool
         return value.__class__ in self.concreteValueClasses
 
-    def dump(self, value, write):  # type: (Optional[Any], Callable[[str], None]) -> None
+    def dump(self, value, write):  # type: (Optional[Any], Callable[[unicode], None]) -> None
         alreadyDumped = {} if self.referenceables else None  # type: Optional[Dict[int, Any]]
         tabs = [0]
 
@@ -654,11 +654,11 @@ class Dumper:
                     write(u"[\n")
                     tabs[0] += 1
                     for element in value:
-                        write(tabs[0] * u"    ")
+                        write(unicode(tabs[0] * "    "))
                         dumpValue(element)
                         write(u"\n")
                     tabs[0] -= 1
-                    write((tabs[0] * u"    ") + u"]")
+                    write(unicode(tabs[0] * "    ") + u"]")
             else:
                 referenceables = self.referenceables and (not self.isConcreteValueClass(value))
                 index = 0
@@ -683,20 +683,20 @@ class Dumper:
                         tabs[0] += 1
                         for name, value in sorted(value.__dict__.items(), key=lambda item: item[0]):
                             if value is not None:
-                                write(tabs[0] * u"    " + name + u" = ")
+                                write(unicode(tabs[0] * "    ") + name + u" = ")
                                 dumpValue(value)
                                 write(u"\n")
                         tabs[0] -= 1
-                        write(tabs[0] * u"    " + u")")
+                        write(unicode(tabs[0] * "    ") + u")")
                 if referenceables:
                     write(u"#" + unicode(index))
 
         dumpValue(value)
 
-    def toString(self, value):  # type: (Optional[Any]) -> str
+    def toString(self, value):  # type: (Optional[Any]) -> unicode
         io = StringIO()
 
-        def write(s):  # type: (str) -> None
+        def write(s):  # type: (unicode) -> None
             io.write(s)
 
         self.dump(value, write)

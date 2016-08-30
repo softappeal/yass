@@ -11,7 +11,7 @@ class MyDumper(Dumper):
     def __init__(self, compact, referenceables, concreteValueClasses):  # type: (bool, bool, Set[Any]) -> None
         Dumper.__init__(self, compact, referenceables, concreteValueClasses)
 
-    def dumpValueClass(self, value, write):  # type: (Any, Callable[[str], None]) -> bool
+    def dumpValueClass(self, value, write):  # type: (Any, Callable[[unicode], None]) -> bool
         if self.isConcreteValueClass(value) or (value.__class__ in {Integer, Expiration}):
             write(unicode(value))
             return True

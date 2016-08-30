@@ -49,7 +49,7 @@ class MyDumper(Dumper):
     def __init__(self, compact):  # type: (bool) -> None
         Dumper.__init__(self, compact, True, {Integer, Expiration})
 
-    def dumpValueClass(self, value, write):  # type: (Any, Callable[[str], None]) -> bool
+    def dumpValueClass(self, value, write):  # type: (Any, Callable[[unicode], None]) -> bool
         if self.isConcreteValueClass(value):
             write(unicode(value))
             return True
@@ -59,22 +59,22 @@ class MyDumper(Dumper):
 myDumper = MyDumper(True)
 
 
-def printer(side, mapping, arguments, invocation):  # type: (str, MethodMapping, List[Optional[Any]], Invocation) -> Optional[Any]
-    def out(type, s):  # type: (str, str) -> None
+def printer(side, mapping, arguments, invocation):  # type: (unicode, MethodMapping, List[Optional[Any]], Invocation) -> Optional[Any]
+    def out(type, s):  # type: (unicode, unicode) -> None
         print("%s | %9s | %s" % (side, type, s))
 
-    out("entry", "%s(%s)" % (mapping.method, myDumper.toString(arguments)))
+    out(u"entry", unicode("%s(%s)" % (mapping.method, myDumper.toString(arguments))))
     try:
         result = invocation()
-        out("exit", myDumper.toString(result))
+        out(u"exit", myDumper.toString(result))
         return result
     except Exception as e:
-        out("exception", myDumper.toString(e))
+        out(u"exception", myDumper.toString(e))
         raise
 
 
-clientPrinter = cast(Interceptor, partial(printer, 'client'))
-serverPrinter = cast(Interceptor, partial(printer, 'server'))
+clientPrinter = cast(Interceptor, partial(printer, u'client'))
+serverPrinter = cast(Interceptor, partial(printer, u'server'))
 
 serializer = SERIALIZER
 

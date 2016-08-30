@@ -245,7 +245,7 @@ public final class PythonGenerator extends Generator {
             } else if ((type == boolean.class) || (type == Boolean.class)) {
                 return "bool";
             } else if (type == String.class) {
-                return "str";
+                return python3 ? "str" : "unicode";
             } else if (type == byte[].class) {
                 return "bytes";
             } else if (type == Object.class) {

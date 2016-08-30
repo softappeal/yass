@@ -1,6 +1,6 @@
 import unittest
 from io import BytesIO
-from typing import cast, Any
+from typing import Any
 
 from tutorial.generated import SERIALIZER
 from tutorial.generated.contract import Expiration, PriceKind, Node, UnknownInstrumentsException
@@ -11,8 +11,7 @@ from yass import Writer, Reader
 
 def createWriter(io):  # type: (BytesIO) -> Writer
     def writeBytes(b):  # type: (bytes) -> None
-        if io.write(b) != len(b):
-            raise RuntimeError('IO error')
+        io.write(b)
 
     return Writer(writeBytes)
 
@@ -28,7 +27,7 @@ def createReader(io):  # type: (BytesIO) -> Reader
 
 
 def fromJava(b):  # type: (List[int]) -> bytes
-    return cast(bytes, "".join([chr(i if i >= 0 else i + 256) for i in b]))
+    return "".join([chr(i if i >= 0 else i + 256) for i in b])
 
 
 class Test(unittest.TestCase):
@@ -139,7 +138,7 @@ class Test(unittest.TestCase):
         self.assertEqual(result[11], PriceKind.BID)
         stock = result[12]  # type: Stock
         self.assertEqual(stock.id.value, 123)
-        self.assertEqual(stock.name, "YASS")
+        self.assertEqual(stock.name, u"YASS")
         self.assertEqual(stock.paysDividend, True)
         unknownInstrumentsException = result[13]  # type: UnknownInstrumentsException
         instrumentIds = unknownInstrumentsException.instrumentIds

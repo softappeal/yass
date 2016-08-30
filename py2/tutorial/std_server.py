@@ -15,7 +15,7 @@ def stdServer(server, contractSerializer):  # type: (Server, Serializer) -> None
     sin = sys.stdin
 
     def writeBytes(value):  # type: (bytes) -> None
-        sout.write(cast(str, value))
+        sout.write(value)
 
     def readBytes(length):  # type: (int) -> bytes
         buffer = b''
@@ -23,7 +23,7 @@ def stdServer(server, contractSerializer):  # type: (Server, Serializer) -> None
             chunk = sin.read(length - len(buffer))
             if len(chunk) == 0:
                 raise RuntimeError("socket connection broken")
-            buffer += cast(bytes, chunk)
+            buffer += chunk
         return buffer
 
     messageSerializer = MessageSerializer(contractSerializer)

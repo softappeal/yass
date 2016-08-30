@@ -49,12 +49,12 @@ class Price:
 class Instrument:
     def __init__(self):  # type: () -> None
         self.id = None  # type: Integer
-        self.name = None  # type: str
+        self.name = None  # type: unicode
 
 
 class SystemException(Exception):
     def __init__(self):  # type: () -> None
-        self.message = None  # type: str
+        self.message = None  # type: unicode
 
 
 @yass.abstract
