@@ -22,7 +22,7 @@ def stdServer(server, contractSerializer):  # type: (Server, Serializer) -> None
         while len(buffer) < length:
             chunk = sin.read(length - len(buffer))
             if len(chunk) == 0:
-                raise RuntimeError("socket connection broken")
+                raise RuntimeError("pipe connection broken")
             buffer += chunk
         return buffer
 
