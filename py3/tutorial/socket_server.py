@@ -1,11 +1,12 @@
 import socket
-from typing import Any, List
+from ssl import SSLContext, SSLSocket
+from typing import Any, List, cast
 
 from tutorial.base_types_external import Integer
 from tutorial.generated import contract, ACCEPTOR
 from tutorial.generated.contract import EchoService, SystemException
 from tutorial.generated.contract.instrument import InstrumentService
-from tutorial.socket_client import serializer, address, serverPrinter, SocketStream
+from tutorial.socket_client import serializer, address, serverPrinter, SocketStream, sslContext
 from yass import Server, defaultServerTransport, ServerTransport
 
 
@@ -26,13 +27,14 @@ class InstrumentServiceImpl(InstrumentService):
         pass
 
 
-def socketServer(transport: ServerTransport, address: Any, backlog: int) -> None:
+def socketServer(transport: ServerTransport, address: Any, backlog: int, sslContext: SSLContext) -> None:
     serverSocket = socket.socket()
     serverSocket.bind(address)
     serverSocket.listen(backlog)
     while True:
-        s = serverSocket.accept()[0]
+        s = cast(SSLSocket, sslContext.wrap_socket(serverSocket.accept()[0], server_side=True))
         try:
+            print(s.getpeercert())
             transport.invoke(SocketStream(s))
         finally:
             s.close()
@@ -49,5 +51,6 @@ if __name__ == "__main__":
             ])
         ),
         address,
-        5
+        5,
+        sslContext("TestCA.cert.pem", "Server.key.pem")
     )

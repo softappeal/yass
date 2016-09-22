@@ -14,6 +14,7 @@ import ch.softappeal.yass.util.Exceptions;
 import ch.softappeal.yass.util.NamedThreadFactory;
 import ch.softappeal.yass.util.Nullable;
 
+import javax.net.ssl.SSLSocket;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Executor;
@@ -41,17 +42,26 @@ public final class SocketServer {
         }
     }
 
+    private static final Interceptor LOGGER = new Logger(null, Logger.Side.SERVER);
+
+    private static final Interceptor PEER = (method, arguments, invocation) -> {
+        System.out.println(((SSLSocket)SimpleSocketTransport.socket().get()).getSession().getPeerPrincipal().getName());
+        return invocation.proceed();
+    };
+
     public static void main(final String... args) {
         final Executor executor = Executors.newCachedThreadPool(new NamedThreadFactory("executor", Exceptions.STD_ERR));
-        final Interceptor logger = new Logger(null, Logger.Side.SERVER);
         new SimpleSocketTransport(
             executor,
             new MessageSerializer(SocketClient.SERIALIZER),
             new ch.softappeal.yass.core.remote.Server(
                 ACCEPTOR.echoService.service(new EchoServiceImpl()),
-                ACCEPTOR.instrumentService.service(new InstrumentServiceImpl(), logger)
+                ACCEPTOR.instrumentService.service(new InstrumentServiceImpl(), PEER, LOGGER)
             )
-        ).start(executor, new SimpleSocketBinder(SocketAcceptor.ADDRESS));
+        ).start(
+            executor,
+            new SimpleSocketBinder(SocketClient.sslSetup("Server.key.jks", "TestCA.cert.jks").serverSocketFactory, SocketAcceptor.ADDRESS)
+        );
         System.out.println("started");
     }
 

@@ -24,13 +24,17 @@ import java.util.concurrent.TimeUnit;
 
 public class SslTest extends TransportTest {
 
-    private static void checkName() throws Exception {
+    private static void checkName(final String name) throws Exception {
         System.out.println("checkName");
-        Assert.assertEquals("CN=Test", ((SSLSocket)SimpleSocketTransport.socket().get()).getSession().getPeerPrincipal().getName());
+        Assert.assertEquals(name, ((SSLSocket)SimpleSocketTransport.socket().get()).getSession().getPeerPrincipal().getName());
     }
 
     @SuppressWarnings("try")
-    private static void test(final ServerSocketFactory serverSocketFactory, final SocketFactory socketFactory, final boolean needClientAuth) throws Exception {
+    private static void test(
+        final ServerSocketFactory serverSocketFactory, final String serverName,
+        final SocketFactory socketFactory, final String clientName,
+        final boolean needClientAuth
+    ) throws Exception {
         final ExecutorService executor = Executors.newCachedThreadPool(new NamedThreadFactory("executor", Exceptions.STD_ERR));
         try (
             Closer closer = new SimpleSocketTransport(
@@ -41,7 +45,7 @@ public class SslTest extends TransportTest {
                         new TestServiceImpl(),
                         (method, arguments, invocation) -> {
                             if (needClientAuth) {
-                                checkName();
+                                checkName(clientName);
                             }
                             return invocation.proceed();
                         }
@@ -54,7 +58,7 @@ public class SslTest extends TransportTest {
                     .proxy(
                         ContractIdTest.ID,
                         (method, arguments, invocation) -> {
-                            checkName();
+                            checkName(serverName);
                             return invocation.proceed();
                         }
                     )
@@ -67,45 +71,42 @@ public class SslTest extends TransportTest {
         }
     }
 
-    private static final char[] PASSWORD = "changeit".toCharArray();
+    private static final char[] PASSWORD = "KeyPass".toCharArray();
 
     private static KeyStore readKeyStore(final String name) {
-        return SslSetup.readKeyStore(
-            new FileResource("java/test/" + SslTest.class.getPackage().getName().replace('.', '/') + '/' + name + ".jks"),
-            PASSWORD
-        );
+        return SslSetup.readKeyStore(new FileResource("certificates/" + name), "StorePass".toCharArray());
     }
 
-    private static final KeyStore TEST = readKeyStore("Test");
-    private static final KeyStore TEST_EXPIRED = readKeyStore("TestExpired");
-    private static final KeyStore TEST_CA = readKeyStore("TestCA");
-    private static final KeyStore OTHER_CA = readKeyStore("OtherCA");
+    private static final KeyStore SERVER_KEY = readKeyStore("Server.key.jks");
+    private static final KeyStore SERVER_CERT = readKeyStore("Server.cert.jks");
+    private static final KeyStore TESTCA_CERT = readKeyStore("TestCA.cert.jks");
+    private static final KeyStore TEST_KEY = readKeyStore("Test.key.jks");
 
     private static final String PROTOCOL = "TLSv1.2";
     private static final String CIPHER = "TLS_RSA_WITH_AES_128_CBC_SHA";
 
     @Test public void onlyServerAuthentication() throws Exception {
         test(
-            new SslSetup(PROTOCOL, CIPHER, TEST, PASSWORD, null).serverSocketFactory,
-            new SslSetup(PROTOCOL, CIPHER, null, null, TEST_CA).socketFactory,
+            new SslSetup(PROTOCOL, CIPHER, SERVER_KEY, PASSWORD, null).serverSocketFactory, "CN=Server",
+            new SslSetup(PROTOCOL, CIPHER, null, null, SERVER_CERT).socketFactory, null,
             false
         );
     }
 
     @Test public void clientAndServerAuthentication() throws Exception {
         test(
-            new SslSetup(PROTOCOL, CIPHER, TEST, PASSWORD, TEST_CA).serverSocketFactory,
-            new SslSetup(PROTOCOL, CIPHER, TEST, PASSWORD, TEST_CA).socketFactory,
+            new SslSetup(PROTOCOL, CIPHER, SERVER_KEY, PASSWORD, TESTCA_CERT).serverSocketFactory, "CN=Server",
+            new SslSetup(PROTOCOL, CIPHER, TEST_KEY, PASSWORD, SERVER_CERT).socketFactory, "CN=Test",
             true
         );
     }
 
-    @Test public void wrongServerCA() throws Exception {
+    @Test public void wrongServer() throws Exception {
         try {
             test(
-                new SslSetup(PROTOCOL, CIPHER, TEST, PASSWORD, OTHER_CA).serverSocketFactory,
-                new SslSetup(PROTOCOL, CIPHER, TEST, PASSWORD, TEST_CA).socketFactory,
-                true
+                new SslSetup(PROTOCOL, CIPHER, SERVER_KEY, PASSWORD, null).serverSocketFactory, "CN=Server",
+                new SslSetup(PROTOCOL, CIPHER, null, null, TESTCA_CERT).socketFactory, null,
+                false
             );
             Assert.fail();
         } catch (final Exception e) {
@@ -113,11 +114,11 @@ public class SslTest extends TransportTest {
         }
     }
 
-    @Test public void expiredServerCertificate() throws Exception {
+    @Test public void wrongClientCA() throws Exception {
         try {
             test(
-                new SslSetup(PROTOCOL, CIPHER, TEST, PASSWORD, TEST_CA).serverSocketFactory,
-                new SslSetup(PROTOCOL, CIPHER, TEST_EXPIRED, PASSWORD, TEST_CA).socketFactory,
+                new SslSetup(PROTOCOL, CIPHER, SERVER_KEY, PASSWORD, SERVER_CERT).serverSocketFactory, "CN=Server",
+                new SslSetup(PROTOCOL, CIPHER, TEST_KEY, PASSWORD, SERVER_CERT).socketFactory, "CN=Test",
                 true
             );
             Assert.fail();

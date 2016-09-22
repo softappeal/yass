@@ -1,5 +1,6 @@
 import socket
 from functools import partial
+from ssl import SSLContext, SSLSocket, PROTOCOL_TLSv1_2, CERT_REQUIRED
 from typing import Any, Optional, cast, List, Callable
 
 from tutorial.base_types_external import Integer
@@ -101,10 +102,10 @@ class SocketStream(Stream):
         return buffer
 
 
-def socketClient(transport: ClientTransport, address: Any) -> Client:
+def socketClient(transport: ClientTransport, address: Any, sslContext: SSLContext) -> Client:
     class SocketClient(Client):
         def invoke(self, request: Request) -> Reply:
-            s = socket.socket()
+            s = cast(SSLSocket, sslContext.wrap_socket(socket.socket()))
             try:
                 s.connect(address)
                 return transport.invoke(request, SocketStream(s))
@@ -114,8 +115,18 @@ def socketClient(transport: ClientTransport, address: Any) -> Client:
     return SocketClient()
 
 
+def sslContext(trustStore: str, keyStore: str) -> SSLContext:
+    sslContext = SSLContext(PROTOCOL_TLSv1_2)
+    sslContext.verify_mode = CERT_REQUIRED
+    storePath = "../../certificates/"
+    sslContext.load_verify_locations(storePath + trustStore)
+    sslContext.load_cert_chain(storePath + keyStore, password="KeyPass")
+    sslContext.set_ciphers("AES128-SHA")
+    return sslContext
+
+
 if __name__ == "__main__":
-    client = socketClient(defaultClientTransport(serializer), address)
+    client = socketClient(defaultClientTransport(serializer), address, sslContext("Server.cert.pem", "Test.key.pem"))
     echoService = client.proxy(ACCEPTOR.echoService)
     instrumentService = client.proxy(ACCEPTOR.instrumentService, clientPrinter)
     print(echoService.echo("hello"))
