@@ -5,12 +5,11 @@
     "typings": "./yass.ts",
     "main": "./yass.js",
     "devDependencies": {
-        "typescript": "1.8.10",
+        "typescript": "2.0.3",
         "systemjs": "0.19.36",
         "ws": "1.1.0",
         "istanbul": "0.4.3",
-        "remap-istanbul": "0.6.4",
-        "softappeal-yass": "."
+        "remap-istanbul": "0.6.4"
     },
     "repository": {
         "type": "git",

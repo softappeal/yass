@@ -6,10 +6,17 @@
         "noImplicitReturns": true,
         "noFallthroughCasesInSwitch": true,
         "sourceMap": true,
-        "module": "commonjs"
-    },
-    "exclude": [
-        "node_modules",
-        "yass.ts"
-    ]
+        "module": "commonjs",
+        "baseUrl": ".",
+        "paths": {
+            "softappeal-yass": [
+                "./yass"
+            ]
+        },
+        "lib": [
+            "es5",
+            "dom",
+            "es2015.promise"
+        ]
+    }
 }
