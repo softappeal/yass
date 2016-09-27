@@ -79,8 +79,8 @@ public class SslTest extends TransportTest {
 
     private static final KeyStore SERVER_KEY = readKeyStore("Server.key.jks");
     private static final KeyStore SERVER_CERT = readKeyStore("Server.cert.jks");
-    private static final KeyStore TESTCA_CERT = readKeyStore("TestCA.cert.jks");
-    private static final KeyStore TEST_KEY = readKeyStore("Test.key.jks");
+    private static final KeyStore CLIENTCA_CERT = readKeyStore("ClientCA.cert.jks");
+    private static final KeyStore CLIENT_KEY = readKeyStore("Client.key.jks");
 
     private static final String PROTOCOL = "TLSv1.2";
     private static final String CIPHER = "TLS_RSA_WITH_AES_128_CBC_SHA";
@@ -95,8 +95,8 @@ public class SslTest extends TransportTest {
 
     @Test public void clientAndServerAuthentication() throws Exception {
         test(
-            new SslSetup(PROTOCOL, CIPHER, SERVER_KEY, PASSWORD, TESTCA_CERT).serverSocketFactory, "CN=Server",
-            new SslSetup(PROTOCOL, CIPHER, TEST_KEY, PASSWORD, SERVER_CERT).socketFactory, "CN=Test",
+            new SslSetup(PROTOCOL, CIPHER, SERVER_KEY, PASSWORD, CLIENTCA_CERT).serverSocketFactory, "CN=Server",
+            new SslSetup(PROTOCOL, CIPHER, CLIENT_KEY, PASSWORD, SERVER_CERT).socketFactory, "CN=Client",
             true
         );
     }
@@ -105,7 +105,7 @@ public class SslTest extends TransportTest {
         try {
             test(
                 new SslSetup(PROTOCOL, CIPHER, SERVER_KEY, PASSWORD, null).serverSocketFactory, "CN=Server",
-                new SslSetup(PROTOCOL, CIPHER, null, null, TESTCA_CERT).socketFactory, null,
+                new SslSetup(PROTOCOL, CIPHER, null, null, CLIENTCA_CERT).socketFactory, null,
                 false
             );
             Assert.fail();
@@ -118,7 +118,7 @@ public class SslTest extends TransportTest {
         try {
             test(
                 new SslSetup(PROTOCOL, CIPHER, SERVER_KEY, PASSWORD, SERVER_CERT).serverSocketFactory, "CN=Server",
-                new SslSetup(PROTOCOL, CIPHER, TEST_KEY, PASSWORD, SERVER_CERT).socketFactory, "CN=Test",
+                new SslSetup(PROTOCOL, CIPHER, CLIENT_KEY, PASSWORD, SERVER_CERT).socketFactory, "CN=Client",
                 true
             );
             Assert.fail();

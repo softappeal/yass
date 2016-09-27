@@ -83,7 +83,7 @@ public final class SocketClient {
     public static void main(final String... args) {
         client(SimpleSocketTransport.client(
             new MessageSerializer(SERIALIZER),
-            new SimpleSocketConnector(sslSetup("Test.key.jks", "Server.cert.jks").socketFactory, SocketAcceptor.ADDRESS)
+            new SimpleSocketConnector(sslSetup("Client.key.jks", "Server.cert.jks").socketFactory, SocketAcceptor.ADDRESS)
         ));
     }
 

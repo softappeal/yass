@@ -60,7 +60,7 @@ public final class SocketServer {
             )
         ).start(
             executor,
-            new SimpleSocketBinder(SocketClient.sslSetup("Server.key.jks", "TestCA.cert.jks").serverSocketFactory, SocketAcceptor.ADDRESS)
+            new SimpleSocketBinder(SocketClient.sslSetup("Server.key.jks", "ClientCA.cert.jks").serverSocketFactory, SocketAcceptor.ADDRESS)
         );
         System.out.println("started");
     }

@@ -126,7 +126,7 @@ def sslContext(trustStore: str, keyStore: str) -> SSLContext:
 
 
 if __name__ == "__main__":
-    client = socketClient(defaultClientTransport(serializer), address, sslContext("Server.cert.pem", "Test.key.pem"))
+    client = socketClient(defaultClientTransport(serializer), address, sslContext("Server.cert.pem", "Client.key.pem"))
     echoService = client.proxy(ACCEPTOR.echoService)
     instrumentService = client.proxy(ACCEPTOR.instrumentService, clientPrinter)
     print(echoService.echo("hello"))
