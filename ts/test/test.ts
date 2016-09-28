@@ -1,6 +1,7 @@
 import * as yass from "softappeal-yass";
-import {IntegerImpl} from "../tutorial/baseTypes-external"
-import * as contract from "../tutorial/generated/contract"
+import {IntegerImpl} from "../tutorial/baseTypes-external";
+import * as contract from "../tutorial/generated/contract";
+import PriceKind = contract.PriceKind;
 
 function log(...args: any[]): void {
     console.log.apply(console, args);
@@ -39,7 +40,7 @@ function writer2reader(writer: yass.Writer): yass.Reader {
     return new yass.Reader(toArrayBuffer(writer.getArray()));
 }
 
-namespace ioTest {
+(function ioTest(): void {
 
     let writer = new yass.Writer(1);
     writer.writeByte(123);
@@ -130,11 +131,9 @@ namespace ioTest {
     utf8(5, ">\u4321<");
     utf8(5, ">\uFFFF<");
 
-}
+})();
 
-namespace enumTest {
-
-    import PriceKind = contract.PriceKind;
+(function enumTest() {
 
     const ask = PriceKind.ASK;
     log(ask);
@@ -147,9 +146,9 @@ namespace enumTest {
     assert(PriceKind.VALUES[PriceKind.BID.number] === PriceKind.BID);
     assert(PriceKind.VALUES[PriceKind.ASK.number] === PriceKind.ASK);
 
-}
+})();
 
-namespace classTest {
+(function classTest() {
 
     const stock = new contract.instrument.stock.Stock;
     stock.id = new IntegerImpl(1344);
@@ -162,9 +161,9 @@ namespace classTest {
     const exception = new contract.UnknownInstrumentsException;
     exception.instrumentIds = [new IntegerImpl(23), new IntegerImpl(454)];
 
-}
+})();
 
-namespace serializerTest {
+(function serializerTest() {
 
     function copy(value: any): any {
         const writer = new yass.Writer(100);
@@ -182,8 +181,8 @@ namespace serializerTest {
     assert(copy(-1234567) === -1234567);
     assert(copy("") === "");
     assert(copy("blabli") === "blabli");
-    assert(copy(contract.PriceKind.ASK) === contract.PriceKind.ASK);
-    assert(copy(contract.PriceKind.BID) === contract.PriceKind.BID);
+    assert(copy(PriceKind.ASK) === PriceKind.ASK);
+    assert(copy(PriceKind.BID) === PriceKind.BID);
     assert(copy(new IntegerImpl(123456)).get() === 123456);
     assert(copy(new IntegerImpl(-987654)).get() === -987654);
 
@@ -221,7 +220,7 @@ namespace serializerTest {
     stock.paysDividend = false;
     stock = copy(stock);
     assert(!stock.paysDividend);
-    stock.paysDividend = null;
+    stock.paysDividend = null!;
     stock = copy(stock);
     assert(stock.paysDividend === undefined);
 
@@ -241,11 +240,11 @@ namespace serializerTest {
 
     let price = new contract.Price;
     price.instrumentId = new IntegerImpl(123);
-    price.kind = contract.PriceKind.ASK;
+    price.kind = PriceKind.ASK;
     price.value = new IntegerImpl(999);
     price = copy(price);
     assert(price.instrumentId.get() === 123);
-    assert(price.kind === contract.PriceKind.ASK);
+    assert(price.kind === PriceKind.ASK);
     assert(price.value.get() === 999);
 
     let writer = new yass.Writer(1);
@@ -275,11 +274,11 @@ namespace serializerTest {
     assert(reader.readByte() === 250);
     assert(reader.isEmpty());
 
-}
+})();
 
 const hostname = "localhost";
 
-namespace remoteTest {
+(function remoteTest() {
 
     class Session extends yass.Session {
         constructor(connection: yass.Connection) {
@@ -331,7 +330,7 @@ namespace remoteTest {
             echoService.echo(false).then(result => assert(result === false));
             const stock = new contract.instrument.stock.Stock;
             stock.id = new IntegerImpl(123);
-            stock.name = null;
+            stock.name = null!;
             stock.paysDividend = false;
             echoService.echo(stock).then(result => {
                 assert(result.id.get() === 123);
@@ -388,24 +387,21 @@ namespace remoteTest {
         connection => new Session2(connection)
     );
 
-}
+})();
 
-namespace xhrTest {
+(function xhrTest() {
 
     const proxyFactory = yass.xhr("http://" + hostname + ":9090/xhr", contract.SERIALIZER);
     const echoService = proxyFactory.proxy(contract.acceptor.echoService);
     if (!!window) { // prevents running xhr tests if run in node (there is no working xhr node module yet)
         echoService.echo("echo").then(result => log("echo succeeded:", result));
         echoService.echo("throwRuntimeException").catch(error => log("throwRuntimeException failed:", error));
-        yass
-            .xhr("http://" + hostname + ":9090/xhr", contract.SERIALIZER, 500)
-            .proxy(contract.acceptor.echoService)
-            .echo("timeout").catch(error => log("timeout failed:", error));
+        yass.xhr("http://" + hostname + ":9090/xhr", contract.SERIALIZER, 500).proxy(contract.acceptor.echoService).echo("timeout").catch(error => log("timeout failed:", error));
         yass.xhr("dummy://" + hostname + ":9090/xhr", contract.SERIALIZER).proxy(contract.acceptor.echoService).echo("echo1").catch(error => log("echo1 failed:", error));
         yass.xhr("http://" + hostname + ":9090/dummy", contract.SERIALIZER).proxy(contract.acceptor.echoService).echo("echo2").catch(error => log("echo2 failed:", error));
         yass.xhr("http://" + hostname + ":9999/xhr", contract.SERIALIZER).proxy(contract.acceptor.echoService).echo("echo3").catch(error => log("echo3 failed:", error));
     }
 
-}
+})();
 
 log("done");

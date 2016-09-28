@@ -15,28 +15,28 @@ class ExpirationHandler implements yass.TypeHandler<Expiration> {
         writer.writeZigZagInt(value.month);
         writer.writeZigZagInt(value.day);
     }
-    static TYPE_DESC = new yass.TypeDesc(yass.FIRST_DESC_ID + 1, new ExpirationHandler);
+    static readonly TYPE_DESC = new yass.TypeDesc(yass.FIRST_DESC_ID + 1, new ExpirationHandler);
 }
 export class Expiration {
-    constructor(public year: number, public month: number, public day: number) {
+    constructor(public readonly year: number, public readonly month: number, public readonly day: number) {
         // empty
     }
-    static TYPE_DESC = ExpirationHandler.TYPE_DESC;
+    static readonly TYPE_DESC = ExpirationHandler.TYPE_DESC;
 }
 
 export const GENERATED_BY_YASS_VERSION = 'null';
 
 export class PriceKind extends yass.Enum {
-    static BID = new PriceKind(0, 'BID');
-    static ASK = new PriceKind(1, 'ASK');
-    static TYPE_DESC = yass.enumDesc(9, PriceKind);
+    static readonly BID = new PriceKind(0, 'BID');
+    static readonly ASK = new PriceKind(1, 'ASK');
+    static readonly TYPE_DESC = yass.enumDesc(9, PriceKind);
 }
 
 export class Price {
     instrumentId: Integer;
     kind: PriceKind;
     value: Integer;
-    static TYPE_DESC = yass.classDesc(10, Price,
+    static readonly TYPE_DESC = yass.classDesc(10, Price,
         new yass.FieldDesc(1, 'instrumentId', IntegerHandler.TYPE_DESC),
         new yass.FieldDesc(2, 'kind', PriceKind.TYPE_DESC),
         new yass.FieldDesc(3, 'value', IntegerHandler.TYPE_DESC)
@@ -51,7 +51,7 @@ export abstract class Instrument {
 export namespace instrument.stock {
     export class Stock extends Instrument {
         paysDividend: boolean;
-        static TYPE_DESC = yass.classDesc(11, Stock,
+        static readonly TYPE_DESC = yass.classDesc(11, Stock,
             new yass.FieldDesc(1, 'paysDividend', yass.BOOLEAN_DESC),
             new yass.FieldDesc(2, 'id', IntegerHandler.TYPE_DESC),
             new yass.FieldDesc(3, 'name', yass.STRING_DESC)
@@ -63,7 +63,7 @@ export namespace instrument {
     export class Bond extends Instrument {
         coupon: number;
         expiration: Expiration;
-        static TYPE_DESC = yass.classDesc(12, Bond,
+        static readonly TYPE_DESC = yass.classDesc(12, Bond,
             new yass.FieldDesc(1, 'coupon', yass.NUMBER_DESC),
             new yass.FieldDesc(2, 'expiration', Expiration.TYPE_DESC),
             new yass.FieldDesc(3, 'id', IntegerHandler.TYPE_DESC),
@@ -74,7 +74,7 @@ export namespace instrument {
 
 export class SystemException {
     message: string;
-    static TYPE_DESC = yass.classDesc(13, SystemException,
+    static readonly TYPE_DESC = yass.classDesc(13, SystemException,
         new yass.FieldDesc(1, 'message', yass.STRING_DESC)
     );
 }
@@ -87,7 +87,7 @@ export class UnknownInstrumentsException extends ApplicationException {
     onlyNeededForTests1: any;
     onlyNeededForTests2: Uint8Array;
     onlyNeededForTests3: any;
-    static TYPE_DESC = yass.classDesc(14, UnknownInstrumentsException,
+    static readonly TYPE_DESC = yass.classDesc(14, UnknownInstrumentsException,
         new yass.FieldDesc(1, 'instrumentIds', yass.LIST_DESC),
         new yass.FieldDesc(2, 'onlyNeededForTests1', null),
         new yass.FieldDesc(3, 'onlyNeededForTests2', yass.BYTES_DESC),

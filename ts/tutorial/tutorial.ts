@@ -2,17 +2,14 @@ import * as yass from "softappeal-yass";
 import * as contract from "./generated/contract";
 import {IntegerImpl} from "./baseTypes-external";
 
-// shows how to work with namespace alias
-import PriceListener = contract.impl.PriceListener; // interface, vanishes after compile
-import Stock = contract.instrument.stock.Stock; // class, survives compile
-const showsThatImportWorked = new Stock;
+import PriceListener = contract.impl.PriceListener; // shows how to work with namespace alias
 
 function log(...args: any[]): void {
     console.log.apply(console, args);
 }
 
 class Logger implements yass.Interceptor<yass.SimpleInterceptorContext> {
-    constructor(private side: string) {
+    constructor(private readonly side: string) {
         // empty
     }
     private doLog(context: yass.SimpleInterceptorContext, kind: string, data: any): void {
@@ -40,7 +37,7 @@ const serverLogger = new Logger("server");
 class TableRow {
     bidElement: HTMLElement;
     askElement: HTMLElement;
-    constructor(public instrument: contract.Instrument) {
+    constructor(public readonly instrument: contract.Instrument) {
         // empty
     }
 }
@@ -58,9 +55,9 @@ function createTable(): void {
         ["bid", "ask"].forEach(kind => html += "<td id='" + instrument.id.get() + ":" + kind + "'></td>");
         html += "</tr>";
     });
-    document.getElementById("table").innerHTML = html + "</tbody></table>";
+    document.getElementById("table")!.innerHTML = html + "</tbody></table>";
     tableModel.forEach(row => {
-        const find = (kind: string) => document.getElementById(row.instrument.id.get() + ":" + kind);
+        const find = (kind: string) => document.getElementById(row.instrument.id.get() + ":" + kind)!;
         row.bidElement = find("bid");
         row.askElement = find("ask");
     });
@@ -131,7 +128,7 @@ const client = yass.xhr("http://" + hostname + ":9090/xhr", contract.SERIALIZER)
 const echoService = client.proxy(contract.acceptor.echoService, clientLogger);
 export function echoClick() {
     echoService.echo((<any>document.getElementById("echoInput")).value).then(
-        result => document.getElementById("echoOutput").innerHTML = result,
+        result => document.getElementById("echoOutput")!.innerHTML = result,
         error => log("echo failed:", error)
     );
 }

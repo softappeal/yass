@@ -116,9 +116,9 @@ public final class TypeScriptGenerator extends Generator {
                 tabsln("export class %s extends yass.Enum {", name);
                 inc();
                 for (final Enum<?> e : type.getEnumConstants()) {
-                    tabsln("static %s = new %s(%s, '%s');", e.name(), name, e.ordinal(), e.name());
+                    tabsln("static readonly %s = new %s(%s, '%s');", e.name(), name, e.ordinal(), e.name());
                 }
-                tabsln("static TYPE_DESC = yass.enumDesc(%s, %s);", type2id.get(type), name);
+                tabsln("static readonly TYPE_DESC = yass.enumDesc(%s, %s);", type2id.get(type), name);
                 dec();
                 tabsln("}");
             });
@@ -189,7 +189,7 @@ public final class TypeScriptGenerator extends Generator {
                 }
                 final @Nullable Integer id = type2id.get(type);
                 if (id != null) {
-                    tabs("static TYPE_DESC = yass.classDesc(%s, %s", id, name);
+                    tabs("static readonly TYPE_DESC = yass.classDesc(%s, %s", id, name);
                     inc();
                     final ClassTypeHandler typeHandler = (ClassTypeHandler)id2typeHandler.get(id);
                     if (typeHandler.referenceable) {

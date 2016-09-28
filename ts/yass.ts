@@ -73,8 +73,8 @@ export class Writer {
 }
 
 export class Reader {
-    array: Uint8Array;
-    private length: number;
+    readonly array: Uint8Array;
+    private readonly length: number;
     private position = 0;
     constructor(arrayBuffer: ArrayBuffer) {
         this.array = new Uint8Array(arrayBuffer);
@@ -171,7 +171,7 @@ export interface TypeHandler<T> {
 }
 
 export class TypeDesc {
-    constructor(public id: number, public handler: TypeHandler<any>) {
+    constructor(public readonly id: number, public readonly handler: TypeHandler<any>) {
         // empty
     }
     write(value: any, writer: Writer): void {
@@ -280,17 +280,17 @@ function write(value: any, writer: Writer): void {
 }
 
 export class Enum {
-    constructor(public number: number, public name: string) {
+    constructor(public readonly number: number, public readonly name: string) {
         // empty
     }
     toString(): string {
         return this.name;
     }
-    static VALUES: Enum[];
+    static readonly VALUES: Enum[];
 }
 
 class EnumTypeHandler implements TypeHandler<Enum> {
-    constructor(private values: Enum[]) {
+    constructor(private readonly values: Enum[]) {
         // empty
     }
     read(reader: Reader): Enum {
@@ -302,7 +302,7 @@ class EnumTypeHandler implements TypeHandler<Enum> {
 }
 
 class FieldHandler {
-    constructor(private field: string, private typeHandler: TypeHandler<any>) {
+    constructor(private readonly field: string, private readonly typeHandler: TypeHandler<any> | null) {
         // empty
     }
     read(object: any, reader: Reader, id2typeHandler: TypeHandler<any>[]): any {
@@ -322,8 +322,8 @@ class FieldHandler {
 }
 
 class ClassTypeHandler implements TypeHandler<any> {
-    private fieldId2handler: FieldHandler[] = [];
-    constructor(private Type: any) {
+    private readonly fieldId2handler: FieldHandler[] = [];
+    constructor(private readonly Type: any) {
         // empty
     }
     addField(id: number, handler: FieldHandler): void {
@@ -346,7 +346,7 @@ class ClassTypeHandler implements TypeHandler<any> {
 }
 
 export class FastSerializer implements Serializer {
-    private id2typeHandler: TypeHandler<any>[] = [];
+    private readonly id2typeHandler: TypeHandler<any>[] = [];
     constructor(...typeDescHolders: any[]) {
         const add = (typeDesc: TypeDesc) => {
             if (this.id2typeHandler[typeDesc.id]) {
@@ -366,7 +366,7 @@ export class FastSerializer implements Serializer {
 }
 
 export class FieldDesc {
-    constructor(public id: number, public name: string, public typeDesc: TypeDesc) {
+    constructor(public readonly id: number, public readonly name: string, public readonly typeDesc: TypeDesc | null) {
         // empty
     }
 }
@@ -397,7 +397,7 @@ export abstract class Message {
 }
 
 export class Request extends Message {
-    constructor(public serviceId: number, public methodId: number, public parameters: any[]) {
+    constructor(public readonly serviceId: number, public readonly methodId: number, public readonly parameters: any[]) {
         super();
     }
 }
@@ -407,7 +407,7 @@ export abstract class Reply extends Message {
 }
 
 export class ValueReply extends Reply {
-    constructor(public value: any) {
+    constructor(public readonly value: any) {
         super();
     }
     process(): any {
@@ -416,7 +416,7 @@ export class ValueReply extends Reply {
 }
 
 export class ExceptionReply extends Reply {
-    constructor(public exception: any) {
+    constructor(public readonly exception: any) {
         super();
     }
     process(): any {
@@ -425,10 +425,10 @@ export class ExceptionReply extends Reply {
 }
 
 export class MessageSerializer implements Serializer {
-    private static REQUEST = 0;
-    private static VALUE_REPLY = 1;
-    private static EXCEPTION_REPLY = 2;
-    constructor(private contractSerializer: Serializer) {
+    private static readonly REQUEST = 0;
+    private static readonly VALUE_REPLY = 1;
+    private static readonly EXCEPTION_REPLY = 2;
+    constructor(private readonly contractSerializer: Serializer) {
         // empty
     }
     read(reader: Reader): Message {
@@ -466,14 +466,14 @@ export class MessageSerializer implements Serializer {
 }
 
 export class MethodMapping {
-    constructor(public method: string, public id: number, public oneWay: boolean) {
+    constructor(public readonly method: string, public readonly id: number, public readonly oneWay: boolean) {
         // empty
     }
 }
 
 export class MethodMapper {
-    private id2mapping: MethodMapping[] = [];
-    private name2Mapping: {[methodName: string]: MethodMapping} = {};
+    private readonly id2mapping: MethodMapping[] = [];
+    private readonly name2Mapping: {[methodName: string]: MethodMapping} = {};
     constructor(...mappings: MethodMapping[]) {
         mappings.forEach(mapping => {
             this.id2mapping[mapping.id] = mapping;
@@ -495,8 +495,8 @@ export class MethodMapper {
 
 export class SimpleInterceptorContext {
     private static ID = 0;
-    id = SimpleInterceptorContext.ID++;
-    constructor(public methodMapping: MethodMapping, public parameters: any[]) {
+    readonly id = SimpleInterceptorContext.ID++;
+    constructor(public readonly methodMapping: MethodMapping, public readonly parameters: any[]) {
         // empty
     }
 }
@@ -530,23 +530,26 @@ export const EMPTY_INTERCEPTOR: Interceptor<any> = {
 };
 
 export class ContractId<P, I> {
-    constructor(public id: number, public methodMapper: MethodMapper) {
+    constructor(public readonly id: number, public readonly methodMapper: MethodMapper) {
         // empty
     }
     service(implementation: I, interceptor = EMPTY_INTERCEPTOR): Service {
         return new Service(this, implementation, interceptor);
     }
+    neededToPreventUnusedWarningOfTypeP(p: P): void {
+        // empty
+    }
 }
 
 export class Service {
-    constructor(public contractId: ContractId<any, any>, public implementation: any, public interceptor: Interceptor<any>) {
+    constructor(public readonly contractId: ContractId<any, any>, public readonly implementation: any, public readonly interceptor: Interceptor<any>) {
         // empty
     }
 }
 
 export abstract class AbstractInvocation {
     private context: any;
-    constructor(public methodMapping: MethodMapping, public parameters: any[], private interceptor: Interceptor<any>) {
+    protected constructor(public readonly methodMapping: MethodMapping, public readonly parameters: any[], private readonly interceptor: Interceptor<any>) {
         // empty
     }
     entry(): void {
@@ -564,7 +567,7 @@ export abstract class AbstractInvocation {
 }
 
 export class ServerInvocation extends AbstractInvocation {
-    constructor(public service: Service, request: Request) {
+    constructor(public readonly service: Service, request: Request) {
         super(service.contractId.methodMapper.mapId(request.methodId), request.parameters, service.interceptor);
     }
     invoke(): Reply {
@@ -583,7 +586,7 @@ export class ServerInvocation extends AbstractInvocation {
 }
 
 export class Server {
-    private id2service: Service[] = [];
+    private readonly id2service: Service[] = [];
     constructor(...services: Service[]) {
         services.forEach(service => {
             const id = service.contractId.id;
@@ -600,7 +603,7 @@ export class Server {
         }
         return new ServerInvocation(service, request);
     }
-    static EMPTY = new Server;
+    static readonly EMPTY = new Server;
 }
 
 export interface Tunnel {
@@ -608,9 +611,9 @@ export interface Tunnel {
 }
 
 export class ClientInvocation extends AbstractInvocation {
-    promise: Promise<any>;
+    readonly promise: Promise<any>;
     settle: (reply: Reply) => void;
-    constructor(methodMapping: MethodMapping, parameters: any[], interceptor: Interceptor<any>, private serviceId: number) {
+    constructor(methodMapping: MethodMapping, parameters: any[], interceptor: Interceptor<any>, private readonly serviceId: number) {
         super(methodMapping, parameters, interceptor);
         if (methodMapping.oneWay) {
             return;
@@ -651,9 +654,9 @@ export abstract class Client {
 }
 
 export class Packet {
-    static END_REQUESTNUMBER = 0;
-    static END = new Packet(Packet.END_REQUESTNUMBER, null);
-    constructor(public requestNumber: number, public message: Message) {
+    static readonly END_REQUESTNUMBER = 0;
+    static readonly END = new Packet(Packet.END_REQUESTNUMBER, null);
+    constructor(public readonly requestNumber: number, public readonly message: Message | null) {
         // empty
     }
     isEnd(): boolean {
@@ -662,7 +665,7 @@ export class Packet {
 }
 
 export class PacketSerializer implements Serializer {
-    constructor(private messageSerializer: Serializer) {
+    constructor(private readonly messageSerializer: Serializer) {
         // empty
     }
     read(reader: Reader): Packet {
@@ -694,7 +697,7 @@ export interface SessionFactory {
 }
 
 export abstract class Session extends Client {
-    constructor(private connection: Connection) {
+    protected constructor(private readonly connection: Connection) {
         super();
     }
     private serverProp: Server;
@@ -850,13 +853,12 @@ export function connect(url: string, serializer: Serializer, sessionFactory: Ses
             ws.close();
             throw exception;
         }
-
     };
 }
 
 class XhrClient extends Client {
-    private serializer: Serializer;
-    constructor(private url: string, serializer: Serializer, private timeoutMilliSeconds: number) {
+    private readonly serializer: Serializer;
+    constructor(private readonly url: string, serializer: Serializer, private readonly timeoutMilliSeconds: number) {
         super();
         this.serializer = new MessageSerializer(serializer);
     }
