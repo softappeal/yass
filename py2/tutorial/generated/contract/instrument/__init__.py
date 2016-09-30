@@ -1,5 +1,5 @@
 from enum import Enum
-from typing import List, Any
+from typing import List, Any, cast
 
 import yass
 from tutorial.base_types_external import Integer
@@ -9,8 +9,8 @@ from ... import contract
 class Bond(contract.Instrument):
     def __init__(self):  # type: () -> None
         contract.Instrument.__init__(self)
-        self.coupon = None  # type: float
-        self.expiration = None  # type: contract.Expiration
+        self.coupon = cast('float', None)  # type: float
+        self.expiration = cast('contract.Expiration', None)  # type: contract.Expiration
 
 
 class InstrumentService:

@@ -5,5 +5,5 @@ pip list
 
 python -m unittest test.all_tests
 
-cmd /c mypy --check-untyped-defs -p tutorial
-cmd /c mypy --check-untyped-defs -p test
+cmd /c mypy --strict-optional --check-untyped-defs -p tutorial
+cmd /c mypy --strict-optional --check-untyped-defs -p test

@@ -197,7 +197,7 @@ public final class PythonGenerator extends Generator {
             super(file);
             this.namespace = Check.notNull(namespace);
             println("from enum import Enum");
-            println("from typing import List, Any");
+            println("from typing import List, Any, cast");
             println();
             println("import yass");
             if (includeFileForEachModule != null) {
@@ -291,7 +291,8 @@ public final class PythonGenerator extends Generator {
                 tabsln("pass");
             } else {
                 for (final Field field : ownFields) {
-                    tabsln("self.%s = None  # type: %s", field.getName(), pythonType(field.getGenericType()));
+                    final String t = pythonType(field.getGenericType());
+                    tabsln("self.%s = cast('%s', None)  # type: %s", field.getName(), t, t);
                 }
             }
             dec();

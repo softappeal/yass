@@ -152,7 +152,7 @@ class NullTypeHandler(TypeHandler):
 
 class ReferenceTypeHandler(TypeHandler):
     def read(self, input: Input) -> Any:
-        return input.referenceableObjects[input.reader.readVarInt()]
+        return cast(List[Any], input.referenceableObjects)[input.reader.readVarInt()]
 
     def write(self, value: int, output: Output) -> None:
         output.writer.writeVarInt(value)
@@ -265,6 +265,7 @@ class FieldHandler:
 class FieldDesc:
     def __init__(self, id: int, field: str, typeInfo: Optional[Any]) -> None:
         self.id = id
+        self.handler = cast(FieldHandler, None)
         if typeInfo is None:
             self.handler = FieldHandler(field, None)
         elif isinstance(typeInfo, TypeDesc):
@@ -398,7 +399,7 @@ class MethodMapper:
             self.id2mapping[mapping.id] = mapping
             self.method2Mapping[mapping.method] = mapping
 
-    def mapId(self, id: int) -> Optional[MethodMapping]:
+    def mapId(self, id: int) -> MethodMapping:
         return self.id2mapping.get(id)
 
     def mapMethod(self, method: str) -> MethodMapping:
@@ -641,7 +642,7 @@ class Dumper:
         return value.__class__ in self.concreteValueClasses
 
     def dump(self, value: Optional[Any], write: Callable[[str], None]) -> None:
-        alreadyDumped = {} if self.referenceables else None  # type: Optional[Dict[int, Any]]
+        alreadyDumped = {} if self.referenceables else None  # type: Optional[Dict[Any, int]]
         tabs = 0
 
         def dumpValue(value: Optional[Any]) -> None:
@@ -672,9 +673,8 @@ class Dumper:
                     write(tabs * "    " + "]")
             else:
                 referenceables = self.referenceables and (not self.isConcreteValueClass(value))
-                index = 0
                 if referenceables:
-                    index = alreadyDumped.get(value)
+                    index = cast(Dict[Any, int], alreadyDumped).get(value)
                     if index is not None:
                         write("#" + str(index))
                         return

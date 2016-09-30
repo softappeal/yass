@@ -1,5 +1,5 @@
 from enum import Enum
-from typing import List, Any
+from typing import List, Any, cast
 
 import yass
 from tutorial.base_types_external import Integer
@@ -40,21 +40,21 @@ class PriceKind(Enum):
 
 class Price:
     def __init__(self) -> None:
-        self.instrumentId = None  # type: Integer
-        self.kind = None  # type: PriceKind
-        self.value = None  # type: Integer
+        self.instrumentId = cast('Integer', None)  # type: Integer
+        self.kind = cast('PriceKind', None)  # type: PriceKind
+        self.value = cast('Integer', None)  # type: Integer
 
 
 @yass.abstract
 class Instrument:
     def __init__(self) -> None:
-        self.id = None  # type: Integer
-        self.name = None  # type: str
+        self.id = cast('Integer', None)  # type: Integer
+        self.name = cast('str', None)  # type: str
 
 
 class SystemException(Exception):
     def __init__(self) -> None:
-        self.message = None  # type: str
+        self.message = cast('str', None)  # type: str
 
 
 @yass.abstract
@@ -66,16 +66,16 @@ class ApplicationException(Exception):
 class UnknownInstrumentsException(ApplicationException):
     def __init__(self) -> None:
         ApplicationException.__init__(self)
-        self.instrumentIds = None  # type: List[Integer]
-        self.onlyNeededForTests1 = None  # type: Any
-        self.onlyNeededForTests2 = None  # type: bytes
-        self.onlyNeededForTests3 = None  # type: Exception
+        self.instrumentIds = cast('List[Integer]', None)  # type: List[Integer]
+        self.onlyNeededForTests1 = cast('Any', None)  # type: Any
+        self.onlyNeededForTests2 = cast('bytes', None)  # type: bytes
+        self.onlyNeededForTests3 = cast('Exception', None)  # type: Exception
 
 
 class Node:
     def __init__(self) -> None:
-        self.id = None  # type: float
-        self.links = None  # type: List[Node]
+        self.id = cast('float', None)  # type: float
+        self.links = cast('List[Node]', None)  # type: List[Node]
 
 
 class EchoService:

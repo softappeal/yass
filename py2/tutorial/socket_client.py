@@ -43,7 +43,7 @@ def createObjects(withCycles=True):  # type: (bool) -> Any
         stock,
         unknownInstrumentsException
     ]
-    return result + [node1] if withCycles else result
+    return cast(List[Node], result) + [node1] if withCycles else result
 
 
 class MyDumper(Dumper):

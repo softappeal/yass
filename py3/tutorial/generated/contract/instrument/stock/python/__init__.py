@@ -1,5 +1,5 @@
 from enum import Enum
-from typing import List, Any
+from typing import List, Any, cast
 
 import yass
 from tutorial.base_types_external import Integer

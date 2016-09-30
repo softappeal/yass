@@ -103,7 +103,7 @@ class Test(unittest.TestCase):
         self.assertTrue(hasattr(PriceKind.ASK, yass.TYPE_DESC))
         self.assertTrue(hasattr(Node(), yass.TYPE_DESC))
 
-    def disabled_testAbstract(self):  # todo: enable if abstract decorator works
+    def disabled_testAbstract(self):  # enable if abstract decorator works
         try:
             contract.Instrument()
             self.fail()
