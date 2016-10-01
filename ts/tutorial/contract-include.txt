@@ -1,4 +1,4 @@
-import * as yass from "softappeal-yass";
+import * as yass from "yass";
 import {Integer, IntegerHandler} from "../baseTypes-external";
 
 // shows how to use contract internal base types
