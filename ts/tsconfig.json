@@ -17,8 +17,10 @@
             "es2015.promise"
         ]
     },
-    "exclude": [
-        "node_modules/typescript",
-        "node_modules/remap-istanbul"
-    ]
+    "include": [
+        "tutorial/**/*",
+        "test/**/*",
+        "node_modules/softappeal-yass/**/*"
+    ],
+    "exclude": [] // needed because default includes "node_modules"
 }
