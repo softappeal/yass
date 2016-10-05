@@ -1,8 +1,7 @@
 {
-    "name": "yass",
-    "description": "Yet Another Service Solution",
+    "name": "yass-dev",
+    "description": "yass-dev",
     "version": "0.0.0",
-    "main": "./yass.js",
     "devDependencies": {
         "typescript": "2.0.3",
         "systemjs": "0.19.39",

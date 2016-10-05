@@ -32,6 +32,7 @@
   * Java artifacts on MavenCentral: http://search.maven.org
     * groupId="ch.softappeal.yass"
     * artifactId="yass"
+  * TypeScript artifacts on https://www.npmjs.com: npm install softappeal-yass
 
 ## HelloWorld
 

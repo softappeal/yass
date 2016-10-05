@@ -11,16 +11,14 @@
         "noUnusedLocals": true,
         "noUnusedParameters": false,
         "module": "commonjs",
-        "baseUrl": ".",
-        "paths": {
-            "yass": [
-                "./yass"
-            ]
-        },
         "lib": [
             "es5",
             "dom",
             "es2015.promise"
         ]
-    }
+    },
+    "exclude": [
+        "node_modules/typescript",
+        "node_modules/remap-istanbul"
+    ]
 }
