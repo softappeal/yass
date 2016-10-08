@@ -32,12 +32,15 @@ def socketServer(transport, address, backlog, sslContext):  # type: (ServerTrans
     serverSocket.bind(address)
     serverSocket.listen(backlog)
     while True:
-        s = cast(SSLSocket, sslContext.wrap_socket(serverSocket.accept()[0], server_side=True))
         try:
-            print(s.getpeercert())
-            transport.invoke(SocketStream(s))
-        finally:
-            s.close()
+            s = cast(SSLSocket, sslContext.wrap_socket(serverSocket.accept()[0], server_side=True))
+            try:
+                print(s.getpeercert())
+                transport.invoke(SocketStream(s))
+            finally:
+                s.close()
+        except Exception as e:
+            print("exception: " + str(e))
 
 
 if __name__ == "__main__":
