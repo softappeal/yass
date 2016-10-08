@@ -20,7 +20,7 @@
     "include": [
         "tutorial/**/*",
         "test/**/*",
-        "node_modules/softappeal-yass/**/*"
+        "node_modules/yass/**/*"
     ],
     "exclude": [] // needed because default includes "node_modules"
 }

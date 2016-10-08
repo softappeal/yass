@@ -1,6 +1,6 @@
 // shows how to use contract external base types
 
-import * as yass from "softappeal-yass";
+import * as yass from "yass";
 
 export interface Integer {
     get(): number;
