@@ -6,7 +6,6 @@ import ch.softappeal.yass.serialize.Serializer;
 import ch.softappeal.yass.transport.MessageSerializer;
 import ch.softappeal.yass.transport.socket.SimpleSocketConnector;
 import ch.softappeal.yass.transport.socket.SimpleSocketTransport;
-import ch.softappeal.yass.transport.socket.SslSetup;
 import ch.softappeal.yass.tutorial.acceptor.socket.SocketAcceptor;
 import ch.softappeal.yass.tutorial.contract.Config;
 import ch.softappeal.yass.tutorial.contract.EchoService;
@@ -14,13 +13,12 @@ import ch.softappeal.yass.tutorial.contract.Expiration;
 import ch.softappeal.yass.tutorial.contract.Logger;
 import ch.softappeal.yass.tutorial.contract.Node;
 import ch.softappeal.yass.tutorial.contract.PriceKind;
+import ch.softappeal.yass.tutorial.contract.SslConfig;
 import ch.softappeal.yass.tutorial.contract.SystemException;
 import ch.softappeal.yass.tutorial.contract.UnknownInstrumentsException;
 import ch.softappeal.yass.tutorial.contract.instrument.InstrumentService;
 import ch.softappeal.yass.tutorial.contract.instrument.stock.Stock;
-import ch.softappeal.yass.util.FileResource;
 
-import java.security.KeyStore;
 import java.util.Arrays;
 
 import static ch.softappeal.yass.tutorial.contract.Config.ACCEPTOR;
@@ -53,14 +51,6 @@ public final class SocketClient {
 
     static final Serializer SERIALIZER = Config.PY_CONTRACT_SERIALIZER;
 
-    private static KeyStore readKeyStore(final String name) {
-        return SslSetup.readKeyStore(new FileResource("certificates/" + name), "StorePass".toCharArray());
-    }
-
-    static SslSetup sslSetup(final String keyStore, final String trustStore) {
-        return new SslSetup("TLSv1.2", "TLS_RSA_WITH_AES_128_CBC_SHA", readKeyStore(keyStore), "KeyPass".toCharArray(), readKeyStore(trustStore));
-    }
-
     static void client(final Client client) {
         final Interceptor logger = new Logger(null, Logger.Side.CLIENT);
         final EchoService echoService = client.proxy(ACCEPTOR.echoService);
@@ -83,7 +73,7 @@ public final class SocketClient {
     public static void main(final String... args) {
         client(SimpleSocketTransport.client(
             new MessageSerializer(SERIALIZER),
-            new SimpleSocketConnector(sslSetup("Client.key.jks", "Server.cert.jks").socketFactory, SocketAcceptor.ADDRESS)
+            new SimpleSocketConnector(SslConfig.CLIENT.socketFactory, SocketAcceptor.ADDRESS)
         ));
     }
 

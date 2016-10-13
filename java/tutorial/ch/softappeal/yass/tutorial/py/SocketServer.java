@@ -8,6 +8,7 @@ import ch.softappeal.yass.tutorial.acceptor.socket.SocketAcceptor;
 import ch.softappeal.yass.tutorial.contract.EchoService;
 import ch.softappeal.yass.tutorial.contract.Instrument;
 import ch.softappeal.yass.tutorial.contract.Logger;
+import ch.softappeal.yass.tutorial.contract.SslConfig;
 import ch.softappeal.yass.tutorial.contract.SystemException;
 import ch.softappeal.yass.tutorial.contract.instrument.InstrumentService;
 import ch.softappeal.yass.util.Exceptions;
@@ -60,7 +61,7 @@ public final class SocketServer {
             )
         ).start(
             executor,
-            new SimpleSocketBinder(SocketClient.sslSetup("Server.key.jks", "ClientCA.cert.jks").serverSocketFactory, SocketAcceptor.ADDRESS)
+            new SimpleSocketBinder(SslConfig.SERVER.serverSocketFactory, SocketAcceptor.ADDRESS)
         );
         System.out.println("started");
     }
