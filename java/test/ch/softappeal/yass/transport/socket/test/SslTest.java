@@ -30,11 +30,7 @@ public class SslTest extends TransportTest {
     }
 
     @SuppressWarnings("try")
-    private static void test(
-        final ServerSocketFactory serverSocketFactory, final String serverName,
-        final SocketFactory socketFactory, final String clientName,
-        final boolean needClientAuth
-    ) throws Exception {
+    private static void test(final ServerSocketFactory serverSocketFactory, final SocketFactory socketFactory, final boolean needClientAuth) throws Exception {
         final ExecutorService executor = Executors.newCachedThreadPool(new NamedThreadFactory("executor", Exceptions.STD_ERR));
         try (
             Closer closer = new SimpleSocketTransport(
@@ -45,7 +41,7 @@ public class SslTest extends TransportTest {
                         new TestServiceImpl(),
                         (method, arguments, invocation) -> {
                             if (needClientAuth) {
-                                checkName(clientName);
+                                checkName("CN=Client");
                             }
                             return invocation.proceed();
                         }
@@ -58,7 +54,7 @@ public class SslTest extends TransportTest {
                     .proxy(
                         ContractIdTest.ID,
                         (method, arguments, invocation) -> {
-                            checkName(serverName);
+                            checkName("CN=Server");
                             return invocation.proceed();
                         }
                     )
@@ -87,16 +83,16 @@ public class SslTest extends TransportTest {
 
     @Test public void onlyServerAuthentication() throws Exception {
         test(
-            new SslSetup(PROTOCOL, CIPHER, SERVER_KEY, PASSWORD, null).serverSocketFactory, "CN=Server",
-            new SslSetup(PROTOCOL, CIPHER, null, null, SERVER_CERT).socketFactory, null,
+            new SslSetup(PROTOCOL, CIPHER, SERVER_KEY, PASSWORD, null).serverSocketFactory,
+            new SslSetup(PROTOCOL, CIPHER, null, null, SERVER_CERT).socketFactory,
             false
         );
     }
 
     @Test public void clientAndServerAuthentication() throws Exception {
         test(
-            new SslSetup(PROTOCOL, CIPHER, SERVER_KEY, PASSWORD, CLIENTCA_CERT).serverSocketFactory, "CN=Server",
-            new SslSetup(PROTOCOL, CIPHER, CLIENT_KEY, PASSWORD, SERVER_CERT).socketFactory, "CN=Client",
+            new SslSetup(PROTOCOL, CIPHER, SERVER_KEY, PASSWORD, CLIENTCA_CERT).serverSocketFactory,
+            new SslSetup(PROTOCOL, CIPHER, CLIENT_KEY, PASSWORD, SERVER_CERT).socketFactory,
             true
         );
     }
@@ -104,8 +100,8 @@ public class SslTest extends TransportTest {
     @Test public void wrongServer() throws Exception {
         try {
             test(
-                new SslSetup(PROTOCOL, CIPHER, SERVER_KEY, PASSWORD, null).serverSocketFactory, "CN=Server",
-                new SslSetup(PROTOCOL, CIPHER, null, null, CLIENTCA_CERT).socketFactory, null,
+                new SslSetup(PROTOCOL, CIPHER, SERVER_KEY, PASSWORD, null).serverSocketFactory,
+                new SslSetup(PROTOCOL, CIPHER, null, null, CLIENTCA_CERT).socketFactory,
                 false
             );
             Assert.fail();
@@ -117,8 +113,8 @@ public class SslTest extends TransportTest {
     @Test public void wrongClientCA() throws Exception {
         try {
             test(
-                new SslSetup(PROTOCOL, CIPHER, SERVER_KEY, PASSWORD, SERVER_CERT).serverSocketFactory, "CN=Server",
-                new SslSetup(PROTOCOL, CIPHER, CLIENT_KEY, PASSWORD, SERVER_CERT).socketFactory, "CN=Client",
+                new SslSetup(PROTOCOL, CIPHER, SERVER_KEY, PASSWORD, SERVER_CERT).serverSocketFactory,
+                new SslSetup(PROTOCOL, CIPHER, CLIENT_KEY, PASSWORD, SERVER_CERT).socketFactory,
                 true
             );
             Assert.fail();
