@@ -23,10 +23,20 @@ import java.security.SecureRandom;
 
 public final class SslSetup {
 
-    private final SSLContext context;
+    public final SSLContext context;
+    public final String protocol;
+    public final String cipher;
     private final String[] protocols;
     private final String[] cipherSuites;
-    private final boolean needClientAuth;
+    public final boolean needClientAuth;
+
+    public String[] protocols() {
+        return new String[] {protocol};
+    }
+
+    public String[] cipherSuites() {
+        return new String[] {cipher};
+    }
 
     public SslSetup(
         final String protocol,
@@ -41,8 +51,10 @@ public final class SslSetup {
         if ((keyStore == null) && (trustStore == null)) {
             throw new IllegalArgumentException("at least one of keyStore or trustStore must be defined");
         }
-        protocols = new String[] {Check.notNull(protocol)};
-        cipherSuites = new String[] {Check.notNull(cipher)};
+        this.protocol = Check.notNull(protocol);
+        this.cipher = Check.notNull(cipher);
+        protocols = protocols();
+        cipherSuites = cipherSuites();
         try {
             context = SSLContext.getInstance(protocol);
             KeyManager[] keyManagers = new KeyManager[0];
