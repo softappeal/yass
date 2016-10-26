@@ -4,10 +4,10 @@ import ch.softappeal.yass.core.remote.ExceptionReply;
 import ch.softappeal.yass.core.remote.Message;
 import ch.softappeal.yass.core.remote.Request;
 import ch.softappeal.yass.core.remote.ValueReply;
+import ch.softappeal.yass.serialize.CompositeSerializer;
 import ch.softappeal.yass.serialize.Reader;
 import ch.softappeal.yass.serialize.Serializer;
 import ch.softappeal.yass.serialize.Writer;
-import ch.softappeal.yass.util.Check;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -17,12 +17,10 @@ import java.util.List;
  * Default {@link Serializer} for {@link Message}.
  * Note: {@link Request#arguments} is serialized as a {@link List}.
  */
-public final class MessageSerializer implements Serializer {
-
-    private final Serializer contractSerializer;
+public final class MessageSerializer extends CompositeSerializer {
 
     public MessageSerializer(final Serializer contractSerializer) {
-        this.contractSerializer = Check.notNull(contractSerializer);
+        super(contractSerializer);
     }
 
     private static final byte REQUEST = (byte)0;
@@ -40,15 +38,15 @@ public final class MessageSerializer implements Serializer {
             return new Request(
                 reader.readZigZagInt(),
                 reader.readZigZagInt(),
-                toArray((List<Object>)contractSerializer.read(reader))
+                toArray((List<Object>)serializer.read(reader))
             );
         } else if (type == VALUE_REPLY) {
             return new ValueReply(
-                contractSerializer.read(reader)
+                serializer.read(reader)
             );
         } else {
             return new ExceptionReply(
-                (Exception)contractSerializer.read(reader)
+                (Exception)serializer.read(reader)
             );
         }
     }
@@ -59,15 +57,15 @@ public final class MessageSerializer implements Serializer {
             final Request request = (Request)message;
             writer.writeZigZagInt(request.serviceId);
             writer.writeZigZagInt(request.methodId);
-            contractSerializer.write((request.arguments == null) ? Collections.emptyList() : Arrays.asList(request.arguments), writer);
+            serializer.write((request.arguments == null) ? Collections.emptyList() : Arrays.asList(request.arguments), writer);
         } else if (message instanceof ValueReply) {
             writer.writeByte(VALUE_REPLY);
             final ValueReply reply = (ValueReply)message;
-            contractSerializer.write(reply.value, writer);
+            serializer.write(reply.value, writer);
         } else {
             writer.writeByte(EXCEPTION_REPLY);
             final ExceptionReply reply = (ExceptionReply)message;
-            contractSerializer.write(reply.exception, writer);
+            serializer.write(reply.exception, writer);
         }
     }
 
