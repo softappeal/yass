@@ -150,7 +150,7 @@ class ReferenceTypeHandler(TypeHandler):
 
 class ListTypeHandler(TypeHandler):
     def read(self, input):  # type: (Input) -> List[Any]
-        return [input.read() for dummy in range(input.reader.readVarInt())]
+        return [input.read() for dummy in xrange(input.reader.readVarInt())]
 
     def write(self, value, output):  # type: ( List[Any], Output) -> None
         output.writer.writeVarInt(len(value))
@@ -288,7 +288,7 @@ class ClassTypeHandler(TypeHandler):
             self.id2fieldHandler[id].read(object, input)
 
     def write(self, value, output):  # type: (Any, Output) -> None
-        for id, handler in self.id2fieldHandler.items():
+        for id, handler in self.id2fieldHandler.iteritems():
             handler.write(id, value, output)
         output.writer.writeVarInt(ClassTypeHandler.FIELD_END)
 
@@ -672,7 +672,7 @@ class Dumper:
                 if not self.dumpValueClass(value, write):
                     if self.compact:
                         write(value.__class__.__name__ + u"( ")
-                        for name, value in sorted(value.__dict__.items(), key=lambda item: item[0]):
+                        for name, value in sorted(value.__dict__.iteritems(), key=lambda item: item[0]):
                             if value is not None:
                                 write(name + u"=")
                                 dumpValue(value)
@@ -681,7 +681,7 @@ class Dumper:
                     else:
                         write(value.__class__.__name__ + u"(\n")
                         tabs[0] += 1
-                        for name, value in sorted(value.__dict__.items(), key=lambda item: item[0]):
+                        for name, value in sorted(value.__dict__.iteritems(), key=lambda item: item[0]):
                             if value is not None:
                                 write(unicode(tabs[0] * "    ") + name + u" = ")
                                 dumpValue(value)
