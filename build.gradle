@@ -1,4 +1,4 @@
-defaultTasks 'clean', 'todo', 'build', 'generateTypeScript', 'dist'
+defaultTasks 'clean', 'build', 'generateTypeScript', 'generatePython3', 'generatePython2', 'dist'
 
 apply plugin: 'java'
 apply plugin: 'osgi'
@@ -24,8 +24,8 @@ sourceSets {
 }
 
 def websocket_dep = 'javax.websocket:javax.websocket-api:1.0'
-def jetty_dep = 'org.eclipse.jetty.websocket:javax-websocket-server-impl:9.3.9.v20160517'
-def undertow_dep = 'io.undertow:undertow-websockets-jsr:1.3.22.Final'
+def jetty_dep = 'org.eclipse.jetty.websocket:javax-websocket-server-impl:9.3.12.v20160915'
+def undertow_dep = 'io.undertow:undertow-websockets-jsr:1.4.3.Final'
 def junit_dep = 'junit:junit:4.12'
 
 dependencies {
@@ -45,6 +45,16 @@ task generateTypeScript(type: JavaExec) {
     classpath = sourceSets.tutorial.runtimeClasspath
 }
 
+task generatePython3(type: JavaExec) {
+    main = 'ch.softappeal.yass.tutorial.py.GeneratePython3'
+    classpath = sourceSets.tutorial.runtimeClasspath
+}
+
+task generatePython2(type: JavaExec) {
+    main = 'ch.softappeal.yass.tutorial.py.GeneratePython2'
+    classpath = sourceSets.tutorial.runtimeClasspath
+}
+
 tasks.withType(Javadoc) {
     options.addStringOption('Xdoclint:all,-missing', '-quiet')
 }
@@ -52,7 +62,6 @@ tasks.withType(Javadoc) {
 jar {
     from "readme.md"
     from "license.txt"
-    from "ts/yass.ts"
     manifest { attributes("Implementation-Version": "${version}") }
 }
 
@@ -101,34 +110,4 @@ task dist << {
     ant.zip(destfile: "build/${project.name}-${version}_artifacts.zip") {
         fileset(dir: 'build/libs')
     }
-}
-
-def searchMarker(tree, divider1, divider2, title, marker) {
-    println divider1
-    println "= search: " + title
-    tree.each { file ->
-        def found = false
-        def number = 0
-        file.eachLine { line ->
-            number++
-            if (line.toLowerCase().contains(marker)) {
-                if (!found) {
-                    println divider2
-                    println "+ " + file
-                }
-                found = true
-                println "- " + number + ": " + line
-            }
-        }
-    }
-}
-
-task todo << {
-    def divider1 = "========================================================================================================================"
-    def divider2 = "------------------------------------------------------------------------------------------------------------------------"
-    def searchTree = fileTree(dir: '.').exclude('.git/').exclude('.gradle/').exclude('.idea/').exclude('build/').exclude('ts/node_modules/')
-    searchMarker(searchTree, divider1, divider2, 'abort', '$' + '$$' /* abort, not allowed for building a release */)
-    searchMarker(searchTree, divider1, divider2, 'todo', '$' + 'todo' /* under construction, yet a release can still be built */)
-    searchMarker(searchTree, divider1, divider2, 'note', '$' + 'note' /* important comment */)
-    println divider1
 }

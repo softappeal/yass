@@ -1,14 +1,14 @@
 package ch.softappeal.yass.tutorial.contract;
 
-import ch.softappeal.yass.util.Nullable;
-import ch.softappeal.yass.util.Tag;
+import java.util.ArrayList;
+import java.util.List;
 
-@Tag(16) public final class Node {
+public final class Node {
 
-    @Tag(1) public final int id;
-    @Tag(2) public @Nullable Node link;
+    public final double id;
+    public final List<Node> links = new ArrayList<>();
 
-    public Node(final int id) {
+    public Node(final double id) {
         this.id = id;
     }
 

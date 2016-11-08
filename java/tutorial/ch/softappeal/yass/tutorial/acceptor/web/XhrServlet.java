@@ -10,10 +10,14 @@ import ch.softappeal.yass.tutorial.contract.EchoServiceImpl;
 import ch.softappeal.yass.tutorial.contract.Logger;
 import ch.softappeal.yass.tutorial.contract.UnexpectedExceptionHandler;
 import ch.softappeal.yass.util.Exceptions;
+import ch.softappeal.yass.util.Nullable;
 
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.security.cert.X509Certificate;
+import java.util.Arrays;
+import java.util.stream.Collectors;
 
 import static ch.softappeal.yass.tutorial.contract.Config.ACCEPTOR;
 
@@ -23,6 +27,10 @@ public class XhrServlet extends HttpServlet {
 
     private static void invoke(final SimpleTransportSetup setup, final HttpServletRequest httpRequest, final HttpServletResponse httpResponse) {
         try {
+            final @Nullable X509Certificate[] certificates = (X509Certificate[])httpRequest.getAttribute("javax.servlet.request.X509Certificate");
+            if (certificates != null) {
+                System.out.println(Arrays.stream(certificates).map(X509Certificate::getSubjectDN).collect(Collectors.toList()));
+            }
             setup.server.invocation(false, (Request)setup.messageSerializer.read(Reader.create(httpRequest.getInputStream()))).invoke(
                 reply -> setup.messageSerializer.write(reply, Writer.create(httpResponse.getOutputStream()))
             );

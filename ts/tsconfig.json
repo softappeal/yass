@@ -6,10 +6,21 @@
         "noImplicitReturns": true,
         "noFallthroughCasesInSwitch": true,
         "sourceMap": true,
-        "module": "commonjs"
+        "noImplicitThis": true,
+        "strictNullChecks": true,
+        "noUnusedLocals": true,
+        "noUnusedParameters": false,
+        "module": "commonjs",
+        "lib": [
+            "es5",
+            "dom",
+            "es2015.promise"
+        ]
     },
-    "exclude": [
-        "node_modules",
-        "yass.ts"
-    ]
+    "include": [
+        "tutorial/**/*",
+        "test/**/*",
+        "node_modules/yass/**/*"
+    ],
+    "exclude": [] // needed because default includes "node_modules"
 }

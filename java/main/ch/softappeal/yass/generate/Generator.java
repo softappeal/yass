@@ -1,106 +1,113 @@
 package ch.softappeal.yass.generate;
 
+import ch.softappeal.yass.core.remote.ContractId;
+import ch.softappeal.yass.core.remote.MethodMapper;
+import ch.softappeal.yass.core.remote.Services;
+import ch.softappeal.yass.serialize.fast.FastSerializer;
+import ch.softappeal.yass.serialize.fast.TypeHandler;
+import ch.softappeal.yass.util.Check;
 import ch.softappeal.yass.util.Nullable;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
-import java.nio.charset.StandardCharsets;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+import java.lang.reflect.Type;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.SortedMap;
+import java.util.SortedSet;
+import java.util.TreeSet;
+import java.util.stream.Collectors;
 
 public abstract class Generator {
 
-    private final PrintWriter printer;
+    private static final Set<Type> ROOT_CLASSES = new HashSet<>(Arrays.asList(
+        Object.class,
+        Exception.class,
+        RuntimeException.class,
+        Error.class,
+        Throwable.class
+    ));
 
-    protected final void print(final String format, final Object... args) {
-        printer.format(format, args);
+    protected static boolean isRootClass(final Class<?> type) {
+        return ROOT_CLASSES.contains(Check.notNull(type));
     }
 
-    protected final void print(final String s) {
-        printer.print(s);
-    }
-
-    protected final void println() {
-        printer.print('\n');
-    }
-
-    protected final void println(final String format, final Object... args) {
-        print(format, args);
-        println();
-    }
-
-    protected final void println(final String s) {
-        print(s);
-        println();
-    }
-
-    private int tabs = 0;
-
-    protected final void inc() {
-        tabs++;
-    }
-
-    protected final void dec() {
-        if (tabs <= 0) {
-            throw new IllegalStateException();
-        }
-        tabs--;
-    }
-
-    protected final void tab() {
-        printer.print("    ");
-    }
-
-    protected final void tabs() {
-        for (int t = 0; t < tabs; t++) {
-            tab();
+    public static final class ServiceDesc {
+        public final String name;
+        public final ContractId<?> contractId;
+        private ServiceDesc(final String name, final ContractId<?> contractId) {
+            this.name = Check.notNull(name);
+            this.contractId = Check.notNull(contractId);
         }
     }
 
-    protected final void tabs(final String format, final Object... args) {
-        tabs();
-        print(format, args);
-    }
-
-    protected final void tabs(final String s) {
-        tabs();
-        print(s);
-    }
-
-    protected final void tabsln(final String format, final Object... args) {
-        tabs(format, args);
-        println();
-    }
-
-    protected final void tabsln(final String s) {
-        tabs(s);
-        println();
-    }
-
-    protected final void includeFile(final String file) throws IOException {
-        try (BufferedReader in = new BufferedReader(new InputStreamReader(new FileInputStream(file), StandardCharsets.UTF_8))) {
-            while (true) {
-                final @Nullable String s = in.readLine();
-                if (s == null) {
-                    break;
-                }
-                println(s);
+    protected static List<ServiceDesc> getServiceDescs(final Services services) throws Exception {
+        final List<ServiceDesc> serviceDescs = new ArrayList<>();
+        for (final Field field : services.getClass().getFields()) {
+            if (!Modifier.isStatic(field.getModifiers()) && (field.getType() == ContractId.class)) {
+                serviceDescs.add(new ServiceDesc(field.getName(), (ContractId<?>)field.get(services)));
             }
         }
+        Collections.sort(serviceDescs, (s1, s2) -> ((Integer)s1.contractId.id).compareTo((Integer)s2.contractId.id));
+        return serviceDescs;
     }
 
-    protected final void close() throws IOException {
-        printer.close();
-        if (printer.checkError()) { // needed because PrintWriter doesn't throw IOException
-            throw new IOException();
+    private static Set<Class<?>> getInterfaces(final @Nullable Services services) throws Exception {
+        if (services == null) {
+            return new HashSet<>();
+        }
+        return getServiceDescs(services).stream().map(serviceDesc -> serviceDesc.contractId.contract).collect(Collectors.toSet());
+    }
+
+    protected static Method[] getMethods(final Class<?> type) {
+        final Method[] methods = type.getMethods();
+        Arrays.sort(methods, (method1, method2) -> method1.getName().compareTo(method2.getName()));
+        return methods;
+    }
+
+    private final String rootPackage;
+    protected final SortedMap<Integer, TypeHandler> id2typeHandler;
+    protected final @Nullable Services initiator;
+    protected final @Nullable Services acceptor;
+    private MethodMapper.@Nullable Factory methodMapperFactory;
+    protected final SortedSet<Class<?>> interfaces = new TreeSet<>((type1, type2) -> type1.getCanonicalName().compareTo(type2.getCanonicalName()));
+
+    protected final void checkType(final Class<?> type) {
+        if (!type.getCanonicalName().startsWith(rootPackage)) {
+            throw new RuntimeException("type '" + type.getCanonicalName() + "' doesn't have root package '" + rootPackage + "'");
         }
     }
 
-    protected Generator(final String file) throws IOException {
-        new File(file).getParentFile().mkdirs();
-        printer = new PrintWriter(file, StandardCharsets.UTF_8.name());
+    protected final String qualifiedName(final Class<?> type) {
+        return type.getCanonicalName().substring(rootPackage.length());
+    }
+
+    protected final MethodMapper methodMapper(final Class<?> type) {
+        return methodMapperFactory.create(type);
+    }
+
+    protected Generator(final String rootPackage, final FastSerializer serializer, final @Nullable Services initiator, final @Nullable Services acceptor) throws Exception {
+        this.rootPackage = rootPackage.isEmpty() ? "" : rootPackage + '.';
+        id2typeHandler = serializer.id2typeHandler();
+        this.initiator = initiator;
+        this.acceptor = acceptor;
+        if ((initiator != null) && (acceptor != null) && (initiator.methodMapperFactory != acceptor.methodMapperFactory)) {
+            throw new IllegalArgumentException("initiator and acceptor must have same methodMapperFactory");
+        }
+        if (initiator != null) {
+            methodMapperFactory = initiator.methodMapperFactory;
+        }
+        if (acceptor != null) {
+            methodMapperFactory = acceptor.methodMapperFactory;
+        }
+        interfaces.addAll(getInterfaces(initiator));
+        interfaces.addAll(getInterfaces(acceptor));
+        interfaces.forEach(this::checkType);
     }
 
 }

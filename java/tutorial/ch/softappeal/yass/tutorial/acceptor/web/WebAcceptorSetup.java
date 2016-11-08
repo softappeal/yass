@@ -17,14 +17,14 @@ public abstract class WebAcceptorSetup {
 
     public static final String HOST = "0.0.0.0";
     public static final int PORT = 9090;
-    public static final String PATH = "/tutorial";
+    public static final String WS_PATH = "/ws";
     protected static final String XHR_PATH = "/xhr";
-    protected static final String WEB_PATH = "";
+    protected static final String WEB_PATH = "ts";
 
     public static final Executor DISPATCH_EXECUTOR = Executors.newCachedThreadPool(new NamedThreadFactory("dispatchExecutor", Exceptions.STD_ERR));
 
     protected static final ServerEndpointConfig ENDPOINT_CONFIG = ServerEndpointConfig.Builder
-        .create(Endpoint.class, PATH)
+        .create(Endpoint.class, WS_PATH)
         .configurator(
             new WsConfigurator(
                 AsyncWsConnection.factory(1_000),

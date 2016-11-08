@@ -16,7 +16,7 @@ import io.undertow.Undertow;
 import io.undertow.server.XnioByteBufferPool;
 import io.undertow.servlet.Servlets;
 import io.undertow.servlet.api.DeploymentManager;
-import io.undertow.servlet.core.CompositeThreadSetupAction;
+import io.undertow.servlet.core.ContextClassLoaderSetupAction;
 import io.undertow.servlet.util.DefaultClassIntrospector;
 import io.undertow.websockets.jsr.ServerWebSocketContainer;
 import io.undertow.websockets.jsr.WebSocketDeploymentInfo;
@@ -98,7 +98,7 @@ public final class AsyncWsConnectionTest {
                         @Override protected void opened() {
                             System.out.println("initiator opened");
                             final Busy busy = proxy(BUSY_ID);
-                            for (int i = 0; i < 1_000; i++) {
+                            for (int i = 0; i < 10_000; i++) {
                                 busy.busy();
                             }
                             System.out.println("initiator done");
@@ -143,12 +143,12 @@ public final class AsyncWsConnectionTest {
                 DefaultClassIntrospector.INSTANCE,
                 Xnio.getInstance().createWorker(OptionMap.create(Options.THREAD_DAEMON, true)),
                 new XnioByteBufferPool(new ByteBufferSlicePool(1024, 10240)),
-                new CompositeThreadSetupAction(Collections.emptyList()),
+                Collections.singletonList(new ContextClassLoaderSetupAction(ClassLoader.getSystemClassLoader())),
                 true,
                 true
             ));
         } else {
-            final ClientContainer container = new ClientContainer(); // $note: setSendTimeout not yet implemented in Jetty
+            final ClientContainer container = new ClientContainer(); // note: setSendTimeout not yet implemented in Jetty
             container.start();
             client(container);
         }

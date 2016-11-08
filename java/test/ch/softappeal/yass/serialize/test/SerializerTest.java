@@ -8,8 +8,8 @@ import ch.softappeal.yass.serialize.contract.IntException;
 import ch.softappeal.yass.serialize.contract.Node;
 import ch.softappeal.yass.serialize.contract.PrimitiveTypes;
 import ch.softappeal.yass.serialize.contract.nested.AllTypes;
-import ch.softappeal.yass.serialize.fast.AbstractFastSerializer;
 import ch.softappeal.yass.serialize.fast.BaseTypeHandlers;
+import ch.softappeal.yass.serialize.fast.FastSerializer;
 import ch.softappeal.yass.serialize.fast.SimpleFastSerializer;
 import ch.softappeal.yass.serialize.fast.TaggedFastSerializer;
 import ch.softappeal.yass.serialize.fast.TypeDesc;
@@ -258,7 +258,7 @@ public class SerializerTest {
         test(JavaSerializer.INSTANCE);
     }
 
-    public static final AbstractFastSerializer TAGGED_FAST_SERIALIZER = new TaggedFastSerializer(
+    public static final FastSerializer TAGGED_FAST_SERIALIZER = new TaggedFastSerializer(
         FastReflector.FACTORY,
         Arrays.asList(
             new TypeDesc(3, BaseTypeHandlers.BOOLEAN),
@@ -283,8 +283,7 @@ public class SerializerTest {
             new TypeDesc(22, BaseTypeHandlers.DATE),
             new TypeDesc(23, BaseTypeHandlers.INSTANT)
         ),
-        Arrays.asList(Color.class),
-        Arrays.asList(PrimitiveTypes.class, AllTypes.class, IntException.class),
+        Arrays.asList(Color.class, PrimitiveTypes.class, AllTypes.class, IntException.class),
         Arrays.asList(Node.class)
     );
 
@@ -292,7 +291,7 @@ public class SerializerTest {
         test(TAGGED_FAST_SERIALIZER);
     }
 
-    public static final AbstractFastSerializer SIMPLE_FAST_SERIALIZER = new SimpleFastSerializer(
+    public static final FastSerializer SIMPLE_FAST_SERIALIZER = new SimpleFastSerializer(
         FastReflector.FACTORY,
         Arrays.asList(
             BaseTypeHandlers.BOOLEAN,
@@ -317,8 +316,7 @@ public class SerializerTest {
             BaseTypeHandlers.DATE,
             BaseTypeHandlers.INSTANT
         ),
-        Arrays.asList(Color.class),
-        Arrays.asList(PrimitiveTypes.class, AllTypes.class, IntException.class),
+        Arrays.asList(Color.class, PrimitiveTypes.class, AllTypes.class, IntException.class),
         Arrays.asList(Node.class)
     );
 

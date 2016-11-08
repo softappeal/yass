@@ -1,16 +1,13 @@
 {
-    "name": "softappeal-yass",
-    "description": "Yet Another Service Solution",
+    "name": "yass-dev",
+    "description": "yass-dev",
     "version": "0.0.0",
-    "typings": "./yass.ts",
-    "main": "./yass.js",
     "devDependencies": {
-        "typescript": "1.8.10",
-        "systemjs": "0.19.29",
-        "ws": "1.1.0",
-        "istanbul": "0.4.3",
-        "remap-istanbul": "0.6.4",
-        "softappeal-yass": "."
+        "typescript": "2.0.6",
+        "systemjs": "0.19.39",
+        "ws": "1.1.1",
+        "istanbul": "0.4.5",
+        "remap-istanbul": "0.7.0"
     },
     "repository": {
         "type": "git",

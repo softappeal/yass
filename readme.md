@@ -3,6 +3,7 @@
 * is a small library for efficient peer-to-peer communication
   * Java
   * TypeScript/JavaScript
+  * Python 2 & 3 (with support for optional static type checker 'mypy')
   * high throughput, low latency, reactive services
 
 * supports type-safe contracts with DTOs and interfaces
@@ -31,7 +32,6 @@
   * Java artifacts on MavenCentral: http://search.maven.org
     * groupId="ch.softappeal.yass"
     * artifactId="yass"
-  * TypeScript artifacts on https://www.npmjs.com: npm install softappeal-yass
 
 ## HelloWorld
 

@@ -1,5 +1,6 @@
 package ch.softappeal.yass.tutorial.acceptor.web;
 
+import ch.softappeal.yass.tutorial.contract.SslConfig;
 import io.undertow.Handlers;
 import io.undertow.Undertow;
 import io.undertow.server.HttpHandler;
@@ -40,9 +41,10 @@ public final class UndertowAcceptor extends WebAcceptorSetup {
         final HttpHandler fileHandler = Handlers.resource(new FileResourceManager(new File(WEB_PATH), 100));
         Undertow.builder()
             .addHttpListener(PORT, HOST)
+            .addHttpsListener(PORT + 1, HOST, SslConfig.SERVER.context) // note: we don't know how to force client authentication
             .setHandler(exchange -> {
                 final String path = exchange.getRequestPath();
-                if (PATH.equals(path) || XHR_PATH.equals(path)) {
+                if (WS_PATH.equals(path) || XHR_PATH.equals(path)) {
                     servletHandler.handleRequest(exchange);
                 } else {
                     fileHandler.handleRequest(exchange);
