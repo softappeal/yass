@@ -3,7 +3,7 @@
 set version=0.0.0
 set /p version=Version [ MAJOR.MINOR.PATCH or 'enter' for %version% ]?:
 
-set JAVA_HOME=C:\Program Files\Java\jdk1.8.0_102
+set JAVA_HOME=C:\Program Files\Java\jdk1.8.0_111
 
 cmd /c .\gradlew.bat -Pversion=%version%
 

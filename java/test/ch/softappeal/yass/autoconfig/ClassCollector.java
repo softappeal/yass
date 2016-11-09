@@ -1,5 +1,7 @@
 package ch.softappeal.yass.autoconfig;
 
+import ch.softappeal.yass.util.Check;
+
 import java.io.File;
 import java.net.JarURLConnection;
 import java.net.URL;
@@ -21,16 +23,15 @@ public final class ClassCollector {
     private final ClassLoader classLoader;
     public final Collection<Class<?>> classes = new ArrayList<>();
 
-    public ClassCollector(final Class<?> classInRootPackage) throws Exception {
-        classLoader = classInRootPackage.getClassLoader();
-        final String aPackage = classInRootPackage.getPackage().getName();
-        for (final Enumeration<URL> resources = classLoader.getResources(aPackage.replace(DOT, SLASH)); resources.hasMoreElements(); ) {
+    public ClassCollector(final String rootPackage, final ClassLoader classLoader) throws Exception {
+        this.classLoader = Check.notNull(classLoader);
+        for (final Enumeration<URL> resources = classLoader.getResources(rootPackage.replace(DOT, SLASH)); resources.hasMoreElements(); ) {
             final URL url = resources.nextElement();
             final String protocol = url.getProtocol().toLowerCase();
             if ("jar".equals(protocol)) {
-                collectJarFile(((JarURLConnection)url.openConnection()).getJarFile().getName(), aPackage);
+                collectJarFile(((JarURLConnection)url.openConnection()).getJarFile().getName(), rootPackage);
             } else if ("file".equals(protocol)) {
-                collectFileSystem(new File(url.getFile()), aPackage);
+                collectFileSystem(new File(url.getFile()), rootPackage);
             } else {
                 throw new RuntimeException("unexpected protocol '" + protocol + "'");
             }
