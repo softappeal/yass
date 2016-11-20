@@ -84,30 +84,32 @@ artifacts {
     archives(packageJavadoc)
 }
 
-task dist << {
-    pom {
-        project {
-            name project.name
-            description 'Yet Another Service Solution'
-            url 'https://github.com/softappeal/yass'
-            licenses {
-                license { name 'The BSD 3-Clause License' }
+task dist {
+    doLast {
+        pom {
+            project {
+                name project.name
+                description 'Yet Another Service Solution'
+                url 'https://github.com/softappeal/yass'
+                licenses {
+                    license { name 'The BSD 3-Clause License' }
+                }
+                scm { url 'https://github.com/softappeal/yass' }
+                organization { name 'softappeal GmbH Switzerland' }
+                developers {
+                    developer { name 'Angelo Salvade' }
+                }
             }
-            scm { url 'https://github.com/softappeal/yass' }
-            organization { name 'softappeal GmbH Switzerland' }
-            developers {
-                developer { name 'Angelo Salvade' }
-            }
+        }.writeTo("build/libs/${project.name}-${version}.pom")
+        if (project.hasProperty('signing.password')) {
+            def signPrefix = "build/libs/${project.name}-${version}"
+            signing.sign(file("${signPrefix}.pom"))
+            signing.sign(file("${signPrefix}.jar"))
+            signing.sign(file("${signPrefix}-sources.jar"))
+            signing.sign(file("${signPrefix}-javadoc.jar"))
         }
-    }.writeTo("build/libs/${project.name}-${version}.pom")
-    if (project.hasProperty('signing.password')) {
-        def signPrefix = "build/libs/${project.name}-${version}"
-        signing.sign(file("${signPrefix}.pom"))
-        signing.sign(file("${signPrefix}.jar"))
-        signing.sign(file("${signPrefix}-sources.jar"))
-        signing.sign(file("${signPrefix}-javadoc.jar"))
-    }
-    ant.zip(destfile: "build/${project.name}-${version}_artifacts.zip") {
-        fileset(dir: 'build/libs')
+        ant.zip(destfile: "build/${project.name}-${version}_artifacts.zip") {
+            fileset(dir: 'build/libs')
+        }
     }
 }
