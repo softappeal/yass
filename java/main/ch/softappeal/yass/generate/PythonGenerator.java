@@ -25,6 +25,7 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -82,7 +83,7 @@ public final class PythonGenerator extends Generator {
     private final boolean python3;
     private final @Nullable String includeFileForEachModule;
     private final Map<String, String> module2includeFile = new HashMap<>();
-    private final SortedMap<Class<?>, ExternalDesc> externalTypes = new TreeMap<>((c1, c2) -> c1.getCanonicalName().compareTo(c2.getCanonicalName()));
+    private final SortedMap<Class<?>, ExternalDesc> externalTypes = new TreeMap<>(Comparator.comparing(Class::getCanonicalName));
     private final Namespace rootNamespace = new Namespace(null, null, ROOT_MODULE, 0);
     private final LinkedHashMap<Class<?>, Namespace> type2namespace = new LinkedHashMap<>();
     private final Map<Class<?>, Integer> type2id = new HashMap<>();
@@ -113,13 +114,10 @@ public final class PythonGenerator extends Generator {
                 types.add(type);
                 type2namespace.put(type, this);
             } else { // intermediate
-                final String name = qualifiedName.substring(0, dot);
-                @Nullable Namespace namespace = children.get(name);
-                if (namespace == null) {
-                    namespace = new Namespace(this, name, moduleName + '_' + name, depth + 1);
-                    children.put(name, namespace);
-                }
-                namespace.add(qualifiedName.substring(dot + 1), type);
+                children.computeIfAbsent(
+                    qualifiedName.substring(0, dot),
+                    name -> new Namespace(this, name, moduleName + '_' + name, depth + 1)
+                ).add(qualifiedName.substring(dot + 1), type);
             }
         }
         void add(final Class<?> type) {
@@ -176,7 +174,7 @@ public final class PythonGenerator extends Generator {
 
     private final class ContractPythonOut extends Out {
         private final Namespace namespace;
-        private final SortedSet<Namespace> modules = new TreeSet<>((n1, n2) -> n1.moduleName.compareTo(n2.moduleName));
+        private final SortedSet<Namespace> modules = new TreeSet<>(Comparator.comparing(n -> n.moduleName));
         private String getQualifiedName(final Class<?> type) {
             final Namespace ns = Check.notNull(type2namespace.get(Check.notNull(type)));
             modules.add(ns);

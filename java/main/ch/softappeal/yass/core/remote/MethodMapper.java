@@ -5,6 +5,7 @@ import ch.softappeal.yass.util.Check;
 import java.io.PrintWriter;
 import java.lang.reflect.Method;
 import java.util.Arrays;
+import java.util.Comparator;
 
 /**
  * Maps between {@link Method} and {@link Request#methodId}.
@@ -54,7 +55,7 @@ public interface MethodMapper {
         final MethodMapper methodMapper = factory.create(contract);
         Arrays.stream(contract.getMethods())
             .map(methodMapper::mapMethod)
-            .sorted((mapping1, mapping2) -> ((Integer)mapping1.id).compareTo((Integer)mapping2.id))
+            .sorted(Comparator.comparing(mapping -> mapping.id))
             .forEach(mapping -> printer.println(mapping.id + ": " + mapping.method));
     }
 

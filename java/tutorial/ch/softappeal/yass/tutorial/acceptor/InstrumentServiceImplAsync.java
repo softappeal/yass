@@ -33,11 +33,7 @@ public final class InstrumentServiceImplAsync implements InstrumentService {
 
     @Override public List<Instrument> getInstruments() {
         final Completer completer = Server.completer();
-        new Thread() { // setting result asynchronously
-            @Override public void run() {
-                completer.complete(new ArrayList<>(INSTRUMENTS.values()));
-            }
-        }.start();
+        new Thread(() -> completer.complete(new ArrayList<>(INSTRUMENTS.values()))).start(); // setting result asynchronously
         return null; // needed for compiler; returned result is not used
     }
 

@@ -60,7 +60,7 @@ public final class InitiatorSession extends SimpleSession {
             e.printStackTrace(System.out);
         }
         instrumentServiceAsync.showOneWay(false, 123);
-        Client.promise(() -> instrumentServiceAsync.getInstruments()).thenAcceptAsync(instruments -> {
+        Client.promise(instrumentServiceAsync::getInstruments).thenAcceptAsync(instruments -> {
             try {
                 priceEngine.subscribe(instruments.stream().map(instrument -> instrument.id).collect(Collectors.toList()));
             } catch (final UnknownInstrumentsException ignore) {

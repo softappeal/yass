@@ -14,7 +14,7 @@ import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -53,7 +53,7 @@ public abstract class Generator {
                 serviceDescs.add(new ServiceDesc(field.getName(), (ContractId<?>)field.get(services)));
             }
         }
-        Collections.sort(serviceDescs, (s1, s2) -> ((Integer)s1.contractId.id).compareTo((Integer)s2.contractId.id));
+        serviceDescs.sort(Comparator.comparing(sd -> sd.contractId.id));
         return serviceDescs;
     }
 
@@ -66,7 +66,7 @@ public abstract class Generator {
 
     protected static Method[] getMethods(final Class<?> type) {
         final Method[] methods = type.getMethods();
-        Arrays.sort(methods, (method1, method2) -> method1.getName().compareTo(method2.getName()));
+        Arrays.sort(methods, Comparator.comparing(Method::getName));
         return methods;
     }
 
@@ -75,7 +75,7 @@ public abstract class Generator {
     protected final @Nullable Services initiator;
     protected final @Nullable Services acceptor;
     private MethodMapper.@Nullable Factory methodMapperFactory;
-    protected final SortedSet<Class<?>> interfaces = new TreeSet<>((type1, type2) -> type1.getCanonicalName().compareTo(type2.getCanonicalName()));
+    protected final SortedSet<Class<?>> interfaces = new TreeSet<>(Comparator.comparing(Class::getCanonicalName));
 
     protected final void checkType(final Class<?> type) {
         if (!type.getCanonicalName().startsWith(rootPackage)) {

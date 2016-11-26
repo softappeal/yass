@@ -4,6 +4,7 @@ import ch.softappeal.yass.util.Nullable;
 
 import java.lang.reflect.Method;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -18,7 +19,7 @@ public final class SimpleMethodMapper implements MethodMapper {
 
     private SimpleMethodMapper(final Class<?> contract) {
         final Method[] methods = contract.getMethods();
-        Arrays.sort(methods, (method1, method2) -> method1.getName().compareTo(method2.getName()));
+        Arrays.sort(methods, Comparator.comparing(Method::getName));
         mappings = new Mapping[methods.length];
         name2mapping = new HashMap<>(methods.length);
         int id = 0;

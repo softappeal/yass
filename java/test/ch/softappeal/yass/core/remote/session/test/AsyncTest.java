@@ -72,16 +72,14 @@ public class AsyncTest {
 
     private static void sleep(final Consumer<Completer> execute) {
         final Completer completer = Server.completer();
-        new Thread() {
-            @Override public void run() {
-                try {
-                    TimeUnit.MILLISECONDS.sleep(1000L);
-                } catch (final InterruptedException e) {
-                    throw new RuntimeException(e);
-                }
-                execute.accept(completer);
+        new Thread(() -> {
+            try {
+                TimeUnit.MILLISECONDS.sleep(1000L);
+            } catch (final InterruptedException e) {
+                throw new RuntimeException(e);
             }
-        }.start();
+            execute.accept(completer);
+        }).start();
     }
 
     public interface Completer2<R, E extends Exception> {
@@ -92,7 +90,7 @@ public class AsyncTest {
 
     private static final class TestServiceImpl implements TestService {
         @Override public void noResult() {
-            sleep(completer -> completer.complete());
+            sleep(Completer::complete);
             println("impl", "", "noResult", null, "");
         }
         @Override public int divide(final int a, final int b) {
@@ -201,8 +199,8 @@ public class AsyncTest {
                         testAsync.divide(12, 3).thenAccept(r -> println("proxy", "", "divide", null, r));
                         testAsync.divide(12, 4).thenAcceptAsync(r -> println("proxy", "", "divide", null, r), executor);
                         testAsync.divide(123, 0).whenComplete((r, e) -> println("proxy", "", "divide", null, e));
-                        testAsync.getInteger().thenAccept(r -> println("proxy", "", "getInteger", null, r.intValue()));
-                        testAsync.getString().thenAccept(r -> println("proxy", "", "getString", null, r.substring(0)));
+                        testAsync.getInteger().thenAccept(r -> println("proxy", "", "getInteger", null, r));
+                        testAsync.getString().thenAccept(r -> println("proxy", "", "getString", null, r));
                         testAsync.oneWay();
                         try {
                             Client.promise(test::oneWay);

@@ -198,11 +198,10 @@ public class Dumper {
                 index = 0;
             }
             if (!Dumper.this.dumpValueClass(out, type, object)) {
-                @Nullable List<FieldDesc> fieldDescs = class2fieldDescs.get(type);
-                if (fieldDescs == null) {
-                    fieldDescs = Reflect.allFields(type).stream().map(FieldDesc::new).collect(Collectors.toList());
-                    class2fieldDescs.put(type, fieldDescs);
-                }
+                final List<FieldDesc> fieldDescs = class2fieldDescs.computeIfAbsent(
+                    type,
+                    t -> Reflect.allFields(t).stream().map(FieldDesc::new).collect(Collectors.toList())
+                );
                 if (compact) {
                     out.append(type.getSimpleName()).append("( ");
                     dumpClassFields(fieldDescs, object);

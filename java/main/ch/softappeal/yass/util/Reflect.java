@@ -5,7 +5,7 @@ import sun.misc.Unsafe;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 public final class Reflect {
@@ -33,7 +33,7 @@ public final class Reflect {
                 fields.add(field);
             }
         }
-        Collections.sort(fields, (field1, field2) -> field1.getName().compareTo(field2.getName()));
+        fields.sort(Comparator.comparing(Field::getName));
         return fields;
     }
 
