@@ -29,6 +29,7 @@ export const GENERATED_BY_YASS_VERSION = 'null';
 export class PriceKind extends yass.Enum {
     static readonly BID = new PriceKind(0, 'BID');
     static readonly ASK = new PriceKind(1, 'ASK');
+    static readonly VALUES = <PriceKind[]>yass.enumValues(PriceKind);
     static readonly TYPE_DESC = yass.enumDesc(9, PriceKind);
 }
 

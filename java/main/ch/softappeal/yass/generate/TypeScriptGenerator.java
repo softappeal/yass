@@ -118,6 +118,7 @@ public final class TypeScriptGenerator extends Generator {
                 for (final Enum<?> e : type.getEnumConstants()) {
                     tabsln("static readonly %s = new %s(%s, '%s');", e.name(), name, e.ordinal(), e.name());
                 }
+                tabsln("static readonly VALUES = <%s[]>yass.enumValues(%s);", name, name);
                 tabsln("static readonly TYPE_DESC = yass.enumDesc(%s, %s);", type2id.get(type), name);
                 dec();
                 tabsln("}");
