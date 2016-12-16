@@ -92,9 +92,9 @@ public abstract class Session extends Client implements Closer {
         try {
             try {
                 try {
-                    closed(exception);
-                } finally {
                     unblockPromises();
+                } finally {
+                    closed(exception);
                 }
                 if (sendEnd) {
                     connection.write(Packet.END);
