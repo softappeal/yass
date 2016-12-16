@@ -15,6 +15,9 @@ public final class EchoServiceImpl implements EchoService {
             throw new RuntimeException("throwRuntimeException");
         }
         try {
+            if ("block".equals(value)) {
+                TimeUnit.SECONDS.sleep(Long.MAX_VALUE);
+            }
             TimeUnit.SECONDS.sleep(1);
         } catch (final InterruptedException e) {
             throw new RuntimeException(e);
