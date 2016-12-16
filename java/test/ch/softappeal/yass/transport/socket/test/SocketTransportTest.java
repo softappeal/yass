@@ -1,5 +1,6 @@
 package ch.softappeal.yass.transport.socket.test;
 
+import ch.softappeal.yass.transport.DummyPathSerializer;
 import ch.softappeal.yass.transport.PathResolver;
 import ch.softappeal.yass.transport.PathSerializer;
 import ch.softappeal.yass.transport.TransportSetup;
@@ -95,6 +96,16 @@ public class SocketTransportTest extends TransportTest {
             TimeUnit.MILLISECONDS.sleep(400L);
             System.out.println();
             SocketTransport.connect(executor, SyncSocketConnection.FACTORY, invokeTransportSetup(false, false, executor), CONNECTOR, PathSerializer.INSTANCE, path2);
+            TimeUnit.MILLISECONDS.sleep(400L);
+        } finally {
+            executor.shutdown();
+        }
+    }
+
+    @Test public void dummyPathSerializer() throws Exception {
+        final ExecutorService executor = Executors.newCachedThreadPool(new NamedThreadFactory("executor", Exceptions.TERMINATE));
+        try (Closer closer = new SocketTransport(executor, SyncSocketConnection.FACTORY, DummyPathSerializer.INSTANCE, new PathResolver(DummyPathSerializer.PATH, invokeTransportSetup(true, false, executor))).start(executor, BINDER)) {
+            SocketTransport.connect(executor, SyncSocketConnection.FACTORY, invokeTransportSetup(false, false, executor), CONNECTOR, DummyPathSerializer.INSTANCE, 123);
             TimeUnit.MILLISECONDS.sleep(400L);
         } finally {
             executor.shutdown();
