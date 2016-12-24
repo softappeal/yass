@@ -389,13 +389,17 @@ const hostname = "localhost";
 
 })();
 
-(function xhrTest() {
+(async function xhrTest() {
 
     const proxyFactory = yass.xhr("http://" + hostname + ":9090/xhr", contract.SERIALIZER);
     const echoService = proxyFactory.proxy(contract.acceptor.echoService);
     if (!!window) { // prevents running xhr tests if run in node (there is no working xhr node module yet)
-        echoService.echo("echo").then(result => log("echo succeeded:", result));
-        echoService.echo("throwRuntimeException").catch(error => log("throwRuntimeException failed:", error));
+        log("echo succeeded:", await echoService.echo("echo"));
+        try {
+            await echoService.echo("throwRuntimeException");
+        } catch (e) {
+            log("throwRuntimeException failed:", e)
+        }
         yass.xhr("http://" + hostname + ":9090/xhr", contract.SERIALIZER, 500).proxy(contract.acceptor.echoService).echo("timeout").catch(error => log("timeout failed:", error));
         yass.xhr("dummy://" + hostname + ":9090/xhr", contract.SERIALIZER).proxy(contract.acceptor.echoService).echo("echo1").catch(error => log("echo1 failed:", error));
         yass.xhr("http://" + hostname + ":9090/dummy", contract.SERIALIZER).proxy(contract.acceptor.echoService).echo("echo2").catch(error => log("echo2 failed:", error));

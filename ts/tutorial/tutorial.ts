@@ -82,19 +82,20 @@ class EchoServiceImpl implements contract.impl.EchoService {
     }
 }
 
-function subscribePrices(client: yass.Client): void {
+async function subscribePrices(client: yass.Client) {
     // create proxies; you can add 0..n interceptors to a proxy
     const instrumentService = client.proxy(contract.acceptor.instrumentService, clientLogger);
     const priceEngine = client.proxy(contract.acceptor.priceEngine, clientLogger);
     instrumentService.showOneWay(true, new IntegerImpl(987654));
-    instrumentService.getInstruments().then(instruments => {
+    try {
+        const instruments = await instrumentService.getInstruments();
         instruments.forEach(instrument => tableModel[instrument.id.get()] = new TableRow(instrument));
         createTable();
-        return priceEngine.subscribe(instruments.map(instrument => instrument.id));
-    }).then(
-        () => log("subscribe succeeded")
-    );
-    priceEngine.subscribe([new IntegerImpl(987654321)]).catch(exception => log("subscribe failed with", exception));
+        await priceEngine.subscribe(instruments.map(instrument => instrument.id));
+        await priceEngine.subscribe([new IntegerImpl(987654321)]);
+    } catch (e) {
+        log("exception caught", e)
+    }
 }
 
 class Session extends yass.Session {

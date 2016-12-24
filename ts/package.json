@@ -3,11 +3,11 @@
     "description": "yass-dev",
     "version": "0.0.0",
     "devDependencies": {
-        "typescript": "2.0.10",
-        "systemjs": "0.19.39",
+        "typescript": "2.1.4",
+        "systemjs": "0.19.41",
         "ws": "1.1.1",
         "istanbul": "0.4.5",
-        "remap-istanbul": "0.7.0"
+        "remap-istanbul": "0.8.4"
     },
     "repository": {
         "type": "git",
