@@ -60,4 +60,23 @@ public final class TaggedFastSerializer extends FastSerializer {
         this(reflectorFactory, baseTypeDescs, concreteClasses, Collections.emptyList());
     }
 
+    /**
+     * @deprecated needed for backward compatibility
+     */
+    @Deprecated
+    public TaggedFastSerializer(
+        final Reflector.Factory reflectorFactory,
+        final Collection<TypeDesc> baseTypeDescs,
+        final Collection<Class<?>> enumerations,
+        final Collection<Class<?>> concreteClasses,
+        final Collection<Class<?>> referenceableConcreteClasses
+    ) {
+        super(reflectorFactory);
+        baseTypeDescs.forEach(this::addBaseType);
+        enumerations.forEach(type -> addEnum(Check.hasTag(type), type));
+        concreteClasses.forEach(type -> addClass(type, false));
+        referenceableConcreteClasses.forEach(type -> addClass(type, true));
+        fixupFields();
+    }
+
 }

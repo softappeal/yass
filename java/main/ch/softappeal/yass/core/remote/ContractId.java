@@ -19,10 +19,6 @@ public final class ContractId<C> {
         methodMapper = methodMapperFactory.create(contract);
     }
 
-    /**
-     * It's a good idea to add an interceptor that handles unexpected exceptions
-     * (this is especially useful for oneWay methods where these are ignored and NOT passed to the client).
-     */
     public Service service(final C implementation, final Interceptor... interceptors) {
         return new Service(this, implementation, Interceptor.composite(interceptors));
     }
