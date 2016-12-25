@@ -110,7 +110,7 @@ class Input:
     def __init__(self, reader: Reader, id2typeHandler: Dict[int, TypeHandler]) -> None:
         self.reader = reader
         self.id2typeHandler = id2typeHandler
-        self.referenceableObjects = None  # type: Optional[List[Any]]
+        self.referenceableObjects: Optional[List[Any]] = None
 
     def read(self) -> Optional[Any]:
         return self.id2typeHandler[self.reader.readVarInt()].read(self)
@@ -119,7 +119,7 @@ class Input:
 class Output:
     def __init__(self, writer: Writer) -> None:
         self.writer = writer
-        self.object2reference = None  # type: Optional[Dict[Any, int]]
+        self.object2reference: Optional[Dict[Any, int]] = None
 
     def write(self, value: Optional[Any]) -> None:
         if value is None:
@@ -280,7 +280,7 @@ class ClassTypeHandler(TypeHandler):
     def __init__(self, type: Any, referenceable: bool) -> None:
         self.type = type
         self.referenceable = referenceable
-        self.id2fieldHandler = OrderedDict()  # type: Dict[int, FieldHandler]
+        self.id2fieldHandler: Dict[int, FieldHandler] = OrderedDict()
 
     def addField(self, id: int, handler: FieldHandler) -> None:
         self.id2fieldHandler[id] = handler
@@ -336,7 +336,7 @@ class Serializer:
 
 class FastSerializer(Serializer):
     def __init__(self, typeInfos: List[Any]) -> None:
-        self.id2typeHandler = {}  # type: Dict[int, TypeHandler]
+        self.id2typeHandler: Dict[int, TypeHandler] = {}
         for typeInfo in [NULL_DESC, REFERENCE_DESC, LIST_DESC, BOOLEAN_DESC, DOUBLE_DESC, STRING_DESC, BYTES_DESC] + typeInfos:
             td = typeInfo if isinstance(typeInfo, TypeDesc) else typeDesc(typeInfo)
             self.id2typeHandler[td.id] = td.handler
@@ -393,8 +393,8 @@ class MethodMapping:
 
 class MethodMapper:
     def __init__(self, mappings: List[MethodMapping]) -> None:
-        self.id2mapping = {}  # type: Dict[int, MethodMapping]
-        self.method2Mapping = {}  # type: Dict[str, MethodMapping]
+        self.id2mapping: Dict[int, MethodMapping] = {}
+        self.method2Mapping: Dict[str, MethodMapping] = {}
         for mapping in mappings:
             self.id2mapping[mapping.id] = mapping
             self.method2Mapping[mapping.method] = mapping
@@ -447,7 +447,7 @@ class Service:
 
 class Server:
     def __init__(self, services: List[Service]) -> None:
-        self.id2service = {}  # type: Dict[int, Service]
+        self.id2service: Dict[int, Service] = {}
         for service in services:
             id = service.id
             if id in self.id2service:
@@ -466,7 +466,7 @@ C = TypeVar('C')
 
 class ContractId(Generic[C]):
     def __init__(self, contract: Any, id: int) -> None:
-        self.mapper = getattr(contract, MAPPER)  # type: MethodMapper
+        self.mapper: MethodMapper = getattr(contract, MAPPER)
         self.id = id
 
     def service(self, implementation: C, interceptor: Interceptor = directInterceptor) -> Service:
@@ -632,9 +632,9 @@ class Dumper:
 
     def dumpValueClass(self, value: Any, write: Callable[[str], None]) -> bool:
         """
+        :return True: if we dumped value; False: use default implementation
         Could dump a value class (these should not reference other objects). Should be an one-liner.
         This implementation does nothing and returns False.
-        :return True: if we dumped value; False: use default implementation
         """
         return False
 
@@ -642,7 +642,7 @@ class Dumper:
         return value.__class__ in self.concreteValueClasses
 
     def dump(self, value: Optional[Any], write: Callable[[str], None]) -> None:
-        alreadyDumped = {} if self.referenceables else None  # type: Optional[Dict[Any, int]]
+        alreadyDumped: Optional[Dict[Any, int]] = {} if self.referenceables else None
         tabs = 0
 
         def dumpValue(value: Optional[Any]) -> None:
