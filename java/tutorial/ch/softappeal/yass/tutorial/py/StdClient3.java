@@ -58,7 +58,7 @@ public final class StdClient3 {
     }
 
     public static void main(final String... args) throws IOException {
-        start("C:\\Users\\guru\\Miniconda3\\envs\\py3.5\\python.exe", "py3");
+        start("C:\\Users\\guru\\Miniconda3\\envs\\py3\\python.exe", "py3");
     }
 
 }

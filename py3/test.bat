@@ -1,9 +1,8 @@
-call activate py3.5
+call activate py3
 
-pip install mypy-lang==0.4.5
-pip list
+pip install mypy-lang==0.4.6
 
 python -m unittest test.all_tests
 
-cmd /c mypy --strict-optional --check-untyped-defs -p tutorial
-cmd /c mypy --strict-optional --check-untyped-defs -p test
+cmd /c mypy -p tutorial
+cmd /c mypy -p test
