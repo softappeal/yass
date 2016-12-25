@@ -131,17 +131,17 @@ class Test(unittest.TestCase):
         self.assertEqual(result[6], "Hello")
         self.assertEqual(result[7], ">\u0001\u0012\u007F\u0080\u0234\u07FF\u0800\u4321\uFFFF<")
         self.assertEqual(result[8], bytes([0, 127, 256 - 1, 10, 256 - 45]))
-        expiration = result[9]  # type: Expiration
+        expiration: Expiration = result[9]
         self.assertEqual(expiration.year, 2017)
         self.assertEqual(expiration.month, 11)
         self.assertEqual(expiration.day, 29)
         self.assertEqual(result[10], PriceKind.ASK)
         self.assertEqual(result[11], PriceKind.BID)
-        stock = result[12]  # type: Stock
+        stock: Stock = result[12]
         self.assertEqual(stock.id.value, 123)
         self.assertEqual(stock.name, "YASS")
         self.assertEqual(stock.paysDividend, True)
-        unknownInstrumentsException = result[13]  # type: UnknownInstrumentsException
+        unknownInstrumentsException: UnknownInstrumentsException = result[13]
         instrumentIds = unknownInstrumentsException.instrumentIds
         self.assertTrue(len(instrumentIds) == 3)
         self.assertEqual(instrumentIds[0].value, 1)
@@ -150,7 +150,7 @@ class Test(unittest.TestCase):
         self.assertTrue(unknownInstrumentsException.onlyNeededForTests1 is None)
         self.assertTrue(unknownInstrumentsException.onlyNeededForTests2 is None)
         self.assertTrue(unknownInstrumentsException.onlyNeededForTests3 is None)
-        node1 = result[14]  # type: Node
+        node1: Node = result[14]
         self.assertEqual(node1.id, 1.0)
         self.assertTrue(len(node1.links) == 2)
         self.assertTrue(node1.links[0] is node1)
