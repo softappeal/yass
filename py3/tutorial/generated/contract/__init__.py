@@ -30,7 +30,7 @@ class Expiration:
         self.day = day
 
     def __str__(self) -> str:
-        return '%s-%s-%s' % (self.year, self.month, self.day)
+        return f"{self.year}-{self.month}-{self.day}"
 
 
 class PriceKind(Enum):

@@ -10,7 +10,7 @@ def abstract(abstractClass):
     def newDecorator(abstractNew):
         def decoratedNew(subClass, *args, **kwargs):
             if abstractClass is subClass:
-                raise RuntimeError("can't instantiate abstract %s" % abstractClass)
+                raise RuntimeError(f"can't instantiate abstract {abstractClass}")
             return abstractNew(subClass) if inspect.isbuiltin(abstractNew) else abstractNew(subClass, *args, **kwargs)
 
         return decoratedNew
@@ -138,7 +138,7 @@ class Output:
             try:
                 td = typeDesc(value)
             except:
-                raise RuntimeError("missing type %s in serializer" % value.__class__)
+                raise RuntimeError(f"missing type {value.__class__} in serializer")
             td.write(value, self)
 
 
@@ -434,7 +434,7 @@ class Service:
     def invoke(self, request: Request) -> Reply:
         mapping = self.mapper.mapId(request.methodId)
         if mapping is None:
-            raise RuntimeError("no methodId %s found for serviceId %s" % (request.methodId, request.serviceId))
+            raise RuntimeError(f"no methodId {request.methodId} found for serviceId {request.serviceId}")
         try:
             return ValueReply(self.interceptor(
                 mapping,
@@ -451,13 +451,13 @@ class Server:
         for service in services:
             id = service.id
             if id in self.id2service:
-                raise RuntimeError("serviceId %s already added" % id)
+                raise RuntimeError(f"serviceId {id} already added")
             self.id2service[id] = service
 
     def invoke(self, request: Request) -> Reply:
         service = self.id2service.get(request.serviceId)
         if service is None:
-            raise RuntimeError("no serviceId %s found" % request.serviceId)
+            raise RuntimeError(f"no serviceId {request.serviceId} found")
         return service.invoke(request)
 
 
@@ -482,7 +482,7 @@ class Client:
             def __getattr__(self, method: str):
                 mapping = contractId.mapper.mapMethod(method)
                 if mapping is None:
-                    raise RuntimeError("no method '%s' found for serviceId %s" % (method, contractId.id))
+                    raise RuntimeError(f"no method '{method}' found for serviceId {contractId.id}")
 
                 class Method:
                     def __call__(self, *arguments):
@@ -545,7 +545,7 @@ class SimplePathResolver:
     def resolvePath(self, path: Any) -> SimpleTransportSetup:
         setup = self.pathMappings.get(path)
         if setup is None:
-            raise RuntimeError("no mapping for path '%s'" % path)
+            raise RuntimeError(f"no mapping for path '{path}'")
         return setup
 
 
