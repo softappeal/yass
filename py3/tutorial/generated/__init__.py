@@ -88,11 +88,11 @@ yass.methodMapper(contract_instrument.InstrumentService, [
 
 
 class INITIATOR:
-    priceListener = yass.ContractId(contract.PriceListener, 0)  # type: yass.ContractId[contract.PriceListener]
-    echoService = yass.ContractId(contract.EchoService, 1)  # type: yass.ContractId[contract.EchoService]
+    priceListener: yass.ContractId[contract.PriceListener] = yass.ContractId(contract.PriceListener, 0)
+    echoService: yass.ContractId[contract.EchoService] = yass.ContractId(contract.EchoService, 1)
 
 
 class ACCEPTOR:
-    priceEngine = yass.ContractId(contract.PriceEngine, 0)  # type: yass.ContractId[contract.PriceEngine]
-    instrumentService = yass.ContractId(contract_instrument.InstrumentService, 1)  # type: yass.ContractId[contract_instrument.InstrumentService]
-    echoService = yass.ContractId(contract.EchoService, 2)  # type: yass.ContractId[contract.EchoService]
+    priceEngine: yass.ContractId[contract.PriceEngine] = yass.ContractId(contract.PriceEngine, 0)
+    instrumentService: yass.ContractId[contract_instrument.InstrumentService] = yass.ContractId(contract_instrument.InstrumentService, 1)
+    echoService: yass.ContractId[contract.EchoService] = yass.ContractId(contract.EchoService, 2)

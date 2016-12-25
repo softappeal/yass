@@ -290,7 +290,11 @@ public final class PythonGenerator extends Generator {
             } else {
                 for (final Field field : ownFields) {
                     final String t = pythonType(field.getGenericType());
-                    tabsln("self.%s = cast('%s', None)  # type: %s", field.getName(), t, t);
+                    if (python3) {
+                        tabsln("self.%s: %s = cast(%s, None)", field.getName(), t, t);
+                    } else {
+                        tabsln("self.%s = cast('%s', None)  # type: %s", field.getName(), t, t);
+                    }
                 }
             }
             dec();
@@ -400,7 +404,11 @@ public final class PythonGenerator extends Generator {
             for (final ServiceDesc sd : getServiceDescs(services)) {
                 final String qn = getQualifiedName(sd.contractId.contract);
                 tab();
-                tabsln("%s = yass.ContractId(%s, %s)  # type: yass.ContractId[%s]", sd.name, qn, sd.contractId.id, qn);
+                if (python3) {
+                    tabsln("%s: yass.ContractId[%s] = yass.ContractId(%s, %s)", sd.name, qn, qn, sd.contractId.id);
+                } else {
+                    tabsln("%s = yass.ContractId(%s, %s)  # type: yass.ContractId[%s]", sd.name, qn, sd.contractId.id, qn);
+                }
             }
         }
         private String typeDesc(final ClassTypeHandler.FieldDesc fieldDesc) {

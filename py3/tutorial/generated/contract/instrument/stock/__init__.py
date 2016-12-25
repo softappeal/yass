@@ -9,4 +9,4 @@ from .... import contract
 class Stock(contract.Instrument):
     def __init__(self) -> None:
         contract.Instrument.__init__(self)
-        self.paysDividend = cast('bool', None)  # type: bool
+        self.paysDividend: bool = cast(bool, None)

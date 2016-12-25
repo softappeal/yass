@@ -9,8 +9,8 @@ from ... import contract
 class Bond(contract.Instrument):
     def __init__(self) -> None:
         contract.Instrument.__init__(self)
-        self.coupon = cast('float', None)  # type: float
-        self.expiration = cast('contract.Expiration', None)  # type: contract.Expiration
+        self.coupon: float = cast(float, None)
+        self.expiration: contract.Expiration = cast(contract.Expiration, None)
 
 
 class InstrumentService:
