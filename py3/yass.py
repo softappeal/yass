@@ -32,11 +32,11 @@ class Writer:
 
     def writeVarInt(self, value: int) -> None:
         while True:
-            if (value & 0xffffff80) == 0:
+            if (value & 0x_ffff_ff80) == 0:
                 self.writeByte(value)
                 return
-            self.writeByte((value & 0x7f) | 0x80)
-            value = (value if value >= 0 else (value + 0x100000000)) >> 7
+            self.writeByte((value & 0x_7f) | 0x_80)
+            value = (value if value >= 0 else (value + 0x_1_0000_0000)) >> 7
 
     def writeZigZagInt(self, value: int) -> None:
         self.writeVarInt((value << 1) ^ (value >> 31))
@@ -60,15 +60,15 @@ class Reader:
         value = 0
         while shift < 32:
             b = self.readByte()
-            value |= ((b & 0x7f) << shift)
-            if (b & 0x80) == 0:
-                return value if value <= 0x7fffffff else value - 0x100000000
+            value |= ((b & 0x_7f) << shift)
+            if (b & 0x_80) == 0:
+                return value if value <= 0x_7fff_ffff else value - 0x_1_0000_0000
             shift += 7
         raise RuntimeError("malformed VarInt input")
 
     def readZigZagInt(self) -> int:
         value = self.readVarInt()
-        return ((value if value >= 0 else (value + 0x100000000)) >> 1) ^ -(value & 1)
+        return ((value if value >= 0 else (value + 0x_1_0000_0000)) >> 1) ^ -(value & 1)
 
     def readInt(self) -> int:
         return INT_STRUCT.unpack(self.readBytes(4))[0]

@@ -135,7 +135,7 @@ if __name__ == "__main__":
         echoService.echo("exception")
     except SystemException as e:
         print(e.message)
-    big = bytes(1000000)
+    big = bytes(1_000_000)
     if len(echoService.echo(big)) != len(big):
         raise RuntimeError()
     instrumentService.showOneWay(True, Integer(123))
