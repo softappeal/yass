@@ -1,6 +1,6 @@
 @echo off
 
-set keytool_raw="C:\Program Files\Java\jdk1.8.0_102\bin\keytool"
+set keytool_raw=keytool
 set openssl="C:\Program Files\Git\mingw64\bin\openssl"
 
 set keytool=%keytool_raw% -keystore
