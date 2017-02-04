@@ -4,11 +4,19 @@
     <title>yass Tutorial</title>
     <script src="../node_modules/systemjs/dist/system.js"></script>
     <script>
-        System.baseURL = '/tutorial';
-        System.defaultJSExtensions = true;
-        System.paths['yass'] = '/node_modules/yass/yass.js';
+        SystemJS.config({
+            baseURL: '/tutorial',
+            packages: {
+                '/': {
+                    defaultExtension: 'js',
+                    map: {
+                        'yass': '/node_modules/yass/yass'
+                    }
+                }
+            }
+        });
         var tutorial;
-        System.import('tutorial').then(function (m) {
+        SystemJS.import('tutorial').then(function (m) {
             tutorial = m;
         });
     </script>
