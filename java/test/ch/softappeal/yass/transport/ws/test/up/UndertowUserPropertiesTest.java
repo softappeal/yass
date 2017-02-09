@@ -1,4 +1,4 @@
-package ch.softappeal.yass.transport.ws.test;
+package ch.softappeal.yass.transport.ws.test.up;
 
 import io.undertow.Undertow;
 import io.undertow.server.XnioByteBufferPool;
@@ -13,62 +13,38 @@ import org.xnio.OptionMap;
 import org.xnio.Options;
 import org.xnio.Xnio;
 
-import javax.websocket.ClientEndpointConfig;
 import javax.websocket.Endpoint;
 import javax.websocket.server.ServerEndpointConfig;
 import java.util.Collections;
 
-public class UndertowWebSocketNoLeak {
+public class UndertowUserPropertiesTest extends UserPropertiesTest {
 
     public static void main(String... args) throws Exception {
         Xnio xnio = Xnio.getInstance();
         DeploymentManager deployment = Servlets.defaultContainer()
             .addDeployment(
                 Servlets.deployment()
-                    .setClassLoader(UndertowTest.class.getClassLoader())
+                    .setClassLoader(UndertowUserPropertiesTest.class.getClassLoader())
                     .setContextPath("/")
-                    .setDeploymentName(UndertowTest.class.getName())
+                    .setDeploymentName(UndertowUserPropertiesTest.class.getName())
                     .addServletContextAttribute(
                         WebSocketDeploymentInfo.ATTRIBUTE_NAME,
                         new WebSocketDeploymentInfo()
-                            .addEndpoint(
-                                ServerEndpointConfig.Builder
-                                    .create(Endpoint.class, JettyWebSocketLeak.PATH)
-                                    .configurator(new JettyWebSocketLeak.WsConfigurator("server"))
-                                    .build()
-                            )
+                            .addEndpoint(ServerEndpointConfig.Builder.create(Endpoint.class, PATH).configurator(SERVER_CONFIGURATOR).build())
                             .setWorker(xnio.createWorker(OptionMap.builder().getMap()))
                             .setBuffers(new XnioByteBufferPool(new ByteBufferSlicePool(1024, 10240)))
                     )
             );
         deployment.deploy();
-        Undertow server = Undertow.builder()
-            .addHttpListener(JettyWebSocketLeak.PORT, "localhost")
-            .setHandler(deployment.start())
-            .build();
-        server.start();
-        new ServerWebSocketContainer(
+        Undertow.builder().addHttpListener(PORT, "localhost").setHandler(deployment.start()).build().start();
+        clientConnect(new ServerWebSocketContainer(
             DefaultClassIntrospector.INSTANCE,
             xnio.createWorker(OptionMap.create(Options.THREAD_DAEMON, true)),
             new XnioByteBufferPool(new ByteBufferSlicePool(1024, 10240)),
             Collections.singletonList(new ContextClassLoaderSetupAction(ClassLoader.getSystemClassLoader())),
             true,
             true
-        ).connectToServer(
-            new JettyWebSocketLeak.WsConfigurator("client").getEndpointInstance(Endpoint.class),
-            ClientEndpointConfig.Builder.create().build(),
-            JettyWebSocketLeak.THE_URI
-        );
-        /* program output:
-
-        opening server session 21347760
-        opening client session 1154002927
-
-        closing client session 1154002927
-        client session 1154002927 closed with CloseReason[1000]
-        server session 21347760 closed with CloseReason[1000]
-
-        */
+        ));
     }
 
 }
