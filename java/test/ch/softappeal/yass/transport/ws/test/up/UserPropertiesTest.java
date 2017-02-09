@@ -56,7 +56,7 @@ class UserPropertiesTest {
     };
 
     static void clientConnect(WebSocketContainer container) throws Exception {
-        for (final String header : Arrays.asList("Header1", "Header2")) {
+        for (String header : Arrays.asList("Header1", "Header2")) {
             container.connectToServer(
                 new Endpoint() {
                     @Override public void onOpen(Session session, EndpointConfig config) {
