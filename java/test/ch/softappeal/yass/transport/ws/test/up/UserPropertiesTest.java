@@ -29,10 +29,9 @@ class UserPropertiesTest {
             return endpointClass.cast(new Endpoint() {
                 @Override public void onOpen(Session session, EndpointConfig config) {
                     System.out.printf(
-                        "onOpen - config: %s, session: %s, same: %s%n",
+                        "onOpen - config: %s, session: %s%n",
                         config.getUserProperties().keySet().stream().filter(k -> k.startsWith("Header")).collect(Collectors.toSet()),
-                        session.getUserProperties().keySet().stream().filter(k -> k.startsWith("Header")).collect(Collectors.toSet()),
-                        config.getUserProperties() == session.getUserProperties()
+                        session.getUserProperties().keySet().stream().filter(k -> k.startsWith("Header")).collect(Collectors.toSet())
                     );
                 }
                 @Override public void onClose(Session session, CloseReason closeReason) {

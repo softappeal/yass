@@ -1,0 +1,98 @@
+How to access the http headers in Endpoint.onOpen ?
+
+Hi
+
+If I understand the Java API for WebSocket Spec (JSR 356) correctly,
+the only way to access the http headers and the http session is by
+the parameter 'HandshakeRequest request' of ServerEndpointConfig.Configurator.modifyHandshake
+with the methods HandshakeRequest.getHeaders and HandshakeRequest.getHttpSession.
+
+From there, the only way to pass this data to Endpoint.onOpen seems to be by EndpointConfig.getUserProperties
+because 'EndpointConfig config' is a parameter of Endpoint.onOpen.
+
+The problem is, that according to the documentation, EndpointConfig is shared with all sessions and therefore this won't work.
+See also https://java.net/jira/browse/WEBSOCKET_SPEC-218 and https://java.net/jira/browse/WEBSOCKET_SPEC-235.
+However, I did some testing with Undertow and Jetty.
+
+Please have a look at the following test code:
+
+static ServerEndpointConfig.Configurator SERVER_CONFIGURATOR = new ServerEndpointConfig.Configurator() {
+    @Override public <T> T getEndpointInstance(Class<T> endpointClass) {
+        return endpointClass.cast(new Endpoint() {
+            @Override public void onOpen(Session session, EndpointConfig config) {
+                System.out.printf(
+                    "onOpen - config: %s, session: %s%n",
+                    config.getUserProperties().keySet().stream().filter(k -> k.startsWith("Header")).collect(Collectors.toSet()),
+                    session.getUserProperties().keySet().stream().filter(k -> k.startsWith("Header")).collect(Collectors.toSet())
+                );
+            }
+            @Override public void onClose(Session session, CloseReason closeReason) {
+            }
+            @Override public void onError(Session session, Throwable throwable) {
+            }
+        });
+    }
+    @Override public void modifyHandshake(ServerEndpointConfig sec, HandshakeRequest request, HandshakeResponse response) {
+        sec.getUserProperties().putAll(request.getHeaders());
+    }
+    @Override public String getNegotiatedSubprotocol(List<String> supported, List<String> requested) {
+        return "";
+    }
+    @Override public List<Extension> getNegotiatedExtensions(List<Extension> installed, List<Extension> requested) {
+        return new ArrayList<>();
+    }
+    @Override public boolean checkOrigin(String originHeaderValue) {
+        return true;
+    }
+};
+
+static void clientConnect(WebSocketContainer container) throws Exception {
+    for (String header : Arrays.asList("Header1", "Header2")) {
+        container.connectToServer(
+            new Endpoint() {
+                @Override public void onOpen(Session session, EndpointConfig config) {
+                }
+            },
+            ClientEndpointConfig.Builder.create().configurator(new ClientEndpointConfig.Configurator() {
+                @Override public void beforeRequest(Map<String, List<String>> headers) {
+                    headers.put(header, Collections.singletonList("foo"));
+                }
+            }).build(),
+            URI.create("ws://localhost:" + PORT + PATH)
+        );
+        TimeUnit.SECONDS.sleep(1L);
+    }
+}
+
+You'll find the source code in the attachments and under:
+https://github.com/softappeal/yass/blob/master/java/test/ch/softappeal/yass/transport/ws/test/up/UserPropertiesTest.java
+https://github.com/softappeal/yass/blob/master/java/test/ch/softappeal/yass/transport/ws/test/up/UndertowUserPropertiesTest.java
+https://github.com/softappeal/yass/blob/master/java/test/ch/softappeal/yass/transport/ws/test/up/JettyUserPropertiesTest.java
+
+These are the outputs of the tests:
+
+UndertowUserPropertiesTest (io.undertow:undertow-websockets-jsr:1.4.8.Final)
+onOpen - config: [Header1], session: [Header1]
+onOpen - config: [Header1, Header2], session: [Header1, Header2]
+
+JettyUserPropertiesTest (org.eclipse.jetty.websocket:javax-websocket-server-impl:9.4.1.v20170120)
+onOpen - config: [Header1], session: [Header1]
+onOpen - config: [Header2], session: [Header2]
+
+So the questions are:
+
+Jetty and Undertow seem to copy EndpointConfig.getUserProperties to Session.getUserProperties.
+Is this behaviour guaranteed? Where does it say so in the spec?
+
+Jetty seems to make a new EndpointConfig.getUserProperties for each session.
+This seems NOT to be according to the spec.
+This behaviour would be THE SOLUTION to my problem.
+
+Undertow seems to share EndpointConfig.getUserProperties over all sessions.
+This seems to be according to the spec.
+But so it's not possible to pass the headers to Endpoint.onOpen.
+
+So can we say the WebSocket API should behave like Jetty?
+
+Regards,
+Angelo
