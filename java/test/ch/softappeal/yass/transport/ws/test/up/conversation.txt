@@ -96,3 +96,36 @@ So can we say the WebSocket API should behave like Jetty?
 
 Regards,
 Angelo
+
+------------------------------------------------------------------------------------------------------------------------------------------------------
+http://dev.eclipse.org/mhonarc/lists/jetty-users/msg07615.html
+
+From: Joakim Erdfelt
+Date: Thu, 9 Feb 2017 11:33:58 -0700
+Subject: Re: [jetty-users] How to access the http headers in Endpoint.onOpen ?
+
+As you have discovered, this isn't spelled out in the JSR356 spec.
+The JSR356 spec is very simple/naive, it doesn't cover a lot of moderate to
+advanced concepts.
+
+We follow the modifyHandshake and user properties as outlined in this
+stackoverflow answer ...
+
+http://stackoverflow.com/questions/17936440/accessing-httpsession-from-httpservletrequest-in-a-web-socket-serverendpoint/17994303#17994303
+
+Of note, it appears that Apache Tomcat also follows this behavior.
+
+Joakim Erdfelt
+
+------------------------------------------------------------------------------------------------------------------------------------------------------
+http://lists.jboss.org/pipermail/undertow-dev/2017-February/001892.html
+
+From: Stuart Douglas
+Date: Fri, 10 Feb 2017 08:55:37 +1100
+Subject: Re: [undertow-dev] How to access the http headers in Endpoint.onOpen ?
+
+I think you will need to take this up with the Websocket EG, I think
+Undertow follows the spec as it is currently implemented, so I don't
+really want to change it.
+
+Stuart
