@@ -89,7 +89,7 @@ task dist {
                 description 'Yet Another Service Solution'
                 url 'https://github.com/softappeal/yass'
                 licenses {
-                    license { name 'The BSD 3-Clause License' }
+                    license { name 'BSD-3-Clause' }
                 }
                 scm { url 'https://github.com/softappeal/yass' }
                 organization { name 'softappeal GmbH Switzerland' }
