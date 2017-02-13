@@ -27,6 +27,7 @@
 * uses http://semver.org
 
 * is Open Source (BSD-style license)
+  * repository: https://github.com/softappeal/yass
   * Java artifacts on Maven Central:
     * groupId="ch.softappeal.yass"
     * artifactId="yass"

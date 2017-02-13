@@ -25,15 +25,13 @@ public abstract class WebAcceptorSetup {
 
     protected static final ServerEndpointConfig ENDPOINT_CONFIG = ServerEndpointConfig.Builder
         .create(Endpoint.class, WS_PATH)
-        .configurator(
-            new WsConfigurator(
-                AsyncWsConnection.factory(1_000),
-                TransportSetup.ofContractSerializer(
-                    Config.CONTRACT_SERIALIZER,
-                    connection -> new AcceptorSession(connection, DISPATCH_EXECUTOR)
-                ),
-                Exceptions.STD_ERR
-            )
-        ).build();
+        .configurator(new WsConfigurator(
+            AsyncWsConnection.factory(1_000),
+            TransportSetup.ofContractSerializer(
+                Config.CONTRACT_SERIALIZER,
+                connection -> new AcceptorSession(connection, DISPATCH_EXECUTOR)
+            ),
+            Exceptions.STD_ERR
+        )).build();
 
 }
