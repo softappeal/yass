@@ -51,8 +51,8 @@ public final class XhrInitiator {
     }
 
     public static void main(final String... args) throws Exception {
-        client("http://localhost:" + WebAcceptorSetup.PORT + "/xhr", false);
-        client("https://localhost:" + (WebAcceptorSetup.PORT + 1) + "/xhr", true);
+        client("http://localhost:" + WebAcceptorSetup.PORT + WebAcceptorSetup.XHR_PATH, false);
+        client("https://localhost:" + (WebAcceptorSetup.PORT + 1) + WebAcceptorSetup.XHR_PATH, true);
     }
 
 }
