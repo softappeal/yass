@@ -1,8 +1,8 @@
 package ch.softappeal.yass.core.remote;
 
 import ch.softappeal.yass.util.Check;
-import ch.softappeal.yass.util.Nullable;
 
+import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class SimpleInterceptorContext {
@@ -11,11 +11,11 @@ public class SimpleInterceptorContext {
 
     public final int id = ID.getAndIncrement();
     public final MethodMapper.Mapping methodMapping;
-    public final @Nullable Object[] arguments;
+    public final List<Object> arguments;
 
-    public SimpleInterceptorContext(final MethodMapper.Mapping methodMapping, final @Nullable Object[] arguments) {
+    public SimpleInterceptorContext(final MethodMapper.Mapping methodMapping, final List<Object> arguments) {
         this.methodMapping = Check.notNull(methodMapping);
-        this.arguments = arguments;
+        this.arguments = Check.notNull(arguments);
     }
 
 }

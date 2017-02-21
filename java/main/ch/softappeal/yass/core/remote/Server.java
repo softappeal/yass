@@ -73,7 +73,7 @@ public final class Server {
                 });
                 try {
                     entry();
-                    methodMapping.method.invoke(service.implementation, arguments);
+                    methodMapping.method.invoke(service.implementation, arguments.toArray());
                 } catch (final InvocationTargetException e) {
                     try {
                         throw e.getCause();
@@ -86,7 +86,7 @@ public final class Server {
                     COMPLETER.set(oldCompleter);
                 }
             } else {
-                replyWriter.writeReply(service.invokeSync(methodMapping.method, arguments));
+                replyWriter.writeReply(service.invokeSync(methodMapping.method, arguments.toArray()));
             }
         }
     }

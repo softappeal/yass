@@ -18,7 +18,7 @@ import ch.softappeal.yass.util.Nullable;
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.util.Arrays;
+import java.util.List;
 import java.util.concurrent.CompletionStage;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -160,9 +160,9 @@ public class AsyncTest {
         Logger(final String name) {
             this.name = Check.notNull(name);
         }
-        @Override public SimpleInterceptorContext entry(final MethodMapper.Mapping methodMapping, final @Nullable Object[] arguments) {
+        @Override public SimpleInterceptorContext entry(final MethodMapper.Mapping methodMapping, final List<Object> arguments) {
             final SimpleInterceptorContext context = new SimpleInterceptorContext(methodMapping, arguments);
-            println(name, "entry", methodMapping.method.getName(), context.id, Arrays.deepToString(arguments));
+            println(name, "entry", methodMapping.method.getName(), context.id, arguments.toString());
             return context;
         }
         @Override public void exit(final SimpleInterceptorContext context, final @Nullable Object result) {

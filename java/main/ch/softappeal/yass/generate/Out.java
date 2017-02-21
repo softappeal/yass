@@ -117,6 +117,7 @@ public abstract class Out {
     }
 
     protected Out(final String file) throws IOException {
+        //noinspection ResultOfMethodCallIgnored
         new File(file).getParentFile().mkdirs();
         printer = new PrintWriter(file, StandardCharsets.UTF_8.name());
     }

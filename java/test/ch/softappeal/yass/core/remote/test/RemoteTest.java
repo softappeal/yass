@@ -24,9 +24,7 @@ public class RemoteTest extends InvokeTest {
 
     private static Client client(final Server server) {
         return new Client() {
-            @Override protected Object invokeSync(
-                final ContractId<?> contractId, final Interceptor interceptor, final Method method, final @Nullable Object[] arguments
-            ) throws Exception {
+            @Override protected Object invokeSync(final ContractId<?> contractId, final Interceptor interceptor, final Method method, final @Nullable Object[] arguments) throws Exception {
                 COUNTER = 0;
                 try {
                     return super.invokeSync(contractId, interceptor, method, arguments);

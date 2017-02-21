@@ -3,16 +3,18 @@ package ch.softappeal.yass.core.remote;
 import ch.softappeal.yass.util.Check;
 import ch.softappeal.yass.util.Nullable;
 
+import java.util.List;
+
 public abstract class AbstractInvocation {
 
     public final MethodMapper.Mapping methodMapping;
-    public final @Nullable Object[] arguments;
+    public final List<Object> arguments;
     private final @Nullable InterceptorAsync<Object> interceptor;
     private volatile Object context;
 
-    AbstractInvocation(final MethodMapper.Mapping methodMapping, final @Nullable Object[] arguments, final @Nullable InterceptorAsync<Object> interceptor) {
+    AbstractInvocation(final MethodMapper.Mapping methodMapping, final List<Object> arguments, final @Nullable InterceptorAsync<Object> interceptor) {
         this.methodMapping = Check.notNull(methodMapping);
-        this.arguments = arguments;
+        this.arguments = Check.notNull(arguments);
         this.interceptor = interceptor;
     }
 

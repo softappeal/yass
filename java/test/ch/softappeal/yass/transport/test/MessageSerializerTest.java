@@ -12,6 +12,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import java.io.EOFException;
+import java.util.ArrayList;
 
 public class MessageSerializerTest {
 
@@ -24,10 +25,10 @@ public class MessageSerializerTest {
     @Test public void request() throws Exception {
         final int serviceId = 123456;
         final int methodId = 4711;
-        final Request request = copy(new Request(serviceId, methodId, new Object[0]));
+        final Request request = copy(new Request(serviceId, methodId, new ArrayList<>()));
         Assert.assertEquals(serviceId, request.serviceId);
         Assert.assertEquals(methodId, request.methodId);
-        Assert.assertTrue(request.arguments.length == 0);
+        Assert.assertTrue(request.arguments.isEmpty());
     }
 
     @Test public void value() throws Exception {

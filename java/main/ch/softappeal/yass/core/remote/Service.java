@@ -2,7 +2,6 @@ package ch.softappeal.yass.core.remote;
 
 import ch.softappeal.yass.core.Interceptor;
 import ch.softappeal.yass.util.Check;
-import ch.softappeal.yass.util.Nullable;
 
 import java.lang.reflect.Method;
 
@@ -39,7 +38,7 @@ public final class Service {
         return (InterceptorAsync)interceptor;
     }
 
-    Reply invokeSync(final Method method, final @Nullable Object[] arguments) {
+    Reply invokeSync(final Method method, final Object[] arguments) {
         try {
             return new ValueReply(Interceptor.invoke(interceptor(), method, arguments, implementation));
         } catch (final Exception e) {

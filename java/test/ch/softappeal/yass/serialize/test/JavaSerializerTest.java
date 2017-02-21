@@ -15,6 +15,7 @@ import org.junit.Test;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.EOFException;
+import java.util.ArrayList;
 
 public class JavaSerializerTest {
 
@@ -45,14 +46,14 @@ public class JavaSerializerTest {
         final Packet packet = copy(
             new Packet(
                 requestNumber,
-                new Request(serviceId, methodId, new Object[0])
+                new Request(serviceId, methodId, new ArrayList<>())
             )
         );
         Assert.assertTrue(packet.requestNumber() == requestNumber);
         final Request request = (Request)packet.message();
         Assert.assertEquals(serviceId, request.serviceId);
         Assert.assertEquals(methodId, request.methodId);
-        Assert.assertTrue(request.arguments.length == 0);
+        Assert.assertTrue(request.arguments.isEmpty());
     }
 
     @Test public void value() throws Exception {

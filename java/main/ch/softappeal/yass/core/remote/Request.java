@@ -1,6 +1,8 @@
 package ch.softappeal.yass.core.remote;
 
-import ch.softappeal.yass.util.Nullable;
+import ch.softappeal.yass.util.Check;
+
+import java.util.List;
 
 public final class Request extends Message {
 
@@ -13,12 +15,12 @@ public final class Request extends Message {
      */
     public final int methodId;
 
-    public final @Nullable Object[] arguments;
+    public final List<Object> arguments;
 
-    public Request(final int serviceId, final int methodId, final @Nullable Object[] arguments) {
+    public Request(final int serviceId, final int methodId, final List<Object> arguments) {
         this.serviceId = serviceId;
         this.methodId = methodId;
-        this.arguments = arguments;
+        this.arguments = Check.notNull(arguments);
     }
 
 }

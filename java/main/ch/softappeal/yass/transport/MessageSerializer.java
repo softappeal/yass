@@ -9,13 +9,10 @@ import ch.softappeal.yass.serialize.Reader;
 import ch.softappeal.yass.serialize.Serializer;
 import ch.softappeal.yass.serialize.Writer;
 
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 /**
  * Default {@link Serializer} for {@link Message}.
- * Note: {@link Request#arguments} is serialized as a {@link List}.
  */
 public final class MessageSerializer extends CompositeSerializer {
 
@@ -27,10 +24,6 @@ public final class MessageSerializer extends CompositeSerializer {
     private static final byte VALUE_REPLY = (byte)1;
     private static final byte EXCEPTION_REPLY = (byte)2;
 
-    private static Object[] toArray(final List<Object> list) {
-        return list.toArray(new Object[list.size()]);
-    }
-
     @SuppressWarnings("unchecked")
     @Override public Message read(final Reader reader) throws Exception {
         final byte type = reader.readByte();
@@ -38,7 +31,7 @@ public final class MessageSerializer extends CompositeSerializer {
             return new Request(
                 reader.readZigZagInt(),
                 reader.readZigZagInt(),
-                toArray((List<Object>)serializer.read(reader))
+                (List<Object>)serializer.read(reader)
             );
         } else if (type == VALUE_REPLY) {
             return new ValueReply(
@@ -57,7 +50,7 @@ public final class MessageSerializer extends CompositeSerializer {
             final Request request = (Request)message;
             writer.writeZigZagInt(request.serviceId);
             writer.writeZigZagInt(request.methodId);
-            serializer.write((request.arguments == null) ? Collections.emptyList() : Arrays.asList(request.arguments), writer);
+            serializer.write(request.arguments, writer);
         } else if (message instanceof ValueReply) {
             writer.writeByte(VALUE_REPLY);
             final ValueReply reply = (ValueReply)message;

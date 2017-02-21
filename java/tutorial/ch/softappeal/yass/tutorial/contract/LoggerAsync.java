@@ -5,9 +5,11 @@ import ch.softappeal.yass.core.remote.MethodMapper;
 import ch.softappeal.yass.core.remote.SimpleInterceptorContext;
 import ch.softappeal.yass.util.Nullable;
 
+import java.util.List;
+
 public class LoggerAsync implements InterceptorAsync<SimpleInterceptorContext> {
 
-    @Override public SimpleInterceptorContext entry(final MethodMapper.Mapping methodMapping, final @Nullable Object[] arguments) {
+    @Override public SimpleInterceptorContext entry(final MethodMapper.Mapping methodMapping, final List<Object> arguments) {
         final SimpleInterceptorContext context = new SimpleInterceptorContext(methodMapping, arguments);
         System.out.println("entry " + context.id + ": " + methodMapping.method.getName() + " " + Logger.dump(arguments));
         return context;
