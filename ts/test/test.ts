@@ -401,6 +401,13 @@ const hostname = "localhost";
     }
     yass.xhr("http://" + hostname + ":9090/xhr", contract.SERIALIZER, 500).proxy(contract.acceptor.echoService).echo("timeout").catch(error => log("timeout failed:", error));
 
+    const node1 = new contract.Node;
+    const node2 = new contract.Node;
+    node1.id = 1;
+    node2.id = 2;
+    node1.next = node2;
+    log("echo succeeded:", await echoService.echo(node1));
+
 })();
 
 log("done");

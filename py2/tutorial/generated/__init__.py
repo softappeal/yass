@@ -56,6 +56,7 @@ yass.fieldDescs(contract_instrument_stock_python.PythonStock, [
 yass.fieldDescs(contract.Node, [
     yass.FieldDesc(1, 'id', yass.DOUBLE_DESC),
     yass.FieldDesc(2, 'links', yass.LIST_DESC),
+    yass.FieldDesc(3, 'next', None),
 ])
 
 SERIALIZER = yass.FastSerializer([

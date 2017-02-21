@@ -96,6 +96,17 @@ export class UnknownInstrumentsException extends ApplicationException {
     );
 }
 
+export class Node {
+    id: number;
+    links: Node[];
+    next: Node;
+    static readonly TYPE_DESC = yass.classDesc(15, Node,
+        new yass.FieldDesc(1, 'id', yass.NUMBER_DESC),
+        new yass.FieldDesc(2, 'links', yass.LIST_DESC),
+        new yass.FieldDesc(3, 'next', null)
+    );
+}
+
 export namespace proxy {
     export interface EchoService {
         echo(value: any): Promise<any>;
@@ -184,5 +195,6 @@ export const SERIALIZER = new yass.FastSerializer(
     instrument.stock.Stock,
     instrument.Bond,
     SystemException,
-    UnknownInstrumentsException
+    UnknownInstrumentsException,
+    Node
 );

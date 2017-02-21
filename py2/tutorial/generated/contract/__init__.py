@@ -76,6 +76,7 @@ class Node:
     def __init__(self):  # type: () -> None
         self.id = cast('float', None)  # type: float
         self.links = cast('List[Node]', None)  # type: List[Node]
+        self.next = cast('Node', None)  # type: Node
 
 
 class EchoService:

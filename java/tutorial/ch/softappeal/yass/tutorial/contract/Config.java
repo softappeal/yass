@@ -33,7 +33,8 @@ public final class Config {
             Stock.class,
             Bond.class,
             SystemException.class,
-            UnknownInstrumentsException.class
+            UnknownInstrumentsException.class,
+            Node.class
         )
     );
 
