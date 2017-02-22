@@ -8,7 +8,8 @@
         "ws": "2.0.2",
         "xhr2": "0.1.4",
         "istanbul": "0.4.5",
-        "remap-istanbul": "0.8.4"
+        "remap-istanbul": "0.8.4",
+        "@reactivex/rxjs": "5.2.0"
     },
     "repository": {
         "type": "git",
