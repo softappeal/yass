@@ -395,6 +395,7 @@ const printer: yass.Interceptor<yass.SimpleInterceptorContext> = {
 
     const proxyFactory = yass.xhr("http://" + hostname + ":9090/xhr", contract.SERIALIZER);
     const echoService = proxyFactory.proxy(contract.acceptor.echoService, printer);
+
     log("echo succeeded:", await echoService.echo("echo"));
     try {
         await echoService.echo("throwRuntimeException");
@@ -425,25 +426,23 @@ const printer: yass.Interceptor<yass.SimpleInterceptorContext> = {
     }
     subscribe("throwRuntimeException");
     subscribe("unsubscribe").unsubscribe();
-    subscribe("hello");
+    subscribe("regular");
     /*
         logger: entry 16 echo [ 'throwRuntimeException' ]
         logger: entry 17 echo [ 'unsubscribe' ]
-        logger: entry 18 echo [ 'hello' ]
+        logger: entry 18 echo [ 'regular' ]
 
-        logger: exception 16 echo SystemException {
-            message: 'java.lang.RuntimeException: throwRuntimeException' }
-        error: throwRuntimeException - SystemException {
-            message: 'java.lang.RuntimeException: throwRuntimeException' }
+        logger: exception 16 echo SystemException { message: 'java.lang.RuntimeException: throwRuntimeException' }
+        error: throwRuntimeException - SystemException { message: 'java.lang.RuntimeException: throwRuntimeException' }
         logger: resolved 16 echo
-
-        logger: exit 18 echo hello
-        next: hello - hello
-        complete: hello
-        logger: resolved 18 echo
 
         logger: exit 17 echo unsubscribe
         logger: resolved 17 echo
+
+        logger: exit 18 echo regular
+        next: regular - regular
+        complete: regular
+        logger: resolved 18 echo
      */
 
 })();
