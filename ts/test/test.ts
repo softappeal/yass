@@ -2,7 +2,6 @@ import * as yass from "yass";
 import {IntegerImpl} from "../tutorial/baseTypes-external";
 import * as contract from "../tutorial/generated/contract";
 import PriceKind = contract.PriceKind;
-import * as Rx from "@reactivex/rxjs";
 
 function log(...args: any[]): void {
     console.log.apply(console, args);
@@ -279,26 +278,6 @@ function writer2reader(writer: yass.Writer): yass.Reader {
 
 const hostname = "localhost";
 
-function doLog(context: yass.SimpleInterceptorContext, kind: string, data: any): void {
-    log("logger:", kind, context.id, context.methodMapping.method, data);
-}
-const printer: yass.Interceptor<yass.SimpleInterceptorContext> = {
-    entry(methodMapping: yass.MethodMapping, parameters: any[]): yass.SimpleInterceptorContext {
-        const context = new yass.SimpleInterceptorContext(methodMapping, parameters);
-        doLog(context, "entry", parameters);
-        return context;
-    },
-    exit(context: yass.SimpleInterceptorContext, result: any): void {
-        doLog(context, "exit", result);
-    },
-    exception(context: yass.SimpleInterceptorContext, exception: any): void {
-        doLog(context, "exception", exception);
-    },
-    resolved(context: yass.SimpleInterceptorContext): void {
-        doLog(context, "resolved", "");
-    }
-};
-
 (function remoteTest() {
 
     class Session extends yass.Session {
@@ -322,6 +301,25 @@ const printer: yass.Interceptor<yass.SimpleInterceptorContext> = {
         }
         protected opened(): void {
             log("session opened", this.isClosed());
+            function doLog(context: yass.SimpleInterceptorContext, kind: string, data: any): void {
+                log("logger:", kind, context.id, context.methodMapping.method, data);
+            }
+            const printer: yass.Interceptor<yass.SimpleInterceptorContext> = {
+                entry(methodMapping: yass.MethodMapping, parameters: any[]): yass.SimpleInterceptorContext {
+                    const context = new yass.SimpleInterceptorContext(methodMapping, parameters);
+                    doLog(context, "entry", parameters);
+                    return context;
+                },
+                exit(context: yass.SimpleInterceptorContext, result: any): void {
+                    doLog(context, "exit", result);
+                },
+                exception(context: yass.SimpleInterceptorContext, exception: any): void {
+                    doLog(context, "exception", exception);
+                },
+                resolved(context: yass.SimpleInterceptorContext): void {
+                    doLog(context, "resolved", "");
+                }
+            };
             const instrumentService = this.proxy(contract.acceptor.instrumentService, printer);
             const priceEngine = this.proxy(contract.acceptor.priceEngine, printer);
             const echoService = this.proxy(contract.acceptor.echoService, printer);
@@ -394,7 +392,7 @@ const printer: yass.Interceptor<yass.SimpleInterceptorContext> = {
 (async function xhrTest() {
 
     const proxyFactory = yass.xhr("http://" + hostname + ":9090/xhr", contract.SERIALIZER);
-    const echoService = proxyFactory.proxy(contract.acceptor.echoService, printer);
+    const echoService = proxyFactory.proxy(contract.acceptor.echoService);
 
     log("echo succeeded:", await echoService.echo("echo"));
     try {
@@ -410,40 +408,6 @@ const printer: yass.Interceptor<yass.SimpleInterceptorContext> = {
     node2.id = 2;
     node1.next = node2;
     log("echo succeeded:", await echoService.echo(node1));
-
-    function subscribe(value: string): Rx.Subscription {
-        return Rx.Observable.fromPromise(echoService.echo(value)).subscribe({
-            next: function (v: any): void {
-                log("next:", value, "-", v);
-            },
-            error: function (err: any): void {
-                log("error:", value, "-", err);
-            },
-            complete: function (): void {
-                log("complete:", value);
-            }
-        });
-    }
-    subscribe("throwRuntimeException");
-    subscribe("unsubscribe").unsubscribe();
-    subscribe("regular");
-    /*
-        logger: entry 16 echo [ 'throwRuntimeException' ]
-        logger: entry 17 echo [ 'unsubscribe' ]
-        logger: entry 18 echo [ 'regular' ]
-
-        logger: exception 16 echo SystemException { message: 'java.lang.RuntimeException: throwRuntimeException' }
-        error: throwRuntimeException - SystemException { message: 'java.lang.RuntimeException: throwRuntimeException' }
-        logger: resolved 16 echo
-
-        logger: exit 17 echo unsubscribe
-        logger: resolved 17 echo
-
-        logger: exit 18 echo regular
-        next: regular - regular
-        complete: regular
-        logger: resolved 18 echo
-     */
 
 })();
 
