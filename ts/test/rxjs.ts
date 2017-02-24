@@ -4,7 +4,14 @@ import * as Rx from "@reactivex/rxjs";
  * Calls errorHandler if promise fails instead of Observer.error.
  */
 function observableWithErrorHandler<T>(promise: Promise<T>, errorHandler: (err: any) => void): Rx.Observable<T> {
-    return Rx.Observable.fromPromise(promise);
+    const subject = new Rx.Subject;
+    promise
+        .then(value => {
+            subject.next(value);
+            subject.complete();
+        })
+        .catch(err => errorHandler(err));
+    return subject;
 }
 
 function log(...args: any[]): void {
@@ -26,7 +33,7 @@ function observer<T>(id: number): Rx.Observer<T> {
 }
 
 function test<T>(promise: Promise<T>): void {
-    const observable = observableWithErrorHandler(promise, err => log("errorHandler", err));
+    const observable = observableWithErrorHandler(promise, err => log("errorHandler :", err));
     observable.subscribe(observer(1));
     observable.subscribe(observer(2));
 }
@@ -36,11 +43,10 @@ test(Promise.reject("exception"));
 /*
 
  next 1 : hello
- complete 1
  next 2 : hello
+ complete 1
  complete 2
 
- error 1 : exception
- error 2 : exception
+ errorHandler : exception
 
  */
