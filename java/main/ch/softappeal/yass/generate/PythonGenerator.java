@@ -31,7 +31,6 @@ import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.SortedMap;
 import java.util.SortedSet;
 import java.util.TreeMap;
@@ -412,11 +411,10 @@ public final class PythonGenerator extends Generator {
             }
         }
         private String typeDesc(final ClassTypeHandler.FieldDesc fieldDesc) {
-            final Optional<TypeHandler> typeHandlerOptional = fieldDesc.handler.typeHandler();
-            if (!typeHandlerOptional.isPresent()) {
+            if (!fieldDesc.handler.typeHandler().isPresent()) {
                 return "None";
             }
-            final TypeHandler typeHandler = typeHandlerOptional.get();
+            final TypeHandler typeHandler = fieldDesc.handler.typeHandler().get();
             if (TypeDesc.LIST.handler == typeHandler) {
                 return "yass.LIST_DESC";
             } else if (BOOLEAN_DESC.handler == typeHandler) {
