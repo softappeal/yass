@@ -1,6 +1,6 @@
 defaultTasks 'clean', 'build', 'generateTypeScript', 'generatePython3', 'generatePython2', 'dist'
 
-apply plugin: 'java'
+apply plugin: 'java-library'
 apply plugin: 'osgi'
 apply plugin: 'maven'
 apply plugin: 'signing'
@@ -24,8 +24,8 @@ sourceSets {
 }
 
 def websocket_dep = 'javax.websocket:javax.websocket-api:1.0'
-def jetty_dep = 'org.eclipse.jetty.websocket:javax-websocket-server-impl:9.4.1.v20170120'
-def undertow_dep = 'io.undertow:undertow-websockets-jsr:1.4.8.Final'
+def jetty_dep = 'org.eclipse.jetty.websocket:javax-websocket-server-impl:9.4.2.v20170220'
+def undertow_dep = 'io.undertow:undertow-websockets-jsr:1.4.11.Final'
 def junit_dep = 'junit:junit:4.12'
 
 dependencies {
