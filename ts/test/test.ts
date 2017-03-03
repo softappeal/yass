@@ -31,9 +31,7 @@ assertThrown(() => {
 });
 
 function toArrayBuffer(byteArray: Uint8Array): ArrayBuffer {
-    const arrayBuffer = new ArrayBuffer(byteArray.length);
-    new Uint8Array(arrayBuffer).set(byteArray);
-    return arrayBuffer;
+    return byteArray.slice().buffer;
 }
 
 function writer2reader(writer: yass.Writer): yass.Reader {
