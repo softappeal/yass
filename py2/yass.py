@@ -388,10 +388,10 @@ class MethodMapper:
             self.method2Mapping[mapping.method] = mapping
 
     def mapId(self, id):  # type: (int) -> MethodMapping
-        return self.id2mapping.get(id)
+        return cast(MethodMapping, self.id2mapping.get(id))
 
     def mapMethod(self, method):  # type: (str) -> MethodMapping
-        return self.method2Mapping.get(method)
+        return cast(MethodMapping, self.method2Mapping.get(method))
 
 
 MAPPER = "MAPPER"
@@ -663,7 +663,7 @@ class Dumper:
             else:
                 referenceables = self.referenceables and (not self.isConcreteValueClass(value))
                 if referenceables:
-                    index = cast(Dict[Any, int], alreadyDumped).get(value)
+                    index = cast(int, cast(Dict[Any, int], alreadyDumped).get(value))
                     if index is not None:
                         write(u"#" + unicode(index))
                         return

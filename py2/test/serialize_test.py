@@ -1,6 +1,6 @@
 import unittest
 from io import BytesIO
-from typing import Any
+from typing import Any, List
 
 from tutorial.generated import SERIALIZER
 from tutorial.generated.contract import Expiration, PriceKind, Node, UnknownInstrumentsException
