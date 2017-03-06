@@ -15,12 +15,14 @@ public class LoggerAsync implements InterceptorAsync<SimpleInterceptorContext> {
         return context;
     }
 
-    @Override public void exit(final SimpleInterceptorContext context, final @Nullable Object result) {
+    @Override public @Nullable Object exit(final SimpleInterceptorContext context, final @Nullable Object result) {
         System.out.println("exit " + context.id + ": " + context.methodMapping.method.getName() + " " + Logger.dump(result));
+        return result;
     }
 
-    @Override public void exception(final SimpleInterceptorContext context, final Exception exception) {
+    @Override public Exception exception(final SimpleInterceptorContext context, final Exception exception) {
         System.out.println("exception " + context.id + ": " + context.methodMapping.method.getName() + " " + exception);
+        return exception;
     }
 
 }

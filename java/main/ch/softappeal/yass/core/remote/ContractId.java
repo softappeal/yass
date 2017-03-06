@@ -35,7 +35,7 @@ public final class ContractId<C> {
      * @see #serviceAsync(Object, InterceptorAsync)
      */
     public Service serviceAsync(final C implementation) {
-        return serviceAsync(implementation, InterceptorAsync.EMPTY);
+        return serviceAsync(implementation, DirectInterceptorAsync.INSTANCE);
     }
 
     public static <C> ContractId<C> create(final Class<C> contract, final int id, final MethodMapper.Factory methodMapperFactory) {

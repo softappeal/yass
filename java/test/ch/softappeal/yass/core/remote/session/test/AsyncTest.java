@@ -165,11 +165,13 @@ public class AsyncTest {
             println(name, "entry", methodMapping.method.getName(), context.id, arguments.toString());
             return context;
         }
-        @Override public void exit(final SimpleInterceptorContext context, final @Nullable Object result) {
+        @Override public @Nullable Object exit(final SimpleInterceptorContext context, final @Nullable Object result) {
             println(name, "exit", context.methodMapping.method.getName(), context.id, result);
+            return result;
         }
-        @Override public void exception(final SimpleInterceptorContext context, final Exception exception) {
+        @Override public Exception exception(final SimpleInterceptorContext context, final Exception exception) {
             println(name, "exception", context.methodMapping.method.getName(), context.id, exception);
+            return exception;
         }
     }
 

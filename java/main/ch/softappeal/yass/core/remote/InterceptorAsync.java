@@ -11,20 +11,14 @@ public interface InterceptorAsync<C> {
      */
     @Nullable C entry(MethodMapper.Mapping methodMapping, List<Object> arguments) throws Exception;
 
-    void exit(@Nullable C context, @Nullable Object result) throws Exception;
+    /**
+     * @return result
+     */
+    @Nullable Object exit(@Nullable C context, @Nullable Object result) throws Exception;
 
-    void exception(@Nullable C context, Exception exception) throws Exception;
-
-    InterceptorAsync<?> EMPTY = new InterceptorAsync<Object>() {
-        @Override public @Nullable Object entry(final MethodMapper.Mapping methodMapping, final List<Object> arguments) {
-            return null;
-        }
-        @Override public void exit(final @Nullable Object context, final @Nullable Object result) {
-            // empty
-        }
-        @Override public void exception(final @Nullable Object context, final Exception exception) {
-            // empty
-        }
-    };
+    /**
+     * @return exception
+     */
+    Exception exception(@Nullable C context, Exception exception) throws Exception;
 
 }

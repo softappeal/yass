@@ -44,17 +44,10 @@ public abstract class Client {
             if (promise == null) {
                 return; // oneWay
             }
-            if (async()) {
-                try {
-                    exit(reply.process());
-                } catch (final Exception e) {
-                    exception(e);
-                }
-            }
             try {
-                ((CompletableFuture)promise).complete(reply.process());
+                ((CompletableFuture)promise).complete(async() ? exit(reply.process()) : reply.process());
             } catch (final Exception e) {
-                promise.completeExceptionally(e);
+                promise.completeExceptionally(async() ? exception(e) : e);
             }
         }
     }
@@ -148,7 +141,7 @@ public abstract class Client {
      * @see #proxyAsync(ContractId, InterceptorAsync)
      */
     public final <C> C proxyAsync(final ContractId<C> contractId) {
-        return proxyAsync(contractId, InterceptorAsync.EMPTY);
+        return proxyAsync(contractId, DirectInterceptorAsync.INSTANCE);
     }
 
     @FunctionalInterface public interface Execute<R> {
