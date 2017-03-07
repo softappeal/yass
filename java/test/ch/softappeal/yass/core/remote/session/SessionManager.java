@@ -8,7 +8,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class SessionManager<S extends Session> {
 
-    private final Set<S> modifiableSessions = Collections.newSetFromMap(new ConcurrentHashMap<>(16));
+    private final Set<S> modifiableSessions = ConcurrentHashMap.newKeySet(16);
     public final Set<S> sessions = Collections.unmodifiableSet(modifiableSessions);
 
     /**

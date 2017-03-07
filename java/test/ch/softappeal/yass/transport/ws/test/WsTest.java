@@ -26,8 +26,8 @@ public abstract class WsTest extends TransportTest {
     protected static final String PATH = "/test";
     protected static final URI THE_URI = URI.create("ws://localhost:" + PORT + PATH);
 
-    private static volatile ExecutorService INITIATOR_EXECUTOR;
-    private static volatile ExecutorService ACCEPTOR_EXECUTOR;
+    private static ExecutorService INITIATOR_EXECUTOR;
+    private static ExecutorService ACCEPTOR_EXECUTOR;
 
     @Before public void startDispatcherExecutor() {
         INITIATOR_EXECUTOR = Executors.newCachedThreadPool(new NamedThreadFactory("initiatorExecutor", Exceptions.TERMINATE));
@@ -39,8 +39,8 @@ public abstract class WsTest extends TransportTest {
         ACCEPTOR_EXECUTOR.shutdown();
     }
 
-    private static volatile TransportSetup TRANSPORT_SETUP_INITIATOR;
-    private static volatile TransportSetup TRANSPORT_SETUP_ACCEPTOR;
+    private static TransportSetup TRANSPORT_SETUP_INITIATOR;
+    private static TransportSetup TRANSPORT_SETUP_ACCEPTOR;
 
     protected static ServerEndpointConfig serverEndpointConfig() {
         return ServerEndpointConfig.Builder
