@@ -308,11 +308,13 @@ const hostname = "localhost";
                     doLog(context, "entry", parameters);
                     return context;
                 },
-                exit(context: yass.SimpleInterceptorContext, result: any): void {
+                exit(context: yass.SimpleInterceptorContext, result: any): any {
                     doLog(context, "exit", result);
+                    return result;
                 },
-                exception(context: yass.SimpleInterceptorContext, exception: any): void {
+                exception(context: yass.SimpleInterceptorContext, exception: any): any {
                     doLog(context, "exception", exception);
+                    return exception;
                 },
                 resolved(context: yass.SimpleInterceptorContext): void {
                     doLog(context, "resolved", "");

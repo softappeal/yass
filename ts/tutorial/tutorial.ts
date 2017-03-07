@@ -2,7 +2,7 @@ import * as yass from "yass";
 import * as contract from "./generated/contract";
 import {IntegerImpl} from "./baseTypes-external";
 
-import PriceListener = contract.impl.PriceListener; // shows how to work with namespace alias
+import PriceListener = contract.impl.PriceListener;
 
 function log(...args: any[]): void {
     console.log.apply(console, args);
@@ -20,11 +20,13 @@ class Logger implements yass.Interceptor<yass.SimpleInterceptorContext> {
         this.doLog(context, "entry", parameters);
         return context;
     }
-    exit(context: yass.SimpleInterceptorContext, result: any): void {
+    exit(context: yass.SimpleInterceptorContext, result: any): any {
         this.doLog(context, "exit", result);
+        return result
     }
-    exception(context: yass.SimpleInterceptorContext, exception: any): void {
+    exception(context: yass.SimpleInterceptorContext, exception: any): any {
         this.doLog(context, "exception", exception);
+        return exception;
     }
     resolved(context: yass.SimpleInterceptorContext): void {
         this.doLog(context, "resolved", "");
@@ -83,7 +85,6 @@ class EchoServiceImpl implements contract.impl.EchoService {
 }
 
 async function subscribePrices(client: yass.Client) {
-    // create proxies; you can add 0..n interceptors to a proxy
     const instrumentService = client.proxy(contract.acceptor.instrumentService, clientLogger);
     const priceEngine = client.proxy(contract.acceptor.priceEngine, clientLogger);
     instrumentService.showOneWay(true, new IntegerImpl(987654));
@@ -103,7 +104,7 @@ class Session extends yass.Session {
         super(connection);
     }
     protected server() {
-        return new yass.Server( // you can add 0..n interceptors to a service
+        return new yass.Server(
             contract.initiator.priceListener.service(new PriceListenerImpl, serverLogger),
             contract.initiator.echoService.service(new EchoServiceImpl, serverLogger)
         );
