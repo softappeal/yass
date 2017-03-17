@@ -51,7 +51,7 @@ static Server SERVER = new Server(
 );
 
 // start server
-new SimpleSocketTransport(EXECUTOR, SERIALIZER, SERVER).start(EXECUTOR, new SimpleSocketBinder(ADDRESS));
+new SimpleSocketTransport(EXECUTOR, SERIALIZER, SERVER).start(EXECUTOR, SocketBinder.create(ADDRESS));
 
 // use client
 Client client = SimpleSocketTransport.client(SERIALIZER, new SimpleSocketConnector(ADDRESS));

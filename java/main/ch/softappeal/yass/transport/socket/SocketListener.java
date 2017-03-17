@@ -28,7 +28,7 @@ public abstract class SocketListener {
      */
     public final Closer start(final Executor listenerExecutor, final SocketBinder socketBinder) {
         try {
-            final ServerSocket serverSocket = socketBinder.bind();
+            final ServerSocket serverSocket = socketBinder.get();
             try {
                 listenerExecutor.execute(() -> {
                     try {

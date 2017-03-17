@@ -5,7 +5,6 @@ import ch.softappeal.yass.transport.PathResolver;
 import ch.softappeal.yass.transport.PathSerializer;
 import ch.softappeal.yass.transport.TransportSetup;
 import ch.softappeal.yass.transport.socket.AsyncSocketConnection;
-import ch.softappeal.yass.transport.socket.SimpleSocketBinder;
 import ch.softappeal.yass.transport.socket.SimpleSocketConnector;
 import ch.softappeal.yass.transport.socket.SocketBinder;
 import ch.softappeal.yass.transport.socket.SocketConnector;
@@ -32,7 +31,7 @@ public class SocketTransportTest extends TransportTest {
     public static final int PORT = 28947;
     public static final SocketAddress ADDRESS = new InetSocketAddress(HOSTNAME, PORT);
     public static final SocketConnector CONNECTOR = new SimpleSocketConnector(ADDRESS);
-    public static final SocketBinder BINDER = new SimpleSocketBinder(ADDRESS);
+    public static final SocketBinder BINDER = SocketBinder.create(ADDRESS);
 
     @Test public void clientInvoke() throws Exception {
         final ExecutorService executor = Executors.newCachedThreadPool(new NamedThreadFactory("executor", Exceptions.TERMINATE));

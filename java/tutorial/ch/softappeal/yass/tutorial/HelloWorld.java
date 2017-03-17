@@ -7,9 +7,9 @@ import ch.softappeal.yass.core.remote.Server;
 import ch.softappeal.yass.core.remote.SimpleMethodMapper;
 import ch.softappeal.yass.serialize.JavaSerializer;
 import ch.softappeal.yass.serialize.Serializer;
-import ch.softappeal.yass.transport.socket.SimpleSocketBinder;
 import ch.softappeal.yass.transport.socket.SimpleSocketConnector;
 import ch.softappeal.yass.transport.socket.SimpleSocketTransport;
+import ch.softappeal.yass.transport.socket.SocketBinder;
 
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
@@ -45,7 +45,7 @@ public final class HelloWorld {
     public static void main(final String... args) {
 
         // start server
-        new SimpleSocketTransport(EXECUTOR, SERIALIZER, SERVER).start(EXECUTOR, new SimpleSocketBinder(ADDRESS));
+        new SimpleSocketTransport(EXECUTOR, SERIALIZER, SERVER).start(EXECUTOR, SocketBinder.create(ADDRESS));
 
         // use client
         Client client = SimpleSocketTransport.client(SERIALIZER, new SimpleSocketConnector(ADDRESS));

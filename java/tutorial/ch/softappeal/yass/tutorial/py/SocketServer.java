@@ -2,8 +2,8 @@ package ch.softappeal.yass.tutorial.py;
 
 import ch.softappeal.yass.core.Interceptor;
 import ch.softappeal.yass.transport.MessageSerializer;
-import ch.softappeal.yass.transport.socket.SimpleSocketBinder;
 import ch.softappeal.yass.transport.socket.SimpleSocketTransport;
+import ch.softappeal.yass.transport.socket.SocketBinder;
 import ch.softappeal.yass.tutorial.acceptor.socket.SocketAcceptor;
 import ch.softappeal.yass.tutorial.contract.EchoService;
 import ch.softappeal.yass.tutorial.contract.Instrument;
@@ -61,7 +61,7 @@ public final class SocketServer {
             )
         ).start(
             executor,
-            new SimpleSocketBinder(SslConfig.SERVER.serverSocketFactory, SocketAcceptor.ADDRESS)
+            SocketBinder.create(SslConfig.SERVER.serverSocketFactory, SocketAcceptor.ADDRESS)
         );
         System.out.println("started");
     }
