@@ -5,6 +5,7 @@ import ch.softappeal.yass.util.Nullable;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Proxy;
 import java.util.Objects;
+import java.util.function.Function;
 
 public abstract class ProxyDelegate<S extends Session> {
 
@@ -34,20 +35,16 @@ public abstract class ProxyDelegate<S extends Session> {
         return session;
     }
 
-    @FunctionalInterface public interface SessionProxyGetter<S, C> {
-        C get(S session) throws Exception;
-    }
-
     /**
      * @return a proxy delegating to {@link #session()}
      */
-    protected final <C> C proxy(final Class<C> contract, final SessionProxyGetter<S, C> sessionProxyGetter) {
-        Objects.requireNonNull(sessionProxyGetter);
+    protected final <C> C proxy(final Class<C> contract, final Function<S, C> proxyGetter) {
+        Objects.requireNonNull(proxyGetter);
         return contract.cast(Proxy.newProxyInstance(
             contract.getClassLoader(),
             new Class<?>[] {contract},
             (proxy, method, arguments) -> {
-                final C impl = sessionProxyGetter.get(session());
+                final C impl = proxyGetter.apply(session());
                 try {
                     return method.invoke(impl, arguments);
                 } catch (final InvocationTargetException e) {
