@@ -1,8 +1,8 @@
 package ch.softappeal.yass.core.remote;
 
-import ch.softappeal.yass.util.Check;
 import ch.softappeal.yass.util.Nullable;
 import ch.softappeal.yass.util.Tag;
+import ch.softappeal.yass.util.TagUtil;
 
 import java.lang.reflect.Method;
 import java.util.HashMap;
@@ -20,7 +20,7 @@ public final class TaggedMethodMapper implements MethodMapper {
         final Method[] methods = contract.getMethods();
         id2mapping = new HashMap<>(methods.length);
         for (final Method method : methods) {
-            final int id = Check.hasTag(method);
+            final int id = TagUtil.getTag(method);
             final @Nullable Mapping oldMapping = id2mapping.put(id, new Mapping(method, id));
             if (oldMapping != null) {
                 throw new IllegalArgumentException("tag " + id + " used for methods '" + method + "' and '" + oldMapping.method + '\'');
@@ -33,7 +33,7 @@ public final class TaggedMethodMapper implements MethodMapper {
     }
 
     @Override public Mapping mapMethod(final Method method) {
-        return id2mapping.get(method.getAnnotation(Tag.class).value());
+        return id2mapping.get(TagUtil.getTag(method));
     }
 
     public static final Factory FACTORY = TaggedMethodMapper::new;

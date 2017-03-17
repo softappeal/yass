@@ -1,10 +1,10 @@
 package ch.softappeal.yass.serialize.fast;
 
 import ch.softappeal.yass.serialize.Reflector;
-import ch.softappeal.yass.util.Check;
 import ch.softappeal.yass.util.Nullable;
 import ch.softappeal.yass.util.Reflect;
 import ch.softappeal.yass.util.Tag;
+import ch.softappeal.yass.util.TagUtil;
 
 import java.lang.reflect.Field;
 import java.util.Collection;
@@ -20,13 +20,13 @@ public final class TaggedFastSerializer extends FastSerializer {
     private void addClass(final Class<?> type, final boolean referenceable) {
         final Map<Integer, Field> id2field = new HashMap<>(16);
         for (final Field field : Reflect.allFields(type)) {
-            final int id = Check.hasTag(field);
+            final int id = TagUtil.getTag(field);
             final @Nullable Field oldField = id2field.put(id, field);
             if (oldField != null) {
                 throw new IllegalArgumentException("tag " + id + " used for fields '" + field + "' and '" + oldField + '\'');
             }
         }
-        addClass(Check.hasTag(type), type, referenceable, id2field);
+        addClass(TagUtil.getTag(type), type, referenceable, id2field);
     }
 
     /**
@@ -43,7 +43,7 @@ public final class TaggedFastSerializer extends FastSerializer {
         baseTypeDescs.forEach(this::addBaseType);
         concreteClasses.forEach(type -> {
             if (type.isEnum()) {
-                addEnum(Check.hasTag(type), type);
+                addEnum(TagUtil.getTag(type), type);
             } else {
                 addClass(type, false);
             }
@@ -73,7 +73,7 @@ public final class TaggedFastSerializer extends FastSerializer {
     ) {
         super(reflectorFactory);
         baseTypeDescs.forEach(this::addBaseType);
-        enumerations.forEach(type -> addEnum(Check.hasTag(type), type));
+        enumerations.forEach(type -> addEnum(TagUtil.getTag(type), type));
         concreteClasses.forEach(type -> addClass(type, false));
         referenceableConcreteClasses.forEach(type -> addClass(type, true));
         fixupFields();
