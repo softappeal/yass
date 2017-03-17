@@ -15,7 +15,7 @@ public class TestUtils {
         void print(PrintWriter printer) throws Exception;
     }
 
-    public static void compareFile(final String fileResourcePath, final Printer printer) {
+    public static void compareFile(final String file, final Printer printer) {
         try {
             final PrintWriter writer = new PrintWriter(System.out);
             printer.print(writer);
@@ -27,7 +27,7 @@ public class TestUtils {
             final BufferedReader testReader = new BufferedReader(new CharArrayReader(buffer.toCharArray()));
             try (
                 BufferedReader refReader = new BufferedReader(new InputStreamReader(
-                    new FileResource("java/test/" + fileResourcePath).create(),
+                    InputStreamSupplier.create("java/test/" + file).get(),
                     StandardCharsets.UTF_8
                 ))
             ) {

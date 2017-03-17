@@ -9,7 +9,7 @@ import ch.softappeal.yass.transport.socket.SslSetup;
 import ch.softappeal.yass.transport.test.TransportTest;
 import ch.softappeal.yass.util.Closer;
 import ch.softappeal.yass.util.Exceptions;
-import ch.softappeal.yass.util.FileResource;
+import ch.softappeal.yass.util.InputStreamSupplier;
 import ch.softappeal.yass.util.NamedThreadFactory;
 import org.junit.Assert;
 import org.junit.Test;
@@ -70,7 +70,7 @@ public class SslTest extends TransportTest {
     private static final char[] PASSWORD = "KeyPass".toCharArray();
 
     private static KeyStore readKeyStore(final String name) {
-        return SslSetup.readKeyStore(new FileResource("certificates/" + name), "StorePass".toCharArray());
+        return SslSetup.readKeyStore(InputStreamSupplier.create("certificates/" + name), "StorePass".toCharArray());
     }
 
     private static final KeyStore SERVER_KEY = readKeyStore("Server.key.jks");

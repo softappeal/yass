@@ -2,8 +2,8 @@ package ch.softappeal.yass.transport.socket;
 
 import ch.softappeal.yass.util.Check;
 import ch.softappeal.yass.util.Exceptions;
+import ch.softappeal.yass.util.InputStreamSupplier;
 import ch.softappeal.yass.util.Nullable;
-import ch.softappeal.yass.util.Resource;
 
 import javax.net.ServerSocketFactory;
 import javax.net.SocketFactory;
@@ -117,13 +117,13 @@ public final class SslSetup {
         }
     };
 
-    public static KeyStore readKeyStore(final Resource keyStoreResource, final @Nullable char[] keyStorePwd) {
+    public static KeyStore readKeyStore(final InputStreamSupplier keyStore, final @Nullable char[] keyStorePwd) {
         try {
-            final KeyStore keyStore = KeyStore.getInstance("JKS");
-            try (InputStream in = keyStoreResource.create()) {
-                keyStore.load(in, keyStorePwd);
+            final KeyStore ks = KeyStore.getInstance("JKS");
+            try (InputStream in = keyStore.get()) {
+                ks.load(in, keyStorePwd);
             }
-            return keyStore;
+            return ks;
         } catch (final Exception e) {
             throw Exceptions.wrap(e);
         }

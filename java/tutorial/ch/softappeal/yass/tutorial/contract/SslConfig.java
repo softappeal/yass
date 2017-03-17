@@ -1,14 +1,14 @@
 package ch.softappeal.yass.tutorial.contract;
 
 import ch.softappeal.yass.transport.socket.SslSetup;
-import ch.softappeal.yass.util.FileResource;
+import ch.softappeal.yass.util.InputStreamSupplier;
 
 import java.security.KeyStore;
 
 public final class SslConfig {
 
     private static KeyStore readKeyStore(final String name) {
-        return SslSetup.readKeyStore(new FileResource("certificates/" + name), "StorePass".toCharArray());
+        return SslSetup.readKeyStore(InputStreamSupplier.create("certificates/" + name), "StorePass".toCharArray());
     }
 
     private static SslSetup sslSetup(final String keyStore, final String trustStore) {
