@@ -4,8 +4,8 @@ import ch.softappeal.yass.core.Interceptor;
 import ch.softappeal.yass.core.remote.Client;
 import ch.softappeal.yass.serialize.Serializer;
 import ch.softappeal.yass.transport.MessageSerializer;
-import ch.softappeal.yass.transport.socket.SimpleSocketConnector;
 import ch.softappeal.yass.transport.socket.SimpleSocketTransport;
+import ch.softappeal.yass.transport.socket.SocketConnector;
 import ch.softappeal.yass.tutorial.acceptor.socket.SocketAcceptor;
 import ch.softappeal.yass.tutorial.contract.Config;
 import ch.softappeal.yass.tutorial.contract.EchoService;
@@ -73,7 +73,7 @@ public final class SocketClient {
     public static void main(final String... args) {
         client(SimpleSocketTransport.client(
             new MessageSerializer(SERIALIZER),
-            new SimpleSocketConnector(SslConfig.CLIENT.socketFactory, SocketAcceptor.ADDRESS)
+            SocketConnector.create(SslConfig.CLIENT.socketFactory, SocketAcceptor.ADDRESS)
         ));
     }
 

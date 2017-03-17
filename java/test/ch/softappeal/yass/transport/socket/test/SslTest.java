@@ -2,9 +2,9 @@ package ch.softappeal.yass.transport.socket.test;
 
 import ch.softappeal.yass.core.remote.Server;
 import ch.softappeal.yass.core.remote.test.ContractIdTest;
-import ch.softappeal.yass.transport.socket.SimpleSocketConnector;
 import ch.softappeal.yass.transport.socket.SimpleSocketTransport;
 import ch.softappeal.yass.transport.socket.SocketBinder;
+import ch.softappeal.yass.transport.socket.SocketConnector;
 import ch.softappeal.yass.transport.socket.SslSetup;
 import ch.softappeal.yass.transport.test.TransportTest;
 import ch.softappeal.yass.util.Closer;
@@ -50,7 +50,7 @@ public class SslTest extends TransportTest {
             ).start(executor, SocketBinder.create(serverSocketFactory, SocketTransportTest.ADDRESS))
         ) {
             Assert.assertTrue(
-                SimpleSocketTransport.client(MESSAGE_SERIALIZER, new SimpleSocketConnector(socketFactory, SocketTransportTest.ADDRESS))
+                SimpleSocketTransport.client(MESSAGE_SERIALIZER, SocketConnector.create(socketFactory, SocketTransportTest.ADDRESS))
                     .proxy(
                         ContractIdTest.ID,
                         (method, arguments, invocation) -> {

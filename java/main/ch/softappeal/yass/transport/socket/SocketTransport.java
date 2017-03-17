@@ -60,7 +60,7 @@ public final class SocketTransport extends SocketListener {
         Objects.requireNonNull(pathSerializer);
         Objects.requireNonNull(path);
         try {
-            SocketUtils.execute(readerExecutor, socketConnector.connect(), socket -> {
+            SocketUtils.execute(readerExecutor, socketConnector.get(), socket -> {
                 final OutputStream out = socket.getOutputStream();
                 pathSerializer.write(path, Writer.create(out));
                 out.flush();

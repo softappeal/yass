@@ -95,7 +95,7 @@ public final class SimpleSocketTransport extends SocketListener {
         Objects.requireNonNull(path);
         return new Client() {
             @Override protected Object invokeSync(final ContractId<?> contractId, final Interceptor interceptor, final Method method, final @Nullable Object[] arguments) throws Exception {
-                try (Socket socket = socketConnector.connect()) {
+                try (Socket socket = socketConnector.get()) {
                     SocketUtils.setForceImmediateSend(socket);
                     final @Nullable Socket oldSocket = SOCKET.get();
                     SOCKET.set(socket);

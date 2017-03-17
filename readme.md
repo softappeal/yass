@@ -54,7 +54,7 @@ static Server SERVER = new Server(
 new SimpleSocketTransport(EXECUTOR, SERIALIZER, SERVER).start(EXECUTOR, SocketBinder.create(ADDRESS));
 
 // use client
-Client client = SimpleSocketTransport.client(SERIALIZER, new SimpleSocketConnector(ADDRESS));
+Client client = SimpleSocketTransport.client(SERIALIZER, SocketConnector.create(ADDRESS));
 Calculator calculator = client.proxy(CALCULATOR);
 System.out.println("2 + 3 = " + calculator.add(2, 3));
 ```

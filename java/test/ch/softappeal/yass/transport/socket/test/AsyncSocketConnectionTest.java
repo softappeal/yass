@@ -9,8 +9,8 @@ import ch.softappeal.yass.serialize.JavaSerializer;
 import ch.softappeal.yass.serialize.Serializer;
 import ch.softappeal.yass.transport.TransportSetup;
 import ch.softappeal.yass.transport.socket.AsyncSocketConnection;
-import ch.softappeal.yass.transport.socket.SimpleSocketConnector;
 import ch.softappeal.yass.transport.socket.SocketBinder;
+import ch.softappeal.yass.transport.socket.SocketConnector;
 import ch.softappeal.yass.transport.socket.SocketTransport;
 import ch.softappeal.yass.transport.socket.SyncSocketConnection;
 import ch.softappeal.yass.util.Exceptions;
@@ -81,7 +81,7 @@ public final class AsyncSocketConnectionTest {
                     }
                 }
             ),
-            new SimpleSocketConnector(ADDRESS)
+            SocketConnector.create(ADDRESS)
         );
     }
 
