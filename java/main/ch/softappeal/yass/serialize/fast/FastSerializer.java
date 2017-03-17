@@ -4,7 +4,6 @@ import ch.softappeal.yass.serialize.Reader;
 import ch.softappeal.yass.serialize.Reflector;
 import ch.softappeal.yass.serialize.Serializer;
 import ch.softappeal.yass.serialize.Writer;
-import ch.softappeal.yass.util.Check;
 import ch.softappeal.yass.util.Exceptions;
 import ch.softappeal.yass.util.Nullable;
 
@@ -15,6 +14,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
@@ -118,7 +118,7 @@ public abstract class FastSerializer implements Serializer {
     }
 
     protected FastSerializer(final Reflector.Factory reflectorFactory) {
-        this.reflectorFactory = Check.notNull(reflectorFactory);
+        this.reflectorFactory = Objects.requireNonNull(reflectorFactory);
         addType(TypeDesc.NULL);
         addType(TypeDesc.REFERENCE);
         addType(TypeDesc.LIST);

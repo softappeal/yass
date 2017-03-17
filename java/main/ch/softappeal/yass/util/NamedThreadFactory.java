@@ -1,6 +1,7 @@
 package ch.softappeal.yass.util;
 
 import java.lang.Thread.UncaughtExceptionHandler;
+import java.util.Objects;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -13,8 +14,8 @@ public final class NamedThreadFactory implements ThreadFactory {
     private final AtomicInteger number = new AtomicInteger(1);
 
     public NamedThreadFactory(final String name, final UncaughtExceptionHandler uncaughtExceptionHandler, final int priority, final boolean daemon) {
-        this.name = Check.notNull(name);
-        this.uncaughtExceptionHandler = Check.notNull(uncaughtExceptionHandler);
+        this.name = Objects.requireNonNull(name);
+        this.uncaughtExceptionHandler = Objects.requireNonNull(uncaughtExceptionHandler);
         this.priority = priority;
         this.daemon = daemon;
     }

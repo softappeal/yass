@@ -1,8 +1,7 @@
 package ch.softappeal.yass.core.remote.session;
 
-import ch.softappeal.yass.util.Check;
-
 import java.util.Collections;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -15,7 +14,7 @@ public class SessionManager<S extends Session> {
      * Call in constructor of {@link Session}.
      */
     public final void add(final S session) {
-        if (!modifiableSessions.add(Check.notNull(session))) {
+        if (!modifiableSessions.add(Objects.requireNonNull(session))) {
             throw new RuntimeException("session already added");
         }
     }
@@ -24,7 +23,7 @@ public class SessionManager<S extends Session> {
      * Call in {@link Session#closed(Exception)}.
      */
     public final void remove(final S session) {
-        if (!modifiableSessions.remove(Check.notNull(session))) {
+        if (!modifiableSessions.remove(Objects.requireNonNull(session))) {
             throw new RuntimeException("session already removed");
         }
     }

@@ -6,7 +6,6 @@ import ch.softappeal.yass.core.remote.session.Session;
 import ch.softappeal.yass.serialize.Reader;
 import ch.softappeal.yass.serialize.Serializer;
 import ch.softappeal.yass.serialize.Writer;
-import ch.softappeal.yass.util.Check;
 import ch.softappeal.yass.util.Exceptions;
 import ch.softappeal.yass.util.Nullable;
 
@@ -14,6 +13,7 @@ import javax.websocket.CloseReason;
 import javax.websocket.MessageHandler;
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.util.Objects;
 
 public abstract class WsConnection implements Connection {
 
@@ -25,7 +25,7 @@ public abstract class WsConnection implements Connection {
     protected WsConnection(final WsConfigurator configurator, final javax.websocket.Session session) {
         packetSerializer = configurator.setup.packetSerializer;
         uncaughtExceptionHandler = configurator.uncaughtExceptionHandler;
-        this.session = Check.notNull(session);
+        this.session = Objects.requireNonNull(session);
     }
 
     protected final ByteBuffer writeToBuffer(final Packet packet) throws Exception {

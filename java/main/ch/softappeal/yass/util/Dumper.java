@@ -8,6 +8,7 @@ import java.util.HashSet;
 import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
@@ -82,7 +83,7 @@ public class Dumper {
     private final class Dump {
         private final StringBuilder out;
         Dump(final StringBuilder out) {
-            this.out = Check.notNull(out);
+            this.out = Objects.requireNonNull(out);
         }
         private int tabs = 0;
         private void appendTabs() {

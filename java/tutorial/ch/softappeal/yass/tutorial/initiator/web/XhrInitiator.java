@@ -10,19 +10,19 @@ import ch.softappeal.yass.tutorial.contract.Config;
 import ch.softappeal.yass.tutorial.contract.EchoService;
 import ch.softappeal.yass.tutorial.contract.Logger;
 import ch.softappeal.yass.tutorial.contract.SslConfig;
-import ch.softappeal.yass.util.Check;
 
 import javax.net.ssl.HttpsURLConnection;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.Objects;
 
 import static ch.softappeal.yass.tutorial.contract.Config.ACCEPTOR;
 
 public final class XhrInitiator {
 
     private static Client xhr(final Serializer messageSerializer, final URL url, final boolean ssl) {
-        Check.notNull(messageSerializer);
-        Check.notNull(url);
+        Objects.requireNonNull(messageSerializer);
+        Objects.requireNonNull(url);
         return new Client() {
             @Override public void invoke(final Client.Invocation invocation) throws Exception {
                 final HttpURLConnection connection = (HttpURLConnection)url.openConnection();

@@ -12,7 +12,6 @@ import ch.softappeal.yass.serialize.Writer;
 import ch.softappeal.yass.transport.PathSerializer;
 import ch.softappeal.yass.transport.SimplePathResolver;
 import ch.softappeal.yass.transport.SimpleTransportSetup;
-import ch.softappeal.yass.util.Check;
 import ch.softappeal.yass.util.Nullable;
 
 import java.io.ByteArrayOutputStream;
@@ -20,6 +19,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.lang.reflect.Method;
 import java.net.Socket;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.Executor;
 
@@ -39,8 +39,8 @@ public final class SimpleSocketTransport extends SocketListener {
         final Serializer pathSerializer, final SimplePathResolver pathResolver
     ) {
         super(requestExecutor);
-        this.pathSerializer = Check.notNull(pathSerializer);
-        this.pathResolver = Check.notNull(pathResolver);
+        this.pathSerializer = Objects.requireNonNull(pathSerializer);
+        this.pathResolver = Objects.requireNonNull(pathResolver);
     }
 
     public SimpleSocketTransport(
@@ -89,10 +89,10 @@ public final class SimpleSocketTransport extends SocketListener {
         final Serializer messageSerializer, final SocketConnector socketConnector,
         final Serializer pathSerializer, final Object path
     ) {
-        Check.notNull(messageSerializer);
-        Check.notNull(socketConnector);
-        Check.notNull(pathSerializer);
-        Check.notNull(path);
+        Objects.requireNonNull(messageSerializer);
+        Objects.requireNonNull(socketConnector);
+        Objects.requireNonNull(pathSerializer);
+        Objects.requireNonNull(path);
         return new Client() {
             @Override protected Object invokeSync(final ContractId<?> contractId, final Interceptor interceptor, final Method method, final @Nullable Object[] arguments) throws Exception {
                 try (Socket socket = socketConnector.connect()) {

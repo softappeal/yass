@@ -1,13 +1,12 @@
 package ch.softappeal.yass.autoconfig;
 
-import ch.softappeal.yass.util.Check;
-
 import java.io.File;
 import java.net.JarURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Enumeration;
+import java.util.Objects;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
@@ -24,7 +23,7 @@ public final class ClassCollector {
     public final Collection<Class<?>> classes = new ArrayList<>();
 
     public ClassCollector(final String rootPackage, final ClassLoader classLoader) throws Exception {
-        this.classLoader = Check.notNull(classLoader);
+        this.classLoader = Objects.requireNonNull(classLoader);
         for (final Enumeration<URL> resources = classLoader.getResources(rootPackage.replace(DOT, SLASH)); resources.hasMoreElements(); ) {
             final URL url = resources.nextElement();
             final String protocol = url.getProtocol().toLowerCase();

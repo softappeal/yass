@@ -6,11 +6,11 @@ import ch.softappeal.yass.serialize.Writer;
 import ch.softappeal.yass.transport.PathResolver;
 import ch.softappeal.yass.transport.PathSerializer;
 import ch.softappeal.yass.transport.TransportSetup;
-import ch.softappeal.yass.util.Check;
 import ch.softappeal.yass.util.Exceptions;
 
 import java.io.OutputStream;
 import java.net.Socket;
+import java.util.Objects;
 import java.util.concurrent.Executor;
 
 /**
@@ -30,9 +30,9 @@ public final class SocketTransport extends SocketListener {
         final Serializer pathSerializer, final PathResolver pathResolver
     ) {
         super(readerExecutor);
-        this.connectionFactory = Check.notNull(connectionFactory);
-        this.pathSerializer = Check.notNull(pathSerializer);
-        this.pathResolver = Check.notNull(pathResolver);
+        this.connectionFactory = Objects.requireNonNull(connectionFactory);
+        this.pathSerializer = Objects.requireNonNull(pathSerializer);
+        this.pathResolver = Objects.requireNonNull(pathResolver);
     }
 
     public SocketTransport(
@@ -55,10 +55,10 @@ public final class SocketTransport extends SocketListener {
         final Executor readerExecutor, final SocketConnection.Factory connectionFactory, final TransportSetup setup, final SocketConnector socketConnector,
         final Serializer pathSerializer, final Object path
     ) {
-        Check.notNull(connectionFactory);
-        Check.notNull(setup);
-        Check.notNull(pathSerializer);
-        Check.notNull(path);
+        Objects.requireNonNull(connectionFactory);
+        Objects.requireNonNull(setup);
+        Objects.requireNonNull(pathSerializer);
+        Objects.requireNonNull(path);
         try {
             SocketUtils.execute(readerExecutor, socketConnector.connect(), socket -> {
                 final OutputStream out = socket.getOutputStream();

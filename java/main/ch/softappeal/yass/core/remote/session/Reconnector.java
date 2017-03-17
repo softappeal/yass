@@ -1,7 +1,6 @@
 package ch.softappeal.yass.core.remote.session;
 
-import ch.softappeal.yass.util.Check;
-
+import java.util.Objects;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -25,8 +24,8 @@ public class Reconnector<S extends Session> extends ProxyDelegate<S> {
         final Executor executor, final long delaySeconds, final long intervalSeconds,
         final SessionFactory sessionFactory, final Connector connector
     ) {
-        Check.notNull(sessionFactory);
-        Check.notNull(connector);
+        Objects.requireNonNull(sessionFactory);
+        Objects.requireNonNull(connector);
         @SuppressWarnings("unchecked") final SessionFactory reconnectorSessionFactory = connection -> {
             final Session session = sessionFactory.create(connection);
             session((S)session);

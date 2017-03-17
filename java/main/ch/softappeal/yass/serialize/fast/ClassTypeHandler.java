@@ -1,7 +1,6 @@
 package ch.softappeal.yass.serialize.fast;
 
 import ch.softappeal.yass.serialize.Reflector;
-import ch.softappeal.yass.util.Check;
 import ch.softappeal.yass.util.Nullable;
 
 import java.util.ArrayList;
@@ -9,6 +8,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.IdentityHashMap;
 import java.util.Map;
+import java.util.Objects;
 
 public final class ClassTypeHandler extends TypeHandler {
 
@@ -32,7 +32,7 @@ public final class ClassTypeHandler extends TypeHandler {
 
     ClassTypeHandler(final Class<?> type, final Reflector reflector, final boolean referenceable, final Map<Integer, FieldHandler> id2fieldHandler) {
         super(type);
-        this.reflector = Check.notNull(reflector);
+        this.reflector = Objects.requireNonNull(reflector);
         this.referenceable = referenceable;
         fieldDescs = new FieldDesc[id2fieldHandler.size()];
         int fd = 0;

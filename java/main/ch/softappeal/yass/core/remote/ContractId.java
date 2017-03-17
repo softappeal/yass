@@ -1,7 +1,8 @@
 package ch.softappeal.yass.core.remote;
 
 import ch.softappeal.yass.core.Interceptor;
-import ch.softappeal.yass.util.Check;
+
+import java.util.Objects;
 
 /**
  * Combines a contract with an id.
@@ -14,7 +15,7 @@ public final class ContractId<C> {
     public final MethodMapper methodMapper;
 
     private ContractId(final Class<C> contract, final int id, final MethodMapper.Factory methodMapperFactory) {
-        this.contract = Check.notNull(contract);
+        this.contract = Objects.requireNonNull(contract);
         this.id = id;
         methodMapper = methodMapperFactory.create(contract);
     }

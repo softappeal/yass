@@ -1,9 +1,9 @@
 package ch.softappeal.yass.core.remote;
 
 import ch.softappeal.yass.core.Interceptor;
-import ch.softappeal.yass.util.Check;
 
 import java.lang.reflect.Method;
+import java.util.Objects;
 
 public final class Service {
 
@@ -12,9 +12,9 @@ public final class Service {
     private final Object interceptor;
 
     private <C> Service(final ContractId<C> contractId, final C implementation, final Object interceptor) {
-        this.contractId = Check.notNull(contractId);
-        this.implementation = Check.notNull(implementation);
-        this.interceptor = Check.notNull(interceptor);
+        this.contractId = Objects.requireNonNull(contractId);
+        this.implementation = Objects.requireNonNull(implementation);
+        this.interceptor = Objects.requireNonNull(interceptor);
     }
 
     <C> Service(final ContractId<C> contractId, final C implementation, final Interceptor interceptor) {

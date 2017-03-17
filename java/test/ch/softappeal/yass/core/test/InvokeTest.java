@@ -3,13 +3,13 @@ package ch.softappeal.yass.core.test;
 import ch.softappeal.yass.core.Interceptor;
 import ch.softappeal.yass.core.Invocation;
 import ch.softappeal.yass.core.remote.OneWay;
-import ch.softappeal.yass.util.Check;
 import ch.softappeal.yass.util.Nullable;
 import ch.softappeal.yass.util.Tag;
 import org.junit.Assert;
 
 import java.lang.reflect.Method;
 import java.util.Arrays;
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
@@ -63,7 +63,7 @@ public class InvokeTest {
     public static final class Logger implements Interceptor {
         private final String name;
         public Logger(final String name) {
-            this.name = Check.notNull(name);
+            this.name = Objects.requireNonNull(name);
         }
         @Override public Object invoke(final Method method, final @Nullable Object[] arguments, final Invocation invocation) throws Exception {
             println(name, "entry", method.getName() + ' ' + Arrays.deepToString(arguments));

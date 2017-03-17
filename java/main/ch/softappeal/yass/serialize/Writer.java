@@ -1,12 +1,12 @@
 package ch.softappeal.yass.serialize;
 
-import ch.softappeal.yass.util.Check;
 import ch.softappeal.yass.util.Exceptions;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
+import java.util.Objects;
 
 public abstract class Writer {
 
@@ -134,7 +134,7 @@ public abstract class Writer {
     }
 
     public static Writer create(final OutputStream out) {
-        Check.notNull(out);
+        Objects.requireNonNull(out);
         return new Writer() {
             @Override public void writeByte(final byte value) throws IOException {
                 out.write(value);

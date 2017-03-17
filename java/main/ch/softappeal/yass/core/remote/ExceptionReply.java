@@ -1,6 +1,6 @@
 package ch.softappeal.yass.core.remote;
 
-import ch.softappeal.yass.util.Check;
+import java.util.Objects;
 
 public final class ExceptionReply extends Reply {
 
@@ -9,7 +9,7 @@ public final class ExceptionReply extends Reply {
     public final Exception exception;
 
     public ExceptionReply(final Exception exception) {
-        this.exception = Check.notNull(exception);
+        this.exception = Objects.requireNonNull(exception);
     }
 
     @Override Object process() throws Exception {

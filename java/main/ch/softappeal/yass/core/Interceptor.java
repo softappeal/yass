@@ -1,12 +1,12 @@
 package ch.softappeal.yass.core;
 
-import ch.softappeal.yass.util.Check;
 import ch.softappeal.yass.util.Nullable;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
+import java.util.Objects;
 
 /**
  * Intercepts a method invocation.
@@ -27,8 +27,8 @@ import java.lang.reflect.Proxy;
     Interceptor DIRECT = (method, arguments, invocation) -> invocation.proceed();
 
     static Interceptor composite(final Interceptor interceptor1, final Interceptor interceptor2) {
-        Check.notNull(interceptor1);
-        Check.notNull(interceptor2);
+        Objects.requireNonNull(interceptor1);
+        Objects.requireNonNull(interceptor2);
         if (interceptor1 == DIRECT) {
             return interceptor2;
         }
@@ -71,10 +71,10 @@ import java.lang.reflect.Proxy;
      * @return a proxy for implementation using interceptors
      */
     static <C> C proxy(final Class<C> contract, final C implementation, final Interceptor... interceptors) {
-        Check.notNull(implementation);
+        Objects.requireNonNull(implementation);
         final Interceptor interceptor = composite(interceptors);
         if (interceptor == DIRECT) {
-            Check.notNull(contract);
+            Objects.requireNonNull(contract);
             return implementation;
         }
         return contract.cast(Proxy.newProxyInstance(
@@ -89,7 +89,7 @@ import java.lang.reflect.Proxy;
      * @return an interceptor that changes threadLocal to value during {@link Interceptor#invoke(Method, Object[], Invocation)}
      */
     static <T> Interceptor threadLocal(final ThreadLocal<T> threadLocal, final @Nullable T value) {
-        Check.notNull(threadLocal);
+        Objects.requireNonNull(threadLocal);
         return (method, arguments, invocation) -> {
             final @Nullable T oldValue = threadLocal.get();
             threadLocal.set(value);

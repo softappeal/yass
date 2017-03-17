@@ -1,6 +1,5 @@
 package ch.softappeal.yass.transport.socket;
 
-import ch.softappeal.yass.util.Check;
 import ch.softappeal.yass.util.Exceptions;
 import ch.softappeal.yass.util.InputStreamSupplier;
 import ch.softappeal.yass.util.Nullable;
@@ -20,6 +19,7 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.security.KeyStore;
 import java.security.SecureRandom;
+import java.util.Objects;
 
 public final class SslSetup {
 
@@ -51,8 +51,8 @@ public final class SslSetup {
         if ((keyStore == null) && (trustStore == null)) {
             throw new IllegalArgumentException("at least one of keyStore or trustStore must be defined");
         }
-        this.protocol = Check.notNull(protocol);
-        this.cipher = Check.notNull(cipher);
+        this.protocol = Objects.requireNonNull(protocol);
+        this.cipher = Objects.requireNonNull(cipher);
         protocols = protocols();
         cipherSuites = cipherSuites();
         try {

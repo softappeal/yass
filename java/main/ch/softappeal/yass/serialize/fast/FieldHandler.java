@@ -1,11 +1,11 @@
 package ch.softappeal.yass.serialize.fast;
 
 import ch.softappeal.yass.serialize.Reflector;
-import ch.softappeal.yass.util.Check;
 import ch.softappeal.yass.util.Nullable;
 
 import java.lang.reflect.Field;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 
 public final class FieldHandler {
@@ -25,8 +25,8 @@ public final class FieldHandler {
     }
 
     FieldHandler(final Field field, final Reflector.Accessor accessor) {
-        this.field = Check.notNull(field);
-        this.accessor = Check.notNull(accessor);
+        this.field = Objects.requireNonNull(field);
+        this.accessor = Objects.requireNonNull(accessor);
     }
 
     void fixup(final Map<Class<?>, TypeDesc> class2typeDesc) {

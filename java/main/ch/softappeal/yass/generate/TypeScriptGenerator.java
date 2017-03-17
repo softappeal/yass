@@ -11,7 +11,6 @@ import ch.softappeal.yass.serialize.fast.FastSerializer;
 import ch.softappeal.yass.serialize.fast.FieldHandler;
 import ch.softappeal.yass.serialize.fast.TypeDesc;
 import ch.softappeal.yass.serialize.fast.TypeHandler;
-import ch.softappeal.yass.util.Check;
 import ch.softappeal.yass.util.Nullable;
 import ch.softappeal.yass.util.Reflect;
 
@@ -29,6 +28,7 @@ import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.function.Consumer;
 
@@ -67,8 +67,8 @@ public final class TypeScriptGenerator extends Generator {
         final String name;
         final String typeDescHolder;
         public ExternalDesc(final String name, final String typeDescHolder) {
-            this.name = Check.notNull(name);
-            this.typeDescHolder = Check.notNull(typeDescHolder);
+            this.name = Objects.requireNonNull(name);
+            this.typeDescHolder = Objects.requireNonNull(typeDescHolder);
         }
     }
 
@@ -301,7 +301,7 @@ public final class TypeScriptGenerator extends Generator {
         public TypeScriptOut(final String includeFile, final @Nullable String contractNamespace, final @Nullable Map<Class<?>, ExternalDesc> externalTypes, final String contractFile) throws Exception {
             super(contractFile);
             if (externalTypes != null) {
-                externalTypes.forEach((java, ts) -> this.externalTypes.put(Check.notNull(java), Check.notNull(ts)));
+                externalTypes.forEach((java, ts) -> this.externalTypes.put(Objects.requireNonNull(java), Objects.requireNonNull(ts)));
             }
             id2typeHandler.forEach((id, typeHandler) -> {
                 if (id >= FIRST_DESC_ID) {

@@ -1,7 +1,6 @@
 package ch.softappeal.yass.transport.ws;
 
 import ch.softappeal.yass.transport.TransportSetup;
-import ch.softappeal.yass.util.Check;
 import ch.softappeal.yass.util.Exceptions;
 import ch.softappeal.yass.util.Nullable;
 
@@ -15,6 +14,7 @@ import javax.websocket.server.HandshakeRequest;
 import javax.websocket.server.ServerEndpointConfig;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class WsConfigurator extends ServerEndpointConfig.Configurator {
 
@@ -23,9 +23,9 @@ public class WsConfigurator extends ServerEndpointConfig.Configurator {
     final Thread.UncaughtExceptionHandler uncaughtExceptionHandler;
 
     public WsConfigurator(final WsConnection.Factory connectionFactory, final TransportSetup setup, final Thread.UncaughtExceptionHandler uncaughtExceptionHandler) {
-        this.connectionFactory = Check.notNull(connectionFactory);
-        this.setup = Check.notNull(setup);
-        this.uncaughtExceptionHandler = Check.notNull(uncaughtExceptionHandler);
+        this.connectionFactory = Objects.requireNonNull(connectionFactory);
+        this.setup = Objects.requireNonNull(setup);
+        this.uncaughtExceptionHandler = Objects.requireNonNull(uncaughtExceptionHandler);
     }
 
     @Override public final <T> T getEndpointInstance(final Class<T> endpointClass) {

@@ -1,7 +1,6 @@
 package ch.softappeal.yass.core.remote.session;
 
-import ch.softappeal.yass.util.Check;
-
+import java.util.Objects;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
@@ -31,8 +30,8 @@ public final class SessionWatcher {
         final long delaySeconds, final long intervalSeconds, final long timeoutSeconds,
         final Checker checker
     ) {
-        Check.notNull(session);
-        Check.notNull(checker);
+        Objects.requireNonNull(session);
+        Objects.requireNonNull(checker);
         executor.execute(() -> {
             try {
                 TimeUnit.SECONDS.sleep(delaySeconds);

@@ -1,10 +1,9 @@
 package ch.softappeal.yass.transport.socket;
 
-import ch.softappeal.yass.util.Check;
-
 import javax.net.SocketFactory;
 import java.net.Socket;
 import java.net.SocketAddress;
+import java.util.Objects;
 
 public final class SimpleSocketConnector implements SocketConnector {
 
@@ -30,8 +29,8 @@ public final class SimpleSocketConnector implements SocketConnector {
      * @param readTimeoutMilliSeconds see {@link Socket#setSoTimeout(int)}
      */
     public SimpleSocketConnector(final SocketFactory socketFactory, final SocketAddress socketAddress, final int connectTimeoutMilliSeconds, final int readTimeoutMilliSeconds) {
-        this.socketFactory = Check.notNull(socketFactory);
-        this.socketAddress = Check.notNull(socketAddress);
+        this.socketFactory = Objects.requireNonNull(socketFactory);
+        this.socketAddress = Objects.requireNonNull(socketAddress);
         if (connectTimeoutMilliSeconds < 0) {
             throw new IllegalArgumentException("connectTimeoutMilliSeconds < 0");
         }

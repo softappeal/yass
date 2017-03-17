@@ -1,7 +1,6 @@
 package ch.softappeal.yass.core.remote;
 
 import ch.softappeal.yass.core.Interceptor;
-import ch.softappeal.yass.util.Check;
 import ch.softappeal.yass.util.Exceptions;
 import ch.softappeal.yass.util.Nullable;
 
@@ -9,6 +8,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.concurrent.ExecutionException;
@@ -117,7 +117,7 @@ public abstract class Client {
      */
     @SuppressWarnings("unchecked")
     public final <C> C proxyAsync(final ContractId<C> contractId, final InterceptorAsync<?> interceptor) {
-        Check.notNull(interceptor);
+        Objects.requireNonNull(interceptor);
         return contractId.contract.cast(Proxy.newProxyInstance(
             contractId.contract.getClassLoader(),
             new Class<?>[] {contractId.contract},
@@ -181,7 +181,7 @@ public abstract class Client {
      * @see #promise(Execute)
      */
     public static CompletionStage<Void> promise(final VoidExecute execute) {
-        Check.notNull(execute);
+        Objects.requireNonNull(execute);
         return promise(() -> {
             execute.execute();
             return null;

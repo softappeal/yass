@@ -1,7 +1,8 @@
 package ch.softappeal.yass.tutorial.contract;
 
 import ch.softappeal.yass.serialize.fast.FastSerializer;
-import ch.softappeal.yass.util.Check;
+
+import java.util.Objects;
 
 public final class SystemException extends RuntimeException {
 
@@ -10,7 +11,7 @@ public final class SystemException extends RuntimeException {
     public final String message;
 
     public SystemException(final String message) {
-        this.message = Check.notNull(message);
+        this.message = Objects.requireNonNull(message);
     }
 
     /**

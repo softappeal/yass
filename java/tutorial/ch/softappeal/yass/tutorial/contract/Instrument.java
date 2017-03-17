@@ -1,6 +1,6 @@
 package ch.softappeal.yass.tutorial.contract;
 
-import ch.softappeal.yass.util.Check;
+import java.util.Objects;
 
 public abstract class Instrument {
 
@@ -9,7 +9,7 @@ public abstract class Instrument {
 
     protected Instrument(final int id, final String name) {
         this.id = id;
-        this.name = Check.notNull(name);
+        this.name = Objects.requireNonNull(name);
     }
 
 }

@@ -1,10 +1,10 @@
 package ch.softappeal.yass.serialize.fast;
 
-import ch.softappeal.yass.util.Check;
 import ch.softappeal.yass.util.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public final class TypeDesc {
 
@@ -15,7 +15,7 @@ public final class TypeDesc {
      * @param id see {@link TypeHandler#write(int, Object, Output)}
      */
     public TypeDesc(final int id, final TypeHandler handler) {
-        this.handler = Check.notNull(handler);
+        this.handler = Objects.requireNonNull(handler);
         if (id < 0) {
             throw new IllegalArgumentException("id " + id + " for type '" + handler.type.getCanonicalName() + "' must be >= 0");
         }

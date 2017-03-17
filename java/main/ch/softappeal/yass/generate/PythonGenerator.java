@@ -11,7 +11,6 @@ import ch.softappeal.yass.serialize.fast.FastSerializer;
 import ch.softappeal.yass.serialize.fast.FieldHandler;
 import ch.softappeal.yass.serialize.fast.TypeDesc;
 import ch.softappeal.yass.serialize.fast.TypeHandler;
-import ch.softappeal.yass.util.Check;
 import ch.softappeal.yass.util.Exceptions;
 import ch.softappeal.yass.util.Nullable;
 import ch.softappeal.yass.util.Reflect;
@@ -31,6 +30,7 @@ import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.SortedMap;
 import java.util.SortedSet;
 import java.util.TreeMap;
@@ -74,8 +74,8 @@ public final class PythonGenerator extends Generator {
         final String name;
         final String typeDesc;
         public ExternalDesc(final String name, final String typeDesc) {
-            this.name = Check.notNull(name);
-            this.typeDesc = Check.notNull(typeDesc);
+            this.name = Objects.requireNonNull(name);
+            this.typeDesc = Objects.requireNonNull(typeDesc);
         }
     }
 
@@ -97,7 +97,7 @@ public final class PythonGenerator extends Generator {
         Namespace(final @Nullable Namespace parent, final @Nullable String name, final String moduleName, final int depth) {
             this.parent = parent;
             this.name = name;
-            this.moduleName = Check.notNull(moduleName);
+            this.moduleName = Objects.requireNonNull(moduleName);
             this.depth = depth;
         }
         private void add(final String qualifiedName, final Class<?> type) {
@@ -124,7 +124,7 @@ public final class PythonGenerator extends Generator {
         }
         void generate(final String path) {
             try {
-                new ContractPythonOut(Check.notNull(path) + INIT_PY, this);
+                new ContractPythonOut(Objects.requireNonNull(path) + INIT_PY, this);
             } catch (final Exception e) {
                 throw Exceptions.wrap(e);
             }
@@ -140,10 +140,10 @@ public final class PythonGenerator extends Generator {
         this.python3 = python3;
         this.includeFileForEachModule = includeFileForEachModule;
         if (module2includeFile != null) {
-            module2includeFile.forEach((m, i) -> this.module2includeFile.put(Check.notNull(m), Check.notNull(i)));
+            module2includeFile.forEach((m, i) -> this.module2includeFile.put(Objects.requireNonNull(m), Objects.requireNonNull(i)));
         }
         if (externalTypes != null) {
-            externalTypes.forEach((java, py) -> this.externalTypes.put(Check.notNull(java), Check.notNull(py)));
+            externalTypes.forEach((java, py) -> this.externalTypes.put(Objects.requireNonNull(java), Objects.requireNonNull(py)));
         }
         id2typeHandler.forEach((id, typeHandler) -> {
             if (id >= FIRST_DESC_ID) {
@@ -160,7 +160,7 @@ public final class PythonGenerator extends Generator {
     }
 
     private TypeHandler typeHandler(final Class<?> type) {
-        return Check.notNull(id2typeHandler.get(Check.notNull(type2id.get(Check.notNull(type)))));
+        return Objects.requireNonNull(id2typeHandler.get(Objects.requireNonNull(type2id.get(Objects.requireNonNull(type)))));
     }
 
     private static String pyBool(final boolean value) {
@@ -175,7 +175,7 @@ public final class PythonGenerator extends Generator {
         private final Namespace namespace;
         private final SortedSet<Namespace> modules = new TreeSet<>(Comparator.comparing(n -> n.moduleName));
         private String getQualifiedName(final Class<?> type) {
-            final Namespace ns = Check.notNull(type2namespace.get(Check.notNull(type)));
+            final Namespace ns = Objects.requireNonNull(type2namespace.get(Objects.requireNonNull(type)));
             modules.add(ns);
             return ((namespace != ns) ? ns.moduleName + '.' : "") + type.getSimpleName();
         }
@@ -192,7 +192,7 @@ public final class PythonGenerator extends Generator {
         }
         @SuppressWarnings("unchecked") ContractPythonOut(final String file, final Namespace namespace) throws Exception {
             super(file);
-            this.namespace = Check.notNull(namespace);
+            this.namespace = Objects.requireNonNull(namespace);
             println("from enum import Enum");
             println("from typing import List, Any, cast");
             println();
@@ -343,7 +343,7 @@ public final class PythonGenerator extends Generator {
 
     private final class MetaPythonOut extends Out {
         private String getQualifiedName(final Class<?> type) {
-            final Namespace ns = Check.notNull(type2namespace.get(Check.notNull(type)));
+            final Namespace ns = Objects.requireNonNull(type2namespace.get(Objects.requireNonNull(type)));
             return ns.moduleName + '.' + type.getSimpleName();
         }
         private void importModule(final Namespace module) {

@@ -1,10 +1,10 @@
 package ch.softappeal.yass.core.remote.session;
 
 import ch.softappeal.yass.core.remote.Message;
-import ch.softappeal.yass.util.Check;
 import ch.softappeal.yass.util.Nullable;
 
 import java.io.Serializable;
+import java.util.Objects;
 
 public final class Packet implements Serializable {
 
@@ -21,7 +21,7 @@ public final class Packet implements Serializable {
             throw new IllegalArgumentException("use END");
         }
         this.requestNumber = requestNumber;
-        this.message = Check.notNull(message);
+        this.message = Objects.requireNonNull(message);
     }
 
     public static final int END_REQUEST_NUMBER = 0;

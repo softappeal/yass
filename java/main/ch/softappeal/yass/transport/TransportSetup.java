@@ -3,7 +3,8 @@ package ch.softappeal.yass.transport;
 import ch.softappeal.yass.core.remote.session.Packet;
 import ch.softappeal.yass.core.remote.session.SessionFactory;
 import ch.softappeal.yass.serialize.Serializer;
-import ch.softappeal.yass.util.Check;
+
+import java.util.Objects;
 
 public final class TransportSetup {
 
@@ -15,8 +16,8 @@ public final class TransportSetup {
     public final SessionFactory sessionFactory;
 
     private TransportSetup(final Serializer packetSerializer, final SessionFactory sessionFactory) {
-        this.packetSerializer = Check.notNull(packetSerializer);
-        this.sessionFactory = Check.notNull(sessionFactory);
+        this.packetSerializer = Objects.requireNonNull(packetSerializer);
+        this.sessionFactory = Objects.requireNonNull(sessionFactory);
     }
 
     public static TransportSetup ofPacketSerializer(final Serializer packetSerializer, final SessionFactory sessionFactory) {

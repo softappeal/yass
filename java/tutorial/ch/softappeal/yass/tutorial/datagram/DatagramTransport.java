@@ -8,11 +8,11 @@ import ch.softappeal.yass.serialize.Reader;
 import ch.softappeal.yass.serialize.Serializer;
 import ch.softappeal.yass.serialize.Writer;
 import ch.softappeal.yass.transport.SimpleTransportSetup;
-import ch.softappeal.yass.util.Check;
 
 import java.net.SocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.DatagramChannel;
+import java.util.Objects;
 
 public final class DatagramTransport {
 
@@ -29,9 +29,9 @@ public final class DatagramTransport {
     }
 
     public static Client client(final Serializer messageSerializer, final DatagramChannel channel, final SocketAddress target) {
-        Check.notNull(messageSerializer);
-        Check.notNull(channel);
-        Check.notNull(target);
+        Objects.requireNonNull(messageSerializer);
+        Objects.requireNonNull(channel);
+        Objects.requireNonNull(target);
         return new Client() {
             @Override public void invoke(final Invocation invocation) throws Exception {
                 invocation.invoke(false, request -> {

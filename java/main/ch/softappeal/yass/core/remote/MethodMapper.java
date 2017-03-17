@@ -1,11 +1,10 @@
 package ch.softappeal.yass.core.remote;
 
-import ch.softappeal.yass.util.Check;
-
 import java.io.PrintWriter;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.Objects;
 
 /**
  * Maps between {@link Method} and {@link Request#methodId}.
@@ -27,7 +26,7 @@ public interface MethodMapper {
          */
         public final boolean oneWay;
         public Mapping(final Method method, final int id, final boolean oneWay) {
-            this.method = Check.notNull(method);
+            this.method = Objects.requireNonNull(method);
             this.id = id;
             this.oneWay = oneWay;
             if (oneWay) {

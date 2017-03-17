@@ -1,6 +1,6 @@
 package ch.softappeal.yass.tutorial.contract;
 
-import ch.softappeal.yass.util.Check;
+import java.util.Objects;
 
 public final class Price {
 
@@ -11,7 +11,7 @@ public final class Price {
     public Price(final int instrumentId, final int value, final PriceKind kind) {
         this.instrumentId = instrumentId;
         this.value = value;
-        this.kind = Check.notNull(kind);
+        this.kind = Objects.requireNonNull(kind);
     }
 
 }

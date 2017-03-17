@@ -1,8 +1,7 @@
 package ch.softappeal.yass.core.remote;
 
-import ch.softappeal.yass.util.Check;
-
 import java.util.List;
+import java.util.Objects;
 
 public final class Request extends Message {
 
@@ -20,7 +19,7 @@ public final class Request extends Message {
     public Request(final int serviceId, final int methodId, final List<Object> arguments) {
         this.serviceId = serviceId;
         this.methodId = methodId;
-        this.arguments = Check.notNull(arguments);
+        this.arguments = Objects.requireNonNull(arguments);
     }
 
 }

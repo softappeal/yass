@@ -3,12 +3,12 @@ package ch.softappeal.yass.transport.socket;
 import ch.softappeal.yass.core.remote.session.Packet;
 import ch.softappeal.yass.core.remote.session.Session;
 import ch.softappeal.yass.serialize.Serializer;
-import ch.softappeal.yass.util.Check;
 import ch.softappeal.yass.util.Nullable;
 
 import java.io.ByteArrayOutputStream;
 import java.io.OutputStream;
 import java.net.Socket;
+import java.util.Objects;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Executor;
@@ -76,7 +76,7 @@ public final class AsyncSocketConnection extends SocketConnection {
      * @param writerExecutor used once for each session
      */
     public static Factory factory(final Executor writerExecutor, final int writerQueueSize) {
-        Check.notNull(writerExecutor);
+        Objects.requireNonNull(writerExecutor);
         if (writerQueueSize < 1) {
             throw new IllegalArgumentException("writerQueueSize < 1");
         }

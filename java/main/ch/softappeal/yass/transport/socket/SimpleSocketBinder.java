@@ -1,10 +1,9 @@
 package ch.softappeal.yass.transport.socket;
 
-import ch.softappeal.yass.util.Check;
-
 import javax.net.ServerSocketFactory;
 import java.net.ServerSocket;
 import java.net.SocketAddress;
+import java.util.Objects;
 
 public final class SimpleSocketBinder implements SocketBinder {
 
@@ -23,8 +22,8 @@ public final class SimpleSocketBinder implements SocketBinder {
     }
 
     public SimpleSocketBinder(final ServerSocketFactory socketFactory, final SocketAddress socketAddress) {
-        this.socketFactory = Check.notNull(socketFactory);
-        this.socketAddress = Check.notNull(socketAddress);
+        this.socketFactory = Objects.requireNonNull(socketFactory);
+        this.socketAddress = Objects.requireNonNull(socketAddress);
     }
 
     public SimpleSocketBinder(final SocketAddress socketAddress) {

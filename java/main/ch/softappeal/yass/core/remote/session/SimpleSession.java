@@ -1,8 +1,8 @@
 package ch.softappeal.yass.core.remote.session;
 
 import ch.softappeal.yass.core.remote.Server;
-import ch.softappeal.yass.util.Check;
 
+import java.util.Objects;
 import java.util.concurrent.Executor;
 
 /**
@@ -14,7 +14,7 @@ public abstract class SimpleSession extends Session {
 
     protected SimpleSession(final Connection connection, final Executor dispatchExecutor) {
         super(connection);
-        this.dispatchExecutor = Check.notNull(dispatchExecutor);
+        this.dispatchExecutor = Objects.requireNonNull(dispatchExecutor);
     }
 
     @Override protected final void dispatchOpened(final Runnable runnable) {

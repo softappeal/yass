@@ -1,12 +1,12 @@
 package ch.softappeal.yass.transport.socket;
 
-import ch.softappeal.yass.util.Check;
 import ch.softappeal.yass.util.Closer;
 import ch.softappeal.yass.util.Exceptions;
 
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.Objects;
 import java.util.concurrent.Executor;
 
 public abstract class SocketListener {
@@ -17,7 +17,7 @@ public abstract class SocketListener {
      * @param acceptExecutor used once for each accept
      */
     SocketListener(final Executor acceptExecutor) {
-        this.acceptExecutor = Check.notNull(acceptExecutor);
+        this.acceptExecutor = Objects.requireNonNull(acceptExecutor);
     }
 
     abstract void accept(Socket socket) throws Exception;

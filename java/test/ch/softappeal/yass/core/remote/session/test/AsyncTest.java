@@ -11,7 +11,6 @@ import ch.softappeal.yass.core.remote.SimpleInterceptorContext;
 import ch.softappeal.yass.core.remote.SimpleMethodMapper;
 import ch.softappeal.yass.core.remote.session.SimpleSession;
 import ch.softappeal.yass.core.test.InvokeTest;
-import ch.softappeal.yass.util.Check;
 import ch.softappeal.yass.util.Exceptions;
 import ch.softappeal.yass.util.NamedThreadFactory;
 import ch.softappeal.yass.util.Nullable;
@@ -19,6 +18,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.CompletionStage;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -158,7 +158,7 @@ public class AsyncTest {
     private static final class Logger implements InterceptorAsync<SimpleInterceptorContext> {
         private final String name;
         Logger(final String name) {
-            this.name = Check.notNull(name);
+            this.name = Objects.requireNonNull(name);
         }
         @Override public SimpleInterceptorContext entry(final MethodMapper.Mapping methodMapping, final List<Object> arguments) {
             final SimpleInterceptorContext context = new SimpleInterceptorContext(methodMapping, arguments);

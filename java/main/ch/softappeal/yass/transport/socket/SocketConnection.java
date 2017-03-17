@@ -7,12 +7,12 @@ import ch.softappeal.yass.serialize.Reader;
 import ch.softappeal.yass.serialize.Serializer;
 import ch.softappeal.yass.serialize.Writer;
 import ch.softappeal.yass.transport.TransportSetup;
-import ch.softappeal.yass.util.Check;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.Socket;
+import java.util.Objects;
 
 public abstract class SocketConnection implements Connection {
 
@@ -21,9 +21,9 @@ public abstract class SocketConnection implements Connection {
     private final OutputStream out;
 
     protected SocketConnection(final Serializer packetSerializer, final Socket socket, final OutputStream out) {
-        this.packetSerializer = Check.notNull(packetSerializer);
-        this.socket = Check.notNull(socket);
-        this.out = Check.notNull(out);
+        this.packetSerializer = Objects.requireNonNull(packetSerializer);
+        this.socket = Objects.requireNonNull(socket);
+        this.out = Objects.requireNonNull(out);
     }
 
     protected final ByteArrayOutputStream writeToBuffer(final Packet packet) throws Exception {

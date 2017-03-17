@@ -1,10 +1,10 @@
 package ch.softappeal.yass.tutorial.contract;
 
 import ch.softappeal.yass.serialize.fast.FastSerializer;
-import ch.softappeal.yass.util.Check;
 import ch.softappeal.yass.util.Nullable;
 
 import java.util.List;
+import java.util.Objects;
 
 public final class UnknownInstrumentsException extends ApplicationException {
 
@@ -19,7 +19,7 @@ public final class UnknownInstrumentsException extends ApplicationException {
     public @Nullable Throwable onlyNeededForTests3;
 
     public UnknownInstrumentsException(final List<Integer> instrumentIds) {
-        this.instrumentIds = Check.notNull(instrumentIds);
+        this.instrumentIds = Objects.requireNonNull(instrumentIds);
     }
 
     /**

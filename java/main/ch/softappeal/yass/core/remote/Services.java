@@ -1,8 +1,7 @@
 package ch.softappeal.yass.core.remote;
 
-import ch.softappeal.yass.util.Check;
-
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 
 public abstract class Services {
@@ -10,7 +9,7 @@ public abstract class Services {
     public final MethodMapper.Factory methodMapperFactory;
 
     protected Services(final MethodMapper.Factory methodMapperFactory) {
-        this.methodMapperFactory = Check.notNull(methodMapperFactory);
+        this.methodMapperFactory = Objects.requireNonNull(methodMapperFactory);
     }
 
     private final Set<Integer> identifiers = new HashSet<>();

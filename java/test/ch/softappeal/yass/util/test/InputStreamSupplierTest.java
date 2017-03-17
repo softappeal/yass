@@ -9,6 +9,7 @@ import java.io.InputStream;
 
 public class InputStreamSupplierTest {
 
+    @SuppressWarnings("try")
     @Test public void file() throws IOException {
         try (InputStream inputStream = InputStreamSupplier.create(
             "java/test/" + InputStreamSupplierTest.class.getName().replace('.', '/') + ".java"
@@ -28,6 +29,7 @@ public class InputStreamSupplierTest {
         }
     }
 
+    @SuppressWarnings("try")
     @Test public void classLoader() throws IOException {
         try (InputStream inputStream = InputStreamSupplier.create(
             InputStreamSupplier.class.getClassLoader(),

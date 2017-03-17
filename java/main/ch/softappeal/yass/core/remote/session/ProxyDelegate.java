@@ -1,10 +1,10 @@
 package ch.softappeal.yass.core.remote.session;
 
-import ch.softappeal.yass.util.Check;
 import ch.softappeal.yass.util.Nullable;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Proxy;
+import java.util.Objects;
 
 public abstract class ProxyDelegate<S extends Session> {
 
@@ -42,7 +42,7 @@ public abstract class ProxyDelegate<S extends Session> {
      * @return a proxy delegating to {@link #session()}
      */
     protected final <C> C proxy(final Class<C> contract, final SessionProxyGetter<S, C> sessionProxyGetter) {
-        Check.notNull(sessionProxyGetter);
+        Objects.requireNonNull(sessionProxyGetter);
         return contract.cast(Proxy.newProxyInstance(
             contract.getClassLoader(),
             new Class<?>[] {contract},

@@ -4,12 +4,12 @@ import ch.softappeal.yass.core.Interceptor;
 import ch.softappeal.yass.core.Invocation;
 import ch.softappeal.yass.core.remote.OneWay;
 import ch.softappeal.yass.core.remote.session.Session;
-import ch.softappeal.yass.util.Check;
 import ch.softappeal.yass.util.Dumper;
 import ch.softappeal.yass.util.Nullable;
 
 import java.lang.reflect.Method;
 import java.util.Date;
+import java.util.Objects;
 
 /**
  * Shows how to implement an {@link Interceptor}.
@@ -23,7 +23,7 @@ public final class Logger implements Interceptor {
 
     public Logger(final @Nullable Session session, final Side side) {
         this.session = session;
-        this.side = Check.notNull(side);
+        this.side = Objects.requireNonNull(side);
     }
 
     private static final Dumper DUMPER = new Dumper(true, true);

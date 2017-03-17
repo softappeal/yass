@@ -1,14 +1,15 @@
 package ch.softappeal.yass.serialize.fast;
 
-import ch.softappeal.yass.util.Check;
 import ch.softappeal.yass.util.Nullable;
+
+import java.util.Objects;
 
 public abstract class TypeHandler {
 
     public final Class<?> type;
 
     TypeHandler(final Class<?> type) {
-        this.type = Check.notNull(type);
+        this.type = Objects.requireNonNull(type);
     }
 
     abstract @Nullable Object read(Input input) throws Exception;

@@ -6,7 +6,6 @@ import ch.softappeal.yass.core.remote.Message;
 import ch.softappeal.yass.core.remote.Reply;
 import ch.softappeal.yass.core.remote.Request;
 import ch.softappeal.yass.core.remote.Server;
-import ch.softappeal.yass.util.Check;
 import ch.softappeal.yass.util.Closer;
 import ch.softappeal.yass.util.Exceptions;
 import ch.softappeal.yass.util.Nullable;
@@ -16,6 +15,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -25,7 +25,7 @@ public abstract class Session extends Client implements Closer {
     public final Connection connection;
 
     protected Session(final Connection connection) {
-        this.connection = Check.notNull(connection);
+        this.connection = Objects.requireNonNull(connection);
     }
 
     /**
@@ -112,7 +112,7 @@ public abstract class Session extends Client implements Closer {
      * This method is idempotent.
      */
     public static void close(final Session session, final Exception e) {
-        session.close(false, Check.notNull(e));
+        session.close(false, Objects.requireNonNull(e));
     }
 
     @Override public void close() {
@@ -198,7 +198,7 @@ public abstract class Session extends Client implements Closer {
     private void created() {
         closed.set(false);
         try {
-            server = Check.notNull(server());
+            server = Objects.requireNonNull(server());
             dispatchOpened(() -> {
                 try {
                     opened();

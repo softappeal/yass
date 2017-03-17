@@ -1,10 +1,10 @@
 package ch.softappeal.yass.serialize;
 
-import ch.softappeal.yass.util.Check;
 import ch.softappeal.yass.util.Nullable;
 import ch.softappeal.yass.util.Reflect;
 
 import java.lang.reflect.Field;
+import java.util.Objects;
 
 /**
  * Even works if classes don't have a default constructor; uses {@link Reflect#UNSAFE}.
@@ -14,7 +14,7 @@ public final class FastReflector implements Reflector {
     public static final Factory FACTORY = FastReflector::new;
 
     private FastReflector(final Class<?> type) {
-        this.type = Check.notNull(type);
+        this.type = Objects.requireNonNull(type);
     }
 
     private final Class<?> type;

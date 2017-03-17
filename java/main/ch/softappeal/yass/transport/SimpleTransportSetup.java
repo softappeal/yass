@@ -3,7 +3,8 @@ package ch.softappeal.yass.transport;
 import ch.softappeal.yass.core.remote.Message;
 import ch.softappeal.yass.core.remote.Server;
 import ch.softappeal.yass.serialize.Serializer;
-import ch.softappeal.yass.util.Check;
+
+import java.util.Objects;
 
 public final class SimpleTransportSetup {
 
@@ -15,8 +16,8 @@ public final class SimpleTransportSetup {
     public final Server server;
 
     public SimpleTransportSetup(final Serializer messageSerializer, final Server server) {
-        this.messageSerializer = Check.notNull(messageSerializer);
-        this.server = Check.notNull(server);
+        this.messageSerializer = Objects.requireNonNull(messageSerializer);
+        this.server = Objects.requireNonNull(server);
     }
 
 }

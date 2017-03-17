@@ -1,15 +1,17 @@
 package ch.softappeal.yass.util;
 
+import java.util.Objects;
+
 /**
- * Check utilities.
+ * @deprecated needed for backward compatibility
  */
+@Deprecated
 public final class Check {
 
     /**
-     * @param <T> the value type
-     * @return value if (value != null)
-     * @throws NullPointerException if (value == null)
+     * @deprecated use {@link Objects#requireNonNull(Object)}
      */
+    @Deprecated
     public static <T> T notNull(final @Nullable T value) throws NullPointerException {
         if (value == null) {
             throw new NullPointerException();

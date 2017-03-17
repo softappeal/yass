@@ -5,7 +5,6 @@ import ch.softappeal.yass.core.remote.MethodMapper;
 import ch.softappeal.yass.core.remote.Services;
 import ch.softappeal.yass.serialize.fast.FastSerializer;
 import ch.softappeal.yass.serialize.fast.TypeHandler;
-import ch.softappeal.yass.util.Check;
 import ch.softappeal.yass.util.Nullable;
 
 import java.lang.reflect.Field;
@@ -17,6 +16,7 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.SortedMap;
 import java.util.SortedSet;
@@ -34,15 +34,15 @@ public abstract class Generator {
     ));
 
     protected static boolean isRootClass(final Class<?> type) {
-        return ROOT_CLASSES.contains(Check.notNull(type));
+        return ROOT_CLASSES.contains(Objects.requireNonNull(type));
     }
 
     public static final class ServiceDesc {
         public final String name;
         public final ContractId<?> contractId;
         private ServiceDesc(final String name, final ContractId<?> contractId) {
-            this.name = Check.notNull(name);
-            this.contractId = Check.notNull(contractId);
+            this.name = Objects.requireNonNull(name);
+            this.contractId = Objects.requireNonNull(contractId);
         }
     }
 

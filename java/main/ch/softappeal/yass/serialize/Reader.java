@@ -1,12 +1,12 @@
 package ch.softappeal.yass.serialize;
 
-import ch.softappeal.yass.util.Check;
 import ch.softappeal.yass.util.Exceptions;
 
 import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
+import java.util.Objects;
 
 public abstract class Reader {
 
@@ -165,7 +165,7 @@ public abstract class Reader {
     }
 
     public static Reader create(final InputStream in) {
-        Check.notNull(in);
+        Objects.requireNonNull(in);
         return new Reader() {
             @Override public byte readByte() throws IOException {
                 final int i = in.read();
@@ -188,7 +188,7 @@ public abstract class Reader {
     }
 
     public static Reader create(final ByteBuffer in) {
-        Check.notNull(in);
+        Objects.requireNonNull(in);
         return new Reader() {
             @Override public byte readByte() {
                 return in.get();

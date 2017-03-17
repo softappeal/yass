@@ -2,6 +2,7 @@ package ch.softappeal.yass.util;
 
 import java.lang.Thread.UncaughtExceptionHandler;
 import java.util.Date;
+import java.util.Objects;
 
 public final class Exceptions {
 
@@ -10,7 +11,7 @@ public final class Exceptions {
     }
 
     public static RuntimeException wrap(final Exception e) {
-        return (e instanceof RuntimeException) ? (RuntimeException)e : new RuntimeException(Check.notNull(e));
+        return (e instanceof RuntimeException) ? (RuntimeException)e : new RuntimeException(Objects.requireNonNull(e));
     }
 
     public static void uncaughtException(final UncaughtExceptionHandler uncaughtExceptionHandler, final Throwable throwable) {

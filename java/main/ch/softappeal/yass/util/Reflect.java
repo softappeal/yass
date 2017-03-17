@@ -7,6 +7,7 @@ import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
 
 public final class Reflect {
 
@@ -39,7 +40,7 @@ public final class Reflect {
 
     public static List<Field> allFields(final Class<?> type) {
         final List<Field> fields = new ArrayList<>(16);
-        for (Class<?> t = Check.notNull(type); (t != null) && (t != Throwable.class); t = t.getSuperclass()) {
+        for (Class<?> t = Objects.requireNonNull(type); (t != null) && (t != Throwable.class); t = t.getSuperclass()) {
             fields.addAll(ownFields(t));
         }
         return fields;

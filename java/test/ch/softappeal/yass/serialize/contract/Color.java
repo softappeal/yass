@@ -1,7 +1,8 @@
 package ch.softappeal.yass.serialize.contract;
 
-import ch.softappeal.yass.util.Check;
 import ch.softappeal.yass.util.Tag;
+
+import java.util.Objects;
 
 @Tag(30) public enum Color {
 
@@ -10,7 +11,7 @@ import ch.softappeal.yass.util.Tag;
     BLUE("blue");
 
     Color(final String text) {
-        this.text = Check.notNull(text);
+        this.text = Objects.requireNonNull(text);
     }
 
     private final String text;

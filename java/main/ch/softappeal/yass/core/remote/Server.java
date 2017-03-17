@@ -1,12 +1,12 @@
 package ch.softappeal.yass.core.remote;
 
-import ch.softappeal.yass.util.Check;
 import ch.softappeal.yass.util.Exceptions;
 import ch.softappeal.yass.util.Nullable;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 public final class Server {
 
@@ -61,7 +61,7 @@ public final class Server {
                         }
                     }
                     @Override public void completeExceptionally(final Exception exception) {
-                        Check.notNull(exception);
+                        Objects.requireNonNull(exception);
                         try {
                             replyWriter.writeReply(new ExceptionReply(exception(exception)));
                         } catch (final Exception e) {
