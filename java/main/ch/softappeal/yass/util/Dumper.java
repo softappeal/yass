@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public class Dumper {
@@ -45,13 +46,9 @@ public class Dumper {
         return s;
     }
 
-    @FunctionalInterface private interface Accessor {
-        @Nullable Object get(Object object);
-    }
-
     private static final class FieldDesc {
         final String name;
-        final Accessor accessor;
+        final Function<Object, Object> accessor;
         FieldDesc(final Field field) {
             name = field.getName();
             final Class<?> type = field.getType();
@@ -167,7 +164,7 @@ public class Dumper {
         }
         private void dumpClassFields(final List<FieldDesc> fieldDescs, final Object object) {
             for (final FieldDesc fieldDesc : fieldDescs) {
-                final @Nullable Object value = fieldDesc.accessor.get(object);
+                final @Nullable Object value = fieldDesc.accessor.apply(object);
                 if (value != null) {
                     if (compact) {
                         out.append(fieldDesc.name).append('=');

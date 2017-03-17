@@ -30,6 +30,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Consumer;
 
 /**
  * You must use the "-parameters" option for javac to get the real method parameter names.
@@ -71,10 +72,6 @@ public final class TypeScriptGenerator extends Generator {
         }
     }
 
-    @FunctionalInterface private interface TypeGenerator {
-        void generateType(String name);
-    }
-
     private final class TypeScriptOut extends Out {
 
         private final LinkedHashMap<Class<?>, Integer> type2id = new LinkedHashMap<>();
@@ -94,17 +91,17 @@ public final class TypeScriptGenerator extends Generator {
             return (contractNamespace == null ? "" : contractNamespace) + qualifiedName(type);
         }
 
-        private void generateType(final Class<?> type, final TypeGenerator typeGenerator) {
+        private void generateType(final Class<?> type, final Consumer<String> typeGenerator) {
             checkType(type);
             final String jsType = qualifiedName(type);
             final int dot = jsType.lastIndexOf('.');
             final String name = type.getSimpleName();
             if (dot < 0) {
-                typeGenerator.generateType(name);
+                typeGenerator.accept(name);
             } else {
                 tabsln("export namespace %s {", jsType.substring(0, dot));
                 inc();
-                typeGenerator.generateType(name);
+                typeGenerator.accept(name);
                 dec();
                 tabsln("}");
             }
@@ -213,7 +210,7 @@ public final class TypeScriptGenerator extends Generator {
             SimpleMethodMapper.FACTORY.create(type); // checks for overloaded methods (JavaScript restriction)
             final Method[] methods = getMethods(type);
             final MethodMapper methodMapper = methodMapper(type);
-            generateType(type, new TypeGenerator() {
+            generateType(type, new Consumer<String>() {
                 void generateInterface(final String name, final boolean implementation) {
                     tabsln("export namespace %s {", implementation ? "impl" : "proxy");
                     inc();
@@ -247,7 +244,7 @@ public final class TypeScriptGenerator extends Generator {
                     dec();
                     tabsln("}");
                 }
-                @Override public void generateType(final String name) {
+                @Override public void accept(final String name) {
                     generateInterface(name, false);
                     generateInterface(name, true);
                     tabsln("export namespace mapper {");
