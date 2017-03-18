@@ -3,15 +3,16 @@ package ch.softappeal.yass.util;
 import java.io.InputStream;
 
 /**
- * @deprecated needed for backward compatibility
+ * Needed for backward compatibility, use {@link InputStreamSupplier} instead.
  */
-@Deprecated
 @FunctionalInterface public interface Resource {
 
-    /**
-     * @deprecated use {@link InputStreamSupplier}
-     */
     @Deprecated
     InputStream create();
+
+    @Deprecated
+    static Resource convert(final InputStreamSupplier supplier) {
+        return supplier::get;
+    }
 
 }

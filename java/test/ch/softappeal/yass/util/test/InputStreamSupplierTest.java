@@ -1,6 +1,7 @@
 package ch.softappeal.yass.util.test;
 
 import ch.softappeal.yass.util.InputStreamSupplier;
+import ch.softappeal.yass.util.Resource;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -49,6 +50,15 @@ public class InputStreamSupplierTest {
         } catch (final RuntimeException e) {
             Assert.assertEquals("resource 'INVALID' not found", e.getMessage());
         }
+    }
+
+    void useResource(final Resource resource) {
+        // empty
+    }
+
+    @SuppressWarnings("deprecation")
+    void convert() {
+        useResource(Resource.convert(InputStreamSupplier.create("dummy")));
     }
 
 }

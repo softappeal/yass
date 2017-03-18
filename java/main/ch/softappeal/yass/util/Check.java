@@ -3,14 +3,10 @@ package ch.softappeal.yass.util;
 import java.util.Objects;
 
 /**
- * @deprecated needed for backward compatibility
+ * Needed for backward compatibility, use {@link Objects#requireNonNull(Object)} instead.
  */
-@Deprecated
 public final class Check {
 
-    /**
-     * @deprecated use {@link Objects#requireNonNull(Object)}
-     */
     @Deprecated
     public static <T> T notNull(final @Nullable T value) throws NullPointerException {
         if (value == null) {

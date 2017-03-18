@@ -61,7 +61,7 @@ public final class TaggedFastSerializer extends FastSerializer {
     }
 
     /**
-     * @deprecated needed for backward compatibility
+     * Needed for backward compatibility.
      */
     @Deprecated
     public TaggedFastSerializer(
