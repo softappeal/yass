@@ -12,9 +12,9 @@ import javax.websocket.HandshakeResponse;
 import javax.websocket.Session;
 import javax.websocket.server.HandshakeRequest;
 import javax.websocket.server.ServerEndpointConfig;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 public class WsConfigurator extends ServerEndpointConfig.Configurator {
 
@@ -56,25 +56,11 @@ public class WsConfigurator extends ServerEndpointConfig.Configurator {
     }
 
     @Override public String getNegotiatedSubprotocol(final List<String> supported, final List<String> requested) {
-        for (final String r : requested) {
-            if (supported.contains(r)) {
-                return r;
-            }
-        }
-        return "";
+        return requested.stream().filter(supported::contains).findFirst().orElse("");
     }
 
     @Override public List<Extension> getNegotiatedExtensions(final List<Extension> installed, final List<Extension> requested) {
-        final List<Extension> extensions = new ArrayList<>(requested.size());
-        for (final Extension r : requested) {
-            for (final Extension i : installed) {
-                if (i.getName().equals(r.getName())) {
-                    extensions.add(r);
-                    break;
-                }
-            }
-        }
-        return extensions;
+        return requested.stream().filter(r -> installed.stream().anyMatch(i -> i.getName().equals(r.getName()))).collect(Collectors.toList());
     }
 
     @Override public boolean checkOrigin(final String originHeaderValue) {

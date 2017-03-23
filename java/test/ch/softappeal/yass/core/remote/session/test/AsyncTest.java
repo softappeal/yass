@@ -47,16 +47,16 @@ public class AsyncTest {
             this.asyncProxy = asyncProxy;
         }
         public CompletionStage<Void> noResult() {
-            return Client.promise(() -> asyncProxy.noResult());
+            return Client.promise(asyncProxy::noResult);
         }
         public CompletionStage<Integer> divide(final int a, final int b) {
             return Client.promise(() -> asyncProxy.divide(a, b));
         }
         public CompletionStage<Integer> getInteger() {
-            return Client.promise(() -> asyncProxy.getInteger());
+            return Client.promise(asyncProxy::getInteger);
         }
         public CompletionStage<String> getString() {
-            return Client.promise(() -> asyncProxy.getString());
+            return Client.promise(asyncProxy::getString);
         }
         public void oneWay() {
             asyncProxy.oneWay();

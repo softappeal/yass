@@ -38,7 +38,7 @@ public abstract class ProxyDelegate<S extends Session> {
     /**
      * @return a proxy delegating to {@link #session()}
      */
-    protected final <C> C proxy(final Class<C> contract, final Function<S, C> proxyGetter) {
+    public final <C> C proxy(final Class<C> contract, final Function<S, C> proxyGetter) {
         Objects.requireNonNull(proxyGetter);
         return contract.cast(Proxy.newProxyInstance(
             contract.getClassLoader(),
