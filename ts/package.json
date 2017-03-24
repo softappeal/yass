@@ -4,8 +4,8 @@
     "version": "0.0.0",
     "devDependencies": {
         "typescript": "2.2.1",
-        "systemjs": "0.20.9",
-        "ws": "2.2.0",
+        "systemjs": "0.20.10",
+        "ws": "2.2.2",
         "xhr2": "0.1.4",
         "istanbul": "0.4.5",
         "remap-istanbul": "0.9.1"
