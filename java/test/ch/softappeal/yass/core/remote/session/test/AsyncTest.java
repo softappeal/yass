@@ -82,13 +82,7 @@ public class AsyncTest {
         }).start();
     }
 
-    public interface Completer2<R, E extends Exception> {
-        void complete(@Nullable R result);
-        void complete();
-        void completeExceptionally(E exception);
-    }
-
-    private static final class TestServiceImpl implements TestService {
+    private static final class TestServiceImplAsync implements TestService {
         @Override public void noResult() {
             sleep(Completer::complete);
             println("impl", "", "noResult", null, "");
@@ -122,36 +116,6 @@ public class AsyncTest {
                 // empty
             }
             println("impl", "", "oneWay", null, "");
-        }
-    }
-
-    /**
-     * Transformation rules:
-     * - Don't change oneWay methods.
-     * - Replace return type with void.
-     * - Remove exceptions.
-     * - Append completer parameter.
-     */
-    private static final class TestServiceImplAsync {
-        public void noResult(final Completer2<Void, RuntimeException> completer) {
-            completer.complete();
-        }
-        public void divide(final int a, final int b, final Completer2<Integer, InvokeTest.DivisionByZeroException> completer) {
-            if (b == 0) {
-                completer.completeExceptionally(new InvokeTest.DivisionByZeroException(a));
-            } else {
-                completer.complete(a / b);
-            }
-        }
-        public void getInteger(final Completer2<Integer, RuntimeException> completer) {
-            completer.complete(123);
-        }
-        public void getString(final Completer2<String, RuntimeException> completer) {
-            completer.complete("string");
-
-        }
-        public void oneWay() {
-            // empty
         }
     }
 
@@ -224,7 +188,7 @@ public class AsyncTest {
                         System.out.println("server closed: " + exception);
                     }
                     @Override protected Server server() throws Exception {
-                        return new Server(ID.serviceAsync(new TestServiceImpl(), new Logger("server")));
+                        return new Server(ID.serviceAsync(new TestServiceImplAsync(), new Logger("server")));
                     }
                 }
             );
