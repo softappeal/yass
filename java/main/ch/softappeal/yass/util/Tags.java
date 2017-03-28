@@ -2,9 +2,9 @@ package ch.softappeal.yass.util;
 
 import java.lang.reflect.AnnotatedElement;
 
-public final class TagUtil {
+public final class Tags {
 
-    private TagUtil() {
+    private Tags() {
         // disable
     }
 

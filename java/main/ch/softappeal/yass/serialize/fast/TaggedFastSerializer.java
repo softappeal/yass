@@ -4,7 +4,7 @@ import ch.softappeal.yass.serialize.Reflector;
 import ch.softappeal.yass.util.Nullable;
 import ch.softappeal.yass.util.Reflect;
 import ch.softappeal.yass.util.Tag;
-import ch.softappeal.yass.util.TagUtil;
+import ch.softappeal.yass.util.Tags;
 
 import java.lang.reflect.Field;
 import java.util.Collection;
@@ -20,13 +20,13 @@ public final class TaggedFastSerializer extends FastSerializer {
     private void addClass(final Class<?> type, final boolean referenceable) {
         final Map<Integer, Field> id2field = new HashMap<>(16);
         for (final Field field : Reflect.allFields(type)) {
-            final int id = TagUtil.getTag(field);
+            final int id = Tags.getTag(field);
             final @Nullable Field oldField = id2field.put(id, field);
             if (oldField != null) {
                 throw new IllegalArgumentException("tag " + id + " used for fields '" + field + "' and '" + oldField + '\'');
             }
         }
-        addClass(TagUtil.getTag(type), type, referenceable, id2field);
+        addClass(Tags.getTag(type), type, referenceable, id2field);
     }
 
     /**
@@ -43,7 +43,7 @@ public final class TaggedFastSerializer extends FastSerializer {
         baseTypeDescs.forEach(this::addBaseType);
         concreteClasses.forEach(type -> {
             if (type.isEnum()) {
-                addEnum(TagUtil.getTag(type), type);
+                addEnum(Tags.getTag(type), type);
             } else {
                 addClass(type, false);
             }
@@ -73,7 +73,7 @@ public final class TaggedFastSerializer extends FastSerializer {
     ) {
         super(reflectorFactory);
         baseTypeDescs.forEach(this::addBaseType);
-        enumerations.forEach(type -> addEnum(TagUtil.getTag(type), type));
+        enumerations.forEach(type -> addEnum(Tags.getTag(type), type));
         concreteClasses.forEach(type -> addClass(type, false));
         referenceableConcreteClasses.forEach(type -> addClass(type, true));
         fixupFields();
