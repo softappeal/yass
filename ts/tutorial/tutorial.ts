@@ -1,4 +1,4 @@
-import * as yass from "yass";
+import * as yass from "../yass";
 import * as contract from "./generated/contract";
 import {IntegerImpl} from "./baseTypes-external";
 

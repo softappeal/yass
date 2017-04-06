@@ -1,4 +1,4 @@
-import * as yass from "yass";
+import * as yass from "../yass";
 import {IntegerImpl} from "../tutorial/baseTypes-external";
 import * as contract from "../tutorial/generated/contract";
 import PriceKind = contract.PriceKind;
