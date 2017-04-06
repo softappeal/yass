@@ -1,6 +1,6 @@
 {
-    "name": "yass-dev",
-    "description": "yass-dev",
+    "name": "yass",
+    "description": "yass",
     "version": "0.0.0",
     "devDependencies": {
         "typescript": "2.2.2",
