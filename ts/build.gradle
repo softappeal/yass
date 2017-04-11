@@ -1,0 +1,8 @@
+task clean {
+    doLast {
+        ant.delete(dir: "build")
+        ant.delete(dir: "node_modules")
+        ant.delete(dir: ".", includes: "**/*.js")
+        ant.delete(dir: ".", includes: "**/*.js.map")
+    }
+}

@@ -1,0 +1,26 @@
+sourceSets {
+    main { java { srcDir 'src' } }
+}
+
+dependencies {
+    compile project(":java:yass")
+    compile jetty_dep
+    compile undertow_dep
+}
+
+task generateTypeScript(type: JavaExec) {
+    main = 'ch.softappeal.yass.tutorial.initiator.web.GenerateTypeScript'
+    classpath = sourceSets.main.runtimeClasspath
+}
+
+task generatePython3(type: JavaExec) {
+    main = 'ch.softappeal.yass.tutorial.py.GeneratePython3'
+    classpath = sourceSets.main.runtimeClasspath
+}
+
+task generatePython2(type: JavaExec) {
+    main = 'ch.softappeal.yass.tutorial.py.GeneratePython2'
+    classpath = sourceSets.main.runtimeClasspath
+}
+
+task dist(dependsOn: ['generateTypeScript', 'generatePython3', 'generatePython2'])

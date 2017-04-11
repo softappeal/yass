@@ -1,0 +1,44 @@
+subprojects {
+
+    ext.websocket_dep = 'javax.websocket:javax.websocket-api:1.0'
+    ext.jetty_dep = 'org.eclipse.jetty.websocket:javax-websocket-server-impl:9.4.3.v20170317'
+    ext.undertow_dep = 'io.undertow:undertow-websockets-jsr:1.4.11.Final'
+    ext.junit_dep = 'junit:junit:4.12'
+
+    apply plugin: 'java'
+
+    repositories {
+        mavenCentral()
+    }
+
+    configurations.all {
+        resolutionStrategy {
+            failOnVersionConflict()
+        }
+    }
+
+    dependencies {
+        testCompile junit_dep
+    }
+
+    tasks.withType(JavaCompile) {
+        options.compilerArgs << "-Xlint"
+        options.compilerArgs << "-parameters"
+        options.encoding = "US-ASCII"
+    }
+
+    tasks.withType(Javadoc) {
+        options.addStringOption('Xdoclint:all,-missing', '-quiet')
+    }
+
+    task packageSources(type: Jar) {
+        from sourceSets.main.allSource
+        classifier = 'sources'
+    }
+
+    task packageJavadoc(type: Jar, dependsOn: 'javadoc') {
+        from javadoc.destinationDir
+        classifier = 'javadoc'
+    }
+
+}

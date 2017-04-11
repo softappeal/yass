@@ -12,7 +12,7 @@ public class InputStreamSupplierTest {
     @SuppressWarnings("try")
     @Test public void file() throws IOException {
         try (InputStream inputStream = InputStreamSupplier.create(
-            "java/test/" + InputStreamSupplierTest.class.getName().replace('.', '/') + ".java"
+            "test/" + InputStreamSupplierTest.class.getName().replace('.', '/') + ".java"
         ).get()) {
             // empty
         }

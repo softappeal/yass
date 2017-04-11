@@ -70,7 +70,7 @@ public class SslTest extends TransportTest {
     private static final char[] PASSWORD = "KeyPass".toCharArray();
 
     private static KeyStore readKeyStore(final String name) {
-        return SslSetup.readKeyStore(InputStreamSupplier.create("certificates/" + name), "StorePass".toCharArray());
+        return SslSetup.readKeyStore(InputStreamSupplier.create("../../certificates/" + name), "StorePass".toCharArray());
     }
 
     private static final KeyStore SERVER_KEY = readKeyStore("Server.key.jks");

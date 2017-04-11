@@ -1,4 +1,4 @@
 instrumentation:
     default-excludes: false
 reporting:
-    dir: ../build/coverage-js
+    dir: build/coverage-js

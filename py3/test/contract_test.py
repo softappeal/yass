@@ -16,7 +16,6 @@ class NoInit:
 
 
 class Test(unittest.TestCase):
-
     def testInteger(self):
         i = Integer(123)
         self.assertEqual(yass.typeDesc(i).id, 7)
