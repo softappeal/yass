@@ -60,18 +60,15 @@ tasks.withType(Javadoc) {
 }
 
 jar {
-    from "license.txt"
     manifest { attributes("Implementation-Version": "${version}") }
 }
 
 task packageSources(type: Jar) {
-    from "license.txt"
     from sourceSets.main.allSource
     classifier = 'sources'
 }
 
 task packageJavadoc(type: Jar, dependsOn: 'javadoc') {
-    from "license.txt"
     from javadoc.destinationDir
     classifier = 'javadoc'
 }
