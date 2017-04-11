@@ -1,6 +1,5 @@
 package ch.softappeal.yass.generate;
 
-import ch.softappeal.yass.Version;
 import ch.softappeal.yass.core.remote.MethodMapper;
 import ch.softappeal.yass.core.remote.Services;
 import ch.softappeal.yass.core.remote.SimpleMethodMapper;
@@ -315,8 +314,6 @@ public final class TypeScriptGenerator extends Generator {
                 println();
                 inc();
             }
-            tabsln("export const GENERATED_BY_YASS_VERSION = '%s';", Version.VALUE);
-            println();
             id2typeHandler.values().stream().map(typeHandler -> typeHandler.type).filter(Class::isEnum).forEach(type -> generateEnum((Class<Enum<?>>)type));
             id2typeHandler.values().stream().filter(typeHandler -> typeHandler instanceof ClassTypeHandler).forEach(typeHandler -> generateClass(typeHandler.type));
             interfaces.forEach(this::generateInterface);

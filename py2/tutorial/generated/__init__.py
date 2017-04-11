@@ -5,8 +5,6 @@ from .contract.instrument import stock as contract_instrument_stock
 from .contract import instrument as contract_instrument
 from .contract.instrument.stock import python as contract_instrument_stock_python
 
-GENERATED_BY_YASS_VERSION = 'null'
-
 yass.enumDesc(9, contract.PriceKind)
 yass.classDesc(10, contract.Price, False)
 yass.classDesc(11, contract_instrument_stock.Stock, False)

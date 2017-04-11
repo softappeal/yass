@@ -1,6 +1,5 @@
 package ch.softappeal.yass.generate;
 
-import ch.softappeal.yass.Version;
 import ch.softappeal.yass.core.remote.MethodMapper;
 import ch.softappeal.yass.core.remote.Services;
 import ch.softappeal.yass.core.remote.SimpleMethodMapper;
@@ -361,8 +360,6 @@ public final class PythonGenerator extends Generator {
                 includeFile(includeFileForEachModule);
             }
             new LinkedHashSet<>(type2namespace.values()).forEach(this::importModule);
-            println();
-            println("GENERATED_BY_YASS_VERSION = '%s'", Version.VALUE);
             println();
             type2namespace.keySet().forEach(type -> {
                 final String qn = getQualifiedName(type);

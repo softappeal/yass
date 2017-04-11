@@ -3,7 +3,7 @@ from typing import Any
 
 import yass
 from tutorial.base_types_external import Integer
-from tutorial.generated import contract, GENERATED_BY_YASS_VERSION
+from tutorial.generated import contract
 from tutorial.generated.contract import UnknownInstrumentsException, ApplicationException, PriceKind, Node, EchoService, Expiration
 from tutorial.generated.contract.instrument import Bond
 from tutorial.generated.contract.instrument.stock import Stock
@@ -16,8 +16,6 @@ class NoInit:
 
 
 class Test(unittest.TestCase):
-    def testVersion(self):
-        self.assertEqual(GENERATED_BY_YASS_VERSION, 'null')
 
     def testInteger(self):
         i = Integer(123)

@@ -24,8 +24,6 @@ export class Expiration {
     static readonly TYPE_DESC = ExpirationHandler.TYPE_DESC;
 }
 
-export const GENERATED_BY_YASS_VERSION = 'null';
-
 export class PriceKind extends yass.Enum {
     static readonly BID = new PriceKind(0, 'BID');
     static readonly ASK = new PriceKind(1, 'ASK');
