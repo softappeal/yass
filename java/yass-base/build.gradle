@@ -1,7 +1,1 @@
-dependencies {
-    compileOnly websocket_dep
-    testCompile jetty_dep
-    testCompile undertow_dep
-}
-
 task dist(dependsOn: 'sign')

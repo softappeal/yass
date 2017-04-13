@@ -1,4 +1,5 @@
 dependencies {
+    compile project(":java:yass-transport-ws")
     compile project(":java:yass-generate")
     compile jetty_dep
     compile undertow_dep

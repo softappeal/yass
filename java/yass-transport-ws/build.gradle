@@ -1,0 +1,9 @@
+dependencies {
+    compile project(":java:yass-base")
+    compileOnly websocket_dep
+    testCompile project(":java:yass-base").sourceSets.test.runtimeClasspath
+    testCompile jetty_dep
+    testCompile undertow_dep
+}
+
+task dist(dependsOn: 'sign')

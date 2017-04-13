@@ -1,5 +1,6 @@
 include "java:yass-base"
 include "java:yass-generate"
+include "java:yass-transport-ws"
 include "java:tutorial"
 include "ts"
 include "py3"
