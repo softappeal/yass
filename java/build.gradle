@@ -1,9 +1,11 @@
 subprojects {
 
-    ext.websocket_dep = 'javax.websocket:javax.websocket-api:1.0'
-    ext.jetty_dep = 'org.eclipse.jetty.websocket:javax-websocket-server-impl:9.4.3.v20170317'
-    ext.undertow_dep = 'io.undertow:undertow-websockets-jsr:1.4.11.Final'
-    ext.junit_dep = 'junit:junit:4.12'
+    ext {
+        websocket_dep = 'javax.websocket:javax.websocket-api:1.0'
+        jetty_dep = 'org.eclipse.jetty.websocket:javax-websocket-server-impl:9.4.3.v20170317'
+        undertow_dep = 'io.undertow:undertow-websockets-jsr:1.4.11.Final'
+        junit_dep = 'junit:junit:4.12'
+    }
 
     apply plugin: 'java'
     apply plugin: 'osgi'
@@ -69,7 +71,7 @@ subprojects {
                     developers { developer { name 'Angelo Salvade' } }
                 }
             }.writeTo("build/libs/${project.name}-${version}.pom")
-            if (project.hasProperty('signing.password')) {
+            if (rootProject.hasProperty('signing.password')) {
                 def signPrefix = "build/libs/${project.name}-${version}"
                 signing.sign(file("${signPrefix}.pom"))
                 signing.sign(file("${signPrefix}.jar"))
