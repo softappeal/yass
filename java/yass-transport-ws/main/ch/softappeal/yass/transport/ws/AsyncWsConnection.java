@@ -8,7 +8,6 @@ import javax.websocket.Session;
 /**
  * Sends messages asynchronously.
  * Closes session if timeout reached.
- * Note: Doesn't work with Tomcat, see http://stackoverflow.com/questions/33381420/tomcat-throws-the-remote-endpoint-was-in-state-binary-full-writing-when.
  */
 public final class AsyncWsConnection extends WsConnection {
 

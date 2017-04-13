@@ -1,0 +1,17 @@
+sourceSets {
+    jetty { java { srcDir 'jetty' } }
+    undertow { java { srcDir 'undertow' } }
+    tomcat { java { srcDir 'tomcat' } }
+}
+
+dependencies {
+    compileOnly websocket_dep
+    jettyCompile sourceSets.main.output
+    jettyCompile jetty_dep
+    undertowCompile sourceSets.main.output
+    undertowCompile undertow_dep
+    tomcatCompile sourceSets.main.output
+    tomcatCompile 'org.apache.tomcat.embed:tomcat-embed-websocket:8.5.12'
+    tomcatCompile 'org.apache.tomcat.embed:tomcat-embed-logging-juli:8.5.2'
+    tomcatCompile 'org.apache.tomcat:jasper:6.0.51'
+}
