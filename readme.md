@@ -27,9 +27,7 @@
 * uses http://semver.org
 
 * is Open Source (BSD-3-Clause license)
-  * Java artifacts on Maven Central:
-    * groupId="ch.softappeal.yass"
-    * artifactId="yass"
+  * Java artifacts on Maven Central: group="ch.softappeal.yass"
 
 ## HelloWorld
 

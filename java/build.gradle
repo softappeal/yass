@@ -6,6 +6,11 @@ subprojects {
     ext.junit_dep = 'junit:junit:4.12'
 
     apply plugin: 'java'
+    apply plugin: 'osgi'
+    apply plugin: 'maven'
+    apply plugin: 'signing'
+
+    group = "ch.softappeal.yass"
 
     repositories {
         mavenCentral()
@@ -15,6 +20,11 @@ subprojects {
         resolutionStrategy {
             failOnVersionConflict()
         }
+    }
+
+    sourceSets {
+        main { java { srcDir 'main' } }
+        test { java { srcDir 'test' } }
     }
 
     dependencies {
@@ -39,6 +49,37 @@ subprojects {
     task packageJavadoc(type: Jar, dependsOn: 'javadoc') {
         from javadoc.destinationDir
         classifier = 'javadoc'
+    }
+
+    artifacts {
+        archives(packageSources)
+        archives(packageJavadoc)
+    }
+
+    task sign {
+        doLast {
+            pom {
+                project {
+                    name project.name
+                    description 'Yet Another Service Solution'
+                    url 'https://github.com/softappeal/yass'
+                    licenses { license { name 'BSD-3-Clause' } }
+                    scm { url 'https://github.com/softappeal/yass' }
+                    organization { name 'softappeal GmbH Switzerland' }
+                    developers { developer { name 'Angelo Salvade' } }
+                }
+            }.writeTo("build/libs/${project.name}-${version}.pom")
+            if (project.hasProperty('signing.password')) {
+                def signPrefix = "build/libs/${project.name}-${version}"
+                signing.sign(file("${signPrefix}.pom"))
+                signing.sign(file("${signPrefix}.jar"))
+                signing.sign(file("${signPrefix}-sources.jar"))
+                signing.sign(file("${signPrefix}-javadoc.jar"))
+            }
+            ant.zip(destfile: "build/${project.name}-${version}_artifacts.zip") {
+                fileset(dir: 'build/libs')
+            }
+        }
     }
 
 }

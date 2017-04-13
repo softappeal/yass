@@ -1,9 +1,5 @@
-sourceSets {
-    main { java { srcDir 'src' } }
-}
-
 dependencies {
-    compile project(":java:yass")
+    compile project(":java:yass-base")
     compile jetty_dep
     compile undertow_dep
 }

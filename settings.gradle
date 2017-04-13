@@ -1,4 +1,4 @@
-include "java:yass"
+include "java:yass-base"
 include "java:tutorial"
 include "ts"
 include "py3"
