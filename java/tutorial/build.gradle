@@ -1,5 +1,5 @@
 dependencies {
-    compile project(":java:yass-base")
+    compile project(":java:yass-generate")
     compile jetty_dep
     compile undertow_dep
 }
