@@ -148,7 +148,7 @@ function writer2reader(writer: yass.Writer): yass.Reader {
 
 (function classTest() {
 
-    const stock = new contract.instrument.stock.Stock;
+    const stock = new contract.instrument.stock.Stock();
     stock.id = new IntegerImpl(1344);
     stock.name = "IBM";
     stock.paysDividend = true;
@@ -156,7 +156,7 @@ function writer2reader(writer: yass.Writer): yass.Reader {
     assert(stock instanceof contract.Instrument);
     assert(stock instanceof contract.instrument.stock.Stock);
     assert(!(stock instanceof contract.instrument.Bond));
-    const exception = new contract.UnknownInstrumentsException;
+    const exception = new contract.UnknownInstrumentsException();
     exception.instrumentIds = [new IntegerImpl(23), new IntegerImpl(454)];
 
 })();
@@ -207,7 +207,7 @@ function writer2reader(writer: yass.Writer): yass.Reader {
     assert(compare(copy([12]), [12]));
     assert(compare(copy([12, true, "bla"]), [12, true, "bla"]));
 
-    let stock = new contract.instrument.stock.Stock;
+    let stock = new contract.instrument.stock.Stock();
     stock.id = new IntegerImpl(1344);
     stock.name = "IBM";
     stock.paysDividend = true;
@@ -222,7 +222,7 @@ function writer2reader(writer: yass.Writer): yass.Reader {
     stock = copy(stock);
     assert(stock.paysDividend === undefined);
 
-    let bond = new contract.instrument.Bond;
+    let bond = new contract.instrument.Bond();
     bond.coupon = 3.5;
     bond.expiration = new contract.Expiration(2013, 2, 20);
     bond = copy(bond);
@@ -231,12 +231,12 @@ function writer2reader(writer: yass.Writer): yass.Reader {
     assert(bond.expiration.month === 2);
     assert(bond.expiration.day === 20);
 
-    let e = new contract.UnknownInstrumentsException;
+    let e = new contract.UnknownInstrumentsException();
     e.instrumentIds = [new IntegerImpl(100), new IntegerImpl(200)];
     e = copy(e);
     assert(compare(e.instrumentIds, [new IntegerImpl(100), new IntegerImpl(200)]));
 
-    let price = new contract.Price;
+    let price = new contract.Price();
     price.instrumentId = new IntegerImpl(123);
     price.kind = PriceKind.ASK;
     price.value = new IntegerImpl(999);
@@ -257,7 +257,7 @@ function writer2reader(writer: yass.Writer): yass.Reader {
 
     assert(new yass.Reader(copy(new yass.Writer(1).getArray())).isEmpty());
 
-    let exception = new contract.UnknownInstrumentsException;
+    let exception = new contract.UnknownInstrumentsException();
     exception.onlyNeededForTests1 = 123456;
     writer = new yass.Writer(1);
     writer.writeByte(121);
@@ -288,7 +288,7 @@ const hostname = "localhost";
                 contract.initiator.echoService.service({
                     echo: (value: any) => {
                         if ("throwRuntimeException" === value) {
-                            const e = new contract.SystemException;
+                            const e = new contract.SystemException();
                             e.message = value;
                             throw e;
                         }
@@ -328,7 +328,7 @@ const hostname = "localhost";
             echoService.echo(undefined).then(result => assert(result === null));
             echoService.echo(true).then(result => assert(result === true));
             echoService.echo(false).then(result => assert(result === false));
-            const stock = new contract.instrument.stock.Stock;
+            const stock = new contract.instrument.stock.Stock();
             stock.id = new IntegerImpl(123);
             stock.name = null!;
             stock.paysDividend = false;
@@ -402,8 +402,8 @@ const hostname = "localhost";
     }
     yass.xhr("http://" + hostname + ":9090/xhr", contract.SERIALIZER, 500).proxy(contract.acceptor.echoService).echo("timeout").catch(error => log("timeout failed:", error));
 
-    const node1 = new contract.Node;
-    const node2 = new contract.Node;
+    const node1 = new contract.Node();
+    const node2 = new contract.Node();
     node1.id = 1;
     node2.id = 2;
     node1.next = node2;

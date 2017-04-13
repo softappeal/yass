@@ -105,8 +105,8 @@ class Session extends yass.Session {
     }
     protected server() {
         return new yass.Server(
-            contract.initiator.priceListener.service(new PriceListenerImpl, serverLogger),
-            contract.initiator.echoService.service(new EchoServiceImpl, serverLogger)
+            contract.initiator.priceListener.service(new PriceListenerImpl(), serverLogger),
+            contract.initiator.echoService.service(new EchoServiceImpl(), serverLogger)
         );
     }
     protected opened(): void {

@@ -188,7 +188,7 @@ class NullTypeHandler implements TypeHandler<any> {
         // empty
     }
 }
-const NULL_DESC = new TypeDesc(0, new NullTypeHandler);
+const NULL_DESC = new TypeDesc(0, new NullTypeHandler());
 
 class ListTypeHandler implements TypeHandler<any[]> {
     read(reader: Reader, id2typeHandler: TypeHandler<any>[]): any[] {
@@ -203,7 +203,7 @@ class ListTypeHandler implements TypeHandler<any[]> {
         value.forEach(element => write(element, writer));
     }
 }
-export const LIST_DESC = new TypeDesc(2, new ListTypeHandler);
+export const LIST_DESC = new TypeDesc(2, new ListTypeHandler());
 
 class BooleanTypeHandler implements TypeHandler<boolean> {
     read(reader: Reader): boolean {
@@ -213,7 +213,7 @@ class BooleanTypeHandler implements TypeHandler<boolean> {
         writer.writeByte(value ? 1 : 0);
     }
 }
-export const BOOLEAN_DESC = new TypeDesc(3, new BooleanTypeHandler);
+export const BOOLEAN_DESC = new TypeDesc(3, new BooleanTypeHandler());
 
 class NumberTypeHandler implements TypeHandler<number> {
     read(reader: Reader): number {
@@ -224,7 +224,7 @@ class NumberTypeHandler implements TypeHandler<number> {
         new DataView(writer.array.buffer).setFloat64(position, value);
     }
 }
-export const NUMBER_DESC = new TypeDesc(4, new NumberTypeHandler);
+export const NUMBER_DESC = new TypeDesc(4, new NumberTypeHandler());
 
 class StringTypeHandler implements TypeHandler<string> {
     read(reader: Reader): string {
@@ -235,7 +235,7 @@ class StringTypeHandler implements TypeHandler<string> {
         writer.writeUtf8(value);
     }
 }
-export const STRING_DESC = new TypeDesc(5, new StringTypeHandler);
+export const STRING_DESC = new TypeDesc(5, new StringTypeHandler());
 
 class BytesTypeHandler implements TypeHandler<Uint8Array> {
     read(reader: Reader): Uint8Array {
@@ -248,7 +248,7 @@ class BytesTypeHandler implements TypeHandler<Uint8Array> {
         writer.array.set(value, position);
     }
 }
-export const BYTES_DESC = new TypeDesc(6, new BytesTypeHandler);
+export const BYTES_DESC = new TypeDesc(6, new BytesTypeHandler());
 
 export const FIRST_DESC_ID = 7;
 
@@ -329,7 +329,7 @@ class ClassTypeHandler implements TypeHandler<any> {
         this.fieldId2handler[id] = handler;
     }
     read(reader: Reader, id2typeHandler: TypeHandler<any>[]): any {
-        const object = new this.Type;
+        const object = new this.Type();
         while (true) {
             const id = reader.readVarInt();
             if (id === 0) {
@@ -610,7 +610,7 @@ export class Server {
         }
         return new ServerInvocation(service, request);
     }
-    static readonly EMPTY = new Server;
+    static readonly EMPTY = new Server();
 }
 
 export interface Tunnel {

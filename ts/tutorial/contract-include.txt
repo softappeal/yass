@@ -15,7 +15,7 @@ class ExpirationHandler implements yass.TypeHandler<Expiration> {
         writer.writeZigZagInt(value.month);
         writer.writeZigZagInt(value.day);
     }
-    static readonly TYPE_DESC = new yass.TypeDesc(yass.FIRST_DESC_ID + 1, new ExpirationHandler);
+    static readonly TYPE_DESC = new yass.TypeDesc(yass.FIRST_DESC_ID + 1, new ExpirationHandler());
 }
 export class Expiration {
     constructor(public readonly year: number, public readonly month: number, public readonly day: number) {
