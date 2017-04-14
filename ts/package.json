@@ -4,11 +4,11 @@
     "version": "0.0.0",
     "devDependencies": {
         "typescript": "2.2.2",
-        "systemjs": "0.20.10",
-        "ws": "2.2.2",
+        "systemjs": "0.20.12",
+        "ws": "2.2.3",
         "xhr2": "0.1.4",
         "istanbul": "0.4.5",
-        "remap-istanbul": "0.9.1"
+        "remap-istanbul": "0.9.5"
     },
     "repository": {
         "type": "git",
