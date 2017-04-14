@@ -1,16 +1,13 @@
 subprojects {
 
+    apply plugin: 'java'
+
     ext {
         websocket_dep = 'javax.websocket:javax.websocket-api:1.0'
         jetty_dep = 'org.eclipse.jetty.websocket:javax-websocket-server-impl:9.4.3.v20170317'
         undertow_dep = 'io.undertow:undertow-websockets-jsr:1.4.11.Final'
         junit_dep = 'junit:junit:4.12'
     }
-
-    apply plugin: 'java'
-    apply plugin: 'osgi'
-    apply plugin: 'maven'
-    apply plugin: 'signing'
 
     group = "ch.softappeal.yass"
 
@@ -43,6 +40,10 @@ subprojects {
         options.addStringOption('Xdoclint:all,-missing', '-quiet')
     }
 
+    jar {
+        manifest { attributes("Implementation-Version": "${version}") }
+    }
+
     task packageSources(type: Jar) {
         from sourceSets.main.allSource
         classifier = 'sources'
@@ -57,6 +58,9 @@ subprojects {
         archives(packageSources)
         archives(packageJavadoc)
     }
+
+    apply plugin: 'maven'
+    apply plugin: 'signing'
 
     task sign {
         doLast {

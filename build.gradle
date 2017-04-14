@@ -1,0 +1,1 @@
+defaultTasks 'clean', 'build', 'dist'

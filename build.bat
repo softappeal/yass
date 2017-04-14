@@ -1,11 +1,11 @@
 @echo off
 
+set JAVA_HOME=C:\Program Files\Java\jdk1.8.0_121
+
 set version=0.0.0
 set /p version=Version [ MAJOR.MINOR.PATCH or 'enter' for %version% ]?:
 
-set JAVA_HOME=C:\Program Files\Java\jdk1.8.0_121
-
-cmd /c .\gradlew.bat -Pversion=%version% clean build dist
+cmd /c .\gradlew.bat -Pversion=%version%
 
 cd ts
 cmd /c npm install

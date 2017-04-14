@@ -1,1 +1,7 @@
 task dist(dependsOn: 'sign')
+
+apply plugin: 'findbugs'
+
+findbugs {
+    sourceSets = [sourceSets.main]
+}
