@@ -15,3 +15,5 @@ dependencies {
     tomcatCompile 'org.apache.tomcat.embed:tomcat-embed-logging-juli:8.5.2'
     tomcatCompile 'org.apache.tomcat:jasper:6.0.51'
 }
+
+apply plugin: "war"

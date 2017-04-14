@@ -7,6 +7,9 @@ import javax.websocket.MessageHandler;
 import javax.websocket.Session;
 import javax.websocket.WebSocketContainer;
 import java.net.URI;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -32,7 +35,13 @@ public final class Initiator {
                     });
                 }
             },
-            ClientEndpointConfig.Builder.create().build(),
+            ClientEndpointConfig.Builder.create()
+                .configurator(new ClientEndpointConfig.Configurator() {
+                    @Override public void beforeRequest(final Map<String, List<String>> headers) {
+                        headers.put("Custom_" + System.currentTimeMillis(), Collections.singletonList("foo"));
+                    }
+                })
+                .build(),
             URI.create("ws://" + HOST + ":" + PORT + ApplicationConfig.WS_PATH)
         );
     }

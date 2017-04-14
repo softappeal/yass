@@ -11,9 +11,6 @@ import ch.softappeal.yass.util.Exceptions;
 import javax.websocket.ClientEndpointConfig;
 import javax.websocket.WebSocketContainer;
 import java.net.URI;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
 
 public abstract class WebInitiatorSetup {
 
@@ -27,13 +24,7 @@ public abstract class WebInitiatorSetup {
                 ),
                 Exceptions.STD_ERR
             ).getEndpointInstance(),
-            ClientEndpointConfig.Builder.create()
-                .configurator(new ClientEndpointConfig.Configurator() {
-                    @Override public void beforeRequest(final Map<String, List<String>> headers) {
-                        headers.put("Custom_" + System.currentTimeMillis(), Collections.singletonList("foo"));
-                    }
-                })
-                .build(),
+            ClientEndpointConfig.Builder.create().build(),
             URI.create("ws://" + WebAcceptorSetup.HOST + ":" + WebAcceptorSetup.PORT + WebAcceptorSetup.WS_PATH)
         );
         System.out.println("started");

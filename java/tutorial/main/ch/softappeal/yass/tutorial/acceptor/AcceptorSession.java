@@ -5,7 +5,6 @@ import ch.softappeal.yass.core.remote.Server;
 import ch.softappeal.yass.core.remote.session.Connection;
 import ch.softappeal.yass.core.remote.session.SessionWatcher;
 import ch.softappeal.yass.core.remote.session.SimpleSession;
-import ch.softappeal.yass.transport.ws.WsConnection;
 import ch.softappeal.yass.tutorial.contract.EchoService;
 import ch.softappeal.yass.tutorial.contract.EchoServiceImpl;
 import ch.softappeal.yass.tutorial.contract.Logger;
@@ -52,9 +51,6 @@ public final class AcceptorSession extends SimpleSession {
     public AcceptorSession(final Connection connection, final Executor dispatchExecutor) {
         super(connection, dispatchExecutor);
         System.out.println("session " + this + " created");
-        if (connection instanceof WsConnection) {
-            System.out.println("getUserProperties: " + ((WsConnection)connection).session.getUserProperties().keySet());
-        }
         final Interceptor interceptor = new Logger(this, Logger.Side.CLIENT);
         priceListener = proxy(INITIATOR.priceListener, interceptor);
         echoService = proxy(INITIATOR.echoService, interceptor);

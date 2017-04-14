@@ -2,8 +2,10 @@ package test;
 
 import javax.websocket.Endpoint;
 import javax.websocket.EndpointConfig;
+import javax.websocket.HandshakeResponse;
 import javax.websocket.RemoteEndpoint;
 import javax.websocket.Session;
+import javax.websocket.server.HandshakeRequest;
 import javax.websocket.server.ServerApplicationConfig;
 import javax.websocket.server.ServerEndpointConfig;
 import java.nio.ByteBuffer;
@@ -21,6 +23,15 @@ public final class ApplicationConfig implements ServerApplicationConfig {
     public static final ServerEndpointConfig ENDPOINT_CONFIG = ServerEndpointConfig.Builder
         .create(Endpoint.class, WS_PATH)
         .configurator(new ServerEndpointConfig.Configurator() {
+            @Override public void modifyHandshake(final ServerEndpointConfig sec, final HandshakeRequest request, final HandshakeResponse response) {
+                // see:
+                //     http://dev.eclipse.org/mhonarc/lists/jetty-users/msg07615.html
+                //     http://lists.jboss.org/pipermail/undertow-dev/2017-February/001892.html
+                //     https://java.net/jira/browse/WEBSOCKET_SPEC-218
+                //     https://java.net/jira/browse/WEBSOCKET_SPEC-235
+                //     http://stackoverflow.com/questions/17936440/accessing-httpsession-from-httpservletrequest-in-a-web-socket-serverendpoint/17994303#17994303
+                sec.getUserProperties().putAll(request.getHeaders());
+            }
             @Override public <T> T getEndpointInstance(final Class<T> endpointClass) {
                 return endpointClass.cast(new Endpoint() {
                     void send(final RemoteEndpoint.Async remote) {
@@ -28,7 +39,7 @@ public final class ApplicationConfig implements ServerApplicationConfig {
                             final long threadId = Thread.currentThread().getId();
                             System.out.println("start: " + threadId);
                             final long start = System.nanoTime();
-                            for (int counter = 0; counter < 100; counter++) {
+                            for (int counter = 0; counter < 1; counter++) {
                                 remote.sendBinary(
                                     ByteBuffer.wrap(new byte[50_000]),
                                     result -> {
@@ -42,6 +53,7 @@ public final class ApplicationConfig implements ServerApplicationConfig {
                         });
                     }
                     public void onOpen(Session session, EndpointConfig config) {
+                        System.out.println("getUserProperties: " + session.getUserProperties().keySet());
                         final RemoteEndpoint.Async remote = session.getAsyncRemote();
                         send(remote);
                         send(remote);
