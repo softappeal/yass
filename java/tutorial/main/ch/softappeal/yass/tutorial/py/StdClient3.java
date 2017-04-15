@@ -15,6 +15,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -23,10 +24,9 @@ public final class StdClient3 {
     public static void start(final String pythonPgm, final String pythonDirectory) throws IOException {
         final Stopwatch stopwatch = new Stopwatch();
         final Process process = new ProcessBuilder(pythonPgm, "-u", "-m", "tutorial.std_server").directory(new File(pythonDirectory)).start();
-        final BufferedReader err = new BufferedReader(new InputStreamReader(process.getErrorStream()));
         final ExecutorService stderr = Executors.newSingleThreadExecutor(new NamedThreadFactory("stderr", Exceptions.TERMINATE));
         stderr.execute(() -> {
-            try {
+            try (BufferedReader err = new BufferedReader(new InputStreamReader(process.getErrorStream(), StandardCharsets.UTF_8))) {
                 while (true) {
                     final String s = err.readLine();
                     if (s == null) {

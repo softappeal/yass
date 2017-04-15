@@ -117,8 +117,10 @@ public abstract class Out {
     }
 
     protected Out(final String file) throws IOException {
-        //noinspection ResultOfMethodCallIgnored
-        new File(file).getParentFile().mkdirs();
+        final File directory = new File(file).getParentFile();
+        if (!directory.exists() && !directory.mkdirs()) {
+            throw new IOException("directory '" + directory + "' not created");
+        }
         printer = new PrintWriter(file, StandardCharsets.UTF_8.name());
     }
 

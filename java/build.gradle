@@ -88,4 +88,10 @@ subprojects {
         }
     }
 
+    apply plugin: 'findbugs'
+
+    findbugs {
+        sourceSets = [sourceSets.main]
+    }
+
 }

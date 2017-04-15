@@ -33,7 +33,7 @@ public final class Logger implements Interceptor {
 
     private void log(final String type, final Method method, final Object data) {
         System.out.printf(
-            "%tT | %s | %s | %s | %s | %s\n",
+            "%tT | %s | %s | %s | %s | %s%n",
             new Date(),
             (session == null) ? "<no-session>" : session,
             side,
