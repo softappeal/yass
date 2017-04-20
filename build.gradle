@@ -1,1 +1,42 @@
-defaultTasks 'clean', 'build', 'dist'
+defaultTasks 'clean', 'todos', 'build', 'dist'
+
+task todos {
+    doLast {
+        def searchTree = fileTree(dir: '.')
+            .exclude('.git/')
+            .exclude('.gradle/')
+            .exclude('.idea/')
+        searchMarker(searchTree, 'not allowed for building a release', '$' + '$$')
+        searchMarker(searchTree, 'under construction, yet a release can still be built', '$' + 'todo')
+        searchMarker(searchTree, 'important comment', '$' + 'note')
+        divider1()
+    }
+}
+
+def divider1() {
+    println "========================================================================================================================"
+}
+
+def divider2() {
+    println "------------------------------------------------------------------------------------------------------------------------"
+}
+
+def searchMarker(tree, String title, String marker) {
+    divider1()
+    println "= search: " + title
+    tree.each { file ->
+        def found = false
+        def number = 0
+        file.eachLine { line ->
+            number++
+            if (line.toLowerCase().contains(marker)) {
+                if (!found) {
+                    divider2()
+                    println "+ " + file.toString()
+                }
+                found = true
+                println "- " + number + ": " + line.toString()
+            }
+        }
+    }
+}

@@ -5,7 +5,7 @@ import org.apache.catalina.startup.Tomcat;
 import java.io.File;
 
 /*
- * Note: Doesn't work, see http://stackoverflow.com/questions/33381420/tomcat-throws-the-remote-endpoint-was-in-state-binary-full-writing-when.
+ * $note: Doesn't work, see http://stackoverflow.com/questions/33381420/tomcat-throws-the-remote-endpoint-was-in-state-binary-full-writing-when.
  */
 public final class TomcatAcceptor {
 

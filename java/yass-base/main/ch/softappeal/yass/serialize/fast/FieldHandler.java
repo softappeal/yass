@@ -18,7 +18,7 @@ public final class FieldHandler {
 
     private @Nullable TypeHandler typeHandler;
     /**
-     * Note: !{@link Optional#isPresent()} if {@link ClassTypeHandler} or type not in class2typeDesc (Object, Throwable, abstract classes, ...).
+     * note: !{@link Optional#isPresent()} if {@link ClassTypeHandler} or type not in class2typeDesc (Object, Throwable, abstract classes, ...).
      */
     public Optional<TypeHandler> typeHandler() {
         return Optional.ofNullable(typeHandler);
