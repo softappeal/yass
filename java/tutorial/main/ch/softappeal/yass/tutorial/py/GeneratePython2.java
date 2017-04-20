@@ -15,7 +15,7 @@ public final class GeneratePython2 {
         externalTypes.put(Integer.class, new PythonGenerator.ExternalDesc("Integer", "Integer.TYPE_DESC")); // shows how to use a contract external base type
         new PythonGenerator(
             Config.class.getPackage().getName(), Config.PY_CONTRACT_SERIALIZER, Config.INITIATOR, Config.ACCEPTOR, false,
-            "../../py2/tutorial/contract_include_each_module.txt", module2includeFile, externalTypes, "../../py2/tutorial/generated"
+            "../../py2/tutorial/contract_include_each_module.txt", module2includeFile, externalTypes, "build/generated/py2"
         );
     }
 

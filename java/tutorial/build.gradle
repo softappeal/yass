@@ -20,4 +20,37 @@ task generatePython2(type: JavaExec) {
     classpath = sourceSets.main.runtimeClasspath
 }
 
-task dist(dependsOn: ['generateTypeScript', 'generatePython3', 'generatePython2'])
+task dist(dependsOn: ['generateTypeScript', 'generatePython3', 'generatePython2']) {
+    doLast {
+        compareGenerated("ts")
+        compareGenerated("py3")
+        compareGenerated("py2")
+    }
+}
+
+def compareGenerated(String module) {
+    compareDirs(new File(project.rootDir, module + "/tutorial/generated"), new File(project.buildDir, "generated/" + module))
+}
+
+def compareDirs(File dir1, File dir2) {
+    dir1.listFiles().each {
+        def file2 = new File(dir2, it.name)
+        if (!file2.exists()) {
+            throw new RuntimeException(file2.toString() + " is missing on second")
+        } else if (it.isDirectory() && !file2.isDirectory()) {
+            throw new RuntimeException(it.toString() + ": first is a dir, second is a file")
+        } else if (!it.isDirectory() && file2.isDirectory()) {
+            throw new RuntimeException(it.toString() + ": first is a file, second is a dir")
+        } else if (it.isDirectory()) {
+            compareDirs(it, file2)
+        } else if (!Arrays.equals((byte[]) it.bytes, file2.bytes)) {
+            throw new RuntimeException(it.toString() + ": content is different")
+        }
+    }
+    dir2.listFiles().each {
+        def file1 = new File(dir1, it.name)
+        if (!file1.exists()) {
+            throw new RuntimeException(it.toString() + " is missing on first")
+        }
+    }
+}
