@@ -88,6 +88,8 @@ subprojects {
         }
     }
 
+    apply plugin: 'osgi'
+
     apply plugin: 'findbugs'
 
     findbugs {

@@ -1,14 +1,14 @@
-defaultTasks 'clean', 'todos', 'build', 'dist'
+defaultTasks 'clean', 'todo', 'build', 'dist'
 
-task todos {
+task todo {
     doLast {
         def searchTree = fileTree(dir: '.')
             .exclude('.git/')
             .exclude('.gradle/')
             .exclude('.idea/')
-        searchMarker(searchTree, 'not allowed for building a release', '$' + '$$')
-        searchMarker(searchTree, 'under construction, yet a release can still be built', '$' + 'todo')
-        searchMarker(searchTree, 'important comment', '$' + 'note')
+        searchTodo(searchTree, '$' + '$$', 'not allowed for building a release')
+        searchTodo(searchTree, '$' + 'todo', 'under construction, yet a release can still be built')
+        searchTodo(searchTree, '$' + 'note', 'important comment')
         divider1()
     }
 }
@@ -21,9 +21,9 @@ def divider2() {
     println "------------------------------------------------------------------------------------------------------------------------"
 }
 
-def searchMarker(tree, String title, String marker) {
+def searchTodo(tree, String marker, String help) {
     divider1()
-    println "= search: " + title
+    println "= " + marker + ": " + help
     tree.each { file ->
         def found = false
         def number = 0
