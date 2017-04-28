@@ -14,6 +14,8 @@ branches:
   only:
     - master
 
+install: true
+
 script:
   - chmod +x ./gradlew
   - ./gradlew
