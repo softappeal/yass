@@ -48,7 +48,7 @@ public class SslTest extends TransportTest {
                         }
                     )
                 )
-            ).start(executor, SocketBinder.create(serverSocketFactory, SocketTransportTest.ADDRESS, true))
+            ).start(executor, SocketBinder.create(serverSocketFactory, SocketTransportTest.ADDRESS))
         ) {
             Assert.assertTrue(
                 SimpleSocketTransport.client(MESSAGE_SERIALIZER, SocketConnector.create(socketFactory, SocketTransportTest.ADDRESS))

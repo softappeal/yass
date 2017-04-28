@@ -113,8 +113,9 @@ public abstract class SessionTest extends InvokeTest {
                             }
                         }
                     }.run(samples, TimeUnit.MICROSECONDS);
+                } finally {
+                    latch.countDown();
                 }
-                latch.countDown();
             }
         };
     }

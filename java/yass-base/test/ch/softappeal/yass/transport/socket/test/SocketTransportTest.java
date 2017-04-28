@@ -15,7 +15,6 @@ import ch.softappeal.yass.util.Exceptions;
 import ch.softappeal.yass.util.NamedThreadFactory;
 import org.junit.Test;
 
-import javax.net.ServerSocketFactory;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.util.HashMap;
@@ -33,7 +32,7 @@ public class SocketTransportTest extends TransportTest {
     public static final int PORT = 28947;
     public static final SocketAddress ADDRESS = new InetSocketAddress(HOSTNAME, PORT);
     public static final SocketConnector CONNECTOR = SocketConnector.create(ADDRESS);
-    public static final SocketBinder BINDER = SocketBinder.create(ServerSocketFactory.getDefault(), ADDRESS, true);
+    public static final SocketBinder BINDER = SocketBinder.create(ADDRESS);
 
     @Test public void clientInvoke() throws Exception {
         final ExecutorService executor = Executors.newCachedThreadPool(new NamedThreadFactory("executor", Exceptions.TERMINATE));
