@@ -12,6 +12,8 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import static ch.softappeal.yass.transport.socket.test.SimpleSocketTransportTest.delayedShutdown;
+
 public class SocketPerformanceTest extends TransportTest {
 
     @SuppressWarnings("try")
@@ -33,7 +35,7 @@ public class SocketPerformanceTest extends TransportTest {
             );
             latch.await();
         } finally {
-            executor.shutdown();
+            delayedShutdown(executor);
         }
     }
 

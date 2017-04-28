@@ -23,6 +23,11 @@ import java.util.concurrent.TimeUnit;
 @SuppressWarnings("try")
 public class SimpleSocketTransportTest extends TransportTest {
 
+    public static void delayedShutdown(final ExecutorService executor) throws InterruptedException {
+        TimeUnit.MILLISECONDS.sleep(100L); // gives client time to finish socket close
+        executor.shutdown();
+    }
+
     private static Interceptor socketInterceptor(final String side) {
         return (method, arguments, invocation) -> {
             System.out.println(side + ": " + SimpleSocketTransport.socket().get());
@@ -55,7 +60,7 @@ public class SimpleSocketTransportTest extends TransportTest {
                     )
             );
         } finally {
-            executor.shutdown();
+            delayedShutdown(executor);
         }
     }
 
@@ -76,8 +81,7 @@ public class SimpleSocketTransportTest extends TransportTest {
                 // empty
             }
         } finally {
-            TimeUnit.MILLISECONDS.sleep(200L);
-            executor.shutdown();
+            delayedShutdown(executor);
         }
     }
 
@@ -106,7 +110,7 @@ public class SimpleSocketTransportTest extends TransportTest {
             SimpleSocketTransport.client(MESSAGE_SERIALIZER, SocketTransportTest.CONNECTOR, PathSerializer.INSTANCE, 2)
                 .proxy(ECHO_ID).echo(null);
         } finally {
-            executor.shutdown();
+            delayedShutdown(executor);
         }
     }
 

@@ -20,7 +20,8 @@ import javax.net.ssl.SSLSocket;
 import java.security.KeyStore;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
+
+import static ch.softappeal.yass.transport.socket.test.SimpleSocketTransportTest.delayedShutdown;
 
 public class SslTest extends TransportTest {
 
@@ -47,7 +48,7 @@ public class SslTest extends TransportTest {
                         }
                     )
                 )
-            ).start(executor, SocketBinder.create(serverSocketFactory, SocketTransportTest.ADDRESS))
+            ).start(executor, SocketBinder.create(serverSocketFactory, SocketTransportTest.ADDRESS, true))
         ) {
             Assert.assertTrue(
                 SimpleSocketTransport.client(MESSAGE_SERIALIZER, SocketConnector.create(socketFactory, SocketTransportTest.ADDRESS))
@@ -62,8 +63,7 @@ public class SslTest extends TransportTest {
             );
             System.out.println("ok");
         } finally {
-            TimeUnit.MILLISECONDS.sleep(200);
-            executor.shutdown();
+            delayedShutdown(executor);
         }
     }
 
