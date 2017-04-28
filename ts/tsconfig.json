@@ -2,12 +2,10 @@
     "compilerOptions": {
         "target": "ES5",
         "noEmitOnError": true,
-        "noImplicitAny": true,
+        "strict": true,
         "noImplicitReturns": true,
         "noFallthroughCasesInSwitch": true,
         "sourceMap": true,
-        "noImplicitThis": true,
-        "strictNullChecks": true,
         "noUnusedLocals": true,
         "noUnusedParameters": false,
         "module": "commonjs",
