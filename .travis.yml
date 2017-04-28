@@ -11,8 +11,8 @@ addons:
       - oracle-java8-installer
 
 script:
-  - chmod +x gradlew
-  - gradlew
+  - chmod +x ./gradlew
+  - ./gradlew
 
 branches:
   only:
