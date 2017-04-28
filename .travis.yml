@@ -10,10 +10,10 @@ addons:
     packages:
       - oracle-java8-installer
 
-script:
-  - chmod +x ./gradlew
-  - ./gradlew
-
 branches:
   only:
     - master
+
+script:
+  - chmod +x ./gradlew
+  - ./gradlew
