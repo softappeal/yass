@@ -1,7 +1,7 @@
-# yass (Yet Another Service Solution)
-
-[![Build Status](https://travis-ci.org/softappeal/yass.svg?branch=master)](https://travis-ci.org/softappeal/yass)
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/ch.softappeal.yass/yass-base/badge.svg)](https://maven-badges.herokuapp.com/maven-central/ch.softappeal.yass/yass-base)
+[![Build Status](https://travis-ci.org/softappeal/yass.svg?branch=master)](https://travis-ci.org/softappeal/yass)
+
+# yass (Yet Another Service Solution)
 
 * is a small library for efficient peer-to-peer communication
   * Java

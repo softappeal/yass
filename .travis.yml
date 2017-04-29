@@ -1,8 +1,6 @@
 sudo: false
 
-language:
-    - java
-    - node_js
+language: java
 
 jdk:
     - oraclejdk8
@@ -12,7 +10,10 @@ addons:
         packages:
             - oracle-java8-installer
 
-node_js: "6"
+language: node_js
+
+node_js:
+    - '6'
 
 branches:
     only:
@@ -21,5 +22,6 @@ branches:
 install: true
 
 script:
+    - node --version
     - chmod +x ./gradlew
     - ./gradlew
