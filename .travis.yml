@@ -22,6 +22,5 @@ branches:
 install: true
 
 script:
-    - node --version
     - chmod +x ./gradlew
     - ./gradlew
