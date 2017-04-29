@@ -20,5 +20,8 @@ before_install:
     - nvm install 6
 
 script:
+    - java -version
+    - node --version
+    - npm --version
     - chmod +x ./gradlew
     - ./gradlew
