@@ -1,6 +1,8 @@
 sudo: false
 
-language: java
+language:
+    - java
+    - node_js
 
 jdk:
     - oraclejdk8
@@ -9,6 +11,8 @@ addons:
     apt:
         packages:
             - oracle-java8-installer
+
+node_js: "6"
 
 branches:
     only:
