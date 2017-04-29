@@ -3,19 +3,19 @@ sudo: false
 language: java
 
 jdk:
-  - oraclejdk8
+    - oraclejdk8
 
 addons:
-  apt:
-    packages:
-      - oracle-java8-installer
+    apt:
+        packages:
+            - oracle-java8-installer
 
 branches:
-  only:
-    - master
+    only:
+        - master
 
 install: true
 
 script:
-  - chmod +x ./gradlew
-  - ./gradlew --info
+    - chmod +x ./gradlew
+    - ./gradlew
