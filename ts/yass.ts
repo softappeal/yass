@@ -17,7 +17,7 @@ export class Writer {
         }
         return oldPosition;
     }
-    writeByte(value: number): void {
+    writefByte(value: number): void { // $$$
         const position = this.needed(1);
         this.array[position] = value;
     }
