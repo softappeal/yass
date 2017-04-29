@@ -18,4 +18,4 @@ install: true
 
 script:
   - chmod +x ./gradlew
-  - ./gradlew
+  - ./gradlew --info
