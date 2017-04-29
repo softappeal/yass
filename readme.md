@@ -1,6 +1,7 @@
 # yass (Yet Another Service Solution)
 
 [![Build Status](https://travis-ci.org/softappeal/yass.svg?branch=master)](https://travis-ci.org/softappeal/yass)
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/ch.softappeal.yass/yass-base/badge.svg)](https://maven-badges.herokuapp.com/maven-central/ch.softappeal.yass/yass-base)
 
 * is a small library for efficient peer-to-peer communication
   * Java
@@ -29,7 +30,6 @@
 * uses http://semver.org
 
 * is Open Source (BSD-3-Clause license)
-  * Java artifacts on Maven Central: group="ch.softappeal.yass"
 
 ## HelloWorld
 
