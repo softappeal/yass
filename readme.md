@@ -1,5 +1,7 @@
 # yass (Yet Another Service Solution)
 
+[![Build Status](https://travis-ci.org/softappeal/yass.svg?branch=master)](https://travis-ci.org/softappeal/yass)
+
 * is a small library for efficient peer-to-peer communication
   * Java
   * TypeScript/JavaScript
