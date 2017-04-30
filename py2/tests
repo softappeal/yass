@@ -1,0 +1,11 @@
+source activate py2
+
+pip install typing==3.6.1
+pip install enum34==1.1.6
+
+python -m unittest test.all_tests
+
+source activate py3
+
+mypy -p tutorial
+mypy -p test

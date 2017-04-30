@@ -12,11 +12,11 @@ call compile.bat
 popd
 
 pushd py3
-cmd /c test.bat
+call tests.bat
 popd
 
 pushd py2
-cmd /c test.bat
+call tests.bat
 popd
 
 pause

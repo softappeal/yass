@@ -48,3 +48,15 @@ script:
     - chmod +x ./compile
     - ./compile
     - popd
+    # run py3
+    - pushd py3
+    - chmod +x ./tests
+    - ./tests
+    - popd
+    # run py2
+    - pushd py2
+    - chmod +x ./tests
+    - ./tests
+    - popd
+    # deactivate python environment
+    - source deactivate
