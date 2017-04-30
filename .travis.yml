@@ -17,7 +17,6 @@ branches:
 install: true
 
 before_install:
-    - sudo apt-get update
     # node
     - nvm install 6
     # python
