@@ -1,11 +1,10 @@
 conda info --envs
 
-conda create --name py3 python=3.6.1
-conda create --name py2 python=2.7.13
+conda create --name <ENVIRONMENT> python=x.y.z
 
 conda remove --name <ENVIRONMENT> --all
 
-activate py3
+activate <ENVIRONMENT>
 deactivate
 
 

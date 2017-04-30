@@ -7,14 +7,16 @@ set /p version=Version [ MAJOR.MINOR.PATCH or 'enter' for %version% ]?:
 
 cmd /c .\gradlew.bat -Pversion=%version%
 
-cd ts
-cmd /c npm install
-cmd /c node_modules\.bin\tsc
+pushd ts
+call compile.bat
+popd
 
-cd ..\py3
+pushd py3
 cmd /c test.bat
+popd
 
-cd ..\py2
+pushd py2
 cmd /c test.bat
+popd
 
 pause
