@@ -58,5 +58,3 @@ script:
     - chmod +x ./tests
     - ./tests
     - popd
-    # deactivate python environment
-    - source deactivate

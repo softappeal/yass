@@ -7,5 +7,7 @@ python -m unittest test.all_tests
 
 source activate py3
 
-mypy -p tutorial
-mypy -p test
+# mypy -p tutorial
+# mypy -p test
+
+source deactivate

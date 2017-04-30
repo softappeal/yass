@@ -9,3 +9,5 @@ call activate py3
 
 cmd /c mypy -p tutorial
 cmd /c mypy -p test
+
+call deactivate
