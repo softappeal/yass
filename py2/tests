@@ -7,7 +7,7 @@ python -m unittest test.all_tests
 
 source activate py3
 
-# mypy -p tutorial
-# mypy -p test
+# mypy -p tutorial $note: enable if mypy fixes this
+# mypy -p test     $note: enable if mypy fixes this
 
 source deactivate
