@@ -76,11 +76,7 @@ subprojects {
                 }
             }.writeTo("build/libs/${project.name}-${version}.pom")
             if (rootProject.hasProperty('signing.password')) {
-                def signPrefix = "build/libs/${project.name}-${version}"
-                signing.sign(file("${signPrefix}.pom"))
-                signing.sign(file("${signPrefix}.jar"))
-                signing.sign(file("${signPrefix}-sources.jar"))
-                signing.sign(file("${signPrefix}-javadoc.jar"))
+                file("build/libs").listFiles().each { signing.sign(it) }
             }
             ant.zip(destfile: "build/${project.name}-${version}_artifacts.zip") {
                 fileset(dir: 'build/libs')
