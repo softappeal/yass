@@ -21,7 +21,7 @@ import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
-import static ch.softappeal.yass.tutorial.contract.Config.ACCEPTOR;
+import static ch.softappeal.yass.tutorial.contract.Config.PY_ACCEPTOR;
 
 public final class SocketServer {
 
@@ -56,8 +56,8 @@ public final class SocketServer {
             executor,
             new MessageSerializer(SocketClient.SERIALIZER),
             new ch.softappeal.yass.core.remote.Server(
-                ACCEPTOR.echoService.service(new EchoServiceImpl()),
-                ACCEPTOR.instrumentService.service(new InstrumentServiceImpl(), PEER, LOGGER)
+                PY_ACCEPTOR.echoService.service(new EchoServiceImpl()),
+                PY_ACCEPTOR.instrumentService.service(new InstrumentServiceImpl(), PEER, LOGGER)
             )
         ).start(
             executor,

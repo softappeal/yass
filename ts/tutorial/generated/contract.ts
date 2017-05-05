@@ -105,6 +105,46 @@ export class Node {
     );
 }
 
+export namespace generic {
+    export class Pair<F, S> {
+        first: F;
+        second: S;
+        static readonly TYPE_DESC = yass.classDesc(16, Pair,
+            new yass.FieldDesc(1, 'first', null),
+            new yass.FieldDesc(2, 'second', null)
+        );
+    }
+}
+
+export namespace generic {
+    export class PairBoolBool extends generic.Pair<boolean, boolean> {
+        static readonly TYPE_DESC = yass.classDesc(17, PairBoolBool,
+            new yass.FieldDesc(1, 'first', null),
+            new yass.FieldDesc(2, 'second', null)
+        );
+    }
+}
+
+export namespace generic {
+    export class Triple<F, T> extends generic.Pair<F, boolean> {
+        third: T;
+        static readonly TYPE_DESC = yass.classDesc(18, Triple,
+            new yass.FieldDesc(1, 'third', null),
+            new yass.FieldDesc(2, 'first', null),
+            new yass.FieldDesc(3, 'second', null)
+        );
+    }
+}
+
+export namespace generic {
+    export class TripleWrapper {
+        triple: generic.Triple<PriceKind, generic.Pair<string, generic.PairBoolBool[]>>;
+        static readonly TYPE_DESC = yass.classDesc(19, TripleWrapper,
+            new yass.FieldDesc(1, 'triple', null)
+        );
+    }
+}
+
 export namespace proxy {
     export interface EchoService {
         echo(value: any): Promise<any>;
@@ -153,6 +193,24 @@ export namespace mapper {
     );
 }
 
+export namespace generic {
+    export namespace proxy {
+        export interface GenericEchoService {
+            echo(value: generic.Pair<boolean, generic.TripleWrapper>): Promise<generic.Pair<boolean, generic.TripleWrapper>>;
+        }
+    }
+    export namespace impl {
+        export interface GenericEchoService {
+            echo(value: generic.Pair<boolean, generic.TripleWrapper>): generic.Pair<boolean, generic.TripleWrapper>;
+        }
+    }
+    export namespace mapper {
+        export const GenericEchoService = new yass.MethodMapper(
+            new yass.MethodMapping('echo', 0, false)
+        );
+    }
+}
+
 export namespace instrument {
     export namespace proxy {
         export interface InstrumentService {
@@ -183,6 +241,7 @@ export namespace acceptor {
     export const priceEngine = new yass.ContractId<proxy.PriceEngine, impl.PriceEngine>(0, mapper.PriceEngine);
     export const instrumentService = new yass.ContractId<instrument.proxy.InstrumentService, instrument.impl.InstrumentService>(1, instrument.mapper.InstrumentService);
     export const echoService = new yass.ContractId<proxy.EchoService, impl.EchoService>(2, mapper.EchoService);
+    export const genericEchoService = new yass.ContractId<generic.proxy.GenericEchoService, generic.impl.GenericEchoService>(3, generic.mapper.GenericEchoService);
 }
 
 export const SERIALIZER = new yass.FastSerializer(
@@ -194,5 +253,9 @@ export const SERIALIZER = new yass.FastSerializer(
     instrument.Bond,
     SystemException,
     UnknownInstrumentsException,
-    Node
+    Node,
+    generic.Pair,
+    generic.PairBoolBool,
+    generic.Triple,
+    generic.TripleWrapper
 );

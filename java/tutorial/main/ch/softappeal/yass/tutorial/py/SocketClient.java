@@ -21,7 +21,7 @@ import ch.softappeal.yass.tutorial.contract.instrument.stock.Stock;
 
 import java.util.Arrays;
 
-import static ch.softappeal.yass.tutorial.contract.Config.ACCEPTOR;
+import static ch.softappeal.yass.tutorial.contract.Config.PY_ACCEPTOR;
 
 public final class SocketClient {
 
@@ -53,8 +53,8 @@ public final class SocketClient {
 
     static void client(final Client client) {
         final Interceptor logger = new Logger(null, Logger.Side.CLIENT);
-        final EchoService echoService = client.proxy(ACCEPTOR.echoService);
-        final InstrumentService instrumentService = client.proxy(ACCEPTOR.instrumentService, logger);
+        final EchoService echoService = client.proxy(PY_ACCEPTOR.echoService);
+        final InstrumentService instrumentService = client.proxy(PY_ACCEPTOR.instrumentService, logger);
         System.out.println(echoService.echo("hello"));
         System.out.println(echoService.echo(createObjects()));
         try {

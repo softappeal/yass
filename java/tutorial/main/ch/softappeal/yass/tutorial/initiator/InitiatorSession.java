@@ -11,8 +11,14 @@ import ch.softappeal.yass.tutorial.contract.EchoServiceImpl;
 import ch.softappeal.yass.tutorial.contract.Logger;
 import ch.softappeal.yass.tutorial.contract.LoggerAsync;
 import ch.softappeal.yass.tutorial.contract.PriceEngine;
+import ch.softappeal.yass.tutorial.contract.PriceKind;
 import ch.softappeal.yass.tutorial.contract.UnexpectedExceptionHandler;
 import ch.softappeal.yass.tutorial.contract.UnknownInstrumentsException;
+import ch.softappeal.yass.tutorial.contract.generic.GenericEchoService;
+import ch.softappeal.yass.tutorial.contract.generic.Pair;
+import ch.softappeal.yass.tutorial.contract.generic.PairBoolBool;
+import ch.softappeal.yass.tutorial.contract.generic.Triple;
+import ch.softappeal.yass.tutorial.contract.generic.TripleWrapper;
 import ch.softappeal.yass.tutorial.contract.instrument.InstrumentService;
 import ch.softappeal.yass.util.Nullable;
 
@@ -40,6 +46,7 @@ public final class InitiatorSession extends SimpleSession {
     public final PriceEngine priceEngine;
     public final InstrumentService instrumentServiceAsync;
     public final EchoService echoService;
+    public final GenericEchoService genericEchoService;
 
     public InitiatorSession(final Connection connection, final Executor dispatchExecutor) {
         super(connection, dispatchExecutor);
@@ -48,12 +55,27 @@ public final class InitiatorSession extends SimpleSession {
         priceEngine = proxy(ACCEPTOR.priceEngine, interceptor);
         instrumentServiceAsync = proxyAsync(ACCEPTOR.instrumentService, new LoggerAsync());
         echoService = proxy(ACCEPTOR.echoService, interceptor);
+        genericEchoService = proxy(ACCEPTOR.genericEchoService, interceptor);
     }
 
     @Override protected void opened() throws UnknownInstrumentsException {
         SessionWatcher.watchSession(dispatchExecutor, this, 60L, 2L, () -> echoService.echo("checkFromInitiator")); // optional
         System.out.println("session " + this + " opened");
         System.out.println("echo: " + echoService.echo("hello from initiator"));
+
+        final Pair<Boolean, TripleWrapper> result = genericEchoService.echo(new Pair<>(
+            true,
+            new TripleWrapper(new Triple<>(
+                PriceKind.ASK,
+                true,
+                new Pair<>(
+                    "hello",
+                    Arrays.asList(new PairBoolBool(true, false), new PairBoolBool(false, true))
+                )
+            ))
+        ));
+        System.out.println("genericEcho: " + Logger.dump(result));
+
         try {
             priceEngine.subscribe(Arrays.asList(123456789, 987654321));
         } catch (final UnknownInstrumentsException e) {

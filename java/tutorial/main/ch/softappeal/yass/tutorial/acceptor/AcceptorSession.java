@@ -14,6 +14,7 @@ import ch.softappeal.yass.tutorial.contract.PriceKind;
 import ch.softappeal.yass.tutorial.contract.PriceListener;
 import ch.softappeal.yass.tutorial.contract.SystemException;
 import ch.softappeal.yass.tutorial.contract.UnexpectedExceptionHandler;
+import ch.softappeal.yass.tutorial.contract.generic.GenericEchoServiceImpl;
 import ch.softappeal.yass.util.Nullable;
 
 import java.util.ArrayList;
@@ -41,7 +42,8 @@ public final class AcceptorSession extends SimpleSession {
         return new Server(
             ACCEPTOR.instrumentService.serviceAsync(InstrumentServiceImplAsync.INSTANCE, new LoggerAsync()),
             ACCEPTOR.priceEngine.service(new PriceEngineImpl(InstrumentServiceImplAsync.INSTRUMENTS, subscribedInstrumentIds), interceptor),
-            ACCEPTOR.echoService.service(EchoServiceImpl.INSTANCE, interceptor)
+            ACCEPTOR.echoService.service(EchoServiceImpl.INSTANCE, interceptor),
+            ACCEPTOR.genericEchoService.service(GenericEchoServiceImpl.INSTANCE, interceptor)
         );
     }
 

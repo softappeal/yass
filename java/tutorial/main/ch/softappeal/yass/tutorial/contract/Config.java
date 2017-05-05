@@ -11,6 +11,11 @@ import ch.softappeal.yass.serialize.fast.BaseTypeHandlers;
 import ch.softappeal.yass.serialize.fast.FastSerializer;
 import ch.softappeal.yass.serialize.fast.SimpleFastSerializer;
 import ch.softappeal.yass.transport.MessageSerializer;
+import ch.softappeal.yass.tutorial.contract.generic.GenericEchoService;
+import ch.softappeal.yass.tutorial.contract.generic.Pair;
+import ch.softappeal.yass.tutorial.contract.generic.PairBoolBool;
+import ch.softappeal.yass.tutorial.contract.generic.Triple;
+import ch.softappeal.yass.tutorial.contract.generic.TripleWrapper;
 import ch.softappeal.yass.tutorial.contract.instrument.Bond;
 import ch.softappeal.yass.tutorial.contract.instrument.InstrumentService;
 import ch.softappeal.yass.tutorial.contract.instrument.stock.Stock;
@@ -34,7 +39,11 @@ public final class Config {
             Bond.class,
             SystemException.class,
             UnknownInstrumentsException.class,
-            Node.class
+            Node.class,
+            Pair.class,
+            PairBoolBool.class,
+            Triple.class,
+            TripleWrapper.class
         )
     );
 
@@ -76,9 +85,18 @@ public final class Config {
         public final ContractId<PriceEngine> priceEngine = contractId(PriceEngine.class, 0);
         public final ContractId<InstrumentService> instrumentService = contractId(InstrumentService.class, 1);
         public final ContractId<EchoService> echoService = contractId(EchoService.class, 2);
+        public final ContractId<GenericEchoService> genericEchoService = contractId(GenericEchoService.class, 3);
     }
 
     public static final Initiator INITIATOR = new Initiator();
     public static final Acceptor ACCEPTOR = new Acceptor();
+
+    public static final class PyAcceptor extends Role { // to be implemented by acceptor
+        public final ContractId<PriceEngine> priceEngine = contractId(PriceEngine.class, 0);
+        public final ContractId<InstrumentService> instrumentService = contractId(InstrumentService.class, 1);
+        public final ContractId<EchoService> echoService = contractId(EchoService.class, 2);
+    }
+
+    public static final PyAcceptor PY_ACCEPTOR = new PyAcceptor();
 
 }

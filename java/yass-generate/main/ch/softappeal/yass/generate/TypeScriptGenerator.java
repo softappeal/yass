@@ -19,6 +19,7 @@ import java.lang.reflect.Modifier;
 import java.lang.reflect.Parameter;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.lang.reflect.TypeVariable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -127,8 +128,24 @@ public final class TypeScriptGenerator extends Generator {
                 if (parameterizedType.getRawType() == List.class) {
                     return type(parameterizedType.getActualTypeArguments()[0]) + "[]";
                 } else {
-                    throw new RuntimeException("unexpected type '" + parameterizedType + '\'');
+                    final StringBuilder s = new StringBuilder(type(parameterizedType.getRawType()));
+                    final Type[] actualTypeArguments = parameterizedType.getActualTypeArguments();
+                    if (actualTypeArguments.length != 0) {
+                        s.append('<');
+                        boolean first = true;
+                        for (final Type actualTypeArgument : actualTypeArguments) {
+                            if (!first) {
+                                s.append(", ");
+                            }
+                            first = false;
+                            s.append(type(actualTypeArgument));
+                        }
+                        s.append('>');
+                    }
+                    return s.toString();
                 }
+            } else if (type instanceof TypeVariable) {
+                return ((TypeVariable)type).getName();
             } else if ((type == double.class) || (type == Double.class)) {
                 return "number";
             } else if ((type == boolean.class) || (type == Boolean.class)) {
@@ -164,22 +181,40 @@ public final class TypeScriptGenerator extends Generator {
             return jsType(typeHandler.type, false) + ".TYPE_DESC";
         }
 
-        private void generateClass(final Class<?> type) {
+        private <C> void generateClass(final Class<C> type) {
             if (!visitedClasses.add(type)) {
                 return;
             }
-            @Nullable Class<?> sc = type.getSuperclass();
-            if (isRootClass(sc)) {
-                sc = null;
+            @Nullable Type sc = type.getGenericSuperclass();
+            if (sc instanceof Class) {
+                if (isRootClass((Class<?>)sc)) {
+                    sc = null;
+                } else {
+                    generateClass((Class<?>)sc);
+                }
             } else {
-                generateClass(sc);
+                generateClass((Class<?>)((ParameterizedType)sc).getRawType());
             }
-            final @Nullable Class<?> superClass = sc;
+            final @Nullable Type superClass = sc;
             generateType(type, name -> {
-                tabsln(
-                    "export %sclass %s%s {",
-                    (Modifier.isAbstract(type.getModifiers()) ? "abstract " : ""), name, (superClass == null) ? "" : (" extends " + jsType(superClass, true))
-                );
+                tabs("export %sclass %s", Modifier.isAbstract(type.getModifiers()) ? "abstract " : "", name);
+                final TypeVariable<Class<C>>[] typeParameters = type.getTypeParameters();
+                if (typeParameters.length != 0) {
+                    print("<");
+                    boolean first = true;
+                    for (final TypeVariable<Class<C>> typeParameter : typeParameters) {
+                        if (!first) {
+                            print(", ");
+                        }
+                        first = false;
+                        print(typeParameter.getName());
+                    }
+                    print(">");
+                }
+                if (superClass != null) {
+                    print(" extends " + type(superClass));
+                }
+                println(" {");
                 inc();
                 for (final Field field : Reflect.ownFields(type)) {
                     tabsln("%s: %s;", field.getName(), type(field.getGenericType()));

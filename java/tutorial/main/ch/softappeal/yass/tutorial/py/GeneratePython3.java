@@ -14,7 +14,7 @@ public final class GeneratePython3 {
         final Map<Class<?>, PythonGenerator.ExternalDesc> externalTypes = new HashMap<>();
         externalTypes.put(Integer.class, new PythonGenerator.ExternalDesc("Integer", "Integer.TYPE_DESC")); // shows how to use a contract external base type
         new PythonGenerator(
-            Config.class.getPackage().getName(), Config.PY_CONTRACT_SERIALIZER, Config.INITIATOR, Config.ACCEPTOR, true,
+            Config.class.getPackage().getName(), Config.PY_CONTRACT_SERIALIZER, Config.INITIATOR, Config.PY_ACCEPTOR, true,
             "../../py3/tutorial/contract_include_each_module.txt", module2includeFile, externalTypes, "build/generated/py3"
         );
     }

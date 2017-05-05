@@ -111,6 +111,16 @@ class Session extends yass.Session {
     }
     protected opened(): void {
         log("session opened");
+
+        const genericEchoService = this.proxy(contract.acceptor.genericEchoService, clientLogger);
+        const pair = new contract.generic.Pair<boolean, contract.generic.TripleWrapper>();
+        pair.first = true;
+        pair.second = null!;
+        genericEchoService.echo(pair).then(
+            result => log("echoGeneric:", result),
+            error => log("echoGeneric failed:", error)
+        );
+
         subscribePrices(this);
     }
     protected closed(exception: any): void {

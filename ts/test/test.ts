@@ -140,7 +140,7 @@ function writer2reader(writer: yass.Writer): yass.Reader {
     assert(ask === PriceKind.ASK);
     assert(ask !== PriceKind.BID);
     log(">" + ask + "<");
-    assert(PriceKind.VALUES.length == 2);
+    assert(PriceKind.VALUES.length === 2);
     assert(PriceKind.VALUES[PriceKind.BID.number] === PriceKind.BID);
     assert(PriceKind.VALUES[PriceKind.ASK.number] === PriceKind.ASK);
 
@@ -323,6 +323,7 @@ const hostname = "localhost";
             const instrumentService = this.proxy(contract.acceptor.instrumentService, printer);
             const priceEngine = this.proxy(contract.acceptor.priceEngine, printer);
             const echoService = this.proxy(contract.acceptor.echoService, printer);
+            const genericEchoService = this.proxy(contract.acceptor.genericEchoService, printer);
             instrumentService.showOneWay(false, new IntegerImpl(123));
             echoService.echo(null).then(result => assert(result === null));
             echoService.echo(undefined).then(result => assert(result === null));
@@ -358,6 +359,40 @@ const hostname = "localhost";
                 assert(reader.readByte() === 210);
                 assert(reader.isEmpty());
             });
+
+            const pairBoolBool1 = new contract.generic.PairBoolBool();
+            pairBoolBool1.first = true;
+            pairBoolBool1.second = false;
+            const pairBoolBool2 = new contract.generic.PairBoolBool();
+            pairBoolBool2.first = false;
+            pairBoolBool2.second = true;
+            const pair1 = new contract.generic.Pair<string, contract.generic.PairBoolBool[]>();
+            pair1.first = "hello";
+            pair1.second = [pairBoolBool1, pairBoolBool2];
+            const triple = new contract.generic.Triple<PriceKind, contract.generic.Pair<string, contract.generic.PairBoolBool[]>>();
+            triple.first = contract.PriceKind.ASK;
+            triple.second = true;
+            triple.third = pair1;
+            const tripleWrapper = new contract.generic.TripleWrapper();
+            tripleWrapper.triple = triple;
+            const pair2 = new contract.generic.Pair<boolean, contract.generic.TripleWrapper>();
+            pair2.first = true;
+            pair2.second = tripleWrapper;
+            genericEchoService.echo(pair2).then(result => {
+                assert(result.first);
+                const triple = result.second.triple;
+                assert(triple.first === contract.PriceKind.ASK);
+                assert(triple.second);
+                const pair = triple.third;
+                assert(pair.first === "hello");
+                assert(pair.second.length === 2);
+                const pair1 = pair.second[0];
+                const pair2 = pair.second[1];
+                assert(pair1.first && !pair1.second);
+                assert(!pair2.first && pair2.second);
+                log("echoGeneric:", result);
+            });
+
             priceEngine.subscribe([new IntegerImpl(987654321)]).catch(exception => log("subscribe failed with", exception));
             setTimeout(() => this.close(), 2000);
         }
