@@ -38,7 +38,7 @@ public final class ReconnectingSocketInitiator {
                 try {
                     System.out.println(reconnector.echoService.echo("knock"));
                 } catch (final Exception e) {
-                    System.out.println("race condition: " + e.toString());
+                    System.out.println("race condition: " + e);
                 }
             } else {
                 System.out.println("not connected");

@@ -94,7 +94,7 @@ public final class Server {
         if (service == null) {
             throw new RuntimeException("no serviceId " + request.serviceId + " found (methodId " + request.methodId + ')');
         }
-        if (service.async() && !asyncSupported) {
+        if (!asyncSupported && service.async()) {
             throw new UnsupportedOperationException("asynchronous services not supported (serviceId = " + service.contractId.id + ')');
         }
         return new Invocation(service, request);
