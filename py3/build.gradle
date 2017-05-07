@@ -1,5 +1,6 @@
 task clean {
     doLast {
         ant.delete(dir: ".", includes: "**/__pycache__/", includeemptydirs: true)
+        ant.delete(dir: ".mypy_cache")
     }
 }

@@ -1,6 +1,6 @@
 import unittest
 from io import BytesIO
-from typing import Any, List
+from typing import Any, List, cast
 
 from tutorial.generated import SERIALIZER
 from tutorial.generated.contract import Expiration, PriceKind, Node, UnknownInstrumentsException
@@ -118,7 +118,7 @@ class Test(unittest.TestCase):
                  1, 0, 17, 1, 64, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0])
         )
         io.seek(0)
-        result = SERIALIZER.read(reader)
+        result = cast(List, SERIALIZER.read(reader))
         self.assertEqual(io.read(1), b'')
         self.assertTrue(len(result) == 15)
         self.assertTrue(result[0] is None)
@@ -161,7 +161,7 @@ class Test(unittest.TestCase):
         unknownInstrumentsException.onlyNeededForTests1 = 3.14
         SERIALIZER.write(unknownInstrumentsException, writer)
         io.seek(0)
-        unknownInstrumentsException = SERIALIZER.read(reader)
+        unknownInstrumentsException = cast(UnknownInstrumentsException, SERIALIZER.read(reader))
         self.assertEqual(io.read(1), b'')
         self.assertEqual(unknownInstrumentsException.onlyNeededForTests1, 3.14)
         try:

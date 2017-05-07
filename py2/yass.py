@@ -72,10 +72,10 @@ class TypeHandler:
     def read(self, input):  # type: (Input) -> Optional[Any]
         raise NotImplementedError()
 
-    def write(self, value, output):  # type: (Optional[Any], Output) -> None
+    def write(self, value, output):  # type: (Any, Output) -> None
         raise NotImplementedError()
 
-    def writeWithId(self, id, value, output):  # type: (int, Optional[Any], Output) -> None
+    def writeWithId(self, id, value, output):  # type: (int, Any, Output) -> None
         output.writer.writeVarInt(id)
         self.write(value, output)
 
@@ -320,7 +320,7 @@ class Serializer:
     def read(self, reader):  # type: (Reader) -> Optional[Any]
         raise NotImplementedError()
 
-    def write(self, value, writer):  # type: (Optional[Any], Writer) -> None
+    def write(self, value, writer):  # type: (Any, Writer) -> None
         raise NotImplementedError()
 
 
@@ -500,11 +500,11 @@ class MessageSerializer(Serializer):
     def read(self, reader):  # type: (Reader) -> Message
         type = reader.readByte()
         if type == MessageSerializer.REQUEST:
-            return Request(reader.readZigZagInt(), reader.readZigZagInt(), self.contractSerializer.read(reader))
+            return Request(reader.readZigZagInt(), reader.readZigZagInt(), cast(List, self.contractSerializer.read(reader)))
         elif type == MessageSerializer.VALUE_REPLY:
             return ValueReply(self.contractSerializer.read(reader))
         else:
-            return ExceptionReply(self.contractSerializer.read(reader))
+            return ExceptionReply(cast(Exception, self.contractSerializer.read(reader)))
 
     def write(self, message, writer):  # type: (Message, Writer) -> None
         if isinstance(message, Request):
@@ -570,7 +570,7 @@ class ServerTransport:
     def invoke(self, stream):  # type: (Stream) -> None
         reader = Reader(stream.readBytes)
         setup = self.pathResolver.resolvePath(self.pathSerializer.read(reader))
-        request = setup.messageSerializer.read(reader)
+        request = cast(Request, setup.messageSerializer.read(reader))
         stream.readDone()
         setup.messageSerializer.write(setup.server.invoke(request), Writer(stream.writeBytes))
         stream.writeDone()
@@ -596,7 +596,7 @@ class ClientTransport:
         self.pathSerializer.write(self.path, writer)
         self.messageSerializer.write(request, writer)
         stream.writeDone()
-        reply = self.messageSerializer.read(Reader(stream.readBytes))
+        reply = cast(Reply, self.messageSerializer.read(Reader(stream.readBytes)))
         stream.readDone()
         return reply
 
