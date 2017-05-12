@@ -1,10 +1,8 @@
 package ch.softappeal.yass.serialize.fast;
 
 import ch.softappeal.yass.serialize.Reader;
-import ch.softappeal.yass.serialize.Reflector;
 import ch.softappeal.yass.serialize.Serializer;
 import ch.softappeal.yass.serialize.Writer;
-import ch.softappeal.yass.util.Exceptions;
 import ch.softappeal.yass.util.Nullable;
 
 import java.io.PrintWriter;
@@ -14,7 +12,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
@@ -48,16 +45,6 @@ import java.util.TreeMap;
  * </ul>
  */
 public abstract class FastSerializer implements Serializer {
-
-    private final Reflector.Factory reflectorFactory;
-
-    private Reflector reflector(final Class<?> type) {
-        try {
-            return reflectorFactory.create(type);
-        } catch (final Exception e) {
-            throw Exceptions.wrap(e);
-        }
-    }
 
     private final Map<Class<?>, TypeDesc> class2typeDesc = new HashMap<>(64);
     private final Map<Integer, TypeHandler> id2typeHandler = new HashMap<>(64);
@@ -97,7 +84,6 @@ public abstract class FastSerializer implements Serializer {
         } else if (type.isEnum()) {
             throw new IllegalArgumentException("type '" + type.getCanonicalName() + "' is an enumeration");
         }
-        final Reflector reflector = reflector(type);
         final Map<Integer, FieldHandler> id2fieldHandler = new HashMap<>(id2field.size());
         final Map<String, Field> name2field = new HashMap<>(id2field.size());
         id2field.forEach((fieldId, field) -> {
@@ -105,9 +91,9 @@ public abstract class FastSerializer implements Serializer {
             if (oldField != null) { // reason: too confusing
                 throw new IllegalArgumentException("duplicated field name '" + field + "' and '" + oldField + "' not allowed in class hierarchy");
             }
-            id2fieldHandler.put(fieldId, new FieldHandler(field, reflector.accessor(field)));
+            id2fieldHandler.put(fieldId, new FieldHandler(field));
         });
-        addType(new TypeDesc(id, new ClassTypeHandler(type, reflector, referenceable, id2fieldHandler)));
+        addType(new TypeDesc(id, new ClassTypeHandler(type, referenceable, id2fieldHandler)));
     }
 
     protected final void addBaseType(final TypeDesc typeDesc) {
@@ -117,8 +103,7 @@ public abstract class FastSerializer implements Serializer {
         addType(typeDesc);
     }
 
-    protected FastSerializer(final Reflector.Factory reflectorFactory) {
-        this.reflectorFactory = Objects.requireNonNull(reflectorFactory);
+    protected FastSerializer() {
         addType(TypeDesc.NULL);
         addType(TypeDesc.REFERENCE);
         addType(TypeDesc.LIST);

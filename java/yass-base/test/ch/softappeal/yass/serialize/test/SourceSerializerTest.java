@@ -1,6 +1,5 @@
 package ch.softappeal.yass.serialize.test;
 
-import ch.softappeal.yass.serialize.FastReflector;
 import ch.softappeal.yass.serialize.Reader;
 import ch.softappeal.yass.serialize.Serializer;
 import ch.softappeal.yass.serialize.Writer;
@@ -18,7 +17,6 @@ public class SourceSerializerTest {
 
     private static void check(final boolean initiator, final byte[] wire) throws Exception {
         final Serializer contractSerializer = new SimpleFastSerializer(
-            FastReflector.FACTORY,
             Collections.singletonList(BaseTypeHandlers.BYTE_ARRAY),
             Collections.emptyList(),
             Collections.emptyList()

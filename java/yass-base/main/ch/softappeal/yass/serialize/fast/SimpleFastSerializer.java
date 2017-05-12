@@ -1,6 +1,5 @@
 package ch.softappeal.yass.serialize.fast;
 
-import ch.softappeal.yass.serialize.Reflector;
 import ch.softappeal.yass.util.Reflect;
 
 import java.lang.reflect.Field;
@@ -28,12 +27,10 @@ public final class SimpleFastSerializer extends FastSerializer {
      * @param referenceableConcreteClasses instances of these classes can be used in graphs
      */
     public SimpleFastSerializer(
-        final Reflector.Factory reflectorFactory,
         final List<BaseTypeHandler<?>> baseTypeHandlers,
         final List<Class<?>> concreteClasses,
         final List<Class<?>> referenceableConcreteClasses
     ) {
-        super(reflectorFactory);
         int id = TypeDesc.FIRST_ID;
         for (final BaseTypeHandler<?> typeHandler : baseTypeHandlers) {
             addBaseType(new TypeDesc(id++, typeHandler));
@@ -52,11 +49,10 @@ public final class SimpleFastSerializer extends FastSerializer {
     }
 
     public SimpleFastSerializer(
-        final Reflector.Factory reflectorFactory,
         final List<BaseTypeHandler<?>> baseTypeHandlers,
         final List<Class<?>> concreteClasses
     ) {
-        this(reflectorFactory, baseTypeHandlers, concreteClasses, Collections.emptyList());
+        this(baseTypeHandlers, concreteClasses, Collections.emptyList());
     }
 
 }

@@ -1,6 +1,5 @@
 package ch.softappeal.yass.serialize.fast;
 
-import ch.softappeal.yass.serialize.Reflector;
 import ch.softappeal.yass.util.Nullable;
 
 import java.lang.reflect.Field;
@@ -14,7 +13,6 @@ public final class FieldHandler {
     public static final int FIRST_ID = END_ID + 1;
 
     public final Field field;
-    private final Reflector.Accessor accessor;
 
     private @Nullable TypeHandler typeHandler;
     /**
@@ -24,9 +22,8 @@ public final class FieldHandler {
         return Optional.ofNullable(typeHandler);
     }
 
-    FieldHandler(final Field field, final Reflector.Accessor accessor) {
+    FieldHandler(final Field field) {
         this.field = Objects.requireNonNull(field);
-        this.accessor = Objects.requireNonNull(accessor);
     }
 
     void fixup(final Map<Class<?>, TypeDesc> class2typeDesc) {
@@ -40,14 +37,14 @@ public final class FieldHandler {
     }
 
     void read(final Object object, final Input input) throws Exception {
-        accessor.set(object, (typeHandler == null) ? input.read() : typeHandler.read(input));
+        field.set(object, (typeHandler == null) ? input.read() : typeHandler.read(input));
     }
 
     /**
      * @see ClassTypeHandler#read(Input)
      */
     void write(final int id, final Object object, final Output output) throws Exception {
-        final @Nullable Object value = accessor.get(object);
+        final @Nullable Object value = field.get(object);
         if (value != null) {
             output.writer.writeVarInt(id);
             if (typeHandler == null) {

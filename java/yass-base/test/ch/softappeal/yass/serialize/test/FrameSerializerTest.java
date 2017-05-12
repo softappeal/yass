@@ -1,6 +1,5 @@
 package ch.softappeal.yass.serialize.test;
 
-import ch.softappeal.yass.serialize.FastReflector;
 import ch.softappeal.yass.serialize.Reader;
 import ch.softappeal.yass.serialize.Serializer;
 import ch.softappeal.yass.serialize.Writer;
@@ -17,7 +16,6 @@ import java.util.Collections;
 public class FrameSerializerTest {
 
     private static final Serializer SERIALIZER = new PrinterSerializer(new FrameSerializer(new SimpleFastSerializer(
-        FastReflector.FACTORY,
         Collections.singletonList(BaseTypeHandlers.BYTE_ARRAY),
         Collections.emptyList(),
         Collections.emptyList()

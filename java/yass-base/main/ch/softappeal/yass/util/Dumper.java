@@ -11,8 +11,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
 public class Dumper {
 
@@ -47,38 +45,7 @@ public class Dumper {
         return s;
     }
 
-    private static final class FieldDesc {
-        final String name;
-        final Function<Object, Object> accessor;
-        FieldDesc(final Field field) {
-            name = field.getName();
-            final Class<?> type = field.getType();
-            final long offset = Reflect.UNSAFE.objectFieldOffset(field);
-            if (!type.isPrimitive()) {
-                accessor = object -> Reflect.UNSAFE.getObject(object, offset);
-            } else if (type == Boolean.TYPE) {
-                accessor = object -> Reflect.UNSAFE.getBoolean(object, offset);
-            } else if (type == Character.TYPE) {
-                accessor = object -> Reflect.UNSAFE.getChar(object, offset);
-            } else if (type == Byte.TYPE) {
-                accessor = object -> Reflect.UNSAFE.getByte(object, offset);
-            } else if (type == Short.TYPE) {
-                accessor = object -> Reflect.UNSAFE.getShort(object, offset);
-            } else if (type == Integer.TYPE) {
-                accessor = object -> Reflect.UNSAFE.getInt(object, offset);
-            } else if (type == Long.TYPE) {
-                accessor = object -> Reflect.UNSAFE.getLong(object, offset);
-            } else if (type == Float.TYPE) {
-                accessor = object -> Reflect.UNSAFE.getFloat(object, offset);
-            } else if (type == Double.TYPE) {
-                accessor = object -> Reflect.UNSAFE.getDouble(object, offset);
-            } else {
-                throw new RuntimeException("unexpected type " + type);
-            }
-        }
-    }
-
-    private final Map<Class<?>, List<FieldDesc>> class2fieldDescs = new ConcurrentHashMap<>();
+    private final Map<Class<?>, List<Field>> class2fields = new ConcurrentHashMap<>();
 
     private final class Dump {
         private final StringBuilder out;
@@ -163,17 +130,22 @@ public class Dumper {
                 dec("}");
             }
         }
-        private void dumpClassFields(final List<FieldDesc> fieldDescs, final Object object) {
-            for (final FieldDesc fieldDesc : fieldDescs) {
-                final @Nullable Object value = fieldDesc.accessor.apply(object);
+        private void dumpClassFields(final List<Field> fields, final Object object) {
+            for (final Field field : fields) {
+                final @Nullable Object value;
+                try {
+                    value = field.get(object);
+                } catch (final IllegalAccessException e) {
+                    throw new RuntimeException(e);
+                }
                 if (value != null) {
                     if (compact) {
-                        out.append(fieldDesc.name).append('=');
+                        out.append(field.getName()).append('=');
                         dump(value);
                         out.append(' ');
                     } else {
                         appendTabs();
-                        out.append(fieldDesc.name).append(" = ");
+                        out.append(field.getName()).append(" = ");
                         dump(value);
                         appendLine();
                     }
@@ -196,17 +168,14 @@ public class Dumper {
                 index = 0;
             }
             if (!Dumper.this.dumpValueClass(out, type, object)) {
-                final List<FieldDesc> fieldDescs = class2fieldDescs.computeIfAbsent(
-                    type,
-                    t -> Reflect.allFields(t).stream().map(FieldDesc::new).collect(Collectors.toList())
-                );
+                final List<Field> fields = class2fields.computeIfAbsent(type, Reflect::allFields);
                 if (compact) {
                     out.append(type.getSimpleName()).append("( ");
-                    dumpClassFields(fieldDescs, object);
+                    dumpClassFields(fields, object);
                     out.append(')');
                 } else {
                     inc(type.getSimpleName() + '(');
-                    dumpClassFields(fieldDescs, object);
+                    dumpClassFields(fields, object);
                     dec(")");
                 }
             }

@@ -1,7 +1,6 @@
 package ch.softappeal.yass.transport.test;
 
 import ch.softappeal.yass.core.remote.session.test.SessionTest;
-import ch.softappeal.yass.serialize.FastReflector;
 import ch.softappeal.yass.serialize.Serializer;
 import ch.softappeal.yass.serialize.fast.BaseTypeHandlers;
 import ch.softappeal.yass.serialize.fast.SimpleFastSerializer;
@@ -17,7 +16,6 @@ import java.util.concurrent.Executor;
 public abstract class TransportTest extends SessionTest {
 
     private static final Serializer CONTRACT_SERIALIZER = new SimpleFastSerializer(
-        FastReflector.FACTORY,
         Arrays.asList(BaseTypeHandlers.INTEGER, BaseTypeHandlers.BYTE_ARRAY),
         Collections.singletonList(DivisionByZeroException.class)
     );

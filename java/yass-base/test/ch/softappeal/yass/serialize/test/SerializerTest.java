@@ -1,6 +1,5 @@
 package ch.softappeal.yass.serialize.test;
 
-import ch.softappeal.yass.serialize.FastReflector;
 import ch.softappeal.yass.serialize.JavaSerializer;
 import ch.softappeal.yass.serialize.Serializer;
 import ch.softappeal.yass.serialize.contract.Color;
@@ -259,7 +258,6 @@ public class SerializerTest {
     }
 
     public static final FastSerializer TAGGED_FAST_SERIALIZER = new TaggedFastSerializer(
-        FastReflector.FACTORY,
         Arrays.asList(
             new TypeDesc(3, BaseTypeHandlers.BOOLEAN),
             new TypeDesc(4, BaseTypeHandlers.BYTE),
@@ -292,7 +290,6 @@ public class SerializerTest {
     }
 
     public static final FastSerializer SIMPLE_FAST_SERIALIZER = new SimpleFastSerializer(
-        FastReflector.FACTORY,
         Arrays.asList(
             BaseTypeHandlers.BOOLEAN,
             BaseTypeHandlers.BYTE,

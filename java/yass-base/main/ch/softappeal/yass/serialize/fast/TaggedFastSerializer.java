@@ -1,6 +1,5 @@
 package ch.softappeal.yass.serialize.fast;
 
-import ch.softappeal.yass.serialize.Reflector;
 import ch.softappeal.yass.util.Nullable;
 import ch.softappeal.yass.util.Reflect;
 import ch.softappeal.yass.util.Tag;
@@ -34,12 +33,10 @@ public final class TaggedFastSerializer extends FastSerializer {
      * @param referenceableConcreteClasses instances of these classes can be used in graphs
      */
     public TaggedFastSerializer(
-        final Reflector.Factory reflectorFactory,
         final Collection<TypeDesc> baseTypeDescs,
         final Collection<Class<?>> concreteClasses,
         final Collection<Class<?>> referenceableConcreteClasses
     ) {
-        super(reflectorFactory);
         baseTypeDescs.forEach(this::addBaseType);
         concreteClasses.forEach(type -> {
             if (type.isEnum()) {
@@ -53,11 +50,10 @@ public final class TaggedFastSerializer extends FastSerializer {
     }
 
     public TaggedFastSerializer(
-        final Reflector.Factory reflectorFactory,
         final Collection<TypeDesc> baseTypeDescs,
         final Collection<Class<?>> concreteClasses
     ) {
-        this(reflectorFactory, baseTypeDescs, concreteClasses, Collections.emptyList());
+        this(baseTypeDescs, concreteClasses, Collections.emptyList());
     }
 
 }

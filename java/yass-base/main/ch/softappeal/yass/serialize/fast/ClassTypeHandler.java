@@ -1,14 +1,13 @@
 package ch.softappeal.yass.serialize.fast;
 
-import ch.softappeal.yass.serialize.Reflector;
 import ch.softappeal.yass.util.Nullable;
+import ch.softappeal.yass.util.Reflect;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.IdentityHashMap;
 import java.util.Map;
-import java.util.Objects;
 
 public final class ClassTypeHandler extends TypeHandler {
 
@@ -21,7 +20,6 @@ public final class ClassTypeHandler extends TypeHandler {
         }
     }
 
-    private final Reflector reflector;
     public final boolean referenceable;
     private final Map<Integer, FieldHandler> id2fieldHandler;
 
@@ -30,9 +28,8 @@ public final class ClassTypeHandler extends TypeHandler {
         return fieldDescs.clone();
     }
 
-    ClassTypeHandler(final Class<?> type, final Reflector reflector, final boolean referenceable, final Map<Integer, FieldHandler> id2fieldHandler) {
+    ClassTypeHandler(final Class<?> type, final boolean referenceable, final Map<Integer, FieldHandler> id2fieldHandler) {
         super(type);
-        this.reflector = Objects.requireNonNull(reflector);
         this.referenceable = referenceable;
         fieldDescs = new FieldDesc[id2fieldHandler.size()];
         int fd = 0;
@@ -55,7 +52,7 @@ public final class ClassTypeHandler extends TypeHandler {
      * @see FieldHandler#write(int, Object, Output)
      */
     @Override Object read(final Input input) throws Exception {
-        final Object object = reflector.newInstance();
+        final Object object = Reflect.allocateInstance(type);
         if (referenceable) {
             if (input.referenceableObjects == null) {
                 input.referenceableObjects = new ArrayList<>(16);

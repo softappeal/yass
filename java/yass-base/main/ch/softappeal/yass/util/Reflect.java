@@ -15,7 +15,7 @@ public final class Reflect {
         // disable
     }
 
-    public static final Unsafe UNSAFE;
+    private static final Unsafe UNSAFE;
     static {
         try {
             final Field field = Unsafe.class.getDeclaredField("theUnsafe");
@@ -26,12 +26,19 @@ public final class Reflect {
         }
     }
 
+    public static <T> T allocateInstance(final Class<T> type) throws Exception {
+        return type.cast(UNSAFE.allocateInstance(type));
+    }
+
     public static List<Field> ownFields(final Class<?> type) {
         final List<Field> fields = new ArrayList<>(16);
         for (final Field field : type.getDeclaredFields()) {
             final int modifiers = field.getModifiers();
             if (!(Modifier.isStatic(modifiers) || Modifier.isTransient(modifiers))) {
                 fields.add(field);
+                if (!Modifier.isPublic(modifiers) || Modifier.isFinal(modifiers)) {
+                    field.setAccessible(true);
+                }
             }
         }
         fields.sort(Comparator.comparing(Field::getName));
