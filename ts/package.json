@@ -5,7 +5,7 @@
     "devDependencies": {
         "typescript": "2.3.2",
         "systemjs": "0.20.12",
-        "ws": "2.2.3",
+        "ws": "2.3.1",
         "xhr2": "0.1.4",
         "istanbul": "0.4.5",
         "remap-istanbul": "0.9.5"
