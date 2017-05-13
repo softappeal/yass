@@ -1,4 +1,4 @@
-package ch.softappeal.yass.util.test;
+package ch.softappeal.yass.serialize.fast;
 
 public class NoDefaultConstructor {
 

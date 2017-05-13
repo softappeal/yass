@@ -1,8 +1,10 @@
 package ch.softappeal.yass.serialize.fast;
 
+import ch.softappeal.yass.util.Exceptions;
 import ch.softappeal.yass.util.Nullable;
-import ch.softappeal.yass.util.Reflect;
+import sun.misc.Unsafe;
 
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -10,6 +12,20 @@ import java.util.IdentityHashMap;
 import java.util.Map;
 
 public final class ClassTypeHandler extends TypeHandler {
+
+    private static final Unsafe UNSAFE;
+    static {
+        try {
+            final Field field = Unsafe.class.getDeclaredField("theUnsafe");
+            field.setAccessible(true);
+            UNSAFE = (Unsafe)field.get(null);
+        } catch (final Exception e) {
+            throw Exceptions.wrap(e);
+        }
+    }
+    static <T> T allocateInstance(final Class<T> type) throws Exception {
+        return type.cast(UNSAFE.allocateInstance(type));
+    }
 
     public static final class FieldDesc {
         public final int id;
@@ -52,7 +68,7 @@ public final class ClassTypeHandler extends TypeHandler {
      * @see FieldHandler#write(int, Object, Output)
      */
     @Override Object read(final Input input) throws Exception {
-        final Object object = Reflect.allocateInstance(type);
+        final Object object = allocateInstance(type);
         if (referenceable) {
             if (input.referenceableObjects == null) {
                 input.referenceableObjects = new ArrayList<>(16);

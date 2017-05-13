@@ -1,11 +1,13 @@
-package ch.softappeal.yass.util.test;
+package ch.softappeal.yass.serialize.fast;
 
 import ch.softappeal.yass.serialize.contract.nested.AllTypes;
 import ch.softappeal.yass.util.Reflect;
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.function.Function;
@@ -14,14 +16,14 @@ import java.util.stream.Collectors;
 public class ReflectTest {
 
     @Test public void fieldInit() throws Exception {
-        final FieldInit f = Reflect.allocateInstance(FieldInit.class);
+        final FieldInit f = ClassTypeHandler.allocateInstance(FieldInit.class);
         Assert.assertTrue(f.i == 0);
         Assert.assertNull(f.s);
     }
 
     @Test public void noDefaultConstructor() throws Exception {
         NoDefaultConstructor.CONSTRUCTOR_CALLED = false;
-        Reflect.allocateInstance(NoDefaultConstructor.class);
+        ClassTypeHandler.allocateInstance(NoDefaultConstructor.class);
         Assert.assertFalse(NoDefaultConstructor.CONSTRUCTOR_CALLED);
         final NoDefaultConstructor noDefaultConstructor = new NoDefaultConstructor(123);
         Assert.assertTrue(NoDefaultConstructor.CONSTRUCTOR_CALLED);
@@ -33,9 +35,9 @@ public class ReflectTest {
     }
 
     @Test public void fieldModifiers() throws Exception {
-        NoDefaultConstructor.CONSTRUCTOR_CALLED = false;
-        final FieldModifiers fieldModifiers = Reflect.allocateInstance(FieldModifiers.class);
-        Assert.assertFalse(NoDefaultConstructor.CONSTRUCTOR_CALLED);
+        FieldModifiers.CONSTRUCTOR_CALLED = false;
+        final FieldModifiers fieldModifiers = ClassTypeHandler.allocateInstance(FieldModifiers.class);
+        Assert.assertFalse(FieldModifiers.CONSTRUCTOR_CALLED);
         final Map<String, Field> name2field = name2field(FieldModifiers.class);
         final Field privateField = name2field.get("privateField");
         final Field privateFinalField = name2field.get("privateFinalField");
@@ -53,8 +55,24 @@ public class ReflectTest {
         Assert.assertTrue((Integer)publicFinalField.get(fieldModifiers) == 203);
     }
 
+    @Test public void fieldModifiersDefault() throws Exception {
+        final Constructor<FieldModifiers> constructor = FieldModifiers.class.getDeclaredConstructor();
+        if (!Modifier.isPublic(constructor.getModifiers())) {
+            constructor.setAccessible(true);
+        }
+        FieldModifiers.CONSTRUCTOR_CALLED = false;
+        final FieldModifiers fieldModifiers = constructor.newInstance();
+        Assert.assertTrue(FieldModifiers.CONSTRUCTOR_CALLED);
+        Assert.assertTrue(fieldModifiers.publicFinalField == 101);
+        final Map<String, Field> name2field = name2field(FieldModifiers.class);
+        final Field publicFinalField = name2field.get("publicFinalField");
+        publicFinalField.set(fieldModifiers, 203);
+        Assert.assertTrue(fieldModifiers.publicFinalField == 203);
+        Assert.assertTrue((Integer)publicFinalField.get(fieldModifiers) == 203);
+    }
+
     @Test public void allTypes() throws Exception {
-        final AllTypes allTypes = Reflect.allocateInstance(AllTypes.class);
+        final AllTypes allTypes = ClassTypeHandler.allocateInstance(AllTypes.class);
         final Map<String, Field> name2field = name2field(AllTypes.class);
         final Field booleanField = name2field.get("booleanField");
         final Field byteField = name2field.get("byteField");

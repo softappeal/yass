@@ -1,7 +1,5 @@
 package ch.softappeal.yass.util;
 
-import sun.misc.Unsafe;
-
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
@@ -13,21 +11,6 @@ public final class Reflect {
 
     private Reflect() {
         // disable
-    }
-
-    private static final Unsafe UNSAFE;
-    static {
-        try {
-            final Field field = Unsafe.class.getDeclaredField("theUnsafe");
-            field.setAccessible(true);
-            UNSAFE = (Unsafe)field.get(null);
-        } catch (final Exception e) {
-            throw Exceptions.wrap(e);
-        }
-    }
-
-    public static <T> T allocateInstance(final Class<T> type) throws Exception {
-        return type.cast(UNSAFE.allocateInstance(type));
     }
 
     public static List<Field> ownFields(final Class<?> type) {
