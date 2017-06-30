@@ -4,8 +4,8 @@ subprojects {
 
     ext {
         websocket_dep = 'javax.websocket:javax.websocket-api:1.0'
-        jetty_dep = 'org.eclipse.jetty.websocket:javax-websocket-server-impl:9.4.5.v20170502'
-        undertow_dep = 'io.undertow:undertow-websockets-jsr:1.4.14.Final'
+        jetty_dep = 'org.eclipse.jetty.websocket:javax-websocket-server-impl:9.4.6.v20170531'
+        undertow_dep = 'io.undertow:undertow-websockets-jsr:1.4.18.Final'
         junit_dep = 'junit:junit:4.12'
     }
 
