@@ -1,6 +1,5 @@
 import unittest
 from io import BytesIO
-
 from typing import Any, cast
 
 from test.serialize_test import createWriter, createReader

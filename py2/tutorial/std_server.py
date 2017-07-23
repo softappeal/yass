@@ -1,7 +1,6 @@
 from __future__ import print_function
 
 import sys
-
 from typing import cast
 
 from tutorial.generated import ACCEPTOR
