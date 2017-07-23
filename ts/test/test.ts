@@ -338,8 +338,8 @@ const hostname = "localhost";
                 assert(result.name === undefined);
                 assert(result.paysDividend === false);
             });
-            echoService.echo(new IntegerImpl(12345678)).then(result =>  assert(result.get() === 12345678));
-            echoService.echo(new IntegerImpl(-87654321)).then(result  => assert(result.get() === -87654321));
+            echoService.echo(new IntegerImpl(12345678)).then(result => assert(result.get() === 12345678));
+            echoService.echo(new IntegerImpl(-87654321)).then(result => assert(result.get() === -87654321));
             echoService.echo(123.456e98).then(result => assert(result === 123.456e98));
             echoService.echo(-9.384762637432E-12).then(result => assert(result === -9.384762637432E-12));
             echoService.echo(new contract.Expiration(9, 8, 7)).then(expiration => {
