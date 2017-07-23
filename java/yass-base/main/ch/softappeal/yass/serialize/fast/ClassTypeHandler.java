@@ -7,6 +7,7 @@ import sun.misc.Unsafe;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.IdentityHashMap;
 import java.util.Map;
@@ -57,7 +58,7 @@ public final class ClassTypeHandler extends TypeHandler {
             fieldDescs[fd++] = fieldDesc;
         }
         this.id2fieldHandler = new HashMap<>(id2fieldHandler);
-        Arrays.sort(fieldDescs, (fieldDesc1, fieldDesc2) -> ((Integer)fieldDesc1.id).compareTo(fieldDesc2.id));
+        Arrays.sort(fieldDescs, Comparator.comparingInt(fieldDesc -> fieldDesc.id));
     }
 
     void fixupFields(final Map<Class<?>, TypeDesc> class2typeDesc) {
