@@ -871,7 +871,7 @@ function connectRaw(url: string, packetSerializer: Serializer, sessionFactory: S
     };
 }
 
-function packetSerializer(contractSerializer: Serializer): Serializer {
+export function packetSerializer(contractSerializer: Serializer): Serializer {
     return new PacketSerializer(new MessageSerializer(contractSerializer));
 }
 
