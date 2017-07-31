@@ -883,8 +883,18 @@ export function connectSource(url: string, contractSerializer: Serializer, sessi
     connectRaw(url, new SourceSerializer(packetSerializer(contractSerializer)), sessionFactory);
 }
 
+export class RequestStatusException {
+    constructor(public readonly status: number) {
+        // empty
+    }
+}
+
+export class TimeoutException {
+    // empty
+}
+
 export class XhrClient extends Client {
-    constructor(private readonly url: string, private readonly messageSerializer: Serializer, private readonly timeoutMilliSeconds: number) {
+    constructor(private readonly url: string, private readonly messageSerializer: Serializer, private readonly timeoutMilliSeconds: number, private isStatusOk: (status: number) => boolean) {
         super();
     }
     protected invoke(invocation: ClientInvocation): void {
@@ -893,14 +903,14 @@ export class XhrClient extends Client {
             xhr.open("POST", this.url);
             xhr.responseType = "arraybuffer";
             xhr.timeout = this.timeoutMilliSeconds;
-            xhr.ontimeout = () => invocation.settle(new ExceptionReply(new Error("XMLHttpRequest.ontimeout")));
+            xhr.ontimeout = () => invocation.settle(new ExceptionReply(new TimeoutException()));
             xhr.onerror = () => invocation.settle(new ExceptionReply(new Error("XMLHttpRequest.onerror")));
-            xhr.onload = () => invocation.settle(readFrom(this.messageSerializer, xhr.response));
+            xhr.onload = () => invocation.settle(this.isStatusOk(xhr.status) ? readFrom(this.messageSerializer, xhr.response) : new ExceptionReply(new RequestStatusException(xhr.status)));
             xhr.send(writeTo(this.messageSerializer, request));
         });
     }
 }
 
-export function xhr(url: string, contractSerializer: Serializer, timeoutMilliSeconds = 0): Client {
-    return new XhrClient(url, new MessageSerializer(contractSerializer), timeoutMilliSeconds);
+export function xhr(url: string, contractSerializer: Serializer, timeoutMilliSeconds = 0, isStatusOk: (status: number) => boolean = status => true): Client {
+    return new XhrClient(url, new MessageSerializer(contractSerializer), timeoutMilliSeconds, isStatusOk);
 }
