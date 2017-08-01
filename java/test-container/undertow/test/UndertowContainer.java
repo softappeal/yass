@@ -10,15 +10,15 @@ import org.xnio.ByteBufferSlicePool;
 import org.xnio.OptionMap;
 import org.xnio.Xnio;
 
-public final class UndertowAcceptor {
+public final class UndertowContainer {
 
     public static void main(final String... args) throws Exception {
         final DeploymentManager deployment = Servlets.defaultContainer()
             .addDeployment(
                 Servlets.deployment()
-                    .setClassLoader(UndertowAcceptor.class.getClassLoader())
+                    .setClassLoader(UndertowContainer.class.getClassLoader())
                     .setContextPath("/")
-                    .setDeploymentName(UndertowAcceptor.class.getName())
+                    .setDeploymentName(UndertowContainer.class.getName())
                     .addServletContextAttribute(
                         WebSocketDeploymentInfo.ATTRIBUTE_NAME,
                         new WebSocketDeploymentInfo()
@@ -30,7 +30,7 @@ public final class UndertowAcceptor {
         deployment.deploy();
         final HttpHandler servletHandler = deployment.start();
         Undertow.builder()
-            .addHttpListener(Initiator.PORT, Initiator.HOST)
+            .addHttpListener(Client.PORT, Client.HOST)
             .setHandler(servletHandler)
             .build()
             .start();

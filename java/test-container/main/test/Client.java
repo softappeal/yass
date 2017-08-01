@@ -13,7 +13,7 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public final class Initiator {
+public final class Client {
 
     public static final String HOST = "0.0.0.0";
     public static final int PORT = 8080;
