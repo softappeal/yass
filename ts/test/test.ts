@@ -432,6 +432,11 @@ const hostname = "localhost";
     const proxyFactory = yass.xhr("http://" + hostname + ":9090/xhr", contract.SERIALIZER);
     const echoService = proxyFactory.proxy(contract.acceptor.echoService);
 
+    echoService
+        .echo("wrongStatus")
+        .then(result => log("wrongStatus succeeded:", result))
+        .catch(error => log("wrongStatus failed:", error));
+
     log("echo succeeded:", await echoService.echo("echo"));
     try {
         await echoService.echo("throwRuntimeException");
@@ -451,12 +456,6 @@ const hostname = "localhost";
     node2.id = 2;
     node1.next = node2;
     log("echo succeeded:", await echoService.echo(node1));
-
-    yass
-        .xhr("http://" + hostname + ":9090/xhr", contract.SERIALIZER, 0, status => (status !== 201))
-        .proxy(contract.acceptor.echoService)
-        .echo("wrongStatus")
-        .catch(error => log("status not ok", error));
 
 })();
 
