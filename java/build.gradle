@@ -89,3 +89,9 @@ subprojects {
     }
 
 }
+
+task clean {
+    doLast {
+        ant.delete(dir: ".", includes: "*/out/", includeemptydirs: true)
+    }
+}
