@@ -1,5 +1,6 @@
 package ch.softappeal.yass.util;
 
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
@@ -11,6 +12,19 @@ public final class Reflect {
 
     private Reflect() {
         // disable
+    }
+
+    public static <T> Constructor<T> constructor(final Class<T> type) {
+        final Constructor<T> constructor;
+        try {
+            constructor = type.getDeclaredConstructor();
+        } catch (final NoSuchMethodException e) {
+            throw new RuntimeException(e);
+        }
+        if (!Modifier.isPublic(constructor.getModifiers())) {
+            constructor.setAccessible(true);
+        }
+        return constructor;
     }
 
     public static List<Field> ownFields(final Class<?> type) {

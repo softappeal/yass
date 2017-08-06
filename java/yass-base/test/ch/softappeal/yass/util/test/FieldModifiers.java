@@ -1,4 +1,4 @@
-package ch.softappeal.yass.serialize.fast;
+package ch.softappeal.yass.util.test;
 
 public class FieldModifiers {
 

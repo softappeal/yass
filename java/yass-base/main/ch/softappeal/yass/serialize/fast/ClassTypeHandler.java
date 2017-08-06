@@ -1,10 +1,9 @@
 package ch.softappeal.yass.serialize.fast;
 
-import ch.softappeal.yass.util.Exceptions;
 import ch.softappeal.yass.util.Nullable;
-import sun.misc.Unsafe;
+import ch.softappeal.yass.util.Reflect;
 
-import java.lang.reflect.Field;
+import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -13,20 +12,6 @@ import java.util.IdentityHashMap;
 import java.util.Map;
 
 public final class ClassTypeHandler extends TypeHandler {
-
-    private static final Unsafe UNSAFE;
-    static {
-        try {
-            final Field field = Unsafe.class.getDeclaredField("theUnsafe");
-            field.setAccessible(true);
-            UNSAFE = (Unsafe)field.get(null);
-        } catch (final Exception e) {
-            throw Exceptions.wrap(e);
-        }
-    }
-    static <T> T allocateInstance(final Class<T> type) throws Exception {
-        return type.cast(UNSAFE.allocateInstance(type));
-    }
 
     public static final class FieldDesc {
         public final int id;
@@ -37,6 +22,7 @@ public final class ClassTypeHandler extends TypeHandler {
         }
     }
 
+    private final Constructor<?> constructor;
     public final boolean referenceable;
     private final Map<Integer, FieldHandler> id2fieldHandler;
 
@@ -47,6 +33,7 @@ public final class ClassTypeHandler extends TypeHandler {
 
     ClassTypeHandler(final Class<?> type, final boolean referenceable, final Map<Integer, FieldHandler> id2fieldHandler) {
         super(type);
+        constructor = Reflect.constructor(type);
         this.referenceable = referenceable;
         fieldDescs = new FieldDesc[id2fieldHandler.size()];
         int fd = 0;
@@ -69,7 +56,7 @@ public final class ClassTypeHandler extends TypeHandler {
      * @see FieldHandler#write(int, Object, Output)
      */
     @Override Object read(final Input input) throws Exception {
-        final Object object = allocateInstance(type);
+        final Object object = constructor.newInstance();
         if (referenceable) {
             if (input.referenceableObjects == null) {
                 input.referenceableObjects = new ArrayList<>(16);

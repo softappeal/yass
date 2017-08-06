@@ -8,6 +8,12 @@ public final class Price {
     public final int value;
     public final PriceKind kind;
 
+    private Price() {
+        instrumentId = 0;
+        value = 0;
+        kind = null;
+    }
+
     public Price(final int instrumentId, final int value, final PriceKind kind) {
         this.instrumentId = instrumentId;
         this.value = value;

@@ -9,6 +9,10 @@ public final class TripleWrapper {
 
     public final @Nullable Triple<PriceKind, Pair<String, List<PairBoolBool>>> triple;
 
+    private TripleWrapper() {
+        triple = null;
+    }
+
     public TripleWrapper(@Nullable final Triple<PriceKind, Pair<String, List<PairBoolBool>>> triple) {
         this.triple = triple;
     }

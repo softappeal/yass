@@ -14,6 +14,12 @@ public final class Expiration {
     public final int month;
     public final int day;
 
+    private Expiration() {
+        year = 0;
+        month = 0;
+        day = 0;
+    }
+
     public Expiration(final int year, final int month, final int day) {
         this.year = year;
         this.month = month;

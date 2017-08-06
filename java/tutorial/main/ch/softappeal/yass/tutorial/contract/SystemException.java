@@ -10,6 +10,10 @@ public final class SystemException extends RuntimeException {
 
     public final String message;
 
+    private SystemException() {
+        message = null;
+    }
+
     public SystemException(final String message) {
         this.message = Objects.requireNonNull(message);
     }

@@ -10,6 +10,11 @@ public class Stock extends Instrument {
 
     public final @Nullable Boolean paysDividend;
 
+    protected Stock() {
+        super(0, "");
+        paysDividend = null;
+    }
+
     public Stock(final int id, final String name, final Boolean paysDividend) {
         super(id, name);
         this.paysDividend = paysDividend;

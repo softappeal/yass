@@ -18,6 +18,9 @@ public class InvokeTest {
 
     public static final class DivisionByZeroException extends Exception {
         private static final long serialVersionUID = 1L;
+        private DivisionByZeroException() {
+            value = 0;
+        }
         public DivisionByZeroException(final int value) {
             this.value = value;
         }

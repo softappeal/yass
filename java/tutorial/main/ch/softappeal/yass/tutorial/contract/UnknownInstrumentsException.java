@@ -18,6 +18,10 @@ public final class UnknownInstrumentsException extends ApplicationException {
 
     public @Nullable Throwable onlyNeededForTests3;
 
+    private UnknownInstrumentsException() {
+        instrumentIds = null;
+    }
+
     public UnknownInstrumentsException(final List<Integer> instrumentIds) {
         this.instrumentIds = Objects.requireNonNull(instrumentIds);
     }
