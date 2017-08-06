@@ -1,6 +1,7 @@
 include "java:yass-base"
 include "java:yass-generate"
 include "java:yass-transport-ws"
+include "java:yass-unsupported"
 include "java:tutorial"
 include "java:test-container"
 include "ts"

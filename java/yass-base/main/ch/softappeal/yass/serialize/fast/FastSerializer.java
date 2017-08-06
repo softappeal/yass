@@ -12,8 +12,11 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.SortedMap;
 import java.util.TreeMap;
+import java.util.function.Function;
+import java.util.function.Supplier;
 
 /**
  * This fast and compact serializer supports the following types (type id's must be &gt;= {@link TypeDesc#FIRST_ID}):
@@ -24,7 +27,7 @@ import java.util.TreeMap;
  * <li>enumeration types (an enumeration constant is serialized with its ordinal number)</li>
  * <li>
  * class hierarchies with all non-static and non-transient fields
- * (needs a no-argument constructor; field names and id's must be unique in the path to its super classes and id's must be &gt;= {@link FieldHandler#FIRST_ID})
+ * (field names and id's must be unique in the path to its super classes and id's must be &gt;= {@link FieldHandler#FIRST_ID})
  * </li>
  * <li>exceptions (but without fields of {@link Throwable}; therefore, you should implement {@link Throwable#getMessage()})</li>
  * <li>graphs with cycles</li>
@@ -46,6 +49,7 @@ import java.util.TreeMap;
  */
 public abstract class FastSerializer implements Serializer {
 
+    private final Function<Class<?>, Supplier<Object>> instantiators;
     private final Map<Class<?>, TypeDesc> class2typeDesc = new HashMap<>(64);
     private final Map<Integer, TypeHandler> id2typeHandler = new HashMap<>(64);
 
@@ -93,7 +97,7 @@ public abstract class FastSerializer implements Serializer {
             }
             id2fieldHandler.put(fieldId, new FieldHandler(field));
         });
-        addType(new TypeDesc(id, new ClassTypeHandler(type, referenceable, id2fieldHandler)));
+        addType(new TypeDesc(id, new ClassTypeHandler(type, instantiators, referenceable, id2fieldHandler)));
     }
 
     protected final void addBaseType(final TypeDesc typeDesc) {
@@ -103,7 +107,8 @@ public abstract class FastSerializer implements Serializer {
         addType(typeDesc);
     }
 
-    protected FastSerializer() {
+    protected FastSerializer(final Function<Class<?>, Supplier<Object>> instantiators) {
+        this.instantiators = Objects.requireNonNull(instantiators);
         addType(TypeDesc.NULL);
         addType(TypeDesc.REFERENCE);
         addType(TypeDesc.LIST);

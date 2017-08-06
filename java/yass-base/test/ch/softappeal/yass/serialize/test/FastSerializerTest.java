@@ -14,6 +14,7 @@ import ch.softappeal.yass.serialize.fast.FastSerializer;
 import ch.softappeal.yass.serialize.fast.SimpleFastSerializer;
 import ch.softappeal.yass.serialize.fast.TaggedFastSerializer;
 import ch.softappeal.yass.serialize.fast.TypeDesc;
+import ch.softappeal.yass.util.Instantiators;
 import ch.softappeal.yass.util.Nullable;
 import ch.softappeal.yass.util.Tag;
 import ch.softappeal.yass.util.TestUtils;
@@ -30,6 +31,7 @@ public class FastSerializerTest {
     @Test public void baseEnumeration() {
         try {
             new TaggedFastSerializer(
+                Instantiators.NOARG,
                 Arrays.asList(new TypeDesc(1, new BaseTypeHandler<Color>(Color.class) {
                     @Override public Color read(final Reader reader) {
                         return null;
@@ -48,7 +50,7 @@ public class FastSerializerTest {
 
     @Test public void duplicatedClass() {
         try {
-            new TaggedFastSerializer(Arrays.asList(), Arrays.asList(Color.class, Color.class));
+            new TaggedFastSerializer(Instantiators.NOARG, Arrays.asList(), Arrays.asList(Color.class, Color.class));
             Assert.fail();
         } catch (final IllegalArgumentException e) {
             Assert.assertEquals("type 'ch.softappeal.yass.serialize.contract.Color' already added", e.getMessage());
@@ -57,7 +59,7 @@ public class FastSerializerTest {
 
     @Test public void abstractClass() {
         try {
-            new SimpleFastSerializer(Arrays.asList(), Arrays.asList(FastSerializer.class));
+            new SimpleFastSerializer(Instantiators.NOARG, Arrays.asList(), Arrays.asList(FastSerializer.class));
             Assert.fail();
         } catch (final IllegalArgumentException e) {
             Assert.assertEquals("type 'ch.softappeal.yass.serialize.fast.FastSerializer' is abstract", e.getMessage());
@@ -66,7 +68,7 @@ public class FastSerializerTest {
 
     @Test public void illegalInterface() {
         try {
-            new SimpleFastSerializer(Arrays.asList(), Arrays.asList(AutoCloseable.class));
+            new SimpleFastSerializer(Instantiators.NOARG, Arrays.asList(), Arrays.asList(AutoCloseable.class));
             Assert.fail();
         } catch (final IllegalArgumentException e) {
             Assert.assertEquals("type 'java.lang.AutoCloseable' is abstract", e.getMessage());
@@ -75,7 +77,7 @@ public class FastSerializerTest {
 
     @Test public void illegalAnnotation() {
         try {
-            new SimpleFastSerializer(Arrays.asList(), Arrays.asList(Nullable.class));
+            new SimpleFastSerializer(Instantiators.NOARG, Arrays.asList(), Arrays.asList(Nullable.class));
             Assert.fail();
         } catch (final IllegalArgumentException e) {
             Assert.assertEquals("type 'ch.softappeal.yass.util.Nullable' is abstract", e.getMessage());
@@ -84,7 +86,7 @@ public class FastSerializerTest {
 
     @Test public void illegalEnumeration() {
         try {
-            new SimpleFastSerializer(Arrays.asList(), Arrays.asList(), Arrays.asList(Color.class));
+            new SimpleFastSerializer(Instantiators.NOARG, Arrays.asList(), Arrays.asList(), Arrays.asList(Color.class));
             Assert.fail();
         } catch (final IllegalArgumentException e) {
             Assert.assertEquals("type 'ch.softappeal.yass.serialize.contract.Color' is an enumeration", e.getMessage());
@@ -92,7 +94,7 @@ public class FastSerializerTest {
     }
 
     @Test public void missingType() throws Exception {
-        final Serializer serializer = new TaggedFastSerializer(Arrays.asList(), Arrays.asList());
+        final Serializer serializer = new TaggedFastSerializer(Instantiators.NOARG, Arrays.asList(), Arrays.asList());
         try {
             JavaSerializerTest.copy(serializer, Color.BLUE);
             Assert.fail();
@@ -129,9 +131,11 @@ public class FastSerializerTest {
     }
 
     private static final Serializer V1_SERIALIZER = new TaggedFastSerializer(
+        Instantiators.NOARG,
         Arrays.asList(new TypeDesc(3, BaseTypeHandlers.INTEGER)), Arrays.asList(E1.class, C1.class)
     );
     private static final Serializer V2_SERIALIZER = new TaggedFastSerializer(
+        Instantiators.NOARG,
         Arrays.asList(new TypeDesc(3, BaseTypeHandlers.INTEGER)), Arrays.asList(E2.class, C2.class)
     );
 
@@ -161,7 +165,7 @@ public class FastSerializerTest {
 
     @Test public void missingClassTag() {
         try {
-            new TaggedFastSerializer(Arrays.asList(), Arrays.asList(MissingClassTag.class));
+            new TaggedFastSerializer(Instantiators.NOARG, Arrays.asList(), Arrays.asList(MissingClassTag.class));
             Assert.fail();
         } catch (final IllegalArgumentException e) {
             Assert.assertEquals("missing tag for 'class ch.softappeal.yass.serialize.test.FastSerializerTest$MissingClassTag'", e.getMessage());
@@ -170,7 +174,7 @@ public class FastSerializerTest {
 
     @Test public void duplicatedTypeTag() {
         try {
-            new TaggedFastSerializer(Arrays.asList(), Arrays.asList(C1.class, C2.class));
+            new TaggedFastSerializer(Instantiators.NOARG, Arrays.asList(), Arrays.asList(C1.class, C2.class));
             Assert.fail();
         } catch (final IllegalArgumentException e) {
             System.out.println(e.getMessage());
@@ -183,7 +187,7 @@ public class FastSerializerTest {
 
     @Test public void invalidTypeTag() {
         try {
-            new TaggedFastSerializer(Arrays.asList(), Arrays.asList(InvalidTypeTag.class));
+            new TaggedFastSerializer(Instantiators.NOARG, Arrays.asList(), Arrays.asList(InvalidTypeTag.class));
             Assert.fail();
         } catch (final IllegalArgumentException e) {
             Assert.assertEquals("id -1 for type 'ch.softappeal.yass.serialize.test.FastSerializerTest.InvalidTypeTag' must be >= 0", e.getMessage());
@@ -196,7 +200,7 @@ public class FastSerializerTest {
 
     @Test public void invalidFieldTag() {
         try {
-            new TaggedFastSerializer(Arrays.asList(), Arrays.asList(InvalidFieldTag.class));
+            new TaggedFastSerializer(Instantiators.NOARG, Arrays.asList(), Arrays.asList(InvalidFieldTag.class));
             Assert.fail();
         } catch (final IllegalArgumentException e) {
             Assert.assertEquals(
@@ -213,7 +217,7 @@ public class FastSerializerTest {
 
     @Test public void duplicatedFieldTag() {
         try {
-            new TaggedFastSerializer(Arrays.asList(), Arrays.asList(DuplicatedFieldTag.class));
+            new TaggedFastSerializer(Instantiators.NOARG, Arrays.asList(), Arrays.asList(DuplicatedFieldTag.class));
             Assert.fail();
         } catch (final IllegalArgumentException e) {
             System.out.println(e.getMessage());

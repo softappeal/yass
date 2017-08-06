@@ -20,12 +20,14 @@ import ch.softappeal.yass.tutorial.contract.instrument.InstrumentService;
 import ch.softappeal.yass.tutorial.contract.instrument.stock.Stock;
 import ch.softappeal.yass.tutorial.contract.instrument.stock.python.PythonBond;
 import ch.softappeal.yass.tutorial.contract.instrument.stock.python.PythonStock;
+import ch.softappeal.yass.util.Instantiators;
 
 import java.util.Arrays;
 
 public final class Config {
 
     public static final FastSerializer CONTRACT_SERIALIZER = new SimpleFastSerializer(
+        Instantiators.NOARG,
         TypeScriptGenerator.baseTypeHandlers( // note: order is important; id's must match with TypeScript implementations
             BaseTypeHandlers.INTEGER,         // TypeScriptGenerator.FIRST_DESC_ID
             Expiration.TYPE_HANDLER           // TypeScriptGenerator.FIRST_DESC_ID + 1
@@ -46,6 +48,7 @@ public final class Config {
     );
 
     public static final FastSerializer PY_CONTRACT_SERIALIZER = new SimpleFastSerializer(
+        Instantiators.NOARG,
         PythonGenerator.baseTypeHandlers( // note: order is important; id's must match with Python implementations
             BaseTypeHandlers.INTEGER,     // PythonGenerator.FIRST_DESC_ID
             Expiration.TYPE_HANDLER       // PythonGenerator.FIRST_DESC_ID + 1

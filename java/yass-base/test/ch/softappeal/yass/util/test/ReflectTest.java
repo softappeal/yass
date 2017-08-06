@@ -1,6 +1,7 @@
 package ch.softappeal.yass.util.test;
 
 import ch.softappeal.yass.serialize.contract.nested.AllTypes;
+import ch.softappeal.yass.util.Instantiators;
 import ch.softappeal.yass.util.Reflect;
 import org.junit.Assert;
 import org.junit.Test;
@@ -15,7 +16,7 @@ public class ReflectTest {
 
     @Test public void noDefaultConstructor() {
         try {
-            Reflect.constructor(NoDefaultConstructor.class);
+            Instantiators.NOARG.apply(NoDefaultConstructor.class).get();
             Assert.fail();
         } catch (final RuntimeException e) {
             System.out.println(e);
@@ -28,7 +29,7 @@ public class ReflectTest {
 
     @Test public void fieldModifiers() throws Exception {
         FieldModifiers.CONSTRUCTOR_CALLED = false;
-        final FieldModifiers fieldModifiers = Reflect.constructor(FieldModifiers.class).newInstance();
+        final FieldModifiers fieldModifiers = (FieldModifiers)Instantiators.NOARG.apply(FieldModifiers.class).get();
         Assert.assertTrue(FieldModifiers.CONSTRUCTOR_CALLED);
         final Map<String, Field> name2field = name2field(FieldModifiers.class);
         final Field privateField = name2field.get("privateField");
@@ -51,7 +52,7 @@ public class ReflectTest {
     }
 
     @Test public void allTypes() throws Exception {
-        final AllTypes allTypes = Reflect.constructor(AllTypes.class).newInstance();
+        final AllTypes allTypes = (AllTypes)Instantiators.NOARG.apply(AllTypes.class).get();
         final Map<String, Field> name2field = name2field(AllTypes.class);
         final Field booleanField = name2field.get("booleanField");
         final Field byteField = name2field.get("byteField");

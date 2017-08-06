@@ -7,6 +7,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
+import java.util.function.Supplier;
 
 /**
  * This serializer assigns type and field id's automatically. Therefore, all peers must have the same version of the contract!
@@ -27,10 +29,12 @@ public final class SimpleFastSerializer extends FastSerializer {
      * @param referenceableConcreteClasses instances of these classes can be used in graphs
      */
     public SimpleFastSerializer(
+        final Function<Class<?>, Supplier<Object>> instantiators,
         final List<BaseTypeHandler<?>> baseTypeHandlers,
         final List<Class<?>> concreteClasses,
         final List<Class<?>> referenceableConcreteClasses
     ) {
+        super(instantiators);
         int id = TypeDesc.FIRST_ID;
         for (final BaseTypeHandler<?> typeHandler : baseTypeHandlers) {
             addBaseType(new TypeDesc(id++, typeHandler));
@@ -49,10 +53,11 @@ public final class SimpleFastSerializer extends FastSerializer {
     }
 
     public SimpleFastSerializer(
+        final Function<Class<?>, Supplier<Object>> instantiators,
         final List<BaseTypeHandler<?>> baseTypeHandlers,
         final List<Class<?>> concreteClasses
     ) {
-        this(baseTypeHandlers, concreteClasses, Collections.emptyList());
+        this(instantiators, baseTypeHandlers, concreteClasses, Collections.emptyList());
     }
 
 }

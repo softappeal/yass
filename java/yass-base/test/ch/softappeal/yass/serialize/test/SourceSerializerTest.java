@@ -6,6 +6,7 @@ import ch.softappeal.yass.serialize.Writer;
 import ch.softappeal.yass.serialize.fast.BaseTypeHandlers;
 import ch.softappeal.yass.serialize.fast.SimpleFastSerializer;
 import ch.softappeal.yass.transport.SourceSerializer;
+import ch.softappeal.yass.util.Instantiators;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -17,6 +18,7 @@ public class SourceSerializerTest {
 
     private static void check(final boolean initiator, final byte[] wire) throws Exception {
         final Serializer contractSerializer = new SimpleFastSerializer(
+            Instantiators.NOARG,
             Collections.singletonList(BaseTypeHandlers.BYTE_ARRAY),
             Collections.emptyList(),
             Collections.emptyList()
