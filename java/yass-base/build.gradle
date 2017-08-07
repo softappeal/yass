@@ -1,1 +1,5 @@
+dependencies {
+    testCompile project(":java:yass-unsupported")
+}
+
 task dist(dependsOn: 'sign')
