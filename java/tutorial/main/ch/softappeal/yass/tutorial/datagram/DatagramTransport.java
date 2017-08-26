@@ -23,7 +23,7 @@ public final class DatagramTransport {
     private static void checkOneWay(final MethodMapper.Mapping methodMapping, final Request request) {
         if (!methodMapping.oneWay) {
             throw new IllegalArgumentException(
-                "transport not allowed for rpc  method (serviceId " + request.serviceId + ", methodId " + request.methodId + ')'
+                "transport not allowed for rpc method (serviceId " + request.serviceId + ", methodId " + request.methodId + ')'
             );
         }
     }
