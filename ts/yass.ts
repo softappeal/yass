@@ -587,6 +587,9 @@ export class ServerInvocation extends AbstractInvocation {
             const result = implementation[this.methodMapping.method].apply(implementation, this.parameters);
             return new ValueReply(this.exit(((result !== null) && (result !== undefined)) ? result : null));
         } catch (exception) {
+            if (this.methodMapping.oneWay) {
+                throw exception;
+            }
             return new ExceptionReply(this.exception(exception));
         }
     }

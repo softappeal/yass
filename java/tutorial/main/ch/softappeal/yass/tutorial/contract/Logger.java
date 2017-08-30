@@ -2,7 +2,6 @@ package ch.softappeal.yass.tutorial.contract;
 
 import ch.softappeal.yass.core.Interceptor;
 import ch.softappeal.yass.core.Invocation;
-import ch.softappeal.yass.core.remote.OneWay;
 import ch.softappeal.yass.core.remote.session.Session;
 import ch.softappeal.yass.util.Dumper;
 import ch.softappeal.yass.util.Nullable;
@@ -44,13 +43,10 @@ public final class Logger implements Interceptor {
     }
 
     @Override public @Nullable Object invoke(final Method method, final @Nullable Object[] arguments, final Invocation invocation) throws Exception {
-        final boolean oneWay = method.isAnnotationPresent(OneWay.class);
-        log(oneWay ? "oneWay" : "entry", method, arguments);
+        log("entry", method, arguments);
         try {
             final Object result = invocation.proceed();
-            if (!oneWay) {
-                log("exit", method, result);
-            }
+            log("exit", method, result);
             return result;
         } catch (final Exception e) {
             log("exception", method, e);
