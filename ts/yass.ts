@@ -886,12 +886,6 @@ export function connectSource(url: string, contractSerializer: Serializer, sessi
     connectRaw(url, new SourceSerializer(packetSerializer(contractSerializer)), sessionFactory);
 }
 
-export class RequestStatusException {
-    constructor(public readonly status: number) {
-        // empty
-    }
-}
-
 export class TimeoutException {
     // empty
 }
@@ -908,7 +902,7 @@ export class XhrClient extends Client {
             xhr.timeout = this.timeoutMilliSeconds;
             xhr.ontimeout = () => invocation.settle(new ExceptionReply(new TimeoutException()));
             xhr.onerror = () => invocation.settle(new ExceptionReply(new Error("XMLHttpRequest.onerror")));
-            xhr.onload = () => invocation.settle((xhr.status === 200) ? readFrom(this.messageSerializer, xhr.response) : new ExceptionReply(new RequestStatusException(xhr.status)));
+            xhr.onload = () => invocation.settle(readFrom(this.messageSerializer, xhr.response));
             xhr.send(writeTo(this.messageSerializer, request));
         });
     }

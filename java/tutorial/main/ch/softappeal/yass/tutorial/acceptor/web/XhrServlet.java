@@ -27,7 +27,6 @@ public class XhrServlet extends HttpServlet {
 
     private static void invoke(final SimpleTransportSetup setup, final HttpServletRequest httpRequest, final HttpServletResponse httpResponse) {
         try {
-            // httpResponse.setStatus(201); // should be removed; only needed for TypeScript testcase
             // shows how to use certificates
             final @Nullable X509Certificate[] certificates = (X509Certificate[])httpRequest.getAttribute("javax.servlet.request.X509Certificate");
             if (certificates != null) {

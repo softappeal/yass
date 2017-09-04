@@ -426,16 +426,8 @@ const hostname = "localhost";
 
 (async function xhrTest() {
 
-    const rse = new yass.RequestStatusException(123);
-    assert(rse.status === 123);
-
     const proxyFactory = yass.xhr("http://" + hostname + ":9090/xhr", contract.SERIALIZER);
     const echoService = proxyFactory.proxy(contract.acceptor.echoService);
-
-    echoService
-        .echo("wrongStatus")
-        .then(result => log("wrongStatus succeeded:", result))
-        .catch(error => log("wrongStatus failed:", error));
 
     log("echo succeeded:", await echoService.echo("echo"));
     try {
