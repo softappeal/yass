@@ -3,7 +3,6 @@ package ch.softappeal.yass.core.remote;
 import ch.softappeal.yass.util.Exceptions;
 import ch.softappeal.yass.util.Nullable;
 
-import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -72,14 +71,6 @@ public final class Server {
                 try {
                     entry();
                     service.invokeAsync(methodMapping, arguments);
-                } catch (final InvocationTargetException e) {
-                    try {
-                        throw e.getCause();
-                    } catch (final Exception | Error e2) {
-                        throw e2;
-                    } catch (final Throwable t) {
-                        throw new Error(t);
-                    }
                 } finally {
                     COMPLETER.set(oldCompleter);
                 }

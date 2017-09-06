@@ -2,6 +2,7 @@ package ch.softappeal.yass.core.remote;
 
 import ch.softappeal.yass.core.Interceptor;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 import java.util.Objects;
 
@@ -50,7 +51,17 @@ public final class Service {
     }
 
     void invokeAsync(final MethodMapper.Mapping methodMapping, final List<Object> arguments) throws Exception {
-        methodMapping.method.invoke(implementation, arguments.toArray());
+        try {
+            methodMapping.method.invoke(implementation, arguments.toArray());
+        } catch (final InvocationTargetException e) {
+            try {
+                throw e.getCause();
+            } catch (final Exception | Error e2) {
+                throw e2;
+            } catch (final Throwable t) {
+                throw new Error(t);
+            }
+        }
     }
 
 }
