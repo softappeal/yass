@@ -11,9 +11,9 @@ dependencies {
     undertowCompile sourceSets.main.output
     undertowCompile undertow_dep
     tomcatCompile sourceSets.main.output
-    tomcatCompile 'org.apache.tomcat.embed:tomcat-embed-websocket:8.5.12'
+    tomcatCompile 'org.apache.tomcat.embed:tomcat-embed-websocket:8.5.20'
     tomcatCompile 'org.apache.tomcat.embed:tomcat-embed-logging-juli:8.5.2'
-    tomcatCompile 'org.apache.tomcat:jasper:6.0.51'
+    tomcatCompile 'org.apache.tomcat:jasper:6.0.53'
 }
 
 apply plugin: "war"

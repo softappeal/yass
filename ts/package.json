@@ -4,7 +4,7 @@
     "version": "0.0.0",
     "devDependencies": {
         "typescript": "2.5.2",
-        "systemjs": "0.20.17",
+        "systemjs": "0.20.18",
         "ws": "3.1.0",
         "xhr2": "0.1.4",
         "istanbul": "0.4.5",
