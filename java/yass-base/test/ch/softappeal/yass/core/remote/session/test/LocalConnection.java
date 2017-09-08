@@ -32,8 +32,7 @@ public final class LocalConnection implements Connection {
             try {
                 connection1.session = Session.create(sessionFactory2, connection2);
             } catch (final Exception e) {
-                Session.close(connection2.session, e);
-                throw e;
+                Session.closeThrow(connection2.session, e);
             }
         } catch (final Exception e) {
             throw Exceptions.wrap(e);

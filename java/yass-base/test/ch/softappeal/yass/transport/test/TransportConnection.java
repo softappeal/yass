@@ -43,8 +43,7 @@ public final class TransportConnection implements Connection {
                 connection1.session = Session.create(setup2.sessionFactory, connection2);
                 connection1.serializer = setup2.packetSerializer;
             } catch (final Exception e) {
-                Session.close(connection2.session, e);
-                throw e;
+                Session.closeThrow(connection2.session, e);
             }
         } catch (final Exception e) {
             throw Exceptions.wrap(e);

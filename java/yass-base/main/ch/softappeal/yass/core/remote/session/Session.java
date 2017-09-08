@@ -115,6 +115,22 @@ public abstract class Session extends Client implements Closer {
         session.close(false, Objects.requireNonNull(e));
     }
 
+    private void closeThrow(final Exception e) throws Exception {
+        try {
+            close(this, e);
+        } catch (final Exception e2) {
+            e.addSuppressed(e2);
+        }
+        throw e;
+    }
+
+    /**
+     * @see #close(Session, Exception)
+     */
+    public static void closeThrow(final Session session, final Exception e) throws Exception {
+        session.closeThrow(e);
+    }
+
     @Override public void close() {
         close(true, null);
     }
@@ -128,7 +144,7 @@ public abstract class Session extends Client implements Closer {
                         try {
                             connection.write(new Packet(requestNumber, reply));
                         } catch (final Exception e) {
-                            close(this, e);
+                            closeThrow(e);
                         }
                     }
                 });
@@ -156,8 +172,7 @@ public abstract class Session extends Client implements Closer {
                 requestNumber2invocation.remove(packet.requestNumber()).settle((Reply)message); // client invoke
             }
         } catch (final Exception e) {
-            close(this, e);
-            throw e;
+            closeThrow(e);
         }
     }
 
@@ -189,13 +204,12 @@ public abstract class Session extends Client implements Closer {
                 }
                 connection.write(new Packet(requestNumber, request));
             } catch (final Exception e) {
-                close(this, e);
-                throw e;
+                closeThrow(e);
             }
         });
     }
 
-    private void created() {
+    private void created() throws Exception {
         closed.set(false);
         try {
             server = Objects.requireNonNull(server());
@@ -207,7 +221,7 @@ public abstract class Session extends Client implements Closer {
                 }
             });
         } catch (final Exception e) {
-            close(this, e);
+            closeThrow(e);
         }
     }
 

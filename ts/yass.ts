@@ -814,6 +814,7 @@ export abstract class Session extends Client {
             this.opened();
         } catch (e) {
             Session.doClose(this, e);
+            throw e;
         }
     }
     static create(sessionFactory: SessionFactory, connection: Connection): Session {
