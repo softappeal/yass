@@ -449,6 +449,32 @@ const hostname = "localhost";
     node1.next = node2;
     log("echo succeeded:", await echoService.echo(node1));
 
+    const rse = new yass.RequestStatusException(123);
+    assert(rse.status === 123);
+
+    yass
+        .xhr(
+            "http://" + hostname + ":9090/xhr",
+            contract.SERIALIZER,
+            0,
+            status => {
+                log("statusOk:", status);
+                assert(status === 200);
+                return false;
+            }
+        )
+        .proxy(contract.acceptor.echoService)
+        .echo("wrongStatus")
+        .catch(error => log("wrongStatus failed:", error));
+
+    yass
+        .xhr("http://" + hostname + ":9999/xhr", contract.SERIALIZER)
+        .proxy(contract.acceptor.echoService)
+        .echo("serverDown")
+        .catch(error => log("serverDown failed:", error));
+
+    log("xhrTest done");
+
 })();
 
-log("done");
+log("all done");
