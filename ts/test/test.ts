@@ -426,7 +426,7 @@ const hostname = "localhost";
 
 (async function xhrTest() {
 
-    const proxyFactory = yass.xhr("http://" + hostname + ":9090/xhr", contract.SERIALIZER);
+    const proxyFactory = yass.xhr("http://" + hostname + ":9090/xhr", contract.SERIALIZER, 0, yass.checkXhrSuccessful);
     const echoService = proxyFactory.proxy(contract.acceptor.echoService);
 
     log("echo succeeded:", await echoService.echo("echo"));
@@ -447,7 +447,7 @@ const hostname = "localhost";
     node1.id = 1;
     node2.id = 2;
     node1.next = node2;
-    log("echo succeeded:", await echoService.echo(node1));
+    log("echo node:", await echoService.echo(node1));
 
     const rse = new yass.RequestStatusException(123);
     assert(rse.status === 123);
@@ -457,10 +457,10 @@ const hostname = "localhost";
             "http://" + hostname + ":9090/xhr",
             contract.SERIALIZER,
             0,
-            status => {
-                log("statusOk:", status);
-                assert(status === 200);
-                return false;
+            xhr => {
+                log("checkXhr:", xhr.status);
+                assert(xhr.status === 200);
+                throw new yass.RequestStatusException(999);
             }
         )
         .proxy(contract.acceptor.echoService)

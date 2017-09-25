@@ -887,12 +887,6 @@ export function connectSource(url: string, contractSerializer: Serializer, sessi
     connectRaw(url, new SourceSerializer(packetSerializer(contractSerializer)), sessionFactory);
 }
 
-export class RequestStatusException {
-    constructor(public readonly status: number) {
-        // empty
-    }
-}
-
 export class TimeoutException {
     // empty
 }
@@ -902,7 +896,7 @@ export class XhrClient extends Client {
         private readonly url: string,
         private readonly messageSerializer: Serializer,
         private readonly timeoutMilliSeconds: number,
-        private readonly statusOk: (status: number) => boolean
+        private readonly checkXhr: (xhr: XMLHttpRequest) => void
     ) {
         super();
     }
@@ -914,9 +908,33 @@ export class XhrClient extends Client {
             xhr.timeout = this.timeoutMilliSeconds;
             xhr.ontimeout = () => invocation.settle(new ExceptionReply(new TimeoutException()));
             xhr.onerror = () => invocation.settle(new ExceptionReply(new Error("XMLHttpRequest.onerror")));
-            xhr.onload = () => invocation.settle(this.statusOk(xhr.status) ? readFrom(this.messageSerializer, xhr.response) : new ExceptionReply(new RequestStatusException(xhr.status)));
+            xhr.onload = () => {
+                let exception = null;
+                try {
+                    this.checkXhr(xhr);
+                } catch (e) {
+                    exception = e;
+                }
+                invocation.settle((exception === null) ? readFrom(this.messageSerializer, xhr.response) : new ExceptionReply(exception));
+            };
             xhr.send(writeTo(this.messageSerializer, request));
         });
+    }
+}
+
+export function checkXhrEmpty(xhr: XMLHttpRequest): void {
+    // empty
+}
+
+export class RequestStatusException {
+    constructor(public readonly status: number) {
+        // empty
+    }
+}
+
+export function checkXhrSuccessful(xhr: XMLHttpRequest): void {
+    if ((xhr.status < 200) || (xhr.status > 299)) {
+        throw new RequestStatusException(xhr.status);
     }
 }
 
@@ -924,7 +942,7 @@ export function xhr(
     url: string,
     contractSerializer: Serializer,
     timeoutMilliSeconds = 0,
-    statusOk: (status: number) => boolean = status => (status >= 200) && (status <= 299)
+    checkXhr: (xhr: XMLHttpRequest) => void = checkXhrEmpty
 ): Client {
-    return new XhrClient(url, new MessageSerializer(contractSerializer), timeoutMilliSeconds, statusOk);
+    return new XhrClient(url, new MessageSerializer(contractSerializer), timeoutMilliSeconds, checkXhr);
 }
