@@ -23,7 +23,7 @@ public class DumperTest {
             super(compact, referenceables, concreteValueClasses);
         }
         @Override protected boolean dumpValueClass(final StringBuilder out, final Class<?> type, final Object object) {
-            if (isConcreteValueClass(type) || (Date.class == type)) {
+            if (isConcreteValueClass(type) || (Date.class == type) || (BigInteger.class == type) || (BigDecimal.class == type) || (Instant.class == type)) {
                 out.append(object);
                 return true;
             }
