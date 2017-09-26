@@ -20,6 +20,7 @@ import ch.softappeal.yass.tutorial.contract.instrument.InstrumentService;
 import ch.softappeal.yass.tutorial.contract.instrument.stock.Stock;
 
 import java.util.Arrays;
+import java.util.List;
 
 import static ch.softappeal.yass.tutorial.contract.Config.PY_ACCEPTOR;
 
@@ -44,7 +45,7 @@ public final class SocketClient {
             PriceKind.ASK,
             PriceKind.BID,
             new Stock(123, "YASS", true),
-            new UnknownInstrumentsException(Arrays.asList(1, 2, 3)),
+            new UnknownInstrumentsException(List.of(1, 2, 3)),
             node1
         );
     }

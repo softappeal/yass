@@ -3,7 +3,6 @@ package ch.softappeal.yass.transport.socket.test;
 import ch.softappeal.yass.transport.DummyPathSerializer;
 import ch.softappeal.yass.transport.PathResolver;
 import ch.softappeal.yass.transport.PathSerializer;
-import ch.softappeal.yass.transport.TransportSetup;
 import ch.softappeal.yass.transport.socket.AsyncSocketConnection;
 import ch.softappeal.yass.transport.socket.SocketBinder;
 import ch.softappeal.yass.transport.socket.SocketConnector;
@@ -17,7 +16,6 @@ import org.junit.Test;
 
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -86,10 +84,10 @@ public class SocketTransportTest extends TransportTest {
         final ExecutorService executor = Executors.newCachedThreadPool(new NamedThreadFactory("executor", Exceptions.TERMINATE));
         final Integer path1 = 1;
         final Integer path2 = 2;
-        final Map<Integer, TransportSetup> pathMappings = new HashMap<>(2);
-        pathMappings.put(path1, invokeTransportSetup(true, false, executor));
-        pathMappings.put(path2, invokeTransportSetup(true, false, executor));
-        try (Closer closer = new SocketTransport(executor, SyncSocketConnection.FACTORY, PathSerializer.INSTANCE, new PathResolver(pathMappings)).start(executor, BINDER)) {
+        try (Closer closer = new SocketTransport(executor, SyncSocketConnection.FACTORY, PathSerializer.INSTANCE, new PathResolver(Map.of(
+            path1, invokeTransportSetup(true, false, executor),
+            path2, invokeTransportSetup(true, false, executor)
+        ))).start(executor, BINDER)) {
             SocketTransport.connect(executor, SyncSocketConnection.FACTORY, invokeTransportSetup(false, false, executor), CONNECTOR, PathSerializer.INSTANCE, path1);
             TimeUnit.MILLISECONDS.sleep(400L);
             System.out.println();

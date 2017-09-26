@@ -7,7 +7,6 @@ import ch.softappeal.yass.tutorial.contract.instrument.InstrumentService;
 import ch.softappeal.yass.tutorial.contract.instrument.stock.Stock;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -17,7 +16,7 @@ public final class InstrumentServiceImplAsync implements InstrumentService {
 
     public static final Map<Integer, Instrument> INSTRUMENTS;
     static {
-        final List<String> names = Arrays.asList("IBM", "Google", "Apple", "Microsoft");
+        final List<String> names = List.of("IBM", "Google", "Apple", "Microsoft");
         final Map<Integer, Instrument> instruments = new HashMap<>(names.size());
         int index = 0;
         for (final String name : names) {

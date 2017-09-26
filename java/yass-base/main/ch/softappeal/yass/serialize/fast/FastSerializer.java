@@ -72,7 +72,7 @@ public abstract class FastSerializer implements Serializer {
         }
         final Class<Enum<?>> enumeration = (Class<Enum<?>>)type;
         final Enum<?>[] constants = enumeration.getEnumConstants();
-        addType(new TypeDesc(id, new BaseTypeHandler<Enum<?>>(enumeration) {
+        addType(new TypeDesc(id, new BaseTypeHandler<>(enumeration) {
             @Override public Enum<?> read(final Reader reader) throws Exception {
                 return constants[reader.readVarInt()];
             }

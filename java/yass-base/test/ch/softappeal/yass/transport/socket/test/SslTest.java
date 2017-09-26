@@ -67,16 +67,16 @@ public class SslTest extends TransportTest {
         }
     }
 
-    private static final char[] PASSWORD = "KeyPass".toCharArray();
+    private static final char[] PASSWORD = "StorePass".toCharArray();
 
     private static KeyStore readKeyStore(final String name) {
-        return SslSetup.readKeyStore(InputStreamSupplier.create("../../certificates/" + name), "StorePass".toCharArray());
+        return SslSetup.readKeyStore(InputStreamSupplier.create("../../certificates/" + name), PASSWORD);
     }
 
-    private static final KeyStore SERVER_KEY = readKeyStore("Server.key.jks");
-    private static final KeyStore SERVER_CERT = readKeyStore("Server.cert.jks");
-    private static final KeyStore CLIENTCA_CERT = readKeyStore("ClientCA.cert.jks");
-    private static final KeyStore CLIENT_KEY = readKeyStore("Client.key.jks");
+    private static final KeyStore SERVER_KEY = readKeyStore("Server.key.pkcs12");
+    private static final KeyStore SERVER_CERT = readKeyStore("Server.cert.pkcs12");
+    private static final KeyStore CLIENTCA_CERT = readKeyStore("ClientCA.cert.pkcs12");
+    private static final KeyStore CLIENT_KEY = readKeyStore("Client.key.pkcs12");
 
     private static final String PROTOCOL = "TLSv1.2";
     private static final String CIPHER = "TLS_RSA_WITH_AES_128_CBC_SHA";

@@ -39,6 +39,7 @@ subprojects {
     tasks.withType(Javadoc) {
         // note: https://discuss.gradle.org/t/how-to-send-x-option-to-javadoc/23384
         options.addStringOption('Xdoclint:all,-missing', '-quiet')
+        options.addStringOption('html5', '-quiet')
     }
 
     task packageSources(type: Jar) {
@@ -83,11 +84,11 @@ subprojects {
 
     apply plugin: 'osgi'
 
-    apply plugin: 'findbugs'
+    /* $$$ (does not yet work with java 9) apply plugin: 'findbugs'
 
     findbugs {
         sourceSets = [sourceSets.main]
-    }
+    } */
 
 }
 

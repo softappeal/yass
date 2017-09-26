@@ -7,7 +7,6 @@ import javax.websocket.MessageHandler;
 import javax.websocket.Session;
 import javax.websocket.WebSocketContainer;
 import java.net.URI;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -38,7 +37,7 @@ public final class Client {
             ClientEndpointConfig.Builder.create()
                 .configurator(new ClientEndpointConfig.Configurator() {
                     @Override public void beforeRequest(final Map<String, List<String>> headers) {
-                        headers.put("Custom_" + System.currentTimeMillis(), Collections.singletonList("foo"));
+                        headers.put("Custom_" + System.currentTimeMillis(), List.of("foo"));
                     }
                 })
                 .build(),

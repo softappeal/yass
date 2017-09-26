@@ -21,7 +21,6 @@ import java.lang.reflect.Parameter;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -52,7 +51,7 @@ public final class PythonGenerator extends Generator {
         h.add((BaseTypeHandler<?>)DOUBLE_DESC.handler);
         h.add((BaseTypeHandler<?>)STRING_DESC.handler);
         h.add((BaseTypeHandler<?>)BYTES_DESC.handler);
-        h.addAll(Arrays.asList(handlers));
+        h.addAll(List.of(handlers));
         return h;
     }
 
@@ -62,7 +61,7 @@ public final class PythonGenerator extends Generator {
         d.add(DOUBLE_DESC);
         d.add(STRING_DESC);
         d.add(BYTES_DESC);
-        d.addAll(Arrays.asList(descs));
+        d.addAll(List.of(descs));
         return d;
     }
 

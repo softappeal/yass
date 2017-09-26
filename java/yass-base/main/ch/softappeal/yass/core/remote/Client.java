@@ -7,7 +7,7 @@ import ch.softappeal.yass.util.Nullable;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.util.Arrays;
-import java.util.Collections;
+import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
@@ -26,7 +26,7 @@ public abstract class Client {
             final MethodMapper.Mapping methodMapping, final @Nullable Object[] arguments, final @Nullable InterceptorAsync<Object> interceptor,
             final @Nullable CompletableFuture<?> promise, final int serviceId
         ) {
-            super(methodMapping, (arguments == null) ? Collections.emptyList() : Arrays.asList(arguments), interceptor);
+            super(methodMapping, (arguments == null) ? List.of() : Arrays.asList(arguments), interceptor);
             this.promise = promise;
             this.serviceId = serviceId;
         }

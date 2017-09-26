@@ -66,9 +66,8 @@ public final class SimpleSocketTransport extends SocketListener {
         out.flush();
     }
 
-    @SuppressWarnings("try")
     @Override void accept(final Socket socket) throws Exception {
-        try (Socket closer = socket) {
+        try (socket) {
             final @Nullable Socket oldSocket = SOCKET.get();
             SOCKET.set(socket);
             try {

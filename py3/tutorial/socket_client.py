@@ -120,7 +120,7 @@ def sslContext(trustStore: str, keyStore: str) -> SSLContext:
     sslContext.verify_mode = CERT_REQUIRED
     storePath = "../../certificates/"
     sslContext.load_verify_locations(storePath + trustStore)
-    sslContext.load_cert_chain(storePath + keyStore, password="KeyPass")
+    sslContext.load_cert_chain(storePath + keyStore, password="StorePass")
     sslContext.set_ciphers("AES128-SHA")
     return sslContext
 

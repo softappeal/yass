@@ -3,7 +3,6 @@ package ch.softappeal.yass.serialize.fast;
 import ch.softappeal.yass.util.Reflect;
 
 import java.lang.reflect.Field;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -58,7 +57,7 @@ public final class SimpleFastSerializer extends FastSerializer {
         final List<BaseTypeHandler<?>> baseTypeHandlers,
         final List<Class<?>> concreteClasses
     ) {
-        this(instantiators, baseTypeHandlers, concreteClasses, Collections.emptyList());
+        this(instantiators, baseTypeHandlers, concreteClasses, List.of());
     }
 
 }

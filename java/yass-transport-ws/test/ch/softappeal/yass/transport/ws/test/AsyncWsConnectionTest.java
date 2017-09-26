@@ -31,7 +31,7 @@ import javax.websocket.Endpoint;
 import javax.websocket.WebSocketContainer;
 import javax.websocket.server.ServerEndpointConfig;
 import java.net.URI;
-import java.util.Collections;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 public final class AsyncWsConnectionTest {
@@ -143,7 +143,7 @@ public final class AsyncWsConnectionTest {
                 DefaultClassIntrospector.INSTANCE,
                 Xnio.getInstance().createWorker(OptionMap.create(Options.THREAD_DAEMON, true)),
                 new XnioByteBufferPool(new ByteBufferSlicePool(1024, 10240)),
-                Collections.singletonList(new ContextClassLoaderSetupAction(ClassLoader.getSystemClassLoader())),
+                List.of(new ContextClassLoaderSetupAction(ClassLoader.getSystemClassLoader())),
                 true,
                 true
             ));

@@ -8,7 +8,7 @@ import ch.softappeal.yass.tutorial.contract.PriceListener;
 
 import java.net.InetSocketAddress;
 import java.nio.channels.DatagramChannel;
-import java.util.Collections;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 public final class PriceSender {
@@ -25,8 +25,8 @@ public final class PriceSender {
         final PriceListener priceListenerAsk = clientAsk.proxy(Config.INITIATOR.priceListener);
         for (int value = 1; true; value++) {
             System.out.println("sending BID and ASK: " + value);
-            priceListenerBid.newPrices(Collections.singletonList(new Price(123, value, PriceKind.BID)));
-            priceListenerAsk.newPrices(Collections.singletonList(new Price(123, value, PriceKind.ASK)));
+            priceListenerBid.newPrices(List.of(new Price(123, value, PriceKind.BID)));
+            priceListenerAsk.newPrices(List.of(new Price(123, value, PriceKind.ASK)));
             TimeUnit.MILLISECONDS.sleep(100);
         }
     }

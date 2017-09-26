@@ -22,7 +22,6 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -163,7 +162,7 @@ public final class Compiler {
             sources.add(source);
             javaFileManager.putFileForInput((dotPos == -1) ? "" : qualifiedClassName.substring(0, dotPos), className + JAVA_EXT, source);
         });
-        if (!compiler.getTask(null, javaFileManager, diagnostics, Arrays.asList(options), null, sources).call()) {
+        if (!compiler.getTask(null, javaFileManager, diagnostics, List.of(options), null, sources).call()) {
             throw new RuntimeException(toString("Compilation failed.", diagnostics));
         }
         if (!diagnostics.getDiagnostics().isEmpty()) {

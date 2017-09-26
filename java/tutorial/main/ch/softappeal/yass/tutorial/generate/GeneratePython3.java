@@ -3,19 +3,25 @@ package ch.softappeal.yass.tutorial.generate;
 import ch.softappeal.yass.generate.PythonGenerator;
 import ch.softappeal.yass.tutorial.contract.Config;
 
-import java.util.HashMap;
 import java.util.Map;
 
 public final class GeneratePython3 {
 
     public static void main(final String... args) throws Exception {
-        final Map<String, String> module2includeFile = new HashMap<>();
-        module2includeFile.put("", "../../py3/tutorial/contract_include_root_module.txt");
-        final Map<Class<?>, PythonGenerator.ExternalDesc> externalTypes = new HashMap<>();
-        externalTypes.put(Integer.class, new PythonGenerator.ExternalDesc("Integer", "Integer.TYPE_DESC")); // shows how to use a contract external base type
         new PythonGenerator(
-            Config.class.getPackage().getName(), Config.PY_CONTRACT_SERIALIZER, Config.INITIATOR, Config.PY_ACCEPTOR, true,
-            "../../py3/tutorial/contract_include_each_module.txt", module2includeFile, externalTypes, "build/generated/py3"
+            Config.class.getPackage().getName(),
+            Config.PY_CONTRACT_SERIALIZER,
+            Config.INITIATOR,
+            Config.PY_ACCEPTOR,
+            true,
+            "../../py3/tutorial/contract_include_each_module.txt",
+            Map.of( // module2includeFile
+                "", "../../py3/tutorial/contract_include_root_module.txt"
+            ),
+            Map.of( // shows how to use a contract external base type
+                Integer.class, new PythonGenerator.ExternalDesc("Integer", "Integer.TYPE_DESC")
+            ),
+            "build/generated/py3"
         );
     }
 

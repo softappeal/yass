@@ -22,7 +22,7 @@ import ch.softappeal.yass.tutorial.contract.generic.TripleWrapper;
 import ch.softappeal.yass.tutorial.contract.instrument.InstrumentService;
 import ch.softappeal.yass.util.Nullable;
 
-import java.util.Arrays;
+import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
@@ -70,14 +70,14 @@ public final class InitiatorSession extends SimpleSession {
                 true,
                 new Pair<>(
                     "hello",
-                    Arrays.asList(new PairBoolBool(true, false), new PairBoolBool(false, true))
+                    List.of(new PairBoolBool(true, false), new PairBoolBool(false, true))
                 )
             ))
         ));
         System.out.println("genericEcho: " + Logger.dump(result));
 
         try {
-            priceEngine.subscribe(Arrays.asList(123456789, 987654321));
+            priceEngine.subscribe(List.of(123456789, 987654321));
         } catch (final UnknownInstrumentsException e) {
             e.printStackTrace(System.out);
         }

@@ -7,8 +7,8 @@ import ch.softappeal.yass.util.Tags;
 
 import java.lang.reflect.Field;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -61,7 +61,7 @@ public final class TaggedFastSerializer extends FastSerializer {
         final Collection<TypeDesc> baseTypeDescs,
         final Collection<Class<?>> concreteClasses
     ) {
-        this(instantiators, baseTypeDescs, concreteClasses, Collections.emptyList());
+        this(instantiators, baseTypeDescs, concreteClasses, List.of());
     }
 
 }

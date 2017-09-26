@@ -23,7 +23,7 @@ import ch.softappeal.yass.tutorial.contract.instrument.stock.python.PythonStock;
 import ch.softappeal.yass.util.Instantiators;
 import ch.softappeal.yass.util.unsupported.UnsupportedInstantiators;
 
-import java.util.Arrays;
+import java.util.List;
 
 public final class Config {
 
@@ -36,7 +36,7 @@ public final class Config {
             BaseTypeHandlers.INTEGER,         // TypeScriptGenerator.FIRST_DESC_ID
             Expiration.TYPE_HANDLER           // TypeScriptGenerator.FIRST_DESC_ID + 1
         ),
-        Arrays.asList(
+        List.of(
             PriceKind.class,
             Price.class,
             Stock.class,
@@ -57,7 +57,7 @@ public final class Config {
             BaseTypeHandlers.INTEGER,     // PythonGenerator.FIRST_DESC_ID
             Expiration.TYPE_HANDLER       // PythonGenerator.FIRST_DESC_ID + 1
         ),
-        Arrays.asList(
+        List.of(
             PriceKind.class,
             Price.class,
             Stock.class,
@@ -67,7 +67,7 @@ public final class Config {
             PythonBond.class,
             PythonStock.class
         ),
-        Arrays.asList(
+        List.of(
             Node.class
         )
     );

@@ -16,7 +16,7 @@ public final class BaseTypeHandlers {
         // disable
     }
 
-    public static final BaseTypeHandler<Boolean> BOOLEAN = new BaseTypeHandler<Boolean>(Boolean.class) {
+    public static final BaseTypeHandler<Boolean> BOOLEAN = new BaseTypeHandler<>(Boolean.class) {
         @Override public Boolean read(final Reader reader) throws Exception {
             return reader.readByte() != 0;
         }
@@ -25,7 +25,7 @@ public final class BaseTypeHandlers {
         }
     };
 
-    public static final BaseTypeHandler<Byte> BYTE = new BaseTypeHandler<Byte>(Byte.class) {
+    public static final BaseTypeHandler<Byte> BYTE = new BaseTypeHandler<>(Byte.class) {
         @Override public Byte read(final Reader reader) throws Exception {
             return reader.readByte();
         }
@@ -34,7 +34,7 @@ public final class BaseTypeHandlers {
         }
     };
 
-    public static final BaseTypeHandler<Short> SHORT = new BaseTypeHandler<Short>(Short.class) {
+    public static final BaseTypeHandler<Short> SHORT = new BaseTypeHandler<>(Short.class) {
         @Override public Short read(final Reader reader) throws Exception {
             return (short)reader.readZigZagInt();
         }
@@ -43,7 +43,7 @@ public final class BaseTypeHandlers {
         }
     };
 
-    public static final BaseTypeHandler<Integer> INTEGER = new BaseTypeHandler<Integer>(Integer.class) {
+    public static final BaseTypeHandler<Integer> INTEGER = new BaseTypeHandler<>(Integer.class) {
         @Override public Integer read(final Reader reader) throws Exception {
             return reader.readZigZagInt();
         }
@@ -52,7 +52,7 @@ public final class BaseTypeHandlers {
         }
     };
 
-    public static final BaseTypeHandler<Long> LONG = new BaseTypeHandler<Long>(Long.class) {
+    public static final BaseTypeHandler<Long> LONG = new BaseTypeHandler<>(Long.class) {
         @Override public Long read(final Reader reader) throws Exception {
             return reader.readZigZagLong();
         }
@@ -61,7 +61,7 @@ public final class BaseTypeHandlers {
         }
     };
 
-    public static final BaseTypeHandler<Character> CHARACTER = new BaseTypeHandler<Character>(Character.class) {
+    public static final BaseTypeHandler<Character> CHARACTER = new BaseTypeHandler<>(Character.class) {
         @Override public Character read(final Reader reader) throws Exception {
             return reader.readChar();
         }
@@ -70,7 +70,7 @@ public final class BaseTypeHandlers {
         }
     };
 
-    public static final BaseTypeHandler<Float> FLOAT = new BaseTypeHandler<Float>(Float.class) {
+    public static final BaseTypeHandler<Float> FLOAT = new BaseTypeHandler<>(Float.class) {
         @Override public Float read(final Reader reader) throws Exception {
             return reader.readFloat();
         }
@@ -79,7 +79,7 @@ public final class BaseTypeHandlers {
         }
     };
 
-    public static final BaseTypeHandler<Double> DOUBLE = new BaseTypeHandler<Double>(Double.class) {
+    public static final BaseTypeHandler<Double> DOUBLE = new BaseTypeHandler<>(Double.class) {
         @Override public Double read(final Reader reader) throws Exception {
             return reader.readDouble();
         }
@@ -88,7 +88,7 @@ public final class BaseTypeHandlers {
         }
     };
 
-    public static final BaseTypeHandler<boolean[]> BOOLEAN_ARRAY = new BaseTypeHandler<boolean[]>(boolean[].class) {
+    public static final BaseTypeHandler<boolean[]> BOOLEAN_ARRAY = new BaseTypeHandler<>(boolean[].class) {
         @Override public boolean[] read(final Reader reader) throws Exception {
             final int length = reader.readVarInt();
             boolean[] value = new boolean[Math.min(length, 128)];
@@ -108,7 +108,7 @@ public final class BaseTypeHandlers {
         }
     };
 
-    public static final BaseTypeHandler<byte[]> BYTE_ARRAY = new BaseTypeHandler<byte[]>(byte[].class) {
+    public static final BaseTypeHandler<byte[]> BYTE_ARRAY = new BaseTypeHandler<>(byte[].class) {
         @Override public byte[] read(final Reader reader) throws Exception {
             final int length = reader.readVarInt();
             byte[] value = new byte[Math.min(length, 128)];
@@ -129,7 +129,7 @@ public final class BaseTypeHandlers {
         }
     };
 
-    public static final BaseTypeHandler<short[]> SHORT_ARRAY = new BaseTypeHandler<short[]>(short[].class) {
+    public static final BaseTypeHandler<short[]> SHORT_ARRAY = new BaseTypeHandler<>(short[].class) {
         @Override public short[] read(final Reader reader) throws Exception {
             final int length = reader.readVarInt();
             short[] value = new short[Math.min(length, 64)];
@@ -149,7 +149,7 @@ public final class BaseTypeHandlers {
         }
     };
 
-    public static final BaseTypeHandler<int[]> INTEGER_ARRAY = new BaseTypeHandler<int[]>(int[].class) {
+    public static final BaseTypeHandler<int[]> INTEGER_ARRAY = new BaseTypeHandler<>(int[].class) {
         @Override public int[] read(final Reader reader) throws Exception {
             final int length = reader.readVarInt();
             int[] value = new int[Math.min(length, 32)];
@@ -169,7 +169,7 @@ public final class BaseTypeHandlers {
         }
     };
 
-    public static final BaseTypeHandler<long[]> LONG_ARRAY = new BaseTypeHandler<long[]>(long[].class) {
+    public static final BaseTypeHandler<long[]> LONG_ARRAY = new BaseTypeHandler<>(long[].class) {
         @Override public long[] read(final Reader reader) throws Exception {
             final int length = reader.readVarInt();
             long[] value = new long[Math.min(length, 16)];
@@ -189,7 +189,7 @@ public final class BaseTypeHandlers {
         }
     };
 
-    public static final BaseTypeHandler<char[]> CHARACTER_ARRAY = new BaseTypeHandler<char[]>(char[].class) {
+    public static final BaseTypeHandler<char[]> CHARACTER_ARRAY = new BaseTypeHandler<>(char[].class) {
         @Override public char[] read(final Reader reader) throws Exception {
             final int length = reader.readVarInt();
             char[] value = new char[Math.min(length, 64)];
@@ -209,7 +209,7 @@ public final class BaseTypeHandlers {
         }
     };
 
-    public static final BaseTypeHandler<float[]> FLOAT_ARRAY = new BaseTypeHandler<float[]>(float[].class) {
+    public static final BaseTypeHandler<float[]> FLOAT_ARRAY = new BaseTypeHandler<>(float[].class) {
         @Override public float[] read(final Reader reader) throws Exception {
             final int length = reader.readVarInt();
             float[] value = new float[Math.min(length, 32)];
@@ -229,7 +229,7 @@ public final class BaseTypeHandlers {
         }
     };
 
-    public static final BaseTypeHandler<double[]> DOUBLE_ARRAY = new BaseTypeHandler<double[]>(double[].class) {
+    public static final BaseTypeHandler<double[]> DOUBLE_ARRAY = new BaseTypeHandler<>(double[].class) {
         @Override public double[] read(final Reader reader) throws Exception {
             final int length = reader.readVarInt();
             double[] value = new double[Math.min(length, 16)];
@@ -249,7 +249,7 @@ public final class BaseTypeHandlers {
         }
     };
 
-    public static final BaseTypeHandler<String> STRING = new BaseTypeHandler<String>(String.class) {
+    public static final BaseTypeHandler<String> STRING = new BaseTypeHandler<>(String.class) {
         @Override public String read(final Reader reader) throws Exception {
             return Utf8.string(BYTE_ARRAY.read(reader));
         }
@@ -258,7 +258,7 @@ public final class BaseTypeHandlers {
         }
     };
 
-    public static final BaseTypeHandler<Date> DATE = new BaseTypeHandler<Date>(Date.class) {
+    public static final BaseTypeHandler<Date> DATE = new BaseTypeHandler<>(Date.class) {
         @Override public Date read(final Reader reader) throws Exception {
             return new Date(LONG.read(reader));
         }
@@ -267,7 +267,7 @@ public final class BaseTypeHandlers {
         }
     };
 
-    public static final BaseTypeHandler<Instant> INSTANT = new BaseTypeHandler<Instant>(Instant.class) {
+    public static final BaseTypeHandler<Instant> INSTANT = new BaseTypeHandler<>(Instant.class) {
         @Override public Instant read(final Reader reader) throws Exception {
             return Instant.ofEpochSecond(LONG.read(reader), reader.readVarInt());
         }
@@ -277,7 +277,7 @@ public final class BaseTypeHandlers {
         }
     };
 
-    public static final BaseTypeHandler<BigInteger> BIGINTEGER = new BaseTypeHandler<BigInteger>(BigInteger.class) {
+    public static final BaseTypeHandler<BigInteger> BIGINTEGER = new BaseTypeHandler<>(BigInteger.class) {
         @Override public BigInteger read(final Reader reader) throws Exception {
             return new BigInteger(BYTE_ARRAY.read(reader));
         }
@@ -286,7 +286,7 @@ public final class BaseTypeHandlers {
         }
     };
 
-    public static final BaseTypeHandler<BigDecimal> BIGDECIMAL = new BaseTypeHandler<BigDecimal>(BigDecimal.class) {
+    public static final BaseTypeHandler<BigDecimal> BIGDECIMAL = new BaseTypeHandler<>(BigDecimal.class) {
         @Override public BigDecimal read(final Reader reader) throws Exception {
             return new BigDecimal(BIGINTEGER.read(reader), INTEGER.read(reader));
         }

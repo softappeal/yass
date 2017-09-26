@@ -15,7 +15,7 @@ import org.junit.Test;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.EOFException;
-import java.util.ArrayList;
+import java.util.List;
 
 public class JavaSerializerTest {
 
@@ -46,7 +46,7 @@ public class JavaSerializerTest {
         final Packet packet = copy(
             new Packet(
                 requestNumber,
-                new Request(serviceId, methodId, new ArrayList<>())
+                new Request(serviceId, methodId, List.of())
             )
         );
         Assert.assertTrue(packet.requestNumber() == requestNumber);

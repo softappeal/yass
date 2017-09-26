@@ -9,7 +9,6 @@ import javax.websocket.server.HandshakeRequest;
 import javax.websocket.server.ServerApplicationConfig;
 import javax.websocket.server.ServerEndpointConfig;
 import java.nio.ByteBuffer;
-import java.util.Collections;
 import java.util.Set;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
@@ -64,11 +63,11 @@ public final class ApplicationConfig implements ServerApplicationConfig {
 
     @Override public Set<ServerEndpointConfig> getEndpointConfigs(final Set<Class<? extends Endpoint>> endpointClasses) {
         System.out.println("ApplicationConfig");
-        return Collections.singleton(ENDPOINT_CONFIG);
+        return Set.of(ENDPOINT_CONFIG);
     }
 
     @Override public Set<Class<?>> getAnnotatedEndpointClasses(final Set<Class<?>> scanned) {
-        return Collections.emptySet();
+        return Set.of();
     }
 
 }

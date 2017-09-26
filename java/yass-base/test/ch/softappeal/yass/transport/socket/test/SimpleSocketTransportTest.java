@@ -14,7 +14,6 @@ import ch.softappeal.yass.util.NamedThreadFactory;
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -89,25 +88,25 @@ public class SimpleSocketTransportTest extends TransportTest {
         final ExecutorService executor = Executors.newCachedThreadPool(new NamedThreadFactory("executor", Exceptions.TERMINATE));
         final Integer path1 = 1;
         final Integer path2 = 2;
-        final Map<Integer, SimpleTransportSetup> pathMappings = new HashMap<>(2);
-        pathMappings.put(path1, new SimpleTransportSetup(MESSAGE_SERIALIZER, new Server(ECHO_ID.service(new EchoServiceImpl(), (method, arguments, invocation) -> {
-            System.out.println("path 1");
-            return invocation.proceed();
-        }))));
-        pathMappings.put(path2, new SimpleTransportSetup(MESSAGE_SERIALIZER, new Server(ECHO_ID.service(new EchoServiceImpl(), (method, arguments, invocation) -> {
-            System.out.println("path 2");
-            return invocation.proceed();
-        }))));
         try (
             Closer closer = new SimpleSocketTransport(
                 executor,
                 PathSerializer.INSTANCE,
-                new SimplePathResolver(pathMappings)
+                new SimplePathResolver(Map.of(
+                    path1, new SimpleTransportSetup(MESSAGE_SERIALIZER, new Server(ECHO_ID.service(new EchoServiceImpl(), (method, arguments, invocation) -> {
+                        System.out.println("path 1");
+                        return invocation.proceed();
+                    }))),
+                    path2, new SimpleTransportSetup(MESSAGE_SERIALIZER, new Server(ECHO_ID.service(new EchoServiceImpl(), (method, arguments, invocation) -> {
+                        System.out.println("path 2");
+                        return invocation.proceed();
+                    })))
+                ))
             ).start(executor, SocketTransportTest.BINDER)
         ) {
-            SimpleSocketTransport.client(MESSAGE_SERIALIZER, SocketTransportTest.CONNECTOR, PathSerializer.INSTANCE, 1)
+            SimpleSocketTransport.client(MESSAGE_SERIALIZER, SocketTransportTest.CONNECTOR, PathSerializer.INSTANCE, path1)
                 .proxy(ECHO_ID).echo(null);
-            SimpleSocketTransport.client(MESSAGE_SERIALIZER, SocketTransportTest.CONNECTOR, PathSerializer.INSTANCE, 2)
+            SimpleSocketTransport.client(MESSAGE_SERIALIZER, SocketTransportTest.CONNECTOR, PathSerializer.INSTANCE, path2)
                 .proxy(ECHO_ID).echo(null);
         } finally {
             delayedShutdown(executor);

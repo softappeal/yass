@@ -12,16 +12,16 @@ import org.junit.Test;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.util.Collections;
+import java.util.List;
 
 public class SourceSerializerTest {
 
     private static void check(final boolean initiator, final byte[] wire) throws Exception {
         final Serializer contractSerializer = new SimpleFastSerializer(
             Instantiators.NOARG,
-            Collections.singletonList(BaseTypeHandlers.BYTE_ARRAY),
-            Collections.emptyList(),
-            Collections.emptyList()
+            List.of(BaseTypeHandlers.BYTE_ARRAY),
+            List.of(),
+            List.of()
         );
         final Serializer serializer = new PrinterSerializer(
             initiator ? SourceSerializer.initiator(contractSerializer) : SourceSerializer.acceptor(contractSerializer)

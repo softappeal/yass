@@ -10,7 +10,6 @@ import java.io.PrintWriter;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.time.Instant;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -48,7 +47,7 @@ public class DumperTest {
                     if (cycles) {
                         dump(dumper, s, SerializerTest.createGraph());
                     }
-                    dump(dumper, s, Arrays.asList("one", "two", "three").toArray());
+                    dump(dumper, s, new Object[] {"one", "two", "three"});
                     final Map<Integer, String> int2string = new LinkedHashMap<>();
                     int2string.put(1, "one");
                     int2string.put(2, null);

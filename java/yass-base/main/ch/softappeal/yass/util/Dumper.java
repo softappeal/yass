@@ -2,9 +2,7 @@ package ch.softappeal.yass.util;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
-import java.util.Arrays;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
@@ -14,9 +12,9 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class Dumper {
 
-    private static final Set<Class<?>> PRIMITIVE_WRAPPER_CLASSES = new HashSet<>(Arrays.asList(
+    private static final Set<Class<?>> PRIMITIVE_WRAPPER_CLASSES = Set.of(
         Boolean.class, Byte.class, Short.class, Integer.class, Long.class, Float.class, Double.class
-    ));
+    );
 
     private final boolean compact;
     private final boolean referenceables;
@@ -37,7 +35,7 @@ public class Dumper {
         if (!referenceables && (concreteValueClasses.length != 0)) {
             throw new IllegalArgumentException("concreteValueClasses only allowed if (referenceables)");
         }
-        this.concreteValueClasses = new HashSet<>(Arrays.asList(concreteValueClasses));
+        this.concreteValueClasses = Set.of(concreteValueClasses);
     }
 
     public final StringBuilder append(final StringBuilder s, final @Nullable Object value) {

@@ -13,7 +13,7 @@ import org.xnio.OptionMap;
 import org.xnio.Options;
 import org.xnio.Xnio;
 
-import java.util.Collections;
+import java.util.List;
 import java.util.concurrent.CountDownLatch;
 
 public abstract class UndertowTest extends WsTest {
@@ -45,7 +45,7 @@ public abstract class UndertowTest extends WsTest {
                 DefaultClassIntrospector.INSTANCE,
                 xnio.createWorker(OptionMap.create(Options.THREAD_DAEMON, true)),
                 new XnioByteBufferPool(new ByteBufferSlicePool(1024, 10240)),
-                Collections.singletonList(new ContextClassLoaderSetupAction(ClassLoader.getSystemClassLoader())),
+                List.of(new ContextClassLoaderSetupAction(ClassLoader.getSystemClassLoader())),
                 true,
                 true
             ),

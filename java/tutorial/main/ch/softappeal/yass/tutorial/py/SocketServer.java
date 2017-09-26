@@ -16,7 +16,6 @@ import ch.softappeal.yass.util.NamedThreadFactory;
 import ch.softappeal.yass.util.Nullable;
 
 import javax.net.ssl.SSLSocket;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
@@ -36,7 +35,7 @@ public final class SocketServer {
 
     private static final class InstrumentServiceImpl implements InstrumentService {
         @Override public List<Instrument> getInstruments() {
-            return new ArrayList<>();
+            return List.of();
         }
         @Override public void showOneWay(final boolean testBoolean, final int testInt) {
             // empty

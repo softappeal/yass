@@ -12,15 +12,15 @@ import org.junit.Test;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.util.Collections;
+import java.util.List;
 
 public class FrameSerializerTest {
 
     private static final Serializer SERIALIZER = new PrinterSerializer(new FrameSerializer(new SimpleFastSerializer(
         Instantiators.NOARG,
-        Collections.singletonList(BaseTypeHandlers.BYTE_ARRAY),
-        Collections.emptyList(),
-        Collections.emptyList()
+        List.of(BaseTypeHandlers.BYTE_ARRAY),
+        List.of(),
+        List.of()
     )));
 
     private static void check(final byte[] raw, final byte[] wire) throws Exception {

@@ -175,13 +175,8 @@ public abstract class Reader {
                 return (byte)i;
             }
             @Override public void readBytes(final byte[] buffer, final int offset, final int length) throws IOException {
-                int n = 0;
-                while (n < length) {
-                    final int count = in.read(buffer, offset + n, length - n);
-                    if (count < 0) {
-                        throw new EOFException();
-                    }
-                    n += count;
+                if (in.readNBytes(buffer, offset, length) != length) {
+                    throw new EOFException();
                 }
             }
         };

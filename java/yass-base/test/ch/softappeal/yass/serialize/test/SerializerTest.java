@@ -20,7 +20,6 @@ import org.junit.Test;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
@@ -211,9 +210,9 @@ public class SerializerTest {
         Assert.assertArrayEquals(new char[] {'a', 'b'}, JavaSerializerTest.copy(serializer, new char[] {'a', 'b'}));
         Assert.assertArrayEquals(new float[] {1f, 2f}, JavaSerializerTest.copy(serializer, new float[] {1f, 2f}), 0f);
         Assert.assertArrayEquals(new double[] {1d, 2d}, JavaSerializerTest.copy(serializer, new double[] {1d, 2d}), 0d);
-        Assert.assertEquals(new ArrayList<>(), JavaSerializerTest.copy(serializer, new ArrayList<>()));
+        Assert.assertEquals(List.of(), JavaSerializerTest.copy(serializer, List.of()));
         Assert.assertEquals(Arrays.asList(1, null, "2"), JavaSerializerTest.copy(serializer, Arrays.asList(1, null, "2")));
-        Assert.assertEquals(new ArrayList<>(), JavaSerializerTest.copy(serializer, new ArrayList<>()));
+        Assert.assertEquals(List.of(), JavaSerializerTest.copy(serializer, List.of()));
         Assert.assertEquals(Arrays.asList("1", null, "2"), JavaSerializerTest.copy(serializer, Arrays.asList("1", null, "2")));
         Assert.assertTrue(JavaSerializerTest.copy(serializer, new AllTypes()).getClass() == AllTypes.class);
         Assert.assertTrue(JavaSerializerTest.copy(serializer, new PrimitiveTypes()).getClass() == PrimitiveTypes.class);
@@ -261,7 +260,7 @@ public class SerializerTest {
 
     public static final FastSerializer TAGGED_FAST_SERIALIZER = new TaggedFastSerializer(
         UnsupportedInstantiators.UNSAFE,
-        Arrays.asList(
+        List.of(
             new TypeDesc(3, BaseTypeHandlers.BOOLEAN),
             new TypeDesc(4, BaseTypeHandlers.BYTE),
             new TypeDesc(5, BaseTypeHandlers.SHORT),
@@ -284,8 +283,8 @@ public class SerializerTest {
             new TypeDesc(22, BaseTypeHandlers.DATE),
             new TypeDesc(23, BaseTypeHandlers.INSTANT)
         ),
-        Arrays.asList(Color.class, PrimitiveTypes.class, AllTypes.class, IntException.class),
-        Arrays.asList(Node.class)
+        List.of(Color.class, PrimitiveTypes.class, AllTypes.class, IntException.class),
+        List.of(Node.class)
     );
 
     @Test public void taggedFast() throws Exception {
@@ -294,7 +293,7 @@ public class SerializerTest {
 
     public static final FastSerializer SIMPLE_FAST_SERIALIZER = new SimpleFastSerializer(
         Instantiators.NOARG,
-        Arrays.asList(
+        List.of(
             BaseTypeHandlers.BOOLEAN,
             BaseTypeHandlers.BYTE,
             BaseTypeHandlers.SHORT,
@@ -317,8 +316,8 @@ public class SerializerTest {
             BaseTypeHandlers.DATE,
             BaseTypeHandlers.INSTANT
         ),
-        Arrays.asList(Color.class, PrimitiveTypes.class, AllTypes.class, IntException.class),
-        Arrays.asList(Node.class)
+        List.of(Color.class, PrimitiveTypes.class, AllTypes.class, IntException.class),
+        List.of(Node.class)
     );
 
     @Test public void simpleFast() throws Exception {

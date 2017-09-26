@@ -26,7 +26,7 @@ public final class Expiration {
         this.day = day;
     }
 
-    public static final BaseTypeHandler<?> TYPE_HANDLER = new BaseTypeHandler<Expiration>(Expiration.class) {
+    public static final BaseTypeHandler<?> TYPE_HANDLER = new BaseTypeHandler<>(Expiration.class) {
         @Override public Expiration read(final Reader reader) throws Exception {
             return new Expiration(
                 BaseTypeHandlers.INTEGER.read(reader),

@@ -14,7 +14,6 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
@@ -25,13 +24,13 @@ import java.util.stream.Collectors;
 
 public abstract class Generator {
 
-    private static final Set<Type> ROOT_CLASSES = new HashSet<>(Arrays.asList(
+    private static final Set<Type> ROOT_CLASSES = Set.of(
         Object.class,
         Exception.class,
         RuntimeException.class,
         Error.class,
         Throwable.class
-    ));
+    );
 
     protected static boolean isRootClass(final Class<?> type) {
         return ROOT_CLASSES.contains(Objects.requireNonNull(type));
@@ -59,7 +58,7 @@ public abstract class Generator {
 
     private static Set<Class<?>> getInterfaces(final @Nullable Services services) throws Exception {
         if (services == null) {
-            return new HashSet<>();
+            return Set.of();
         }
         return getServiceDescs(services).stream().map(serviceDesc -> serviceDesc.contractId.contract).collect(Collectors.toSet());
     }

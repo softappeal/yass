@@ -9,8 +9,7 @@ import ch.softappeal.yass.transport.TransportSetup;
 import ch.softappeal.yass.util.Instantiators;
 import ch.softappeal.yass.util.Nullable;
 
-import java.util.Arrays;
-import java.util.Collections;
+import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executor;
 
@@ -18,8 +17,8 @@ public abstract class TransportTest extends SessionTest {
 
     private static final Serializer CONTRACT_SERIALIZER = new SimpleFastSerializer(
         Instantiators.NOARG,
-        Arrays.asList(BaseTypeHandlers.INTEGER, BaseTypeHandlers.BYTE_ARRAY),
-        Collections.singletonList(DivisionByZeroException.class)
+        List.of(BaseTypeHandlers.INTEGER, BaseTypeHandlers.BYTE_ARRAY),
+        List.of(DivisionByZeroException.class)
     );
 
     protected static final Serializer MESSAGE_SERIALIZER = new MessageSerializer(CONTRACT_SERIALIZER);

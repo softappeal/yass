@@ -21,7 +21,6 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -49,7 +48,7 @@ public final class TypeScriptGenerator extends Generator {
         h.add((BaseTypeHandler<?>)DOUBLE_DESC.handler);
         h.add((BaseTypeHandler<?>)STRING_DESC.handler);
         h.add((BaseTypeHandler<?>)BYTES_DESC.handler);
-        h.addAll(Arrays.asList(handlers));
+        h.addAll(List.of(handlers));
         return h;
     }
 
@@ -59,7 +58,7 @@ public final class TypeScriptGenerator extends Generator {
         d.add(DOUBLE_DESC);
         d.add(STRING_DESC);
         d.add(BYTES_DESC);
-        d.addAll(Arrays.asList(descs));
+        d.addAll(List.of(descs));
         return d;
     }
 
@@ -244,8 +243,8 @@ public final class TypeScriptGenerator extends Generator {
             SimpleMethodMapper.FACTORY.create(type); // checks for overloaded methods (JavaScript restriction)
             final Method[] methods = getMethods(type);
             final MethodMapper methodMapper = methodMapper(type);
-            generateType(type, new Consumer<String>() {
-                void generateInterface(final String name, final boolean implementation) {
+            generateType(type, new Consumer<>() {
+                private void generateInterface(final String name, final boolean implementation) {
                     tabsln("export namespace %s {", implementation ? "impl" : "proxy");
                     inc();
                     tabsln("export interface %s {", name);

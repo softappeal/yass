@@ -9,7 +9,7 @@ import org.xnio.OptionMap;
 import org.xnio.Options;
 import org.xnio.Xnio;
 
-import java.util.Collections;
+import java.util.List;
 
 public final class UndertowInitiator extends WebInitiatorSetup {
 
@@ -18,7 +18,7 @@ public final class UndertowInitiator extends WebInitiatorSetup {
             DefaultClassIntrospector.INSTANCE,
             Xnio.getInstance().createWorker(OptionMap.create(Options.THREAD_DAEMON, true)),
             new XnioByteBufferPool(new ByteBufferSlicePool(1024, 10240)),
-            Collections.singletonList(new ContextClassLoaderSetupAction(ClassLoader.getSystemClassLoader())),
+            List.of(new ContextClassLoaderSetupAction(ClassLoader.getSystemClassLoader())),
             true,
             true
         ));

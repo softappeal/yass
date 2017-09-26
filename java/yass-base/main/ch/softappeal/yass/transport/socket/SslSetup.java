@@ -117,9 +117,9 @@ public final class SslSetup {
         }
     };
 
-    public static KeyStore readKeyStore(final InputStreamSupplier keyStore, final @Nullable char[] keyStorePwd) {
+    public static KeyStore readKeyStore(final String keyStoreType, final InputStreamSupplier keyStore, final @Nullable char[] keyStorePwd) {
         try {
-            final KeyStore ks = KeyStore.getInstance("JKS");
+            final KeyStore ks = KeyStore.getInstance(keyStoreType);
             try (InputStream in = keyStore.get()) {
                 ks.load(in, keyStorePwd);
             }
@@ -127,6 +127,10 @@ public final class SslSetup {
         } catch (final Exception e) {
             throw Exceptions.wrap(e);
         }
+    }
+
+    public static KeyStore readKeyStore(final InputStreamSupplier keyStore, final @Nullable char[] keyStorePwd) {
+        return readKeyStore("PKCS12", keyStore, keyStorePwd);
     }
 
 }
