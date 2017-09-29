@@ -1,22 +1,20 @@
 @echo off
 
-set JAVA_HOME=C:\Program Files\Java\jdk1.8.0_144
-
 set version=0.0.0
 set /p version=Version [ MAJOR.MINOR.PATCH or 'enter' for %version% ]?:
 
-cmd /c .\gradlew.bat -Pversion=%version%
+call .\gradle -Pversion=%version%
 
 pushd ts
-call compile.bat
+call .\compile
 popd
 
 pushd py3
-call tests.bat
+call .\tests
 popd
 
 pushd py2
-call tests.bat
+call .\tests
 popd
 
 pause
