@@ -49,7 +49,10 @@ public final class TaggedFastSerializer extends FastSerializer {
                 addClass(type, false);
             }
         });
-        referenceableConcreteClasses.forEach(type -> addClass(type, true));
+        referenceableConcreteClasses.forEach(type -> {
+            checkClass(type);
+            addClass(type, true);
+        });
         fixupFields();
     }
 

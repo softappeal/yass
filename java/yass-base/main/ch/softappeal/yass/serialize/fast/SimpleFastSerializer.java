@@ -47,6 +47,7 @@ public final class SimpleFastSerializer extends FastSerializer {
             }
         }
         for (final Class<?> type : referenceableConcreteClasses) {
+            checkClass(type);
             addClass(id++, type, true);
         }
         fixupFields();

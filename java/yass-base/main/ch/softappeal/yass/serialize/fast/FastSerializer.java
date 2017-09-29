@@ -82,11 +82,15 @@ public abstract class FastSerializer implements Serializer {
         }));
     }
 
+    protected final void checkClass(final Class<?> type) {
+        if (type.isEnum()) {
+            throw new IllegalArgumentException("type '" + type.getCanonicalName() + "' is an enumeration");
+        }
+    }
+
     protected final void addClass(final int id, final Class<?> type, final boolean referenceable, final Map<Integer, Field> id2field) {
         if (Modifier.isAbstract(type.getModifiers())) {
             throw new IllegalArgumentException("type '" + type.getCanonicalName() + "' is abstract");
-        } else if (type.isEnum()) {
-            throw new IllegalArgumentException("type '" + type.getCanonicalName() + "' is an enumeration");
         }
         final Map<Integer, FieldHandler> id2fieldHandler = new HashMap<>(id2field.size());
         final Map<String, Field> name2field = new HashMap<>(id2field.size());
