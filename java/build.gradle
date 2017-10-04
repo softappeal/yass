@@ -37,6 +37,7 @@ subprojects {
     }
 
     tasks.withType(Javadoc) {
+        // note: https://discuss.gradle.org/t/how-to-send-x-option-to-javadoc/23384
         options.addStringOption('Xdoclint:all,-missing', '-quiet')
     }
 
