@@ -13,7 +13,6 @@ import ch.softappeal.yass.util.Nullable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
@@ -75,8 +74,7 @@ public abstract class Session extends Client implements Closer {
     }
 
     private void unblockPromises() {
-        final List<Invocation> invocations = new ArrayList<>(requestNumber2invocation.values());
-        for (final Invocation invocation : invocations) {
+        for (final Invocation invocation : new ArrayList<>(requestNumber2invocation.values())) {
             try {
                 invocation.settle(new ExceptionReply(new SessionClosedException()));
             } catch (final Exception ignore) {
