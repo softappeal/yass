@@ -1,5 +1,5 @@
 dependencies {
-    compile project(":java:yass-base")
+    api project(":java:yass-base")
 }
 
 task dist(dependsOn: 'sign')

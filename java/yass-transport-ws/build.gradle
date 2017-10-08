@@ -1,5 +1,5 @@
 dependencies {
-    compile project(":java:yass-base")
+    api project(":java:yass-base")
     compileOnly websocket_dep
     testCompile project(":java:yass-base").sourceSets.test.output
     testCompile jetty_dep
