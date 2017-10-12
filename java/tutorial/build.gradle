@@ -1,23 +1,20 @@
 dependencies {
     compile project(":java:yass-unsupported")
-    compile project(":java:yass-transport-ws")
     compile project(":java:yass-generate")
-    compile jetty_dep
-    compile undertow_dep
 }
 
 task generateTypeScript(type: JavaExec) {
-    main = 'ch.softappeal.yass.tutorial.initiator.web.GenerateTypeScript'
+    main = 'ch.softappeal.yass.tutorial.generate.GenerateTypeScript'
     classpath = sourceSets.main.runtimeClasspath
 }
 
 task generatePython3(type: JavaExec) {
-    main = 'ch.softappeal.yass.tutorial.py.GeneratePython3'
+    main = 'ch.softappeal.yass.tutorial.generate.GeneratePython3'
     classpath = sourceSets.main.runtimeClasspath
 }
 
 task generatePython2(type: JavaExec) {
-    main = 'ch.softappeal.yass.tutorial.py.GeneratePython2'
+    main = 'ch.softappeal.yass.tutorial.generate.GeneratePython2'
     classpath = sourceSets.main.runtimeClasspath
 }
 

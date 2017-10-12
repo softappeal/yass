@@ -1,4 +1,4 @@
-package ch.softappeal.yass.tutorial.py;
+package ch.softappeal.yass.tutorial.generate;
 
 import ch.softappeal.yass.generate.PythonGenerator;
 import ch.softappeal.yass.tutorial.contract.Config;

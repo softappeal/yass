@@ -6,11 +6,11 @@ sourceSets {
 
 dependencies {
     compileOnly websocket_dep
-    jettyCompile sourceSets.main.output
+    jettyCompile sourceSets.main.runtimeClasspath
     jettyCompile jetty_dep
-    undertowCompile sourceSets.main.output
+    undertowCompile sourceSets.main.runtimeClasspath
     undertowCompile undertow_dep
-    tomcatCompile sourceSets.main.output
+    tomcatCompile sourceSets.main.runtimeClasspath
     tomcatCompile 'org.apache.tomcat.embed:tomcat-embed-websocket:8.5.20'
     tomcatCompile 'org.apache.tomcat.embed:tomcat-embed-logging-juli:8.5.2'
     tomcatCompile 'org.apache.tomcat:jasper:6.0.53'
