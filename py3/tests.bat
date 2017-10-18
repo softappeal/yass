@@ -1,6 +1,6 @@
 call activate py3
 
-pip install mypy==0.521
+pip install mypy==0.530
 
 python -m unittest test.all_tests
 
