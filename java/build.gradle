@@ -84,7 +84,7 @@ subprojects {
 
     apply plugin: 'osgi'
 
-    /* $$$ (does not yet work with java 9) apply plugin: 'findbugs'
+    /* $todo (does not yet work with java 9) apply plugin: 'findbugs'
 
     findbugs {
         sourceSets = [sourceSets.main]
