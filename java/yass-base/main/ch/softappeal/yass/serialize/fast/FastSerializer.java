@@ -153,7 +153,7 @@ public abstract class FastSerializer implements Serializer {
                     final ClassTypeHandler classTypeHandler = (ClassTypeHandler)typeHandler;
                     printer.println(" (referenceable=" + classTypeHandler.referenceable + ')');
                     for (final ClassTypeHandler.FieldDesc fieldDesc : classTypeHandler.fieldDescs()) {
-                        printer.println("    " + fieldDesc.id + ": " + fieldDesc.handler.field);
+                        printer.println("    " + fieldDesc.id + ": " + fieldDesc.handler.field.toGenericString());
                     }
                 }
                 printer.println();

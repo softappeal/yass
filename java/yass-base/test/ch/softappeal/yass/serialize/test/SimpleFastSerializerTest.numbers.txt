@@ -79,9 +79,9 @@
     5: public java.lang.Exception ch.softappeal.yass.serialize.contract.nested.AllTypes.exception
     6: public java.time.Instant ch.softappeal.yass.serialize.contract.nested.AllTypes.instantField
     7: public java.lang.Object ch.softappeal.yass.serialize.contract.nested.AllTypes.objectField
-    8: public java.util.List ch.softappeal.yass.serialize.contract.nested.AllTypes.objectListField
+    8: public java.util.List<java.lang.Object> ch.softappeal.yass.serialize.contract.nested.AllTypes.objectListField
     9: public ch.softappeal.yass.serialize.contract.PrimitiveTypes ch.softappeal.yass.serialize.contract.nested.AllTypes.primitiveTypesField
-    10: public java.util.List ch.softappeal.yass.serialize.contract.nested.AllTypes.primitiveTypesListField
+    10: public java.util.List<ch.softappeal.yass.serialize.contract.PrimitiveTypes> ch.softappeal.yass.serialize.contract.nested.AllTypes.primitiveTypesListField
     11: public java.lang.String ch.softappeal.yass.serialize.contract.nested.AllTypes.stringField
     12: public boolean[] ch.softappeal.yass.serialize.contract.PrimitiveTypes.booleanArrayField
     13: public boolean ch.softappeal.yass.serialize.contract.PrimitiveTypes.booleanField
