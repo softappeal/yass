@@ -1,4 +1,4 @@
-module ch.softappeal.yass.base { // $todo
+module ch.softappeal.yass.base {
     exports ch.softappeal.yass.core;
     exports ch.softappeal.yass.core.remote;
     exports ch.softappeal.yass.core.remote.session;
