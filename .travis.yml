@@ -18,7 +18,7 @@ install: true
 
 before_install:
     # node
-    - nvm install 6
+    - nvm install 8
     # python
     - wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O $HOME/miniconda.sh
     - bash $HOME/miniconda.sh -b -p $HOME/miniconda
