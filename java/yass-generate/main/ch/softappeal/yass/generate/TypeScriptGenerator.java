@@ -76,7 +76,6 @@ public final class TypeScriptGenerator extends Generator {
         private final LinkedHashMap<Class<?>, Integer> type2id = new LinkedHashMap<>();
         private final Set<Class<?>> visitedClasses = new HashSet<>();
         private final Map<Class<?>, ExternalDesc> externalTypes = new HashMap<>();
-        private final @Nullable String contractNamespace;
 
         private String jsType(final Class<?> type, final boolean externalName) {
             final @Nullable ExternalDesc externalDesc = externalTypes.get(FieldHandler.primitiveWrapperType(type));
@@ -87,7 +86,7 @@ public final class TypeScriptGenerator extends Generator {
             if (type.isArray()) {
                 throw new IllegalArgumentException("illegal type " + type.getCanonicalName() + " (use List instead [])");
             }
-            return (contractNamespace == null ? "" : contractNamespace) + qualifiedName(type);
+            return qualifiedName(type);
         }
 
         private void generateType(final Class<?> type, final Consumer<String> typeGenerator) {
@@ -317,9 +316,6 @@ public final class TypeScriptGenerator extends Generator {
                     namespace = name.substring(0, dot);
                     name = name.substring(dot);
                 }
-                if (contractNamespace != null) {
-                    namespace = contractNamespace + namespace;
-                }
                 tabsln(
                     "export const %s = new yass.ContractId<%sproxy.%s, %simpl.%s>(%s, %smapper.%s);",
                     serviceDesc.name, namespace, name, namespace, name, serviceDesc.contractId.id, namespace, name
@@ -331,7 +327,7 @@ public final class TypeScriptGenerator extends Generator {
         }
 
         @SuppressWarnings("unchecked")
-        public TypeScriptOut(final String includeFile, final @Nullable String contractNamespace, final @Nullable Map<Class<?>, ExternalDesc> externalTypes, final String contractFile) throws Exception {
+        public TypeScriptOut(final String includeFile, final @Nullable Map<Class<?>, ExternalDesc> externalTypes, final String contractFile) throws Exception {
             super(contractFile);
             if (externalTypes != null) {
                 externalTypes.forEach((java, ts) -> this.externalTypes.put(Objects.requireNonNull(java), Objects.requireNonNull(ts)));
@@ -342,12 +338,6 @@ public final class TypeScriptGenerator extends Generator {
                 }
             });
             includeFile(includeFile);
-            this.contractNamespace = contractNamespace == null ? null : contractNamespace + '.';
-            if (this.contractNamespace != null) {
-                tabsln("namespace %s {", contractNamespace);
-                println();
-                inc();
-            }
             id2typeHandler.values().stream().map(typeHandler -> typeHandler.type).filter(Class::isEnum).forEach(type -> generateEnum((Class<Enum<?>>)type));
             id2typeHandler.values().stream().filter(typeHandler -> typeHandler instanceof ClassTypeHandler).forEach(typeHandler -> generateClass(typeHandler.type));
             interfaces.forEach(this::generateInterface);
@@ -367,32 +357,17 @@ public final class TypeScriptGenerator extends Generator {
             println();
             dec();
             tabsln(");");
-            if (this.contractNamespace != null) {
-                dec();
-                println();
-                tabsln("}");
-            }
             close();
         }
 
-    }
-
-    /**
-     * @param contractNamespace if null generate module else namespace
-     */
-    public TypeScriptGenerator(
-        final String rootPackage, final FastSerializer serializer, final @Nullable Services initiator, final @Nullable Services acceptor,
-        final String includeFile, final @Nullable String contractNamespace, final @Nullable Map<Class<?>, ExternalDesc> externalTypes, final String contractFile
-    ) throws Exception {
-        super(rootPackage, serializer, initiator, acceptor);
-        new TypeScriptOut(includeFile, contractNamespace, externalTypes, contractFile);
     }
 
     public TypeScriptGenerator(
         final String rootPackage, final FastSerializer serializer, final @Nullable Services initiator, final @Nullable Services acceptor,
         final String includeFile, final @Nullable Map<Class<?>, ExternalDesc> externalTypes, final String contractFile
     ) throws Exception {
-        this(rootPackage, serializer, initiator, acceptor, includeFile, null, externalTypes, contractFile);
+        super(rootPackage, serializer, initiator, acceptor);
+        new TypeScriptOut(includeFile, externalTypes, contractFile);
     }
 
 }
