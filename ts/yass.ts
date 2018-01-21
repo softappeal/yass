@@ -621,8 +621,8 @@ export interface Tunnel {
 }
 
 export class ClientInvocation extends AbstractInvocation {
-    readonly promise: Promise<any>;
-    settle: (reply: Reply) => void;
+    readonly promise!: Promise<any>;
+    settle!: (reply: Reply) => void;
     constructor(methodMapping: MethodMapping, parameters: any[], interceptor: Interceptor<any>, private readonly serviceId: number) {
         super(methodMapping, parameters, interceptor);
         if (methodMapping.oneWay) {
@@ -705,7 +705,7 @@ export abstract class Session extends Client {
     protected constructor(private readonly connection: Connection) {
         super();
     }
-    private serverProp: Server;
+    private serverProp!: Server;
     /**
      * Gets the server of this session. Called only once after creation of session.
      * This implementation returns Server.EMPTY.

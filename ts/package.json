@@ -3,9 +3,9 @@
     "description": "yass",
     "version": "0.0.0",
     "devDependencies": {
-        "typescript": "2.6.2",
+        "typescript": "2.7.0-rc",
         "systemjs": "0.20.19",
-        "ws": "3.3.3",
+        "ws": "4.0.0",
         "xhr2": "0.1.4",
         "istanbul": "0.4.5",
         "remap-istanbul": "0.9.5"

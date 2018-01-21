@@ -212,13 +212,13 @@ function writer2reader(writer: yass.Writer): yass.Reader {
     stock.name = "IBM";
     stock.paysDividend = true;
     stock = copy(stock);
-    assert(stock.id.get() === 1344);
+    assert(stock.id!.get() === 1344);
     assert(stock.name === "IBM");
-    assert(stock.paysDividend);
+    assert(stock.paysDividend!);
     stock.paysDividend = false;
     stock = copy(stock);
     assert(!stock.paysDividend);
-    stock.paysDividend = null!;
+    stock.paysDividend = null;
     stock = copy(stock);
     assert(stock.paysDividend === undefined);
 
@@ -227,23 +227,23 @@ function writer2reader(writer: yass.Writer): yass.Reader {
     bond.expiration = new contract.Expiration(2013, 2, 20);
     bond = copy(bond);
     assert(bond.coupon === 3.5);
-    assert(bond.expiration.year === 2013);
-    assert(bond.expiration.month === 2);
-    assert(bond.expiration.day === 20);
+    assert(bond.expiration!.year === 2013);
+    assert(bond.expiration!.month === 2);
+    assert(bond.expiration!.day === 20);
 
     let e = new contract.UnknownInstrumentsException();
     e.instrumentIds = [new IntegerImpl(100), new IntegerImpl(200)];
     e = copy(e);
-    assert(compare(e.instrumentIds, [new IntegerImpl(100), new IntegerImpl(200)]));
+    assert(compare(e.instrumentIds!, [new IntegerImpl(100), new IntegerImpl(200)]));
 
     let price = new contract.Price();
     price.instrumentId = new IntegerImpl(123);
     price.kind = PriceKind.ASK;
     price.value = new IntegerImpl(999);
     price = copy(price);
-    assert(price.instrumentId.get() === 123);
+    assert(price.instrumentId!.get() === 123);
     assert(price.kind === PriceKind.ASK);
-    assert(price.value.get() === 999);
+    assert(price.value!.get() === 999);
 
     let writer = new yass.Writer(1);
     writer.writeByte(123);
@@ -266,7 +266,7 @@ function writer2reader(writer: yass.Writer): yass.Reader {
     exception.onlyNeededForTests2 = writer.getArray();
     exception = copy(exception);
     assert(exception.onlyNeededForTests1 === 123456);
-    reader = new yass.Reader(exception.onlyNeededForTests2);
+    reader = new yass.Reader(exception.onlyNeededForTests2!);
     assert(reader.readByte() === 121);
     assert(reader.readByte() === 0);
     assert(reader.readByte() === 250);
@@ -331,7 +331,7 @@ const hostname = "localhost";
             echoService.echo(false).then(result => assert(result === false));
             const stock = new contract.instrument.stock.Stock();
             stock.id = new IntegerImpl(123);
-            stock.name = null!;
+            stock.name = null;
             stock.paysDividend = false;
             echoService.echo(stock).then(result => {
                 assert(result.id.get() === 123);
@@ -379,17 +379,17 @@ const hostname = "localhost";
             pair2.first = true;
             pair2.second = tripleWrapper;
             genericEchoService.echo(pair2).then(result => {
-                assert(result.first);
-                const triple = result.second.triple;
-                assert(triple.first === contract.PriceKind.ASK);
-                assert(triple.second);
-                const pair = triple.third;
-                assert(pair.first === "hello");
-                assert(pair.second.length === 2);
-                const pair1 = pair.second[0];
-                const pair2 = pair.second[1];
-                assert(pair1.first && !pair1.second);
-                assert(!pair2.first && pair2.second);
+                assert(result!.first!);
+                const triple = result!.second!.triple;
+                assert(triple!.first === contract.PriceKind.ASK);
+                assert(triple!.second!);
+                const pair = triple!.third;
+                assert(pair!.first === "hello");
+                assert(pair!.second!.length === 2);
+                const pair1 = pair!.second![0];
+                const pair2 = pair!.second![1];
+                assert(pair1.first! && !pair1.second!);
+                assert(!pair2.first! && pair2.second!);
                 log("echoGeneric:", result);
             });
 

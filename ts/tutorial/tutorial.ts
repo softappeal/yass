@@ -36,8 +36,8 @@ const clientLogger = new Logger("client");
 const serverLogger = new Logger("server");
 
 class TableRow {
-    bidElement: HTMLElement;
-    askElement: HTMLElement;
+    bidElement!: HTMLElement;
+    askElement!: HTMLElement;
     constructor(public readonly instrument: contract.Instrument) {
         // empty
     }
@@ -52,13 +52,13 @@ function createTable(): void {
     tableModel.forEach(row => {
         html += "<tr>";
         const instrument = row.instrument;
-        [instrument.id.get(), instrument.name].forEach(value => html += "<td>" + value + "</td>");
-        ["bid", "ask"].forEach(kind => html += "<td id='" + instrument.id.get() + ":" + kind + "'></td>");
+        [instrument.id!.get(), instrument.name].forEach(value => html += "<td>" + value + "</td>");
+        ["bid", "ask"].forEach(kind => html += "<td id='" + instrument.id!.get() + ":" + kind + "'></td>");
         html += "</tr>";
     });
     document.getElementById("table")!.innerHTML = html + "</tbody></table>";
     tableModel.forEach(row => {
-        const find = (kind: string) => document.getElementById(row.instrument.id.get() + ":" + kind)!;
+        const find = (kind: string) => document.getElementById(row.instrument.id!.get() + ":" + kind)!;
         row.bidElement = find("bid");
         row.askElement = find("ask");
     });
@@ -67,11 +67,11 @@ function createTable(): void {
 class PriceListenerImpl implements PriceListener {
     newPrices(prices: contract.Price[]): void {
         prices.forEach(price => {
-            const tableRow = tableModel[price.instrumentId.get()];
+            const tableRow = tableModel[price.instrumentId!.get()];
             if (price.kind === contract.PriceKind.BID) {
-                tableRow.bidElement.innerHTML = price.value.get().toString();
+                tableRow.bidElement.innerHTML = price.value!.get().toString();
             } else {
-                tableRow.askElement.innerHTML = price.value.get().toString();
+                tableRow.askElement.innerHTML = price.value!.get().toString();
             }
         });
     }
@@ -88,10 +88,10 @@ async function subscribePrices(client: yass.Client) {
     const priceEngine = client.proxy(contract.acceptor.priceEngine, clientLogger);
     instrumentService.showOneWay(true, new IntegerImpl(987654));
     try {
-        const instruments = await instrumentService.getInstruments();
-        instruments.forEach(instrument => tableModel[instrument.id.get()] = new TableRow(instrument));
+        const instruments = (await instrumentService.getInstruments())!;
+        instruments.forEach(instrument => tableModel[instrument.id!.get()] = new TableRow(instrument));
         createTable();
-        await priceEngine.subscribe(instruments.map(instrument => instrument.id));
+        await priceEngine.subscribe(instruments.map(instrument => instrument.id!));
         await priceEngine.subscribe([new IntegerImpl(987654321)]);
     } catch (e) {
         log("exception caught", e)
@@ -114,7 +114,7 @@ class Session extends yass.Session {
         const genericEchoService = this.proxy(contract.acceptor.genericEchoService, clientLogger);
         const pair = new contract.generic.Pair<boolean, contract.generic.TripleWrapper>();
         pair.first = true;
-        pair.second = null!;
+        pair.second = null;
         genericEchoService.echo(pair).then(
             result => log("echoGeneric:", result),
             error => log("echoGeneric failed:", error)

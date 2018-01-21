@@ -215,7 +215,7 @@ public final class TypeScriptGenerator extends Generator {
                 println(" {");
                 inc();
                 for (final Field field : Reflect.ownFields(type)) {
-                    tabsln("%s: %s;", field.getName(), type(field.getGenericType()));
+                    tabsln("%s: %s | undefined | null;", field.getName(), type(field.getGenericType()));
                 }
                 final @Nullable Integer id = type2id.get(type);
                 if (id != null) {
@@ -256,13 +256,13 @@ public final class TypeScriptGenerator extends Generator {
                                 print(", ");
                             }
                             first = false;
-                            print("%s: %s", parameter.getName(), type(parameter.getParameterizedType()));
+                            print("%s: %s | undefined | null", parameter.getName(), type(parameter.getParameterizedType()));
                         }
                         print("): ");
                         if (methodMapper.mapMethod(method).oneWay) {
                             print("void");
                         } else {
-                            final String type = type(method.getGenericReturnType());
+                            final String type = type(method.getGenericReturnType()) + " | undefined | null";
                             if (implementation) {
                                 print(type);
                             } else {
