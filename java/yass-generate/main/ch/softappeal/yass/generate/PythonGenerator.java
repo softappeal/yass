@@ -21,6 +21,7 @@ import java.lang.reflect.Parameter;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -303,38 +304,21 @@ public final class PythonGenerator extends Generator {
             println2();
             println("class %s:", type.getSimpleName());
             inc();
-            boolean first = true;
-            for (final Method method : getMethods(type)) {
-                if (first) {
-                    first = false;
-                } else {
-                    println();
-                }
+            iterate(List.of(getMethods(type)), this::println, method -> {
                 tabs("def %s(self", method.getName());
+                final Parameter[] parameters = method.getParameters();
                 if (python3) {
-                    for (final Parameter parameter : method.getParameters()) {
-                        print(", %s: %s", parameter.getName(), pythonType(parameter.getParameterizedType()));
-                    }
+                    Arrays.stream(parameters).forEach(parameter -> print(", %s: %s", parameter.getName(), pythonType(parameter.getParameterizedType())));
                     println(") -> %s:", methodMapper.mapMethod(method).oneWay ? "None" : pythonType(method.getGenericReturnType()));
                 } else {
-                    for (final Parameter parameter : method.getParameters()) {
-                        print(", %s", parameter.getName());
-                    }
+                    Arrays.stream(parameters).forEach(parameter -> print(", %s", parameter.getName()));
                     print("):  # type: (");
-                    boolean firstType = true;
-                    for (final Parameter parameter : method.getParameters()) {
-                        if (firstType) {
-                            firstType = false;
-                        } else {
-                            print(", ");
-                        }
-                        print(pythonType(parameter.getParameterizedType()));
-                    }
+                    iterate(List.of(parameters), () -> print(", "), parameter -> print(pythonType(parameter.getParameterizedType())));
                     println(") -> %s", methodMapper.mapMethod(method).oneWay ? "None" : pythonType(method.getGenericReturnType()));
                 }
                 tab();
                 tabsln("raise NotImplementedError()");
-            }
+            });
             dec();
         }
     }

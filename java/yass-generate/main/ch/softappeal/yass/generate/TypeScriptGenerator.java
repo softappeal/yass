@@ -16,7 +16,6 @@ import ch.softappeal.yass.util.Reflect;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
-import java.lang.reflect.Parameter;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
@@ -130,14 +129,7 @@ public final class TypeScriptGenerator extends Generator {
                     final Type[] actualTypeArguments = parameterizedType.getActualTypeArguments();
                     if (actualTypeArguments.length != 0) {
                         s.append('<');
-                        boolean first = true;
-                        for (final Type actualTypeArgument : actualTypeArguments) {
-                            if (!first) {
-                                s.append(", ");
-                            }
-                            first = false;
-                            s.append(type(actualTypeArgument));
-                        }
+                        iterate(List.of(actualTypeArguments), () -> s.append(", "), actualTypeArgument -> s.append(type(actualTypeArgument)));
                         s.append('>');
                     }
                     return s.toString();
@@ -199,14 +191,7 @@ public final class TypeScriptGenerator extends Generator {
                 final TypeVariable<Class<C>>[] typeParameters = type.getTypeParameters();
                 if (typeParameters.length != 0) {
                     print("<");
-                    boolean first = true;
-                    for (final TypeVariable<Class<C>> typeParameter : typeParameters) {
-                        if (!first) {
-                            print(", ");
-                        }
-                        first = false;
-                        print(typeParameter.getName());
-                    }
+                    iterate(List.of(typeParameters), () -> print(", "), typeParameter -> print(typeParameter.getName()));
                     print(">");
                 }
                 if (superClass != null) {
@@ -250,14 +235,7 @@ public final class TypeScriptGenerator extends Generator {
                     inc();
                     for (final Method method : methods) {
                         tabs("%s(", method.getName());
-                        boolean first = true;
-                        for (final Parameter parameter : method.getParameters()) {
-                            if (!first) {
-                                print(", ");
-                            }
-                            first = false;
-                            print("%s: %s | undefined | null", parameter.getName(), type(parameter.getParameterizedType()));
-                        }
+                        iterate(List.of(method.getParameters()), () -> print(", "), p -> print("%s: %s | undefined | null", p.getName(), type(p.getParameterizedType())));
                         print("): ");
                         if (methodMapper.mapMethod(method).oneWay) {
                             print("void");
@@ -283,16 +261,11 @@ public final class TypeScriptGenerator extends Generator {
                     inc();
                     tabs("export const %s = new yass.MethodMapper(", name);
                     inc();
-                    boolean first = true;
-                    for (final Method method : methods) {
-                        if (!first) {
-                            print(",");
-                        }
-                        first = false;
+                    iterate(List.of(methods), () -> print(","), method -> {
                         println();
                         final MethodMapper.Mapping mapping = methodMapper.mapMethod(method);
                         tabs("new yass.MethodMapping('%s', %s, %s)", mapping.method.getName(), mapping.id, mapping.oneWay);
-                    }
+                    });
                     println();
                     dec();
                     tabsln(");");
@@ -345,15 +318,10 @@ public final class TypeScriptGenerator extends Generator {
             generateServices(acceptor, "acceptor");
             tabs("export const SERIALIZER = new yass.FastSerializer(");
             inc();
-            boolean first = true;
-            for (final Class<?> type : type2id.keySet()) {
-                if (!first) {
-                    print(",");
-                }
-                first = false;
+            iterate(type2id.keySet(), () -> print(","), type -> {
                 println();
                 tabs(jsType(type, false));
-            }
+            });
             println();
             dec();
             tabsln(");");

@@ -20,6 +20,7 @@ import java.util.Set;
 import java.util.SortedMap;
 import java.util.SortedSet;
 import java.util.TreeSet;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 public abstract class Generator {
@@ -107,6 +108,17 @@ public abstract class Generator {
         interfaces.addAll(getInterfaces(initiator));
         interfaces.addAll(getInterfaces(acceptor));
         interfaces.forEach(this::checkType);
+    }
+
+    public static <E> void iterate(final Iterable<E> iterable, final Runnable notFirstAction, final Consumer<E> alwaysAction) {
+        boolean first = true;
+        for (final E element : iterable) {
+            if (!first) {
+                notFirstAction.run();
+            }
+            first = false;
+            alwaysAction.accept(element);
+        }
     }
 
 }
