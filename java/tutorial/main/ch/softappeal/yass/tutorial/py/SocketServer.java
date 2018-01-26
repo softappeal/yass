@@ -4,13 +4,13 @@ import ch.softappeal.yass.core.Interceptor;
 import ch.softappeal.yass.transport.MessageSerializer;
 import ch.softappeal.yass.transport.socket.SimpleSocketTransport;
 import ch.softappeal.yass.transport.socket.SocketBinder;
-import ch.softappeal.yass.tutorial.acceptor.socket.SocketAcceptor;
 import ch.softappeal.yass.tutorial.contract.EchoService;
 import ch.softappeal.yass.tutorial.contract.Instrument;
-import ch.softappeal.yass.tutorial.contract.Logger;
-import ch.softappeal.yass.tutorial.contract.SslConfig;
 import ch.softappeal.yass.tutorial.contract.SystemException;
 import ch.softappeal.yass.tutorial.contract.instrument.InstrumentService;
+import ch.softappeal.yass.tutorial.shared.Logger;
+import ch.softappeal.yass.tutorial.shared.SslConfig;
+import ch.softappeal.yass.tutorial.shared.socket.SocketSetup;
 import ch.softappeal.yass.util.Exceptions;
 import ch.softappeal.yass.util.NamedThreadFactory;
 import ch.softappeal.yass.util.Nullable;
@@ -60,7 +60,7 @@ public final class SocketServer {
             )
         ).start(
             executor,
-            SocketBinder.create(SslConfig.SERVER.serverSocketFactory, SocketAcceptor.ADDRESS)
+            SocketBinder.create(SslConfig.SERVER.serverSocketFactory, SocketSetup.ADDRESS)
         );
         System.out.println("started");
     }

@@ -1,6 +1,6 @@
 package ch.softappeal.yass.tutorial.acceptor.web;
 
-import ch.softappeal.yass.tutorial.contract.SslConfig;
+import ch.softappeal.yass.tutorial.shared.SslConfig;
 import org.eclipse.jetty.http.HttpVersion;
 import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.HttpConfiguration;

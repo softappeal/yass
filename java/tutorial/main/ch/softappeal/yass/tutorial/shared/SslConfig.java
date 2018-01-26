@@ -1,4 +1,4 @@
-package ch.softappeal.yass.tutorial.contract;
+package ch.softappeal.yass.tutorial.shared;
 
 import ch.softappeal.yass.transport.socket.SslSetup;
 import ch.softappeal.yass.util.InputStreamSupplier;

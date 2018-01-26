@@ -6,18 +6,18 @@ import ch.softappeal.yass.serialize.Serializer;
 import ch.softappeal.yass.transport.MessageSerializer;
 import ch.softappeal.yass.transport.socket.SimpleSocketTransport;
 import ch.softappeal.yass.transport.socket.SocketConnector;
-import ch.softappeal.yass.tutorial.acceptor.socket.SocketAcceptor;
 import ch.softappeal.yass.tutorial.contract.Config;
 import ch.softappeal.yass.tutorial.contract.EchoService;
 import ch.softappeal.yass.tutorial.contract.Expiration;
-import ch.softappeal.yass.tutorial.contract.Logger;
 import ch.softappeal.yass.tutorial.contract.Node;
 import ch.softappeal.yass.tutorial.contract.PriceKind;
-import ch.softappeal.yass.tutorial.contract.SslConfig;
 import ch.softappeal.yass.tutorial.contract.SystemException;
 import ch.softappeal.yass.tutorial.contract.UnknownInstrumentsException;
 import ch.softappeal.yass.tutorial.contract.instrument.InstrumentService;
 import ch.softappeal.yass.tutorial.contract.instrument.stock.Stock;
+import ch.softappeal.yass.tutorial.shared.Logger;
+import ch.softappeal.yass.tutorial.shared.SslConfig;
+import ch.softappeal.yass.tutorial.shared.socket.SocketSetup;
 
 import java.util.Arrays;
 import java.util.List;
@@ -74,7 +74,7 @@ public final class SocketClient {
     public static void main(final String... args) {
         client(SimpleSocketTransport.client(
             new MessageSerializer(SERIALIZER),
-            SocketConnector.create(SslConfig.CLIENT.socketFactory, SocketAcceptor.ADDRESS)
+            SocketConnector.create(SslConfig.CLIENT.socketFactory, SocketSetup.ADDRESS)
         ));
     }
 

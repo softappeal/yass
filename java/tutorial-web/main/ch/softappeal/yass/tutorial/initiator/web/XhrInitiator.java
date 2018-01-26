@@ -5,11 +5,11 @@ import ch.softappeal.yass.core.remote.Reply;
 import ch.softappeal.yass.serialize.Reader;
 import ch.softappeal.yass.serialize.Serializer;
 import ch.softappeal.yass.serialize.Writer;
-import ch.softappeal.yass.tutorial.acceptor.web.WebAcceptorSetup;
 import ch.softappeal.yass.tutorial.contract.Config;
 import ch.softappeal.yass.tutorial.contract.EchoService;
-import ch.softappeal.yass.tutorial.contract.Logger;
-import ch.softappeal.yass.tutorial.contract.SslConfig;
+import ch.softappeal.yass.tutorial.shared.Logger;
+import ch.softappeal.yass.tutorial.shared.SslConfig;
+import ch.softappeal.yass.tutorial.shared.web.WebSetup;
 
 import javax.net.ssl.HttpsURLConnection;
 import java.net.HttpURLConnection;
@@ -18,7 +18,7 @@ import java.util.Objects;
 
 import static ch.softappeal.yass.tutorial.contract.Config.ACCEPTOR;
 
-public final class XhrInitiator {
+public final class XhrInitiator extends WebSetup {
 
     private static Client xhr(final Serializer messageSerializer, final URL url, final boolean ssl) {
         Objects.requireNonNull(messageSerializer);
@@ -51,8 +51,8 @@ public final class XhrInitiator {
     }
 
     public static void main(final String... args) throws Exception {
-        client("http://localhost:" + WebAcceptorSetup.PORT + WebAcceptorSetup.XHR_PATH, false);
-        client("https://localhost:" + (WebAcceptorSetup.PORT + 1) + WebAcceptorSetup.XHR_PATH, true);
+        client("http://localhost:" + PORT + XHR_PATH, false);
+        client("https://localhost:" + (PORT + 1) + XHR_PATH, true);
     }
 
 }

@@ -1,4 +1,4 @@
-package ch.softappeal.yass.tutorial.contract;
+package ch.softappeal.yass.tutorial.shared;
 
 import ch.softappeal.yass.core.remote.InterceptorAsync;
 import ch.softappeal.yass.core.remote.MethodMapper;
@@ -8,6 +8,10 @@ import ch.softappeal.yass.util.Nullable;
 import java.util.List;
 
 public class LoggerAsync implements InterceptorAsync<SimpleInterceptorContext> {
+
+    private LoggerAsync() {
+        // disable
+    }
 
     @Override public SimpleInterceptorContext entry(final MethodMapper.Mapping methodMapping, final List<Object> arguments) {
         final SimpleInterceptorContext context = new SimpleInterceptorContext(methodMapping, arguments);
@@ -24,5 +28,7 @@ public class LoggerAsync implements InterceptorAsync<SimpleInterceptorContext> {
         System.out.println("exception " + context.id + ": " + context.methodMapping.method.getName() + " " + exception);
         return exception;
     }
+
+    public static final InterceptorAsync<?> INSTANCE = new LoggerAsync();
 
 }

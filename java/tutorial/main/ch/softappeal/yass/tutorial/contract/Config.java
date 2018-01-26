@@ -43,7 +43,6 @@ public final class Config {
             Bond.class,
             SystemException.class,
             UnknownInstrumentsException.class,
-            Node.class,
             Pair.class,
             PairBoolBool.class,
             Triple.class,

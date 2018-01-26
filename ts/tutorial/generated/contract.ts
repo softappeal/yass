@@ -94,22 +94,11 @@ export class UnknownInstrumentsException extends ApplicationException {
     );
 }
 
-export class Node {
-    id: number | undefined | null;
-    links: Node[] | undefined | null;
-    next: Node | undefined | null;
-    static readonly TYPE_DESC = yass.classDesc(15, Node,
-        new yass.FieldDesc(1, 'id', yass.NUMBER_DESC),
-        new yass.FieldDesc(2, 'links', yass.LIST_DESC),
-        new yass.FieldDesc(3, 'next', null)
-    );
-}
-
 export namespace generic {
     export class Pair<F, S> {
         first: F | undefined | null;
         second: S | undefined | null;
-        static readonly TYPE_DESC = yass.classDesc(16, Pair,
+        static readonly TYPE_DESC = yass.classDesc(15, Pair,
             new yass.FieldDesc(1, 'first', null),
             new yass.FieldDesc(2, 'second', null)
         );
@@ -118,7 +107,7 @@ export namespace generic {
 
 export namespace generic {
     export class PairBoolBool extends generic.Pair<boolean, boolean> {
-        static readonly TYPE_DESC = yass.classDesc(17, PairBoolBool,
+        static readonly TYPE_DESC = yass.classDesc(16, PairBoolBool,
             new yass.FieldDesc(1, 'first', null),
             new yass.FieldDesc(2, 'second', null)
         );
@@ -128,7 +117,7 @@ export namespace generic {
 export namespace generic {
     export class Triple<F, T> extends generic.Pair<F, boolean> {
         third: T | undefined | null;
-        static readonly TYPE_DESC = yass.classDesc(18, Triple,
+        static readonly TYPE_DESC = yass.classDesc(17, Triple,
             new yass.FieldDesc(1, 'third', null),
             new yass.FieldDesc(2, 'first', null),
             new yass.FieldDesc(3, 'second', null)
@@ -139,7 +128,7 @@ export namespace generic {
 export namespace generic {
     export class TripleWrapper {
         triple: generic.Triple<PriceKind, generic.Pair<string, generic.PairBoolBool[]>> | undefined | null;
-        static readonly TYPE_DESC = yass.classDesc(19, TripleWrapper,
+        static readonly TYPE_DESC = yass.classDesc(18, TripleWrapper,
             new yass.FieldDesc(1, 'triple', null)
         );
     }
@@ -253,7 +242,6 @@ export const SERIALIZER = new yass.FastSerializer(
     instrument.Bond,
     SystemException,
     UnknownInstrumentsException,
-    Node,
     generic.Pair,
     generic.PairBoolBool,
     generic.Triple,

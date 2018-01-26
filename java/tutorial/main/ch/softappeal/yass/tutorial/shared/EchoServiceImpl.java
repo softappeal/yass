@@ -1,5 +1,6 @@
-package ch.softappeal.yass.tutorial.contract;
+package ch.softappeal.yass.tutorial.shared;
 
+import ch.softappeal.yass.tutorial.contract.EchoService;
 import ch.softappeal.yass.util.Nullable;
 
 import java.util.concurrent.TimeUnit;
@@ -15,9 +16,6 @@ public final class EchoServiceImpl implements EchoService {
             throw new RuntimeException("throwRuntimeException");
         }
         try {
-            if ("block".equals(value)) {
-                TimeUnit.SECONDS.sleep(Long.MAX_VALUE);
-            }
             TimeUnit.SECONDS.sleep(1);
         } catch (final InterruptedException e) {
             throw new RuntimeException(e);

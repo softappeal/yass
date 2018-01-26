@@ -1,6 +1,6 @@
 package ch.softappeal.yass.tutorial.acceptor.web;
 
-import ch.softappeal.yass.tutorial.contract.SslConfig;
+import ch.softappeal.yass.tutorial.shared.SslConfig;
 import io.undertow.Handlers;
 import io.undertow.Undertow;
 import io.undertow.server.HttpHandler;

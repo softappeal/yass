@@ -1,4 +1,4 @@
-package ch.softappeal.yass.tutorial.contract;
+package ch.softappeal.yass.tutorial.shared;
 
 import ch.softappeal.yass.core.Interceptor;
 import ch.softappeal.yass.core.Invocation;
@@ -33,12 +33,7 @@ public final class Logger implements Interceptor {
     private void log(final String type, final Method method, final Object data) {
         System.out.printf(
             "%tT | %s | %s | %s | %s | %s%n",
-            new Date(),
-            (session == null) ? "<no-session>" : session,
-            side,
-            type,
-            method.getName(),
-            dump(data)
+            new Date(), (session == null) ? "<no-session>" : session, side, type, method.getName(), dump(data)
         );
     }
 

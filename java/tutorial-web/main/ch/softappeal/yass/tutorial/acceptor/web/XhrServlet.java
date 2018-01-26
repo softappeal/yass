@@ -6,9 +6,9 @@ import ch.softappeal.yass.serialize.Reader;
 import ch.softappeal.yass.serialize.Writer;
 import ch.softappeal.yass.transport.SimpleTransportSetup;
 import ch.softappeal.yass.tutorial.contract.Config;
-import ch.softappeal.yass.tutorial.contract.EchoServiceImpl;
-import ch.softappeal.yass.tutorial.contract.Logger;
-import ch.softappeal.yass.tutorial.contract.UnexpectedExceptionHandler;
+import ch.softappeal.yass.tutorial.shared.EchoServiceImpl;
+import ch.softappeal.yass.tutorial.shared.Logger;
+import ch.softappeal.yass.tutorial.shared.UnexpectedExceptionHandler;
 import ch.softappeal.yass.util.Exceptions;
 import ch.softappeal.yass.util.Nullable;
 

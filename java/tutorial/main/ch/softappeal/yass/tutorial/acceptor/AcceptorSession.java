@@ -6,15 +6,15 @@ import ch.softappeal.yass.core.remote.session.Connection;
 import ch.softappeal.yass.core.remote.session.SessionWatcher;
 import ch.softappeal.yass.core.remote.session.SimpleSession;
 import ch.softappeal.yass.tutorial.contract.EchoService;
-import ch.softappeal.yass.tutorial.contract.EchoServiceImpl;
-import ch.softappeal.yass.tutorial.contract.Logger;
-import ch.softappeal.yass.tutorial.contract.LoggerAsync;
 import ch.softappeal.yass.tutorial.contract.Price;
 import ch.softappeal.yass.tutorial.contract.PriceKind;
 import ch.softappeal.yass.tutorial.contract.PriceListener;
 import ch.softappeal.yass.tutorial.contract.SystemException;
-import ch.softappeal.yass.tutorial.contract.UnexpectedExceptionHandler;
 import ch.softappeal.yass.tutorial.contract.generic.GenericEchoServiceImpl;
+import ch.softappeal.yass.tutorial.shared.EchoServiceImpl;
+import ch.softappeal.yass.tutorial.shared.Logger;
+import ch.softappeal.yass.tutorial.shared.LoggerAsync;
+import ch.softappeal.yass.tutorial.shared.UnexpectedExceptionHandler;
 import ch.softappeal.yass.util.Nullable;
 
 import java.util.ArrayList;
@@ -40,8 +40,8 @@ public final class AcceptorSession extends SimpleSession {
             new Logger(this, Logger.Side.SERVER)
         );
         return new Server(
-            ACCEPTOR.instrumentService.serviceAsync(InstrumentServiceImplAsync.INSTANCE, new LoggerAsync()),
-            ACCEPTOR.priceEngine.service(new PriceEngineImpl(InstrumentServiceImplAsync.INSTRUMENTS, subscribedInstrumentIds), interceptor),
+            ACCEPTOR.instrumentService.serviceAsync(InstrumentServiceImplAsync.INSTANCE, LoggerAsync.INSTANCE),
+            ACCEPTOR.priceEngine.service(new PriceEngineImpl(subscribedInstrumentIds), interceptor),
             ACCEPTOR.echoService.service(EchoServiceImpl.INSTANCE, interceptor),
             ACCEPTOR.genericEchoService.service(GenericEchoServiceImpl.INSTANCE, interceptor)
         );
@@ -60,7 +60,7 @@ public final class AcceptorSession extends SimpleSession {
 
     @Override protected void opened() throws InterruptedException {
         SessionWatcher.watchSession(dispatchExecutor, this, 60L, 2L, () -> echoService.echo("checkFromAcceptor")); // optional
-        System.out.println("session " + this + " opened");
+        System.out.println("session " + this + " opened start");
         System.out.println("echo: " + echoService.echo("hello from acceptor"));
         try {
             echoService.echo("throwRuntimeException");
@@ -80,6 +80,7 @@ public final class AcceptorSession extends SimpleSession {
             }
             TimeUnit.MILLISECONDS.sleep(500L);
         }
+        System.out.println("session " + this + " opened end");
     }
 
     @Override protected void closed(final @Nullable Exception exception) {

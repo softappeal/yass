@@ -5,23 +5,13 @@ import ch.softappeal.yass.transport.ws.AsyncWsConnection;
 import ch.softappeal.yass.transport.ws.WsConfigurator;
 import ch.softappeal.yass.tutorial.acceptor.AcceptorSession;
 import ch.softappeal.yass.tutorial.contract.Config;
+import ch.softappeal.yass.tutorial.shared.web.WebSetup;
 import ch.softappeal.yass.util.Exceptions;
-import ch.softappeal.yass.util.NamedThreadFactory;
 
 import javax.websocket.Endpoint;
 import javax.websocket.server.ServerEndpointConfig;
-import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
 
-public abstract class WebAcceptorSetup {
-
-    public static final String HOST = "0.0.0.0";
-    public static final int PORT = 9090;
-    public static final String WS_PATH = "/ws";
-    public static final String XHR_PATH = "/xhr";
-    protected static final String WEB_PATH = "ts";
-
-    public static final Executor DISPATCH_EXECUTOR = Executors.newCachedThreadPool(new NamedThreadFactory("dispatchExecutor", Exceptions.STD_ERR));
+public abstract class WebAcceptorSetup extends WebSetup {
 
     public static final ServerEndpointConfig ENDPOINT_CONFIG = ServerEndpointConfig.Builder
         .create(Endpoint.class, WS_PATH)
