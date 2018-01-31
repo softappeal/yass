@@ -8,6 +8,7 @@
         "sourceMap": true,
         "noUnusedLocals": true,
         "noUnusedParameters": false,
+        "esModuleInterop": true,
         "module": "commonjs",
         "lib": [
             "es5",
