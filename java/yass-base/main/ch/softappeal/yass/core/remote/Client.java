@@ -59,7 +59,7 @@ public abstract class Client {
 
     protected Object invokeSync(final ContractId<?> contractId, final Interceptor interceptor, final Method method, final @Nullable Object[] arguments) throws Exception {
         return interceptor.invoke(method, arguments, () -> {
-            final MethodMapper.Mapping methodMapping = contractId.methodMapper.mapMethod(method);
+            final var methodMapping = contractId.methodMapper.mapMethod(method);
             final @Nullable CompletableFuture<?> promise = methodMapping.oneWay ? null : new CompletableFuture<>();
             invoke(new Invocation(methodMapping, arguments, null, promise, contractId.id));
             if (promise == null) {
@@ -80,7 +80,7 @@ public abstract class Client {
     }
 
     public final <C> C proxy(final ContractId<C> contractId, final Interceptor... interceptors) {
-        final Interceptor interceptor = Interceptor.composite(interceptors);
+        final var interceptor = Interceptor.composite(interceptors);
         return contractId.contract.cast(Proxy.newProxyInstance(
             contractId.contract.getClassLoader(),
             new Class<?>[] {contractId.contract},
@@ -122,8 +122,8 @@ public abstract class Client {
             contractId.contract.getClassLoader(),
             new Class<?>[] {contractId.contract},
             (proxy, method, arguments) -> {
-                final MethodMapper.Mapping methodMapping = contractId.methodMapper.mapMethod(method);
-                final @Nullable CompletableFuture<Object> promise = PROMISE.get();
+                final var methodMapping = contractId.methodMapper.mapMethod(method);
+                final var promise = PROMISE.get();
                 if (promise == null) {
                     if (!methodMapping.oneWay) {
                         throw new IllegalStateException("asynchronous request/reply proxy call must be enclosed with 'promise' method call");
@@ -160,8 +160,8 @@ public abstract class Client {
      */
     @SuppressWarnings("unchecked")
     public static <T> CompletionStage<T> promise(final Execute<T> execute) {
-        final @Nullable CompletableFuture<Object> oldPromise = PROMISE.get();
-        final CompletableFuture<Object> promise = new CompletableFuture<>();
+        final var oldPromise = PROMISE.get();
+        final var promise = new CompletableFuture<>();
         PROMISE.set(promise);
         try {
             execute.execute();

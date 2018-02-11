@@ -43,8 +43,8 @@ import java.util.Objects;
     }
 
     static Interceptor composite(final Interceptor... interceptors) {
-        Interceptor composite = DIRECT;
-        for (final Interceptor interceptor : interceptors) {
+        var composite = DIRECT;
+        for (final var interceptor : interceptors) {
             composite = composite(composite, interceptor);
         }
         return composite;
@@ -72,7 +72,7 @@ import java.util.Objects;
      */
     static <C> C proxy(final Class<C> contract, final C implementation, final Interceptor... interceptors) {
         Objects.requireNonNull(implementation);
-        final Interceptor interceptor = composite(interceptors);
+        final var interceptor = composite(interceptors);
         if (interceptor == DIRECT) {
             Objects.requireNonNull(contract);
             return implementation;
@@ -91,7 +91,7 @@ import java.util.Objects;
     static <T> Interceptor threadLocal(final ThreadLocal<T> threadLocal, final @Nullable T value) {
         Objects.requireNonNull(threadLocal);
         return (method, arguments, invocation) -> {
-            final @Nullable T oldValue = threadLocal.get();
+            final var oldValue = threadLocal.get();
             threadLocal.set(value);
             try {
                 return invocation.proceed();

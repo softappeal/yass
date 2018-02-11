@@ -90,9 +90,9 @@ public final class BaseTypeHandlers {
 
     public static final BaseTypeHandler<boolean[]> BOOLEAN_ARRAY = new BaseTypeHandler<>(boolean[].class) {
         @Override public boolean[] read(final Reader reader) throws Exception {
-            final int length = reader.readVarInt();
-            boolean[] value = new boolean[Math.min(length, 128)];
-            for (int i = 0; i < length; i++) {
+            final var length = reader.readVarInt();
+            var value = new boolean[Math.min(length, 128)];
+            for (var i = 0; i < length; i++) {
                 if (i >= value.length) {
                     value = Arrays.copyOf(value, Math.min(length, 2 * value.length)); // note: prevents out-of-memory attack
                 }
@@ -102,7 +102,7 @@ public final class BaseTypeHandlers {
         }
         @Override public void write(final boolean[] value, final Writer writer) throws Exception {
             writer.writeVarInt(value.length);
-            for (final boolean v : value) {
+            for (final var v : value) {
                 writer.writeByte(v ? (byte)1 : (byte)0);
             }
         }
@@ -110,14 +110,14 @@ public final class BaseTypeHandlers {
 
     public static final BaseTypeHandler<byte[]> BYTE_ARRAY = new BaseTypeHandler<>(byte[].class) {
         @Override public byte[] read(final Reader reader) throws Exception {
-            final int length = reader.readVarInt();
-            byte[] value = new byte[Math.min(length, 128)];
-            int i = 0;
+            final var length = reader.readVarInt();
+            var value = new byte[Math.min(length, 128)];
+            var i = 0;
             while (i < length) {
                 if (i >= value.length) {
                     value = Arrays.copyOf(value, Math.min(length, 2 * value.length)); // note: prevents out-of-memory attack
                 }
-                final int l = value.length - i;
+                final var l = value.length - i;
                 reader.readBytes(value, i, l);
                 i += l;
             }
@@ -131,9 +131,9 @@ public final class BaseTypeHandlers {
 
     public static final BaseTypeHandler<short[]> SHORT_ARRAY = new BaseTypeHandler<>(short[].class) {
         @Override public short[] read(final Reader reader) throws Exception {
-            final int length = reader.readVarInt();
-            short[] value = new short[Math.min(length, 64)];
-            for (int i = 0; i < length; i++) {
+            final var length = reader.readVarInt();
+            var value = new short[Math.min(length, 64)];
+            for (var i = 0; i < length; i++) {
                 if (i >= value.length) {
                     value = Arrays.copyOf(value, Math.min(length, 2 * value.length)); // note: prevents out-of-memory attack
                 }
@@ -143,7 +143,7 @@ public final class BaseTypeHandlers {
         }
         @Override public void write(final short[] value, final Writer writer) throws Exception {
             writer.writeVarInt(value.length);
-            for (final short v : value) {
+            for (final var v : value) {
                 writer.writeZigZagInt(v);
             }
         }
@@ -151,9 +151,9 @@ public final class BaseTypeHandlers {
 
     public static final BaseTypeHandler<int[]> INTEGER_ARRAY = new BaseTypeHandler<>(int[].class) {
         @Override public int[] read(final Reader reader) throws Exception {
-            final int length = reader.readVarInt();
-            int[] value = new int[Math.min(length, 32)];
-            for (int i = 0; i < length; i++) {
+            final var length = reader.readVarInt();
+            var value = new int[Math.min(length, 32)];
+            for (var i = 0; i < length; i++) {
                 if (i >= value.length) {
                     value = Arrays.copyOf(value, Math.min(length, 2 * value.length)); // note: prevents out-of-memory attack
                 }
@@ -163,7 +163,7 @@ public final class BaseTypeHandlers {
         }
         @Override public void write(final int[] value, final Writer writer) throws Exception {
             writer.writeVarInt(value.length);
-            for (final int v : value) {
+            for (final var v : value) {
                 writer.writeZigZagInt(v);
             }
         }
@@ -171,9 +171,9 @@ public final class BaseTypeHandlers {
 
     public static final BaseTypeHandler<long[]> LONG_ARRAY = new BaseTypeHandler<>(long[].class) {
         @Override public long[] read(final Reader reader) throws Exception {
-            final int length = reader.readVarInt();
-            long[] value = new long[Math.min(length, 16)];
-            for (int i = 0; i < length; i++) {
+            final var length = reader.readVarInt();
+            var value = new long[Math.min(length, 16)];
+            for (var i = 0; i < length; i++) {
                 if (i >= value.length) {
                     value = Arrays.copyOf(value, Math.min(length, 2 * value.length)); // note: prevents out-of-memory attack
                 }
@@ -183,7 +183,7 @@ public final class BaseTypeHandlers {
         }
         @Override public void write(final long[] value, final Writer writer) throws Exception {
             writer.writeVarInt(value.length);
-            for (final long v : value) {
+            for (final var v : value) {
                 writer.writeZigZagLong(v);
             }
         }
@@ -191,9 +191,9 @@ public final class BaseTypeHandlers {
 
     public static final BaseTypeHandler<char[]> CHARACTER_ARRAY = new BaseTypeHandler<>(char[].class) {
         @Override public char[] read(final Reader reader) throws Exception {
-            final int length = reader.readVarInt();
-            char[] value = new char[Math.min(length, 64)];
-            for (int i = 0; i < length; i++) {
+            final var length = reader.readVarInt();
+            var value = new char[Math.min(length, 64)];
+            for (var i = 0; i < length; i++) {
                 if (i >= value.length) {
                     value = Arrays.copyOf(value, Math.min(length, 2 * value.length)); // note: prevents out-of-memory attack
                 }
@@ -203,7 +203,7 @@ public final class BaseTypeHandlers {
         }
         @Override public void write(final char[] value, final Writer writer) throws Exception {
             writer.writeVarInt(value.length);
-            for (final char v : value) {
+            for (final var v : value) {
                 writer.writeChar(v);
             }
         }
@@ -211,9 +211,9 @@ public final class BaseTypeHandlers {
 
     public static final BaseTypeHandler<float[]> FLOAT_ARRAY = new BaseTypeHandler<>(float[].class) {
         @Override public float[] read(final Reader reader) throws Exception {
-            final int length = reader.readVarInt();
-            float[] value = new float[Math.min(length, 32)];
-            for (int i = 0; i < length; i++) {
+            final var length = reader.readVarInt();
+            var value = new float[Math.min(length, 32)];
+            for (var i = 0; i < length; i++) {
                 if (i >= value.length) {
                     value = Arrays.copyOf(value, Math.min(length, 2 * value.length)); // note: prevents out-of-memory attack
                 }
@@ -223,7 +223,7 @@ public final class BaseTypeHandlers {
         }
         @Override public void write(final float[] value, final Writer writer) throws Exception {
             writer.writeVarInt(value.length);
-            for (final float v : value) {
+            for (final var v : value) {
                 writer.writeFloat(v);
             }
         }
@@ -231,9 +231,9 @@ public final class BaseTypeHandlers {
 
     public static final BaseTypeHandler<double[]> DOUBLE_ARRAY = new BaseTypeHandler<>(double[].class) {
         @Override public double[] read(final Reader reader) throws Exception {
-            final int length = reader.readVarInt();
-            double[] value = new double[Math.min(length, 16)];
-            for (int i = 0; i < length; i++) {
+            final var length = reader.readVarInt();
+            var value = new double[Math.min(length, 16)];
+            for (var i = 0; i < length; i++) {
                 if (i >= value.length) {
                     value = Arrays.copyOf(value, Math.min(length, 2 * value.length)); // note: prevents out-of-memory attack
                 }
@@ -243,7 +243,7 @@ public final class BaseTypeHandlers {
         }
         @Override public void write(final double[] value, final Writer writer) throws Exception {
             writer.writeVarInt(value.length);
-            for (final double v : value) {
+            for (final var v : value) {
                 writer.writeDouble(v);
             }
         }

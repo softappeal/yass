@@ -16,7 +16,6 @@ import ch.softappeal.yass.util.Nullable;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.lang.reflect.Method;
 import java.net.Socket;
 import java.util.Objects;
@@ -61,20 +60,20 @@ public final class SimpleSocketTransport extends SocketListener {
     }
 
     private static void flush(final ByteArrayOutputStream buffer, final Socket socket) throws IOException {
-        final OutputStream out = socket.getOutputStream();
+        final var out = socket.getOutputStream();
         buffer.writeTo(out);
         out.flush();
     }
 
     @Override void accept(final Socket socket) throws Exception {
         try (socket) {
-            final @Nullable Socket oldSocket = SOCKET.get();
+            final var oldSocket = SOCKET.get();
             SOCKET.set(socket);
             try {
-                final Reader reader = Reader.create(socket.getInputStream());
-                final SimpleTransportSetup setup = pathResolver.resolvePath(pathSerializer.read(reader));
+                final var reader = Reader.create(socket.getInputStream());
+                final var setup = pathResolver.resolvePath(pathSerializer.read(reader));
                 setup.server.invocation(false, (Request)setup.messageSerializer.read(reader)).invoke(reply -> {
-                    final ByteArrayOutputStream buffer = createBuffer();
+                    final var buffer = createBuffer();
                     setup.messageSerializer.write(reply, Writer.create(buffer));
                     flush(buffer, socket);
                 });
@@ -94,9 +93,9 @@ public final class SimpleSocketTransport extends SocketListener {
         Objects.requireNonNull(path);
         return new Client() {
             @Override protected Object invokeSync(final ContractId<?> contractId, final Interceptor interceptor, final Method method, final @Nullable Object[] arguments) throws Exception {
-                try (Socket socket = socketConnector.get()) {
+                try (var socket = socketConnector.get()) {
                     SocketUtils.setForceImmediateSend(socket);
-                    final @Nullable Socket oldSocket = SOCKET.get();
+                    final var oldSocket = SOCKET.get();
                     SOCKET.set(socket);
                     try {
                         return super.invokeSync(contractId, interceptor, method, arguments);
@@ -107,11 +106,11 @@ public final class SimpleSocketTransport extends SocketListener {
             }
             @Override public void invoke(final Client.Invocation invocation) throws Exception {
                 invocation.invoke(false, request -> {
-                    final ByteArrayOutputStream buffer = createBuffer();
-                    final Writer writer = Writer.create(buffer);
+                    final var buffer = createBuffer();
+                    final var writer = Writer.create(buffer);
                     pathSerializer.write(path, writer);
                     messageSerializer.write(request, writer);
-                    final Socket socket = SOCKET.get();
+                    final var socket = SOCKET.get();
                     flush(buffer, socket);
                     invocation.settle((Reply)messageSerializer.read(Reader.create(socket.getInputStream())));
                 });

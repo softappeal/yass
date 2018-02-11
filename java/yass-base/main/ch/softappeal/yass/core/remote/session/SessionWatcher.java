@@ -44,7 +44,7 @@ public final class SessionWatcher {
                 } catch (final InterruptedException ignore) {
                     return;
                 }
-                final CountDownLatch latch = new CountDownLatch(1);
+                final var latch = new CountDownLatch(1);
                 executor.execute(() -> {
                     try {
                         if (!latch.await(timeoutSeconds, TimeUnit.SECONDS)) {

@@ -27,7 +27,7 @@ public final class FieldHandler {
     }
 
     void fixup(final Map<Class<?>, TypeDesc> class2typeDesc) {
-        final @Nullable TypeDesc typeDesc = class2typeDesc.get(
+        final var typeDesc = class2typeDesc.get(
             primitiveWrapperType(field.getType()) // note: prevents that primitive types are written with type id
         );
         typeHandler = (typeDesc == null) ? null : typeDesc.handler;
@@ -44,7 +44,7 @@ public final class FieldHandler {
      * @see ClassTypeHandler#read(Input)
      */
     void write(final int id, final Object object, final Output output) throws Exception {
-        final @Nullable Object value = field.get(object);
+        final var value = field.get(object);
         if (value != null) {
             output.writer.writeVarInt(id);
             if (typeHandler == null) {

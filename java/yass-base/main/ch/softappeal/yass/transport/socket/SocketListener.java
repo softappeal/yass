@@ -4,7 +4,6 @@ import ch.softappeal.yass.util.Closer;
 import ch.softappeal.yass.util.Exceptions;
 
 import java.io.IOException;
-import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Objects;
 import java.util.concurrent.Executor;
@@ -28,7 +27,7 @@ public abstract class SocketListener {
      */
     public final Closer start(final Executor listenerExecutor, final SocketBinder socketBinder) {
         try {
-            final ServerSocket serverSocket = socketBinder.get();
+            final var serverSocket = socketBinder.get();
             try {
                 listenerExecutor.execute(() -> {
                     try {

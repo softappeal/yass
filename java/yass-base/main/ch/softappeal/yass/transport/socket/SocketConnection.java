@@ -27,7 +27,7 @@ public abstract class SocketConnection implements Connection {
     }
 
     protected final ByteArrayOutputStream writeToBuffer(final Packet packet) throws Exception {
-        final ByteArrayOutputStream buffer = new ByteArrayOutputStream(128);
+        final var buffer = new ByteArrayOutputStream(128);
         packetSerializer.write(packet, Writer.create(buffer));
         return buffer;
     }
@@ -56,12 +56,12 @@ public abstract class SocketConnection implements Connection {
     }
 
     static void create(final Factory connectionFactory, final TransportSetup setup, final Socket socket, final Reader reader, final OutputStream out) throws Exception {
-        final SocketConnection connection = connectionFactory.create(setup.packetSerializer, socket, out);
-        final Session session = Session.create(setup.sessionFactory, connection);
+        final var connection = connectionFactory.create(setup.packetSerializer, socket, out);
+        final var session = Session.create(setup.sessionFactory, connection);
         try {
             connection.created(session);
             while (true) {
-                final Packet packet = (Packet)connection.packetSerializer.read(reader);
+                final var packet = (Packet)connection.packetSerializer.read(reader);
                 Session.received(session, packet);
                 if (packet.isEnd()) {
                     return;

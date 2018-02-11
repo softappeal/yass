@@ -3,7 +3,6 @@ package ch.softappeal.yass.transport.socket;
 import ch.softappeal.yass.core.remote.session.Packet;
 import ch.softappeal.yass.serialize.Serializer;
 
-import java.io.ByteArrayOutputStream;
 import java.io.OutputStream;
 import java.net.Socket;
 
@@ -20,7 +19,7 @@ public final class SyncSocketConnection extends SocketConnection {
     private final Object writeMutex = new Object();
 
     @Override public void write(final Packet packet) throws Exception {
-        final ByteArrayOutputStream buffer = writeToBuffer(packet);
+        final var buffer = writeToBuffer(packet);
         synchronized (writeMutex) {
             flush(buffer);
         }

@@ -23,7 +23,7 @@ final class Output {
         } else if (value instanceof List) {
             TypeDesc.LIST.write(value, this);
         } else {
-            final @Nullable TypeDesc typeDesc = class2typeDesc.get(value.getClass());
+            final var typeDesc = class2typeDesc.get(value.getClass());
             if (typeDesc == null) {
                 throw new IllegalArgumentException("missing type '" + value.getClass().getCanonicalName() + '\'');
             }

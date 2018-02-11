@@ -27,7 +27,7 @@ public class Reconnector<S extends Session> extends ProxyDelegate<S> {
         Objects.requireNonNull(sessionFactory);
         Objects.requireNonNull(connector);
         @SuppressWarnings("unchecked") final SessionFactory reconnectorSessionFactory = connection -> {
-            final Session session = sessionFactory.create(connection);
+            final var session = sessionFactory.create(connection);
             session((S)session);
             return session;
         };

@@ -12,7 +12,7 @@ public final class Tags {
      * @throws IllegalArgumentException if missing {@link Tag}
      */
     public static int getTag(final AnnotatedElement element) throws IllegalArgumentException {
-        final @Nullable Tag annotation = element.getAnnotation(Tag.class);
+        final var annotation = element.getAnnotation(Tag.class);
         if (annotation == null) {
             throw new IllegalArgumentException("missing tag for '" + element + '\'');
         }

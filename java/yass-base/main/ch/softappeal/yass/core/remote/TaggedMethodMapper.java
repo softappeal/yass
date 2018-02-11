@@ -1,6 +1,5 @@
 package ch.softappeal.yass.core.remote;
 
-import ch.softappeal.yass.util.Nullable;
 import ch.softappeal.yass.util.Tag;
 import ch.softappeal.yass.util.Tags;
 
@@ -17,11 +16,11 @@ public final class TaggedMethodMapper implements MethodMapper {
     private final Map<Integer, Mapping> id2mapping;
 
     private TaggedMethodMapper(final Class<?> contract) {
-        final Method[] methods = contract.getMethods();
+        final var methods = contract.getMethods();
         id2mapping = new HashMap<>(methods.length);
-        for (final Method method : methods) {
-            final int id = Tags.getTag(method);
-            final @Nullable Mapping oldMapping = id2mapping.put(id, new Mapping(method, id));
+        for (final var method : methods) {
+            final var id = Tags.getTag(method);
+            final var oldMapping = id2mapping.put(id, new Mapping(method, id));
             if (oldMapping != null) {
                 throw new IllegalArgumentException("tag " + id + " used for methods '" + method + "' and '" + oldMapping.method + '\'');
             }

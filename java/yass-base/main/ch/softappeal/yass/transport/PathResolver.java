@@ -1,7 +1,5 @@
 package ch.softappeal.yass.transport;
 
-import ch.softappeal.yass.util.Nullable;
-
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -25,7 +23,7 @@ public final class PathResolver {
     }
 
     public TransportSetup resolvePath(final Object path) {
-        final @Nullable TransportSetup setup = pathMappings.get(Objects.requireNonNull(path));
+        final var setup = pathMappings.get(Objects.requireNonNull(path));
         if (setup == null) {
             throw new RuntimeException("no mapping for path '" + path + '\'');
         }

@@ -25,7 +25,7 @@ import java.util.function.Supplier;
         }
         return () -> {
             try {
-                final Socket socket = socketFactory.createSocket();
+                final var socket = socketFactory.createSocket();
                 try {
                     socket.connect(socketAddress, connectTimeoutMilliSeconds);
                     socket.setSoTimeout(readTimeoutMilliSeconds);

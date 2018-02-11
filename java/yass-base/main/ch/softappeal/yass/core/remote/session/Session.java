@@ -2,7 +2,6 @@ package ch.softappeal.yass.core.remote.session;
 
 import ch.softappeal.yass.core.remote.Client;
 import ch.softappeal.yass.core.remote.ExceptionReply;
-import ch.softappeal.yass.core.remote.Message;
 import ch.softappeal.yass.core.remote.Reply;
 import ch.softappeal.yass.core.remote.Request;
 import ch.softappeal.yass.core.remote.Server;
@@ -74,7 +73,7 @@ public abstract class Session extends Client implements Closer {
     }
 
     private void unblockPromises() {
-        for (final Invocation invocation : new ArrayList<>(requestNumber2invocation.values())) {
+        for (final var invocation : new ArrayList<>(requestNumber2invocation.values())) {
             try {
                 invocation.settle(new ExceptionReply(new SessionClosedException()));
             } catch (final Exception ignore) {
@@ -134,7 +133,7 @@ public abstract class Session extends Client implements Closer {
     }
 
     private void serverInvoke(final int requestNumber, final Request request) throws Exception {
-        final Server.Invocation invocation = server.invocation(true, request);
+        final var invocation = server.invocation(true, request);
         dispatchServerInvoke(invocation, () -> {
             try {
                 invocation.invoke(reply -> {
@@ -163,7 +162,7 @@ public abstract class Session extends Client implements Closer {
                 close(false, null);
                 return;
             }
-            final Message message = packet.message();
+            final var message = packet.message();
             if (message instanceof Request) {
                 serverInvoke(packet.requestNumber(), (Request)message);
             } else {
@@ -224,7 +223,7 @@ public abstract class Session extends Client implements Closer {
     }
 
     public static Session create(final SessionFactory sessionFactory, final Connection connection) throws Exception {
-        final Session session = sessionFactory.create(connection);
+        final var session = sessionFactory.create(connection);
         session.created();
         return session;
     }

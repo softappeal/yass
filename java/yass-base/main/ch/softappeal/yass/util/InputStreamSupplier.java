@@ -28,7 +28,7 @@ import java.util.function.Supplier;
         Objects.requireNonNull(classLoader);
         Objects.requireNonNull(name);
         return () -> {
-            final @Nullable InputStream in = classLoader.getResourceAsStream(name);
+            final var in = classLoader.getResourceAsStream(name);
             if (in == null) {
                 throw new RuntimeException("resource '" + name + "' not found");
             }

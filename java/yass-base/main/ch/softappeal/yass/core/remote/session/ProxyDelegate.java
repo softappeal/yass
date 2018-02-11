@@ -28,7 +28,7 @@ public abstract class ProxyDelegate<S extends Session> {
      * @throws SessionClosedException if no active session
      */
     public final S session() throws SessionClosedException {
-        final S session = this.session;
+        final var session = this.session;
         if (!connected(session)) {
             throw new SessionClosedException();
         }
@@ -44,7 +44,7 @@ public abstract class ProxyDelegate<S extends Session> {
             contract.getClassLoader(),
             new Class<?>[] {contract},
             (proxy, method, arguments) -> {
-                final C impl = proxyGetter.apply(session());
+                final var impl = proxyGetter.apply(session());
                 try {
                     return method.invoke(impl, arguments);
                 } catch (final InvocationTargetException e) {

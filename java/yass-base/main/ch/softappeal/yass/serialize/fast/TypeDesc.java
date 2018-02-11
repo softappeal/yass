@@ -54,7 +54,7 @@ public final class TypeDesc {
 
     public static final TypeDesc LIST = new TypeDesc(2, new TypeHandler(List.class) {
         @Override Object read(final Input input) throws Exception {
-            int length = input.reader.readVarInt();
+            var length = input.reader.readVarInt();
             final List<Object> list = new ArrayList<>(Math.min(length, 32)); // note: prevents out-of-memory attack
             while (length-- > 0) {
                 list.add(input.read());
@@ -63,9 +63,9 @@ public final class TypeDesc {
         }
         @SuppressWarnings("unchecked")
         @Override void write(final Object value, final Output output) throws Exception {
-            final List<Object> list = (List<Object>)value;
+            final var list = (List<Object>)value;
             output.writer.writeVarInt(list.size());
-            for (final Object e : list) {
+            for (final var e : list) {
                 output.write(e);
             }
         }

@@ -13,7 +13,7 @@ public final class Server {
 
     public Server(final Service... services) {
         id2service = new HashMap<>(services.length);
-        for (final Service service : services) {
+        for (final var service : services) {
             if (id2service.put(service.contractId.id, service) != null) {
                 throw new IllegalArgumentException("serviceId " + service.contractId.id + " already added");
             }
@@ -27,7 +27,7 @@ public final class Server {
      * @see ContractId#serviceAsync(Object, InterceptorAsync)
      */
     public static Completer completer() {
-        final @Nullable Completer completer = COMPLETER.get();
+        final var completer = COMPLETER.get();
         if (completer == null) {
             throw new IllegalStateException("no active asynchronous request/reply service invocation");
         }
@@ -50,7 +50,7 @@ public final class Server {
         }
         public void invoke(final ReplyWriter replyWriter) throws Exception {
             if (async()) {
-                final @Nullable Completer oldCompleter = COMPLETER.get();
+                final var oldCompleter = COMPLETER.get();
                 COMPLETER.set(methodMapping.oneWay ? null : new Completer() {
                     @Override public void complete(final @Nullable Object result) {
                         try {
@@ -81,7 +81,7 @@ public final class Server {
     }
 
     public Invocation invocation(final boolean asyncSupported, final Request request) {
-        final @Nullable Service service = id2service.get(request.serviceId);
+        final var service = id2service.get(request.serviceId);
         if (service == null) {
             throw new RuntimeException("no serviceId " + request.serviceId + " found (methodId " + request.methodId + ')');
         }

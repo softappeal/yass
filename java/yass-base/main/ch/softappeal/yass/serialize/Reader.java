@@ -84,11 +84,11 @@ public abstract class Reader {
      * @see Writer#writeVarInt(int)
      */
     public final int readVarInt() throws Exception {
-        byte b = readByte();
+        var b = readByte();
         if (b >= 0) {
             return b;
         }
-        int value = b & 0b0111_1111;
+        var value = b & 0b0111_1111;
         if ((b = readByte()) >= 0) {
             value |= b << 7;
         } else {
@@ -115,7 +115,7 @@ public abstract class Reader {
      * @see Writer#writeZigZagInt(int)
      */
     public final int readZigZagInt() throws Exception {
-        final int value = readVarInt();
+        final var value = readVarInt();
         return (value >>> 1) ^ -(value & 1);
     }
 
@@ -123,10 +123,10 @@ public abstract class Reader {
      * @see Writer#writeVarLong(long)
      */
     public final long readVarLong() throws Exception {
-        int shift = 0;
+        var shift = 0;
         long value = 0;
         while (shift < 64) {
-            final byte b = readByte();
+            final var b = readByte();
             value |= (long)(b & 0b0111_1111) << shift;
             if ((b & 0b1000_0000) == 0) {
                 return value;
@@ -140,7 +140,7 @@ public abstract class Reader {
      * @see Writer#writeZigZagLong(long)
      */
     public final long readZigZagLong() throws Exception {
-        final long value = readVarLong();
+        final var value = readVarLong();
         return (value >>> 1) ^ -(value & 1);
     }
 
@@ -168,7 +168,7 @@ public abstract class Reader {
         Objects.requireNonNull(in);
         return new Reader() {
             @Override public byte readByte() throws IOException {
-                final int i = in.read();
+                final var i = in.read();
                 if (i < 0) {
                     throw new EOFException();
                 }

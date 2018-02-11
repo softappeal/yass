@@ -14,7 +14,6 @@ import javax.net.ssl.SSLSocket;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.TrustManagerFactory;
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.security.KeyStore;
@@ -57,16 +56,16 @@ public final class SslSetup {
         cipherSuites = cipherSuites();
         try {
             context = SSLContext.getInstance(protocol);
-            KeyManager[] keyManagers = new KeyManager[0];
+            var keyManagers = new KeyManager[0];
             if (keyStore != null) {
-                final KeyManagerFactory keyManagerFactory = KeyManagerFactory.getInstance(keyManagerFactoryAlgorithm);
+                final var keyManagerFactory = KeyManagerFactory.getInstance(keyManagerFactoryAlgorithm);
                 keyManagerFactory.init(keyStore, keyStorePwd);
                 keyManagers = keyManagerFactory.getKeyManagers();
             }
-            boolean needClientAuth = false;
-            TrustManager[] trustManagers = new TrustManager[0];
+            var needClientAuth = false;
+            var trustManagers = new TrustManager[0];
             if (trustStore != null) {
-                final TrustManagerFactory trustManagerFactory = TrustManagerFactory.getInstance(trustManagerFactoryAlgorithm);
+                final var trustManagerFactory = TrustManagerFactory.getInstance(trustManagerFactoryAlgorithm);
                 trustManagerFactory.init(trustStore);
                 trustManagers = trustManagerFactory.getTrustManagers();
                 needClientAuth = true;
@@ -90,7 +89,7 @@ public final class SslSetup {
 
     public final SocketFactory socketFactory = new AbstractSocketFactory() {
         @Override public Socket createSocket() throws IOException {
-            final SSLSocket socket = (SSLSocket)context.getSocketFactory().createSocket();
+            final var socket = (SSLSocket)context.getSocketFactory().createSocket();
             try {
                 socket.setEnabledProtocols(protocols);
                 socket.setEnabledCipherSuites(cipherSuites);
@@ -104,7 +103,7 @@ public final class SslSetup {
 
     public final ServerSocketFactory serverSocketFactory = new AbstractServerSocketFactory() {
         @Override public ServerSocket createServerSocket() throws IOException {
-            final SSLServerSocket serverSocket = (SSLServerSocket)context.getServerSocketFactory().createServerSocket();
+            final var serverSocket = (SSLServerSocket)context.getServerSocketFactory().createServerSocket();
             try {
                 serverSocket.setNeedClientAuth(needClientAuth);
                 serverSocket.setEnabledProtocols(protocols);
@@ -119,8 +118,8 @@ public final class SslSetup {
 
     public static KeyStore readKeyStore(final String keyStoreType, final InputStreamSupplier keyStore, final @Nullable char[] keyStorePwd) {
         try {
-            final KeyStore ks = KeyStore.getInstance(keyStoreType);
-            try (InputStream in = keyStore.get()) {
+            final var ks = KeyStore.getInstance(keyStoreType);
+            try (var in = keyStore.get()) {
                 ks.load(in, keyStorePwd);
             }
             return ks;

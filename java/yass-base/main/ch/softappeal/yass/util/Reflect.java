@@ -15,8 +15,8 @@ public final class Reflect {
 
     public static List<Field> ownFields(final Class<?> type) {
         final List<Field> fields = new ArrayList<>(16);
-        for (final Field field : type.getDeclaredFields()) {
-            final int modifiers = field.getModifiers();
+        for (final var field : type.getDeclaredFields()) {
+            final var modifiers = field.getModifiers();
             if (!(Modifier.isStatic(modifiers) || Modifier.isTransient(modifiers))) {
                 fields.add(field);
                 if (!Modifier.isPublic(modifiers) || Modifier.isFinal(modifiers)) {
@@ -30,7 +30,7 @@ public final class Reflect {
 
     public static List<Field> allFields(final Class<?> type) {
         final List<Field> fields = new ArrayList<>(16);
-        for (Class<?> t = Objects.requireNonNull(type); (t != null) && (t != Throwable.class); t = t.getSuperclass()) {
+        for (var t = Objects.requireNonNull(type); (t != null) && (t != Throwable.class); t = t.getSuperclass()) {
             fields.addAll(ownFields(t));
         }
         return fields;

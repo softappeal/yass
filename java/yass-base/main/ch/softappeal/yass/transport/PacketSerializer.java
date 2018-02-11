@@ -20,12 +20,12 @@ public final class PacketSerializer extends CompositeSerializer {
     }
 
     @Override public Packet read(final Reader reader) throws Exception {
-        final int requestNumber = reader.readInt();
+        final var requestNumber = reader.readInt();
         return Packet.isEnd(requestNumber) ? Packet.END : new Packet(requestNumber, (Message)serializer.read(reader));
     }
 
     @Override public void write(final Object value, final Writer writer) throws Exception {
-        final Packet packet = (Packet)value;
+        final var packet = (Packet)value;
         if (packet.isEnd()) {
             writer.writeInt(Packet.END_REQUEST_NUMBER);
         } else {

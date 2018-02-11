@@ -57,7 +57,7 @@ public abstract class FastSerializer implements Serializer {
         if (class2typeDesc.put(typeDesc.handler.type, typeDesc) != null) {
             throw new IllegalArgumentException("type '" + typeDesc.handler.type.getCanonicalName() + "' already added");
         }
-        final @Nullable TypeHandler oldTypeHandler = id2typeHandler.put(typeDesc.id, typeDesc.handler);
+        final var oldTypeHandler = id2typeHandler.put(typeDesc.id, typeDesc.handler);
         if (oldTypeHandler != null) {
             throw new IllegalArgumentException(
                 "type id " + typeDesc.id + " used for '" + typeDesc.handler.type.getCanonicalName() + "' and '" + oldTypeHandler.type.getCanonicalName() + '\''
@@ -70,8 +70,8 @@ public abstract class FastSerializer implements Serializer {
         if (!type.isEnum()) {
             throw new IllegalArgumentException("type '" + type.getCanonicalName() + "' is not an enumeration");
         }
-        final Class<Enum<?>> enumeration = (Class<Enum<?>>)type;
-        final Enum<?>[] constants = enumeration.getEnumConstants();
+        final var enumeration = (Class<Enum<?>>)type;
+        final var constants = enumeration.getEnumConstants();
         addType(new TypeDesc(id, new BaseTypeHandler<>(enumeration) {
             @Override public Enum<?> read(final Reader reader) throws Exception {
                 return constants[reader.readVarInt()];
@@ -95,7 +95,7 @@ public abstract class FastSerializer implements Serializer {
         final Map<Integer, FieldHandler> id2fieldHandler = new HashMap<>(id2field.size());
         final Map<String, Field> name2field = new HashMap<>(id2field.size());
         id2field.forEach((fieldId, field) -> {
-            final @Nullable Field oldField = name2field.put(field.getName(), field);
+            final var oldField = name2field.put(field.getName(), field);
             if (oldField != null) { // reason: too confusing
                 throw new IllegalArgumentException("duplicated field name '" + field + "' and '" + oldField + "' not allowed in class hierarchy");
             }
@@ -142,17 +142,17 @@ public abstract class FastSerializer implements Serializer {
                 printer.print(id + ": " + typeHandler.type.getCanonicalName());
                 if (typeHandler instanceof BaseTypeHandler) {
                     printer.println();
-                    final Class<?> type = ((BaseTypeHandler<?>)typeHandler).type;
+                    final var type = ((BaseTypeHandler<?>)typeHandler).type;
                     if (type.isEnum()) {
-                        final Object[] constants = type.getEnumConstants();
-                        for (int c = 0; c < constants.length; c++) {
+                        final var constants = type.getEnumConstants();
+                        for (var c = 0; c < constants.length; c++) {
                             printer.println("    " + c + ": " + ((Enum<?>)constants[c]).name());
                         }
                     }
                 } else {
-                    final ClassTypeHandler classTypeHandler = (ClassTypeHandler)typeHandler;
+                    final var classTypeHandler = (ClassTypeHandler)typeHandler;
                     printer.println(" (referenceable=" + classTypeHandler.referenceable + ')');
-                    for (final ClassTypeHandler.FieldDesc fieldDesc : classTypeHandler.fieldDescs()) {
+                    for (final var fieldDesc : classTypeHandler.fieldDescs()) {
                         printer.println("    " + fieldDesc.id + ": " + fieldDesc.handler.field.toGenericString());
                     }
                 }

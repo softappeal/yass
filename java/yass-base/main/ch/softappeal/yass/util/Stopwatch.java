@@ -14,7 +14,7 @@ public final class Stopwatch {
     }
 
     public void stop() {
-        final long endNanos = System.nanoTime();
+        final var endNanos = System.nanoTime();
         if (stopped) {
             throw new IllegalStateException("stopwatch is already stopped");
         }

@@ -51,7 +51,7 @@ public interface MethodMapper {
     Mapping mapMethod(Method method);
 
     static void print(final PrintWriter printer, final Factory factory, final Class<?> contract) {
-        final MethodMapper methodMapper = factory.create(contract);
+        final var methodMapper = factory.create(contract);
         Arrays.stream(contract.getMethods())
             .map(methodMapper::mapMethod)
             .sorted(Comparator.comparing(mapping -> mapping.id))

@@ -1,7 +1,5 @@
 package ch.softappeal.yass.serialize.fast;
 
-import ch.softappeal.yass.util.Nullable;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -37,9 +35,9 @@ public final class ClassTypeHandler extends TypeHandler {
         instantiator = Objects.requireNonNull(instantiators.apply(type));
         this.referenceable = referenceable;
         fieldDescs = new FieldDesc[id2fieldHandler.size()];
-        int fd = 0;
-        for (final Map.Entry<Integer, FieldHandler> entry : id2fieldHandler.entrySet()) {
-            final FieldDesc fieldDesc = new FieldDesc(entry.getKey(), entry.getValue());
+        var fd = 0;
+        for (final var entry : id2fieldHandler.entrySet()) {
+            final var fieldDesc = new FieldDesc(entry.getKey(), entry.getValue());
             if (fieldDesc.id < FieldHandler.FIRST_ID) {
                 throw new IllegalArgumentException("id " + fieldDesc.id + " for field '" + fieldDesc.handler.field + "' must be >= " + FieldHandler.FIRST_ID);
             }
@@ -57,7 +55,7 @@ public final class ClassTypeHandler extends TypeHandler {
      * @see FieldHandler#write(int, Object, Output)
      */
     @Override Object read(final Input input) throws Exception {
-        final Object object = instantiator.get();
+        final var object = instantiator.get();
         if (referenceable) {
             if (input.referenceableObjects == null) {
                 input.referenceableObjects = new ArrayList<>(16);
@@ -65,7 +63,7 @@ public final class ClassTypeHandler extends TypeHandler {
             input.referenceableObjects.add(object);
         }
         while (true) {
-            final int id = input.reader.readVarInt();
+            final var id = input.reader.readVarInt();
             if (id == FieldHandler.END_ID) {
                 return object;
             }
@@ -78,8 +76,8 @@ public final class ClassTypeHandler extends TypeHandler {
             if (output.object2reference == null) {
                 output.object2reference = new IdentityHashMap<>(16);
             }
-            final Map<Object, Integer> object2reference = output.object2reference;
-            final @Nullable Integer reference = object2reference.get(value);
+            final var object2reference = output.object2reference;
+            final var reference = object2reference.get(value);
             if (reference != null) {
                 TypeDesc.REFERENCE.write(reference, output);
                 return;
@@ -90,7 +88,7 @@ public final class ClassTypeHandler extends TypeHandler {
     }
 
     @Override void write(final Object value, final Output output) throws Exception {
-        for (final FieldDesc fieldDesc : fieldDescs) {
+        for (final var fieldDesc : fieldDescs) {
             fieldDesc.handler.write(fieldDesc.id, value, output);
         }
         output.writer.writeVarInt(FieldHandler.END_ID);

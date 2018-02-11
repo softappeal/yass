@@ -52,7 +52,7 @@ public class Dumper {
         }
         private int tabs = 0;
         private void appendTabs() {
-            for (int t = tabs; t > 0; t--) {
+            for (var t = tabs; t > 0; t--) {
                 out.append("    ");
             }
         }
@@ -70,17 +70,17 @@ public class Dumper {
             out.append(s);
         }
         private void dumpArray(final Object array) {
-            final int length = Array.getLength(array);
+            final var length = Array.getLength(array);
             if (compact) {
                 out.append("[ ");
-                for (int i = 0; i < length; i++) {
+                for (var i = 0; i < length; i++) {
                     dump(Array.get(array, i));
                     out.append(' ');
                 }
                 out.append(']');
             } else {
                 inc("[");
-                for (int i = 0; i < length; i++) {
+                for (var i = 0; i < length; i++) {
                     appendTabs();
                     dump(Array.get(array, i));
                     appendLine();
@@ -129,7 +129,7 @@ public class Dumper {
             }
         }
         private void dumpClassFields(final List<Field> fields, final Object object) {
-            for (final Field field : fields) {
+            for (final var field : fields) {
                 final @Nullable Object value;
                 try {
                     value = field.get(object);
@@ -152,10 +152,10 @@ public class Dumper {
         }
         private final @Nullable Map<Object, Integer> alreadyDumpedObjects = referenceables ? new IdentityHashMap<>(16) : null;
         private void dumpClass(final Class<?> type, final Object object) {
-            final boolean referenceables = Dumper.this.referenceables && !isConcreteValueClass(type);
+            final var referenceables = Dumper.this.referenceables && !isConcreteValueClass(type);
             final int index;
             if (referenceables) {
-                final @Nullable Integer reference = alreadyDumpedObjects.get(object);
+                final var reference = alreadyDumpedObjects.get(object);
                 if (reference != null) {
                     out.append('#').append(reference);
                     return;
@@ -166,7 +166,7 @@ public class Dumper {
                 index = 0;
             }
             if (!Dumper.this.dumpValueClass(out, type, object)) {
-                final List<Field> fields = class2fields.computeIfAbsent(type, Reflect::allFields);
+                final var fields = class2fields.computeIfAbsent(type, Reflect::allFields);
                 if (compact) {
                     out.append(type.getSimpleName()).append("( ");
                     dumpClassFields(fields, object);
@@ -191,7 +191,7 @@ public class Dumper {
             } else if (value instanceof Map) {
                 dumpMap((Map<?, ?>)value);
             } else {
-                final Class<?> type = value.getClass();
+                final var type = value.getClass();
                 if (type.isEnum() || PRIMITIVE_WRAPPER_CLASSES.contains(type)) {
                     out.append(value);
                 } else if (type.isArray()) {

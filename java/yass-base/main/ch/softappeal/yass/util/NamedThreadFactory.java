@@ -29,7 +29,7 @@ public final class NamedThreadFactory implements ThreadFactory {
     }
 
     @Override public Thread newThread(final Runnable r) {
-        final Thread thread = new Thread(r, name + '-' + number.getAndIncrement());
+        final var thread = new Thread(r, name + '-' + number.getAndIncrement());
         thread.setUncaughtExceptionHandler(uncaughtExceptionHandler);
         if (thread.getPriority() != priority) {
             thread.setPriority(priority);

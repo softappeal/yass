@@ -16,8 +16,8 @@ public final class SimpleFastSerializer extends FastSerializer {
 
     private void addClass(final int typeId, final Class<?> type, final boolean referenceable) {
         final Map<Integer, Field> id2field = new HashMap<>(16);
-        int fieldId = FieldHandler.FIRST_ID;
-        for (final Field field : Reflect.allFields(type)) {
+        var fieldId = FieldHandler.FIRST_ID;
+        for (final var field : Reflect.allFields(type)) {
             id2field.put(fieldId++, field);
         }
         addClass(typeId, type, referenceable, id2field);
@@ -34,18 +34,18 @@ public final class SimpleFastSerializer extends FastSerializer {
         final List<Class<?>> referenceableConcreteClasses
     ) {
         super(instantiators);
-        int id = TypeDesc.FIRST_ID;
-        for (final BaseTypeHandler<?> typeHandler : baseTypeHandlers) {
+        var id = TypeDesc.FIRST_ID;
+        for (final var typeHandler : baseTypeHandlers) {
             addBaseType(new TypeDesc(id++, typeHandler));
         }
-        for (final Class<?> type : concreteClasses) {
+        for (final var type : concreteClasses) {
             if (type.isEnum()) {
                 addEnum(id++, type);
             } else {
                 addClass(id++, type, false);
             }
         }
-        for (final Class<?> type : referenceableConcreteClasses) {
+        for (final var type : referenceableConcreteClasses) {
             checkClass(type);
             addClass(id++, type, true);
         }

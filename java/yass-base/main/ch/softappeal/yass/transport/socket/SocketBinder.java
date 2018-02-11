@@ -15,7 +15,7 @@ import java.util.function.Supplier;
         Objects.requireNonNull(socketAddress);
         return () -> {
             try {
-                final ServerSocket serverSocket = socketFactory.createServerSocket();
+                final var serverSocket = socketFactory.createServerSocket();
                 try {
                     serverSocket.bind(socketAddress);
                     return serverSocket;

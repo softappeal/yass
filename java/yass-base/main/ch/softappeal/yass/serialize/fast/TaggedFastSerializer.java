@@ -1,6 +1,5 @@
 package ch.softappeal.yass.serialize.fast;
 
-import ch.softappeal.yass.util.Nullable;
 import ch.softappeal.yass.util.Reflect;
 import ch.softappeal.yass.util.Tag;
 import ch.softappeal.yass.util.Tags;
@@ -20,9 +19,9 @@ public final class TaggedFastSerializer extends FastSerializer {
 
     private void addClass(final Class<?> type, final boolean referenceable) {
         final Map<Integer, Field> id2field = new HashMap<>(16);
-        for (final Field field : Reflect.allFields(type)) {
-            final int id = Tags.getTag(field);
-            final @Nullable Field oldField = id2field.put(id, field);
+        for (final var field : Reflect.allFields(type)) {
+            final var id = Tags.getTag(field);
+            final var oldField = id2field.put(id, field);
             if (oldField != null) {
                 throw new IllegalArgumentException("tag " + id + " used for fields '" + field + "' and '" + oldField + '\'');
             }

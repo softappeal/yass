@@ -48,12 +48,12 @@ public final class FrameSerializer extends CompositeSerializer {
         }
         return serializer.read(new Reader() {
             @Override public byte readByte() throws Exception {
-                final byte value = reader.readByte();
+                final var value = reader.readByte();
                 if (value == START) {
                     throw new IllegalStateException("unexpected frame start");
                 }
                 if (value == QUOTE) {
-                    final byte quotedValue = reader.readByte();
+                    final var quotedValue = reader.readByte();
                     if (quotedValue == QUOTE_START) {
                         return START;
                     } else if (quotedValue == QUOTE_QUOTE) {

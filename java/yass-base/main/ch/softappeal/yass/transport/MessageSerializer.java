@@ -26,7 +26,7 @@ public final class MessageSerializer extends CompositeSerializer {
 
     @SuppressWarnings("unchecked")
     @Override public Message read(final Reader reader) throws Exception {
-        final byte type = reader.readByte();
+        final var type = reader.readByte();
         if (type == REQUEST) {
             return new Request(
                 reader.readZigZagInt(),
@@ -47,17 +47,17 @@ public final class MessageSerializer extends CompositeSerializer {
     @Override public void write(final Object message, final Writer writer) throws Exception {
         if (message instanceof Request) {
             writer.writeByte(REQUEST);
-            final Request request = (Request)message;
+            final var request = (Request)message;
             writer.writeZigZagInt(request.serviceId);
             writer.writeZigZagInt(request.methodId);
             serializer.write(request.arguments, writer);
         } else if (message instanceof ValueReply) {
             writer.writeByte(VALUE_REPLY);
-            final ValueReply reply = (ValueReply)message;
+            final var reply = (ValueReply)message;
             serializer.write(reply.value, writer);
         } else {
             writer.writeByte(EXCEPTION_REPLY);
-            final ExceptionReply reply = (ExceptionReply)message;
+            final var reply = (ExceptionReply)message;
             serializer.write(reply.exception, writer);
         }
     }

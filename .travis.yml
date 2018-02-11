@@ -3,12 +3,12 @@ sudo: false
 language: java
 
 jdk:
-    - oraclejdk9
+    - oraclejdk10
 
 addons:
     apt:
         packages:
-            - oracle-java9-installer
+            - oracle-java10-installer
 
 branches:
     only:

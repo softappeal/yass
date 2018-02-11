@@ -8,7 +8,6 @@ import ch.softappeal.yass.transport.PathSerializer;
 import ch.softappeal.yass.transport.TransportSetup;
 import ch.softappeal.yass.util.Exceptions;
 
-import java.io.OutputStream;
 import java.net.Socket;
 import java.util.Objects;
 import java.util.concurrent.Executor;
@@ -46,8 +45,8 @@ public final class SocketTransport extends SocketListener {
     }
 
     @Override void accept(final Socket socket) throws Exception {
-        final Reader reader = Reader.create(socket.getInputStream());
-        final TransportSetup setup = pathResolver.resolvePath(pathSerializer.read(reader));
+        final var reader = Reader.create(socket.getInputStream());
+        final var setup = pathResolver.resolvePath(pathSerializer.read(reader));
         SocketConnection.create(connectionFactory, setup, socket, reader, socket.getOutputStream());
     }
 
@@ -61,7 +60,7 @@ public final class SocketTransport extends SocketListener {
         Objects.requireNonNull(path);
         try {
             SocketUtils.execute(readerExecutor, socketConnector.get(), socket -> {
-                final OutputStream out = socket.getOutputStream();
+                final var out = socket.getOutputStream();
                 pathSerializer.write(path, Writer.create(out));
                 out.flush();
                 SocketConnection.create(connectionFactory, setup, socket, Reader.create(socket.getInputStream()), out);
