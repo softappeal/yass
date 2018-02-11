@@ -23,7 +23,7 @@ public final class Server {
     private static final ThreadLocal<Completer> COMPLETER = new ThreadLocal<>();
 
     /**
-     * @return completer for active asynchronous service invocation
+     * @return completer for active asynchronous request/reply service invocation
      * @see ContractId#serviceAsync(Object, InterceptorAsync)
      */
     public static Completer completer() {
