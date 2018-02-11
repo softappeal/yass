@@ -43,6 +43,10 @@ public class Dumper {
         return s;
     }
 
+    public final String dump(final @Nullable Object value) {
+        return append(new StringBuilder(256), value).toString();
+    }
+
     private final Map<Class<?>, List<Field>> class2fields = new ConcurrentHashMap<>();
 
     private final class Dump {

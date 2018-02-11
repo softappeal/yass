@@ -26,8 +26,8 @@ public final class Logger implements Interceptor {
     }
 
     private static final Dumper DUMPER = new Dumper(true, true);
-    public static String dump(final Object value) {
-        return DUMPER.append(new StringBuilder(256), value).toString();
+    public static String dump(final @Nullable Object value) {
+        return DUMPER.dump(value);
     }
 
     private void log(final String type, final Method method, final Object data) {
