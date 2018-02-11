@@ -21,7 +21,7 @@ public abstract class Client {
 
     public static final class Invocation extends AbstractInvocation {
         private final @Nullable CompletableFuture<?> promise;
-        private final int serviceId;
+        public final int serviceId;
         Invocation(
             final MethodMapper.Mapping methodMapping, final @Nullable Object[] arguments, final @Nullable InterceptorAsync<Object> interceptor,
             final @Nullable CompletableFuture<?> promise, final int serviceId
