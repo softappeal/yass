@@ -29,13 +29,18 @@ public class SimpleSocketTransportTest extends TransportTest {
 
     private static Interceptor socketInterceptor(final String side) {
         return (method, arguments, invocation) -> {
-            System.out.println(side + ": " + SimpleSocketTransport.socket().get());
+            System.out.println(side + ": " + SimpleSocketTransport.socket());
             return invocation.proceed();
         };
     }
 
     @Test public void invoke() throws Exception {
-        Assert.assertFalse(SimpleSocketTransport.socket().isPresent());
+        try {
+            SimpleSocketTransport.socket();
+            Assert.fail();
+        } catch (final IllegalStateException e) {
+            System.out.println(e);
+        }
         final ExecutorService executor = Executors.newCachedThreadPool(new NamedThreadFactory("executor", Exceptions.TERMINATE));
         try (
             Closer closer = new SimpleSocketTransport(

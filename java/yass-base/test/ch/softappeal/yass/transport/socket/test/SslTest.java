@@ -27,7 +27,7 @@ public class SslTest extends TransportTest {
 
     private static void checkName(final String name) throws Exception {
         System.out.println("checkName");
-        Assert.assertEquals(name, ((SSLSocket)SimpleSocketTransport.socket().get()).getSession().getPeerPrincipal().getName());
+        Assert.assertEquals(name, ((SSLSocket)SimpleSocketTransport.socket()).getSession().getPeerPrincipal().getName());
     }
 
     @SuppressWarnings("try")

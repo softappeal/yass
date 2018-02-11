@@ -45,7 +45,7 @@ public final class SocketServer {
     private static final Interceptor LOGGER = new Logger(null, Logger.Side.SERVER);
 
     private static final Interceptor PEER = (method, arguments, invocation) -> {
-        System.out.println(((SSLSocket)SimpleSocketTransport.socket().get()).getSession().getPeerPrincipal().getName());
+        System.out.println(((SSLSocket)SimpleSocketTransport.socket()).getSession().getPeerPrincipal().getName());
         return invocation.proceed();
     };
 
