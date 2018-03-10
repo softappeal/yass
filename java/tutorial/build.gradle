@@ -1,5 +1,5 @@
 dependencies {
-    compile project(":java:yass-generate")
+    compile project(":java:yass")
 }
 
 task generateTypeScript(type: JavaExec) {

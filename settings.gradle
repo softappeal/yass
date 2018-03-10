@@ -1,5 +1,4 @@
 include "java:yass"
-include "java:yass-generate"
 include "java:yass-transport-ws"
 include "java:tutorial"
 include "java:tutorial-web"

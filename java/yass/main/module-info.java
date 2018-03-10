@@ -7,5 +7,6 @@ module ch.softappeal.yass {
     exports ch.softappeal.yass.transport;
     exports ch.softappeal.yass.transport.socket;
     exports ch.softappeal.yass.util;
+    exports ch.softappeal.yass.generate;
     requires jdk.unsupported;
 }

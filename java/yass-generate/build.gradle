@@ -1,5 +1,0 @@
-dependencies {
-    api project(":java:yass")
-}
-
-task dist(dependsOn: 'sign')
