@@ -12,10 +12,6 @@ public final class Node {
     public final List<Node> links = new ArrayList<>();
     public Node next;
 
-    private Node() {
-        id = 0;
-    }
-
     public Node(final double id) {
         this.id = id;
     }

@@ -6,8 +6,6 @@ import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Function;
-import java.util.function.Supplier;
 
 /**
  * This serializer assigns type and field id's automatically. Therefore, all peers must have the same version of the contract!
@@ -27,13 +25,7 @@ public final class SimpleFastSerializer extends FastSerializer {
      * @param concreteClasses instances of these classes can only be used in trees
      * @param referenceableConcreteClasses instances of these classes can be used in graphs
      */
-    public SimpleFastSerializer(
-        final Function<Class<?>, Supplier<Object>> instantiators,
-        final List<BaseTypeHandler<?>> baseTypeHandlers,
-        final List<Class<?>> concreteClasses,
-        final List<Class<?>> referenceableConcreteClasses
-    ) {
-        super(instantiators);
+    public SimpleFastSerializer(final List<BaseTypeHandler<?>> baseTypeHandlers, final List<Class<?>> concreteClasses, final List<Class<?>> referenceableConcreteClasses) {
         var id = TypeDesc.FIRST_ID;
         for (final var typeHandler : baseTypeHandlers) {
             addBaseType(new TypeDesc(id++, typeHandler));
@@ -52,12 +44,8 @@ public final class SimpleFastSerializer extends FastSerializer {
         fixupFields();
     }
 
-    public SimpleFastSerializer(
-        final Function<Class<?>, Supplier<Object>> instantiators,
-        final List<BaseTypeHandler<?>> baseTypeHandlers,
-        final List<Class<?>> concreteClasses
-    ) {
-        this(instantiators, baseTypeHandlers, concreteClasses, List.of());
+    public SimpleFastSerializer(final List<BaseTypeHandler<?>> baseTypeHandlers, final List<Class<?>> concreteClasses) {
+        this(baseTypeHandlers, concreteClasses, List.of());
     }
 
 }

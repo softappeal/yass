@@ -1,7 +1,6 @@
 package ch.softappeal.yass.util.test;
 
 import ch.softappeal.yass.serialize.contract.nested.AllTypes;
-import ch.softappeal.yass.util.Instantiators;
 import ch.softappeal.yass.util.Reflect;
 import org.junit.Assert;
 import org.junit.Test;
@@ -14,17 +13,8 @@ import java.util.stream.Collectors;
 
 public class ReflectTest {
 
-    @Test public void noDefaultConstructorNoArg() {
-        try {
-            Instantiators.NOARG.apply(NoDefaultConstructor.class).get();
-            Assert.fail();
-        } catch (final RuntimeException e) {
-            System.out.println(e);
-        }
-    }
-
-    @Test public void noDefaultConstructorUnsafe() {
-        final var instance = (NoDefaultConstructor)Instantiators.UNSAFE.apply(NoDefaultConstructor.class).get();
+    @Test public void noDefaultConstructor() {
+        final var instance = (NoDefaultConstructor)Reflect.ALLOCATE.apply(NoDefaultConstructor.class).get();
         Assert.assertTrue(instance.i == 0);
     }
 
@@ -34,7 +24,7 @@ public class ReflectTest {
 
     @Test public void fieldModifiers() throws Exception {
         FieldModifiers.CONSTRUCTOR_CALLED = false;
-        final FieldModifiers fieldModifiers = (FieldModifiers)Instantiators.NOARG.apply(FieldModifiers.class).get();
+        final FieldModifiers fieldModifiers = (FieldModifiers)Reflect.ALLOCATE.apply(FieldModifiers.class).get();
         Assert.assertTrue(FieldModifiers.CONSTRUCTOR_CALLED);
         final Map<String, Field> name2field = name2field(FieldModifiers.class);
         final Field privateField = name2field.get("privateField");
@@ -57,7 +47,7 @@ public class ReflectTest {
     }
 
     @Test public void allTypes() throws Exception {
-        final AllTypes allTypes = (AllTypes)Instantiators.NOARG.apply(AllTypes.class).get();
+        final AllTypes allTypes = (AllTypes)Reflect.ALLOCATE.apply(AllTypes.class).get();
         final Map<String, Field> name2field = name2field(AllTypes.class);
         final Field booleanField = name2field.get("booleanField");
         final Field byteField = name2field.get("byteField");

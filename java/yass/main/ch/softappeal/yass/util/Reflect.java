@@ -6,6 +6,8 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
+import java.util.function.Function;
+import java.util.function.Supplier;
 
 public final class Reflect {
 
@@ -35,5 +37,13 @@ public final class Reflect {
         }
         return fields;
     }
+
+    public static final Function<Class<?>, Supplier<Object>> ALLOCATE = type -> () -> {
+        try {
+            return Unsafe.INSTANCE.allocateInstance(type);
+        } catch (final InstantiationException e) {
+            throw new RuntimeException(e);
+        }
+    };
 
 }

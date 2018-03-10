@@ -1,13 +1,13 @@
 package ch.softappeal.yass.serialize.fast;
 
+import ch.softappeal.yass.util.Reflect;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.IdentityHashMap;
 import java.util.Map;
-import java.util.Objects;
-import java.util.function.Function;
 import java.util.function.Supplier;
 
 public final class ClassTypeHandler extends TypeHandler {
@@ -30,9 +30,9 @@ public final class ClassTypeHandler extends TypeHandler {
         return fieldDescs.clone();
     }
 
-    ClassTypeHandler(final Class<?> type, final Function<Class<?>, Supplier<Object>> instantiators, final boolean referenceable, final Map<Integer, FieldHandler> id2fieldHandler) {
+    ClassTypeHandler(final Class<?> type, final boolean referenceable, final Map<Integer, FieldHandler> id2fieldHandler) {
         super(type);
-        instantiator = Objects.requireNonNull(instantiators.apply(type));
+        instantiator = Reflect.ALLOCATE.apply(type);
         this.referenceable = referenceable;
         fieldDescs = new FieldDesc[id2fieldHandler.size()];
         var fd = 0;

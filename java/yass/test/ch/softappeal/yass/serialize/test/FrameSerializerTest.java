@@ -6,7 +6,6 @@ import ch.softappeal.yass.serialize.Writer;
 import ch.softappeal.yass.serialize.fast.BaseTypeHandlers;
 import ch.softappeal.yass.serialize.fast.SimpleFastSerializer;
 import ch.softappeal.yass.transport.FrameSerializer;
-import ch.softappeal.yass.util.Instantiators;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -17,7 +16,6 @@ import java.util.List;
 public class FrameSerializerTest {
 
     private static final Serializer SERIALIZER = new PrinterSerializer(new FrameSerializer(new SimpleFastSerializer(
-        Instantiators.NOARG,
         List.of(BaseTypeHandlers.BYTE_ARRAY),
         List.of(),
         List.of()

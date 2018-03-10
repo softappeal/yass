@@ -9,8 +9,6 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Function;
-import java.util.function.Supplier;
 
 /**
  * This serializer assigns type and field id's from its {@link Tag}.
@@ -33,13 +31,7 @@ public final class TaggedFastSerializer extends FastSerializer {
      * @param concreteClasses instances of these classes can only be used in trees
      * @param referenceableConcreteClasses instances of these classes can be used in graphs
      */
-    public TaggedFastSerializer(
-        final Function<Class<?>, Supplier<Object>> instantiators,
-        final Collection<TypeDesc> baseTypeDescs,
-        final Collection<Class<?>> concreteClasses,
-        final Collection<Class<?>> referenceableConcreteClasses
-    ) {
-        super(instantiators);
+    public TaggedFastSerializer(final Collection<TypeDesc> baseTypeDescs, final Collection<Class<?>> concreteClasses, final Collection<Class<?>> referenceableConcreteClasses) {
         baseTypeDescs.forEach(this::addBaseType);
         concreteClasses.forEach(type -> {
             if (type.isEnum()) {
@@ -55,12 +47,8 @@ public final class TaggedFastSerializer extends FastSerializer {
         fixupFields();
     }
 
-    public TaggedFastSerializer(
-        final Function<Class<?>, Supplier<Object>> instantiators,
-        final Collection<TypeDesc> baseTypeDescs,
-        final Collection<Class<?>> concreteClasses
-    ) {
-        this(instantiators, baseTypeDescs, concreteClasses, List.of());
+    public TaggedFastSerializer(final Collection<TypeDesc> baseTypeDescs, final Collection<Class<?>> concreteClasses) {
+        this(baseTypeDescs, concreteClasses, List.of());
     }
 
 }

@@ -7,11 +7,6 @@ public class Pair<F, S> {
     public final @Nullable F first;
     public final @Nullable S second;
 
-    Pair() {
-        first = null;
-        second = null;
-    }
-
     public Pair(final @Nullable F first, final @Nullable S second) {
         this.first = first;
         this.second = second;
