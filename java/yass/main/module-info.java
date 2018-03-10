@@ -1,4 +1,4 @@
-module ch.softappeal.yass.base {
+module ch.softappeal.yass {
     exports ch.softappeal.yass.core;
     exports ch.softappeal.yass.core.remote;
     exports ch.softappeal.yass.core.remote.session;

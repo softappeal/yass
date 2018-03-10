@@ -1,4 +1,4 @@
-[![Maven Central](https://maven-badges.herokuapp.com/maven-central/ch.softappeal.yass/yass-base/badge.svg)](https://maven-badges.herokuapp.com/maven-central/ch.softappeal.yass/yass-base)
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/ch.softappeal.yass/yass/badge.svg)](https://maven-badges.herokuapp.com/maven-central/ch.softappeal.yass/yass)
 [![Build Status](https://travis-ci.org/softappeal/yass.svg?branch=master)](https://travis-ci.org/softappeal/yass)
 
 # yass (Yet Another Service Solution)
