@@ -9,8 +9,6 @@ import org.junit.Test;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.Arrays;
 
 public class ReaderWriterTest {
@@ -21,20 +19,20 @@ public class ReaderWriterTest {
         final byte p127 = 127;
         final byte m100 = -100;
         final byte m128 = -128;
-        final ByteArrayOutputStream out = new ByteArrayOutputStream();
-        final OutputStream writer = Writer.create(out).stream();
+        final var out = new ByteArrayOutputStream();
+        final var writer = Writer.create(out).stream();
         writer.write(p0);
         writer.write(p100);
         writer.write(p127);
         writer.write(m100);
         writer.write(m128);
-        final byte[] buffer = out.toByteArray();
+        final var buffer = out.toByteArray();
         Assert.assertTrue(buffer[0] == p0);
         Assert.assertTrue(buffer[1] == p100);
         Assert.assertTrue(buffer[2] == p127);
         Assert.assertTrue(buffer[3] == m100);
         Assert.assertTrue(buffer[4] == m128);
-        final InputStream reader = Reader.create(new ByteArrayInputStream(buffer)).stream();
+        final var reader = Reader.create(new ByteArrayInputStream(buffer)).stream();
         Assert.assertTrue(reader.read() == (p0 & 0b1111_1111));
         Assert.assertTrue(reader.read() == (p100 & 0b1111_1111));
         Assert.assertTrue(reader.read() == (p127 & 0b1111_1111));
@@ -50,13 +48,13 @@ public class ReaderWriterTest {
 
     @Test public void adaptorBytes() throws IOException {
         final byte[] input = {0, 100, 127, -100, -128};
-        final ByteArrayOutputStream out = new ByteArrayOutputStream();
-        final OutputStream writer = Writer.create(out).stream();
+        final var out = new ByteArrayOutputStream();
+        final var writer = Writer.create(out).stream();
         writer.write(input, 0, input.length);
-        final byte[] buffer = out.toByteArray();
+        final var buffer = out.toByteArray();
         Assert.assertArrayEquals(input, buffer);
-        final InputStream reader = Reader.create(new ByteArrayInputStream(buffer)).stream();
-        final byte[] output = new byte[input.length];
+        final var reader = Reader.create(new ByteArrayInputStream(buffer)).stream();
+        final var output = new byte[input.length];
         Assert.assertTrue(reader.read(output, 0, output.length) == input.length);
         Assert.assertArrayEquals(output, input);
         try {
@@ -68,18 +66,18 @@ public class ReaderWriterTest {
     }
 
     @Test public void bytes() throws Exception {
-        final ByteArrayOutputStream out = new ByteArrayOutputStream();
-        final Writer writer = Writer.create(out);
+        final var out = new ByteArrayOutputStream();
+        final var writer = Writer.create(out);
         writer.writeBytes(new byte[] {(byte)-1, (byte)0, (byte)1});
-        final Reader reader = Reader.create(new ByteArrayInputStream(out.toByteArray()));
-        final byte[] bytes = new byte[3];
+        final var reader = Reader.create(new ByteArrayInputStream(out.toByteArray()));
+        final var bytes = new byte[3];
         reader.readBytes(bytes);
         Assert.assertTrue(Arrays.equals(bytes, new byte[] {(byte)-1, (byte)0, (byte)1}));
     }
 
     @Test public void numbers() throws Exception {
-        final ByteArrayOutputStream out = new ByteArrayOutputStream();
-        final Writer writer = Writer.create(out);
+        final var out = new ByteArrayOutputStream();
+        final var writer = Writer.create(out);
         writer.writeShort((short)12);
         writer.writeShort((short)0);
         writer.writeShort((short)-34);
@@ -119,7 +117,7 @@ public class ReaderWriterTest {
         writer.writeDouble(Double.NEGATIVE_INFINITY);
         writer.writeDouble(Double.POSITIVE_INFINITY);
         writer.writeDouble(Double.NaN);
-        final Reader reader = Reader.create(new ByteArrayInputStream(out.toByteArray()));
+        final var reader = Reader.create(new ByteArrayInputStream(out.toByteArray()));
         Assert.assertTrue(reader.readShort() == 12);
         Assert.assertTrue(reader.readShort() == 0);
         Assert.assertTrue(reader.readShort() == -34);
@@ -162,8 +160,8 @@ public class ReaderWriterTest {
     }
 
     @Test public void varInt() throws Exception {
-        final ByteArrayOutputStream out = new ByteArrayOutputStream();
-        final Writer writer = Writer.create(out);
+        final var out = new ByteArrayOutputStream();
+        final var writer = Writer.create(out);
         writer.writeVarInt(12);
         writer.writeVarInt(0);
         writer.writeVarInt(128);
@@ -184,7 +182,7 @@ public class ReaderWriterTest {
         writer.writeZigZagInt(0xFEDCBA98);
         writer.writeZigZagInt(Integer.MIN_VALUE);
         writer.writeZigZagInt(Integer.MAX_VALUE);
-        final Reader reader = Reader.create(new ByteArrayInputStream(out.toByteArray()));
+        final var reader = Reader.create(new ByteArrayInputStream(out.toByteArray()));
         Assert.assertTrue(reader.readVarInt() == 12);
         Assert.assertTrue(reader.readVarInt() == 0);
         Assert.assertTrue(reader.readVarInt() == 128);
@@ -208,8 +206,8 @@ public class ReaderWriterTest {
     }
 
     @Test public void varLong() throws Exception {
-        final ByteArrayOutputStream out = new ByteArrayOutputStream();
-        final Writer writer = Writer.create(out);
+        final var out = new ByteArrayOutputStream();
+        final var writer = Writer.create(out);
         writer.writeVarLong(12);
         writer.writeVarLong(0);
         writer.writeVarLong(128);
@@ -226,7 +224,7 @@ public class ReaderWriterTest {
         writer.writeZigZagLong(0xFEDCBA9876543210L);
         writer.writeZigZagLong(Long.MIN_VALUE);
         writer.writeZigZagLong(Long.MAX_VALUE);
-        final Reader reader = Reader.create(new ByteArrayInputStream(out.toByteArray()));
+        final var reader = Reader.create(new ByteArrayInputStream(out.toByteArray()));
         Assert.assertTrue(reader.readVarLong() == 12);
         Assert.assertTrue(reader.readVarLong() == 0);
         Assert.assertTrue(reader.readVarLong() == 128);
@@ -246,7 +244,7 @@ public class ReaderWriterTest {
     }
 
     private static void string(final int utf8Length, final String value) {
-        final byte[] bytes = Utf8.bytes(value);
+        final var bytes = Utf8.bytes(value);
         Assert.assertTrue(bytes.length == utf8Length);
         Assert.assertEquals(value, Utf8.string(bytes));
     }

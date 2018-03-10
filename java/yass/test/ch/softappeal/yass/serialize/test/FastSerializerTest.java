@@ -112,10 +112,10 @@ public class FastSerializerTest {
     @Test public void bytes() throws Exception {
         TestUtils.compareFile("ch/softappeal/yass/serialize/test/TaggedFastSerializerTest.bytes.txt", new TestUtils.Printer() {
             void write(final PrintWriter printer, final Object value) throws Exception {
-                final ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+                final var buffer = new ByteArrayOutputStream();
                 SerializerTest.TAGGED_FAST_SERIALIZER.write(value, Writer.create(buffer));
-                final byte[] bytes = buffer.toByteArray();
-                for (final byte b : bytes) {
+                final var bytes = buffer.toByteArray();
+                for (final var b : bytes) {
                     printer.print(" " + b);
                 }
                 printer.println();
@@ -136,18 +136,18 @@ public class FastSerializerTest {
     );
 
     private static Object copy(final Object input) throws Exception {
-        final ByteArrayOutputStream buffer = new ByteArrayOutputStream();
-        final Writer writer = Writer.create(buffer);
+        final var buffer = new ByteArrayOutputStream();
+        final var writer = Writer.create(buffer);
         V1_SERIALIZER.write(input, writer);
         writer.writeByte((byte)123); // write sentinel
-        final Reader reader = Reader.create(new ByteArrayInputStream(buffer.toByteArray()));
-        final Object output = V2_SERIALIZER.read(reader);
+        final var reader = Reader.create(new ByteArrayInputStream(buffer.toByteArray()));
+        final var output = V2_SERIALIZER.read(reader);
         Assert.assertTrue(reader.readByte() == 123); // check sentinel
         return output;
     }
 
     @Test public void versioning() throws Exception {
-        final C2 c2 = (C2)copy(new C1(42));
+        final var c2 = (C2)copy(new C1(42));
         Assert.assertTrue(c2.i1 == 42);
         Assert.assertNull(c2.i2);
         Assert.assertTrue(c2.i2() == 13);

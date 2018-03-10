@@ -26,7 +26,7 @@ public final class ZipSerializer extends CompositeSerializer {
     }
 
     @Override public void write(final @Nullable Object value, final Writer writer) throws Exception {
-        final ByteArrayOutputStream bytes = new ByteArrayOutputStream(128);
+        final var bytes = new ByteArrayOutputStream(128);
         try (OutputStream out = new DeflaterOutputStream(bytes)) {
             serializer.write(value, Writer.create(out));
         }

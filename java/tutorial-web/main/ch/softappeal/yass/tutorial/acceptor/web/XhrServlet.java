@@ -10,7 +10,6 @@ import ch.softappeal.yass.tutorial.shared.EchoServiceImpl;
 import ch.softappeal.yass.tutorial.shared.Logger;
 import ch.softappeal.yass.tutorial.shared.UnexpectedExceptionHandler;
 import ch.softappeal.yass.util.Exceptions;
-import ch.softappeal.yass.util.Nullable;
 
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -28,7 +27,7 @@ public class XhrServlet extends HttpServlet {
     private static void invoke(final SimpleTransportSetup setup, final HttpServletRequest httpRequest, final HttpServletResponse httpResponse) {
         try {
             // shows how to use certificates
-            final @Nullable X509Certificate[] certificates = (X509Certificate[])httpRequest.getAttribute("javax.servlet.request.X509Certificate");
+            final var certificates = (X509Certificate[])httpRequest.getAttribute("javax.servlet.request.X509Certificate");
             if (certificates != null) {
                 System.out.println(Arrays.stream(certificates).map(X509Certificate::getSubjectDN).collect(Collectors.toList()));
             }

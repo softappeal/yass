@@ -1,10 +1,8 @@
 package ch.softappeal.yass.tutorial.datagram;
 
-import ch.softappeal.yass.core.remote.Client;
 import ch.softappeal.yass.tutorial.contract.Config;
 import ch.softappeal.yass.tutorial.contract.Price;
 import ch.softappeal.yass.tutorial.contract.PriceKind;
-import ch.softappeal.yass.tutorial.contract.PriceListener;
 
 import java.net.InetSocketAddress;
 import java.nio.channels.DatagramChannel;
@@ -18,12 +16,12 @@ public final class PriceSender {
     public static final int PORT = 8989;
 
     public static void main(final String... args) throws Exception {
-        final DatagramChannel channel = DatagramChannel.open();
-        final Client clientBid = DatagramTransport.client(Config.MESSAGE_SERIALIZER, channel, new InetSocketAddress(GROUP_BID, PORT));
-        final Client clientAsk = DatagramTransport.client(Config.MESSAGE_SERIALIZER, channel, new InetSocketAddress(GROUP_ASK, PORT));
-        final PriceListener priceListenerBid = clientBid.proxy(Config.INITIATOR.priceListener);
-        final PriceListener priceListenerAsk = clientAsk.proxy(Config.INITIATOR.priceListener);
-        for (int value = 1; true; value++) {
+        final var channel = DatagramChannel.open();
+        final var clientBid = DatagramTransport.client(Config.MESSAGE_SERIALIZER, channel, new InetSocketAddress(GROUP_BID, PORT));
+        final var clientAsk = DatagramTransport.client(Config.MESSAGE_SERIALIZER, channel, new InetSocketAddress(GROUP_ASK, PORT));
+        final var priceListenerBid = clientBid.proxy(Config.INITIATOR.priceListener);
+        final var priceListenerAsk = clientAsk.proxy(Config.INITIATOR.priceListener);
+        for (var value = 1; true; value++) {
             System.out.println("sending BID and ASK: " + value);
             priceListenerBid.newPrices(List.of(new Price(123, value, PriceKind.BID)));
             priceListenerAsk.newPrices(List.of(new Price(123, value, PriceKind.ASK)));

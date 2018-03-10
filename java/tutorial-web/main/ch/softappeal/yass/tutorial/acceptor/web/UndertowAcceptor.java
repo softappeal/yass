@@ -3,11 +3,9 @@ package ch.softappeal.yass.tutorial.acceptor.web;
 import ch.softappeal.yass.tutorial.shared.SslConfig;
 import io.undertow.Handlers;
 import io.undertow.Undertow;
-import io.undertow.server.HttpHandler;
 import io.undertow.server.XnioByteBufferPool;
 import io.undertow.server.handlers.resource.FileResourceManager;
 import io.undertow.servlet.Servlets;
-import io.undertow.servlet.api.DeploymentManager;
 import io.undertow.websockets.jsr.WebSocketDeploymentInfo;
 import org.xnio.ByteBufferSlicePool;
 import org.xnio.OptionMap;
@@ -18,7 +16,7 @@ import java.io.File;
 public final class UndertowAcceptor extends WebAcceptorSetup {
 
     public static void main(final String... args) throws Exception {
-        final DeploymentManager deployment = Servlets.defaultContainer()
+        final var deployment = Servlets.defaultContainer()
             .addDeployment(
                 Servlets.deployment()
                     .setClassLoader(UndertowAcceptor.class.getClassLoader())
@@ -37,13 +35,13 @@ public final class UndertowAcceptor extends WebAcceptorSetup {
                     )
             );
         deployment.deploy();
-        final HttpHandler servletHandler = deployment.start();
-        final HttpHandler fileHandler = Handlers.resource(new FileResourceManager(new File(WEB_PATH), 100));
+        final var servletHandler = deployment.start();
+        final var fileHandler = Handlers.resource(new FileResourceManager(new File(WEB_PATH), 100));
         Undertow.builder()
             .addHttpListener(PORT, HOST)
             .addHttpsListener(PORT + 1, HOST, SslConfig.SERVER.context) // $note: we don't know how to force client authentication
             .setHandler(exchange -> {
-                final String path = exchange.getRequestPath();
+                final var path = exchange.getRequestPath();
                 if (WS_PATH.equals(path) || XHR_PATH.equals(path)) {
                     servletHandler.handleRequest(exchange);
                 } else {

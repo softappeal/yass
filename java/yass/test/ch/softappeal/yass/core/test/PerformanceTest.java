@@ -11,7 +11,7 @@ public class PerformanceTest extends InvokeTest {
     public static PerformanceTask task(final TestService testService) {
         return new PerformanceTask() {
             @Override protected void run(final int count) throws Exception {
-                int counter = count;
+                var counter = count;
                 while (counter-- > 0) {
                     if (testService.divide(12, 3) != 4) {
                         throw new RuntimeException();

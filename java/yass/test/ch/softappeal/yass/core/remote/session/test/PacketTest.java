@@ -1,6 +1,5 @@
 package ch.softappeal.yass.core.remote.session.test;
 
-import ch.softappeal.yass.core.remote.Message;
 import ch.softappeal.yass.core.remote.ValueReply;
 import ch.softappeal.yass.core.remote.session.Packet;
 import ch.softappeal.yass.core.test.InvokeTest;
@@ -28,8 +27,8 @@ public class PacketTest extends InvokeTest {
     }
 
     @Test public void normal() {
-        final Message message = new ValueReply(null);
-        final Packet packet = new Packet(123, message);
+        final var message = new ValueReply(null);
+        final var packet = new Packet(123, message);
         Assert.assertTrue(packet.requestNumber() == 123);
         Assert.assertSame(message, packet.message());
         Assert.assertFalse(packet.isEnd());

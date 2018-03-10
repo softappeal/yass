@@ -26,9 +26,9 @@ public class ZipSerializerTest {
     private static final Serializer SERIALIZER = new PrinterSerializer(new ZipSerializer(new PrinterSerializer(BYTES_SERIALIZER)));
 
     private static void check(final byte[] value) throws Exception {
-        final ByteArrayOutputStream out = new ByteArrayOutputStream();
+        final var out = new ByteArrayOutputStream();
         SERIALIZER.write(value, Writer.create(out));
-        final byte[] bytes = out.toByteArray();
+        final var bytes = out.toByteArray();
         Assert.assertArrayEquals((byte[])SERIALIZER.read(Reader.create(new ByteArrayInputStream(bytes))), value);
     }
 

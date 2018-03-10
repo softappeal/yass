@@ -6,7 +6,6 @@ import ch.softappeal.yass.serialize.Reader;
 import ch.softappeal.yass.serialize.Serializer;
 import ch.softappeal.yass.serialize.Writer;
 import ch.softappeal.yass.tutorial.contract.Config;
-import ch.softappeal.yass.tutorial.contract.EchoService;
 import ch.softappeal.yass.tutorial.shared.Logger;
 import ch.softappeal.yass.tutorial.shared.SslConfig;
 import ch.softappeal.yass.tutorial.shared.web.WebSetup;
@@ -25,7 +24,7 @@ public final class XhrInitiator extends WebSetup {
         Objects.requireNonNull(url);
         return new Client() {
             @Override public void invoke(final Client.Invocation invocation) throws Exception {
-                final HttpURLConnection connection = (HttpURLConnection)url.openConnection();
+                final var connection = (HttpURLConnection)url.openConnection();
                 try {
                     if (ssl) {
                         ((HttpsURLConnection)connection).setSSLSocketFactory(SslConfig.CLIENT.context.getSocketFactory());
@@ -45,8 +44,8 @@ public final class XhrInitiator extends WebSetup {
     }
 
     private static void client(final String url, final boolean ssl) throws Exception {
-        final Client client = xhr(Config.MESSAGE_SERIALIZER, new URL(url), ssl);
-        final EchoService echoService = client.proxy(ACCEPTOR.echoService, new Logger(null, Logger.Side.CLIENT));
+        final var client = xhr(Config.MESSAGE_SERIALIZER, new URL(url), ssl);
+        final var echoService = client.proxy(ACCEPTOR.echoService, new Logger(null, Logger.Side.CLIENT));
         System.out.println(echoService.echo("echo"));
     }
 

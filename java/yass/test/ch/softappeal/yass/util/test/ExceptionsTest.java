@@ -20,7 +20,7 @@ public class ExceptionsTest {
     }
 
     @Test public void wrap2() {
-        final Exception e = new Exception();
+        final var e = new Exception();
         Assert.assertSame(e, Exceptions.wrap(e).getCause());
     }
 

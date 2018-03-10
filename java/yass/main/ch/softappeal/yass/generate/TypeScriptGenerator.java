@@ -1,6 +1,5 @@
 package ch.softappeal.yass.generate;
 
-import ch.softappeal.yass.core.remote.MethodMapper;
 import ch.softappeal.yass.core.remote.Services;
 import ch.softappeal.yass.core.remote.SimpleMethodMapper;
 import ch.softappeal.yass.serialize.fast.BaseTypeHandler;
@@ -9,12 +8,9 @@ import ch.softappeal.yass.serialize.fast.ClassTypeHandler;
 import ch.softappeal.yass.serialize.fast.FastSerializer;
 import ch.softappeal.yass.serialize.fast.FieldHandler;
 import ch.softappeal.yass.serialize.fast.TypeDesc;
-import ch.softappeal.yass.serialize.fast.TypeHandler;
 import ch.softappeal.yass.util.Nullable;
 import ch.softappeal.yass.util.Reflect;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
@@ -79,7 +75,7 @@ public final class TypeScriptGenerator extends Generator {
         private final Map<Class<?>, ExternalDesc> externalTypes = new HashMap<>();
 
         private String jsType(final Class<?> type, final boolean externalName) {
-            final @Nullable ExternalDesc externalDesc = externalTypes.get(FieldHandler.primitiveWrapperType(type));
+            final var externalDesc = externalTypes.get(FieldHandler.primitiveWrapperType(type));
             if (externalDesc != null) {
                 return externalName ? externalDesc.name : externalDesc.typeDescHolder;
             }
@@ -92,9 +88,9 @@ public final class TypeScriptGenerator extends Generator {
 
         private void generateType(final Class<?> type, final Consumer<String> typeGenerator) {
             checkType(type);
-            final String jsType = qualifiedName(type);
-            final int dot = jsType.lastIndexOf('.');
-            final String name = type.getSimpleName();
+            final var jsType = qualifiedName(type);
+            final var dot = jsType.lastIndexOf('.');
+            final var name = type.getSimpleName();
             if (dot < 0) {
                 typeGenerator.accept(name);
             } else {
@@ -123,12 +119,12 @@ public final class TypeScriptGenerator extends Generator {
 
         private String type(final Type type) {
             if (type instanceof ParameterizedType) {
-                final ParameterizedType parameterizedType = (ParameterizedType)type;
+                final var parameterizedType = (ParameterizedType)type;
                 if (parameterizedType.getRawType() == List.class) {
                     return type(parameterizedType.getActualTypeArguments()[0]) + "[]";
                 } else {
-                    final StringBuilder s = new StringBuilder(type(parameterizedType.getRawType()));
-                    final Type[] actualTypeArguments = parameterizedType.getActualTypeArguments();
+                    final var s = new StringBuilder(type(parameterizedType.getRawType()));
+                    final var actualTypeArguments = parameterizedType.getActualTypeArguments();
                     if (actualTypeArguments.length != 0) {
                         s.append('<');
                         iterate(List.of(actualTypeArguments), () -> s.append(", "), actualTypeArgument -> s.append(type(actualTypeArgument)));
@@ -158,7 +154,7 @@ public final class TypeScriptGenerator extends Generator {
             if (!fieldDesc.handler.typeHandler().isPresent()) {
                 return "null";
             }
-            final TypeHandler typeHandler = fieldDesc.handler.typeHandler().get();
+            final var typeHandler = fieldDesc.handler.typeHandler().get();
             if (TypeDesc.LIST.handler == typeHandler) {
                 return "yass.LIST_DESC";
             } else if (BOOLEAN_DESC.handler == typeHandler) {
@@ -177,7 +173,7 @@ public final class TypeScriptGenerator extends Generator {
             if (!visitedClasses.add(type)) {
                 return;
             }
-            @Nullable Type sc = type.getGenericSuperclass();
+            var sc = type.getGenericSuperclass();
             if (sc instanceof Class) {
                 if (isRootClass((Class<?>)sc)) {
                     sc = null;
@@ -187,10 +183,10 @@ public final class TypeScriptGenerator extends Generator {
             } else {
                 generateClass((Class<?>)((ParameterizedType)sc).getRawType());
             }
-            final @Nullable Type superClass = sc;
+            final var superClass = sc;
             generateType(type, name -> {
                 tabs("export %sclass %s", Modifier.isAbstract(type.getModifiers()) ? "abstract " : "", name);
-                final TypeVariable<Class<C>>[] typeParameters = type.getTypeParameters();
+                final var typeParameters = type.getTypeParameters();
                 if (typeParameters.length != 0) {
                     print("<");
                     iterate(List.of(typeParameters), () -> print(", "), typeParameter -> print(typeParameter.getName()));
@@ -201,18 +197,18 @@ public final class TypeScriptGenerator extends Generator {
                 }
                 println(" {");
                 inc();
-                for (final Field field : Reflect.ownFields(type)) {
+                for (final var field : Reflect.ownFields(type)) {
                     tabsln("%s: %s%s;", field.getName(), type(field.getGenericType()), OPTIONAL_TYPE);
                 }
-                final @Nullable Integer id = type2id.get(type);
+                final var id = type2id.get(type);
                 if (id != null) {
                     tabs("static readonly TYPE_DESC = yass.classDesc(%s, %s", id, name);
                     inc();
-                    final ClassTypeHandler typeHandler = (ClassTypeHandler)id2typeHandler.get(id);
+                    final var typeHandler = (ClassTypeHandler)id2typeHandler.get(id);
                     if (typeHandler.referenceable) {
                         throw new IllegalArgumentException("class '" + type + "' is referenceable (not implemented in TypeScript)");
                     }
-                    for (final ClassTypeHandler.FieldDesc fieldDesc : typeHandler.fieldDescs()) {
+                    for (final var fieldDesc : typeHandler.fieldDescs()) {
                         println(",");
                         tabs("new yass.FieldDesc(%s, '%s', %s)", fieldDesc.id, fieldDesc.handler.field.getName(), typeDesc(fieldDesc));
                     }
@@ -227,22 +223,22 @@ public final class TypeScriptGenerator extends Generator {
 
         private void generateInterface(final Class<?> type) {
             SimpleMethodMapper.FACTORY.create(type); // checks for overloaded methods (JavaScript restriction)
-            final Method[] methods = getMethods(type);
-            final MethodMapper methodMapper = methodMapper(type);
+            final var methods = getMethods(type);
+            final var methodMapper = methodMapper(type);
             generateType(type, new Consumer<>() {
                 private void generateInterface(final String name, final boolean implementation) {
                     tabsln("export namespace %s {", implementation ? "impl" : "proxy");
                     inc();
                     tabsln("export interface %s {", name);
                     inc();
-                    for (final Method method : methods) {
+                    for (final var method : methods) {
                         tabs("%s(", method.getName());
                         iterate(List.of(method.getParameters()), () -> print(", "), p -> print("%s: %s%s", p.getName(), type(p.getParameterizedType()), OPTIONAL_TYPE));
                         print("): ");
                         if (methodMapper.mapMethod(method).oneWay) {
                             print("void");
                         } else {
-                            final String type = type(method.getGenericReturnType()) + OPTIONAL_TYPE;
+                            final var type = type(method.getGenericReturnType()) + OPTIONAL_TYPE;
                             if (implementation) {
                                 print(type);
                             } else {
@@ -265,7 +261,7 @@ public final class TypeScriptGenerator extends Generator {
                     inc();
                     iterate(List.of(methods), () -> print(","), method -> {
                         println();
-                        final MethodMapper.Mapping mapping = methodMapper.mapMethod(method);
+                        final var mapping = methodMapper.mapMethod(method);
                         tabs("new yass.MethodMapping('%s', %s, %s)", mapping.method.getName(), mapping.id, mapping.oneWay);
                     });
                     println();
@@ -283,10 +279,10 @@ public final class TypeScriptGenerator extends Generator {
             }
             tabsln("export namespace %s {", role);
             inc();
-            for (final ServiceDesc serviceDesc : getServiceDescs(services)) {
-                String name = qualifiedName(serviceDesc.contractId.contract);
-                String namespace = "";
-                final int dot = name.lastIndexOf('.') + 1;
+            for (final var serviceDesc : getServiceDescs(services)) {
+                var name = qualifiedName(serviceDesc.contractId.contract);
+                var namespace = "";
+                final var dot = name.lastIndexOf('.') + 1;
                 if (dot > 0) {
                     namespace = name.substring(0, dot);
                     name = name.substring(dot);

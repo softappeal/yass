@@ -9,15 +9,15 @@ import org.junit.Test;
 public class ReplyTest {
 
     @Test public void value() throws Exception {
-        final String value = "xyz";
-        final ValueReply reply = new ValueReply(value);
+        final var value = "xyz";
+        final var reply = new ValueReply(value);
         Assert.assertSame(value, reply.value);
         Assert.assertSame(value, ReplyVisibility.process(reply));
     }
 
     @Test public void exception() {
-        final Exception exception = new Exception();
-        final ExceptionReply reply = new ExceptionReply(exception);
+        final var exception = new Exception();
+        final var reply = new ExceptionReply(exception);
         Assert.assertSame(exception, reply.exception);
         try {
             ReplyVisibility.process(reply);

@@ -32,7 +32,7 @@ import static ch.softappeal.yass.tutorial.contract.Config.INITIATOR;
 public final class InitiatorSession extends SimpleSession {
 
     @Override protected Server server() {
-        final Interceptor interceptor = Interceptor.composite(
+        final var interceptor = Interceptor.composite(
             UnexpectedExceptionHandler.INSTANCE,
             new Logger(this, Logger.Side.SERVER)
         );
@@ -62,7 +62,7 @@ public final class InitiatorSession extends SimpleSession {
         System.out.println("session opened start");
         System.out.println("echo: " + echoService.echo("hello from initiator"));
 
-        final Pair<Boolean, TripleWrapper> result = genericEchoService.echo(new Pair<>(
+        final var result = genericEchoService.echo(new Pair<>(
             true,
             new TripleWrapper(new Triple<>(
                 PriceKind.ASK,

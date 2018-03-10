@@ -22,9 +22,9 @@ public class FrameSerializerTest {
     )));
 
     private static void check(final byte[] raw, final byte[] wire) throws Exception {
-        final ByteArrayOutputStream out = new ByteArrayOutputStream();
+        final var out = new ByteArrayOutputStream();
         SERIALIZER.write(raw, Writer.create(out));
-        final byte[] bytes = out.toByteArray();
+        final var bytes = out.toByteArray();
         Assert.assertArrayEquals(bytes, wire);
         Assert.assertArrayEquals((byte[])SERIALIZER.read(Reader.create(new ByteArrayInputStream(bytes))), raw);
     }

@@ -22,7 +22,7 @@ public final class TransportConnection implements Connection {
     }
 
     @Override public void write(final Packet packet) throws Exception {
-        final ByteArrayOutputStream buffer = new ByteArrayOutputStream(128);
+        final var buffer = new ByteArrayOutputStream(128);
         serializer.write(packet, Writer.create(buffer));
         Session.received(session, (Packet)serializer.read(Reader.create(new ByteArrayInputStream(buffer.toByteArray()))));
     }
@@ -34,8 +34,8 @@ public final class TransportConnection implements Connection {
     }
 
     public static void connect(final TransportSetup setup1, final TransportSetup setup2) {
-        final TransportConnection connection1 = new TransportConnection();
-        final TransportConnection connection2 = new TransportConnection();
+        final var connection1 = new TransportConnection();
+        final var connection2 = new TransportConnection();
         try {
             connection2.session = Session.create(setup1.sessionFactory, connection1);
             connection2.serializer = setup1.packetSerializer;

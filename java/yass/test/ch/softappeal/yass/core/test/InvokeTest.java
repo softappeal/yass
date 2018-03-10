@@ -71,7 +71,7 @@ public class InvokeTest {
         @Override public Object invoke(final Method method, final @Nullable Object[] arguments, final Invocation invocation) throws Exception {
             println(name, "entry", method.getName() + ' ' + Arrays.deepToString(arguments));
             try {
-                final Object result = invocation.proceed();
+                final var result = invocation.proceed();
                 println(name, "exit", result);
                 return result;
             } catch (final Exception e) {

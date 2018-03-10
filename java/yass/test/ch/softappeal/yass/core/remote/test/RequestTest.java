@@ -9,10 +9,10 @@ import java.util.List;
 public class RequestTest {
 
     @Test public void test() {
-        final int serviceId = 123456;
-        final int methodId = 4711;
-        final List<Object> arguments = List.of();
-        final Request request = new Request(serviceId, methodId, arguments);
+        final var serviceId = 123456;
+        final var methodId = 4711;
+        final var arguments = List.of();
+        final var request = new Request(serviceId, methodId, arguments);
         Assert.assertEquals(serviceId, request.serviceId);
         Assert.assertEquals(methodId, request.methodId);
         Assert.assertSame(arguments, request.arguments);

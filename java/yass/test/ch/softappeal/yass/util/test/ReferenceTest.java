@@ -7,8 +7,8 @@ import org.junit.Test;
 public class ReferenceTest {
 
     @Test public void notNullReference() {
-        final String v = "value";
-        final Reference<String> s = Reference.create(v);
+        final var v = "value";
+        final var s = Reference.create(v);
         Assert.assertSame(v, s.get());
         Assert.assertFalse(s.isNull());
         Assert.assertEquals(v, s.toString());

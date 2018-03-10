@@ -13,10 +13,10 @@ public final class PrinterSerializer extends CompositeSerializer {
     }
 
     @Override public @Nullable Object read(final Reader reader) throws Exception {
-        final StringBuilder s = new StringBuilder("read(");
-        final @Nullable Object value = serializer.read(new Reader() {
+        final var s = new StringBuilder("read(");
+        final var value = serializer.read(new Reader() {
             @Override public byte readByte() throws Exception {
-                final byte value = reader.readByte();
+                final var value = reader.readByte();
                 s.append(' ').append(value);
                 return value;
             }
@@ -32,7 +32,7 @@ public final class PrinterSerializer extends CompositeSerializer {
     }
 
     @Override public void write(final @Nullable Object value, final Writer writer) throws Exception {
-        final StringBuilder s = new StringBuilder("write(");
+        final var s = new StringBuilder("write(");
         serializer.write(value, new Writer() {
             @Override public void writeByte(final byte value) throws Exception {
                 s.append(' ').append(value);

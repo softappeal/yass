@@ -22,8 +22,8 @@ public class PerformanceTest {
                 // empty
             }
         };
-        int i = ITERATIONS;
-        final Stopwatch stopwatch = new Stopwatch();
+        var i = ITERATIONS;
+        final var stopwatch = new Stopwatch();
         while (i-- > 0) {
             serializer.write(data, writer);
         }
@@ -32,7 +32,7 @@ public class PerformanceTest {
     }
 
     private static Stopwatch readTest(final Object data, final Serializer serializer) throws Exception {
-        final ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+        final var buffer = new ByteArrayOutputStream();
         serializer.write(data, Writer.create(buffer));
         buffer.close();
         class MyReader extends Reader {
@@ -46,9 +46,9 @@ public class PerformanceTest {
                 index += length;
             }
         }
-        final MyReader reader = new MyReader();
-        int i = ITERATIONS;
-        final Stopwatch stopwatch = new Stopwatch();
+        final var reader = new MyReader();
+        var i = ITERATIONS;
+        final var stopwatch = new Stopwatch();
         while (i-- > 0) {
             reader.index = 0;
             serializer.read(reader);
@@ -67,14 +67,14 @@ public class PerformanceTest {
                 count += len;
             }
         }
-        final Counter counter = new Counter();
+        final var counter = new Counter();
         serializer.write(data, counter);
-        final int count = counter.count;
+        final var count = counter.count;
         // warmup JIT
         writeTest(data, serializer);
         readTest(data, serializer);
-        final Stopwatch writeStopwatch = writeTest(data, serializer);
-        final Stopwatch readStopwatch = readTest(data, serializer);
+        final var writeStopwatch = writeTest(data, serializer);
+        final var readStopwatch = readTest(data, serializer);
         System.out.printf("%s - %s - ", name, type);
         System.out.printf("bytes: %5d", count);
         System.out.printf(" write: %6.2fus", (writeStopwatch.microSeconds() / (double)ITERATIONS));

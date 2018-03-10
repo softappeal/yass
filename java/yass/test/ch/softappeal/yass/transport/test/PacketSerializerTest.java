@@ -24,7 +24,7 @@ public class PacketSerializerTest {
 
     @Test public void normal() throws Exception {
         final Message message = new ValueReply(null);
-        final Packet packet = copy(new Packet(123, message));
+        final var packet = copy(new Packet(123, message));
         Assert.assertTrue(packet.requestNumber() == 123);
         Assert.assertNull(((ValueReply)packet.message()).value);
     }

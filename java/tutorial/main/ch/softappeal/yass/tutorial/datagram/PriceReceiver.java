@@ -17,21 +17,21 @@ import java.util.List;
 public final class PriceReceiver {
 
     public static void main(final String... args) throws Exception {
-        final SimpleTransportSetup setup = new SimpleTransportSetup(
+        final var setup = new SimpleTransportSetup(
             Config.MESSAGE_SERIALIZER,
             new Server(
                 Config.INITIATOR.priceListener.service(new PriceListener() {
                     @Override public void newPrices(final List<Price> prices) {
-                        final Price price = prices.get(0);
+                        final var price = prices.get(0);
                         System.out.println("received " + price.kind + ": " + price.value);
                     }
                 })
             )
         );
-        final DatagramChannel channel = DatagramChannel.open(StandardProtocolFamily.INET)
+        final var channel = DatagramChannel.open(StandardProtocolFamily.INET)
             .setOption(StandardSocketOptions.SO_REUSEADDR, true)
             .bind(new InetSocketAddress(PriceSender.PORT));
-        final NetworkInterface networkInterface = NetworkInterface.getByInetAddress(InetAddress.getLocalHost());
+        final var networkInterface = NetworkInterface.getByInetAddress(InetAddress.getLocalHost());
         channel.join(InetAddress.getByName(PriceSender.GROUP_BID), networkInterface);
         channel.join(InetAddress.getByName(PriceSender.GROUP_ASK), networkInterface);
         while (true) {

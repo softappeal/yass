@@ -7,7 +7,6 @@ import ch.softappeal.yass.transport.socket.SocketBinder;
 import ch.softappeal.yass.transport.socket.SocketConnector;
 import ch.softappeal.yass.transport.socket.SslSetup;
 import ch.softappeal.yass.transport.test.TransportTest;
-import ch.softappeal.yass.util.Closer;
 import ch.softappeal.yass.util.Exceptions;
 import ch.softappeal.yass.util.InputStreamSupplier;
 import ch.softappeal.yass.util.NamedThreadFactory;
@@ -18,7 +17,6 @@ import javax.net.ServerSocketFactory;
 import javax.net.SocketFactory;
 import javax.net.ssl.SSLSocket;
 import java.security.KeyStore;
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import static ch.softappeal.yass.transport.socket.test.SimpleSocketTransportTest.delayedShutdown;
@@ -32,9 +30,9 @@ public class SslTest extends TransportTest {
 
     @SuppressWarnings("try")
     private static void test(final ServerSocketFactory serverSocketFactory, final SocketFactory socketFactory, final boolean needClientAuth) throws Exception {
-        final ExecutorService executor = Executors.newCachedThreadPool(new NamedThreadFactory("executor", Exceptions.STD_ERR));
+        final var executor = Executors.newCachedThreadPool(new NamedThreadFactory("executor", Exceptions.STD_ERR));
         try (
-            Closer closer = new SimpleSocketTransport(
+            var closer = new SimpleSocketTransport(
                 executor,
                 MESSAGE_SERIALIZER,
                 new Server(

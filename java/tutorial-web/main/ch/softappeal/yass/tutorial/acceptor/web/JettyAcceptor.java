@@ -19,17 +19,17 @@ import org.eclipse.jetty.websocket.jsr356.server.deploy.WebSocketServerContainer
 public final class JettyAcceptor extends WebAcceptorSetup {
 
     public static void main(final String... args) throws Exception {
-        final Server server = new Server();
-        final ServerConnector serverConnector = new ServerConnector(server);
+        final var server = new Server();
+        final var serverConnector = new ServerConnector(server);
         serverConnector.setHost(HOST);
         serverConnector.setPort(PORT);
         server.addConnector(serverConnector);
-        final HttpConfiguration https = new HttpConfiguration();
+        final var https = new HttpConfiguration();
         https.addCustomizer(new SecureRequestCustomizer());
-        final SslContextFactory sslContextFactory = new SslContextFactory();
+        final var sslContextFactory = new SslContextFactory();
         sslContextFactory.setSslContext(SslConfig.SERVER.context);
         sslContextFactory.setNeedClientAuth(true);
-        final ServerConnector sslServerConnector = new ServerConnector(
+        final var sslServerConnector = new ServerConnector(
             server,
             new SslConnectionFactory(sslContextFactory, HttpVersion.HTTP_1_1.toString()),
             new HttpConnectionFactory(https)
@@ -37,13 +37,13 @@ public final class JettyAcceptor extends WebAcceptorSetup {
         sslServerConnector.setHost(HOST);
         sslServerConnector.setPort(PORT + 1);
         server.addConnector(sslServerConnector);
-        final ServletContextHandler contextHandler = new ServletContextHandler(ServletContextHandler.NO_SESSIONS);
+        final var contextHandler = new ServletContextHandler(ServletContextHandler.NO_SESSIONS);
         contextHandler.setContextPath("/");
         contextHandler.addServlet(new ServletHolder(new XhrServlet()), XHR_PATH);
-        final ResourceHandler resourceHandler = new ResourceHandler();
+        final var resourceHandler = new ResourceHandler();
         resourceHandler.setDirectoriesListed(true);
         resourceHandler.setResourceBase(WEB_PATH);
-        final HandlerList handlers = new HandlerList();
+        final var handlers = new HandlerList();
         handlers.setHandlers(new Handler[] {resourceHandler, contextHandler});
         server.setHandler(handlers);
         WebSocketServerContainerInitializer.configureContext(contextHandler).addEndpoint(ENDPOINT_CONFIG);

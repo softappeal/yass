@@ -5,7 +5,7 @@ import org.eclipse.jetty.websocket.jsr356.ClientContainer;
 public final class JettyInitiator extends WebInitiatorSetup {
 
     public static void main(final String... args) throws Exception {
-        final ClientContainer container = new ClientContainer();
+        final var container = new ClientContainer();
         container.start();
         run(container);
     }

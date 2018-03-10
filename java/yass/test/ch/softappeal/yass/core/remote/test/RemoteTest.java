@@ -35,7 +35,7 @@ public class RemoteTest extends InvokeTest {
             @Override public void invoke(final Client.Invocation clientInvocation) throws Exception {
                 clientInvocation.invoke(false, request -> {
                     Assert.assertTrue((33 == request.methodId) == clientInvocation.methodMapping.oneWay);
-                    final Server.Invocation serverInvocation = server.invocation(false, request);
+                    final var serverInvocation = server.invocation(false, request);
                     Assert.assertTrue(clientInvocation.methodMapping.oneWay == serverInvocation.methodMapping.oneWay);
                     serverInvocation.invoke(clientInvocation::settle);
                 });

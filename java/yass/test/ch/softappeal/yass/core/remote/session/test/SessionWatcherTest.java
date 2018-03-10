@@ -16,8 +16,8 @@ import java.util.concurrent.TimeUnit;
 public class SessionWatcherTest {
 
     public static void main(final String... args) throws InterruptedException {
-        final ExecutorService executor = Executors.newCachedThreadPool(new NamedThreadFactory("executor", Exceptions.TERMINATE));
-        final CountDownLatch latch = new CountDownLatch(1);
+        final var executor = Executors.newCachedThreadPool(new NamedThreadFactory("executor", Exceptions.TERMINATE));
+        final var latch = new CountDownLatch(1);
         final Reference<Session> session = Reference.create();
         LocalConnection.connect(
             connection -> new SimpleSession(connection, executor) {

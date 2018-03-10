@@ -20,7 +20,6 @@ import org.junit.Test;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.CompletionStage;
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
@@ -71,7 +70,7 @@ public class AsyncTest {
     }
 
     private static void sleep(final Consumer<Completer> execute) {
-        final Completer completer = Server.completer();
+        final var completer = Server.completer();
         new Thread(() -> {
             try {
                 TimeUnit.MILLISECONDS.sleep(1000L);
@@ -125,7 +124,7 @@ public class AsyncTest {
             this.name = Objects.requireNonNull(name);
         }
         @Override public SimpleInterceptorContext entry(final MethodMapper.Mapping methodMapping, final List<Object> arguments) {
-            final SimpleInterceptorContext context = new SimpleInterceptorContext(methodMapping, arguments);
+            final var context = new SimpleInterceptorContext(methodMapping, arguments);
             println(name, "entry", methodMapping.method.getName(), context.id, arguments.toString());
             return context;
         }
@@ -151,7 +150,7 @@ public class AsyncTest {
     }
 
     @Test public void test() throws InterruptedException {
-        final ExecutorService executor = Executors.newCachedThreadPool(new NamedThreadFactory("executor", Exceptions.TERMINATE));
+        final var executor = Executors.newCachedThreadPool(new NamedThreadFactory("executor", Exceptions.TERMINATE));
         try {
             LocalConnection.connect(
                 connection -> new SimpleSession(connection, executor) {
@@ -159,8 +158,8 @@ public class AsyncTest {
                         System.out.println("client closed: " + exception);
                     }
                     @Override protected void opened() {
-                        final TestService test = proxyAsync(ID, new Logger("client"));
-                        final TestServiceAsync testAsync = new TestServiceAsync(test);
+                        final var test = proxyAsync(ID, new Logger("client"));
+                        final var testAsync = new TestServiceAsync(test);
                         testAsync.noResult().thenAccept(r -> println("proxy", "", "noResult", null, r));
                         testAsync.divide(12, 3).thenAccept(r -> println("proxy", "", "divide", null, r));
                         testAsync.divide(12, 4).thenAcceptAsync(r -> println("proxy", "", "divide", null, r), executor);

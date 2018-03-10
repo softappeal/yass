@@ -67,7 +67,7 @@ public class SerializerTest {
     }
 
     public static AllTypes createValues() {
-        final AllTypes allTypes = new AllTypes();
+        final var allTypes = new AllTypes();
         allTypes.booleanField = false;
         allTypes.byteField = (byte)100;
         allTypes.shortField = (short)101;
@@ -136,17 +136,17 @@ public class SerializerTest {
         Assert.assertEquals(new BigDecimal("98.7"), allTypes.bigDecimalField);
         Assert.assertEquals(new BigInteger("987"), allTypes.bigIntegerField);
         Assert.assertTrue(allTypes.dateField.getTime() == 123456789L);
-        final Instant instant = allTypes.instantField;
+        final var instant = allTypes.instantField;
         Assert.assertTrue(instant.getEpochSecond() == 123);
         Assert.assertTrue(instant.getNano() == 456789);
         Assert.assertEquals("hello", ((AllTypes)allTypes.primitiveTypesField).stringField);
-        final List<PrimitiveTypes> primitiveTypesListField = allTypes.primitiveTypesListField;
+        final var primitiveTypesListField = allTypes.primitiveTypesListField;
         Assert.assertTrue(primitiveTypesListField.size() == 3);
         Assert.assertEquals(999, primitiveTypesListField.get(0).intField);
         Assert.assertEquals("world", ((AllTypes)primitiveTypesListField.get(1)).stringField);
         Assert.assertNull(primitiveTypesListField.get(2));
         Assert.assertEquals("bad", allTypes.objectField);
-        final List<Object> objectListField = allTypes.objectListField;
+        final var objectListField = allTypes.objectListField;
         Assert.assertTrue(objectListField.size() == 3);
         Assert.assertEquals("good", objectListField.get(0));
         Assert.assertNull(objectListField.get(1));
@@ -155,9 +155,9 @@ public class SerializerTest {
     }
 
     public static Node createGraph() {
-        final Node n1 = new Node(1);
-        final Node n2 = new Node(2);
-        final Node n3 = new Node(3);
+        final var n1 = new Node(1);
+        final var n2 = new Node(2);
+        final var n3 = new Node(3);
         n1.link = n2;
         n2.link = n3;
         n3.link = n2;
@@ -165,8 +165,8 @@ public class SerializerTest {
     }
 
     private static void checkGraph(final Node n1) {
-        final Node n2 = n1.link;
-        final Node n3 = n2.link;
+        final var n2 = n1.link;
+        final var n3 = n2.link;
         Assert.assertTrue(n1.id == 1);
         Assert.assertTrue(n2.id == 2);
         Assert.assertTrue(n3.id == 3);
@@ -177,7 +177,7 @@ public class SerializerTest {
         if (b1.length != b2.length) {
             throw new AssertionError();
         }
-        for (int b = 0; b < b1.length; b++) {
+        for (var b = 0; b < b1.length; b++) {
             if (b1[b] != b2[b]) {
                 throw new AssertionError();
             }
@@ -215,32 +215,32 @@ public class SerializerTest {
         Assert.assertTrue(JavaSerializerTest.copy(serializer, new AllTypes()).getClass() == AllTypes.class);
         Assert.assertTrue(JavaSerializerTest.copy(serializer, new PrimitiveTypes()).getClass() == PrimitiveTypes.class);
         Assert.assertTrue(JavaSerializerTest.copy(serializer, new IntException(123)).value == 123);
-        final boolean[] booleans = new boolean[10000];
+        final var booleans = new boolean[10000];
         Arrays.fill(booleans, true);
         assertArrayEquals(JavaSerializerTest.copy(serializer, booleans), booleans);
-        byte[] bytes = new byte[10000];
+        var bytes = new byte[10000];
         Arrays.fill(bytes, (byte)123);
         Assert.assertArrayEquals(JavaSerializerTest.copy(serializer, bytes), bytes);
         bytes = new byte[0];
         Assert.assertArrayEquals(JavaSerializerTest.copy(serializer, bytes), bytes);
         bytes = new byte[] {(byte)1, (byte)-2, (byte)3};
         Assert.assertArrayEquals(JavaSerializerTest.copy(serializer, bytes), bytes);
-        final short[] shorts = new short[10000];
+        final var shorts = new short[10000];
         Arrays.fill(shorts, (short)12345);
         Assert.assertArrayEquals(JavaSerializerTest.copy(serializer, shorts), shorts);
-        final int[] ints = new int[10000];
+        final var ints = new int[10000];
         Arrays.fill(ints, 12345678);
         Assert.assertArrayEquals(JavaSerializerTest.copy(serializer, ints), ints);
-        final long[] longs = new long[10000];
+        final var longs = new long[10000];
         Arrays.fill(longs, 12345678901234585L);
         Assert.assertArrayEquals(JavaSerializerTest.copy(serializer, longs), longs);
-        final char[] chars = new char[10000];
+        final var chars = new char[10000];
         Arrays.fill(chars, 'x');
         Assert.assertArrayEquals(JavaSerializerTest.copy(serializer, chars), chars);
-        final float[] floats = new float[10000];
+        final var floats = new float[10000];
         Arrays.fill(floats, 123.987f);
         Assert.assertArrayEquals(JavaSerializerTest.copy(serializer, floats), floats, 0);
-        final double[] doubles = new double[10000];
+        final var doubles = new double[10000];
         Arrays.fill(doubles, 123.987d);
         Assert.assertArrayEquals(JavaSerializerTest.copy(serializer, doubles), doubles, 0);
     }

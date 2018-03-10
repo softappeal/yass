@@ -3,7 +3,6 @@ package ch.softappeal.yass.tutorial.datagram;
 import ch.softappeal.yass.core.remote.Client;
 import ch.softappeal.yass.core.remote.MethodMapper;
 import ch.softappeal.yass.core.remote.Request;
-import ch.softappeal.yass.core.remote.Server;
 import ch.softappeal.yass.serialize.Reader;
 import ch.softappeal.yass.serialize.Serializer;
 import ch.softappeal.yass.serialize.Writer;
@@ -36,7 +35,7 @@ public final class DatagramTransport {
             @Override public void invoke(final Invocation invocation) throws Exception {
                 invocation.invoke(false, request -> {
                     checkOneWay(invocation.methodMapping, request);
-                    final Writer.ByteBufferOutputStream out = new Writer.ByteBufferOutputStream(128);
+                    final var out = new Writer.ByteBufferOutputStream(128);
                     messageSerializer.write(request, Writer.create(out));
                     channel.send(out.toByteBuffer(), target);
                 });
@@ -45,14 +44,14 @@ public final class DatagramTransport {
     }
 
     public static void invoke(final SimpleTransportSetup setup, final DatagramChannel channel, final int maxRequestBytes) throws Exception {
-        final ByteBuffer in = ByteBuffer.allocate(maxRequestBytes);
+        final var in = ByteBuffer.allocate(maxRequestBytes);
         channel.receive(in);
         in.flip();
-        final Request request = (Request)setup.messageSerializer.read(Reader.create(in));
+        final var request = (Request)setup.messageSerializer.read(Reader.create(in));
         if (in.hasRemaining()) {
             throw new RuntimeException("input buffer is not empty");
         }
-        final Server.Invocation invocation = setup.server.invocation(false, request);
+        final var invocation = setup.server.invocation(false, request);
         checkOneWay(invocation.methodMapping, request);
         invocation.invoke(reply -> {
         });

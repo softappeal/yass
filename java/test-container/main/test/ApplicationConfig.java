@@ -35,25 +35,25 @@ public final class ApplicationConfig implements ServerApplicationConfig {
                 return endpointClass.cast(new Endpoint() {
                     void send(final RemoteEndpoint.Async remote) {
                         EXECUTOR.execute(() -> {
-                            final long threadId = Thread.currentThread().getId();
+                            final var threadId = Thread.currentThread().getId();
                             System.out.println("start: " + threadId);
-                            final long start = System.nanoTime();
-                            for (int counter = 0; counter < 1; counter++) {
+                            final var start = System.nanoTime();
+                            for (var counter = 0; counter < 1; counter++) {
                                 remote.sendBinary(
                                     ByteBuffer.wrap(new byte[50_000]),
                                     result -> {
-                                        final long end = System.nanoTime();
+                                        final var end = System.nanoTime();
                                         System.out.println("result: " + threadId + ", " + result.isOK() + ", " + ((end - start) / 1_000_000) + "ms");
                                     }
                                 );
                             }
-                            final long end = System.nanoTime();
+                            final var end = System.nanoTime();
                             System.out.println("end: " + threadId + ", " + ((end - start) / 1_000_000) + "ms");
                         });
                     }
                     public void onOpen(Session session, EndpointConfig config) {
                         System.out.println("getUserProperties: " + session.getUserProperties().keySet());
-                        final RemoteEndpoint.Async remote = session.getAsyncRemote();
+                        final var remote = session.getAsyncRemote();
                         send(remote);
                         send(remote);
                     }

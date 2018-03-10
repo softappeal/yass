@@ -8,7 +8,6 @@ import ch.softappeal.yass.transport.SimplePathResolver;
 import ch.softappeal.yass.transport.SimpleTransportSetup;
 import ch.softappeal.yass.transport.socket.SimpleSocketTransport;
 import ch.softappeal.yass.transport.test.TransportTest;
-import ch.softappeal.yass.util.Closer;
 import ch.softappeal.yass.util.Exceptions;
 import ch.softappeal.yass.util.NamedThreadFactory;
 import org.junit.Assert;
@@ -41,9 +40,9 @@ public class SimpleSocketTransportTest extends TransportTest {
         } catch (final IllegalStateException e) {
             System.out.println(e);
         }
-        final ExecutorService executor = Executors.newCachedThreadPool(new NamedThreadFactory("executor", Exceptions.TERMINATE));
+        final var executor = Executors.newCachedThreadPool(new NamedThreadFactory("executor", Exceptions.TERMINATE));
         try (
-            Closer closer = new SimpleSocketTransport(
+            var closer = new SimpleSocketTransport(
                 executor,
                 MESSAGE_SERIALIZER,
                 new Server(
@@ -69,9 +68,9 @@ public class SimpleSocketTransportTest extends TransportTest {
     }
 
     @Test public void wrongPath() throws Exception {
-        final ExecutorService executor = Executors.newCachedThreadPool(new NamedThreadFactory("executor", Exceptions.STD_ERR));
+        final var executor = Executors.newCachedThreadPool(new NamedThreadFactory("executor", Exceptions.STD_ERR));
         try (
-            Closer closer = new SimpleSocketTransport(
+            var closer = new SimpleSocketTransport(
                 executor,
                 MESSAGE_SERIALIZER,
                 new Server(ECHO_ID.service(new EchoServiceImpl()))
@@ -90,11 +89,11 @@ public class SimpleSocketTransportTest extends TransportTest {
     }
 
     @Test public void multiplePathes() throws Exception {
-        final ExecutorService executor = Executors.newCachedThreadPool(new NamedThreadFactory("executor", Exceptions.TERMINATE));
+        final var executor = Executors.newCachedThreadPool(new NamedThreadFactory("executor", Exceptions.TERMINATE));
         final Integer path1 = 1;
         final Integer path2 = 2;
         try (
-            Closer closer = new SimpleSocketTransport(
+            var closer = new SimpleSocketTransport(
                 executor,
                 PathSerializer.INSTANCE,
                 new SimplePathResolver(Map.of(

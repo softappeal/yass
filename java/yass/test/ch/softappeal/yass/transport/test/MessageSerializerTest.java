@@ -23,22 +23,22 @@ public class MessageSerializerTest {
     }
 
     @Test public void request() throws Exception {
-        final int serviceId = 123456;
-        final int methodId = 4711;
-        final Request request = copy(new Request(serviceId, methodId, List.of()));
+        final var serviceId = 123456;
+        final var methodId = 4711;
+        final var request = copy(new Request(serviceId, methodId, List.of()));
         Assert.assertEquals(serviceId, request.serviceId);
         Assert.assertEquals(methodId, request.methodId);
         Assert.assertTrue(request.arguments.isEmpty());
     }
 
     @Test public void value() throws Exception {
-        final String value = "xyz";
-        final ValueReply reply = copy(new ValueReply(value));
+        final var value = "xyz";
+        final var reply = copy(new ValueReply(value));
         Assert.assertEquals(value, reply.value);
     }
 
     @Test public void exception() throws Exception {
-        final ExceptionReply reply = copy(new ExceptionReply(new EOFException()));
+        final var reply = copy(new ExceptionReply(new EOFException()));
         Assert.assertTrue(reply.exception instanceof EOFException);
     }
 

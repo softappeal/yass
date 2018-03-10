@@ -5,13 +5,12 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import java.io.IOException;
-import java.io.InputStream;
 
 public class InputStreamSupplierTest {
 
     @SuppressWarnings("try")
     @Test public void file() throws IOException {
-        try (InputStream inputStream = InputStreamSupplier.create(
+        try (var inputStream = InputStreamSupplier.create(
             "test/" + InputStreamSupplierTest.class.getName().replace('.', '/') + ".java"
         ).get()) {
             // empty
@@ -31,7 +30,7 @@ public class InputStreamSupplierTest {
 
     @SuppressWarnings("try")
     @Test public void classLoader() throws IOException {
-        try (InputStream inputStream = InputStreamSupplier.create(
+        try (var inputStream = InputStreamSupplier.create(
             InputStreamSupplier.class.getClassLoader(),
             InputStreamSupplierTest.class.getName().replace('.', '/') + ".class"
         ).get()) {

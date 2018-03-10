@@ -1,6 +1,5 @@
 package ch.softappeal.yass.tutorial;
 
-import ch.softappeal.yass.core.remote.Client;
 import ch.softappeal.yass.core.remote.ContractId;
 import ch.softappeal.yass.core.remote.MethodMapper;
 import ch.softappeal.yass.core.remote.Server;
@@ -48,8 +47,8 @@ public final class HelloWorld {
         new SimpleSocketTransport(EXECUTOR, SERIALIZER, SERVER).start(EXECUTOR, SocketBinder.create(ADDRESS));
 
         // use client
-        Client client = SimpleSocketTransport.client(SERIALIZER, SocketConnector.create(ADDRESS));
-        Calculator calculator = client.proxy(CALCULATOR);
+        var client = SimpleSocketTransport.client(SERIALIZER, SocketConnector.create(ADDRESS));
+        var calculator = client.proxy(CALCULATOR);
         System.out.println("2 + 3 = " + calculator.add(2, 3));
 
     }

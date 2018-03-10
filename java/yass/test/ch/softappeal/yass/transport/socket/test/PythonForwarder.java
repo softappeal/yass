@@ -6,37 +6,35 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.InetSocketAddress;
-import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.URL;
-import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
 public final class PythonForwarder {
 
     private static void run(final int port, final String serverUrl) throws Exception {
-        final URL url = new URL(serverUrl);
-        final Executor requestExecutor = Executors.newCachedThreadPool();
-        final ServerSocket serverSocket = ServerSocketFactory.getDefault().createServerSocket();
+        final var url = new URL(serverUrl);
+        final var requestExecutor = Executors.newCachedThreadPool();
+        final var serverSocket = ServerSocketFactory.getDefault().createServerSocket();
         serverSocket.bind(new InetSocketAddress("localhost", port));
         System.out.println("started");
         while (true) {
-            final Socket socket = serverSocket.accept();
+            final var socket = serverSocket.accept();
             requestExecutor.execute(new Runnable() {
 
                 void copy(final InputStream in, final int length, final OutputStream out) throws Exception {
-                    final byte[] body = new byte[length];
+                    final var body = new byte[length];
                     new DataInputStream(in).readFully(body);
                     out.write(body);
                 }
 
                 void handleRequest(final Socket socket) throws Exception {
-                    final HttpURLConnection connection = (HttpURLConnection)url.openConnection();
+                    final var connection = (HttpURLConnection)url.openConnection();
                     try {
                         socket.setTcpNoDelay(true); // force immediate send
                         connection.setDoOutput(true);
                         connection.setRequestMethod("POST");
-                        final InputStream in = socket.getInputStream();
+                        final var in = socket.getInputStream();
                         copy(in, new DataInputStream(in).readInt(), connection.getOutputStream());
                         copy(connection.getInputStream(), connection.getContentLength(), socket.getOutputStream());
                     } finally {

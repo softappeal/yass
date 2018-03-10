@@ -24,10 +24,10 @@ public class SourceSerializerTest {
         final Serializer serializer = new PrinterSerializer(
             initiator ? SourceSerializer.initiator(contractSerializer) : SourceSerializer.acceptor(contractSerializer)
         );
-        final byte[] raw = new byte[] {0};
-        final ByteArrayOutputStream out = new ByteArrayOutputStream();
+        final var raw = new byte[] {0};
+        final var out = new ByteArrayOutputStream();
         serializer.write(raw, Writer.create(out));
-        final byte[] bytes = out.toByteArray();
+        final var bytes = out.toByteArray();
         Assert.assertArrayEquals(bytes, wire);
         Assert.assertArrayEquals((byte[])serializer.read(Reader.create(new ByteArrayInputStream(bytes))), raw);
     }

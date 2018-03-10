@@ -35,7 +35,7 @@ public final class AcceptorSession extends SimpleSession {
     private final Set<Integer> subscribedInstrumentIds = Collections.synchronizedSet(new HashSet<>());
 
     @Override protected Server server() {
-        final Interceptor interceptor = Interceptor.composite(
+        final var interceptor = Interceptor.composite(
             UnexpectedExceptionHandler.INSTANCE,
             new Logger(this, Logger.Side.SERVER)
         );
@@ -67,7 +67,7 @@ public final class AcceptorSession extends SimpleSession {
         } catch (final SystemException e) {
             System.out.println("echo: " + e.message);
         }
-        final Random random = new Random();
+        final var random = new Random();
         while (!isClosed()) {
             final List<Price> prices = new ArrayList<>();
             for (final int subscribedInstrumentId : subscribedInstrumentIds.toArray(new Integer[0])) {

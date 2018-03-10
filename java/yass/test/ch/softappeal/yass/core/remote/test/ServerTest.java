@@ -3,7 +3,6 @@ package ch.softappeal.yass.core.remote.test;
 import ch.softappeal.yass.core.remote.Client;
 import ch.softappeal.yass.core.remote.ContractId;
 import ch.softappeal.yass.core.remote.Server;
-import ch.softappeal.yass.core.remote.Service;
 import ch.softappeal.yass.core.remote.TaggedMethodMapper;
 import ch.softappeal.yass.core.test.InvokeTest;
 import org.junit.Assert;
@@ -22,7 +21,7 @@ public class ServerTest {
     };
 
     @Test public void duplicatedService() {
-        final Service service = ContractIdTest.ID.service(new InvokeTest.TestServiceImpl());
+        final var service = ContractIdTest.ID.service(new InvokeTest.TestServiceImpl());
         try {
             new Server(service, service);
             Assert.fail();

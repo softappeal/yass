@@ -72,7 +72,7 @@ public abstract class Out {
     }
 
     protected final void tabs() {
-        for (int t = 0; t < tabs; t++) {
+        for (var t = 0; t < tabs; t++) {
             tab();
         }
     }
@@ -98,9 +98,9 @@ public abstract class Out {
     }
 
     protected final void includeFile(final String file) throws IOException {
-        try (BufferedReader in = new BufferedReader(new InputStreamReader(new FileInputStream(file), StandardCharsets.UTF_8))) {
+        try (var in = new BufferedReader(new InputStreamReader(new FileInputStream(file), StandardCharsets.UTF_8))) {
             while (true) {
-                final @Nullable String s = in.readLine();
+                final var s = in.readLine();
                 if (s == null) {
                     break;
                 }
@@ -117,7 +117,7 @@ public abstract class Out {
     }
 
     protected Out(final String file) throws IOException {
-        final File directory = new File(file).getParentFile();
+        final var directory = new File(file).getParentFile();
         if (!directory.exists() && !directory.mkdirs()) {
             throw new IOException("directory '" + directory + "' not created");
         }

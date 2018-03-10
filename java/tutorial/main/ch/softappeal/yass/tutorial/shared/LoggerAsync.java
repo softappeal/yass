@@ -14,7 +14,7 @@ public class LoggerAsync implements InterceptorAsync<SimpleInterceptorContext> {
     }
 
     @Override public SimpleInterceptorContext entry(final MethodMapper.Mapping methodMapping, final List<Object> arguments) {
-        final SimpleInterceptorContext context = new SimpleInterceptorContext(methodMapping, arguments);
+        final var context = new SimpleInterceptorContext(methodMapping, arguments);
         System.out.println("entry " + context.id + ": " + methodMapping.method.getName() + " " + Logger.dump(arguments));
         return context;
     }

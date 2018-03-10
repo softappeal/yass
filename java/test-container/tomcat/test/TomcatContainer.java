@@ -10,7 +10,7 @@ import java.io.File;
 public final class TomcatContainer {
 
     public static void main(final String... args) throws Exception {
-        final Tomcat tomcat = new Tomcat();
+        final var tomcat = new Tomcat();
         tomcat.setPort(8080);
         tomcat.addWebapp("", new File("/").getAbsolutePath());
         tomcat.start();

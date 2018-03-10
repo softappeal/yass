@@ -9,7 +9,7 @@ import java.util.concurrent.TimeUnit;
 public class StopwatchTest {
 
     @Test public void test() throws InterruptedException {
-        final Stopwatch stopwatch = new Stopwatch();
+        final var stopwatch = new Stopwatch();
         try {
             stopwatch.microSeconds();
             Assert.fail();

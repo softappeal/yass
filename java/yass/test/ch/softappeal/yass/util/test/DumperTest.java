@@ -31,7 +31,7 @@ public class DumperTest {
     }
 
     @Test public void test() {
-        final TimeZone timeZone = TimeZone.getDefault();
+        final var timeZone = TimeZone.getDefault();
         try {
             TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
             TestUtils.compareFile("ch/softappeal/yass/util/test/DumperTest.dump.txt", new TestUtils.Printer() {
@@ -39,7 +39,7 @@ public class DumperTest {
                     s.append(dumper.dump(value)).append('\n');
                 }
                 void print(final Dumper dumper, final PrintWriter printer, final boolean cycles) {
-                    final StringBuilder s = new StringBuilder(1024);
+                    final var s = new StringBuilder(1024);
                     dump(dumper, s, null);
                     dump(dumper, s, 'c');
                     dump(dumper, s, SerializerTest.createNulls());

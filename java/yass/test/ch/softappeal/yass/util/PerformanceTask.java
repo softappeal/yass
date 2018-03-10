@@ -7,7 +7,7 @@ public abstract class PerformanceTask {
     protected abstract void run(int count) throws Exception;
 
     private String runOne(final int count, final TimeUnit timeUnit) throws Exception {
-        final Stopwatch stopwatch = new Stopwatch();
+        final var stopwatch = new Stopwatch();
         run(count);
         stopwatch.stop();
         switch (timeUnit) {

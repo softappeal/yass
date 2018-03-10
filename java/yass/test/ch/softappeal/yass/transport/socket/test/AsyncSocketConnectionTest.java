@@ -19,7 +19,6 @@ import ch.softappeal.yass.util.Nullable;
 
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
@@ -34,7 +33,7 @@ public final class AsyncSocketConnectionTest {
     private static final Serializer PACKET_SERIALIZER = JavaSerializer.INSTANCE;
 
     public static void main(final String... args) throws InterruptedException {
-        final ExecutorService executor = Executors.newCachedThreadPool(new NamedThreadFactory("Executor", Exceptions.STD_ERR));
+        final var executor = Executors.newCachedThreadPool(new NamedThreadFactory("Executor", Exceptions.STD_ERR));
         new SocketTransport(
             executor,
             SyncSocketConnection.FACTORY,
@@ -70,8 +69,8 @@ public final class AsyncSocketConnectionTest {
                 connection -> new SimpleSession(connection, executor) {
                     @Override protected void opened() {
                         System.out.println("initiator opened");
-                        final Busy busy = proxy(BUSY_ID);
-                        for (int i = 0; i < 10_000; i++) {
+                        final var busy = proxy(BUSY_ID);
+                        for (var i = 0; i < 10_000; i++) {
                             busy.busy();
                         }
                         System.out.println("initiator done");

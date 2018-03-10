@@ -11,13 +11,11 @@ import ch.softappeal.yass.util.TestUtils;
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.lang.reflect.Method;
-
 public class MethodMapperTest {
 
     @Test public void mapping() {
-        final int methodId = 1147;
-        final MethodMapper.Mapping mapping = new MethodMapper.Mapping(InterceptorTest.METHOD, methodId, false);
+        final var methodId = 1147;
+        final var mapping = new MethodMapper.Mapping(InterceptorTest.METHOD, methodId, false);
         Assert.assertSame(InterceptorTest.METHOD, mapping.method);
         Assert.assertEquals(methodId, mapping.id);
         Assert.assertFalse(mapping.oneWay);
@@ -54,18 +52,18 @@ public class MethodMapperTest {
     }
 
     @Test public void taggedFactory() throws NoSuchMethodException {
-        final MethodMapper mapper = TaggedMethodMapper.FACTORY.create(InvokeTest.TestService.class);
+        final var mapper = TaggedMethodMapper.FACTORY.create(InvokeTest.TestService.class);
         {
-            final Method method = InvokeTest.TestService.class.getMethod("nothing");
-            final MethodMapper.Mapping mapping = mapper.mapMethod(method);
+            final var method = InvokeTest.TestService.class.getMethod("nothing");
+            final var mapping = mapper.mapMethod(method);
             Assert.assertEquals(method, mapping.method);
             Assert.assertEquals(0, mapping.id);
             Assert.assertFalse(mapping.oneWay);
             Assert.assertFalse(mapper.mapMethod(method).oneWay);
         }
         {
-            final Method method = InvokeTest.TestService.class.getMethod("oneWay", int.class);
-            final MethodMapper.Mapping mapping = mapper.mapId(33);
+            final var method = InvokeTest.TestService.class.getMethod("oneWay", int.class);
+            final var mapping = mapper.mapId(33);
             Assert.assertEquals(method, mapping.method);
             Assert.assertEquals(33, mapping.id);
             Assert.assertTrue(mapping.oneWay);
@@ -107,18 +105,18 @@ public class MethodMapperTest {
     }
 
     @Test public void simpleFactory() throws NoSuchMethodException {
-        final MethodMapper mapper = SimpleMethodMapper.FACTORY.create(InvokeTest.TestService.class);
+        final var mapper = SimpleMethodMapper.FACTORY.create(InvokeTest.TestService.class);
         {
-            final Method method = InvokeTest.TestService.class.getMethod("nothing");
-            final MethodMapper.Mapping mapping = mapper.mapMethod(method);
+            final var method = InvokeTest.TestService.class.getMethod("nothing");
+            final var mapping = mapper.mapMethod(method);
             Assert.assertEquals(method, mapping.method);
             Assert.assertEquals(1, mapping.id);
             Assert.assertFalse(mapping.oneWay);
             Assert.assertFalse(mapper.mapMethod(method).oneWay);
         }
         {
-            final Method method = InvokeTest.TestService.class.getMethod("oneWay", int.class);
-            final MethodMapper.Mapping mapping = mapper.mapId(2);
+            final var method = InvokeTest.TestService.class.getMethod("oneWay", int.class);
+            final var mapping = mapper.mapId(2);
             Assert.assertEquals(method, mapping.method);
             Assert.assertEquals(2, mapping.id);
             Assert.assertTrue(mapping.oneWay);

@@ -3,7 +3,6 @@ package ch.softappeal.yass.util;
 import javax.tools.DiagnosticCollector;
 import javax.tools.FileObject;
 import javax.tools.ForwardingJavaFileManager;
-import javax.tools.JavaCompiler;
 import javax.tools.JavaFileManager;
 import javax.tools.JavaFileObject;
 import javax.tools.SimpleJavaFileObject;
@@ -81,16 +80,16 @@ public final class Compiler {
             super(parentClassLoader);
         }
         @Override protected Class<?> findClass(final String qualifiedClassName) throws ClassNotFoundException {
-            final JavaFileObject file = classes.get(qualifiedClassName);
+            final var file = classes.get(qualifiedClassName);
             if (file != null) {
-                final byte[] bytes = ((JavaFileObjectImpl)file).getByteCode();
+                final var bytes = ((JavaFileObjectImpl)file).getByteCode();
                 return defineClass(qualifiedClassName, bytes, 0, bytes.length);
             }
             return super.findClass(qualifiedClassName);
         }
         @Override public InputStream getResourceAsStream(final String name) {
             if (name.endsWith(CLASS_EXT)) {
-                final JavaFileObjectImpl file = (JavaFileObjectImpl)classes.get(name.substring(0, name.length() - CLASS_EXT.length()).replace('/', '.'));
+                final var file = (JavaFileObjectImpl)classes.get(name.substring(0, name.length() - CLASS_EXT.length()).replace('/', '.'));
                 if (file != null) {
                     return new ByteArrayInputStream(file.getByteCode());
                 }
@@ -128,7 +127,7 @@ public final class Compiler {
             return (file instanceof JavaFileObjectImpl) ? file.getName() : super.inferBinaryName(loc, file);
         }
         @Override public Iterable<JavaFileObject> list(final Location location, final String packageName, final Set<JavaFileObject.Kind> kinds, final boolean recurse) throws IOException {
-            final Iterable<JavaFileObject> result = super.list(location, packageName, kinds, recurse);
+            final var result = super.list(location, packageName, kinds, recurse);
             final Collection<JavaFileObject> files = new ArrayList<>();
             if ((location == StandardLocation.CLASS_PATH) && kinds.contains(JavaFileObject.Kind.CLASS)) {
                 fileObjects.values().stream().filter(fo -> (fo.getKind() == JavaFileObject.Kind.CLASS) && fo.getName().startsWith(packageName)).forEach(files::add);
@@ -142,8 +141,8 @@ public final class Compiler {
     }
 
     private static String toString(final String reason, final DiagnosticCollector<JavaFileObject> diagnostics) {
-        final StringWriter writer = new StringWriter();
-        final PrintWriter printer = new PrintWriter(writer);
+        final var writer = new StringWriter();
+        final var printer = new PrintWriter(writer);
         printer.println(reason);
         diagnostics.getDiagnostics().forEach(printer::println);
         return writer.toString();
@@ -151,14 +150,14 @@ public final class Compiler {
 
     public static ClassLoader compile(final ClassLoader parentClassLoader, final Map<String, CharSequence> classes, final String... options) {
         final DiagnosticCollector<JavaFileObject> diagnostics = new DiagnosticCollector<>();
-        final JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
-        final ClassLoaderImpl classLoader = new ClassLoaderImpl(parentClassLoader);
-        final FileManagerImpl javaFileManager = new FileManagerImpl(compiler.getStandardFileManager(diagnostics, null, null), classLoader);
+        final var compiler = ToolProvider.getSystemJavaCompiler();
+        final var classLoader = new ClassLoaderImpl(parentClassLoader);
+        final var javaFileManager = new FileManagerImpl(compiler.getStandardFileManager(diagnostics, null, null), classLoader);
         final List<JavaFileObject> sources = new ArrayList<>();
         classes.forEach((qualifiedClassName, code) -> {
-            final int dotPos = qualifiedClassName.lastIndexOf('.');
-            final String className = (dotPos == -1) ? qualifiedClassName : qualifiedClassName.substring(dotPos + 1);
-            final JavaFileObjectImpl source = new JavaFileObjectImpl(className, code);
+            final var dotPos = qualifiedClassName.lastIndexOf('.');
+            final var className = (dotPos == -1) ? qualifiedClassName : qualifiedClassName.substring(dotPos + 1);
+            final var source = new JavaFileObjectImpl(className, code);
             sources.add(source);
             javaFileManager.putFileForInput((dotPos == -1) ? "" : qualifiedClassName.substring(0, dotPos), className + JAVA_EXT, source);
         });
@@ -172,8 +171,8 @@ public final class Compiler {
     }
 
     public static String readFile(final File source, final Charset charset) throws IOException {
-        try (RandomAccessFile file = new RandomAccessFile(source, "r")) {
-            final byte[] bytes = new byte[(int)file.length()];
+        try (var file = new RandomAccessFile(source, "r")) {
+            final var bytes = new byte[(int)file.length()];
             file.readFully(bytes);
             return new String(bytes, charset);
         }

@@ -25,8 +25,8 @@ public final class LocalConnection implements Connection {
     }
 
     public static void connect(final SessionFactory sessionFactory1, final SessionFactory sessionFactory2) {
-        final LocalConnection connection1 = new LocalConnection();
-        final LocalConnection connection2 = new LocalConnection();
+        final var connection1 = new LocalConnection();
+        final var connection2 = new LocalConnection();
         try {
             connection2.session = Session.create(sessionFactory1, connection1);
             try {

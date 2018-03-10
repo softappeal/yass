@@ -4,7 +4,6 @@ import ch.softappeal.yass.core.remote.session.Packet;
 
 import javax.websocket.RemoteEndpoint;
 import javax.websocket.Session;
-import java.nio.ByteBuffer;
 
 /**
  * Sends messages synchronously.
@@ -21,7 +20,7 @@ public final class SyncWsConnection extends WsConnection {
     private final Object writeMutex = new Object();
 
     @Override public void write(final Packet packet) throws Exception {
-        final ByteBuffer buffer = writeToBuffer(packet);
+        final var buffer = writeToBuffer(packet);
         synchronized (writeMutex) {
             remoteEndpoint.sendBinary(buffer);
         }

@@ -32,7 +32,7 @@ abstract class FastSerializerSpec {
 
     TypeHandler LIST = new TypeHandler(/* 2, List.class */) {
         @Override void writeBody(Object value) {
-            List<Object> list = (List<Object>)value;
+            var list = (List<Object>)value;
             writeVarInt(list.size());
             list.forEach(FastSerializerSpec.this::writeObject);
         }
@@ -61,7 +61,7 @@ abstract class FastSerializerSpec {
         }
         @Override void writeIdAndBody(Object value) {
             if (referenceable) {
-                Integer reference = object2reference.get(value);
+                var reference = object2reference.get(value);
                 if (reference != null) {
                     REFERENCE.writeIdAndBody(reference);
                     return;
@@ -78,7 +78,7 @@ abstract class FastSerializerSpec {
         int id;
         TypeHandler typeHandler; // null if ClassTypeHandler or type not in class2typeHandler
         void write(Object object) {
-            Object fieldValue = getFieldValue(object);
+            var fieldValue = getFieldValue(object);
             if (fieldValue != null) {
                 writeVarInt(id);
                 if (typeHandler == null) {

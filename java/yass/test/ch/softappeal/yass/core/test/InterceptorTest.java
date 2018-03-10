@@ -22,7 +22,7 @@ public class InterceptorTest {
     private static final Object[] ARGUMENTS = new Object[0];
 
     @Test public void direct() throws Exception {
-        final Object result = new Object();
+        final var result = new Object();
         Assert.assertSame(
             Interceptor.DIRECT.invoke(null, null, () -> result),
             result
@@ -44,7 +44,7 @@ public class InterceptorTest {
             Assert.assertSame(ARGUMENTS, arguments);
             Assert.assertEquals(begin, step);
             step++;
-            final Object result = invocation.proceed();
+            final var result = invocation.proceed();
             System.out.println("exit : end  =" + end + " step=" + step + " result=" + result);
             Assert.assertEquals(end, step);
             Assert.assertEquals(result, step + 100);
@@ -57,13 +57,13 @@ public class InterceptorTest {
         final Interceptor stepInterceptor = new StepInterceptor(0, 0);
         Assert.assertSame(stepInterceptor, Interceptor.composite(stepInterceptor, Interceptor.DIRECT));
         Assert.assertSame(stepInterceptor, Interceptor.composite(Interceptor.DIRECT, stepInterceptor));
-        final Interceptor interceptor = Interceptor.composite(
+        final var interceptor = Interceptor.composite(
             new StepInterceptor(0, 8),
             new StepInterceptor(1, 7),
             new StepInterceptor(2, 6),
             new StepInterceptor(3, 5)
         );
-        final int interceptors = 4;
+        final var interceptors = 4;
         step = 0;
         final Invocation invocation = () -> {
             Assert.assertEquals(step, interceptors);
@@ -76,10 +76,10 @@ public class InterceptorTest {
 
     @Test public void threadLocal() throws Exception {
         final ThreadLocal<String> threadLocal = new ThreadLocal<>();
-        final String oldValue = "oldValue";
+        final var oldValue = "oldValue";
         threadLocal.set(oldValue);
-        final String value = "value";
-        final Object result = new Object();
+        final var value = "value";
+        final var result = new Object();
         Assert.assertSame(
             result,
             Interceptor.threadLocal(threadLocal, value).invoke(null, null, () -> {

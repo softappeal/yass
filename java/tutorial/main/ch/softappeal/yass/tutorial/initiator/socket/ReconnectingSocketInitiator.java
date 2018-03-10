@@ -19,7 +19,7 @@ public final class ReconnectingSocketInitiator {
 
     public static void main(final String... args) throws InterruptedException {
         final Executor executor = Executors.newCachedThreadPool(new NamedThreadFactory("executor", Exceptions.STD_ERR));
-        final InitiatorReconnector reconnector = new InitiatorReconnector();
+        final var reconnector = new InitiatorReconnector();
         reconnector.start(
             executor,
             10,

@@ -21,12 +21,12 @@ public class JavaSerializerTest {
 
     @SuppressWarnings("unchecked")
     public static @Nullable <T> T copy(final Serializer serializer, final @Nullable T value) throws Exception {
-        final ByteArrayOutputStream buffer = new ByteArrayOutputStream();
-        final Writer writer = Writer.create(buffer);
+        final var buffer = new ByteArrayOutputStream();
+        final var writer = Writer.create(buffer);
         serializer.write(value, writer);
         writer.writeByte((byte)123); // write sentinel
-        final Reader reader = Reader.create(new ByteArrayInputStream(buffer.toByteArray()));
-        final T result = (T)serializer.read(reader);
+        final var reader = Reader.create(new ByteArrayInputStream(buffer.toByteArray()));
+        final var result = (T)serializer.read(reader);
         Assert.assertTrue(reader.readByte() == 123); // check sentinel
         return result;
     }
@@ -40,30 +40,30 @@ public class JavaSerializerTest {
     }
 
     @Test public void request() throws Exception {
-        final int requestNumber = 1234567890;
-        final int serviceId = 123;
-        final int methodId = 1147;
-        final Packet packet = copy(
+        final var requestNumber = 1234567890;
+        final var serviceId = 123;
+        final var methodId = 1147;
+        final var packet = copy(
             new Packet(
                 requestNumber,
                 new Request(serviceId, methodId, List.of())
             )
         );
         Assert.assertTrue(packet.requestNumber() == requestNumber);
-        final Request request = (Request)packet.message();
+        final var request = (Request)packet.message();
         Assert.assertEquals(serviceId, request.serviceId);
         Assert.assertEquals(methodId, request.methodId);
         Assert.assertTrue(request.arguments.isEmpty());
     }
 
     @Test public void value() throws Exception {
-        final String value = "xyz";
-        final ValueReply reply = copy(new ValueReply(value));
+        final var value = "xyz";
+        final var reply = copy(new ValueReply(value));
         Assert.assertEquals(value, reply.value);
     }
 
     @Test public void exception() throws Exception {
-        final ExceptionReply reply = copy(new ExceptionReply(new EOFException()));
+        final var reply = copy(new ExceptionReply(new EOFException()));
         Assert.assertTrue(reply.exception instanceof EOFException);
     }
 

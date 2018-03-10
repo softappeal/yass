@@ -13,7 +13,7 @@ public final class ClassCollectorTest {
 
     public static void main(final String... args) throws Exception {
         System.out.println("--- from file system ---");
-        final ClassCollector classCollector = new ClassCollector(Interceptor.class.getPackage().getName(), Interceptor.class.getClassLoader());
+        final var classCollector = new ClassCollector(Interceptor.class.getPackage().getName(), Interceptor.class.getClassLoader());
         System.out.println("* interfaces");
         print(classCollector, Class::isInterface);
         System.out.println("* concreteClasses");

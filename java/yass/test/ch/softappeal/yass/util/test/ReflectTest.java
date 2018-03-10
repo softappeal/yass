@@ -24,16 +24,16 @@ public class ReflectTest {
 
     @Test public void fieldModifiers() throws Exception {
         FieldModifiers.CONSTRUCTOR_CALLED = false;
-        final FieldModifiers fieldModifiers = (FieldModifiers)Reflect.ALLOCATE.apply(FieldModifiers.class).get();
-        Assert.assertTrue(FieldModifiers.CONSTRUCTOR_CALLED);
-        final Map<String, Field> name2field = name2field(FieldModifiers.class);
-        final Field privateField = name2field.get("privateField");
-        final Field privateFinalField = name2field.get("privateFinalField");
-        final Field publicField = name2field.get("publicField");
-        final Field publicFinalField = name2field.get("publicFinalField");
-        Assert.assertTrue(fieldModifiers.publicFinalField == 101);
-        Assert.assertTrue((Integer)publicFinalField.get(fieldModifiers) == 101);
-        Assert.assertTrue((Integer)privateFinalField.get(fieldModifiers) == 100);
+        final var fieldModifiers = (FieldModifiers)Reflect.ALLOCATE.apply(FieldModifiers.class).get();
+        Assert.assertFalse(FieldModifiers.CONSTRUCTOR_CALLED);
+        final var name2field = name2field(FieldModifiers.class);
+        final var privateField = name2field.get("privateField");
+        final var privateFinalField = name2field.get("privateFinalField");
+        final var publicField = name2field.get("publicField");
+        final var publicFinalField = name2field.get("publicFinalField");
+        Assert.assertTrue(fieldModifiers.publicFinalField == 0);
+        Assert.assertTrue((Integer)publicFinalField.get(fieldModifiers) == 0);
+        Assert.assertTrue((Integer)privateFinalField.get(fieldModifiers) == 0);
         privateField.set(fieldModifiers, 200);
         privateFinalField.set(fieldModifiers, 201);
         publicField.set(fieldModifiers, 202);
@@ -47,16 +47,16 @@ public class ReflectTest {
     }
 
     @Test public void allTypes() throws Exception {
-        final AllTypes allTypes = (AllTypes)Reflect.ALLOCATE.apply(AllTypes.class).get();
-        final Map<String, Field> name2field = name2field(AllTypes.class);
-        final Field booleanField = name2field.get("booleanField");
-        final Field byteField = name2field.get("byteField");
-        final Field shortField = name2field.get("shortField");
-        final Field intField = name2field.get("intField");
-        final Field longField = name2field.get("longField");
-        final Field charField = name2field.get("charField");
-        final Field floatField = name2field.get("floatField");
-        final Field doubleField = name2field.get("doubleField");
+        final var allTypes = (AllTypes)Reflect.ALLOCATE.apply(AllTypes.class).get();
+        final var name2field = name2field(AllTypes.class);
+        final var booleanField = name2field.get("booleanField");
+        final var byteField = name2field.get("byteField");
+        final var shortField = name2field.get("shortField");
+        final var intField = name2field.get("intField");
+        final var longField = name2field.get("longField");
+        final var charField = name2field.get("charField");
+        final var floatField = name2field.get("floatField");
+        final var doubleField = name2field.get("doubleField");
         booleanField.set(allTypes, true);
         byteField.set(allTypes, (byte)123);
         shortField.set(allTypes, (short)12345);
@@ -82,11 +82,11 @@ public class ReflectTest {
         Assert.assertTrue((Character)charField.get(allTypes) == 'x');
         Assert.assertTrue((Float)floatField.get(allTypes) == 1.23f);
         Assert.assertTrue((Double)doubleField.get(allTypes) == 3.21d);
-        final Field stringField = name2field.get("stringField");
+        final var stringField = name2field.get("stringField");
         stringField.set(allTypes, "xyz");
         Assert.assertEquals("xyz", allTypes.stringField);
         Assert.assertEquals("xyz", stringField.get(allTypes));
-        final Field objectListField = name2field.get("objectListField");
+        final var objectListField = name2field.get("objectListField");
         objectListField.set(allTypes, Arrays.asList("xyz", 42, null));
         Assert.assertTrue(Arrays.asList("xyz", 42, null).equals(allTypes.objectListField));
         Assert.assertTrue(Arrays.asList("xyz", 42, null).equals(objectListField.get(allTypes)));

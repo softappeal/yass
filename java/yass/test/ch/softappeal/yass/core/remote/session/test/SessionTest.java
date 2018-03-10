@@ -101,11 +101,11 @@ public abstract class SessionTest extends InvokeTest {
                     return;
                 }
                 try (Session session = this) {
-                    final EchoService echoService = session.proxy(ECHO_ID);
-                    final byte[] value = new byte[bytes];
+                    final var echoService = session.proxy(ECHO_ID);
+                    final var value = new byte[bytes];
                     new PerformanceTask() {
                         @Override protected void run(final int count) {
-                            int counter = count;
+                            var counter = count;
                             while (counter-- > 0) {
                                 if (echoService.echo(value).length != bytes) {
                                     throw new RuntimeException();

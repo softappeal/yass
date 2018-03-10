@@ -2,12 +2,9 @@ package ch.softappeal.yass.autoconfig;
 
 import java.io.File;
 import java.net.JarURLConnection;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Enumeration;
 import java.util.Objects;
-import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
 /**
@@ -24,9 +21,9 @@ public final class ClassCollector {
 
     public ClassCollector(final String rootPackage, final ClassLoader classLoader) throws Exception {
         this.classLoader = Objects.requireNonNull(classLoader);
-        for (final Enumeration<URL> resources = classLoader.getResources(rootPackage.replace(DOT, SLASH)); resources.hasMoreElements(); ) {
-            final URL url = resources.nextElement();
-            final String protocol = url.getProtocol().toLowerCase();
+        for (final var resources = classLoader.getResources(rootPackage.replace(DOT, SLASH)); resources.hasMoreElements(); ) {
+            final var url = resources.nextElement();
+            final var protocol = url.getProtocol().toLowerCase();
             if ("jar".equals(protocol)) {
                 collectJarFile(((JarURLConnection)url.openConnection()).getJarFile().getName(), rootPackage);
             } else if ("file".equals(protocol)) {
@@ -39,7 +36,7 @@ public final class ClassCollector {
 
     private void collectFileSystem(final File file, final String packageName) throws ClassNotFoundException {
         if (file.isDirectory()) {
-            for (final File f : file.listFiles()) {
+            for (final var f : file.listFiles()) {
                 collectFileSystem(f, packageName + (f.isDirectory() ? DOT + f.getName() : ""));
             }
         } else if (isClass(file.getName())) {
@@ -48,11 +45,11 @@ public final class ClassCollector {
     }
 
     private void collectJarFile(final String jarName, final String packageName) throws Exception {
-        try (JarFile jarFile = new JarFile(jarName)) {
-            for (final Enumeration<JarEntry> entries = jarFile.entries(); entries.hasMoreElements(); ) {
-                final String name = entries.nextElement().getName();
+        try (var jarFile = new JarFile(jarName)) {
+            for (final var entries = jarFile.entries(); entries.hasMoreElements(); ) {
+                final var name = entries.nextElement().getName();
                 if (isClass(name)) {
-                    final String className = getClassName(name.replace(SLASH, DOT));
+                    final var className = getClassName(name.replace(SLASH, DOT));
                     if (className.startsWith(packageName)) {
                         loadClass(className);
                     }

@@ -14,21 +14,19 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public final class StdClient3 {
 
     public static void start(final String pythonPgm, final String pythonDirectory) throws IOException {
-        final Stopwatch stopwatch = new Stopwatch();
-        final Process process = new ProcessBuilder(pythonPgm, "-u", "-m", "tutorial.std_server").directory(new File(pythonDirectory)).start();
-        final ExecutorService stderr = Executors.newSingleThreadExecutor(new NamedThreadFactory("stderr", Exceptions.TERMINATE));
+        final var stopwatch = new Stopwatch();
+        final var process = new ProcessBuilder(pythonPgm, "-u", "-m", "tutorial.std_server").directory(new File(pythonDirectory)).start();
+        final var stderr = Executors.newSingleThreadExecutor(new NamedThreadFactory("stderr", Exceptions.TERMINATE));
         stderr.execute(() -> {
-            try (BufferedReader err = new BufferedReader(new InputStreamReader(process.getErrorStream(), StandardCharsets.UTF_8))) {
+            try (var err = new BufferedReader(new InputStreamReader(process.getErrorStream(), StandardCharsets.UTF_8))) {
                 while (true) {
-                    final String s = err.readLine();
+                    final var s = err.readLine();
                     if (s == null) {
                         return;
                     }
@@ -38,9 +36,9 @@ public final class StdClient3 {
                 throw new RuntimeException(e);
             }
         });
-        final OutputStream out = process.getOutputStream();
-        final Writer writer = Writer.create(out);
-        final Reader reader = Reader.create(process.getInputStream());
+        final var out = process.getOutputStream();
+        final var writer = Writer.create(out);
+        final var reader = Reader.create(process.getInputStream());
         final Serializer messageSerializer = new MessageSerializer(SocketClient.SERIALIZER);
         SocketClient.client(new Client() {
             @Override protected void invoke(final Invocation invocation) throws Exception {

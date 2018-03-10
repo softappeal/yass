@@ -29,7 +29,7 @@ public abstract class WsConnection implements Connection {
     }
 
     protected final ByteBuffer writeToBuffer(final Packet packet) throws Exception {
-        final Writer.ByteBufferOutputStream buffer = new Writer.ByteBufferOutputStream(128);
+        final var buffer = new Writer.ByteBufferOutputStream(128);
         packetSerializer.write(packet, Writer.create(buffer));
         return buffer.toByteBuffer();
     }
@@ -62,7 +62,7 @@ public abstract class WsConnection implements Connection {
 
     static WsConnection create(final WsConfigurator configurator, final javax.websocket.Session session) throws Exception {
         try {
-            final WsConnection connection = configurator.connectionFactory.create(configurator, session);
+            final var connection = configurator.connectionFactory.create(configurator, session);
             connection.yassSession = Session.create(configurator.setup.sessionFactory, connection);
             session.addMessageHandler(new MessageHandler.Whole<ByteBuffer>() { // note: could be replaced with a lambda in WebSocket API 1.1 but we would loose compatibility with 1.0
                 @Override public void onMessage(final ByteBuffer in) {

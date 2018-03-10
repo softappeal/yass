@@ -40,7 +40,7 @@ public final class Logger implements Interceptor {
     @Override public @Nullable Object invoke(final Method method, final @Nullable Object[] arguments, final Invocation invocation) throws Exception {
         log("entry", method, arguments);
         try {
-            final Object result = invocation.proceed();
+            final var result = invocation.proceed();
             log("exit", method, result);
             return result;
         } catch (final Exception e) {

@@ -7,7 +7,6 @@ import ch.softappeal.yass.serialize.fast.FastSerializer;
 import ch.softappeal.yass.serialize.fast.TypeHandler;
 import ch.softappeal.yass.util.Nullable;
 
-import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
@@ -48,7 +47,7 @@ public abstract class Generator {
 
     protected static List<ServiceDesc> getServiceDescs(final Services services) throws Exception {
         final List<ServiceDesc> serviceDescs = new ArrayList<>();
-        for (final Field field : services.getClass().getFields()) {
+        for (final var field : services.getClass().getFields()) {
             if (!Modifier.isStatic(field.getModifiers()) && (field.getType() == ContractId.class)) {
                 serviceDescs.add(new ServiceDesc(field.getName(), (ContractId<?>)field.get(services)));
             }
@@ -65,7 +64,7 @@ public abstract class Generator {
     }
 
     protected static Method[] getMethods(final Class<?> type) {
-        final Method[] methods = type.getMethods();
+        final var methods = type.getMethods();
         Arrays.sort(methods, Comparator.comparing(Method::getName));
         return methods;
     }
@@ -111,8 +110,8 @@ public abstract class Generator {
     }
 
     public static <E> void iterate(final Iterable<E> iterable, final Runnable notFirstAction, final Consumer<E> alwaysAction) {
-        boolean first = true;
-        for (final E element : iterable) {
+        var first = true;
+        for (final var element : iterable) {
             if (!first) {
                 notFirstAction.run();
             }

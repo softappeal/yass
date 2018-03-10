@@ -17,23 +17,23 @@ public class TestUtils {
 
     public static void compareFile(final String file, final Printer printer) {
         try {
-            final PrintWriter writer = new PrintWriter(System.out);
+            final var writer = new PrintWriter(System.out);
             printer.print(writer);
             writer.flush();
-            final CharArrayWriter buffer = new CharArrayWriter();
-            try (PrintWriter out = new PrintWriter(buffer)) {
+            final var buffer = new CharArrayWriter();
+            try (var out = new PrintWriter(buffer)) {
                 printer.print(out);
             }
-            final BufferedReader testReader = new BufferedReader(new CharArrayReader(buffer.toCharArray()));
+            final var testReader = new BufferedReader(new CharArrayReader(buffer.toCharArray()));
             try (
-                BufferedReader refReader = new BufferedReader(new InputStreamReader(
+                var refReader = new BufferedReader(new InputStreamReader(
                     InputStreamSupplier.create("test/" + file).get(),
                     StandardCharsets.UTF_8
                 ))
             ) {
                 while (true) {
-                    final String testLine = testReader.readLine();
-                    final String refLine = refReader.readLine();
+                    final var testLine = testReader.readLine();
+                    final var refLine = refReader.readLine();
                     if ((testLine == null) && (refLine == null)) {
                         return;
                     }
