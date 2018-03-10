@@ -1,9 +1,11 @@
 package ch.softappeal.yass.util.test;
 
-public class NoDefaultConstructor {
+public final class NoDefaultConstructor {
 
-    public NoDefaultConstructor(final int i) {
-        // empty
+    public final int i;
+
+    private NoDefaultConstructor(final int i) {
+        this.i = i;
     }
 
 }

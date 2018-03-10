@@ -33,4 +33,15 @@ public final class Instantiators {
         };
     };
 
+    /**
+     * Works with any class.
+     */
+    public static final Function<Class<?>, Supplier<Object>> UNSAFE = type -> () -> {
+        try {
+            return Unsafe.INSTANCE.allocateInstance(type);
+        } catch (final InstantiationException e) {
+            throw new RuntimeException(e);
+        }
+    };
+
 }

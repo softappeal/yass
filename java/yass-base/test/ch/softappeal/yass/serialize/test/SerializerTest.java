@@ -13,7 +13,6 @@ import ch.softappeal.yass.serialize.fast.SimpleFastSerializer;
 import ch.softappeal.yass.serialize.fast.TaggedFastSerializer;
 import ch.softappeal.yass.serialize.fast.TypeDesc;
 import ch.softappeal.yass.util.Instantiators;
-import ch.softappeal.yass.util.unsupported.UnsupportedInstantiators;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -259,7 +258,7 @@ public class SerializerTest {
     }
 
     public static final FastSerializer TAGGED_FAST_SERIALIZER = new TaggedFastSerializer(
-        UnsupportedInstantiators.UNSAFE,
+        Instantiators.UNSAFE,
         List.of(
             new TypeDesc(3, BaseTypeHandlers.BOOLEAN),
             new TypeDesc(4, BaseTypeHandlers.BYTE),

@@ -21,7 +21,6 @@ import ch.softappeal.yass.tutorial.contract.instrument.stock.Stock;
 import ch.softappeal.yass.tutorial.contract.instrument.stock.python.PythonBond;
 import ch.softappeal.yass.tutorial.contract.instrument.stock.python.PythonStock;
 import ch.softappeal.yass.util.Instantiators;
-import ch.softappeal.yass.util.unsupported.UnsupportedInstantiators;
 
 import java.util.List;
 
@@ -31,7 +30,7 @@ public final class Config {
      * @see Price#Price()
      */
     public static final FastSerializer CONTRACT_SERIALIZER = new SimpleFastSerializer(
-        UnsupportedInstantiators.UNSAFE,
+        Instantiators.UNSAFE,
         TypeScriptGenerator.baseTypeHandlers( // note: order is important; id's must match with TypeScript implementations
             BaseTypeHandlers.INTEGER,         // TypeScriptGenerator.FIRST_DESC_ID
             Expiration.TYPE_HANDLER           // TypeScriptGenerator.FIRST_DESC_ID + 1

@@ -14,13 +14,18 @@ import java.util.stream.Collectors;
 
 public class ReflectTest {
 
-    @Test public void noDefaultConstructor() {
+    @Test public void noDefaultConstructorNoArg() {
         try {
             Instantiators.NOARG.apply(NoDefaultConstructor.class).get();
             Assert.fail();
         } catch (final RuntimeException e) {
             System.out.println(e);
         }
+    }
+
+    @Test public void noDefaultConstructorUnsafe() {
+        final var instance = (NoDefaultConstructor)Instantiators.UNSAFE.apply(NoDefaultConstructor.class).get();
+        Assert.assertTrue(instance.i == 0);
     }
 
     private static Map<String, Field> name2field(final Class<?> type) {

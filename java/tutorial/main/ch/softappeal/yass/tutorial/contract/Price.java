@@ -1,7 +1,6 @@
 package ch.softappeal.yass.tutorial.contract;
 
 import ch.softappeal.yass.util.Instantiators;
-import ch.softappeal.yass.util.unsupported.UnsupportedInstantiators;
 
 import java.util.Objects;
 
@@ -13,7 +12,7 @@ public final class Price {
 
     /**
      * Needed for {@link Instantiators#NOARG}.
-     * Not needed for {@link UnsupportedInstantiators#UNSAFE}.
+     * Not needed for {@link Instantiators#UNSAFE}.
      */
     private Price() {
         instrumentId = 0;

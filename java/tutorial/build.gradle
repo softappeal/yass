@@ -1,5 +1,4 @@
 dependencies {
-    compile project(":java:yass-unsupported")
     compile project(":java:yass-generate")
 }
 
