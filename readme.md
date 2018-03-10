@@ -34,27 +34,35 @@
 ## HelloWorld
 
 ```java
-public interface Calculator {
-    int add(int a, int b);
-}
+public class HelloWorld {
 
-static class CalculatorImpl implements Calculator {
-    public int add(int a, int b) {
-        return a + b;
+    public interface Calculator {
+        int add(int a, int b);
     }
+
+    static class CalculatorImpl implements Calculator {
+        public int add(int a, int b) {
+            return a + b;
+        }
+    }
+
+    public static void main(String... args) {
+
+        var address = new InetSocketAddress("localhost", 28947);
+        var serializer = JavaSerializer.INSTANCE;
+        var calculatorId = ContractId.create(Calculator.class, 0, SimpleMethodMapper.FACTORY);
+
+        // start server
+        var server = new Server(calculatorId.service(new CalculatorImpl()));
+        var executor = Executors.newCachedThreadPool();
+        new SimpleSocketTransport(executor, serializer, server).start(executor, SocketBinder.create(address));
+
+        // use client
+        var client = SimpleSocketTransport.client(serializer, SocketConnector.create(address));
+        var calculator = client.proxy(calculatorId);
+        System.out.println("2 + 3 = " + calculator.add(2, 3));
+
+    }
+
 }
-
-static ContractId<Calculator> CALCULATOR = ContractId.create(Calculator.class, 0, METHOD_MAPPER_FACTORY);
-
-static Server SERVER = new Server(
-    CALCULATOR.service(new CalculatorImpl())
-);
-
-// start server
-new SimpleSocketTransport(EXECUTOR, SERIALIZER, SERVER).start(EXECUTOR, SocketBinder.create(ADDRESS));
-
-// use client
-var client = SimpleSocketTransport.client(SERIALIZER, SocketConnector.create(ADDRESS));
-var calculator = client.proxy(CALCULATOR);
-System.out.println("2 + 3 = " + calculator.add(2, 3));
 ```

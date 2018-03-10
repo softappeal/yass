@@ -1,29 +1,17 @@
 package ch.softappeal.yass.tutorial;
 
 import ch.softappeal.yass.core.remote.ContractId;
-import ch.softappeal.yass.core.remote.MethodMapper;
 import ch.softappeal.yass.core.remote.Server;
 import ch.softappeal.yass.core.remote.SimpleMethodMapper;
 import ch.softappeal.yass.serialize.JavaSerializer;
-import ch.softappeal.yass.serialize.Serializer;
 import ch.softappeal.yass.transport.socket.SimpleSocketTransport;
 import ch.softappeal.yass.transport.socket.SocketBinder;
 import ch.softappeal.yass.transport.socket.SocketConnector;
 
 import java.net.InetSocketAddress;
-import java.net.SocketAddress;
-import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
-public final class HelloWorld {
-
-    private static final Executor EXECUTOR = Executors.newCachedThreadPool();
-
-    private static final SocketAddress ADDRESS = new InetSocketAddress("localhost", 28947);
-
-    private static final Serializer SERIALIZER = JavaSerializer.INSTANCE;
-
-    private static final MethodMapper.Factory METHOD_MAPPER_FACTORY = SimpleMethodMapper.FACTORY;
+public class HelloWorld {
 
     public interface Calculator {
         int add(int a, int b);
@@ -35,20 +23,20 @@ public final class HelloWorld {
         }
     }
 
-    static ContractId<Calculator> CALCULATOR = ContractId.create(Calculator.class, 0, METHOD_MAPPER_FACTORY);
+    public static void main(String... args) {
 
-    static Server SERVER = new Server(
-        CALCULATOR.service(new CalculatorImpl())
-    );
-
-    public static void main(final String... args) {
+        var address = new InetSocketAddress("localhost", 28947);
+        var serializer = JavaSerializer.INSTANCE;
+        var calculatorId = ContractId.create(Calculator.class, 0, SimpleMethodMapper.FACTORY);
 
         // start server
-        new SimpleSocketTransport(EXECUTOR, SERIALIZER, SERVER).start(EXECUTOR, SocketBinder.create(ADDRESS));
+        var server = new Server(calculatorId.service(new CalculatorImpl()));
+        var executor = Executors.newCachedThreadPool();
+        new SimpleSocketTransport(executor, serializer, server).start(executor, SocketBinder.create(address));
 
         // use client
-        var client = SimpleSocketTransport.client(SERIALIZER, SocketConnector.create(ADDRESS));
-        var calculator = client.proxy(CALCULATOR);
+        var client = SimpleSocketTransport.client(serializer, SocketConnector.create(address));
+        var calculator = client.proxy(calculatorId);
         System.out.println("2 + 3 = " + calculator.add(2, 3));
 
     }
