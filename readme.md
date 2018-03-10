@@ -41,7 +41,7 @@ public class HelloWorld {
     }
 
     static class CalculatorImpl implements Calculator {
-        public int add(int a, int b) {
+        @Override public int add(int a, int b) {
             return a + b;
         }
     }
