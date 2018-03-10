@@ -1,13 +1,13 @@
 source activate py2
 
-pip install typing==3.6.2
+pip install typing==3.6.4
 pip install enum34==1.1.6
 
 python -m unittest test.all_tests
 
 source activate py3
 
-# mypy -p tutorial $note: enable if mypy fixes this
-# mypy -p test     $note: enable if mypy fixes this
+mypy -p tutorial
+mypy -p test
 
 source deactivate

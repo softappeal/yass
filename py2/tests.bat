@@ -1,6 +1,6 @@
 call activate py2
 
-pip install typing==3.6.2
+pip install typing==3.6.4
 pip install enum34==1.1.6
 
 python -m unittest test.all_tests
