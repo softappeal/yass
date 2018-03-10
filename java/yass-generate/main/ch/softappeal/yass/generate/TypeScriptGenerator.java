@@ -70,6 +70,8 @@ public final class TypeScriptGenerator extends Generator {
         }
     }
 
+    private static final String OPTIONAL_TYPE = " | undefined | null";
+
     private final class TypeScriptOut extends Out {
 
         private final LinkedHashMap<Class<?>, Integer> type2id = new LinkedHashMap<>();
@@ -200,7 +202,7 @@ public final class TypeScriptGenerator extends Generator {
                 println(" {");
                 inc();
                 for (final Field field : Reflect.ownFields(type)) {
-                    tabsln("%s: %s | undefined | null;", field.getName(), type(field.getGenericType()));
+                    tabsln("%s: %s%s;", field.getName(), type(field.getGenericType()), OPTIONAL_TYPE);
                 }
                 final @Nullable Integer id = type2id.get(type);
                 if (id != null) {
@@ -235,12 +237,12 @@ public final class TypeScriptGenerator extends Generator {
                     inc();
                     for (final Method method : methods) {
                         tabs("%s(", method.getName());
-                        iterate(List.of(method.getParameters()), () -> print(", "), p -> print("%s: %s | undefined | null", p.getName(), type(p.getParameterizedType())));
+                        iterate(List.of(method.getParameters()), () -> print(", "), p -> print("%s: %s%s", p.getName(), type(p.getParameterizedType()), OPTIONAL_TYPE));
                         print("): ");
                         if (methodMapper.mapMethod(method).oneWay) {
                             print("void");
                         } else {
-                            final String type = type(method.getGenericReturnType()) + " | undefined | null";
+                            final String type = type(method.getGenericReturnType()) + OPTIONAL_TYPE;
                             if (implementation) {
                                 print(type);
                             } else {
