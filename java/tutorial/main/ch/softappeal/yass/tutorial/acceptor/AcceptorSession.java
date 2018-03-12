@@ -53,7 +53,7 @@ public final class AcceptorSession extends SimpleSession {
     public AcceptorSession(final Connection connection, final Executor dispatchExecutor) {
         super(connection, dispatchExecutor);
         System.out.println("session " + this + " created");
-        final Interceptor interceptor = new Logger(this, Logger.Side.CLIENT);
+        final var interceptor = new Logger(this, Logger.Side.CLIENT);
         priceListener = proxy(INITIATOR.priceListener, interceptor);
         echoService = proxy(INITIATOR.echoService, interceptor);
     }

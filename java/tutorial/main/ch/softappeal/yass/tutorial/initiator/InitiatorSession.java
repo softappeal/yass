@@ -50,7 +50,7 @@ public final class InitiatorSession extends SimpleSession {
     public InitiatorSession(final Connection connection, final Executor dispatchExecutor) {
         super(connection, dispatchExecutor);
         System.out.println("session created");
-        final Interceptor interceptor = new Logger(this, Logger.Side.CLIENT);
+        final var interceptor = new Logger(this, Logger.Side.CLIENT);
         priceEngine = proxy(ACCEPTOR.priceEngine, interceptor);
         instrumentServiceAsync = proxyAsync(ACCEPTOR.instrumentService, LoggerAsync.INSTANCE);
         echoService = proxy(ACCEPTOR.echoService, interceptor);
