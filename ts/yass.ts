@@ -546,9 +546,6 @@ export class ContractId<P, I> {
     service(implementation: I, interceptor = DIRECT_INTERCEPTOR): Service {
         return new Service(this, implementation, interceptor);
     }
-    neededToPreventUnusedWarningOfTypeP(p: P): void {
-        // empty
-    }
 }
 
 export class Service {
