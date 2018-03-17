@@ -1,3 +1,5 @@
+export type Nullable<T> = T | undefined | null;
+
 export class Writer {
     private capacity: number;
     private position = 0;

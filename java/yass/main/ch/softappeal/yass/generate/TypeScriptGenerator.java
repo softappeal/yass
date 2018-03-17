@@ -66,7 +66,9 @@ public final class TypeScriptGenerator extends Generator {
         }
     }
 
-    private static final String OPTIONAL_TYPE = " | undefined | null";
+    private static String nullable(final String type) {
+        return "yass.Nullable<" + type + '>';
+    }
 
     private final class TypeScriptOut extends Out {
 
@@ -198,7 +200,7 @@ public final class TypeScriptGenerator extends Generator {
                 println(" {");
                 inc();
                 for (final var field : Reflect.ownFields(type)) {
-                    tabsln("%s: %s%s;", field.getName(), type(field.getGenericType()), OPTIONAL_TYPE);
+                    tabsln("%s: %s;", field.getName(), nullable(type(field.getGenericType())));
                 }
                 final var id = type2id.get(type);
                 if (id != null) {
@@ -233,12 +235,12 @@ public final class TypeScriptGenerator extends Generator {
                     inc();
                     for (final var method : methods) {
                         tabs("%s(", method.getName());
-                        iterate(List.of(method.getParameters()), () -> print(", "), p -> print("%s: %s%s", p.getName(), type(p.getParameterizedType()), OPTIONAL_TYPE));
+                        iterate(List.of(method.getParameters()), () -> print(", "), p -> print("%s: %s", p.getName(), nullable(type(p.getParameterizedType()))));
                         print("): ");
                         if (methodMapper.mapMethod(method).oneWay) {
                             print("void");
                         } else {
-                            final var type = type(method.getGenericReturnType()) + OPTIONAL_TYPE;
+                            final var type = nullable(type(method.getGenericReturnType()));
                             if (implementation) {
                                 print(type);
                             } else {

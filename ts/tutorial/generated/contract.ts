@@ -32,9 +32,9 @@ export class PriceKind extends yass.Enum {
 }
 
 export class Price {
-    instrumentId: Integer | undefined | null;
-    kind: PriceKind | undefined | null;
-    value: Integer | undefined | null;
+    instrumentId: yass.Nullable<Integer>;
+    kind: yass.Nullable<PriceKind>;
+    value: yass.Nullable<Integer>;
     static readonly TYPE_DESC = yass.classDesc(10, Price,
         new yass.FieldDesc(1, 'instrumentId', IntegerHandler.TYPE_DESC),
         new yass.FieldDesc(2, 'kind', PriceKind.TYPE_DESC),
@@ -43,13 +43,13 @@ export class Price {
 }
 
 export abstract class Instrument {
-    id: Integer | undefined | null;
-    name: string | undefined | null;
+    id: yass.Nullable<Integer>;
+    name: yass.Nullable<string>;
 }
 
 export namespace instrument.stock {
     export class Stock extends Instrument {
-        paysDividend: boolean | undefined | null;
+        paysDividend: yass.Nullable<boolean>;
         static readonly TYPE_DESC = yass.classDesc(11, Stock,
             new yass.FieldDesc(1, 'paysDividend', yass.BOOLEAN_DESC),
             new yass.FieldDesc(2, 'id', IntegerHandler.TYPE_DESC),
@@ -60,8 +60,8 @@ export namespace instrument.stock {
 
 export namespace instrument {
     export class Bond extends Instrument {
-        coupon: number | undefined | null;
-        expiration: Expiration | undefined | null;
+        coupon: yass.Nullable<number>;
+        expiration: yass.Nullable<Expiration>;
         static readonly TYPE_DESC = yass.classDesc(12, Bond,
             new yass.FieldDesc(1, 'coupon', yass.NUMBER_DESC),
             new yass.FieldDesc(2, 'expiration', Expiration.TYPE_DESC),
@@ -72,7 +72,7 @@ export namespace instrument {
 }
 
 export class SystemException {
-    message: string | undefined | null;
+    message: yass.Nullable<string>;
     static readonly TYPE_DESC = yass.classDesc(13, SystemException,
         new yass.FieldDesc(1, 'message', yass.STRING_DESC)
     );
@@ -82,10 +82,10 @@ export abstract class ApplicationException {
 }
 
 export class UnknownInstrumentsException extends ApplicationException {
-    instrumentIds: Integer[] | undefined | null;
-    onlyNeededForTests1: any | undefined | null;
-    onlyNeededForTests2: Uint8Array | undefined | null;
-    onlyNeededForTests3: any | undefined | null;
+    instrumentIds: yass.Nullable<Integer[]>;
+    onlyNeededForTests1: yass.Nullable<any>;
+    onlyNeededForTests2: yass.Nullable<Uint8Array>;
+    onlyNeededForTests3: yass.Nullable<any>;
     static readonly TYPE_DESC = yass.classDesc(14, UnknownInstrumentsException,
         new yass.FieldDesc(1, 'instrumentIds', yass.LIST_DESC),
         new yass.FieldDesc(2, 'onlyNeededForTests1', null),
@@ -96,8 +96,8 @@ export class UnknownInstrumentsException extends ApplicationException {
 
 export namespace generic {
     export class Pair<F, S> {
-        first: F | undefined | null;
-        second: S | undefined | null;
+        first: yass.Nullable<F>;
+        second: yass.Nullable<S>;
         static readonly TYPE_DESC = yass.classDesc(15, Pair,
             new yass.FieldDesc(1, 'first', null),
             new yass.FieldDesc(2, 'second', null)
@@ -116,7 +116,7 @@ export namespace generic {
 
 export namespace generic {
     export class Triple<F, T> extends generic.Pair<F, boolean> {
-        third: T | undefined | null;
+        third: yass.Nullable<T>;
         static readonly TYPE_DESC = yass.classDesc(17, Triple,
             new yass.FieldDesc(1, 'third', null),
             new yass.FieldDesc(2, 'first', null),
@@ -127,7 +127,7 @@ export namespace generic {
 
 export namespace generic {
     export class TripleWrapper {
-        triple: generic.Triple<PriceKind, generic.Pair<string, generic.PairBoolBool[]>> | undefined | null;
+        triple: yass.Nullable<generic.Triple<PriceKind, generic.Pair<string, generic.PairBoolBool[]>>>;
         static readonly TYPE_DESC = yass.classDesc(18, TripleWrapper,
             new yass.FieldDesc(1, 'triple', null)
         );
@@ -136,12 +136,12 @@ export namespace generic {
 
 export namespace proxy {
     export interface EchoService {
-        echo(value: any | undefined | null): Promise<any | undefined | null>;
+        echo(value: yass.Nullable<any>): Promise<yass.Nullable<any>>;
     }
 }
 export namespace impl {
     export interface EchoService {
-        echo(value: any | undefined | null): any | undefined | null;
+        echo(value: yass.Nullable<any>): yass.Nullable<any>;
     }
 }
 export namespace mapper {
@@ -152,12 +152,12 @@ export namespace mapper {
 
 export namespace proxy {
     export interface PriceEngine {
-        subscribe(instrumentIds: Integer[] | undefined | null): Promise<void | undefined | null>;
+        subscribe(instrumentIds: yass.Nullable<Integer[]>): Promise<yass.Nullable<void>>;
     }
 }
 export namespace impl {
     export interface PriceEngine {
-        subscribe(instrumentIds: Integer[] | undefined | null): void | undefined | null;
+        subscribe(instrumentIds: yass.Nullable<Integer[]>): yass.Nullable<void>;
     }
 }
 export namespace mapper {
@@ -168,12 +168,12 @@ export namespace mapper {
 
 export namespace proxy {
     export interface PriceListener {
-        newPrices(prices: Price[] | undefined | null): void;
+        newPrices(prices: yass.Nullable<Price[]>): void;
     }
 }
 export namespace impl {
     export interface PriceListener {
-        newPrices(prices: Price[] | undefined | null): void;
+        newPrices(prices: yass.Nullable<Price[]>): void;
     }
 }
 export namespace mapper {
@@ -185,12 +185,12 @@ export namespace mapper {
 export namespace generic {
     export namespace proxy {
         export interface GenericEchoService {
-            echo(value: generic.Pair<boolean, generic.TripleWrapper> | undefined | null): Promise<generic.Pair<boolean, generic.TripleWrapper> | undefined | null>;
+            echo(value: yass.Nullable<generic.Pair<boolean, generic.TripleWrapper>>): Promise<yass.Nullable<generic.Pair<boolean, generic.TripleWrapper>>>;
         }
     }
     export namespace impl {
         export interface GenericEchoService {
-            echo(value: generic.Pair<boolean, generic.TripleWrapper> | undefined | null): generic.Pair<boolean, generic.TripleWrapper> | undefined | null;
+            echo(value: yass.Nullable<generic.Pair<boolean, generic.TripleWrapper>>): yass.Nullable<generic.Pair<boolean, generic.TripleWrapper>>;
         }
     }
     export namespace mapper {
@@ -203,14 +203,14 @@ export namespace generic {
 export namespace instrument {
     export namespace proxy {
         export interface InstrumentService {
-            getInstruments(): Promise<Instrument[] | undefined | null>;
-            showOneWay(testBoolean: boolean | undefined | null, testInt: Integer | undefined | null): void;
+            getInstruments(): Promise<yass.Nullable<Instrument[]>>;
+            showOneWay(testBoolean: yass.Nullable<boolean>, testInt: yass.Nullable<Integer>): void;
         }
     }
     export namespace impl {
         export interface InstrumentService {
-            getInstruments(): Instrument[] | undefined | null;
-            showOneWay(testBoolean: boolean | undefined | null, testInt: Integer | undefined | null): void;
+            getInstruments(): yass.Nullable<Instrument[]>;
+            showOneWay(testBoolean: yass.Nullable<boolean>, testInt: yass.Nullable<Integer>): void;
         }
     }
     export namespace mapper {
