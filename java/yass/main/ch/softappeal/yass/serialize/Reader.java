@@ -84,31 +84,17 @@ public abstract class Reader {
      * @see Writer#writeVarInt(int)
      */
     public final int readVarInt() throws Exception {
-        var b = readByte();
-        if (b >= 0) {
-            return b;
-        }
-        var value = b & 0b0111_1111;
-        if ((b = readByte()) >= 0) {
-            value |= b << 7;
-        } else {
-            value |= (b & 0b0111_1111) << 7;
-            if ((b = readByte()) >= 0) {
-                value |= b << 14;
-            } else {
-                value |= (b & 0b0111_1111) << 14;
-                if ((b = readByte()) >= 0) {
-                    value |= b << 21;
-                } else {
-                    value |= (b & 0b0111_1111) << 21;
-                    value |= (b = readByte()) << 28;
-                    if (b < 0) {
-                        throw new RuntimeException("malformed input");
-                    }
-                }
+        var shift = 0;
+        int value = 0;
+        while (shift < 32) {
+            final var b = readByte();
+            value |= (b & 0b0111_1111) << shift;
+            if ((b & 0b1000_0000) == 0) {
+                return value;
             }
+            shift += 7;
         }
-        return value;
+        throw new RuntimeException("malformed input");
     }
 
     /**
