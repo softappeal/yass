@@ -6,7 +6,6 @@ import ch.softappeal.yass.tutorial.contract.instrument.InstrumentService;
 import ch.softappeal.yass.tutorial.contract.instrument.stock.Stock;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -22,7 +21,7 @@ public final class InstrumentServiceImplAsync implements InstrumentService {
             final var id = index++;
             instruments.put(id, new Stock(id, name, true));
         }
-        INSTRUMENTS = Collections.unmodifiableMap(instruments);
+        INSTRUMENTS = Map.copyOf(instruments);
     }
 
     private InstrumentServiceImplAsync() {
