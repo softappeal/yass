@@ -156,7 +156,7 @@ public final class TypeScriptGenerator extends Generator {
             if (!fieldDesc.handler.typeHandler().isPresent()) {
                 return "null";
             }
-            final var typeHandler = fieldDesc.handler.typeHandler().get();
+            final var typeHandler = fieldDesc.handler.typeHandler().orElseThrow();
             if (TypeDesc.LIST.handler == typeHandler) {
                 return "yass.LIST_DESC";
             } else if (BOOLEAN_DESC.handler == typeHandler) {

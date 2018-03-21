@@ -390,7 +390,7 @@ public final class PythonGenerator extends Generator {
             if (!fieldDesc.handler.typeHandler().isPresent()) {
                 return "None";
             }
-            final var typeHandler = fieldDesc.handler.typeHandler().get();
+            final var typeHandler = fieldDesc.handler.typeHandler().orElseThrow();
             if (TypeDesc.LIST.handler == typeHandler) {
                 return "yass.LIST_DESC";
             } else if (BOOLEAN_DESC.handler == typeHandler) {
