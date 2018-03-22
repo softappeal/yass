@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.lang.reflect.Method;
 import java.net.Socket;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.concurrent.Executor;
 
 /**
@@ -129,11 +130,8 @@ public final class SimpleSocketTransport extends SocketListener {
      * @return socket of current request
      */
     public static Socket socket() {
-        final var socket = SOCKET.get();
-        if (socket == null) {
-            throw new IllegalStateException("no active invocation");
-        }
-        return socket;
+        return Optional.ofNullable(SOCKET.get())
+            .orElseThrow(() -> new IllegalStateException("no active invocation"));
     }
 
 }

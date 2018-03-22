@@ -5,6 +5,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.function.Supplier;
 
 @FunctionalInterface public interface InputStreamSupplier extends Supplier<InputStream> {
@@ -27,13 +28,8 @@ import java.util.function.Supplier;
     static InputStreamSupplier create(final ClassLoader classLoader, final String name) {
         Objects.requireNonNull(classLoader);
         Objects.requireNonNull(name);
-        return () -> {
-            final var in = classLoader.getResourceAsStream(name);
-            if (in == null) {
-                throw new RuntimeException("resource '" + name + "' not found");
-            }
-            return in;
-        };
+        return () -> Optional.ofNullable(classLoader.getResourceAsStream(name))
+            .orElseThrow(() -> new RuntimeException("resource '" + name + "' not found"));
     }
 
 }

@@ -5,6 +5,7 @@ import ch.softappeal.yass.util.Nullable;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 final class Output {
 
@@ -23,11 +24,9 @@ final class Output {
         } else if (value instanceof List) {
             TypeDesc.LIST.write(value, this);
         } else {
-            final var typeDesc = class2typeDesc.get(value.getClass());
-            if (typeDesc == null) {
-                throw new IllegalArgumentException("missing type '" + value.getClass().getCanonicalName() + '\'');
-            }
-            typeDesc.write(value, this);
+            Optional.ofNullable(class2typeDesc.get(value.getClass()))
+                .orElseThrow(() -> new IllegalArgumentException("missing type '" + value.getClass().getCanonicalName() + '\''))
+                .write(value, this);
         }
     }
 

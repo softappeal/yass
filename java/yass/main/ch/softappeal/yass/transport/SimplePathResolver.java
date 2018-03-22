@@ -3,6 +3,7 @@ package ch.softappeal.yass.transport;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 
 /**
  * Allows having different contracts (and multiple versions of the same contract) on one listener.
@@ -23,11 +24,8 @@ public final class SimplePathResolver {
     }
 
     public SimpleTransportSetup resolvePath(final Object path) {
-        final var setup = pathMappings.get(Objects.requireNonNull(path));
-        if (setup == null) {
-            throw new RuntimeException("no mapping for path '" + path + '\'');
-        }
-        return setup;
+        return Optional.ofNullable(pathMappings.get(Objects.requireNonNull(path)))
+            .orElseThrow(() -> new RuntimeException("no mapping for path '" + path + '\''));
     }
 
 }

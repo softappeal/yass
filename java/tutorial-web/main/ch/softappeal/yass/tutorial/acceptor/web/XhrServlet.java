@@ -16,6 +16,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.security.cert.X509Certificate;
 import java.util.Arrays;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static ch.softappeal.yass.tutorial.contract.Config.ACCEPTOR;
@@ -26,11 +27,8 @@ public class XhrServlet extends HttpServlet {
 
     private static void invoke(final SimpleTransportSetup setup, final HttpServletRequest httpRequest, final HttpServletResponse httpResponse) {
         try {
-            // shows how to use certificates
-            final var certificates = (X509Certificate[])httpRequest.getAttribute("javax.servlet.request.X509Certificate");
-            if (certificates != null) {
-                System.out.println(Arrays.stream(certificates).map(X509Certificate::getSubjectDN).collect(Collectors.toList()));
-            }
+            Optional.ofNullable((X509Certificate[])httpRequest.getAttribute("javax.servlet.request.X509Certificate"))
+                .ifPresent(certificates -> System.out.println(Arrays.stream(certificates).map(X509Certificate::getSubjectDN).collect(Collectors.toList())));
             setup.server.invocation(false, (Request)setup.messageSerializer.read(Reader.create(httpRequest.getInputStream()))).invoke(
                 reply -> setup.messageSerializer.write(reply, Writer.create(httpResponse.getOutputStream()))
             );
