@@ -60,7 +60,7 @@ public abstract class Client {
     protected Object invokeSync(final ContractId<?> contractId, final Interceptor interceptor, final Method method, final @Nullable Object[] arguments) throws Exception {
         return interceptor.invoke(method, arguments, () -> {
             final var methodMapping = contractId.methodMapper.mapMethod(method);
-            final @Nullable CompletableFuture<?> promise = methodMapping.oneWay ? null : new CompletableFuture<>();
+            final var promise = methodMapping.oneWay ? null : new CompletableFuture<>();
             invoke(new Invocation(methodMapping, arguments, null, promise, contractId.id));
             if (promise == null) {
                 return null; // oneWay

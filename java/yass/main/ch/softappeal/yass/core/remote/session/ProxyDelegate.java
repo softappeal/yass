@@ -15,7 +15,7 @@ public abstract class ProxyDelegate<S extends Session> {
         this.session = session;
     }
 
-    private static boolean connected(final Session session) {
+    private static boolean connected(final @Nullable Session session) {
         return (session != null) && !session.isClosed();
     }
 

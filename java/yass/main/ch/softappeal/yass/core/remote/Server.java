@@ -6,6 +6,7 @@ import ch.softappeal.yass.util.Nullable;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 
 public final class Server {
 
@@ -27,11 +28,8 @@ public final class Server {
      * @see ContractId#serviceAsync(Object, InterceptorAsync)
      */
     public static Completer completer() {
-        final var completer = COMPLETER.get();
-        if (completer == null) {
-            throw new IllegalStateException("no active asynchronous request/reply service invocation");
-        }
-        return completer;
+        return Optional.ofNullable(COMPLETER.get())
+            .orElseThrow(() -> new IllegalStateException("no active asynchronous request/reply service invocation"));
     }
 
     @FunctionalInterface public interface ReplyWriter {
@@ -81,10 +79,8 @@ public final class Server {
     }
 
     public Invocation invocation(final boolean asyncSupported, final Request request) {
-        final var service = id2service.get(request.serviceId);
-        if (service == null) {
-            throw new RuntimeException("no serviceId " + request.serviceId + " found (methodId " + request.methodId + ')');
-        }
+        final var service = Optional.ofNullable(id2service.get(request.serviceId))
+            .orElseThrow(() -> new RuntimeException("no serviceId " + request.serviceId + " found (methodId " + request.methodId + ')'));
         if (!asyncSupported && service.async()) {
             throw new UnsupportedOperationException("asynchronous services not supported (serviceId = " + service.contractId.id + ')');
         }
