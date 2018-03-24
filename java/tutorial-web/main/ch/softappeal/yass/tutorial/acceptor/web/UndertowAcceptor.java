@@ -39,7 +39,7 @@ public final class UndertowAcceptor extends WebAcceptorSetup {
         final var fileHandler = Handlers.resource(new FileResourceManager(new File(WEB_PATH), 100));
         Undertow.builder()
             .addHttpListener(PORT, HOST)
-            .addHttpsListener(PORT + 1, HOST, SslConfig.SERVER.context) // $note: we don't know how to force client authentication
+            .addHttpsListener(PORT + 1, HOST, SslConfig.SERVER.context) // note: we don't know how to force client authentication
             .setHandler(exchange -> {
                 final var path = exchange.getRequestPath();
                 if (WS_PATH.equals(path) || XHR_PATH.equals(path)) {

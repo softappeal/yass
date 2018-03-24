@@ -1,4 +1,4 @@
-package test;
+package ch.softappeal.yass.transport.ws.test.container;
 
 import org.eclipse.jetty.websocket.jsr356.ClientContainer;
 

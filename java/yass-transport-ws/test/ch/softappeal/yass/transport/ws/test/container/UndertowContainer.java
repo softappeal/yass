@@ -1,4 +1,4 @@
-package test;
+package ch.softappeal.yass.transport.ws.test.container;
 
 import io.undertow.Undertow;
 import io.undertow.server.XnioByteBufferPool;

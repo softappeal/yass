@@ -1,4 +1,4 @@
-package test;
+package ch.softappeal.yass.transport.ws.test.container;
 
 import javax.websocket.ClientEndpointConfig;
 import javax.websocket.Endpoint;

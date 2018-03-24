@@ -1,4 +1,4 @@
-package test;
+package ch.softappeal.yass.transport.ws.test.container;
 
 import javax.websocket.Endpoint;
 import javax.websocket.EndpointConfig;
@@ -23,7 +23,7 @@ public final class ApplicationConfig implements ServerApplicationConfig {
         .create(Endpoint.class, WS_PATH)
         .configurator(new ServerEndpointConfig.Configurator() {
             @Override public void modifyHandshake(final ServerEndpointConfig sec, final HandshakeRequest request, final HandshakeResponse response) {
-                // $note: works in Tomcat and Jetty but not in Undertow
+                // note: works in Tomcat and Jetty but not in Undertow
                 //     http://dev.eclipse.org/mhonarc/lists/jetty-users/msg07615.html
                 //     http://lists.jboss.org/pipermail/undertow-dev/2017-February/001892.html
                 //     https://java.net/jira/browse/WEBSOCKET_SPEC-218

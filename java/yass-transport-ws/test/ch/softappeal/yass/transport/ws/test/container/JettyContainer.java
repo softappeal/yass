@@ -1,4 +1,4 @@
-package test;
+package ch.softappeal.yass.transport.ws.test.container;
 
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
