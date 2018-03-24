@@ -10,7 +10,7 @@ import java.lang.annotation.Target;
  * Marks type use that can be null.
  */
 @Documented
-@Retention(RetentionPolicy.SOURCE)
+@Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE_USE)
 public @interface Nullable {
     // empty
