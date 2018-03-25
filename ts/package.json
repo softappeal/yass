@@ -5,10 +5,10 @@
     "devDependencies": {
         "typescript": "2.8.0-rc",
         "systemjs": "0.21.0",
-        "ws": "5.0.0",
+        "ws": "5.1.0",
         "xhr2": "0.1.4",
         "istanbul": "0.4.5",
-        "remap-istanbul": "0.10.1"
+        "remap-istanbul": "0.11.0"
     },
     "repository": {
         "type": "git",
