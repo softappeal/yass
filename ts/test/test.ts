@@ -38,7 +38,7 @@ function writer2reader(writer: yass.Writer): yass.Reader {
     return new yass.Reader(toArrayBuffer(writer.getArray()));
 }
 
-(function ioTest(): void {
+(function ioTest() {
 
     let writer = new yass.Writer(1);
     writer.writeByte(123);
