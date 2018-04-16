@@ -1,9 +1,9 @@
 package ch.softappeal.yass.tutorial.shared;
 
-import ch.softappeal.yass.core.remote.InterceptorAsync;
-import ch.softappeal.yass.core.remote.MethodMapper;
-import ch.softappeal.yass.core.remote.SimpleInterceptorContext;
-import ch.softappeal.yass.util.Nullable;
+import ch.softappeal.yass.Nullable;
+import ch.softappeal.yass.remote.InterceptorAsync;
+import ch.softappeal.yass.remote.MethodMapper;
+import ch.softappeal.yass.remote.SimpleInterceptorContext;
 
 import java.util.List;
 

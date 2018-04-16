@@ -1,9 +1,9 @@
 package ch.softappeal.yass.transport;
 
-import ch.softappeal.yass.core.remote.ExceptionReply;
-import ch.softappeal.yass.core.remote.Message;
-import ch.softappeal.yass.core.remote.Request;
-import ch.softappeal.yass.core.remote.ValueReply;
+import ch.softappeal.yass.remote.ExceptionReply;
+import ch.softappeal.yass.remote.Message;
+import ch.softappeal.yass.remote.Request;
+import ch.softappeal.yass.remote.ValueReply;
 import ch.softappeal.yass.serialize.CompositeSerializer;
 import ch.softappeal.yass.serialize.Reader;
 import ch.softappeal.yass.serialize.Serializer;

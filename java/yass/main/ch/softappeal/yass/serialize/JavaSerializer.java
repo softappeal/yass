@@ -1,6 +1,6 @@
 package ch.softappeal.yass.serialize;
 
-import ch.softappeal.yass.util.Nullable;
+import ch.softappeal.yass.Nullable;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;

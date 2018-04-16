@@ -1,6 +1,6 @@
 package ch.softappeal.yass.tutorial.contract.generic;
 
-import ch.softappeal.yass.util.Nullable;
+import ch.softappeal.yass.Nullable;
 
 public final class Triple<F, T> extends Pair<F, Boolean> {
 

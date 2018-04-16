@@ -1,7 +1,7 @@
 package ch.softappeal.yass.tutorial.contract;
 
+import ch.softappeal.yass.Nullable;
 import ch.softappeal.yass.serialize.fast.FastSerializer;
-import ch.softappeal.yass.util.Nullable;
 
 import java.util.List;
 import java.util.Objects;

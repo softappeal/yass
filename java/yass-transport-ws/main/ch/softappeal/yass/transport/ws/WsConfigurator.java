@@ -1,8 +1,8 @@
 package ch.softappeal.yass.transport.ws;
 
+import ch.softappeal.yass.Exceptions;
+import ch.softappeal.yass.Nullable;
 import ch.softappeal.yass.transport.TransportSetup;
-import ch.softappeal.yass.util.Exceptions;
-import ch.softappeal.yass.util.Nullable;
 
 import javax.websocket.CloseReason;
 import javax.websocket.Endpoint;

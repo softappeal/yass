@@ -1,7 +1,7 @@
 package ch.softappeal.yass.tutorial.shared;
 
+import ch.softappeal.yass.InputStreamSupplier;
 import ch.softappeal.yass.transport.socket.SslSetup;
-import ch.softappeal.yass.util.InputStreamSupplier;
 
 import java.security.KeyStore;
 

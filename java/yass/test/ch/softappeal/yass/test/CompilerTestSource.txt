@@ -1,0 +1,9 @@
+package ch.softappeal.yass.test;
+
+public class CompilerTestSource {
+
+  public static void x() {
+    System.out.println(CompilerTestSourceText.TEXT + ", world!");
+  }
+
+}

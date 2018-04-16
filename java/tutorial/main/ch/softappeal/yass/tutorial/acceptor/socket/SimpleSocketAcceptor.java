@@ -1,6 +1,8 @@
 package ch.softappeal.yass.tutorial.acceptor.socket;
 
-import ch.softappeal.yass.core.remote.Server;
+import ch.softappeal.yass.Exceptions;
+import ch.softappeal.yass.NamedThreadFactory;
+import ch.softappeal.yass.remote.Server;
 import ch.softappeal.yass.transport.socket.SimpleSocketTransport;
 import ch.softappeal.yass.transport.socket.SocketBinder;
 import ch.softappeal.yass.tutorial.contract.Config;
@@ -8,8 +10,6 @@ import ch.softappeal.yass.tutorial.shared.EchoServiceImpl;
 import ch.softappeal.yass.tutorial.shared.Logger;
 import ch.softappeal.yass.tutorial.shared.UnexpectedExceptionHandler;
 import ch.softappeal.yass.tutorial.shared.socket.SocketSetup;
-import ch.softappeal.yass.util.Exceptions;
-import ch.softappeal.yass.util.NamedThreadFactory;
 
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;

@@ -1,6 +1,6 @@
 package ch.softappeal.yass.tutorial.initiator;
 
-import ch.softappeal.yass.core.remote.session.Reconnector;
+import ch.softappeal.yass.remote.session.Reconnector;
 import ch.softappeal.yass.tutorial.contract.EchoService;
 import ch.softappeal.yass.tutorial.contract.PriceEngine;
 import ch.softappeal.yass.tutorial.contract.instrument.InstrumentService;

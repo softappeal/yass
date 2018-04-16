@@ -1,5 +1,8 @@
 package ch.softappeal.yass.serialize.test;
 
+import ch.softappeal.yass.Nullable;
+import ch.softappeal.yass.Tag;
+import ch.softappeal.yass.TestUtils;
 import ch.softappeal.yass.serialize.Reader;
 import ch.softappeal.yass.serialize.Serializer;
 import ch.softappeal.yass.serialize.Writer;
@@ -14,9 +17,6 @@ import ch.softappeal.yass.serialize.fast.FastSerializer;
 import ch.softappeal.yass.serialize.fast.SimpleFastSerializer;
 import ch.softappeal.yass.serialize.fast.TaggedFastSerializer;
 import ch.softappeal.yass.serialize.fast.TypeDesc;
-import ch.softappeal.yass.util.Nullable;
-import ch.softappeal.yass.util.Tag;
-import ch.softappeal.yass.util.TestUtils;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -78,7 +78,7 @@ public class FastSerializerTest {
             new SimpleFastSerializer(List.of(), List.of(Nullable.class));
             Assert.fail();
         } catch (final IllegalArgumentException e) {
-            Assert.assertEquals("type 'ch.softappeal.yass.util.Nullable' is abstract", e.getMessage());
+            Assert.assertEquals("type 'ch.softappeal.yass.Nullable' is abstract", e.getMessage());
         }
     }
 

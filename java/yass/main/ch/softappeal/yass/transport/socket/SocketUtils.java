@@ -1,6 +1,6 @@
 package ch.softappeal.yass.transport.socket;
 
-import ch.softappeal.yass.util.Exceptions;
+import ch.softappeal.yass.Exceptions;
 
 import java.net.ServerSocket;
 import java.net.Socket;

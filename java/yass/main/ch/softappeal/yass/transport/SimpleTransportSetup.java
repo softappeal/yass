@@ -1,7 +1,7 @@
 package ch.softappeal.yass.transport;
 
-import ch.softappeal.yass.core.remote.Message;
-import ch.softappeal.yass.core.remote.Server;
+import ch.softappeal.yass.remote.Message;
+import ch.softappeal.yass.remote.Server;
 import ch.softappeal.yass.serialize.Serializer;
 
 import java.util.Objects;

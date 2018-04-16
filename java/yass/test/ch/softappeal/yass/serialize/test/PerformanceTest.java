@@ -1,10 +1,10 @@
 package ch.softappeal.yass.serialize.test;
 
+import ch.softappeal.yass.Stopwatch;
 import ch.softappeal.yass.serialize.JavaSerializer;
 import ch.softappeal.yass.serialize.Reader;
 import ch.softappeal.yass.serialize.Serializer;
 import ch.softappeal.yass.serialize.Writer;
-import ch.softappeal.yass.util.Stopwatch;
 import org.junit.Test;
 
 import java.io.ByteArrayOutputStream;

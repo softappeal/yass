@@ -1,15 +1,15 @@
 package ch.softappeal.yass.transport.socket.test;
 
-import ch.softappeal.yass.core.remote.Server;
-import ch.softappeal.yass.core.remote.test.ContractIdTest;
+import ch.softappeal.yass.Exceptions;
+import ch.softappeal.yass.InputStreamSupplier;
+import ch.softappeal.yass.NamedThreadFactory;
+import ch.softappeal.yass.remote.Server;
+import ch.softappeal.yass.remote.test.ContractIdTest;
 import ch.softappeal.yass.transport.socket.SimpleSocketTransport;
 import ch.softappeal.yass.transport.socket.SocketBinder;
 import ch.softappeal.yass.transport.socket.SocketConnector;
 import ch.softappeal.yass.transport.socket.SslSetup;
 import ch.softappeal.yass.transport.test.TransportTest;
-import ch.softappeal.yass.util.Exceptions;
-import ch.softappeal.yass.util.InputStreamSupplier;
-import ch.softappeal.yass.util.NamedThreadFactory;
 import org.junit.Assert;
 import org.junit.Test;
 

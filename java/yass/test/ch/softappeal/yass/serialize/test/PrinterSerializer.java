@@ -1,10 +1,10 @@
 package ch.softappeal.yass.serialize.test;
 
+import ch.softappeal.yass.Nullable;
 import ch.softappeal.yass.serialize.CompositeSerializer;
 import ch.softappeal.yass.serialize.Reader;
 import ch.softappeal.yass.serialize.Serializer;
 import ch.softappeal.yass.serialize.Writer;
-import ch.softappeal.yass.util.Nullable;
 
 public final class PrinterSerializer extends CompositeSerializer {
 

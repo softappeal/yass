@@ -1,7 +1,7 @@
 package ch.softappeal.yass.tutorial.shared.web;
 
-import ch.softappeal.yass.util.Exceptions;
-import ch.softappeal.yass.util.NamedThreadFactory;
+import ch.softappeal.yass.Exceptions;
+import ch.softappeal.yass.NamedThreadFactory;
 
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;

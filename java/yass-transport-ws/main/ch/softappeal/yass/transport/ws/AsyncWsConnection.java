@@ -1,6 +1,6 @@
 package ch.softappeal.yass.transport.ws;
 
-import ch.softappeal.yass.core.remote.session.Packet;
+import ch.softappeal.yass.remote.session.Packet;
 
 import javax.websocket.RemoteEndpoint;
 import javax.websocket.Session;

@@ -1,6 +1,6 @@
 package ch.softappeal.yass.tutorial.contract;
 
-import ch.softappeal.yass.util.Nullable;
+import ch.softappeal.yass.Nullable;
 
 public interface EchoService {
 

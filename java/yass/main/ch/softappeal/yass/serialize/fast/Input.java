@@ -1,7 +1,7 @@
 package ch.softappeal.yass.serialize.fast;
 
+import ch.softappeal.yass.Nullable;
 import ch.softappeal.yass.serialize.Reader;
-import ch.softappeal.yass.util.Nullable;
 
 import java.util.List;
 import java.util.Map;

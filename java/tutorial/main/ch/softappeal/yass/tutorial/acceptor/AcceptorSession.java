@@ -1,10 +1,11 @@
 package ch.softappeal.yass.tutorial.acceptor;
 
-import ch.softappeal.yass.core.Interceptor;
-import ch.softappeal.yass.core.remote.Server;
-import ch.softappeal.yass.core.remote.session.Connection;
-import ch.softappeal.yass.core.remote.session.SessionWatcher;
-import ch.softappeal.yass.core.remote.session.SimpleSession;
+import ch.softappeal.yass.Interceptor;
+import ch.softappeal.yass.Nullable;
+import ch.softappeal.yass.remote.Server;
+import ch.softappeal.yass.remote.session.Connection;
+import ch.softappeal.yass.remote.session.SessionWatcher;
+import ch.softappeal.yass.remote.session.SimpleSession;
 import ch.softappeal.yass.tutorial.contract.EchoService;
 import ch.softappeal.yass.tutorial.contract.Price;
 import ch.softappeal.yass.tutorial.contract.PriceKind;
@@ -15,7 +16,6 @@ import ch.softappeal.yass.tutorial.shared.EchoServiceImpl;
 import ch.softappeal.yass.tutorial.shared.Logger;
 import ch.softappeal.yass.tutorial.shared.LoggerAsync;
 import ch.softappeal.yass.tutorial.shared.UnexpectedExceptionHandler;
-import ch.softappeal.yass.util.Nullable;
 
 import java.util.ArrayList;
 import java.util.Collections;

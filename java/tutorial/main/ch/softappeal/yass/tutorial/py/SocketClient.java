@@ -1,6 +1,6 @@
 package ch.softappeal.yass.tutorial.py;
 
-import ch.softappeal.yass.core.remote.Client;
+import ch.softappeal.yass.remote.Client;
 import ch.softappeal.yass.serialize.Serializer;
 import ch.softappeal.yass.transport.MessageSerializer;
 import ch.softappeal.yass.transport.socket.SimpleSocketTransport;

@@ -1,7 +1,7 @@
 package ch.softappeal.yass.transport.socket;
 
-import ch.softappeal.yass.util.Closer;
-import ch.softappeal.yass.util.Exceptions;
+import ch.softappeal.yass.Closer;
+import ch.softappeal.yass.Exceptions;
 
 import java.io.IOException;
 import java.net.Socket;

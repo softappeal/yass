@@ -1,14 +1,14 @@
 package ch.softappeal.yass.tutorial.py;
 
-import ch.softappeal.yass.core.remote.Client;
-import ch.softappeal.yass.core.remote.Reply;
+import ch.softappeal.yass.Exceptions;
+import ch.softappeal.yass.NamedThreadFactory;
+import ch.softappeal.yass.Stopwatch;
+import ch.softappeal.yass.remote.Client;
+import ch.softappeal.yass.remote.Reply;
 import ch.softappeal.yass.serialize.Reader;
 import ch.softappeal.yass.serialize.Serializer;
 import ch.softappeal.yass.serialize.Writer;
 import ch.softappeal.yass.transport.MessageSerializer;
-import ch.softappeal.yass.util.Exceptions;
-import ch.softappeal.yass.util.NamedThreadFactory;
-import ch.softappeal.yass.util.Stopwatch;
 
 import java.io.BufferedReader;
 import java.io.File;

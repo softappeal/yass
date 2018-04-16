@@ -1,7 +1,7 @@
 package ch.softappeal.yass.transport;
 
-import ch.softappeal.yass.core.remote.session.Packet;
-import ch.softappeal.yass.core.remote.session.SessionFactory;
+import ch.softappeal.yass.remote.session.Packet;
+import ch.softappeal.yass.remote.session.SessionFactory;
 import ch.softappeal.yass.serialize.Serializer;
 
 import java.util.Objects;

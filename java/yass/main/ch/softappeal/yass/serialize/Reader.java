@@ -1,6 +1,6 @@
 package ch.softappeal.yass.serialize;
 
-import ch.softappeal.yass.util.Exceptions;
+import ch.softappeal.yass.Exceptions;
 
 import java.io.EOFException;
 import java.io.IOException;

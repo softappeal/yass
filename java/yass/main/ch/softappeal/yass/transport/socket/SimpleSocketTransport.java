@@ -1,18 +1,18 @@
 package ch.softappeal.yass.transport.socket;
 
-import ch.softappeal.yass.core.Interceptor;
-import ch.softappeal.yass.core.remote.Client;
-import ch.softappeal.yass.core.remote.ContractId;
-import ch.softappeal.yass.core.remote.Reply;
-import ch.softappeal.yass.core.remote.Request;
-import ch.softappeal.yass.core.remote.Server;
+import ch.softappeal.yass.Interceptor;
+import ch.softappeal.yass.Nullable;
+import ch.softappeal.yass.remote.Client;
+import ch.softappeal.yass.remote.ContractId;
+import ch.softappeal.yass.remote.Reply;
+import ch.softappeal.yass.remote.Request;
+import ch.softappeal.yass.remote.Server;
 import ch.softappeal.yass.serialize.Reader;
 import ch.softappeal.yass.serialize.Serializer;
 import ch.softappeal.yass.serialize.Writer;
 import ch.softappeal.yass.transport.PathSerializer;
 import ch.softappeal.yass.transport.SimplePathResolver;
 import ch.softappeal.yass.transport.SimpleTransportSetup;
-import ch.softappeal.yass.util.Nullable;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;

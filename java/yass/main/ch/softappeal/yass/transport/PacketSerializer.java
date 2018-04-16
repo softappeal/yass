@@ -1,7 +1,7 @@
 package ch.softappeal.yass.transport;
 
-import ch.softappeal.yass.core.remote.Message;
-import ch.softappeal.yass.core.remote.session.Packet;
+import ch.softappeal.yass.remote.Message;
+import ch.softappeal.yass.remote.session.Packet;
 import ch.softappeal.yass.serialize.CompositeSerializer;
 import ch.softappeal.yass.serialize.Reader;
 import ch.softappeal.yass.serialize.Serializer;

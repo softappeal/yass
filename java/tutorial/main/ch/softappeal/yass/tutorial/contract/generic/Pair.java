@@ -1,6 +1,6 @@
 package ch.softappeal.yass.tutorial.contract.generic;
 
-import ch.softappeal.yass.util.Nullable;
+import ch.softappeal.yass.Nullable;
 
 public class Pair<F, S> {
 

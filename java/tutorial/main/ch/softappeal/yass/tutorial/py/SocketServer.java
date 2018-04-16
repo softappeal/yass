@@ -1,6 +1,10 @@
 package ch.softappeal.yass.tutorial.py;
 
-import ch.softappeal.yass.core.Interceptor;
+import ch.softappeal.yass.Exceptions;
+import ch.softappeal.yass.Interceptor;
+import ch.softappeal.yass.NamedThreadFactory;
+import ch.softappeal.yass.Nullable;
+import ch.softappeal.yass.remote.Server;
 import ch.softappeal.yass.transport.MessageSerializer;
 import ch.softappeal.yass.transport.socket.SimpleSocketTransport;
 import ch.softappeal.yass.transport.socket.SocketBinder;
@@ -11,9 +15,6 @@ import ch.softappeal.yass.tutorial.contract.instrument.InstrumentService;
 import ch.softappeal.yass.tutorial.shared.Logger;
 import ch.softappeal.yass.tutorial.shared.SslConfig;
 import ch.softappeal.yass.tutorial.shared.socket.SocketSetup;
-import ch.softappeal.yass.util.Exceptions;
-import ch.softappeal.yass.util.NamedThreadFactory;
-import ch.softappeal.yass.util.Nullable;
 
 import javax.net.ssl.SSLSocket;
 import java.util.List;
@@ -54,7 +55,7 @@ public final class SocketServer {
         new SimpleSocketTransport(
             executor,
             new MessageSerializer(SocketClient.SERIALIZER),
-            new ch.softappeal.yass.core.remote.Server(
+            new Server(
                 PY_ACCEPTOR.echoService.service(new EchoServiceImpl()),
                 PY_ACCEPTOR.instrumentService.service(new InstrumentServiceImpl(), PEER, LOGGER)
             )

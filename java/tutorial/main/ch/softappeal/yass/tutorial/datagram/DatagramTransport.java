@@ -1,8 +1,8 @@
 package ch.softappeal.yass.tutorial.datagram;
 
-import ch.softappeal.yass.core.remote.Client;
-import ch.softappeal.yass.core.remote.MethodMapper;
-import ch.softappeal.yass.core.remote.Request;
+import ch.softappeal.yass.remote.Client;
+import ch.softappeal.yass.remote.MethodMapper;
+import ch.softappeal.yass.remote.Request;
 import ch.softappeal.yass.serialize.Reader;
 import ch.softappeal.yass.serialize.Serializer;
 import ch.softappeal.yass.serialize.Writer;

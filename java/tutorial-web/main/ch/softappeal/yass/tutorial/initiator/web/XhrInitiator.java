@@ -1,7 +1,7 @@
 package ch.softappeal.yass.tutorial.initiator.web;
 
-import ch.softappeal.yass.core.remote.Client;
-import ch.softappeal.yass.core.remote.Reply;
+import ch.softappeal.yass.remote.Client;
+import ch.softappeal.yass.remote.Reply;
 import ch.softappeal.yass.serialize.Reader;
 import ch.softappeal.yass.serialize.Serializer;
 import ch.softappeal.yass.serialize.Writer;

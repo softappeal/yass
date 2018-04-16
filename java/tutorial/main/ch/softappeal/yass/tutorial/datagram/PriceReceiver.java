@@ -1,6 +1,6 @@
 package ch.softappeal.yass.tutorial.datagram;
 
-import ch.softappeal.yass.core.remote.Server;
+import ch.softappeal.yass.remote.Server;
 import ch.softappeal.yass.transport.SimpleTransportSetup;
 import ch.softappeal.yass.tutorial.contract.Config;
 import ch.softappeal.yass.tutorial.contract.Price;

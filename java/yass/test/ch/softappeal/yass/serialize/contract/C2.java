@@ -1,7 +1,7 @@
 package ch.softappeal.yass.serialize.contract;
 
-import ch.softappeal.yass.util.Nullable;
-import ch.softappeal.yass.util.Tag;
+import ch.softappeal.yass.Nullable;
+import ch.softappeal.yass.Tag;
 
 @Tag(120) public final class C2 {
 

@@ -1,11 +1,11 @@
 package ch.softappeal.yass.tutorial.shared;
 
-import ch.softappeal.yass.core.Interceptor;
-import ch.softappeal.yass.core.Invocation;
-import ch.softappeal.yass.core.remote.OneWay;
+import ch.softappeal.yass.Interceptor;
+import ch.softappeal.yass.Invocation;
+import ch.softappeal.yass.Nullable;
+import ch.softappeal.yass.remote.OneWay;
 import ch.softappeal.yass.tutorial.contract.ApplicationException;
 import ch.softappeal.yass.tutorial.contract.SystemException;
-import ch.softappeal.yass.util.Nullable;
 
 import java.lang.reflect.Method;
 

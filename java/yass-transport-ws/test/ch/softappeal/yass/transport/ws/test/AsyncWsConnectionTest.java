@@ -1,17 +1,17 @@
 package ch.softappeal.yass.transport.ws.test;
 
-import ch.softappeal.yass.core.remote.ContractId;
-import ch.softappeal.yass.core.remote.OneWay;
-import ch.softappeal.yass.core.remote.Server;
-import ch.softappeal.yass.core.remote.SimpleMethodMapper;
-import ch.softappeal.yass.core.remote.session.Session;
+import ch.softappeal.yass.Exceptions;
+import ch.softappeal.yass.Nullable;
+import ch.softappeal.yass.remote.ContractId;
+import ch.softappeal.yass.remote.OneWay;
+import ch.softappeal.yass.remote.Server;
+import ch.softappeal.yass.remote.SimpleMethodMapper;
+import ch.softappeal.yass.remote.session.Session;
 import ch.softappeal.yass.serialize.JavaSerializer;
 import ch.softappeal.yass.transport.TransportSetup;
 import ch.softappeal.yass.transport.ws.AsyncWsConnection;
 import ch.softappeal.yass.transport.ws.SyncWsConnection;
 import ch.softappeal.yass.transport.ws.WsConfigurator;
-import ch.softappeal.yass.util.Exceptions;
-import ch.softappeal.yass.util.Nullable;
 import io.undertow.Undertow;
 import io.undertow.server.XnioByteBufferPool;
 import io.undertow.servlet.Servlets;

@@ -1,10 +1,10 @@
 package ch.softappeal.yass.transport.socket.test;
 
+import ch.softappeal.yass.Exceptions;
+import ch.softappeal.yass.NamedThreadFactory;
 import ch.softappeal.yass.transport.socket.SocketTransport;
 import ch.softappeal.yass.transport.socket.SyncSocketConnection;
 import ch.softappeal.yass.transport.test.TransportTest;
-import ch.softappeal.yass.util.Exceptions;
-import ch.softappeal.yass.util.NamedThreadFactory;
 import org.junit.Test;
 
 import java.util.concurrent.CountDownLatch;

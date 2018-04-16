@@ -1,9 +1,9 @@
 package ch.softappeal.yass.serialize.fast;
 
+import ch.softappeal.yass.Nullable;
 import ch.softappeal.yass.serialize.Reader;
 import ch.softappeal.yass.serialize.Serializer;
 import ch.softappeal.yass.serialize.Writer;
-import ch.softappeal.yass.util.Nullable;
 
 import java.io.PrintWriter;
 import java.lang.reflect.Field;

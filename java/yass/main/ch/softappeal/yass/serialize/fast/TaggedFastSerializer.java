@@ -1,8 +1,8 @@
 package ch.softappeal.yass.serialize.fast;
 
-import ch.softappeal.yass.util.Reflect;
-import ch.softappeal.yass.util.Tag;
-import ch.softappeal.yass.util.Tags;
+import ch.softappeal.yass.Reflect;
+import ch.softappeal.yass.Tag;
+import ch.softappeal.yass.Tags;
 
 import java.lang.reflect.Field;
 import java.util.Collection;

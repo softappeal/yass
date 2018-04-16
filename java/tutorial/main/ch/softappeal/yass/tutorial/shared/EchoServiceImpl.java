@@ -1,7 +1,7 @@
 package ch.softappeal.yass.tutorial.shared;
 
+import ch.softappeal.yass.Nullable;
 import ch.softappeal.yass.tutorial.contract.EchoService;
-import ch.softappeal.yass.util.Nullable;
 
 import java.util.concurrent.TimeUnit;
 

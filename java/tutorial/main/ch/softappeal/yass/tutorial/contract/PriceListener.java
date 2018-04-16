@@ -1,6 +1,6 @@
 package ch.softappeal.yass.tutorial.contract;
 
-import ch.softappeal.yass.core.remote.OneWay;
+import ch.softappeal.yass.remote.OneWay;
 
 import java.util.List;
 

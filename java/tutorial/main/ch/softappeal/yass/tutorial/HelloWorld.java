@@ -1,8 +1,8 @@
 package ch.softappeal.yass.tutorial;
 
-import ch.softappeal.yass.core.remote.ContractId;
-import ch.softappeal.yass.core.remote.Server;
-import ch.softappeal.yass.core.remote.SimpleMethodMapper;
+import ch.softappeal.yass.remote.ContractId;
+import ch.softappeal.yass.remote.Server;
+import ch.softappeal.yass.remote.SimpleMethodMapper;
 import ch.softappeal.yass.serialize.JavaSerializer;
 import ch.softappeal.yass.transport.socket.SimpleSocketTransport;
 import ch.softappeal.yass.transport.socket.SocketBinder;

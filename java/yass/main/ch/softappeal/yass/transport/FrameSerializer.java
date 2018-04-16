@@ -1,10 +1,10 @@
 package ch.softappeal.yass.transport;
 
+import ch.softappeal.yass.Nullable;
 import ch.softappeal.yass.serialize.CompositeSerializer;
 import ch.softappeal.yass.serialize.Reader;
 import ch.softappeal.yass.serialize.Serializer;
 import ch.softappeal.yass.serialize.Writer;
-import ch.softappeal.yass.util.Nullable;
 
 /**
  * Adds a frame start byte for easy synchronization.

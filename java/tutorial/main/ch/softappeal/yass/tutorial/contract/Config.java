@@ -1,10 +1,10 @@
 package ch.softappeal.yass.tutorial.contract;
 
-import ch.softappeal.yass.core.remote.ContractId;
-import ch.softappeal.yass.core.remote.Services;
-import ch.softappeal.yass.core.remote.SimpleMethodMapper;
 import ch.softappeal.yass.generate.PythonGenerator;
 import ch.softappeal.yass.generate.TypeScriptGenerator;
+import ch.softappeal.yass.remote.ContractId;
+import ch.softappeal.yass.remote.Services;
+import ch.softappeal.yass.remote.SimpleMethodMapper;
 import ch.softappeal.yass.serialize.Serializer;
 import ch.softappeal.yass.serialize.fast.BaseTypeHandlers;
 import ch.softappeal.yass.serialize.fast.FastSerializer;

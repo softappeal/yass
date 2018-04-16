@@ -1,8 +1,8 @@
 package ch.softappeal.yass.transport.test;
 
-import ch.softappeal.yass.core.remote.Message;
-import ch.softappeal.yass.core.remote.ValueReply;
-import ch.softappeal.yass.core.remote.session.Packet;
+import ch.softappeal.yass.remote.Message;
+import ch.softappeal.yass.remote.ValueReply;
+import ch.softappeal.yass.remote.session.Packet;
 import ch.softappeal.yass.serialize.JavaSerializer;
 import ch.softappeal.yass.serialize.Serializer;
 import ch.softappeal.yass.serialize.test.JavaSerializerTest;

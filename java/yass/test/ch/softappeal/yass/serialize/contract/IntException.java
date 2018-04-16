@@ -1,6 +1,6 @@
 package ch.softappeal.yass.serialize.contract;
 
-import ch.softappeal.yass.util.Tag;
+import ch.softappeal.yass.Tag;
 
 @Tag(42) public class IntException extends Exception {
 

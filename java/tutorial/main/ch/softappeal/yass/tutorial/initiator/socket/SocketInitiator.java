@@ -1,5 +1,7 @@
 package ch.softappeal.yass.tutorial.initiator.socket;
 
+import ch.softappeal.yass.Exceptions;
+import ch.softappeal.yass.NamedThreadFactory;
 import ch.softappeal.yass.transport.TransportSetup;
 import ch.softappeal.yass.transport.socket.SocketConnector;
 import ch.softappeal.yass.transport.socket.SocketTransport;
@@ -7,8 +9,6 @@ import ch.softappeal.yass.transport.socket.SyncSocketConnection;
 import ch.softappeal.yass.tutorial.contract.Config;
 import ch.softappeal.yass.tutorial.initiator.InitiatorSession;
 import ch.softappeal.yass.tutorial.shared.socket.SocketSetup;
-import ch.softappeal.yass.util.Exceptions;
-import ch.softappeal.yass.util.NamedThreadFactory;
 
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;

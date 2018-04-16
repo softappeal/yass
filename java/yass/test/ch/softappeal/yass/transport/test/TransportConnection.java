@@ -1,13 +1,13 @@
 package ch.softappeal.yass.transport.test;
 
-import ch.softappeal.yass.core.remote.session.Connection;
-import ch.softappeal.yass.core.remote.session.Packet;
-import ch.softappeal.yass.core.remote.session.Session;
+import ch.softappeal.yass.Exceptions;
+import ch.softappeal.yass.remote.session.Connection;
+import ch.softappeal.yass.remote.session.Packet;
+import ch.softappeal.yass.remote.session.Session;
 import ch.softappeal.yass.serialize.Reader;
 import ch.softappeal.yass.serialize.Serializer;
 import ch.softappeal.yass.serialize.Writer;
 import ch.softappeal.yass.transport.TransportSetup;
-import ch.softappeal.yass.util.Exceptions;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;

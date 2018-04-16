@@ -1,15 +1,15 @@
 package ch.softappeal.yass.generate;
 
-import ch.softappeal.yass.core.remote.Services;
-import ch.softappeal.yass.core.remote.SimpleMethodMapper;
+import ch.softappeal.yass.Nullable;
+import ch.softappeal.yass.Reflect;
+import ch.softappeal.yass.remote.Services;
+import ch.softappeal.yass.remote.SimpleMethodMapper;
 import ch.softappeal.yass.serialize.fast.BaseTypeHandler;
 import ch.softappeal.yass.serialize.fast.BaseTypeHandlers;
 import ch.softappeal.yass.serialize.fast.ClassTypeHandler;
 import ch.softappeal.yass.serialize.fast.FastSerializer;
 import ch.softappeal.yass.serialize.fast.FieldHandler;
 import ch.softappeal.yass.serialize.fast.TypeDesc;
-import ch.softappeal.yass.util.Nullable;
-import ch.softappeal.yass.util.Reflect;
 
 import java.lang.reflect.Modifier;
 import java.lang.reflect.ParameterizedType;

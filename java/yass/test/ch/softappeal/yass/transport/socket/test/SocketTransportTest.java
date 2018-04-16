@@ -1,5 +1,7 @@
 package ch.softappeal.yass.transport.socket.test;
 
+import ch.softappeal.yass.Exceptions;
+import ch.softappeal.yass.NamedThreadFactory;
 import ch.softappeal.yass.transport.DummyPathSerializer;
 import ch.softappeal.yass.transport.PathResolver;
 import ch.softappeal.yass.transport.PathSerializer;
@@ -9,8 +11,6 @@ import ch.softappeal.yass.transport.socket.SocketConnector;
 import ch.softappeal.yass.transport.socket.SocketTransport;
 import ch.softappeal.yass.transport.socket.SyncSocketConnection;
 import ch.softappeal.yass.transport.test.TransportTest;
-import ch.softappeal.yass.util.Exceptions;
-import ch.softappeal.yass.util.NamedThreadFactory;
 import org.junit.Test;
 
 import java.net.InetSocketAddress;

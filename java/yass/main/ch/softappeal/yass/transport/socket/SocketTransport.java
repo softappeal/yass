@@ -1,12 +1,12 @@
 package ch.softappeal.yass.transport.socket;
 
+import ch.softappeal.yass.Exceptions;
 import ch.softappeal.yass.serialize.Reader;
 import ch.softappeal.yass.serialize.Serializer;
 import ch.softappeal.yass.serialize.Writer;
 import ch.softappeal.yass.transport.PathResolver;
 import ch.softappeal.yass.transport.PathSerializer;
 import ch.softappeal.yass.transport.TransportSetup;
-import ch.softappeal.yass.util.Exceptions;
 
 import java.net.Socket;
 import java.util.Objects;

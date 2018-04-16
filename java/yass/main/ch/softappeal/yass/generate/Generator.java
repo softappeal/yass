@@ -1,11 +1,11 @@
 package ch.softappeal.yass.generate;
 
-import ch.softappeal.yass.core.remote.ContractId;
-import ch.softappeal.yass.core.remote.MethodMapper;
-import ch.softappeal.yass.core.remote.Services;
+import ch.softappeal.yass.Nullable;
+import ch.softappeal.yass.remote.ContractId;
+import ch.softappeal.yass.remote.MethodMapper;
+import ch.softappeal.yass.remote.Services;
 import ch.softappeal.yass.serialize.fast.FastSerializer;
 import ch.softappeal.yass.serialize.fast.TypeHandler;
-import ch.softappeal.yass.util.Nullable;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;

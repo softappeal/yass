@@ -1,7 +1,7 @@
 package ch.softappeal.yass.serialize;
 
+import ch.softappeal.yass.Nullable;
 import ch.softappeal.yass.serialize.fast.BaseTypeHandlers;
-import ch.softappeal.yass.util.Nullable;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;

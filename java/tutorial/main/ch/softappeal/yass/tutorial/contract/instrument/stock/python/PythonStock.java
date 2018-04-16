@@ -1,7 +1,7 @@
 package ch.softappeal.yass.tutorial.contract.instrument.stock.python;
 
+import ch.softappeal.yass.Nullable;
 import ch.softappeal.yass.tutorial.contract.instrument.stock.Stock;
-import ch.softappeal.yass.util.Nullable;
 
 /**
  * Needed for testing module import in Python.

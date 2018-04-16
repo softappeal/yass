@@ -1,7 +1,7 @@
 package ch.softappeal.yass.tutorial.contract.instrument.stock;
 
+import ch.softappeal.yass.Nullable;
 import ch.softappeal.yass.tutorial.contract.Instrument;
-import ch.softappeal.yass.util.Nullable;
 
 /**
  * Shows deep nesting.

@@ -1,12 +1,12 @@
 package ch.softappeal.yass.tutorial.acceptor.web;
 
+import ch.softappeal.yass.Exceptions;
 import ch.softappeal.yass.transport.TransportSetup;
 import ch.softappeal.yass.transport.ws.AsyncWsConnection;
 import ch.softappeal.yass.transport.ws.WsConfigurator;
 import ch.softappeal.yass.tutorial.acceptor.AcceptorSession;
 import ch.softappeal.yass.tutorial.contract.Config;
 import ch.softappeal.yass.tutorial.shared.web.WebSetup;
-import ch.softappeal.yass.util.Exceptions;
 
 import javax.websocket.Endpoint;
 import javax.websocket.server.ServerEndpointConfig;

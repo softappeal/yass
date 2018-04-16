@@ -1,6 +1,6 @@
 package ch.softappeal.yass.tutorial.acceptor;
 
-import ch.softappeal.yass.core.remote.Server;
+import ch.softappeal.yass.remote.Server;
 import ch.softappeal.yass.tutorial.contract.Instrument;
 import ch.softappeal.yass.tutorial.contract.instrument.InstrumentService;
 import ch.softappeal.yass.tutorial.contract.instrument.stock.Stock;

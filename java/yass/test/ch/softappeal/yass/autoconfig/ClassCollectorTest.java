@@ -1,6 +1,6 @@
 package ch.softappeal.yass.autoconfig;
 
-import ch.softappeal.yass.core.Interceptor;
+import ch.softappeal.yass.Interceptor;
 
 import java.lang.reflect.Modifier;
 import java.util.function.Predicate;

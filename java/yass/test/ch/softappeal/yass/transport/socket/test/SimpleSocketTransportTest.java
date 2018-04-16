@@ -1,15 +1,15 @@
 package ch.softappeal.yass.transport.socket.test;
 
-import ch.softappeal.yass.core.Interceptor;
-import ch.softappeal.yass.core.remote.Server;
-import ch.softappeal.yass.core.remote.test.ContractIdTest;
+import ch.softappeal.yass.Exceptions;
+import ch.softappeal.yass.Interceptor;
+import ch.softappeal.yass.NamedThreadFactory;
+import ch.softappeal.yass.remote.Server;
+import ch.softappeal.yass.remote.test.ContractIdTest;
 import ch.softappeal.yass.transport.PathSerializer;
 import ch.softappeal.yass.transport.SimplePathResolver;
 import ch.softappeal.yass.transport.SimpleTransportSetup;
 import ch.softappeal.yass.transport.socket.SimpleSocketTransport;
 import ch.softappeal.yass.transport.test.TransportTest;
-import ch.softappeal.yass.util.Exceptions;
-import ch.softappeal.yass.util.NamedThreadFactory;
 import org.junit.Assert;
 import org.junit.Test;
 

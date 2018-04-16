@@ -1,12 +1,12 @@
 package ch.softappeal.yass.transport.ws.test;
 
+import ch.softappeal.yass.Exceptions;
+import ch.softappeal.yass.NamedThreadFactory;
 import ch.softappeal.yass.transport.TransportSetup;
 import ch.softappeal.yass.transport.test.TransportTest;
 import ch.softappeal.yass.transport.ws.AsyncWsConnection;
 import ch.softappeal.yass.transport.ws.SyncWsConnection;
 import ch.softappeal.yass.transport.ws.WsConfigurator;
-import ch.softappeal.yass.util.Exceptions;
-import ch.softappeal.yass.util.NamedThreadFactory;
 import org.junit.After;
 import org.junit.Before;
 

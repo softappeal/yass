@@ -1,14 +1,14 @@
 package ch.softappeal.yass.serialize.test;
 
-import ch.softappeal.yass.core.remote.ExceptionReply;
-import ch.softappeal.yass.core.remote.Request;
-import ch.softappeal.yass.core.remote.ValueReply;
-import ch.softappeal.yass.core.remote.session.Packet;
+import ch.softappeal.yass.Nullable;
+import ch.softappeal.yass.remote.ExceptionReply;
+import ch.softappeal.yass.remote.Request;
+import ch.softappeal.yass.remote.ValueReply;
+import ch.softappeal.yass.remote.session.Packet;
 import ch.softappeal.yass.serialize.JavaSerializer;
 import ch.softappeal.yass.serialize.Reader;
 import ch.softappeal.yass.serialize.Serializer;
 import ch.softappeal.yass.serialize.Writer;
-import ch.softappeal.yass.util.Nullable;
 import org.junit.Assert;
 import org.junit.Test;
 

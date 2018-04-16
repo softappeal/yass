@@ -1,12 +1,12 @@
 package ch.softappeal.yass.transport.test;
 
-import ch.softappeal.yass.core.remote.session.test.SessionTest;
+import ch.softappeal.yass.Nullable;
+import ch.softappeal.yass.remote.session.test.SessionTest;
 import ch.softappeal.yass.serialize.Serializer;
 import ch.softappeal.yass.serialize.fast.BaseTypeHandlers;
 import ch.softappeal.yass.serialize.fast.SimpleFastSerializer;
 import ch.softappeal.yass.transport.MessageSerializer;
 import ch.softappeal.yass.transport.TransportSetup;
-import ch.softappeal.yass.util.Nullable;
 
 import java.util.List;
 import java.util.concurrent.CountDownLatch;

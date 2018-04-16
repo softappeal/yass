@@ -1,7 +1,0 @@
-package ch.softappeal.yass.util.test;
-
-public class CompilerTestSourceText {
-
-  public static final String TEXT = "Hello";
-
-}

@@ -1,10 +1,10 @@
 package ch.softappeal.yass.tutorial.shared;
 
-import ch.softappeal.yass.core.Interceptor;
-import ch.softappeal.yass.core.Invocation;
-import ch.softappeal.yass.core.remote.session.Session;
-import ch.softappeal.yass.util.Dumper;
-import ch.softappeal.yass.util.Nullable;
+import ch.softappeal.yass.Dumper;
+import ch.softappeal.yass.Interceptor;
+import ch.softappeal.yass.Invocation;
+import ch.softappeal.yass.Nullable;
+import ch.softappeal.yass.remote.session.Session;
 
 import java.lang.reflect.Method;
 import java.util.Date;

@@ -1,10 +1,13 @@
 package ch.softappeal.yass.transport.socket.test;
 
-import ch.softappeal.yass.core.remote.ContractId;
-import ch.softappeal.yass.core.remote.OneWay;
-import ch.softappeal.yass.core.remote.Server;
-import ch.softappeal.yass.core.remote.SimpleMethodMapper;
-import ch.softappeal.yass.core.remote.session.SimpleSession;
+import ch.softappeal.yass.Exceptions;
+import ch.softappeal.yass.NamedThreadFactory;
+import ch.softappeal.yass.Nullable;
+import ch.softappeal.yass.remote.ContractId;
+import ch.softappeal.yass.remote.OneWay;
+import ch.softappeal.yass.remote.Server;
+import ch.softappeal.yass.remote.SimpleMethodMapper;
+import ch.softappeal.yass.remote.session.SimpleSession;
 import ch.softappeal.yass.serialize.JavaSerializer;
 import ch.softappeal.yass.serialize.Serializer;
 import ch.softappeal.yass.transport.TransportSetup;
@@ -13,9 +16,6 @@ import ch.softappeal.yass.transport.socket.SocketBinder;
 import ch.softappeal.yass.transport.socket.SocketConnector;
 import ch.softappeal.yass.transport.socket.SocketTransport;
 import ch.softappeal.yass.transport.socket.SyncSocketConnection;
-import ch.softappeal.yass.util.Exceptions;
-import ch.softappeal.yass.util.NamedThreadFactory;
-import ch.softappeal.yass.util.Nullable;
 
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;

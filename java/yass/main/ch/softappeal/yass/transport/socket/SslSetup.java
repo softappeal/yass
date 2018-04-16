@@ -1,8 +1,8 @@
 package ch.softappeal.yass.transport.socket;
 
-import ch.softappeal.yass.util.Exceptions;
-import ch.softappeal.yass.util.InputStreamSupplier;
-import ch.softappeal.yass.util.Nullable;
+import ch.softappeal.yass.Exceptions;
+import ch.softappeal.yass.InputStreamSupplier;
+import ch.softappeal.yass.Nullable;
 
 import javax.net.ServerSocketFactory;
 import javax.net.SocketFactory;

@@ -1,11 +1,11 @@
 package ch.softappeal.yass.serialize.test;
 
+import ch.softappeal.yass.Nullable;
 import ch.softappeal.yass.serialize.Reader;
 import ch.softappeal.yass.serialize.Serializer;
 import ch.softappeal.yass.serialize.Writer;
 import ch.softappeal.yass.serialize.ZipSerializer;
 import ch.softappeal.yass.serialize.fast.BaseTypeHandlers;
-import ch.softappeal.yass.util.Nullable;
 import org.junit.Assert;
 import org.junit.Test;
 

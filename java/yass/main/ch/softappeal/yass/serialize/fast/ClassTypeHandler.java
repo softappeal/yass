@@ -1,6 +1,6 @@
 package ch.softappeal.yass.serialize.fast;
 
-import ch.softappeal.yass.util.Reflect;
+import ch.softappeal.yass.Reflect;
 
 import java.util.ArrayList;
 import java.util.Arrays;

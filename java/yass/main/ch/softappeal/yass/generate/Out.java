@@ -1,6 +1,6 @@
 package ch.softappeal.yass.generate;
 
-import ch.softappeal.yass.util.Nullable;
+import ch.softappeal.yass.Nullable;
 
 import java.io.BufferedReader;
 import java.io.File;

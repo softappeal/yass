@@ -1,7 +1,8 @@
 package ch.softappeal.yass.tutorial.acceptor.web;
 
-import ch.softappeal.yass.core.remote.Request;
-import ch.softappeal.yass.core.remote.Server;
+import ch.softappeal.yass.Exceptions;
+import ch.softappeal.yass.remote.Request;
+import ch.softappeal.yass.remote.Server;
 import ch.softappeal.yass.serialize.Reader;
 import ch.softappeal.yass.serialize.Writer;
 import ch.softappeal.yass.transport.SimpleTransportSetup;
@@ -9,7 +10,6 @@ import ch.softappeal.yass.tutorial.contract.Config;
 import ch.softappeal.yass.tutorial.shared.EchoServiceImpl;
 import ch.softappeal.yass.tutorial.shared.Logger;
 import ch.softappeal.yass.tutorial.shared.UnexpectedExceptionHandler;
-import ch.softappeal.yass.util.Exceptions;
 
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;

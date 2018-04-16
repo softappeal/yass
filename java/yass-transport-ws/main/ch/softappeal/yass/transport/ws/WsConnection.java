@@ -1,13 +1,13 @@
 package ch.softappeal.yass.transport.ws;
 
-import ch.softappeal.yass.core.remote.session.Connection;
-import ch.softappeal.yass.core.remote.session.Packet;
-import ch.softappeal.yass.core.remote.session.Session;
+import ch.softappeal.yass.Exceptions;
+import ch.softappeal.yass.Nullable;
+import ch.softappeal.yass.remote.session.Connection;
+import ch.softappeal.yass.remote.session.Packet;
+import ch.softappeal.yass.remote.session.Session;
 import ch.softappeal.yass.serialize.Reader;
 import ch.softappeal.yass.serialize.Serializer;
 import ch.softappeal.yass.serialize.Writer;
-import ch.softappeal.yass.util.Exceptions;
-import ch.softappeal.yass.util.Nullable;
 
 import javax.websocket.CloseReason;
 import javax.websocket.MessageHandler;

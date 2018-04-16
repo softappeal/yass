@@ -1,7 +1,7 @@
 package ch.softappeal.yass.transport.test;
 
-import ch.softappeal.yass.util.Exceptions;
-import ch.softappeal.yass.util.NamedThreadFactory;
+import ch.softappeal.yass.Exceptions;
+import ch.softappeal.yass.NamedThreadFactory;
 import org.junit.Assert;
 import org.junit.Test;
 
