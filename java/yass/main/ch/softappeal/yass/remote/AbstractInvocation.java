@@ -9,10 +9,10 @@ public abstract class AbstractInvocation {
 
     public final MethodMapper.Mapping methodMapping;
     public final List<Object> arguments;
-    private final @Nullable InterceptorAsync<Object> interceptor;
-    private volatile @Nullable Object context;
+    private final @Nullable InterceptorAsync interceptor;
+    public volatile @Nullable Object context;
 
-    AbstractInvocation(final MethodMapper.Mapping methodMapping, final List<Object> arguments, final @Nullable InterceptorAsync<Object> interceptor) {
+    AbstractInvocation(final MethodMapper.Mapping methodMapping, final List<Object> arguments, final @Nullable InterceptorAsync interceptor) {
         this.methodMapping = Objects.requireNonNull(methodMapping);
         this.arguments = Objects.requireNonNull(arguments);
         this.interceptor = interceptor;
@@ -23,15 +23,15 @@ public abstract class AbstractInvocation {
     }
 
     final void entry() throws Exception {
-        context = interceptor.entry(methodMapping, arguments);
+        interceptor.entry(this);
     }
 
-    final @Nullable Object exit(final @Nullable Object result) throws Exception {
-        return interceptor.exit(context, result);
+    final void exit(final @Nullable Object result) throws Exception {
+        interceptor.exit(this, result);
     }
 
-    final Exception exception(final Exception exception) throws Exception {
-        return interceptor.exception(context, exception);
+    final void exception(final Exception exception) throws Exception {
+        interceptor.exception(this, exception);
     }
 
 }

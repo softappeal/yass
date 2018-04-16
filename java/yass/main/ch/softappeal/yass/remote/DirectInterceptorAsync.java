@@ -2,22 +2,24 @@ package ch.softappeal.yass.remote;
 
 import ch.softappeal.yass.Nullable;
 
-import java.util.List;
+public final class DirectInterceptorAsync implements InterceptorAsync {
 
-public class DirectInterceptorAsync<C> implements InterceptorAsync<C> {
-
-    @Override public C entry(final MethodMapper.Mapping methodMapping, final List<Object> arguments) {
-        return null;
+    private DirectInterceptorAsync() {
+        // disable
     }
 
-    @Override public Object exit(final @Nullable C context, final @Nullable Object result) {
-        return result;
+    @Override public void entry(final AbstractInvocation invocation) {
+        // empty
     }
 
-    @Override public Exception exception(final @Nullable C context, final Exception exception) {
-        return exception;
+    @Override public void exit(final AbstractInvocation invocation, @Nullable final Object result) {
+        // empty
     }
 
-    public static final InterceptorAsync<Object> INSTANCE = new DirectInterceptorAsync<>();
+    @Override public void exception(final AbstractInvocation invocation, final Exception exception) {
+        // empty
+    }
+
+    public static final InterceptorAsync INSTANCE = new DirectInterceptorAsync();
 
 }

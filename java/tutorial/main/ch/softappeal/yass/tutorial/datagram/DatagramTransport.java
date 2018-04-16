@@ -32,7 +32,7 @@ public final class DatagramTransport {
         Objects.requireNonNull(channel);
         Objects.requireNonNull(target);
         return new Client() {
-            @Override public void invoke(final Invocation invocation) throws Exception {
+            @Override public void invoke(final Client.Invocation invocation) throws Exception {
                 invocation.invoke(false, request -> {
                     checkOneWay(invocation.methodMapping, request);
                     final var out = new Writer.ByteBufferOutputStream(128);

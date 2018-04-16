@@ -41,7 +41,7 @@ public final class StdClient3 {
         final var reader = Reader.create(process.getInputStream());
         final Serializer messageSerializer = new MessageSerializer(SocketClient.SERIALIZER);
         SocketClient.client(new Client() {
-            @Override protected void invoke(final Invocation invocation) throws Exception {
+            @Override protected void invoke(final Client.Invocation invocation) throws Exception {
                 invocation.invoke(false, request -> {
                     messageSerializer.write(request, writer);
                     out.flush();

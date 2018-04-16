@@ -154,7 +154,7 @@ public abstract class Session extends Client implements Closer {
     /**
      * note: it's not worth to use {@link ConcurrentHashMap} here
      */
-    private final Map<Integer, Invocation> requestNumber2invocation = Collections.synchronizedMap(new HashMap<>(16));
+    private final Map<Integer, Client.Invocation> requestNumber2invocation = Collections.synchronizedMap(new HashMap<>(16));
 
     private void received(final Packet packet) throws Exception {
         try {

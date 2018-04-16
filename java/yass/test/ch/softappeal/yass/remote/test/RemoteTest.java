@@ -32,12 +32,12 @@ public class RemoteTest extends InvokeTest {
                     Assert.assertTrue(COUNTER == 2);
                 }
             }
-            @Override public void invoke(final Client.Invocation clientInvocation) throws Exception {
-                clientInvocation.invoke(false, request -> {
-                    Assert.assertTrue((33 == request.methodId) == clientInvocation.methodMapping.oneWay);
+            @Override public void invoke(final Client.Invocation invocation) throws Exception {
+                invocation.invoke(false, request -> {
+                    Assert.assertTrue((33 == request.methodId) == invocation.methodMapping.oneWay);
                     final var serverInvocation = server.invocation(false, request);
-                    Assert.assertTrue(clientInvocation.methodMapping.oneWay == serverInvocation.methodMapping.oneWay);
-                    serverInvocation.invoke(clientInvocation::settle);
+                    Assert.assertTrue(invocation.methodMapping.oneWay == serverInvocation.methodMapping.oneWay);
+                    serverInvocation.invoke(invocation::settle);
                 });
             }
         };

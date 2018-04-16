@@ -2,23 +2,12 @@ package ch.softappeal.yass.remote;
 
 import ch.softappeal.yass.Nullable;
 
-import java.util.List;
+public interface InterceptorAsync {
 
-public interface InterceptorAsync<C> {
+    void entry(AbstractInvocation invocation) throws Exception;
 
-    /**
-     * @return context
-     */
-    @Nullable C entry(MethodMapper.Mapping methodMapping, List<Object> arguments) throws Exception;
+    void exit(AbstractInvocation invocation, @Nullable Object result) throws Exception;
 
-    /**
-     * @return result
-     */
-    @Nullable Object exit(@Nullable C context, @Nullable Object result) throws Exception;
-
-    /**
-     * @return exception
-     */
-    Exception exception(@Nullable C context, Exception exception) throws Exception;
+    void exception(AbstractInvocation invocation, Exception exception) throws Exception;
 
 }

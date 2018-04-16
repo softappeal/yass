@@ -23,7 +23,7 @@ public abstract class Client {
         private final @Nullable CompletableFuture<?> promise;
         private final int serviceId;
         Invocation(
-            final MethodMapper.Mapping methodMapping, final @Nullable Object[] arguments, final @Nullable InterceptorAsync<Object> interceptor,
+            final MethodMapper.Mapping methodMapping, final @Nullable Object[] arguments, final @Nullable InterceptorAsync interceptor,
             final @Nullable CompletableFuture<?> promise, final int serviceId
         ) {
             super(methodMapping, (arguments == null) ? List.of() : Arrays.asList(arguments), interceptor);
@@ -45,15 +45,22 @@ public abstract class Client {
                 return; // oneWay
             }
             try {
-                ((CompletableFuture)promise).complete(async() ? exit(reply.process()) : reply.process());
+                final Object result = reply.process();
+                if (async()) {
+                    exit(result);
+                }
+                ((CompletableFuture)promise).complete(result);
             } catch (final Exception e) {
-                promise.completeExceptionally(async() ? exception(e) : e);
+                if (async()) {
+                    exception(e);
+                }
+                promise.completeExceptionally(e);
             }
         }
     }
 
     /**
-     * @param invocation {@link Client.Invocation#invoke(boolean, Client.Tunnel)} must be called
+     * @param invocation {@link Invocation#invoke(boolean, Client.Tunnel)} must be called
      */
     protected abstract void invoke(Invocation invocation) throws Exception;
 
@@ -116,7 +123,7 @@ public abstract class Client {
      * @see #proxyAsync(ContractId)
      */
     @SuppressWarnings("unchecked")
-    public final <C> C proxyAsync(final ContractId<C> contractId, final InterceptorAsync<?> interceptor) {
+    public final <C> C proxyAsync(final ContractId<C> contractId, final InterceptorAsync interceptor) {
         Objects.requireNonNull(interceptor);
         return contractId.contract.cast(Proxy.newProxyInstance(
             contractId.contract.getClassLoader(),
@@ -131,7 +138,7 @@ public abstract class Client {
                 } else if (methodMapping.oneWay) {
                     throw new IllegalStateException("asynchronous oneWay proxy call must not be enclosed with 'promise' method");
                 }
-                invoke(new Invocation(methodMapping, arguments, (InterceptorAsync)interceptor, promise, contractId.id));
+                invoke(new Invocation(methodMapping, arguments, interceptor, promise, contractId.id));
                 return handlePrimitiveTypes(method.getReturnType());
             }
         ));

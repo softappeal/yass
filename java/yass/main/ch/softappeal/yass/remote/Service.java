@@ -22,7 +22,7 @@ public final class Service {
         this(contractId, implementation, (Object)interceptor);
     }
 
-    <C> Service(final ContractId<C> contractId, final C implementation, final InterceptorAsync<?> interceptor) {
+    <C> Service(final ContractId<C> contractId, final C implementation, final InterceptorAsync interceptor) {
         this(contractId, implementation, (Object)interceptor);
     }
 
@@ -35,7 +35,7 @@ public final class Service {
     }
 
     @SuppressWarnings("unchecked")
-    InterceptorAsync<Object> interceptorAsync() {
+    InterceptorAsync interceptorAsync() {
         return (InterceptorAsync)interceptor;
     }
 

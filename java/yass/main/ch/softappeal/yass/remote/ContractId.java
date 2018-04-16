@@ -28,7 +28,7 @@ public final class ContractId<C> {
      * @see Server#completer()
      * @see #serviceAsync(Object)
      */
-    public Service serviceAsync(final C implementation, final InterceptorAsync<?> interceptor) {
+    public Service serviceAsync(final C implementation, final InterceptorAsync interceptor) {
         return new Service(this, implementation, interceptor);
     }
 

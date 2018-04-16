@@ -3,25 +3,24 @@ package ch.softappeal.yass.remote.session.test;
 import ch.softappeal.yass.Exceptions;
 import ch.softappeal.yass.NamedThreadFactory;
 import ch.softappeal.yass.Nullable;
+import ch.softappeal.yass.remote.AbstractInvocation;
 import ch.softappeal.yass.remote.Client;
 import ch.softappeal.yass.remote.Completer;
 import ch.softappeal.yass.remote.ContractId;
 import ch.softappeal.yass.remote.InterceptorAsync;
-import ch.softappeal.yass.remote.MethodMapper;
 import ch.softappeal.yass.remote.OneWay;
 import ch.softappeal.yass.remote.Server;
-import ch.softappeal.yass.remote.SimpleInterceptorContext;
 import ch.softappeal.yass.remote.SimpleMethodMapper;
 import ch.softappeal.yass.remote.session.SimpleSession;
 import ch.softappeal.yass.test.InvokeTest;
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.CompletionStage;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 
 public class AsyncTest {
@@ -62,7 +61,7 @@ public class AsyncTest {
         }
     }
 
-    private static void println(final String name, final String type, final String method, final @Nullable Integer id, final Object message) {
+    private static void println(final String name, final String type, final String method, final @Nullable Object id, final Object message) {
         System.out.printf(
             "%10s | %7s | %9s | %10s | %11s | %2s | %s\n",
             System.nanoTime() / 1000000L, name, type, Thread.currentThread().getName(), method, id == null ? "" : id, message
@@ -118,23 +117,21 @@ public class AsyncTest {
         }
     }
 
-    private static final class Logger implements InterceptorAsync<SimpleInterceptorContext> {
+    private static final class Logger implements InterceptorAsync {
+        private final static AtomicInteger ID = new AtomicInteger(0);
         private final String name;
         Logger(final String name) {
             this.name = Objects.requireNonNull(name);
         }
-        @Override public SimpleInterceptorContext entry(final MethodMapper.Mapping methodMapping, final List<Object> arguments) {
-            final var context = new SimpleInterceptorContext(methodMapping, arguments);
-            println(name, "entry", methodMapping.method.getName(), context.id, arguments.toString());
-            return context;
+        @Override public void entry(final AbstractInvocation invocation) throws Exception {
+            invocation.context = ID.getAndIncrement();
+            println(name, "entry", invocation.methodMapping.method.getName(), invocation.context, invocation.arguments.toString());
         }
-        @Override public @Nullable Object exit(final SimpleInterceptorContext context, final @Nullable Object result) {
-            println(name, "exit", context.methodMapping.method.getName(), context.id, result);
-            return result;
+        @Override public void exit(final AbstractInvocation invocation, @Nullable final Object result) throws Exception {
+            println(name, "exit", invocation.methodMapping.method.getName(), invocation.context, result);
         }
-        @Override public Exception exception(final SimpleInterceptorContext context, final Exception exception) {
-            println(name, "exception", context.methodMapping.method.getName(), context.id, exception);
-            return exception;
+        @Override public void exception(final AbstractInvocation invocation, final Exception exception) throws Exception {
+            println(name, "exception", invocation.methodMapping.method.getName(), invocation.context, exception);
         }
     }
 

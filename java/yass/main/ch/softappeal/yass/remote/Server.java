@@ -52,7 +52,8 @@ public final class Server {
                 COMPLETER.set(methodMapping.oneWay ? null : new Completer() {
                     @Override public void complete(final @Nullable Object result) {
                         try {
-                            replyWriter.writeReply(new ValueReply(exit(result)));
+                            exit(result);
+                            replyWriter.writeReply(new ValueReply(result));
                         } catch (final Exception e) {
                             throw Exceptions.wrap(e);
                         }
@@ -60,7 +61,8 @@ public final class Server {
                     @Override public void completeExceptionally(final Exception exception) {
                         Objects.requireNonNull(exception);
                         try {
-                            replyWriter.writeReply(new ExceptionReply(exception(exception)));
+                            exception(exception);
+                            replyWriter.writeReply(new ExceptionReply(exception));
                         } catch (final Exception e) {
                             throw Exceptions.wrap(e);
                         }
