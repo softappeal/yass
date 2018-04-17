@@ -297,27 +297,25 @@ const hostname = "localhost";
                 })
             );
         }
+        private static ID = 0;
         protected opened(): void {
             log("session opened", this.isClosed());
-            function doLog(context: yass.SimpleInterceptorContext, kind: string, data: any): void {
-                log("logger:", kind, context.id, context.methodMapping.method, data);
+            function doLog(invocation: yass.AbstractInvocation, kind: string, data: any): void {
+                log("logger:", kind, invocation.context, invocation.methodMapping.method, data);
             }
-            const printer: yass.Interceptor<yass.SimpleInterceptorContext> = {
-                entry(methodMapping: yass.MethodMapping, parameters: any[]): yass.SimpleInterceptorContext {
-                    const context = new yass.SimpleInterceptorContext(methodMapping, parameters);
-                    doLog(context, "entry", parameters);
-                    return context;
+            const printer: yass.Interceptor = {
+                entry(invocation: yass.AbstractInvocation): void {
+                    invocation.context = Session.ID++;
+                    doLog(invocation, "entry", invocation.parameters);
                 },
-                exit(context: yass.SimpleInterceptorContext, result: any): any {
-                    doLog(context, "exit", result);
-                    return result;
+                exit(invocation: yass.AbstractInvocation, result: any): void {
+                    doLog(invocation, "exit", result);
                 },
-                exception(context: yass.SimpleInterceptorContext, exception: any): any {
-                    doLog(context, "exception", exception);
-                    return exception;
+                exception(invocation: yass.AbstractInvocation, exception: any): void {
+                    doLog(invocation, "exception", exception);
                 },
-                resolved(context: yass.SimpleInterceptorContext): void {
-                    doLog(context, "resolved", "");
+                resolved(invocation: yass.AbstractInvocation): void {
+                    doLog(invocation, "resolved", "");
                 }
             };
             const instrumentService = this.proxy(contract.acceptor.instrumentService, printer);

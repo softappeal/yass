@@ -497,49 +497,32 @@ export class MethodMapper {
     }
 }
 
-export class SimpleInterceptorContext {
-    private static ID = 0;
-    readonly id = SimpleInterceptorContext.ID++;
-    constructor(public readonly methodMapping: MethodMapping, public readonly parameters: any[]) {
-        // empty
-    }
-}
-
-export interface Interceptor<C> {
-    /**
-     * @return context
-     */
-    entry(methodMapping: MethodMapping, parameters: any[]): C | null;
-    /**
-     * @return result
-     */
-    exit(context: C | null, result: any): any;
-    /**
-     * @return exception
-     */
-    exception(context: C | null, exception: any): any;
+export interface Interceptor {
+    entry(invocation: AbstractInvocation): void;
+    exit(invocation: AbstractInvocation, result: any): void;
+    exception(invocation: AbstractInvocation, exception: any): void;
     /**
      * Called after promise has been resolved.
      */
-    resolved(context: C | null): void;
+    resolved(invocation: AbstractInvocation): void;
 }
 
-export class DirectInterceptor<C> implements Interceptor<C> {
-    entry(methodMapping: MethodMapping, parameters: any[]): C | null {
-        return null;
+export class DirectInterceptor implements Interceptor {
+    entry(invocation: AbstractInvocation): void {
+        // empty
     }
-    exit(context: C | null, result: any): any {
-        return result;
+    exit(invocation: AbstractInvocation, result: any): void {
+        // empty
     }
-    exception(context: C | null, exception: any): any {
-        return exception;
+    exception(invocation: AbstractInvocation, exception: any): void {
+        // empty
     }
-    resolved(context: C | null): void {
+    resolved(invocation: AbstractInvocation): void {
         // empty
     }
 }
 
-export const DIRECT_INTERCEPTOR = new DirectInterceptor<any>();
+export const DIRECT_INTERCEPTOR = new DirectInterceptor();
 
 export class ContractId<P, I> {
     constructor(public readonly id: number, public readonly methodMapper: MethodMapper) {
@@ -551,27 +534,27 @@ export class ContractId<P, I> {
 }
 
 export class Service {
-    constructor(public readonly contractId: ContractId<any, any>, public readonly implementation: any, public readonly interceptor: Interceptor<any>) {
+    constructor(public readonly contractId: ContractId<any, any>, public readonly implementation: any, public readonly interceptor: Interceptor) {
         // empty
     }
 }
 
 export abstract class AbstractInvocation {
-    private context: any;
-    protected constructor(public readonly methodMapping: MethodMapping, public readonly parameters: any[], private readonly interceptor: Interceptor<any>) {
+    public context: any;
+    protected constructor(public readonly methodMapping: MethodMapping, public readonly parameters: any[], private readonly interceptor: Interceptor) {
         // empty
     }
     entry(): void {
-        this.context = this.interceptor.entry(this.methodMapping, this.parameters);
+        this.interceptor.entry(this);
     }
     exit(result: any): any {
-        return this.interceptor.exit(this.context, result);
+        this.interceptor.exit(this, result);
     }
     exception(exception: any): any {
-        return this.interceptor.exception(this.context, exception);
+        this.interceptor.exception(this, exception);
     }
     resolved(): void {
-        this.interceptor.resolved(this.context);
+        this.interceptor.resolved(this);
     }
 }
 
@@ -583,13 +566,16 @@ export class ServerInvocation extends AbstractInvocation {
         this.entry();
         try {
             const implementation = this.service.implementation;
-            const result = implementation[this.methodMapping.method].apply(implementation, this.parameters);
-            return new ValueReply(this.exit(((result !== null) && (result !== undefined)) ? result : null));
+            let result = implementation[this.methodMapping.method].apply(implementation, this.parameters);
+            result = ((result !== null) && (result !== undefined)) ? result : null;
+            this.exit(result);
+            return new ValueReply(result);
         } catch (exception) {
             if (this.methodMapping.oneWay) {
                 throw exception;
             }
-            return new ExceptionReply(this.exception(exception));
+            this.exception(exception);
+            return new ExceptionReply(exception);
         }
     }
 }
@@ -622,7 +608,7 @@ export interface Tunnel {
 export class ClientInvocation extends AbstractInvocation {
     readonly promise!: Promise<any>;
     settle!: (reply: Reply) => void;
-    constructor(methodMapping: MethodMapping, parameters: any[], interceptor: Interceptor<any>, private readonly serviceId: number) {
+    constructor(methodMapping: MethodMapping, parameters: any[], interceptor: Interceptor, private readonly serviceId: number) {
         super(methodMapping, parameters, interceptor);
         if (methodMapping.oneWay) {
             return;
@@ -630,9 +616,12 @@ export class ClientInvocation extends AbstractInvocation {
         this.promise = new Promise<any>((resolve, reject) => {
             this.settle = reply => {
                 try {
-                    resolve(this.exit(reply.process()));
+                    const result = reply.process();
+                    this.exit(result);
+                    resolve(result);
                 } catch (exception) {
-                    reject(this.exception(exception));
+                    this.exception(exception);
+                    reject(exception);
                 }
                 Promise.resolve().then(() => {
                     this.resolved();

@@ -7,28 +7,26 @@ function log(...args: any[]): void {
     console.log.apply(console, args);
 }
 
-class Logger implements yass.Interceptor<yass.SimpleInterceptorContext> {
+class Logger implements yass.Interceptor {
+    private static ID = 0;
     constructor(private readonly side: string) {
         // empty
     }
-    private doLog(context: yass.SimpleInterceptorContext, kind: string, data: any): void {
-        log("logger:", this.side, kind, context.id, context.methodMapping.method, data);
+    private doLog(invocation: yass.AbstractInvocation, kind: string, data: any): void {
+        log("logger:", this.side, kind, invocation.context, invocation.methodMapping.method, data);
     }
-    entry(methodMapping: yass.MethodMapping, parameters: any[]): yass.SimpleInterceptorContext {
-        const context = new yass.SimpleInterceptorContext(methodMapping, parameters);
-        this.doLog(context, "entry", parameters);
-        return context;
+    entry(invocation: yass.AbstractInvocation): void {
+        invocation.context = Logger.ID++;
+        this.doLog(invocation, "entry", invocation.parameters);
     }
-    exit(context: yass.SimpleInterceptorContext, result: any): any {
-        this.doLog(context, "exit", result);
-        return result
+    exit(invocation: yass.AbstractInvocation, result: any): void {
+        this.doLog(invocation, "exit", result);
     }
-    exception(context: yass.SimpleInterceptorContext, exception: any): any {
-        this.doLog(context, "exception", exception);
-        return exception;
+    exception(invocation: yass.AbstractInvocation, exception: any): void {
+        this.doLog(invocation, "exception", exception);
     }
-    resolved(context: yass.SimpleInterceptorContext): void {
-        this.doLog(context, "resolved", "");
+    resolved(invocation: yass.AbstractInvocation): void {
+        this.doLog(invocation, "resolved", "");
     }
 }
 
