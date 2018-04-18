@@ -18,9 +18,9 @@ import ch.softappeal.yass.tutorial.contract.generic.PairBoolBool;
 import ch.softappeal.yass.tutorial.contract.generic.Triple;
 import ch.softappeal.yass.tutorial.contract.generic.TripleWrapper;
 import ch.softappeal.yass.tutorial.contract.instrument.InstrumentService;
+import ch.softappeal.yass.tutorial.shared.AsyncLogger;
 import ch.softappeal.yass.tutorial.shared.EchoServiceImpl;
 import ch.softappeal.yass.tutorial.shared.Logger;
-import ch.softappeal.yass.tutorial.shared.LoggerAsync;
 import ch.softappeal.yass.tutorial.shared.UnexpectedExceptionHandler;
 
 import java.util.List;
@@ -44,7 +44,7 @@ public final class InitiatorSession extends SimpleSession {
     }
 
     public final PriceEngine priceEngine;
-    public final InstrumentService instrumentServiceAsync;
+    public final InstrumentService instrumentService;
     public final EchoService echoService;
     public final GenericEchoService genericEchoService;
 
@@ -53,7 +53,7 @@ public final class InitiatorSession extends SimpleSession {
         System.out.println("session created");
         final var interceptor = new Logger(this, Logger.Side.CLIENT);
         priceEngine = proxy(ACCEPTOR.priceEngine, interceptor);
-        instrumentServiceAsync = proxyAsync(ACCEPTOR.instrumentService, LoggerAsync.INSTANCE);
+        instrumentService = asyncProxy(ACCEPTOR.instrumentService, AsyncLogger.INSTANCE);
         echoService = proxy(ACCEPTOR.echoService, interceptor);
         genericEchoService = proxy(ACCEPTOR.genericEchoService, interceptor);
     }
@@ -81,8 +81,8 @@ public final class InitiatorSession extends SimpleSession {
         } catch (final UnknownInstrumentsException e) {
             e.printStackTrace(System.out);
         }
-        instrumentServiceAsync.showOneWay(false, 123);
-        Client.promise(instrumentServiceAsync::getInstruments).thenAcceptAsync(instruments -> {
+        instrumentService.showOneWay(false, 123);
+        Client.promise(instrumentService::getInstruments).thenAcceptAsync(instruments -> {
             try {
                 priceEngine.subscribe(instruments.stream().map(instrument -> instrument.id).collect(Collectors.toList()));
             } catch (final UnknownInstrumentsException ignore) {

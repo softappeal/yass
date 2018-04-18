@@ -10,7 +10,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public final class InstrumentServiceImplAsync implements InstrumentService {
+public final class InstrumentServiceImpl implements InstrumentService {
 
     static final Map<Integer, Instrument> INSTRUMENTS;
     static {
@@ -24,7 +24,7 @@ public final class InstrumentServiceImplAsync implements InstrumentService {
         INSTRUMENTS = Map.copyOf(instruments);
     }
 
-    private InstrumentServiceImplAsync() {
+    private InstrumentServiceImpl() {
         // disable
     }
 
@@ -38,6 +38,6 @@ public final class InstrumentServiceImplAsync implements InstrumentService {
         // empty
     }
 
-    public static final InstrumentService INSTANCE = new InstrumentServiceImplAsync();
+    public static final InstrumentService INSTANCE = new InstrumentServiceImpl();
 
 }

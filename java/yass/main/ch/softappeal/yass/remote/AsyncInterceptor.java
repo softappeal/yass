@@ -2,7 +2,7 @@ package ch.softappeal.yass.remote;
 
 import ch.softappeal.yass.Nullable;
 
-public interface InterceptorAsync {
+public interface AsyncInterceptor {
 
     void entry(AbstractInvocation invocation) throws Exception;
 

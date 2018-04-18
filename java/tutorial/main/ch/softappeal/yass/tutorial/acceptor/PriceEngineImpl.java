@@ -20,7 +20,7 @@ public final class PriceEngineImpl implements PriceEngine {
     @Override public void subscribe(final List<Integer> instrumentIds) throws UnknownInstrumentsException {
         final Set<Integer> unknownInstrumentIds = new HashSet<>();
         for (final int instrumentId : instrumentIds) {
-            if (InstrumentServiceImplAsync.INSTRUMENTS.containsKey(instrumentId)) {
+            if (InstrumentServiceImpl.INSTRUMENTS.containsKey(instrumentId)) {
                 subscribedInstrumentIds.add(instrumentId);
             } else {
                 unknownInstrumentIds.add(instrumentId);

@@ -2,9 +2,9 @@ package ch.softappeal.yass.remote;
 
 import ch.softappeal.yass.Nullable;
 
-public final class DirectInterceptorAsync implements InterceptorAsync {
+public final class DirectAsyncInterceptor implements AsyncInterceptor {
 
-    private DirectInterceptorAsync() {
+    private DirectAsyncInterceptor() {
         // disable
     }
 
@@ -20,6 +20,6 @@ public final class DirectInterceptorAsync implements InterceptorAsync {
         // empty
     }
 
-    public static final InterceptorAsync INSTANCE = new DirectInterceptorAsync();
+    public static final AsyncInterceptor INSTANCE = new DirectAsyncInterceptor();
 
 }

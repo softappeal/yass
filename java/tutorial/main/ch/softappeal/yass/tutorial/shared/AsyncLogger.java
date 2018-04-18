@@ -2,11 +2,11 @@ package ch.softappeal.yass.tutorial.shared;
 
 import ch.softappeal.yass.Nullable;
 import ch.softappeal.yass.remote.AbstractInvocation;
-import ch.softappeal.yass.remote.InterceptorAsync;
+import ch.softappeal.yass.remote.AsyncInterceptor;
 
-public class LoggerAsync implements InterceptorAsync {
+public class AsyncLogger implements AsyncInterceptor {
 
-    private LoggerAsync() {
+    private AsyncLogger() {
         // disable
     }
 
@@ -20,6 +20,6 @@ public class LoggerAsync implements InterceptorAsync {
         System.out.println("exception " + invocation.hashCode() + ": " + invocation.methodMapping.method.getName() + " " + exception);
     }
 
-    public static final InterceptorAsync INSTANCE = new LoggerAsync();
+    public static final AsyncInterceptor INSTANCE = new AsyncLogger();
 
 }

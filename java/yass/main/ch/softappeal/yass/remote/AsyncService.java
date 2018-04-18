@@ -19,15 +19,15 @@ public final class AsyncService extends AbstractService {
             .orElseThrow(() -> new IllegalStateException("no active asynchronous request/reply service invocation"));
     }
 
-    final InterceptorAsync interceptor;
+    final AsyncInterceptor interceptor;
 
-    public <C> AsyncService(final ContractId<C> contractId, final C implementation, final InterceptorAsync interceptor) {
+    public <C> AsyncService(final ContractId<C> contractId, final C implementation, final AsyncInterceptor interceptor) {
         super(contractId, implementation);
         this.interceptor = Objects.requireNonNull(interceptor);
     }
 
     public <C> AsyncService(final ContractId<C> contractId, final C implementation) {
-        this(contractId, implementation, DirectInterceptorAsync.INSTANCE);
+        this(contractId, implementation, DirectAsyncInterceptor.INSTANCE);
     }
 
     @Override void invoke(final AbstractInvocation invocation, final AbstractService.ReplyWriter replyWriter) throws Exception {

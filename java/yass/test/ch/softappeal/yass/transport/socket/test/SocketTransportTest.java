@@ -40,7 +40,7 @@ public class SocketTransportTest extends TransportTest {
         }
     }
 
-    @Test public void clientInvokeAsync() throws Exception {
+    @Test public void clientAsyncInvoke() throws Exception {
         final var executor = Executors.newCachedThreadPool(new NamedThreadFactory("executor", Exceptions.TERMINATE));
         try (var closer = new SocketTransport(executor, AsyncSocketConnection.factory(executor, 1), invokeTransportSetup(false, false, executor)).start(executor, BINDER)) {
             SocketTransport.connect(executor, AsyncSocketConnection.factory(executor, 1), invokeTransportSetup(true, false, executor), CONNECTOR);

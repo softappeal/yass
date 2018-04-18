@@ -4,11 +4,11 @@ import ch.softappeal.yass.Exceptions;
 import ch.softappeal.yass.NamedThreadFactory;
 import ch.softappeal.yass.Nullable;
 import ch.softappeal.yass.remote.AbstractInvocation;
+import ch.softappeal.yass.remote.AsyncInterceptor;
 import ch.softappeal.yass.remote.AsyncService;
 import ch.softappeal.yass.remote.Client;
 import ch.softappeal.yass.remote.Completer;
 import ch.softappeal.yass.remote.ContractId;
-import ch.softappeal.yass.remote.InterceptorAsync;
 import ch.softappeal.yass.remote.OneWay;
 import ch.softappeal.yass.remote.Server;
 import ch.softappeal.yass.remote.SimpleMethodMapper;
@@ -40,25 +40,25 @@ public class AsyncTest {
      * - Remove exceptions.
      * - Replace return type with CompletionStage (void -> Void, primitive type -> wrapper type).
      */
-    private static final class TestServiceAsync {
-        private final TestService asyncProxy;
-        TestServiceAsync(final TestService asyncProxy) {
-            this.asyncProxy = asyncProxy;
+    private static final class AsyncTestService {
+        private final TestService proxy;
+        AsyncTestService(final TestService proxy) {
+            this.proxy = proxy;
         }
         public CompletionStage<Void> noResult() {
-            return Client.promise(asyncProxy::noResult);
+            return Client.promise(proxy::noResult);
         }
         public CompletionStage<Integer> divide(final int a, final int b) {
-            return Client.promise(() -> asyncProxy.divide(a, b));
+            return Client.promise(() -> proxy.divide(a, b));
         }
         public CompletionStage<Integer> getInteger() {
-            return Client.promise(asyncProxy::getInteger);
+            return Client.promise(proxy::getInteger);
         }
         public CompletionStage<String> getString() {
-            return Client.promise(asyncProxy::getString);
+            return Client.promise(proxy::getString);
         }
         public void oneWay() {
-            asyncProxy.oneWay();
+            proxy.oneWay();
         }
     }
 
@@ -81,7 +81,7 @@ public class AsyncTest {
         }).start();
     }
 
-    private static final class TestServiceImplAsync implements TestService {
+    private static final class AsyncTestServiceImpl implements TestService {
         @Override public void noResult() {
             sleep(Completer::complete);
             println("impl", "", "noResult", null, "");
@@ -118,7 +118,7 @@ public class AsyncTest {
         }
     }
 
-    private static final class Logger implements InterceptorAsync {
+    private static final class Logger implements AsyncInterceptor {
         private final static AtomicInteger ID = new AtomicInteger(0);
         private final String name;
         Logger(final String name) {
@@ -156,8 +156,8 @@ public class AsyncTest {
                         System.out.println("client closed: " + exception);
                     }
                     @Override protected void opened() {
-                        final var test = proxyAsync(ID, new Logger("client"));
-                        final var testAsync = new TestServiceAsync(test);
+                        final var test = asyncProxy(ID, new Logger("client"));
+                        final var testAsync = new AsyncTestService(test);
                         testAsync.noResult().thenAccept(r -> println("proxy", "", "noResult", null, r));
                         testAsync.divide(12, 3).thenAccept(r -> println("proxy", "", "divide", null, r));
                         testAsync.divide(12, 4).thenAcceptAsync(r -> println("proxy", "", "divide", null, r), executor);
@@ -185,7 +185,7 @@ public class AsyncTest {
                         System.out.println("server closed: " + exception);
                     }
                     @Override protected Server server() throws Exception {
-                        return new Server(new AsyncService(ID, new TestServiceImplAsync(), new Logger("server")));
+                        return new Server(new AsyncService(ID, new AsyncTestServiceImpl(), new Logger("server")));
                     }
                 }
             );

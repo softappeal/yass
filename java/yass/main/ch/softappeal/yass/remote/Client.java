@@ -23,7 +23,7 @@ public abstract class Client {
         private final @Nullable CompletableFuture<?> promise;
         private final int serviceId;
         Invocation(
-            final MethodMapper.Mapping methodMapping, final @Nullable Object[] arguments, final @Nullable InterceptorAsync interceptor,
+            final MethodMapper.Mapping methodMapping, final @Nullable Object[] arguments, final @Nullable AsyncInterceptor interceptor,
             final @Nullable CompletableFuture<?> promise, final int serviceId
         ) {
             super(methodMapping, (arguments == null) ? List.of() : Arrays.asList(arguments), interceptor);
@@ -120,10 +120,10 @@ public abstract class Client {
 
     /**
      * @see #promise(Execute)
-     * @see #proxyAsync(ContractId)
+     * @see #asyncProxy(ContractId)
      */
     @SuppressWarnings("unchecked")
-    public final <C> C proxyAsync(final ContractId<C> contractId, final InterceptorAsync interceptor) {
+    public final <C> C asyncProxy(final ContractId<C> contractId, final AsyncInterceptor interceptor) {
         Objects.requireNonNull(interceptor);
         return contractId.contract.cast(Proxy.newProxyInstance(
             contractId.contract.getClassLoader(),
@@ -145,10 +145,10 @@ public abstract class Client {
     }
 
     /**
-     * @see #proxyAsync(ContractId, InterceptorAsync)
+     * @see #asyncProxy(ContractId, AsyncInterceptor)
      */
-    public final <C> C proxyAsync(final ContractId<C> contractId) {
-        return proxyAsync(contractId, DirectInterceptorAsync.INSTANCE);
+    public final <C> C asyncProxy(final ContractId<C> contractId) {
+        return asyncProxy(contractId, DirectAsyncInterceptor.INSTANCE);
     }
 
     @FunctionalInterface public interface Execute<R> {
@@ -159,10 +159,10 @@ public abstract class Client {
      * Gets a promise for an asynchronous service invocation.
      * The usage pattern is:
      * <pre>
-     * EchoService echoService = client.proxyAsync(ECHO_SERVICE_ID);
+     * EchoService echoService = client.asyncProxy(ECHO_SERVICE_ID);
      * Client.promise(() -&gt; echoService.echo("hello")).thenAccept(r -&gt; System.out.println("result: " + r));
      * </pre>
-     * @see #proxyAsync(ContractId)
+     * @see #asyncProxy(ContractId)
      * @see #promise(VoidExecute)
      */
     @SuppressWarnings("unchecked")
