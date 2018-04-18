@@ -1,6 +1,6 @@
 package ch.softappeal.yass.tutorial.acceptor;
 
-import ch.softappeal.yass.remote.Server;
+import ch.softappeal.yass.remote.AsyncService;
 import ch.softappeal.yass.tutorial.contract.Instrument;
 import ch.softappeal.yass.tutorial.contract.instrument.InstrumentService;
 import ch.softappeal.yass.tutorial.contract.instrument.stock.Stock;
@@ -29,7 +29,7 @@ public final class InstrumentServiceImplAsync implements InstrumentService {
     }
 
     @Override public List<Instrument> getInstruments() {
-        final var completer = Server.completer();
+        final var completer = AsyncService.completer();
         new Thread(() -> completer.complete(new ArrayList<>(INSTRUMENTS.values()))).start(); // setting result asynchronously
         return null; // needed for compiler; returned result is not used
     }

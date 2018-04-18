@@ -5,6 +5,7 @@ import ch.softappeal.yass.Nullable;
 import ch.softappeal.yass.PerformanceTask;
 import ch.softappeal.yass.remote.ContractId;
 import ch.softappeal.yass.remote.Server;
+import ch.softappeal.yass.remote.Service;
 import ch.softappeal.yass.remote.SimpleMethodMapper;
 import ch.softappeal.yass.remote.session.Session;
 import ch.softappeal.yass.remote.session.SessionClosedException;
@@ -40,7 +41,7 @@ public abstract class SessionTest extends InvokeTest {
                 }
                 Assert.assertFalse(isClosed());
                 return new Server(
-                    ContractIdTest.ID.service(new TestServiceImpl(), invoke ? Interceptor.DIRECT : SERVER_INTERCEPTOR)
+                    new Service(ContractIdTest.ID, new TestServiceImpl(), invoke ? Interceptor.DIRECT : SERVER_INTERCEPTOR)
                 );
             }
             @Override protected void opened() throws Exception {
@@ -86,7 +87,7 @@ public abstract class SessionTest extends InvokeTest {
         return connection -> new Session(connection) {
             @Override protected Server server() {
                 return new Server(
-                    ECHO_ID.service(new EchoServiceImpl())
+                    new Service(ECHO_ID, new EchoServiceImpl())
                 );
 
             }

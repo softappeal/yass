@@ -6,6 +6,7 @@ import ch.softappeal.yass.Nullable;
 import ch.softappeal.yass.remote.ContractId;
 import ch.softappeal.yass.remote.OneWay;
 import ch.softappeal.yass.remote.Server;
+import ch.softappeal.yass.remote.Service;
 import ch.softappeal.yass.remote.SimpleMethodMapper;
 import ch.softappeal.yass.remote.session.SimpleSession;
 import ch.softappeal.yass.serialize.JavaSerializer;
@@ -42,7 +43,7 @@ public final class AsyncSocketConnectionTest {
                 connection -> new SimpleSession(connection, executor) {
                     @Override protected Server server() {
                         return new Server(
-                            BUSY_ID.service(() -> {
+                            new Service(BUSY_ID, () -> {
                                 System.out.println("busy");
                                 try {
                                     TimeUnit.MILLISECONDS.sleep(1_000);

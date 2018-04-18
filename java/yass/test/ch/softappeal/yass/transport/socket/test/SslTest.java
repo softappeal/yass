@@ -4,6 +4,7 @@ import ch.softappeal.yass.Exceptions;
 import ch.softappeal.yass.InputStreamSupplier;
 import ch.softappeal.yass.NamedThreadFactory;
 import ch.softappeal.yass.remote.Server;
+import ch.softappeal.yass.remote.Service;
 import ch.softappeal.yass.remote.test.ContractIdTest;
 import ch.softappeal.yass.transport.socket.SimpleSocketTransport;
 import ch.softappeal.yass.transport.socket.SocketBinder;
@@ -36,7 +37,8 @@ public class SslTest extends TransportTest {
                 executor,
                 MESSAGE_SERIALIZER,
                 new Server(
-                    ContractIdTest.ID.service(
+                    new Service(
+                        ContractIdTest.ID,
                         new TestServiceImpl(),
                         (method, arguments, invocation) -> {
                             if (needClientAuth) {

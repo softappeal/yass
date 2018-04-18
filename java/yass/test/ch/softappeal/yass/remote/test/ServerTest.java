@@ -3,6 +3,7 @@ package ch.softappeal.yass.remote.test;
 import ch.softappeal.yass.remote.Client;
 import ch.softappeal.yass.remote.ContractId;
 import ch.softappeal.yass.remote.Server;
+import ch.softappeal.yass.remote.Service;
 import ch.softappeal.yass.remote.TaggedMethodMapper;
 import ch.softappeal.yass.test.InvokeTest;
 import org.junit.Assert;
@@ -14,14 +15,14 @@ public class ServerTest {
         @Override public void invoke(final Client.Invocation invocation) throws Exception {
             invocation.invoke(
                 false,
-                request -> new Server(ContractIdTest.ID.service(new InvokeTest.TestServiceImpl()))
+                request -> new Server(new Service(ContractIdTest.ID, new InvokeTest.TestServiceImpl()))
                     .invocation(false, request).invoke(invocation::settle)
             );
         }
     };
 
     @Test public void duplicatedService() {
-        final var service = ContractIdTest.ID.service(new InvokeTest.TestServiceImpl());
+        final var service = new Service(ContractIdTest.ID, new InvokeTest.TestServiceImpl());
         try {
             new Server(service, service);
             Assert.fail();

@@ -5,6 +5,7 @@ import ch.softappeal.yass.Interceptor;
 import ch.softappeal.yass.NamedThreadFactory;
 import ch.softappeal.yass.Nullable;
 import ch.softappeal.yass.remote.Server;
+import ch.softappeal.yass.remote.Service;
 import ch.softappeal.yass.transport.MessageSerializer;
 import ch.softappeal.yass.transport.socket.SimpleSocketTransport;
 import ch.softappeal.yass.transport.socket.SocketBinder;
@@ -56,8 +57,8 @@ public final class SocketServer {
             executor,
             new MessageSerializer(SocketClient.SERIALIZER),
             new Server(
-                PY_ACCEPTOR.echoService.service(new EchoServiceImpl()),
-                PY_ACCEPTOR.instrumentService.service(new InstrumentServiceImpl(), PEER, LOGGER)
+                new Service(PY_ACCEPTOR.echoService, new EchoServiceImpl()),
+                new Service(PY_ACCEPTOR.instrumentService, new InstrumentServiceImpl(), PEER, LOGGER)
             )
         ).start(
             executor,

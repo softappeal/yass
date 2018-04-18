@@ -2,7 +2,9 @@ package ch.softappeal.yass.tutorial.acceptor;
 
 import ch.softappeal.yass.Interceptor;
 import ch.softappeal.yass.Nullable;
+import ch.softappeal.yass.remote.AsyncService;
 import ch.softappeal.yass.remote.Server;
+import ch.softappeal.yass.remote.Service;
 import ch.softappeal.yass.remote.session.Connection;
 import ch.softappeal.yass.remote.session.SessionWatcher;
 import ch.softappeal.yass.remote.session.SimpleSession;
@@ -40,10 +42,10 @@ public final class AcceptorSession extends SimpleSession {
             new Logger(this, Logger.Side.SERVER)
         );
         return new Server(
-            ACCEPTOR.instrumentService.serviceAsync(InstrumentServiceImplAsync.INSTANCE, LoggerAsync.INSTANCE),
-            ACCEPTOR.priceEngine.service(new PriceEngineImpl(subscribedInstrumentIds), interceptor),
-            ACCEPTOR.echoService.service(EchoServiceImpl.INSTANCE, interceptor),
-            ACCEPTOR.genericEchoService.service(GenericEchoServiceImpl.INSTANCE, interceptor)
+            new AsyncService(ACCEPTOR.instrumentService, InstrumentServiceImplAsync.INSTANCE, LoggerAsync.INSTANCE),
+            new Service(ACCEPTOR.priceEngine, new PriceEngineImpl(subscribedInstrumentIds), interceptor),
+            new Service(ACCEPTOR.echoService, EchoServiceImpl.INSTANCE, interceptor),
+            new Service(ACCEPTOR.genericEchoService, GenericEchoServiceImpl.INSTANCE, interceptor)
         );
     }
 

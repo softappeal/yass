@@ -1,6 +1,7 @@
 package ch.softappeal.yass.tutorial.datagram;
 
 import ch.softappeal.yass.remote.Server;
+import ch.softappeal.yass.remote.Service;
 import ch.softappeal.yass.transport.SimpleTransportSetup;
 import ch.softappeal.yass.tutorial.contract.Config;
 import ch.softappeal.yass.tutorial.contract.Price;
@@ -20,7 +21,7 @@ public final class PriceReceiver {
         final var setup = new SimpleTransportSetup(
             Config.MESSAGE_SERIALIZER,
             new Server(
-                Config.INITIATOR.priceListener.service(new PriceListener() {
+                new Service(Config.INITIATOR.priceListener, new PriceListener() {
                     @Override public void newPrices(final List<Price> prices) {
                         final var price = prices.get(0);
                         System.out.println("received " + price.kind + ": " + price.value);

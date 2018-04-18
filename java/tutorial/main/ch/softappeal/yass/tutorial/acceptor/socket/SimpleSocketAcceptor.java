@@ -3,6 +3,7 @@ package ch.softappeal.yass.tutorial.acceptor.socket;
 import ch.softappeal.yass.Exceptions;
 import ch.softappeal.yass.NamedThreadFactory;
 import ch.softappeal.yass.remote.Server;
+import ch.softappeal.yass.remote.Service;
 import ch.softappeal.yass.transport.socket.SimpleSocketTransport;
 import ch.softappeal.yass.transport.socket.SocketBinder;
 import ch.softappeal.yass.tutorial.contract.Config;
@@ -24,7 +25,7 @@ public final class SimpleSocketAcceptor {
             executor,
             Config.MESSAGE_SERIALIZER,
             new Server(
-                ACCEPTOR.echoService.service(EchoServiceImpl.INSTANCE, UnexpectedExceptionHandler.INSTANCE, new Logger(null, Logger.Side.SERVER))
+                new Service(ACCEPTOR.echoService, EchoServiceImpl.INSTANCE, UnexpectedExceptionHandler.INSTANCE, new Logger(null, Logger.Side.SERVER))
             )
         ).start(executor, SocketBinder.create(SocketSetup.ADDRESS));
         System.out.println("started");

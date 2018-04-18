@@ -4,6 +4,7 @@ import ch.softappeal.yass.Exceptions;
 import ch.softappeal.yass.NamedThreadFactory;
 import ch.softappeal.yass.Nullable;
 import ch.softappeal.yass.remote.AbstractInvocation;
+import ch.softappeal.yass.remote.AsyncService;
 import ch.softappeal.yass.remote.Client;
 import ch.softappeal.yass.remote.Completer;
 import ch.softappeal.yass.remote.ContractId;
@@ -69,7 +70,7 @@ public class AsyncTest {
     }
 
     private static void sleep(final Consumer<Completer> execute) {
-        final var completer = Server.completer();
+        final var completer = AsyncService.completer();
         new Thread(() -> {
             try {
                 TimeUnit.MILLISECONDS.sleep(1000L);
@@ -108,7 +109,7 @@ public class AsyncTest {
         }
         @Override public void oneWay() {
             try {
-                Server.completer();
+                AsyncService.completer();
                 Assert.fail();
             } catch (final IllegalStateException ignore) {
                 // empty
@@ -139,7 +140,7 @@ public class AsyncTest {
 
     @Test public void inactive() {
         try {
-            Server.completer();
+            AsyncService.completer();
             Assert.fail();
         } catch (final IllegalStateException e) {
             System.out.println(e);
@@ -184,7 +185,7 @@ public class AsyncTest {
                         System.out.println("server closed: " + exception);
                     }
                     @Override protected Server server() throws Exception {
-                        return new Server(ID.serviceAsync(new TestServiceImplAsync(), new Logger("server")));
+                        return new Server(new AsyncService(ID, new TestServiceImplAsync(), new Logger("server")));
                     }
                 }
             );

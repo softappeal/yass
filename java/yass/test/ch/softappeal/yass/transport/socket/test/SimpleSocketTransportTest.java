@@ -4,6 +4,7 @@ import ch.softappeal.yass.Exceptions;
 import ch.softappeal.yass.Interceptor;
 import ch.softappeal.yass.NamedThreadFactory;
 import ch.softappeal.yass.remote.Server;
+import ch.softappeal.yass.remote.Service;
 import ch.softappeal.yass.remote.test.ContractIdTest;
 import ch.softappeal.yass.transport.PathSerializer;
 import ch.softappeal.yass.transport.SimplePathResolver;
@@ -46,7 +47,8 @@ public class SimpleSocketTransportTest extends TransportTest {
                 executor,
                 MESSAGE_SERIALIZER,
                 new Server(
-                    ContractIdTest.ID.service(
+                    new Service(
+                        ContractIdTest.ID,
                         new TestServiceImpl(),
                         socketInterceptor("server"),
                         SERVER_INTERCEPTOR
@@ -73,7 +75,7 @@ public class SimpleSocketTransportTest extends TransportTest {
             var closer = new SimpleSocketTransport(
                 executor,
                 MESSAGE_SERIALIZER,
-                new Server(ECHO_ID.service(new EchoServiceImpl()))
+                new Server(new Service(ECHO_ID, new EchoServiceImpl()))
             ).start(executor, SocketTransportTest.BINDER)
         ) {
             try {
@@ -97,11 +99,11 @@ public class SimpleSocketTransportTest extends TransportTest {
                 executor,
                 PathSerializer.INSTANCE,
                 new SimplePathResolver(Map.of(
-                    path1, new SimpleTransportSetup(MESSAGE_SERIALIZER, new Server(ECHO_ID.service(new EchoServiceImpl(), (method, arguments, invocation) -> {
+                    path1, new SimpleTransportSetup(MESSAGE_SERIALIZER, new Server(new Service(ECHO_ID, new EchoServiceImpl(), (method, arguments, invocation) -> {
                         System.out.println("path 1");
                         return invocation.proceed();
                     }))),
-                    path2, new SimpleTransportSetup(MESSAGE_SERIALIZER, new Server(ECHO_ID.service(new EchoServiceImpl(), (method, arguments, invocation) -> {
+                    path2, new SimpleTransportSetup(MESSAGE_SERIALIZER, new Server(new Service(ECHO_ID, new EchoServiceImpl(), (method, arguments, invocation) -> {
                         System.out.println("path 2");
                         return invocation.proceed();
                     })))

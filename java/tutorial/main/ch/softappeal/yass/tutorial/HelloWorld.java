@@ -2,6 +2,7 @@ package ch.softappeal.yass.tutorial;
 
 import ch.softappeal.yass.remote.ContractId;
 import ch.softappeal.yass.remote.Server;
+import ch.softappeal.yass.remote.Service;
 import ch.softappeal.yass.remote.SimpleMethodMapper;
 import ch.softappeal.yass.serialize.JavaSerializer;
 import ch.softappeal.yass.transport.socket.SimpleSocketTransport;
@@ -30,7 +31,7 @@ public class HelloWorld {
         var calculatorId = ContractId.create(Calculator.class, 0, SimpleMethodMapper.FACTORY);
 
         // start server
-        var server = new Server(calculatorId.service(new CalculatorImpl()));
+        var server = new Server(new Service(calculatorId, new CalculatorImpl()));
         var executor = Executors.newCachedThreadPool();
         new SimpleSocketTransport(executor, serializer, server).start(executor, SocketBinder.create(address));
 

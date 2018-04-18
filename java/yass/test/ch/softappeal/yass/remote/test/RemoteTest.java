@@ -5,6 +5,7 @@ import ch.softappeal.yass.Nullable;
 import ch.softappeal.yass.remote.Client;
 import ch.softappeal.yass.remote.ContractId;
 import ch.softappeal.yass.remote.Server;
+import ch.softappeal.yass.remote.Service;
 import ch.softappeal.yass.test.InvokeTest;
 import org.junit.Assert;
 import org.junit.Test;
@@ -46,7 +47,7 @@ public class RemoteTest extends InvokeTest {
     @Test public void test() throws InterruptedException {
         invoke(
             client(new Server(
-                ContractIdTest.ID.service(new TestServiceImpl(), stepInterceptor(2), SERVER_INTERCEPTOR)
+                new Service(ContractIdTest.ID, new TestServiceImpl(), stepInterceptor(2), SERVER_INTERCEPTOR)
             )).proxy(ContractIdTest.ID, PRINTLN_AFTER, stepInterceptor(1), CLIENT_INTERCEPTOR)
         );
     }

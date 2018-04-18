@@ -3,6 +3,7 @@ package ch.softappeal.yass.tutorial.acceptor.web;
 import ch.softappeal.yass.Exceptions;
 import ch.softappeal.yass.remote.Request;
 import ch.softappeal.yass.remote.Server;
+import ch.softappeal.yass.remote.Service;
 import ch.softappeal.yass.serialize.Reader;
 import ch.softappeal.yass.serialize.Writer;
 import ch.softappeal.yass.transport.SimpleTransportSetup;
@@ -40,7 +41,7 @@ public class XhrServlet extends HttpServlet {
     private static final SimpleTransportSetup SETUP = new SimpleTransportSetup(
         Config.MESSAGE_SERIALIZER,
         new Server(
-            ACCEPTOR.echoService.service(EchoServiceImpl.INSTANCE, UnexpectedExceptionHandler.INSTANCE, new Logger(null, Logger.Side.SERVER))
+            new Service(ACCEPTOR.echoService, EchoServiceImpl.INSTANCE, UnexpectedExceptionHandler.INSTANCE, new Logger(null, Logger.Side.SERVER))
         )
     );
 

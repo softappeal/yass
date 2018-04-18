@@ -4,6 +4,7 @@ import ch.softappeal.yass.Interceptor;
 import ch.softappeal.yass.Nullable;
 import ch.softappeal.yass.remote.Client;
 import ch.softappeal.yass.remote.Server;
+import ch.softappeal.yass.remote.Service;
 import ch.softappeal.yass.remote.session.Connection;
 import ch.softappeal.yass.remote.session.SessionWatcher;
 import ch.softappeal.yass.remote.session.SimpleSession;
@@ -37,8 +38,8 @@ public final class InitiatorSession extends SimpleSession {
             new Logger(this, Logger.Side.SERVER)
         );
         return new Server(
-            INITIATOR.priceListener.service(PriceListenerImpl.INSTANCE, interceptor),
-            INITIATOR.echoService.service(EchoServiceImpl.INSTANCE, interceptor)
+            new Service(INITIATOR.priceListener, PriceListenerImpl.INSTANCE, interceptor),
+            new Service(INITIATOR.echoService, EchoServiceImpl.INSTANCE, interceptor)
         );
     }
 
