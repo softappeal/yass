@@ -64,7 +64,7 @@ public abstract class Client {
      */
     protected abstract void invoke(Invocation invocation) throws Exception;
 
-    protected Object invokeSync(final ContractId<?> contractId, final Interceptor interceptor, final Method method, final @Nullable Object[] arguments) throws Exception {
+    protected Object syncInvoke(final ContractId<?> contractId, final Interceptor interceptor, final Method method, final @Nullable Object[] arguments) throws Exception {
         return interceptor.invoke(method, arguments, () -> {
             final var methodMapping = contractId.methodMapper.mapMethod(method);
             final var promise = methodMapping.oneWay ? null : new CompletableFuture<>();
@@ -91,7 +91,7 @@ public abstract class Client {
         return contractId.contract.cast(Proxy.newProxyInstance(
             contractId.contract.getClassLoader(),
             new Class<?>[] {contractId.contract},
-            (proxy, method, arguments) -> invokeSync(contractId, interceptor, method, arguments)
+            (proxy, method, arguments) -> syncInvoke(contractId, interceptor, method, arguments)
         ));
     }
 

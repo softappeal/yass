@@ -92,13 +92,13 @@ public final class SimpleSocketTransport extends SocketListener {
         Objects.requireNonNull(pathSerializer);
         Objects.requireNonNull(path);
         return new Client() {
-            @Override protected Object invokeSync(final ContractId<?> contractId, final Interceptor interceptor, final Method method, final @Nullable Object[] arguments) throws Exception {
+            @Override protected Object syncInvoke(final ContractId<?> contractId, final Interceptor interceptor, final Method method, final @Nullable Object[] arguments) throws Exception {
                 try (var socket = socketConnector.get()) {
                     SocketUtils.setForceImmediateSend(socket);
                     final var oldSocket = SOCKET.get();
                     SOCKET.set(socket);
                     try {
-                        return super.invokeSync(contractId, interceptor, method, arguments);
+                        return super.syncInvoke(contractId, interceptor, method, arguments);
                     } finally {
                         SOCKET.set(oldSocket);
                     }
