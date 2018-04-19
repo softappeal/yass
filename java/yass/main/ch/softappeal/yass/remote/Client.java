@@ -22,20 +22,22 @@ public abstract class Client {
     public static final class Invocation extends AbstractInvocation {
         private final @Nullable CompletableFuture<?> promise;
         private final int serviceId;
+        private final @Nullable AsyncInterceptor interceptor;
         Invocation(
             final MethodMapper.Mapping methodMapping, final @Nullable Object[] arguments, final @Nullable AsyncInterceptor interceptor,
             final @Nullable CompletableFuture<?> promise, final int serviceId
         ) {
-            super(methodMapping, (arguments == null) ? List.of() : Arrays.asList(arguments), interceptor);
+            super(methodMapping, (arguments == null) ? List.of() : Arrays.asList(arguments));
             this.promise = promise;
             this.serviceId = serviceId;
+            this.interceptor = interceptor;
         }
         public void invoke(final boolean asyncSupported, final Tunnel tunnel) throws Exception {
-            if (async()) {
+            if (interceptor != null) {
                 if (!asyncSupported) {
                     throw new UnsupportedOperationException("asynchronous services not supported (serviceId = " + serviceId + ')');
                 }
-                entry();
+                interceptor.entry(this);
             }
             tunnel.invoke(new Request(serviceId, methodMapping.id, arguments));
         }
@@ -46,13 +48,13 @@ public abstract class Client {
             }
             try {
                 final Object result = reply.process();
-                if (async()) {
-                    exit(result);
+                if (interceptor != null) {
+                    interceptor.exit(this, result);
                 }
                 ((CompletableFuture)promise).complete(result);
             } catch (final Exception e) {
-                if (async()) {
-                    exception(e);
+                if (interceptor != null) {
+                    interceptor.exception(this, e);
                 }
                 promise.completeExceptionally(e);
             }

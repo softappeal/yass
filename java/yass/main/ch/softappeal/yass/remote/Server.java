@@ -20,11 +20,7 @@ public final class Server {
     public static final class Invocation extends AbstractInvocation {
         public final AbstractService service;
         Invocation(final AbstractService service, final Request request) {
-            super(
-                service.contractId.methodMapper.mapId(request.methodId),
-                request.arguments,
-                (service instanceof AsyncService) ? ((AsyncService)service).interceptor : null
-            );
+            super(service.contractId.methodMapper.mapId(request.methodId), request.arguments);
             this.service = service;
         }
         public void invoke(final AbstractService.ReplyWriter replyWriter) throws Exception {

@@ -19,7 +19,7 @@ public final class AsyncService extends AbstractService {
             .orElseThrow(() -> new IllegalStateException("no active asynchronous request/reply service invocation"));
     }
 
-    final AsyncInterceptor interceptor;
+    private final AsyncInterceptor interceptor;
 
     public <C> AsyncService(final ContractId<C> contractId, final C implementation, final AsyncInterceptor interceptor) {
         super(contractId, implementation);
@@ -35,7 +35,7 @@ public final class AsyncService extends AbstractService {
         COMPLETER.set(invocation.methodMapping.oneWay ? null : new Completer() {
             @Override public void complete(final @Nullable Object result) {
                 try {
-                    invocation.exit(result);
+                    interceptor.exit(invocation, result);
                     replyWriter.writeReply(new ValueReply(result));
                 } catch (final Exception e) {
                     throw Exceptions.wrap(e);
@@ -44,7 +44,7 @@ public final class AsyncService extends AbstractService {
             @Override public void completeExceptionally(final Exception exception) {
                 Objects.requireNonNull(exception);
                 try {
-                    invocation.exception(exception);
+                    interceptor.exception(invocation, exception);
                     replyWriter.writeReply(new ExceptionReply(exception));
                 } catch (final Exception e) {
                     throw Exceptions.wrap(e);
@@ -52,7 +52,7 @@ public final class AsyncService extends AbstractService {
             }
         });
         try {
-            invocation.entry();
+            interceptor.entry(invocation);
             try {
                 invocation.methodMapping.method.invoke(implementation, invocation.arguments.toArray());
             } catch (final InvocationTargetException e) {
