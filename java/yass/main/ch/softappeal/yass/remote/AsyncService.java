@@ -1,9 +1,9 @@
 package ch.softappeal.yass.remote;
 
 import ch.softappeal.yass.Exceptions;
+import ch.softappeal.yass.Interceptor;
 import ch.softappeal.yass.Nullable;
 
-import java.lang.reflect.InvocationTargetException;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -53,17 +53,7 @@ public final class AsyncService extends AbstractService {
         });
         try {
             interceptor.entry(invocation);
-            try {
-                invocation.methodMapping.method.invoke(implementation, invocation.arguments.toArray());
-            } catch (final InvocationTargetException e) {
-                try {
-                    throw e.getCause();
-                } catch (final Exception | Error e2) {
-                    throw e2;
-                } catch (final Throwable t) {
-                    throw new Error(t);
-                }
-            }
+            Interceptor.invoke(invocation.methodMapping.method, implementation, invocation.arguments.toArray());
         } finally {
             COMPLETER.set(oldCompleter);
         }

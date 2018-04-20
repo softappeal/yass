@@ -48,20 +48,26 @@ import java.util.Objects;
         return composite;
     }
 
-    static @Nullable Object invoke(final Interceptor interceptor, final Method method, final @Nullable Object[] arguments, final Object implementation) throws Exception {
-        return interceptor.invoke(method, arguments, () -> {
+    static @Nullable Object invoke(final Method method, final Object implementation, final @Nullable Object[] arguments) throws Exception {
+        try {
+            return method.invoke(implementation, arguments);
+        } catch (final InvocationTargetException e) {
             try {
-                return method.invoke(implementation, arguments);
-            } catch (final InvocationTargetException e) {
-                try {
-                    throw e.getCause();
-                } catch (final Exception | Error e2) {
-                    throw e2;
-                } catch (final Throwable t) {
-                    throw new Error(t);
-                }
+                throw e.getCause();
+            } catch (final Exception | Error e2) {
+                throw e2;
+            } catch (final Throwable t) {
+                throw new Error(t);
             }
-        });
+        }
+    }
+
+    static @Nullable Object invoke(final Interceptor interceptor, final Method method, final Object implementation, final @Nullable Object[] arguments) throws Exception {
+        return interceptor.invoke(method, arguments, () -> invoke(method, implementation, arguments));
+    }
+
+    static <C> C proxy(final Class<C> contract, final InvocationHandler invocationHandler) {
+        return contract.cast(Proxy.newProxyInstance(contract.getClassLoader(), new Class<?>[] {contract}, invocationHandler));
     }
 
     /**
@@ -75,11 +81,7 @@ import java.util.Objects;
             Objects.requireNonNull(contract);
             return implementation;
         }
-        return contract.cast(Proxy.newProxyInstance(
-            contract.getClassLoader(),
-            new Class<?>[] {contract},
-            (proxy, method, arguments) -> invoke(interceptor, method, arguments, implementation)
-        ));
+        return proxy(contract, (proxy, method, arguments) -> invoke(interceptor, method, implementation, arguments));
     }
 
     /**

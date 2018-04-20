@@ -1,9 +1,8 @@
 package ch.softappeal.yass.remote.session;
 
+import ch.softappeal.yass.Interceptor;
 import ch.softappeal.yass.Nullable;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Proxy;
 import java.util.Objects;
 import java.util.function.Function;
 
@@ -40,18 +39,7 @@ public abstract class ProxyDelegate<S extends Session> {
      */
     public final <C> C proxy(final Class<C> contract, final Function<S, C> proxyGetter) {
         Objects.requireNonNull(proxyGetter);
-        return contract.cast(Proxy.newProxyInstance(
-            contract.getClassLoader(),
-            new Class<?>[] {contract},
-            (proxy, method, arguments) -> {
-                final var impl = proxyGetter.apply(session());
-                try {
-                    return method.invoke(impl, arguments);
-                } catch (final InvocationTargetException e) {
-                    throw e.getCause();
-                }
-            }
-        ));
+        return Interceptor.proxy(contract, (proxy, method, arguments) -> Interceptor.invoke(method, proxyGetter.apply(session()), arguments));
     }
 
 }

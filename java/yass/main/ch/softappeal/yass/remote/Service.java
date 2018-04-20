@@ -14,7 +14,7 @@ public final class Service extends AbstractService {
     @Override void invoke(final AbstractInvocation invocation, final AbstractService.ReplyWriter replyWriter) throws Exception {
         Reply reply;
         try {
-            reply = new ValueReply(Interceptor.invoke(interceptor, invocation.methodMapping.method, invocation.arguments.toArray(), implementation));
+            reply = new ValueReply(Interceptor.invoke(interceptor, invocation.methodMapping.method, implementation, invocation.arguments.toArray()));
         } catch (final Exception e) {
             if (invocation.methodMapping.oneWay) {
                 throw e;

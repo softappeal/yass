@@ -5,7 +5,6 @@ import ch.softappeal.yass.Interceptor;
 import ch.softappeal.yass.Nullable;
 
 import java.lang.reflect.Method;
-import java.lang.reflect.Proxy;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
@@ -90,11 +89,7 @@ public abstract class Client {
 
     public final <C> C proxy(final ContractId<C> contractId, final Interceptor... interceptors) {
         final var interceptor = Interceptor.composite(interceptors);
-        return contractId.contract.cast(Proxy.newProxyInstance(
-            contractId.contract.getClassLoader(),
-            new Class<?>[] {contractId.contract},
-            (proxy, method, arguments) -> syncInvoke(contractId, interceptor, method, arguments)
-        ));
+        return Interceptor.proxy(contractId.contract, (proxy, method, arguments) -> syncInvoke(contractId, interceptor, method, arguments));
     }
 
     private static @Nullable Object handlePrimitiveTypes(final Class<?> type) {
@@ -127,9 +122,8 @@ public abstract class Client {
     @SuppressWarnings("unchecked")
     public final <C> C asyncProxy(final ContractId<C> contractId, final AsyncInterceptor interceptor) {
         Objects.requireNonNull(interceptor);
-        return contractId.contract.cast(Proxy.newProxyInstance(
-            contractId.contract.getClassLoader(),
-            new Class<?>[] {contractId.contract},
+        return Interceptor.proxy(
+            contractId.contract,
             (proxy, method, arguments) -> {
                 final var methodMapping = contractId.methodMapper.mapMethod(method);
                 final var promise = PROMISE.get();
@@ -143,7 +137,7 @@ public abstract class Client {
                 invoke(new Invocation(methodMapping, arguments, interceptor, promise, contractId.id));
                 return handlePrimitiveTypes(method.getReturnType());
             }
-        ));
+        );
     }
 
     /**
