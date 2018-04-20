@@ -5,8 +5,8 @@ import ch.softappeal.yass.NamedThreadFactory;
 import ch.softappeal.yass.Nullable;
 import ch.softappeal.yass.remote.AbstractInvocation;
 import ch.softappeal.yass.remote.AsyncInterceptor;
+import ch.softappeal.yass.remote.AsyncProxy;
 import ch.softappeal.yass.remote.AsyncService;
-import ch.softappeal.yass.remote.Client;
 import ch.softappeal.yass.remote.Completer;
 import ch.softappeal.yass.remote.ContractId;
 import ch.softappeal.yass.remote.OneWay;
@@ -46,16 +46,16 @@ public class AsyncTest {
             this.proxy = proxy;
         }
         public CompletionStage<Void> noResult() {
-            return Client.promise(proxy::noResult);
+            return AsyncProxy.promise(proxy::noResult);
         }
         public CompletionStage<Integer> divide(final int a, final int b) {
-            return Client.promise(() -> proxy.divide(a, b));
+            return AsyncProxy.promise(() -> proxy.divide(a, b));
         }
         public CompletionStage<Integer> getInteger() {
-            return Client.promise(proxy::getInteger);
+            return AsyncProxy.promise(proxy::getInteger);
         }
         public CompletionStage<String> getString() {
-            return Client.promise(proxy::getString);
+            return AsyncProxy.promise(proxy::getString);
         }
         public void oneWay() {
             proxy.oneWay();
@@ -156,7 +156,7 @@ public class AsyncTest {
                         System.out.println("client closed: " + exception);
                     }
                     @Override protected void opened() {
-                        final var test = asyncProxy(ID, new Logger("client"));
+                        final var test = async.proxy(ID, new Logger("client"));
                         final var testAsync = new AsyncTestService(test);
                         testAsync.noResult().thenAccept(r -> println("proxy", "", "noResult", null, r));
                         testAsync.divide(12, 3).thenAccept(r -> println("proxy", "", "divide", null, r));
@@ -166,7 +166,7 @@ public class AsyncTest {
                         testAsync.getString().thenAccept(r -> println("proxy", "", "getString", null, r));
                         testAsync.oneWay();
                         try {
-                            Client.promise(test::oneWay);
+                            AsyncProxy.promise(test::oneWay);
                             Assert.fail();
                         } catch (final IllegalStateException ignore) {
                             // empty

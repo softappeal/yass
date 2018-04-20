@@ -2,7 +2,7 @@ package ch.softappeal.yass.tutorial.initiator;
 
 import ch.softappeal.yass.Interceptor;
 import ch.softappeal.yass.Nullable;
-import ch.softappeal.yass.remote.Client;
+import ch.softappeal.yass.remote.AsyncProxy;
 import ch.softappeal.yass.remote.Server;
 import ch.softappeal.yass.remote.Service;
 import ch.softappeal.yass.remote.session.Connection;
@@ -53,7 +53,7 @@ public final class InitiatorSession extends SimpleSession {
         System.out.println("session created");
         final var interceptor = new Logger(this, Logger.Side.CLIENT);
         priceEngine = proxy(ACCEPTOR.priceEngine, interceptor);
-        instrumentService = asyncProxy(ACCEPTOR.instrumentService, AsyncLogger.INSTANCE);
+        instrumentService = async.proxy(ACCEPTOR.instrumentService, AsyncLogger.INSTANCE);
         echoService = proxy(ACCEPTOR.echoService, interceptor);
         genericEchoService = proxy(ACCEPTOR.genericEchoService, interceptor);
     }
@@ -82,7 +82,7 @@ public final class InitiatorSession extends SimpleSession {
             e.printStackTrace(System.out);
         }
         instrumentService.showOneWay(false, 123);
-        Client.promise(instrumentService::getInstruments).thenAcceptAsync(instruments -> {
+        AsyncProxy.promise(instrumentService::getInstruments).thenAcceptAsync(instruments -> {
             try {
                 priceEngine.subscribe(instruments.stream().map(instrument -> instrument.id).collect(Collectors.toList()));
             } catch (final UnknownInstrumentsException ignore) {
