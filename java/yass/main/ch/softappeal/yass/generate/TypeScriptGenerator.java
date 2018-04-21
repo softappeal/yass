@@ -71,7 +71,9 @@ public final class TypeScriptGenerator extends Generator {
     }
 
     private final class TypeScriptOut extends Out {
-
+        
+        private static final String UNIQUE_TYPE_KEY = "protected readonly __TYPE_KEY__: never;";
+        
         private final LinkedHashMap<Class<?>, Integer> type2id = new LinkedHashMap<>();
         private final Set<Class<?>> visitedClasses = new HashSet<>();
         private final Map<Class<?>, ExternalDesc> externalTypes = new HashMap<>();
@@ -109,6 +111,7 @@ public final class TypeScriptGenerator extends Generator {
             generateType(type, name -> {
                 tabsln("export class %s extends yass.Enum {", name);
                 inc();
+                tabsln(UNIQUE_TYPE_KEY);
                 for (final Enum<?> e : type.getEnumConstants()) {
                     tabsln("static readonly %s = new %s(%s, '%s');", e.name(), name, e.ordinal(), e.name());
                 }
@@ -199,6 +202,7 @@ public final class TypeScriptGenerator extends Generator {
                 }
                 println(" {");
                 inc();
+                tabsln(UNIQUE_TYPE_KEY);
                 for (final var field : Reflect.ownFields(type)) {
                     tabsln("%s: %s;", field.getName(), nullable(type(field.getGenericType())));
                 }
