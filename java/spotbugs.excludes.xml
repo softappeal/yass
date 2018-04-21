@@ -1,0 +1,7 @@
+<FindBugsFilter>
+    <Match>
+        <Class name="ch.softappeal.yass.remote.AbstractInvocation"/>
+        <Field name="context"/>
+        <Bug code="UuF"/>
+    </Match>
+</FindBugsFilter>
