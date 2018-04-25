@@ -39,7 +39,7 @@ public abstract class Client {
                     reply.set(r);
                 }
             });
-            return reply.get().process();
+            return reply.isNull() ? null : reply.get().process();
         });
     }
 
