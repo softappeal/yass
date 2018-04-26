@@ -7,6 +7,8 @@ import ch.softappeal.yass.Reference;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
+import java.util.concurrent.CountDownLatch;
 
 public abstract class Client {
 
@@ -30,16 +32,25 @@ public abstract class Client {
     protected Object syncInvoke(final ContractId<?> contractId, final Interceptor interceptor, final Method method, final @Nullable Object[] arguments) throws Exception {
         return interceptor.invoke(method, arguments, () -> {
             final var methodMapping = contractId.methodMapper.mapMethod(method);
-            final var reply = Reference.<Reply>create();
+            final var ready = methodMapping.oneWay ? null : new CountDownLatch(1);
+            final var r = Reference.<Reply>create();
             invoke(new Invocation(methodMapping, arguments) {
                 @Override public void invoke(final boolean asyncSupported, final Tunnel tunnel) throws Exception {
                     tunnel.invoke(new Request(contractId.id, methodMapping.id, arguments));
                 }
-                @Override public void settle(final Reply r) {
-                    reply.set(r);
+                @Override public void settle(final Reply reply) {
+                    if (ready == null) {
+                        return;
+                    }
+                    r.set(Objects.requireNonNull(reply));
+                    ready.countDown();
                 }
             });
-            return reply.isNull() ? null : reply.get().process();
+            if (ready == null) {
+                return null;
+            }
+            ready.await();
+            return r.get().process();
         });
     }
 
