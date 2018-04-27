@@ -109,7 +109,7 @@ public final class TypeScriptGenerator extends Generator {
             generateType(type, name -> {
                 tabsln("export class %s extends yass.Enum {", name);
                 inc();
-                addTypeKey();
+                additionalTypeCode();
                 for (final Enum<?> e : type.getEnumConstants()) {
                     tabsln("static readonly %s = new %s(%s, '%s');", e.name(), name, e.ordinal(), e.name());
                 }
@@ -200,7 +200,7 @@ public final class TypeScriptGenerator extends Generator {
                 }
                 println(" {");
                 inc();
-                addTypeKey();
+                additionalTypeCode();
                 for (final var field : Reflect.ownFields(type)) {
                     tabsln("%s: %s;", field.getName(), nullable(type(field.getGenericType())));
                 }
@@ -301,19 +301,19 @@ public final class TypeScriptGenerator extends Generator {
             println();
         }
 
-        private final boolean addTypeKey;
-        private void addTypeKey() {
-            if (addTypeKey) {
-                tabsln("protected readonly __TYPE_KEY__!: never;");
+        private final @Nullable String additionalTypeCode;
+        private void additionalTypeCode() {
+            if (additionalTypeCode != null) {
+                tabsln(additionalTypeCode);
             }
         }
 
         @SuppressWarnings("unchecked")
         public TypeScriptOut(
-            final String includeFile, final @Nullable Map<Class<?>, ExternalDesc> externalTypes, final String contractFile, final boolean addTypeKey
+            final String includeFile, final @Nullable Map<Class<?>, ExternalDesc> externalTypes, final String contractFile, final @Nullable String additionalTypeCode
         ) throws Exception {
             super(contractFile);
-            this.addTypeKey = addTypeKey;
+            this.additionalTypeCode = additionalTypeCode;
             if (externalTypes != null) {
                 externalTypes.forEach((java, ts) -> this.externalTypes.put(Objects.requireNonNull(java), Objects.requireNonNull(ts)));
             }
@@ -343,21 +343,21 @@ public final class TypeScriptGenerator extends Generator {
     }
 
     /**
-     * @param addTypeKey experimental feature (see <a href="https://github.com/softappeal/yass/pull/4">pull request</a>)
+     * @param additionalTypeCode see <a href="https://github.com/softappeal/yass/pull/4">pull request</a>
      */
     public TypeScriptGenerator(
         final String rootPackage, final FastSerializer serializer, final @Nullable Services initiator, final @Nullable Services acceptor,
-        final String includeFile, final @Nullable Map<Class<?>, ExternalDesc> externalTypes, final String contractFile, final boolean addTypeKey
+        final String includeFile, final @Nullable Map<Class<?>, ExternalDesc> externalTypes, final String contractFile, final @Nullable String additionalTypeCode
     ) throws Exception {
         super(rootPackage, serializer, initiator, acceptor);
-        new TypeScriptOut(includeFile, externalTypes, contractFile, addTypeKey);
+        new TypeScriptOut(includeFile, externalTypes, contractFile, additionalTypeCode);
     }
 
     public TypeScriptGenerator(
         final String rootPackage, final FastSerializer serializer, final @Nullable Services initiator, final @Nullable Services acceptor,
         final String includeFile, final @Nullable Map<Class<?>, ExternalDesc> externalTypes, final String contractFile
     ) throws Exception {
-        this(rootPackage, serializer, initiator, acceptor, includeFile, externalTypes, contractFile, false);
+        this(rootPackage, serializer, initiator, acceptor, includeFile, externalTypes, contractFile, null);
     }
 
 }

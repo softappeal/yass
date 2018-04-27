@@ -18,7 +18,7 @@ public final class GenerateTypeScript {
                 Integer.class, new TypeScriptGenerator.ExternalDesc("Integer", "IntegerHandler")
             ),
             "build/generated/ts/contract.ts"
-            // , true
+            // , "protected readonly __TYPE_KEY__!: never;"
         );
     }
 
