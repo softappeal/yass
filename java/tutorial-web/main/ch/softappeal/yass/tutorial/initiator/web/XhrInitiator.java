@@ -34,7 +34,9 @@ public final class XhrInitiator extends WebSetup {
                     connection.setRequestMethod("POST");
                     invocation.invoke(false, request -> {
                         messageSerializer.write(request, Writer.create(connection.getOutputStream()));
-                        invocation.settle((Reply)messageSerializer.read(Reader.create(connection.getInputStream())));
+                        try (var in = connection.getInputStream()) { // note: early closing of input seams to make none ssl invocations faster
+                            invocation.settle((Reply)messageSerializer.read(Reader.create(in)));
+                        }
                     });
                 } finally {
                     connection.disconnect();

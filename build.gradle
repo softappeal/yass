@@ -3,9 +3,11 @@ defaultTasks 'clean', 'todo', 'build', 'dist'
 task todo {
     doLast {
         def searchTree = fileTree(dir: '.')
-            .exclude('.git/')
-            .exclude('.gradle/')
-            .exclude('.idea/')
+            .exclude('/.git/')
+            .exclude('/.gradle/')
+            .exclude('/.idea/')
+            .exclude('**/out/')
+            .exclude('**/build/')
         searchTodo(searchTree, '$' + '$$', 'not allowed for building a release')
         searchTodo(searchTree, '$' + 'todo', 'under construction, yet a release can still be built')
         searchTodo(searchTree, '$' + 'note', 'important comment')

@@ -17,8 +17,8 @@ import java.util.TimeZone;
 
 public class DumperTest {
 
-    private static final class TestDumper extends Dumper {
-        TestDumper(final boolean compact, final boolean referenceables, final Class<?>... concreteValueClasses) {
+    public static final class TestDumper extends Dumper {
+        public TestDumper(final boolean compact, final boolean referenceables, final Class<?>... concreteValueClasses) {
             super(compact, referenceables, concreteValueClasses);
         }
         @Override protected boolean dumpValueClass(final StringBuilder out, final Class<?> type, final Object object) {

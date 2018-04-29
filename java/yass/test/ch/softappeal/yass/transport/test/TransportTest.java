@@ -19,7 +19,7 @@ public abstract class TransportTest extends SessionTest {
         List.of(DivisionByZeroException.class)
     );
 
-    protected static final Serializer MESSAGE_SERIALIZER = new MessageSerializer(CONTRACT_SERIALIZER);
+    public static final Serializer MESSAGE_SERIALIZER = new MessageSerializer(CONTRACT_SERIALIZER);
 
     protected static TransportSetup invokeTransportSetup(final boolean invoke, final boolean createException, final Executor dispatchExecutor) {
         return TransportSetup.ofContractSerializer(

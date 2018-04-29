@@ -1,13 +1,18 @@
 package ch.softappeal.yass.serialize.test;
 
+import ch.softappeal.yass.Dumper;
 import ch.softappeal.yass.Stopwatch;
 import ch.softappeal.yass.serialize.JavaSerializer;
 import ch.softappeal.yass.serialize.Reader;
 import ch.softappeal.yass.serialize.Serializer;
 import ch.softappeal.yass.serialize.Writer;
+import ch.softappeal.yass.test.DumperTest;
 import org.junit.Test;
 
 import java.io.ByteArrayOutputStream;
+import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.time.Instant;
 
 public class PerformanceTest {
 
@@ -95,6 +100,13 @@ public class PerformanceTest {
     @Test public void test() throws Exception {
         test("TaggedFast", SerializerTest.TAGGED_FAST_SERIALIZER);
         test("Java      ", JavaSerializer.INSTANCE);
+    }
+
+    @Test public void showData() {
+        final Dumper dumper = new DumperTest.TestDumper(false, true, BigInteger.class, BigDecimal.class, Instant.class);
+        System.out.println(dumper.dump(SerializerTest.createGraph()));
+        System.out.println(dumper.dump(SerializerTest.createNulls()));
+        System.out.println(dumper.dump(SerializerTest.createValues()));
     }
 
 }
