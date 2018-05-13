@@ -54,7 +54,7 @@ class Instrument:
 
 class SystemException(Exception):
     def __init__(self) -> None:
-        self.message: str = cast(str, None)
+        self.details: str = cast(str, None)
 
 
 @yass.abstract

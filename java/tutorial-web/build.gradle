@@ -1,6 +1,0 @@
-dependencies {
-    compile project(":java:tutorial").sourceSets.main.runtimeClasspath
-    compile project(":java:yass-transport-ws")
-    compile jetty_dep
-    compile undertow_dep
-}

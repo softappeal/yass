@@ -54,7 +54,7 @@ class Instrument:
 
 class SystemException(Exception):
     def __init__(self):  # type: () -> None
-        self.message = cast('unicode', None)  # type: unicode
+        self.details = cast('unicode', None)  # type: unicode
 
 
 @yass.abstract

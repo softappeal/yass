@@ -3,7 +3,12 @@ sudo: false
 language: java
 
 jdk:
-    - openjdk10
+    - oraclejdk8
+
+addons:
+    apt:
+        packages:
+            - oracle-java8-installer
 
 branches:
     only:

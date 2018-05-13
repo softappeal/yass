@@ -1,0 +1,40 @@
+subprojects {
+
+    group = "ch.softappeal.yass"
+
+    repositories {
+        mavenCentral()
+    }
+
+    configurations.all {
+        resolutionStrategy {
+            failOnVersionConflict()
+        }
+    }
+
+    apply plugin: 'maven'
+    apply plugin: 'signing'
+
+    task sign {
+        doLast {
+            pom {
+                project {
+                    name project.name
+                    description 'Yet Another Service Solution'
+                    url 'https://github.com/softappeal/yass'
+                    licenses { license { name 'BSD-3-Clause' } }
+                    scm { url 'https://github.com/softappeal/yass' }
+                    organization { name 'softappeal GmbH Switzerland' }
+                    developers { developer { name 'Angelo Salvade' } }
+                }
+            }.writeTo("build/libs/${project.name}-${version}.pom")
+            if (rootProject.hasProperty('signing.password')) {
+                file("build/libs").listFiles().each { signing.sign(it) }
+            }
+            ant.zip(destfile: "build/${project.name}-${version}_artifacts.zip") {
+                fileset(dir: 'build/libs')
+            }
+        }
+    }
+
+}

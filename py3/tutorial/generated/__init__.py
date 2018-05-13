@@ -32,7 +32,7 @@ yass.fieldDescs(contract_instrument.Bond, [
     yass.FieldDesc(4, 'name', yass.STRING_DESC),
 ])
 yass.fieldDescs(contract.SystemException, [
-    yass.FieldDesc(1, 'message', yass.STRING_DESC),
+    yass.FieldDesc(1, 'details', yass.STRING_DESC),
 ])
 yass.fieldDescs(contract.UnknownInstrumentsException, [
     yass.FieldDesc(1, 'instrumentIds', yass.LIST_DESC),

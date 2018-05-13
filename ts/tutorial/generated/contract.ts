@@ -72,9 +72,9 @@ export namespace instrument {
 }
 
 export class SystemException {
-    message: yass.Nullable<string>;
+    details: yass.Nullable<string>;
     static readonly TYPE_DESC = yass.classDesc(13, SystemException,
-        new yass.FieldDesc(1, 'message', yass.STRING_DESC)
+        new yass.FieldDesc(1, 'details', yass.STRING_DESC)
     );
 }
 
