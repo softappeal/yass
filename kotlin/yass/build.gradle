@@ -14,8 +14,10 @@ sourceSets {
 
 dependencies {
     compile "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
-    compileOnly "javax.websocket:javax.websocket-api:1.0"
+    compileOnly websocket_dep
     testCompile "org.jetbrains.kotlin:kotlin-test-junit"
+    testCompile jetty_dep
+    testCompile undertow_dep
 }
 
 compileKotlin {
@@ -31,3 +33,24 @@ compileTestKotlin {
 }
 
 task dist(dependsOn: 'sign')
+
+task packageSources(type: Jar) {
+    from sourceSets.main.allSource
+    classifier = 'sources'
+}
+
+dokka {
+    outputFormat = 'html'
+    reportUndocumented = false
+    outputDirectory = "$buildDir/dokka"
+}
+
+task packageDokka(type: Jar, dependsOn: 'dokka') {
+    from "$buildDir/dokka"
+    classifier = 'javadoc'
+}
+
+artifacts {
+    archives(packageSources)
+    archives(packageDokka)
+}

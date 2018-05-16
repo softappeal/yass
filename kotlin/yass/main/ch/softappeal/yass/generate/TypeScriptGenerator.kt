@@ -61,7 +61,7 @@ private fun nullable(type: String): String {
 
 /**
  * You must use the "-parameters" option for javac to get the real method parameter names.
- * [additionalTypeCode] see [pull request](https://github.com/softappeal/yass/pull/4)
+ * additionalTypeCode: see [pull request](https://github.com/softappeal/yass/pull/4)
  */
 class TypeScriptGenerator @JvmOverloads constructor(
     rootPackage: String, serializer: FastSerializer, initiator: Services, acceptor: Services,

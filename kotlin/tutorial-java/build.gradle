@@ -6,8 +6,8 @@ sourceSets {
 
 dependencies {
     compile project(":kotlin:yass")
-    compile 'org.eclipse.jetty.websocket:javax-websocket-server-impl:9.4.9.v20180320'
-    compile 'io.undertow:undertow-websockets-jsr:2.0.4.Final'
+    compile jetty_dep
+    compile undertow_dep
 }
 
 tasks.withType(JavaCompile) {

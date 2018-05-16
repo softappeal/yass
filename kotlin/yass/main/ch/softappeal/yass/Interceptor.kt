@@ -7,7 +7,7 @@ import java.lang.reflect.Proxy
 
 typealias Invocation = () -> Any?
 
-/** Should return [invocation()]. */
+/** Should return invocation(). */
 typealias Interceptor = (method: Method, arguments: List<Any?>, invocation: Invocation) -> Any?
 
 val DirectInterceptor: Interceptor = { _, _, invocation -> invocation() }

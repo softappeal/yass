@@ -1,37 +1,19 @@
-# yass (Yet Another Service Solution)
+package ch.softappeal.yass.tutorial
 
-* is a small library for efficient peer-to-peer communication
-  * Java
-  * TypeScript/JavaScript
-  * Python 2 & 3 (with support for type hints)
-  * high throughput, low latency, reactive services
+import ch.softappeal.yass.remote.Server
+import ch.softappeal.yass.remote.SimpleMethodMapperFactory
+import ch.softappeal.yass.remote.contractId
+import ch.softappeal.yass.remote.service
+import ch.softappeal.yass.serialize.JavaSerializer
+import ch.softappeal.yass.transport.ClientSetup
+import ch.softappeal.yass.transport.ServerSetup
+import ch.softappeal.yass.transport.socket.socketBinder
+import ch.softappeal.yass.transport.socket.socketClient
+import ch.softappeal.yass.transport.socket.socketConnector
+import ch.softappeal.yass.transport.socket.socketServer
+import java.net.InetSocketAddress
+import java.util.concurrent.Executors
 
-* supports type-safe contracts with DTOs and interfaces
-
-* supports request/reply and oneWay style method invocations
-
-* supports sync/async client/server invocations
-
-* supports interceptors
-
-* provides session based bidirectional messaging
-
-* provides transports for
-  * socket (including TLS)
-  * WebSocket
-
-* has a fast and compact binary serializer
-
-* needs no third-party libraries
-
-* uses https://semver.org
-
-* is Open Source (BSD-3-Clause license)
-  * Java artifacts on https://search.maven.org (GroupId: ch.softappeal.yass)
-
-## HelloWorld
-
-```kotlin
 interface Calculator {
     fun add(a: Int, b: Int): Int
 }
@@ -55,4 +37,3 @@ fun main(args: Array<String>) {
     val client = socketClient(ClientSetup(messageSerializer), socketConnector(address))
     useCalculator(client.proxy(calculatorId))
 }
-```

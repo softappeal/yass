@@ -1,9 +1,0 @@
-dependencies {
-    api project(":java:yass")
-    compileOnly websocket_dep
-    testCompile project(":java:yass").sourceSets.test.runtimeClasspath
-    testCompile jetty_dep
-    testCompile undertow_dep
-}
-
-task dist(dependsOn: 'sign')

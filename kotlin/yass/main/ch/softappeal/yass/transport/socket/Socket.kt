@@ -77,7 +77,7 @@ internal fun execute(executor: Executor, socket: Socket, socketExecutor: SocketE
     throw e
 }
 
-/** [acceptExecutor] is called once for each [accept] call. */
+/** acceptExecutor is called once for each accept call. */
 abstract class SocketListener internal constructor(private val acceptExecutor: Executor) {
     internal abstract fun accept(socket: Socket)
     /** Starts a socket listener that can be closed with the result. [listenerExecutor] is called once. */
