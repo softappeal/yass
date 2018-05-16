@@ -14,7 +14,7 @@ class EchoServiceImpl(EchoService):
     def echo(self, value):  # type: (Any) -> Any
         if value == u"exception":
             e = SystemException()
-            e.message = value
+            e.details = value
             raise e
         return value
 

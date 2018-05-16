@@ -134,7 +134,7 @@ if __name__ == "__main__":
     try:
         echoService.echo(u"exception")
     except SystemException as e:
-        print(e.message)
+        print(e.details)
     big = 1000000 * b' '
     if len(echoService.echo(big)) != len(big):
         raise RuntimeError()

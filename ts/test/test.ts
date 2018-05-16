@@ -289,7 +289,7 @@ const hostname = "localhost";
                     echo: (value: any) => {
                         if ("throwRuntimeException" === value) {
                             const e = new contract.SystemException();
-                            e.message = value;
+                            e.details = value;
                             throw e;
                         }
                         return value;

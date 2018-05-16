@@ -73,6 +73,6 @@ class Test(unittest.TestCase):
             echoService.echo("exception")
             self.fail()
         except SystemException as e:
-            self.assertEqual(e.message, "exception")
+            self.assertEqual(e.details, "exception")
         instrumentService.showOneWay(True, Integer(2))
         self.assertEqual(instrumentService.getInstruments(), [])
