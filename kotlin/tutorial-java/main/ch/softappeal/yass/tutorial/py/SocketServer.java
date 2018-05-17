@@ -20,14 +20,14 @@ import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
-import static ch.softappeal.yass.ThreadFactoryKt.getStdErr;
-import static ch.softappeal.yass.ThreadFactoryKt.namedThreadFactory;
-import static ch.softappeal.yass.remote.ServerKt.service;
-import static ch.softappeal.yass.transport.MessageSerializerKt.MessageSerializer;
-import static ch.softappeal.yass.transport.socket.SocketKt.socketBinder;
-import static ch.softappeal.yass.transport.socket.SocketTransportKt.socket;
-import static ch.softappeal.yass.transport.socket.SocketTransportKt.socketServer;
-import static ch.softappeal.yass.transport.socket.SslSetupKt.serverSocketFactory;
+import static ch.softappeal.yass.Kt.getStdErr;
+import static ch.softappeal.yass.Kt.namedThreadFactory;
+import static ch.softappeal.yass.remote.Kt.service;
+import static ch.softappeal.yass.transport.Kt.MessageSerializer;
+import static ch.softappeal.yass.transport.socket.Kt.socketBinder;
+import static ch.softappeal.yass.transport.socket.Kt.socket;
+import static ch.softappeal.yass.transport.socket.Kt.socketServer;
+import static ch.softappeal.yass.transport.socket.Kt.serverSocketFactory;
 import static ch.softappeal.yass.tutorial.contract.Config.PY_ACCEPTOR;
 
 public final class SocketServer {

@@ -1,6 +1,5 @@
 package ch.softappeal.yass.tutorial.contract;
 
-import ch.softappeal.yass.generate.PythonGenerator;
 import ch.softappeal.yass.remote.ContractId;
 import ch.softappeal.yass.remote.Services;
 import ch.softappeal.yass.serialize.Serializer;
@@ -13,24 +12,21 @@ import ch.softappeal.yass.tutorial.contract.generic.TripleWrapper;
 import ch.softappeal.yass.tutorial.contract.instrument.Bond;
 import ch.softappeal.yass.tutorial.contract.instrument.InstrumentService;
 import ch.softappeal.yass.tutorial.contract.instrument.stock.Stock;
-import ch.softappeal.yass.tutorial.contract.instrument.stock.python.PythonBond;
-import ch.softappeal.yass.tutorial.contract.instrument.stock.python.PythonStock;
 
 import java.util.Arrays;
 
-import static ch.softappeal.yass.generate.TypeScriptGeneratorKt.baseTypeHandlers;
-import static ch.softappeal.yass.remote.MethodMapperKt.getSimpleMethodMapperFactory;
-import static ch.softappeal.yass.serialize.fast.BaseTypeHandlersKt.getBTH_INTEGER;
-import static ch.softappeal.yass.serialize.fast.FastSerializersKt.SimpleFastSerializer;
-import static ch.softappeal.yass.transport.MessageSerializerKt.MessageSerializer;
-import static ch.softappeal.yass.transport.PacketSerializerKt.PacketSerializer;
+import static ch.softappeal.yass.remote.Kt.getSimpleMethodMapperFactory;
+import static ch.softappeal.yass.serialize.fast.Kt.getBTH_INTEGER;
+import static ch.softappeal.yass.serialize.fast.Kt.SimpleFastSerializer;
+import static ch.softappeal.yass.transport.Kt.MessageSerializer;
+import static ch.softappeal.yass.transport.Kt.PacketSerializer;
 
 public final class Config {
 
     public static final FastSerializer CONTRACT_SERIALIZER = SimpleFastSerializer(
-        baseTypeHandlers(           // note: order is important; id's must match with TypeScript implementations
-            getBTH_INTEGER(),       // TypeScriptGenerator.FIRST_DESC_ID
-            Expiration.TYPE_HANDLER // TypeScriptGenerator.FIRST_DESC_ID + 1
+        ch.softappeal.yass.generate.ts.Kt.baseTypeHandlers(
+            getBTH_INTEGER(),
+            Expiration.TYPE_HANDLER
         ),
         Arrays.asList(
             PriceKind.class,
@@ -71,9 +67,9 @@ public final class Config {
     public static final Acceptor ACCEPTOR = new Acceptor();
 
     public static final FastSerializer PY_CONTRACT_SERIALIZER = SimpleFastSerializer(
-        PythonGenerator.Companion.baseTypeHandlers( // note: order is important; id's must match with Python implementations
-            getBTH_INTEGER(),             // PythonGenerator.FIRST_DESC_ID
-            Expiration.TYPE_HANDLER       // PythonGenerator.FIRST_DESC_ID + 1
+        ch.softappeal.yass.generate.py.Kt.baseTypeHandlers(
+            getBTH_INTEGER(),
+            Expiration.TYPE_HANDLER
         ),
         Arrays.asList(
             PriceKind.class,
@@ -81,16 +77,14 @@ public final class Config {
             Stock.class,
             Bond.class,
             SystemException.class,
-            UnknownInstrumentsException.class,
-            PythonBond.class,
-            PythonStock.class
+            UnknownInstrumentsException.class
         ),
         Arrays.asList(
             Node.class
         )
     );
 
-    public static final class PyAcceptor extends Role { // to be implemented by acceptor
+    public static final class PyAcceptor extends Role {
         public final ContractId<PriceEngine> priceEngine = contractId(PriceEngine.class, 0);
         public final ContractId<InstrumentService> instrumentService = contractId(InstrumentService.class, 1);
         public final ContractId<EchoService> echoService = contractId(EchoService.class, 2);

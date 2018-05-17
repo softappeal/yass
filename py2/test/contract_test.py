@@ -7,7 +7,6 @@ from tutorial.generated import contract
 from tutorial.generated.contract import UnknownInstrumentsException, ApplicationException, PriceKind, Node, EchoService, Expiration
 from tutorial.generated.contract.instrument import Bond
 from tutorial.generated.contract.instrument.stock import Stock
-from tutorial.generated.contract.instrument.stock.python import PythonStock, PythonBond
 
 
 @yass.abstract
@@ -33,10 +32,6 @@ class Test(unittest.TestCase):
         self.assertEqual(unicode(e), u'2017-11-30')
 
     def testClasses(self):
-        pythonStock = PythonStock()
-        pythonStock.name = u"ABB"
-        pythonBond = PythonBond()
-        pythonBond.name = u"ABB"
         bond = Bond()
         bond.name = u"ABB"
         bond.coupon = 1.5
@@ -44,7 +39,7 @@ class Test(unittest.TestCase):
         stock.name = u"ABB"
         stock.paysDividend = True
         node1 = Node()
-        self.assertEqual(yass.typeDesc(node1).id, 17)
+        self.assertEqual(yass.typeDesc(node1).id, 15)
         node1.id = 1.
         node2 = Node()
         node2.id = 2.

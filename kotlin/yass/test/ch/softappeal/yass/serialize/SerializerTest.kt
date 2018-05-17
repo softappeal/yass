@@ -1,10 +1,10 @@
 package ch.softappeal.yass.serialize
 
-import ch.softappeal.yass.kotlindir.serialize.contract.Color
-import ch.softappeal.yass.kotlindir.serialize.contract.IntException
-import ch.softappeal.yass.kotlindir.serialize.contract.Node
-import ch.softappeal.yass.kotlindir.serialize.contract.PrimitiveTypes
-import ch.softappeal.yass.kotlindir.serialize.contract.nested.AllTypes
+import ch.softappeal.yass.serialize.contract.Color
+import ch.softappeal.yass.serialize.contract.IntException
+import ch.softappeal.yass.serialize.contract.Node
+import ch.softappeal.yass.serialize.contract.PrimitiveTypes
+import ch.softappeal.yass.serialize.contract.nested.AllTypes
 import ch.softappeal.yass.serialize.fast.BTH_BIGDECIMAL
 import ch.softappeal.yass.serialize.fast.BTH_BIGINTEGER
 import ch.softappeal.yass.serialize.fast.BTH_BOOLEAN

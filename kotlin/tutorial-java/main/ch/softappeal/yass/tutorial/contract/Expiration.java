@@ -4,7 +4,7 @@ import ch.softappeal.yass.serialize.Reader;
 import ch.softappeal.yass.serialize.Writer;
 import ch.softappeal.yass.serialize.fast.BaseTypeHandler;
 
-import static ch.softappeal.yass.serialize.fast.BaseTypeHandlersKt.getBTH_INTEGER;
+import static ch.softappeal.yass.serialize.fast.Kt.getBTH_INTEGER;
 
 /**
  * Shows how to use a contract internal base type.

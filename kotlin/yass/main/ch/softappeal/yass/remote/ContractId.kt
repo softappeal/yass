@@ -1,3 +1,6 @@
+@file:JvmName("Kt")
+@file:JvmMultifileClass
+
 package ch.softappeal.yass.remote
 
 class ContractId<C : Any> @PublishedApi internal constructor(val contract: Class<C>, val id: Int, val methodMapper: MethodMapper)

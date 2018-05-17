@@ -1,6 +1,4 @@
-package ch.softappeal.yass.javadir;
-
-import ch.softappeal.yass.Tag;
+package ch.softappeal.yass;
 
 @Tag(1)
 public class JavaTaggedClass {

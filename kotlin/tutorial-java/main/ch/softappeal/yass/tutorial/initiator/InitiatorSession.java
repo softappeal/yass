@@ -25,11 +25,11 @@ import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.stream.Collectors;
 
-import static ch.softappeal.yass.DumperKt.dump;
-import static ch.softappeal.yass.InterceptorKt.compositeInterceptor;
-import static ch.softappeal.yass.remote.ClientKt.promise;
-import static ch.softappeal.yass.remote.ServerKt.service;
-import static ch.softappeal.yass.remote.session.SessionWatcherKt.watchSession;
+import static ch.softappeal.yass.Kt.compositeInterceptor;
+import static ch.softappeal.yass.Kt.dump;
+import static ch.softappeal.yass.remote.Kt.promise;
+import static ch.softappeal.yass.remote.Kt.service;
+import static ch.softappeal.yass.remote.session.Kt.watchSession;
 import static ch.softappeal.yass.tutorial.contract.Config.ACCEPTOR;
 import static ch.softappeal.yass.tutorial.contract.Config.INITIATOR;
 

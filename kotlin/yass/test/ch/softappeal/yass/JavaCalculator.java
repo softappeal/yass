@@ -1,4 +1,4 @@
-package ch.softappeal.yass.javadir;
+package ch.softappeal.yass;
 
 public interface JavaCalculator {
     int one();

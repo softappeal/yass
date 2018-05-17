@@ -12,16 +12,16 @@ import java.net.SocketAddress;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import static ch.softappeal.yass.ThreadFactoryKt.getTerminate;
-import static ch.softappeal.yass.ThreadFactoryKt.namedThreadFactory;
-import static ch.softappeal.yass.remote.ContractIdKt.contractId;
-import static ch.softappeal.yass.remote.MethodMapperKt.getSimpleMethodMapperFactory;
-import static ch.softappeal.yass.remote.ServerKt.service;
-import static ch.softappeal.yass.serialize.SerializerKt.getJavaSerializer;
-import static ch.softappeal.yass.transport.socket.SocketKt.socketBinder;
-import static ch.softappeal.yass.transport.socket.SocketKt.socketConnector;
-import static ch.softappeal.yass.transport.socket.SocketTransportKt.socketClient;
-import static ch.softappeal.yass.transport.socket.SocketTransportKt.socketServer;
+import static ch.softappeal.yass.Kt.getTerminate;
+import static ch.softappeal.yass.Kt.namedThreadFactory;
+import static ch.softappeal.yass.remote.Kt.contractId;
+import static ch.softappeal.yass.remote.Kt.getSimpleMethodMapperFactory;
+import static ch.softappeal.yass.remote.Kt.service;
+import static ch.softappeal.yass.serialize.Kt.getJavaSerializer;
+import static ch.softappeal.yass.transport.socket.Kt.socketBinder;
+import static ch.softappeal.yass.transport.socket.Kt.socketConnector;
+import static ch.softappeal.yass.transport.socket.Kt.socketClient;
+import static ch.softappeal.yass.transport.socket.Kt.socketServer;
 
 public class HelloWorld {
 

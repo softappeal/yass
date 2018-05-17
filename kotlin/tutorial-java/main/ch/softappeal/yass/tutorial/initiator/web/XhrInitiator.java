@@ -17,8 +17,8 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.Objects;
 
-import static ch.softappeal.yass.serialize.ReaderKt.reader;
-import static ch.softappeal.yass.serialize.WriterKt.writer;
+import static ch.softappeal.yass.serialize.Kt.reader;
+import static ch.softappeal.yass.serialize.Kt.writer;
 import static ch.softappeal.yass.tutorial.contract.Config.ACCEPTOR;
 
 public final class XhrInitiator extends WebSetup {

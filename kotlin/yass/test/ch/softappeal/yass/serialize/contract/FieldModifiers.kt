@@ -1,4 +1,4 @@
-package ch.softappeal.yass.kotlindir.serialize.contract
+package ch.softappeal.yass.serialize.contract
 
 class FieldModifiers private constructor() {
     @Transient

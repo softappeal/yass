@@ -10,8 +10,8 @@ import javax.websocket.ClientEndpointConfig;
 import javax.websocket.WebSocketContainer;
 import java.net.URI;
 
-import static ch.softappeal.yass.ThreadFactoryKt.getStdErr;
-import static ch.softappeal.yass.transport.ws.WsTransportKt.getSyncWsConnectionFactory;
+import static ch.softappeal.yass.Kt.getStdErr;
+import static ch.softappeal.yass.transport.ws.Kt.getSyncWsConnectionFactory;
 
 public abstract class WebInitiatorSetup extends WebSetup {
 

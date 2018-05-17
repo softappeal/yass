@@ -1,3 +1,6 @@
+@file:JvmName("Kt")
+@file:JvmMultifileClass
+
 package ch.softappeal.yass.remote
 
 import ch.softappeal.yass.tag

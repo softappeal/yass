@@ -1,7 +1,6 @@
 package ch.softappeal.yass.remote
 
 import ch.softappeal.yass.Tag
-import ch.softappeal.yass.javadir.JavaOneWay
 import org.junit.Test
 import java.lang.reflect.Method
 import kotlin.test.assertEquals

@@ -1,4 +1,4 @@
-package ch.softappeal.yass.javadir;
+package ch.softappeal.yass;
 
 import kotlin.jvm.functions.Function0;
 import kotlin.jvm.functions.Function3;

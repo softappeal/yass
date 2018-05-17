@@ -16,8 +16,8 @@ import java.util.Arrays;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import static ch.softappeal.yass.serialize.ReaderKt.reader;
-import static ch.softappeal.yass.serialize.WriterKt.writer;
+import static ch.softappeal.yass.serialize.Kt.reader;
+import static ch.softappeal.yass.serialize.Kt.writer;
 import static ch.softappeal.yass.tutorial.contract.Config.ACCEPTOR;
 
 public class XhrServlet extends HttpServlet {
@@ -45,7 +45,7 @@ public class XhrServlet extends HttpServlet {
 
     private static final ServerTransport SETUP = new ServerTransport(
         new Server(
-            ch.softappeal.yass.remote.ServerKt.service(
+            ch.softappeal.yass.remote.Kt.service(
                 ACCEPTOR.echoService, EchoServiceImpl.INSTANCE, UnexpectedExceptionHandler.INSTANCE, new Logger(null, Logger.Side.SERVER)
             )
         ),

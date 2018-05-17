@@ -1,4 +1,4 @@
-package ch.softappeal.yass.javadir;
+package ch.softappeal.yass;
 
 import kotlin.jvm.functions.Function0;
 import kotlin.jvm.functions.Function3;
@@ -11,7 +11,7 @@ import java.util.List;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.fail;
 
-public class InterceptorTest {
+public class JInterceptorTest {
 
     private static final Method METHOD;
     static {

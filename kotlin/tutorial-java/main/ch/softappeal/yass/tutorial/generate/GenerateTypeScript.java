@@ -1,7 +1,7 @@
 package ch.softappeal.yass.tutorial.generate;
 
-import ch.softappeal.yass.generate.ExternalDesc;
-import ch.softappeal.yass.generate.TypeScriptGenerator;
+import ch.softappeal.yass.generate.ts.ExternalDesc;
+import ch.softappeal.yass.generate.ts.TypeScriptGenerator;
 import ch.softappeal.yass.tutorial.contract.Config;
 
 import java.util.HashMap;

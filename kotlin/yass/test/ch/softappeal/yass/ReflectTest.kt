@@ -1,8 +1,8 @@
 package ch.softappeal.yass
 
-import ch.softappeal.yass.javadir.serialize.contract.FieldModifiers
-import ch.softappeal.yass.javadir.serialize.contract.NoDefaultConstructor
-import ch.softappeal.yass.javadir.serialize.contract.nested.AllTypes
+import ch.softappeal.yass.serialize.contractj.FieldModifiers
+import ch.softappeal.yass.serialize.contractj.NoDefaultConstructor
+import ch.softappeal.yass.serialize.contractj.nested.AllTypes
 import org.junit.Test
 import java.lang.reflect.Field
 import java.util.Arrays

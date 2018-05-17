@@ -15,8 +15,8 @@ import java.nio.ByteBuffer;
 import java.nio.channels.DatagramChannel;
 import java.util.Objects;
 
-import static ch.softappeal.yass.serialize.ReaderKt.reader;
-import static ch.softappeal.yass.serialize.WriterKt.writer;
+import static ch.softappeal.yass.serialize.Kt.reader;
+import static ch.softappeal.yass.serialize.Kt.writer;
 
 public final class DatagramTransport {
 

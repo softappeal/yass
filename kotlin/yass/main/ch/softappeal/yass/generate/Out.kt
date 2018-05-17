@@ -24,27 +24,15 @@ abstract class Out protected constructor(file: String) {
     }
 
     protected fun print(s: CharSequence) {
-        if (buffer != null)
-            buffer!!.append(s)
-        else
-            printer.print(s)
-    }
-
-    protected fun printf(format: String, vararg args: Any) {
-        print(String.format(format, *args))
+        if (buffer != null) buffer!!.append(s) else printer.print(s)
     }
 
     protected fun println() {
-        printf("\n")
+        print("\n")
     }
 
     protected fun println2() {
         println()
-        println()
-    }
-
-    protected fun printfln(format: String, vararg args: Any) {
-        printf(format, *args)
         println()
     }
 
@@ -63,26 +51,16 @@ abstract class Out protected constructor(file: String) {
     }
 
     protected fun tab() {
-        printf("    ")
+        print("    ")
     }
 
     protected fun tabs() {
         for (t in 0 until tabs) tab()
     }
 
-    protected fun tabsf(format: String, vararg args: Any) {
-        tabs()
-        printf(format, *args)
-    }
-
     protected fun tabs(s: CharSequence) {
         tabs()
         print(s)
-    }
-
-    protected fun tabsfln(format: String, vararg args: Any) {
-        tabsf(format, *args)
-        println()
     }
 
     protected fun tabsln(s: CharSequence) {

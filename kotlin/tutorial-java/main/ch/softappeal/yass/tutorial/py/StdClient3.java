@@ -4,7 +4,7 @@ import ch.softappeal.yass.remote.Client;
 import ch.softappeal.yass.remote.ClientInvocation;
 import ch.softappeal.yass.remote.Reply;
 import ch.softappeal.yass.serialize.Reader;
-import ch.softappeal.yass.serialize.Serializer;
+import ch.softappeal.yass.serialize.Serializer;;
 import ch.softappeal.yass.serialize.Writer;
 
 import java.io.BufferedReader;
@@ -16,11 +16,11 @@ import java.nio.charset.StandardCharsets;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import static ch.softappeal.yass.ThreadFactoryKt.getTerminate;
-import static ch.softappeal.yass.ThreadFactoryKt.namedThreadFactory;
-import static ch.softappeal.yass.serialize.ReaderKt.reader;
-import static ch.softappeal.yass.serialize.WriterKt.writer;
-import static ch.softappeal.yass.transport.MessageSerializerKt.MessageSerializer;
+import static ch.softappeal.yass.Kt.getTerminate;
+import static ch.softappeal.yass.Kt.namedThreadFactory;
+import static ch.softappeal.yass.serialize.Kt.reader;
+import static ch.softappeal.yass.serialize.Kt.writer;
+import static ch.softappeal.yass.transport.Kt.MessageSerializer;
 
 public final class StdClient3 {
 

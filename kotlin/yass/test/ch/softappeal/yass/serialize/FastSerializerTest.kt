@@ -2,11 +2,11 @@ package ch.softappeal.yass.serialize
 
 import ch.softappeal.yass.Tag
 import ch.softappeal.yass.compareFile
-import ch.softappeal.yass.kotlindir.serialize.contract.C1
-import ch.softappeal.yass.kotlindir.serialize.contract.C2
-import ch.softappeal.yass.kotlindir.serialize.contract.Color
-import ch.softappeal.yass.kotlindir.serialize.contract.E1
-import ch.softappeal.yass.kotlindir.serialize.contract.E2
+import ch.softappeal.yass.serialize.contract.C1
+import ch.softappeal.yass.serialize.contract.C2
+import ch.softappeal.yass.serialize.contract.Color
+import ch.softappeal.yass.serialize.contract.E1
+import ch.softappeal.yass.serialize.contract.E2
 import ch.softappeal.yass.serialize.fast.BTH_INTEGER
 import ch.softappeal.yass.serialize.fast.BaseTypeHandler
 import ch.softappeal.yass.serialize.fast.FastSerializer
@@ -67,7 +67,7 @@ class FastSerializerTest {
         )
         fail()
     } catch (e: IllegalArgumentException) {
-        assertEquals("base type 'ch.softappeal.yass.kotlindir.serialize.contract.Color' is an enumeration", e.message)
+        assertEquals("base type 'ch.softappeal.yass.serialize.contract.Color' is an enumeration", e.message)
     }
 
     @Test
@@ -75,7 +75,7 @@ class FastSerializerTest {
         TaggedFastSerializer(listOf(), listOf(Color::class.java, Color::class.java))
         fail()
     } catch (e: IllegalArgumentException) {
-        assertEquals("type 'ch.softappeal.yass.kotlindir.serialize.contract.Color' already added", e.message)
+        assertEquals("type 'ch.softappeal.yass.serialize.contract.Color' already added", e.message)
     }
 
     @Test
@@ -107,7 +107,7 @@ class FastSerializerTest {
         SimpleFastSerializer(listOf(), listOf(), listOf(Color::class.java))
         fail()
     } catch (e: IllegalArgumentException) {
-        assertEquals("type 'ch.softappeal.yass.kotlindir.serialize.contract.Color' is an enumeration", e.message)
+        assertEquals("type 'ch.softappeal.yass.serialize.contract.Color' is an enumeration", e.message)
     }
 
     @Test
@@ -117,7 +117,7 @@ class FastSerializerTest {
             copy(serializer, Color.BLUE)
             fail()
         } catch (e: IllegalStateException) {
-            assertEquals("missing type 'ch.softappeal.yass.kotlindir.serialize.contract.Color'", e.message)
+            assertEquals("missing type 'ch.softappeal.yass.serialize.contract.Color'", e.message)
         }
 
     }
@@ -141,7 +141,7 @@ class FastSerializerTest {
         fail()
     } catch (e: IllegalStateException) {
         assertEquals(
-            "type id 120 used for 'ch.softappeal.yass.kotlindir.serialize.contract.C2' and 'ch.softappeal.yass.kotlindir.serialize.contract.C1'",
+            "type id 120 used for 'ch.softappeal.yass.serialize.contract.C2' and 'ch.softappeal.yass.serialize.contract.C1'",
             e.message
         )
     }

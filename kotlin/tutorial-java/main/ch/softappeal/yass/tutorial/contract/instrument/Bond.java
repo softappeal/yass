@@ -5,7 +5,7 @@ import ch.softappeal.yass.tutorial.contract.Instrument;
 
 import java.util.Objects;
 
-public class Bond extends Instrument {
+public final class Bond extends Instrument {
 
     public final double coupon;
     public final Expiration expiration;

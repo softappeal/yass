@@ -1,3 +1,6 @@
+@file:JvmName("Kt")
+@file:JvmMultifileClass
+
 package ch.softappeal.yass.transport.socket
 
 import ch.softappeal.yass.remote.session.Connection

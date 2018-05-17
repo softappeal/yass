@@ -1,6 +1,5 @@
 package ch.softappeal.yass
 
-import ch.softappeal.yass.javadir.JavaTaggedClass
 import org.junit.Test
 import kotlin.test.assertEquals
 import kotlin.test.fail
@@ -49,7 +48,7 @@ class TagTest {
             tag(JavaTaggedClass::class.java.getMethod("noTag"))
             fail()
         } catch (e: IllegalStateException) {
-            assertEquals("missing tag for 'public void ch.softappeal.yass.javadir.JavaTaggedClass.noTag()'", e.message)
+            assertEquals("missing tag for 'public void ch.softappeal.yass.JavaTaggedClass.noTag()'", e.message)
         }
     }
 

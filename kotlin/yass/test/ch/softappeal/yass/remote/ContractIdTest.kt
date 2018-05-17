@@ -1,6 +1,6 @@
 package ch.softappeal.yass.remote
 
-import ch.softappeal.yass.javadir.JavaCalculator
+import ch.softappeal.yass.JavaCalculator
 import org.junit.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertSame

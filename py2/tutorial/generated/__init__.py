@@ -3,7 +3,6 @@ from tutorial.base_types_external import Integer
 from . import contract
 from .contract.instrument import stock as contract_instrument_stock
 from .contract import instrument as contract_instrument
-from .contract.instrument.stock import python as contract_instrument_stock_python
 
 yass.enumDesc(9, contract.PriceKind)
 yass.classDesc(10, contract.Price, False)
@@ -11,9 +10,7 @@ yass.classDesc(11, contract_instrument_stock.Stock, False)
 yass.classDesc(12, contract_instrument.Bond, False)
 yass.classDesc(13, contract.SystemException, False)
 yass.classDesc(14, contract.UnknownInstrumentsException, False)
-yass.classDesc(15, contract_instrument_stock_python.PythonBond, False)
-yass.classDesc(16, contract_instrument_stock_python.PythonStock, False)
-yass.classDesc(17, contract.Node, True)
+yass.classDesc(15, contract.Node, True)
 
 yass.fieldDescs(contract.Price, [
     yass.FieldDesc(1, 'instrumentId', Integer.TYPE_DESC),
@@ -40,17 +37,6 @@ yass.fieldDescs(contract.UnknownInstrumentsException, [
     yass.FieldDesc(3, 'onlyNeededForTests2', yass.BYTES_DESC),
     yass.FieldDesc(4, 'onlyNeededForTests3', None),
 ])
-yass.fieldDescs(contract_instrument_stock_python.PythonBond, [
-    yass.FieldDesc(1, 'coupon', yass.DOUBLE_DESC),
-    yass.FieldDesc(2, 'expiration', contract.Expiration),
-    yass.FieldDesc(3, 'id', Integer.TYPE_DESC),
-    yass.FieldDesc(4, 'name', yass.STRING_DESC),
-])
-yass.fieldDescs(contract_instrument_stock_python.PythonStock, [
-    yass.FieldDesc(1, 'paysDividend', yass.BOOLEAN_DESC),
-    yass.FieldDesc(2, 'id', Integer.TYPE_DESC),
-    yass.FieldDesc(3, 'name', yass.STRING_DESC),
-])
 yass.fieldDescs(contract.Node, [
     yass.FieldDesc(1, 'id', yass.DOUBLE_DESC),
     yass.FieldDesc(2, 'links', yass.LIST_DESC),
@@ -66,8 +52,6 @@ SERIALIZER = yass.FastSerializer([
     contract_instrument.Bond,
     contract.SystemException,
     contract.UnknownInstrumentsException,
-    contract_instrument_stock_python.PythonBond,
-    contract_instrument_stock_python.PythonStock,
     contract.Node,
 ])
 

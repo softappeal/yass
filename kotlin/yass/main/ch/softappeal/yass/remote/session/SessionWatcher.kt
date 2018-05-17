@@ -1,3 +1,6 @@
+@file:JvmName("Kt")
+@file:JvmMultifileClass
+
 package ch.softappeal.yass.remote.session
 
 import java.util.concurrent.CountDownLatch

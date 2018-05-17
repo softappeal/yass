@@ -5,7 +5,7 @@ import ch.softappeal.yass.tutorial.contract.Instrument;
 /**
  * Shows deep nesting.
  */
-public class Stock extends Instrument {
+public final class Stock extends Instrument {
 
     public final Boolean paysDividend;
 

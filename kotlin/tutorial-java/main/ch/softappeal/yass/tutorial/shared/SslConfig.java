@@ -4,8 +4,8 @@ import ch.softappeal.yass.transport.socket.SslSetup;
 
 import java.security.KeyStore;
 
-import static ch.softappeal.yass.InputStreamFactoryKt.inputStreamFactory;
-import static ch.softappeal.yass.transport.socket.SslSetupKt.readKeyStore;
+import static ch.softappeal.yass.Kt.inputStreamFactory;
+import static ch.softappeal.yass.transport.socket.Kt.readKeyStore;
 
 public final class SslConfig {
 

@@ -1,8 +1,8 @@
-package ch.softappeal.yass.kotlindir.serialize.contract.nested
+package ch.softappeal.yass.serialize.contract.nested
 
 import ch.softappeal.yass.Tag
-import ch.softappeal.yass.kotlindir.serialize.contract.Color
-import ch.softappeal.yass.kotlindir.serialize.contract.PrimitiveTypes
+import ch.softappeal.yass.serialize.contract.Color
+import ch.softappeal.yass.serialize.contract.PrimitiveTypes
 
 import java.math.BigDecimal
 import java.math.BigInteger

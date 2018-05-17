@@ -1,4 +1,4 @@
-package ch.softappeal.yass.javadir.serialize.contract;
+package ch.softappeal.yass.serialize.contractj;
 
 public class FieldModifiers {
 

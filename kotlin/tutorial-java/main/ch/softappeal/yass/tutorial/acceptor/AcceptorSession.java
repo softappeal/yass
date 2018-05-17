@@ -26,10 +26,10 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static ch.softappeal.yass.InterceptorKt.compositeInterceptor;
-import static ch.softappeal.yass.remote.ServerKt.asyncService;
-import static ch.softappeal.yass.remote.ServerKt.service;
-import static ch.softappeal.yass.remote.session.SessionWatcherKt.watchSession;
+import static ch.softappeal.yass.Kt.compositeInterceptor;
+import static ch.softappeal.yass.remote.Kt.asyncService;
+import static ch.softappeal.yass.remote.Kt.service;
+import static ch.softappeal.yass.remote.session.Kt.watchSession;
 import static ch.softappeal.yass.tutorial.contract.Config.ACCEPTOR;
 import static ch.softappeal.yass.tutorial.contract.Config.INITIATOR;
 

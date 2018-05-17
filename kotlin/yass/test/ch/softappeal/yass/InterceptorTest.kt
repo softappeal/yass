@@ -1,6 +1,5 @@
 package ch.softappeal.yass
 
-import ch.softappeal.yass.javadir.JavaCalculator
 import org.junit.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNull

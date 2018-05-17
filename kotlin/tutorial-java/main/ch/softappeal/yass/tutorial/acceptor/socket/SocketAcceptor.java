@@ -8,11 +8,11 @@ import ch.softappeal.yass.tutorial.shared.socket.SocketSetup;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
-import static ch.softappeal.yass.ThreadFactoryKt.getStdErr;
-import static ch.softappeal.yass.ThreadFactoryKt.namedThreadFactory;
-import static ch.softappeal.yass.transport.socket.SessionSocketTransportKt.AsyncSocketConnectionFactory;
-import static ch.softappeal.yass.transport.socket.SessionSocketTransportKt.SocketAcceptor;
-import static ch.softappeal.yass.transport.socket.SocketKt.socketBinder;
+import static ch.softappeal.yass.Kt.getStdErr;
+import static ch.softappeal.yass.Kt.namedThreadFactory;
+import static ch.softappeal.yass.transport.socket.Kt.AsyncSocketConnectionFactory;
+import static ch.softappeal.yass.transport.socket.Kt.SocketAcceptor;
+import static ch.softappeal.yass.transport.socket.Kt.socketBinder;
 
 public final class SocketAcceptor {
 

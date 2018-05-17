@@ -22,10 +22,10 @@ import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.List;
 
-import static ch.softappeal.yass.transport.MessageSerializerKt.MessageSerializer;
-import static ch.softappeal.yass.transport.socket.SocketKt.socketConnector;
-import static ch.softappeal.yass.transport.socket.SocketTransportKt.socketClient;
-import static ch.softappeal.yass.transport.socket.SslSetupKt.socketFactory;
+import static ch.softappeal.yass.transport.Kt.MessageSerializer;
+import static ch.softappeal.yass.transport.socket.Kt.socketConnector;
+import static ch.softappeal.yass.transport.socket.Kt.socketClient;
+import static ch.softappeal.yass.transport.socket.Kt.socketFactory;
 import static ch.softappeal.yass.tutorial.contract.Config.PY_ACCEPTOR;
 
 public final class SocketClient {
