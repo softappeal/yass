@@ -826,10 +826,18 @@ export class SourceSerializer implements Serializer {
     }
 }
 
-function connectRaw(url: string, packetSerializer: Serializer, sessionFactory: SessionFactory): void {
+const noop = () => {};
+
+function connectRaw(
+    url: string,
+    packetSerializer: Serializer,
+    sessionFactory: SessionFactory,
+    onWebSocketError: () => void = noop
+): void {
     const ws = new WebSocket(url);
     ws.binaryType = "arraybuffer";
     ws.onerror = () => {
+        onWebSocketError();
         throw new Error("WebSocket.onerror");
     };
     ws.onclose = () => {
@@ -867,12 +875,32 @@ export function packetSerializer(contractSerializer: Serializer): Serializer {
     return new PacketSerializer(new MessageSerializer(contractSerializer));
 }
 
-export function connect(url: string, contractSerializer: Serializer, sessionFactory: SessionFactory): void {
-    connectRaw(url, packetSerializer(contractSerializer), sessionFactory);
+export function connect(
+    url: string,
+    contractSerializer: Serializer,
+    sessionFactory: SessionFactory,
+    onWebSocketError: () => void = noop
+): void {
+    connectRaw(
+        url,
+        packetSerializer(contractSerializer),
+        sessionFactory,
+        onWebSocketError
+    );
 }
 
-export function connectSource(url: string, contractSerializer: Serializer, sessionFactory: SessionFactory): void {
-    connectRaw(url, new SourceSerializer(packetSerializer(contractSerializer)), sessionFactory);
+export function connectSource(
+    url: string,
+    contractSerializer: Serializer,
+    sessionFactory: SessionFactory,
+    onWebSocketError: () => void = noop
+): void {
+    connectRaw(
+        url,
+        new SourceSerializer(packetSerializer(contractSerializer)),
+        sessionFactory,
+        onWebSocketError
+    );
 }
 
 export class TimeoutException {
