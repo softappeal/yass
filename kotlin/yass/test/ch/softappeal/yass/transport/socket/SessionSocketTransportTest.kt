@@ -1,6 +1,5 @@
 package ch.softappeal.yass.transport.socket
 
-import ch.softappeal.yass.StdErr
 import ch.softappeal.yass.remote.CalculatorImpl
 import ch.softappeal.yass.remote.Server
 import ch.softappeal.yass.remote.Service
@@ -39,7 +38,7 @@ class SessionSocketTransportTest {
     }
 
     @Test
-    fun performance() = useExecutor(StdErr) { executor, done ->
+    fun performance() = useExecutor { executor, done ->
         SocketAcceptor(
             AcceptorSetup(packetSerializer) {
                 object : SimpleSession(executor) {
