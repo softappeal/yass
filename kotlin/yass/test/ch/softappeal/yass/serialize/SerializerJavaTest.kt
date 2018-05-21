@@ -5,30 +5,30 @@ import ch.softappeal.yass.serialize.contractj.IntException
 import ch.softappeal.yass.serialize.contractj.Node
 import ch.softappeal.yass.serialize.contractj.PrimitiveTypes
 import ch.softappeal.yass.serialize.contractj.nested.AllTypes
-import ch.softappeal.yass.serialize.fast.BTH_BIGDECIMAL
-import ch.softappeal.yass.serialize.fast.BTH_BIGINTEGER
-import ch.softappeal.yass.serialize.fast.BTH_BOOLEAN
-import ch.softappeal.yass.serialize.fast.BTH_BOOLEAN_ARRAY
-import ch.softappeal.yass.serialize.fast.BTH_BYTE
-import ch.softappeal.yass.serialize.fast.BTH_BYTE_ARRAY
-import ch.softappeal.yass.serialize.fast.BTH_CHARACTER
-import ch.softappeal.yass.serialize.fast.BTH_CHARACTER_ARRAY
-import ch.softappeal.yass.serialize.fast.BTH_DATE
-import ch.softappeal.yass.serialize.fast.BTH_DOUBLE
-import ch.softappeal.yass.serialize.fast.BTH_DOUBLE_ARRAY
-import ch.softappeal.yass.serialize.fast.BTH_FLOAT
-import ch.softappeal.yass.serialize.fast.BTH_FLOAT_ARRAY
-import ch.softappeal.yass.serialize.fast.BTH_INSTANT
-import ch.softappeal.yass.serialize.fast.BTH_INTEGER
-import ch.softappeal.yass.serialize.fast.BTH_INTEGER_ARRAY
-import ch.softappeal.yass.serialize.fast.BTH_LONG
-import ch.softappeal.yass.serialize.fast.BTH_LONG_ARRAY
-import ch.softappeal.yass.serialize.fast.BTH_SHORT
-import ch.softappeal.yass.serialize.fast.BTH_SHORT_ARRAY
-import ch.softappeal.yass.serialize.fast.BTH_STRING
-import ch.softappeal.yass.serialize.fast.SimpleFastSerializer
-import ch.softappeal.yass.serialize.fast.TaggedFastSerializer
+import ch.softappeal.yass.serialize.fast.BigDecimalSerializer
+import ch.softappeal.yass.serialize.fast.BigIntegerSerializer
+import ch.softappeal.yass.serialize.fast.BooleanArraySerializer
+import ch.softappeal.yass.serialize.fast.BooleanSerializer
+import ch.softappeal.yass.serialize.fast.ByteArraySerializer
+import ch.softappeal.yass.serialize.fast.ByteSerializer
+import ch.softappeal.yass.serialize.fast.CharArraySerializer
+import ch.softappeal.yass.serialize.fast.CharSerializer
+import ch.softappeal.yass.serialize.fast.DateSerializer
+import ch.softappeal.yass.serialize.fast.DoubleArraySerializer
+import ch.softappeal.yass.serialize.fast.DoubleSerializer
+import ch.softappeal.yass.serialize.fast.FloatArraySerializer
+import ch.softappeal.yass.serialize.fast.FloatSerializer
+import ch.softappeal.yass.serialize.fast.InstantSerializer
+import ch.softappeal.yass.serialize.fast.IntArraySerializer
+import ch.softappeal.yass.serialize.fast.IntSerializer
+import ch.softappeal.yass.serialize.fast.LongArraySerializer
+import ch.softappeal.yass.serialize.fast.LongSerializer
+import ch.softappeal.yass.serialize.fast.ShortArraySerializer
+import ch.softappeal.yass.serialize.fast.ShortSerializer
+import ch.softappeal.yass.serialize.fast.StringSerializer
 import ch.softappeal.yass.serialize.fast.TypeDesc
+import ch.softappeal.yass.serialize.fast.simpleFastSerializer
+import ch.softappeal.yass.serialize.fast.taggedFastSerializer
 import org.junit.Assert.assertArrayEquals
 import org.junit.Test
 import java.math.BigDecimal
@@ -258,57 +258,57 @@ private fun test(serializer: Serializer) {
     checkGraph(copy(serializer, javaCreateGraph()))
 }
 
-val JAVA_TAGGED_FAST_SERIALIZER = TaggedFastSerializer(
+val JAVA_TAGGED_FAST_SERIALIZER = taggedFastSerializer(
     listOf(
-        TypeDesc(3, BTH_BOOLEAN),
-        TypeDesc(4, BTH_BYTE),
-        TypeDesc(5, BTH_SHORT),
-        TypeDesc(6, BTH_INTEGER),
-        TypeDesc(7, BTH_LONG),
-        TypeDesc(8, BTH_CHARACTER),
-        TypeDesc(9, BTH_FLOAT),
-        TypeDesc(10, BTH_DOUBLE),
-        TypeDesc(11, BTH_BOOLEAN_ARRAY),
-        TypeDesc(12, BTH_BYTE_ARRAY),
-        TypeDesc(13, BTH_SHORT_ARRAY),
-        TypeDesc(14, BTH_INTEGER_ARRAY),
-        TypeDesc(15, BTH_LONG_ARRAY),
-        TypeDesc(16, BTH_CHARACTER_ARRAY),
-        TypeDesc(17, BTH_FLOAT_ARRAY),
-        TypeDesc(18, BTH_DOUBLE_ARRAY),
-        TypeDesc(19, BTH_STRING),
-        TypeDesc(20, BTH_BIGINTEGER),
-        TypeDesc(21, BTH_BIGDECIMAL),
-        TypeDesc(22, BTH_DATE),
-        TypeDesc(23, BTH_INSTANT)
+        TypeDesc(3, BooleanSerializer),
+        TypeDesc(4, ByteSerializer),
+        TypeDesc(5, ShortSerializer),
+        TypeDesc(6, IntSerializer),
+        TypeDesc(7, LongSerializer),
+        TypeDesc(8, CharSerializer),
+        TypeDesc(9, FloatSerializer),
+        TypeDesc(10, DoubleSerializer),
+        TypeDesc(11, BooleanArraySerializer),
+        TypeDesc(12, ByteArraySerializer),
+        TypeDesc(13, ShortArraySerializer),
+        TypeDesc(14, IntArraySerializer),
+        TypeDesc(15, LongArraySerializer),
+        TypeDesc(16, CharArraySerializer),
+        TypeDesc(17, FloatArraySerializer),
+        TypeDesc(18, DoubleArraySerializer),
+        TypeDesc(19, StringSerializer),
+        TypeDesc(20, BigIntegerSerializer),
+        TypeDesc(21, BigDecimalSerializer),
+        TypeDesc(22, DateSerializer),
+        TypeDesc(23, InstantSerializer)
     ),
     listOf(Color::class.java, PrimitiveTypes::class.java, AllTypes::class.java, IntException::class.java),
     listOf(Node::class.java)
 )
 
-val JAVA_SIMPLE_FAST_SERIALIZER = SimpleFastSerializer(
+val JAVA_SIMPLE_FAST_SERIALIZER = simpleFastSerializer(
     listOf(
-        BTH_BOOLEAN,
-        BTH_BYTE,
-        BTH_SHORT,
-        BTH_INTEGER,
-        BTH_LONG,
-        BTH_CHARACTER,
-        BTH_FLOAT,
-        BTH_DOUBLE,
-        BTH_BOOLEAN_ARRAY,
-        BTH_BYTE_ARRAY,
-        BTH_SHORT_ARRAY,
-        BTH_INTEGER_ARRAY,
-        BTH_LONG_ARRAY,
-        BTH_CHARACTER_ARRAY,
-        BTH_FLOAT_ARRAY,
-        BTH_DOUBLE_ARRAY,
-        BTH_STRING,
-        BTH_BIGINTEGER,
-        BTH_BIGDECIMAL,
-        BTH_DATE,
-        BTH_INSTANT
+        BooleanSerializer,
+        ByteSerializer,
+        ShortSerializer,
+        IntSerializer,
+        LongSerializer,
+        CharSerializer,
+        FloatSerializer,
+        DoubleSerializer,
+        BooleanArraySerializer,
+        ByteArraySerializer,
+        ShortArraySerializer,
+        IntArraySerializer,
+        LongArraySerializer,
+        CharArraySerializer,
+        FloatArraySerializer,
+        DoubleArraySerializer,
+        StringSerializer,
+        BigIntegerSerializer,
+        BigDecimalSerializer,
+        DateSerializer,
+        InstantSerializer
     ),
     listOf(Color::class.java, PrimitiveTypes::class.java, AllTypes::class.java, IntException::class.java),
     listOf(Node::class.java)

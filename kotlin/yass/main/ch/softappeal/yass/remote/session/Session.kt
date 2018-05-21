@@ -42,7 +42,7 @@ abstract class Session : Client(), AutoCloseable {
     fun isClosed() = closed.get()
     /** note: it's not worth to use [ConcurrentHashMap] here */
     private val requestNumber2invocation = Collections.synchronizedMap(HashMap<Int, ClientInvocation>(16))
-    private val nextRequestNumber = AtomicInteger(END_REQUEST_NUMBER)
+    private val nextRequestNumber = AtomicInteger(EndRequestNumber)
     /** Called if a session has been opened. Must call [Runnable.run] (possibly in an own thread). */
     protected abstract fun dispatchOpened(runnable: Runnable)
 
@@ -79,7 +79,7 @@ abstract class Session : Client(), AutoCloseable {
             } finally {
                 if (opened) closed(exception)
             }
-            if (sendEnd) connection.write(END_PACKET)
+            if (sendEnd) connection.write(EndPacket)
         } finally {
             connection.closed()
         }
@@ -136,7 +136,7 @@ abstract class Session : Client(), AutoCloseable {
                 var requestNumber: Int
                 do { // we can't use END_REQUEST_NUMBER as regular requestNumber
                     requestNumber = nextRequestNumber.incrementAndGet()
-                } while (requestNumber == END_REQUEST_NUMBER)
+                } while (requestNumber == EndRequestNumber)
                 if (!invocation.methodMapping.oneWay) {
                     requestNumber2invocation[requestNumber] = invocation
                     if (isClosed()) settlePendingInvocations() // needed due to race conditions

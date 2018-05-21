@@ -10,14 +10,14 @@ class ContractIdTest {
 
     @Test
     fun contractId() {
-        val contractId = ContractId<Calculator>(123, SimpleMethodMapperFactory)
+        val contractId = contractId<Calculator>(123, SimpleMethodMapperFactory)
         assertEquals(123, contractId.id)
         assertSame(Calculator::class.java, contractId.contract)
     }
 
     @Test
     fun javaContractId() {
-        val contractId = ContractId<JavaCalculator>(123, SimpleMethodMapperFactory)
+        val contractId = contractId<JavaCalculator>(123, SimpleMethodMapperFactory)
         assertEquals(123, contractId.id)
         assertSame(JavaCalculator::class.java, contractId.contract)
     }

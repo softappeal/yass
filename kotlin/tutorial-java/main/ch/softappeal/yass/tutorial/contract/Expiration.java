@@ -2,9 +2,9 @@ package ch.softappeal.yass.tutorial.contract;
 
 import ch.softappeal.yass.serialize.Reader;
 import ch.softappeal.yass.serialize.Writer;
-import ch.softappeal.yass.serialize.fast.BaseTypeHandler;
+import ch.softappeal.yass.serialize.fast.BaseTypeSerializer;
 
-import static ch.softappeal.yass.serialize.fast.Kt.getBTH_INTEGER;
+import static ch.softappeal.yass.serialize.fast.Kt.getIntSerializer;
 
 /**
  * Shows how to use a contract internal base type.
@@ -21,18 +21,18 @@ public final class Expiration {
         this.day = day;
     }
 
-    public static final BaseTypeHandler<?> TYPE_HANDLER = new BaseTypeHandler<Expiration>(Expiration.class) {
+    public static final BaseTypeSerializer<?> TYPE_SERIALIZER = new BaseTypeSerializer<Expiration>(Expiration.class) {
         @Override public Expiration read(final Reader reader) {
             return new Expiration(
-                getBTH_INTEGER().read(reader),
-                getBTH_INTEGER().read(reader),
-                getBTH_INTEGER().read(reader)
+                getIntSerializer().read(reader),
+                getIntSerializer().read(reader),
+                getIntSerializer().read(reader)
             );
         }
         @Override public void write(final Writer writer, final Expiration value) {
-            getBTH_INTEGER().write(writer, value.year);
-            getBTH_INTEGER().write(writer, value.month);
-            getBTH_INTEGER().write(writer, value.day);
+            getIntSerializer().write(writer, value.year);
+            getIntSerializer().write(writer, value.month);
+            getIntSerializer().write(writer, value.day);
         }
     };
 

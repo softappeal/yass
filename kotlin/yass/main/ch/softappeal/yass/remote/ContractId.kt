@@ -8,7 +8,7 @@ class ContractId<C : Any> @PublishedApi internal constructor(val contract: Class
 fun <C : Any> contractId(contract: Class<C>, id: Int, methodMapperFactory: MethodMapperFactory) =
     ContractId(contract, id, methodMapperFactory(contract))
 
-inline fun <reified C : Any> ContractId(id: Int, methodMapperFactory: MethodMapperFactory) =
+inline fun <reified C : Any> contractId(id: Int, methodMapperFactory: MethodMapperFactory) =
     ContractId(C::class.java, id, methodMapperFactory(C::class.java))
 
 abstract class Services protected constructor(val methodMapperFactory: MethodMapperFactory) {
@@ -22,7 +22,7 @@ abstract class Services protected constructor(val methodMapperFactory: MethodMap
 
     protected inline fun <reified C : Any> contractId(id: Int): ContractId<C> {
         require(identifiers.add(id)) { "service with id $id already added" }
-        return ContractId(id, methodMapperFactory)
+        return contractId(id, methodMapperFactory)
     }
 }
 

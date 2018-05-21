@@ -22,7 +22,7 @@ import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.List;
 
-import static ch.softappeal.yass.transport.Kt.MessageSerializer;
+import static ch.softappeal.yass.transport.Kt.messageSerializer;
 import static ch.softappeal.yass.transport.socket.Kt.socketConnector;
 import static ch.softappeal.yass.transport.socket.Kt.socketClient;
 import static ch.softappeal.yass.transport.socket.Kt.socketFactory;
@@ -77,7 +77,7 @@ public final class SocketClient {
 
     public static void main(final String... args) {
         client(socketClient(
-            new ClientSetup(MessageSerializer(SERIALIZER)),
+            new ClientSetup(messageSerializer(SERIALIZER)),
             socketConnector(SocketSetup.ADDRESS, socketFactory(SslConfig.CLIENT))
         ));
     }

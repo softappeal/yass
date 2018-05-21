@@ -20,7 +20,7 @@ import static ch.softappeal.yass.Kt.getTerminate;
 import static ch.softappeal.yass.Kt.namedThreadFactory;
 import static ch.softappeal.yass.serialize.Kt.reader;
 import static ch.softappeal.yass.serialize.Kt.writer;
-import static ch.softappeal.yass.transport.Kt.MessageSerializer;
+import static ch.softappeal.yass.transport.Kt.messageSerializer;
 
 public final class StdClient3 {
 
@@ -44,7 +44,7 @@ public final class StdClient3 {
         final OutputStream out = process.getOutputStream();
         final Writer writer = writer(out);
         final Reader reader = reader(process.getInputStream());
-        final Serializer messageSerializer = MessageSerializer(SocketClient.SERIALIZER);
+        final Serializer messageSerializer = messageSerializer(SocketClient.SERIALIZER);
         SocketClient.client(new Client() {
             @Override protected void invoke(final ClientInvocation invocation) throws Exception {
                 invocation.invoke(false, request -> {

@@ -23,7 +23,7 @@ import java.util.concurrent.Executors;
 import static ch.softappeal.yass.Kt.getStdErr;
 import static ch.softappeal.yass.Kt.namedThreadFactory;
 import static ch.softappeal.yass.remote.Kt.service;
-import static ch.softappeal.yass.transport.Kt.MessageSerializer;
+import static ch.softappeal.yass.transport.Kt.messageSerializer;
 import static ch.softappeal.yass.transport.socket.Kt.socketBinder;
 import static ch.softappeal.yass.transport.socket.Kt.socket;
 import static ch.softappeal.yass.transport.socket.Kt.socketServer;
@@ -69,7 +69,7 @@ public final class SocketServer {
                     service(PY_ACCEPTOR.echoService, new EchoServiceImpl()),
                     service(PY_ACCEPTOR.instrumentService, new InstrumentServiceImpl(), PEER, LOGGER)
                 ),
-                MessageSerializer(SocketClient.SERIALIZER)
+                messageSerializer(SocketClient.SERIALIZER)
             ),
             executor
         ).start(

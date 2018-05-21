@@ -6,11 +6,11 @@ package ch.softappeal.yass.remote.session
 import ch.softappeal.yass.remote.Message
 import java.io.Serializable
 
-const val END_REQUEST_NUMBER = 0
+const val EndRequestNumber = 0
 
-fun isEndPacket(requestNumber: Int) = requestNumber == END_REQUEST_NUMBER
+fun isEndPacket(requestNumber: Int) = requestNumber == EndRequestNumber
 
-val END_PACKET = Packet()
+val EndPacket = Packet()
 
 class Packet : Serializable {
     private val requestNumber: Int
@@ -24,7 +24,7 @@ class Packet : Serializable {
     }
 
     internal constructor() {
-        requestNumber = END_REQUEST_NUMBER
+        requestNumber = EndRequestNumber
         message = null
     }
 

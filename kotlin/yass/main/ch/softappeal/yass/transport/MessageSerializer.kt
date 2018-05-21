@@ -15,7 +15,7 @@ private const val REQUEST = 0.toByte()
 private const val VALUE_REPLY = 1.toByte()
 private const val EXCEPTION_REPLY = 2.toByte()
 
-fun MessageSerializer(contractSerializer: Serializer) = object : Serializer {
+fun messageSerializer(contractSerializer: Serializer) = object : Serializer {
     override fun read(reader: Reader): Message {
         val type = reader.readByte()
         return when (type) {

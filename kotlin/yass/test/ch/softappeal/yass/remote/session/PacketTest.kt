@@ -11,16 +11,16 @@ class PacketTest {
 
     @Test
     fun end() {
-        assertTrue(END_PACKET.isEnd())
-        assertTrue(isEndPacket(END_REQUEST_NUMBER))
+        assertTrue(EndPacket.isEnd())
+        assertTrue(isEndPacket(EndRequestNumber))
         assertFalse(isEndPacket(1))
         try {
-            END_PACKET.message()
+            EndPacket.message()
             fail()
         } catch (ignore: KotlinNullPointerException) {
         }
         try {
-            END_PACKET.requestNumber()
+            EndPacket.requestNumber()
             fail()
         } catch (ignore: IllegalStateException) {
         }
@@ -34,7 +34,7 @@ class PacketTest {
         assertSame(message, packet.message())
         assertFalse(packet.isEnd())
         try {
-            Packet(END_REQUEST_NUMBER, message)
+            Packet(EndRequestNumber, message)
             fail()
         } catch (ignore: IllegalArgumentException) {
         }

@@ -11,11 +11,11 @@ import java.lang.reflect.Field
 
 /** This serializer assigns type and field id's automatically. Therefore, all peers must have the same version of the contract! */
 @JvmOverloads
-fun SimpleFastSerializer(
-    baseTypeHandlers: List<BaseTypeHandler<*>>, treeConcreteClasses: List<Class<*>>, graphConcreteClasses: List<Class<*>> = emptyList()
+fun simpleFastSerializer(
+    baseTypeHandlers: List<BaseTypeSerializer<*>>, treeConcreteClasses: List<Class<*>>, graphConcreteClasses: List<Class<*>> = emptyList()
 ) = object : FastSerializer() {
     init {
-        var id = FIRST_TYPE_ID
+        var id = FirstTypeId
         for (typeHandler in baseTypeHandlers) addBaseType(TypeDesc(id++, typeHandler))
         for (type in treeConcreteClasses) if (type.isEnum) addEnum(id++, type) else addClass(id++, type, false)
         for (type in graphConcreteClasses) {
@@ -27,7 +27,7 @@ fun SimpleFastSerializer(
 
     fun addClass(typeId: Int, type: Class<*>, graph: Boolean) {
         val id2field = mutableMapOf<Int, Field>()
-        var fieldId = FIRST_FIELD_ID
+        var fieldId = FirstFieldId
         for (field in allFields(type)) id2field[fieldId++] = field
         addClass(typeId, type, graph, id2field)
     }
@@ -35,7 +35,7 @@ fun SimpleFastSerializer(
 
 /** This serializer assigns type and field id's from its [Tag]. */
 @JvmOverloads
-fun TaggedFastSerializer(
+fun taggedFastSerializer(
     baseTypeDescs: Collection<TypeDesc>, treeConcreteClasses: Collection<Class<*>>, graphConcreteClasses: Collection<Class<*>> = emptyList()
 ) = object : FastSerializer() {
     init {
@@ -60,13 +60,13 @@ fun TaggedFastSerializer(
 }
 
 fun FastSerializer.print(printer: PrintWriter) = id2typeHandler().forEach { id, typeHandler ->
-    if (id < FIRST_TYPE_ID) return@forEach
+    if (id < FirstTypeId) return@forEach
     val type = typeHandler.type
     printer.print("$id: ${type.canonicalName}")
-    if (typeHandler is BaseTypeHandler<*>) {
+    if (typeHandler is BaseTypeSerializer<*>) {
         printer.println()
         if (type.isEnum) for ((i, c) in type.enumConstants.withIndex()) printer.println("    $i: $c")
-    } else if (typeHandler is ClassTypeHandler) {
+    } else if (typeHandler is ClassTypeSerializer) {
         printer.println(" (graph=${typeHandler.graph})")
         for (fd in typeHandler.fieldDescs) printer.println("    ${fd.id}: ${fd.handler.field.toGenericString()}")
     }

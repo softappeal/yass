@@ -46,7 +46,7 @@ private fun connectionHandler(connection: Connection) {
 private fun serverEndpointConfig(executor: Executor): ServerEndpointConfig = ServerEndpointConfig.Builder
     .create(Endpoint::class.java, PATH)
     .configurator(WsConfigurator(
-        AsyncWsConnectionFactory(100),
+        asyncWsConnectionFactory(100),
         SessionTransport(
             packetSerializer,
             { createTestSession(executor, null, ::connectionHandler) }

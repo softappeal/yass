@@ -14,7 +14,6 @@ import ch.softappeal.yass.serialize.reader
 import ch.softappeal.yass.serialize.writer
 import ch.softappeal.yass.transport.SessionTransport
 import java.nio.ByteBuffer
-import java.util.stream.Collectors
 import javax.websocket.CloseReason
 import javax.websocket.Endpoint
 import javax.websocket.EndpointConfig
@@ -25,7 +24,9 @@ import javax.websocket.RemoteEndpoint
 import javax.websocket.server.HandshakeRequest
 import javax.websocket.server.ServerEndpointConfig
 
-abstract class WsConnection protected constructor(private val configurator: WsConfigurator, val session: javax.websocket.Session) : Connection {
+abstract class WsConnection protected constructor(
+    private val configurator: WsConfigurator, val session: javax.websocket.Session
+) : Connection {
     internal lateinit var yassSession: Session
 
     internal fun writeToBuffer(packet: Packet): ByteBuffer {
@@ -66,7 +67,7 @@ val SyncWsConnectionFactory: WsConnectionFactory = { configurator, session ->
 }
 
 /** Sends messages asynchronously. Closes session if timeout reached. */
-fun AsyncWsConnectionFactory(sendTimeoutMilliSeconds: Long): WsConnectionFactory = { configurator, session ->
+fun asyncWsConnectionFactory(sendTimeoutMilliSeconds: Long): WsConnectionFactory = { configurator, session ->
     require(sendTimeoutMilliSeconds >= 0) { "sendTimeoutMilliSeconds < 0" }
     object : WsConnection(configurator, session) {
         private val remoteEndpoint: RemoteEndpoint.Async = session.asyncRemote
@@ -140,10 +141,10 @@ class WsConfigurator(
     })
 
     override fun getNegotiatedSubprotocol(supported: List<String>, requested: List<String>): String =
-        requested.stream().filter({ supported.contains(it) }).findFirst().orElse("")
+        requested.firstOrNull { supported.contains(it) } ?: ""
 
     override fun getNegotiatedExtensions(installed: List<Extension>, requested: List<Extension>): List<Extension> =
-        requested.stream().filter { r -> installed.stream().anyMatch { i -> i.name == r.name } }.collect(Collectors.toList())
+        requested.filter { r -> installed.any { i -> i.name == r.name } }
 
     override fun checkOrigin(originHeaderValue: String?) = true
     override fun modifyHandshake(sec: ServerEndpointConfig?, request: HandshakeRequest?, response: HandshakeResponse?) {}

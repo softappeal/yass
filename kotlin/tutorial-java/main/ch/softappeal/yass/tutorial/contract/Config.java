@@ -16,17 +16,17 @@ import ch.softappeal.yass.tutorial.contract.instrument.stock.Stock;
 import java.util.Arrays;
 
 import static ch.softappeal.yass.remote.Kt.getSimpleMethodMapperFactory;
-import static ch.softappeal.yass.serialize.fast.Kt.getBTH_INTEGER;
-import static ch.softappeal.yass.serialize.fast.Kt.SimpleFastSerializer;
-import static ch.softappeal.yass.transport.Kt.MessageSerializer;
-import static ch.softappeal.yass.transport.Kt.PacketSerializer;
+import static ch.softappeal.yass.serialize.fast.Kt.getIntSerializer;
+import static ch.softappeal.yass.serialize.fast.Kt.simpleFastSerializer;
+import static ch.softappeal.yass.transport.Kt.messageSerializer;
+import static ch.softappeal.yass.transport.Kt.packetSerializer;
 
 public final class Config {
 
-    public static final FastSerializer CONTRACT_SERIALIZER = SimpleFastSerializer(
-        ch.softappeal.yass.generate.ts.Kt.baseTypeHandlers(
-            getBTH_INTEGER(),
-            Expiration.TYPE_HANDLER
+    public static final FastSerializer CONTRACT_SERIALIZER = simpleFastSerializer(
+        ch.softappeal.yass.generate.ts.Kt.baseTypeSerializers(
+            getIntSerializer(),
+            Expiration.TYPE_SERIALIZER
         ),
         Arrays.asList(
             PriceKind.class,
@@ -42,8 +42,8 @@ public final class Config {
         )
     );
 
-    public static final Serializer MESSAGE_SERIALIZER = MessageSerializer(CONTRACT_SERIALIZER);
-    public static final Serializer PACKET_SERIALIZER = PacketSerializer(MESSAGE_SERIALIZER);
+    public static final Serializer MESSAGE_SERIALIZER = messageSerializer(CONTRACT_SERIALIZER);
+    public static final Serializer PACKET_SERIALIZER = packetSerializer(MESSAGE_SERIALIZER);
 
     private abstract static class Role extends Services {
         Role() {
@@ -66,10 +66,10 @@ public final class Config {
     public static final Initiator INITIATOR = new Initiator();
     public static final Acceptor ACCEPTOR = new Acceptor();
 
-    public static final FastSerializer PY_CONTRACT_SERIALIZER = SimpleFastSerializer(
-        ch.softappeal.yass.generate.py.Kt.baseTypeHandlers(
-            getBTH_INTEGER(),
-            Expiration.TYPE_HANDLER
+    public static final FastSerializer PY_CONTRACT_SERIALIZER = simpleFastSerializer(
+        ch.softappeal.yass.generate.py.Kt.baseTypeSerializers(
+            getIntSerializer(),
+            Expiration.TYPE_SERIALIZER
         ),
         Arrays.asList(
             PriceKind.class,

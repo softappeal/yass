@@ -10,10 +10,10 @@ import ch.softappeal.yass.remote.session.createTestSession
 import ch.softappeal.yass.remote.session.useExecutor
 import ch.softappeal.yass.transport.AcceptorSetup
 import ch.softappeal.yass.transport.InitiatorSetup
-import ch.softappeal.yass.transport.PacketSerializer
+import ch.softappeal.yass.transport.packetSerializer
 import org.junit.Test
 
-val packetSerializer = PacketSerializer(messageSerializer)
+val packetSerializer = packetSerializer(messageSerializer)
 
 class SessionSocketTransportTest {
 
@@ -23,10 +23,10 @@ class SessionSocketTransportTest {
             println(connection)
             println((connection as SocketConnection).socket)
         }
-        SocketAcceptor(
+        socketAcceptor(
             AcceptorSetup(packetSerializer) { createTestSession(executor, null, ::connectionHandler) },
             executor,
-            AsyncSocketConnectionFactory(executor, 1_000)
+            asyncSocketConnectionFactory(executor, 1_000)
         ).start(executor, socketBinder(address)).use {
             socketInitiate(
                 InitiatorSetup(packetSerializer) { createTestSession(executor, done, ::connectionHandler) },
@@ -39,7 +39,7 @@ class SessionSocketTransportTest {
 
     @Test
     fun performance() = useExecutor { executor, done ->
-        SocketAcceptor(
+        socketAcceptor(
             AcceptorSetup(packetSerializer) {
                 object : SimpleSession(executor) {
                     override fun server(): Server = Server(Service(calculatorId, CalculatorImpl))

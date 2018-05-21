@@ -11,7 +11,7 @@ import ch.softappeal.yass.serialize.Reader
 import ch.softappeal.yass.serialize.Serializer
 import ch.softappeal.yass.serialize.Writer
 
-const val IntPathSerializer_DEFAULT_PATH = 0
+const val IntPathSerializerDefaultPath = 0
 
 val IntPathSerializer = object : Serializer {
     override fun read(reader: Reader) = reader.readInt()
@@ -19,7 +19,7 @@ val IntPathSerializer = object : Serializer {
 }
 
 class ClientSetup(private val messageSerializer: Serializer, private val pathSerializer: Serializer, private val path: Any) {
-    constructor(messageSerializer: Serializer) : this(messageSerializer, IntPathSerializer, IntPathSerializer_DEFAULT_PATH)
+    constructor(messageSerializer: Serializer) : this(messageSerializer, IntPathSerializer, IntPathSerializerDefaultPath)
 
     fun read(reader: Reader) = messageSerializer.read(reader) as Reply
     fun write(writer: Writer, request: Request) {
@@ -36,7 +36,7 @@ class ServerTransport(private val server: Server, private val messageSerializer:
 
 class ServerSetup(private val pathSerializer: Serializer, private val pathMappings: Map<out Any, ServerTransport>) {
     constructor(server: Server, messageSerializer: Serializer) :
-        this(IntPathSerializer, mapOf(IntPathSerializer_DEFAULT_PATH to ServerTransport(server, messageSerializer)))
+        this(IntPathSerializer, mapOf(IntPathSerializerDefaultPath to ServerTransport(server, messageSerializer)))
 
     fun resolve(reader: Reader): ServerTransport = pathMappings[pathSerializer.read(reader)]!!
 }

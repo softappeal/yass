@@ -12,18 +12,18 @@ import ch.softappeal.yass.generate.iterate
 import ch.softappeal.yass.ownFields
 import ch.softappeal.yass.remote.Services
 import ch.softappeal.yass.remote.SimpleMethodMapperFactory
-import ch.softappeal.yass.serialize.fast.BTH_BOOLEAN
-import ch.softappeal.yass.serialize.fast.BTH_BYTE_ARRAY
-import ch.softappeal.yass.serialize.fast.BTH_DOUBLE
-import ch.softappeal.yass.serialize.fast.BTH_STRING
-import ch.softappeal.yass.serialize.fast.BaseTypeHandler
-import ch.softappeal.yass.serialize.fast.ClassTypeHandler
-import ch.softappeal.yass.serialize.fast.FIRST_TYPE_ID
+import ch.softappeal.yass.serialize.fast.BaseTypeSerializer
+import ch.softappeal.yass.serialize.fast.BooleanSerializer
+import ch.softappeal.yass.serialize.fast.ByteArraySerializer
+import ch.softappeal.yass.serialize.fast.ClassTypeSerializer
+import ch.softappeal.yass.serialize.fast.DoubleSerializer
 import ch.softappeal.yass.serialize.fast.FastSerializer
 import ch.softappeal.yass.serialize.fast.FieldDesc
-import ch.softappeal.yass.serialize.fast.TD_LIST
+import ch.softappeal.yass.serialize.fast.FirstTypeId
+import ch.softappeal.yass.serialize.fast.ListTypeDesc
+import ch.softappeal.yass.serialize.fast.StringSerializer
 import ch.softappeal.yass.serialize.fast.TypeDesc
-import ch.softappeal.yass.serialize.fast.TypeHandler
+import ch.softappeal.yass.serialize.fast.TypeSerializer
 import ch.softappeal.yass.serialize.fast.primitiveWrapperType
 import java.lang.reflect.Modifier
 import java.lang.reflect.ParameterizedType
@@ -36,18 +36,18 @@ import java.util.TreeSet
 
 class ExternalDesc(internal val name: String, internal val typeDesc: String)
 
-val BooleanDesc = TypeDesc(FIRST_TYPE_ID, BTH_BOOLEAN)
-val DoubleDesc = TypeDesc(FIRST_TYPE_ID + 1, BTH_DOUBLE)
-val StringDesc = TypeDesc(FIRST_TYPE_ID + 2, BTH_STRING)
-val BytesDesc = TypeDesc(FIRST_TYPE_ID + 3, BTH_BYTE_ARRAY)
-const val FIRST_DESC_ID = FIRST_TYPE_ID + 4
+val BooleanDesc = TypeDesc(FirstTypeId, BooleanSerializer)
+val DoubleDesc = TypeDesc(FirstTypeId + 1, DoubleSerializer)
+val StringDesc = TypeDesc(FirstTypeId + 2, StringSerializer)
+val BytesDesc = TypeDesc(FirstTypeId + 3, ByteArraySerializer)
+const val FirstDescId = FirstTypeId + 4
 
-fun baseTypeHandlers(vararg handlers: BaseTypeHandler<*>): List<BaseTypeHandler<*>> {
+fun baseTypeSerializers(vararg handlers: BaseTypeSerializer<*>): List<BaseTypeSerializer<*>> {
     val h = mutableListOf(
-        BooleanDesc.handler as BaseTypeHandler<*>,
-        DoubleDesc.handler as BaseTypeHandler<*>,
-        StringDesc.handler as BaseTypeHandler<*>,
-        BytesDesc.handler as BaseTypeHandler<*>
+        BooleanDesc.handler as BaseTypeSerializer<*>,
+        DoubleDesc.handler as BaseTypeSerializer<*>,
+        StringDesc.handler as BaseTypeSerializer<*>,
+        BytesDesc.handler as BaseTypeSerializer<*>
     )
     h.addAll(handlers)
     return h
@@ -80,7 +80,7 @@ class PythonGenerator(
         if (module2includeFile != null) this.module2includeFile.putAll(module2includeFile)
         this.externalTypes.putAll(externalTypes)
         id2typeHandler.forEach { id, typeHandler ->
-            if (id >= FIRST_DESC_ID) {
+            if (id >= FirstDescId) {
                 val type = typeHandler.type
                 type2id[type] = id
                 if (!this.externalTypes.containsKey(type)) rootNamespace.add(type)
@@ -120,10 +120,10 @@ class PythonGenerator(
         }
     }
 
-    fun typeHandler(type: Class<*>): TypeHandler = id2typeHandler[type2id[type]]!!
+    fun typeHandler(type: Class<*>): TypeSerializer = id2typeHandler[type2id[type]]!!
 
     fun hasClassDesc(type: Class<*>): Boolean =
-        !type.isEnum && !Modifier.isAbstract(type.modifiers) && typeHandler(type) is ClassTypeHandler
+        !type.isEnum && !Modifier.isAbstract(type.modifiers) && typeHandler(type) is ClassTypeSerializer
 
     private inner class ContractPythonOut(file: String, val namespace: Namespace) : Out(file) {
         val modules = TreeSet(Comparator.comparing<Namespace, String> { it.moduleName })
@@ -145,7 +145,7 @@ class PythonGenerator(
             redirect(buffer)
             @Suppress("UNCHECKED_CAST") namespace.types.filter { it.isEnum }.forEach { generateEnum(it as Class<Enum<*>>) }
             namespace.types
-                .filter { t -> !t.isEnum && !t.isInterface && (Modifier.isAbstract(t.modifiers) || typeHandler(t) is ClassTypeHandler) }
+                .filter { t -> !t.isEnum && !t.isInterface && (Modifier.isAbstract(t.modifiers) || typeHandler(t) is ClassTypeSerializer) }
                 .forEach { generateClass(it) }
             namespace.types.filter { it.isInterface }.forEach { generateInterface(it) }
             redirect(null)
@@ -271,12 +271,12 @@ class PythonGenerator(
                 if (type.isEnum)
                     println("yass.enumDesc(${type2id[type]}, $qn)")
                 else if (hasClassDesc(type))
-                    println("yass.classDesc(${type2id[type]}, $qn, ${pyBool((typeHandler(type) as ClassTypeHandler).graph)})")
+                    println("yass.classDesc(${type2id[type]}, $qn, ${pyBool((typeHandler(type) as ClassTypeSerializer).graph)})")
             }
             println()
             type2namespace.keys.filter { hasClassDesc(it) }.forEach { type ->
                 tabsln("yass.fieldDescs(${getQualifiedName(type)}, [")
-                for (fieldDesc in (typeHandler(type) as ClassTypeHandler).fieldDescs) {
+                for (fieldDesc in (typeHandler(type) as ClassTypeSerializer).fieldDescs) {
                     tab()
                     tabsln("yass.FieldDesc(${fieldDesc.id}, '${fieldDesc.handler.field.name}', ${typeDesc(fieldDesc)}),")
                 }
@@ -326,7 +326,7 @@ class PythonGenerator(
         fun typeDesc(fieldDesc: FieldDesc): String {
             val typeHandler = fieldDesc.handler.typeHandler() ?: return "None"
             return when {
-                TD_LIST.handler === typeHandler -> "yass.LIST_DESC"
+                ListTypeDesc.handler === typeHandler -> "yass.LIST_DESC"
                 BooleanDesc.handler === typeHandler -> "yass.BOOLEAN_DESC"
                 DoubleDesc.handler === typeHandler -> "yass.DOUBLE_DESC"
                 StringDesc.handler === typeHandler -> "yass.STRING_DESC"
@@ -341,10 +341,10 @@ class PythonGenerator(
         fun generateMapper(type: Class<*>) {
             val methodMapper = methodMapper(type)
             tabsln("yass.methodMapper(${getQualifiedName(type)}, [")
-            for (method in getMethods(type)) {
-                val (method1, id, oneWay) = methodMapper.map(method)
+            for (m in getMethods(type)) {
+                val (method, id, oneWay) = methodMapper.map(m)
                 tab()
-                tabsln("yass.MethodMapping($id, '${method1.name}', ${pyBool(oneWay)}),")
+                tabsln("yass.MethodMapping($id, '${method.name}', ${pyBool(oneWay)}),")
             }
             tabsln("])")
         }

@@ -5,9 +5,6 @@ package ch.softappeal.yass.remote
 
 import ch.softappeal.yass.tag
 import java.lang.reflect.Method
-import java.util.Arrays
-import java.util.Comparator
-import java.util.stream.Stream
 
 @MustBeDocumented
 @Retention
@@ -30,11 +27,11 @@ interface MethodMapper {
 
 typealias MethodMapperFactory = (contract: Class<*>) -> MethodMapper
 
-fun MethodMapperFactory.mappings(contract: Class<*>): Stream<MethodMapping> {
+fun MethodMapperFactory.mappings(contract: Class<*>): Sequence<MethodMapping> {
     val mapper = this(contract)
-    return Arrays.stream(contract.methods)
+    return contract.methods.asSequence()
         .map(mapper::map)
-        .sorted(Comparator.comparing(MethodMapping::id))
+        .sortedBy { it.id }
 }
 
 val SimpleMethodMapperFactory: MethodMapperFactory = { contract ->

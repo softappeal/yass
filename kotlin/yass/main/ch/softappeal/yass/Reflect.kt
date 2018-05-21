@@ -36,4 +36,4 @@ private val UNSAFE = {
     field.get(null) as Unsafe
 }()
 
-val ALLOCATE: (type: Class<*>) -> (() -> Any) = { type -> { UNSAFE.allocateInstance(type) } }
+val Allocate: (type: Class<*>) -> (() -> Any) = { type -> { UNSAFE.allocateInstance(type) } }

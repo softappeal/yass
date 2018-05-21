@@ -7,13 +7,13 @@ import ch.softappeal.yass.serialize.contract.C2
 import ch.softappeal.yass.serialize.contract.Color
 import ch.softappeal.yass.serialize.contract.E1
 import ch.softappeal.yass.serialize.contract.E2
-import ch.softappeal.yass.serialize.fast.BTH_INTEGER
-import ch.softappeal.yass.serialize.fast.BaseTypeHandler
+import ch.softappeal.yass.serialize.fast.BaseTypeSerializer
 import ch.softappeal.yass.serialize.fast.FastSerializer
-import ch.softappeal.yass.serialize.fast.SimpleFastSerializer
-import ch.softappeal.yass.serialize.fast.TaggedFastSerializer
+import ch.softappeal.yass.serialize.fast.IntSerializer
 import ch.softappeal.yass.serialize.fast.TypeDesc
 import ch.softappeal.yass.serialize.fast.print
+import ch.softappeal.yass.serialize.fast.simpleFastSerializer
+import ch.softappeal.yass.serialize.fast.taggedFastSerializer
 import org.junit.Test
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
@@ -58,8 +58,8 @@ class FastSerializerTest {
 
     @Test
     fun baseEnumeration() = try {
-        TaggedFastSerializer(
-            listOf(TypeDesc(1, object : BaseTypeHandler<Color>(Color::class.java) {
+        taggedFastSerializer(
+            listOf(TypeDesc(1, object : BaseTypeSerializer<Color>(Color::class.java) {
                 override fun read(reader: Reader) = Color.BLUE
                 override fun write(writer: Writer, value: Color) {}
             })),
@@ -72,7 +72,7 @@ class FastSerializerTest {
 
     @Test
     fun duplicatedClass() = try {
-        TaggedFastSerializer(listOf(), listOf(Color::class.java, Color::class.java))
+        taggedFastSerializer(listOf(), listOf(Color::class.java, Color::class.java))
         fail()
     } catch (e: IllegalArgumentException) {
         assertEquals("type 'ch.softappeal.yass.serialize.contract.Color' already added", e.message)
@@ -80,7 +80,7 @@ class FastSerializerTest {
 
     @Test
     fun abstractClass() = try {
-        SimpleFastSerializer(listOf(), listOf(FastSerializer::class.java))
+        simpleFastSerializer(listOf(), listOf(FastSerializer::class.java))
         fail()
     } catch (e: IllegalArgumentException) {
         assertEquals("type 'ch.softappeal.yass.serialize.fast.FastSerializer' is abstract", e.message)
@@ -88,7 +88,7 @@ class FastSerializerTest {
 
     @Test
     fun illegalInterface() = try {
-        SimpleFastSerializer(listOf(), listOf(AutoCloseable::class.java))
+        simpleFastSerializer(listOf(), listOf(AutoCloseable::class.java))
         fail()
     } catch (e: IllegalArgumentException) {
         assertEquals("type 'java.lang.AutoCloseable' is abstract", e.message)
@@ -96,7 +96,7 @@ class FastSerializerTest {
 
     @Test
     fun illegalAnnotation() = try {
-        SimpleFastSerializer(listOf(), listOf(Tag::class.java))
+        simpleFastSerializer(listOf(), listOf(Tag::class.java))
         fail()
     } catch (e: IllegalArgumentException) {
         assertEquals("type 'ch.softappeal.yass.Tag' is abstract", e.message)
@@ -104,7 +104,7 @@ class FastSerializerTest {
 
     @Test
     fun illegalEnumeration() = try {
-        SimpleFastSerializer(listOf(), listOf(), listOf(Color::class.java))
+        simpleFastSerializer(listOf(), listOf(), listOf(Color::class.java))
         fail()
     } catch (e: IllegalArgumentException) {
         assertEquals("type 'ch.softappeal.yass.serialize.contract.Color' is an enumeration", e.message)
@@ -112,7 +112,7 @@ class FastSerializerTest {
 
     @Test
     fun missingType() {
-        val serializer = TaggedFastSerializer(listOf(), listOf())
+        val serializer = taggedFastSerializer(listOf(), listOf())
         try {
             copy(serializer, Color.BLUE)
             fail()
@@ -129,7 +129,7 @@ class FastSerializerTest {
 
     @Test
     fun missingClassTag() = try {
-        TaggedFastSerializer(listOf(), listOf(MissingClassTag::class.java))
+        taggedFastSerializer(listOf(), listOf(MissingClassTag::class.java))
         fail()
     } catch (e: IllegalStateException) {
         assertEquals("missing tag for 'class ch.softappeal.yass.serialize.FastSerializerTest${'$'}MissingClassTag'", e.message)
@@ -137,7 +137,7 @@ class FastSerializerTest {
 
     @Test
     fun duplicatedTypeTag() = try {
-        TaggedFastSerializer(listOf(), listOf(C1::class.java, C2::class.java))
+        taggedFastSerializer(listOf(), listOf(C1::class.java, C2::class.java))
         fail()
     } catch (e: IllegalStateException) {
         assertEquals(
@@ -151,7 +151,7 @@ class FastSerializerTest {
 
     @Test
     fun invalidTypeTag() = try {
-        TaggedFastSerializer(listOf(), listOf(InvalidTypeTag::class.java))
+        taggedFastSerializer(listOf(), listOf(InvalidTypeTag::class.java))
         fail()
     } catch (e: IllegalArgumentException) {
         assertEquals("id -1 for type 'ch.softappeal.yass.serialize.FastSerializerTest.InvalidTypeTag' must be >= 0", e.message)
@@ -165,7 +165,7 @@ class FastSerializerTest {
 
     @Test
     fun invalidFieldTag() = try {
-        TaggedFastSerializer(listOf(), listOf(InvalidFieldTag::class.java))
+        taggedFastSerializer(listOf(), listOf(InvalidFieldTag::class.java))
         fail()
     } catch (e: IllegalArgumentException) {
         assertEquals(
@@ -184,7 +184,7 @@ class FastSerializerTest {
 
     @Test
     fun duplicatedFieldTag() = try {
-        TaggedFastSerializer(listOf(), listOf(DuplicatedFieldTag::class.java))
+        taggedFastSerializer(listOf(), listOf(DuplicatedFieldTag::class.java))
         fail()
     } catch (e: IllegalArgumentException) {
         assertEquals(
@@ -241,8 +241,8 @@ class FastSerializerTest {
 
     @Test
     fun versioning() {
-        val V1_SERIALIZER = TaggedFastSerializer(listOf(TypeDesc(3, BTH_INTEGER)), listOf(E1::class.java, C1::class.java))
-        val V2_SERIALIZER = TaggedFastSerializer(listOf(TypeDesc(3, BTH_INTEGER)), listOf(E2::class.java, C2::class.java))
+        val V1_SERIALIZER = taggedFastSerializer(listOf(TypeDesc(3, IntSerializer)), listOf(E1::class.java, C1::class.java))
+        val V2_SERIALIZER = taggedFastSerializer(listOf(TypeDesc(3, IntSerializer)), listOf(E2::class.java, C2::class.java))
         fun copy(input: Any): Any? {
             val buffer = ByteArrayOutputStream()
             val writer = writer(buffer)

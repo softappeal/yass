@@ -55,7 +55,7 @@ val SyncSocketConnectionFactory: SocketConnectionFactory = { _, transport, socke
 }
 
 /** Writes to socket in a writer thread. Caller thread never blocks. [writerExecutor] is used once for each session. */
-fun AsyncSocketConnectionFactory(writerExecutor: Executor, writerQueueSize: Int): SocketConnectionFactory {
+fun asyncSocketConnectionFactory(writerExecutor: Executor, writerQueueSize: Int): SocketConnectionFactory {
     require(writerQueueSize >= 1) { "writerQueueSize < 1" }
     return { session, transport, socket, out ->
         object : SocketConnection(transport, socket, out) {
@@ -114,7 +114,7 @@ private fun read(
 }
 
 /** [readerExecutor] is called once for each session. */
-fun SocketAcceptor(setup: AcceptorSetup, readerExecutor: Executor, connectionFactory: SocketConnectionFactory) =
+fun socketAcceptor(setup: AcceptorSetup, readerExecutor: Executor, connectionFactory: SocketConnectionFactory) =
     object : SocketListener(readerExecutor) {
         override fun accept(socket: Socket) {
             val reader = reader(socket.getInputStream())

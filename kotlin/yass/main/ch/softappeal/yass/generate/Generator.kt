@@ -12,7 +12,6 @@ import java.lang.reflect.Modifier
 import java.util.Comparator
 import java.util.SortedSet
 import java.util.TreeSet
-import java.util.stream.Collectors
 
 class ServiceDesc(val name: String, val contractId: ContractId<*>)
 
@@ -35,9 +34,10 @@ fun getServiceDescs(services: Services): List<ServiceDesc> {
     return serviceDescs.sortedBy { it.contractId.id }
 }
 
-private fun getInterfaces(services: Services?): Set<Class<*>> = if (services == null) {
+private fun getInterfaces(services: Services?): Set<Class<*>> = if (services == null)
     setOf()
-} else getServiceDescs(services).stream().map { it.contractId.contract }.collect(Collectors.toSet())
+else
+    getServiceDescs(services).map { it.contractId.contract }.toSet()
 
 fun getMethods(type: Class<*>): List<Method> = type.methods.asList().sortedBy { it.name }
 

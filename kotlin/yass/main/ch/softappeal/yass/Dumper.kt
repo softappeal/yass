@@ -29,7 +29,7 @@ fun Dumper.println(value: Any?) {
     System.out.println(this.dump(value))
 }
 
-private val PRIMITIVE_WRAPPER_CLASSES = setOf(
+private val PrimitiveWrapperClasses = setOf(
     Boolean::class::javaObjectType.get(),
     Byte::class::javaObjectType.get(),
     Short::class::javaObjectType.get(),
@@ -185,7 +185,7 @@ private fun dumper(compact: Boolean, graph: Boolean, concreteValueClasses: Set<C
                 else -> {
                     val type = value.javaClass
                     when {
-                        type.isEnum || PRIMITIVE_WRAPPER_CLASSES.contains(type) -> out.append(value)
+                        type.isEnum || PrimitiveWrapperClasses.contains(type) -> out.append(value)
                         type.isArray -> dumpArray(value)
                         type === Character::class.java -> out.append('\'').append(value).append('\'')
                         else -> dumpClass(type, value)

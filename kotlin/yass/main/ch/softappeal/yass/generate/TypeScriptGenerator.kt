@@ -12,16 +12,16 @@ import ch.softappeal.yass.generate.iterate
 import ch.softappeal.yass.ownFields
 import ch.softappeal.yass.remote.Services
 import ch.softappeal.yass.remote.SimpleMethodMapperFactory
-import ch.softappeal.yass.serialize.fast.BTH_BOOLEAN
-import ch.softappeal.yass.serialize.fast.BTH_BYTE_ARRAY
-import ch.softappeal.yass.serialize.fast.BTH_DOUBLE
-import ch.softappeal.yass.serialize.fast.BTH_STRING
-import ch.softappeal.yass.serialize.fast.BaseTypeHandler
-import ch.softappeal.yass.serialize.fast.ClassTypeHandler
-import ch.softappeal.yass.serialize.fast.FIRST_TYPE_ID
+import ch.softappeal.yass.serialize.fast.BaseTypeSerializer
+import ch.softappeal.yass.serialize.fast.BooleanSerializer
+import ch.softappeal.yass.serialize.fast.ByteArraySerializer
+import ch.softappeal.yass.serialize.fast.ClassTypeSerializer
+import ch.softappeal.yass.serialize.fast.DoubleSerializer
 import ch.softappeal.yass.serialize.fast.FastSerializer
 import ch.softappeal.yass.serialize.fast.FieldDesc
-import ch.softappeal.yass.serialize.fast.TD_LIST
+import ch.softappeal.yass.serialize.fast.FirstTypeId
+import ch.softappeal.yass.serialize.fast.ListTypeDesc
+import ch.softappeal.yass.serialize.fast.StringSerializer
 import ch.softappeal.yass.serialize.fast.TypeDesc
 import ch.softappeal.yass.serialize.fast.primitiveWrapperType
 import java.lang.reflect.Modifier
@@ -33,18 +33,18 @@ import java.util.LinkedHashMap
 
 class ExternalDesc(internal val name: String, internal val typeDescHolder: String)
 
-val BooleanDesc = TypeDesc(FIRST_TYPE_ID, BTH_BOOLEAN)
-val DoubleDesc = TypeDesc(FIRST_TYPE_ID + 1, BTH_DOUBLE)
-val StringDesc = TypeDesc(FIRST_TYPE_ID + 2, BTH_STRING)
-val BytesDesc = TypeDesc(FIRST_TYPE_ID + 3, BTH_BYTE_ARRAY)
-const val FIRST_DESC_ID = FIRST_TYPE_ID + 4
+val BooleanDesc = TypeDesc(FirstTypeId, BooleanSerializer)
+val DoubleDesc = TypeDesc(FirstTypeId + 1, DoubleSerializer)
+val StringDesc = TypeDesc(FirstTypeId + 2, StringSerializer)
+val BytesDesc = TypeDesc(FirstTypeId + 3, ByteArraySerializer)
+const val FirstDescId = FirstTypeId + 4
 
-fun baseTypeHandlers(vararg handlers: BaseTypeHandler<*>): List<BaseTypeHandler<*>> {
+fun baseTypeSerializers(vararg handlers: BaseTypeSerializer<*>): List<BaseTypeSerializer<*>> {
     val h = mutableListOf(
-        BooleanDesc.handler as BaseTypeHandler<*>,
-        DoubleDesc.handler as BaseTypeHandler<*>,
-        StringDesc.handler as BaseTypeHandler<*>,
-        BytesDesc.handler as BaseTypeHandler<*>
+        BooleanDesc.handler as BaseTypeSerializer<*>,
+        DoubleDesc.handler as BaseTypeSerializer<*>,
+        StringDesc.handler as BaseTypeSerializer<*>,
+        BytesDesc.handler as BaseTypeSerializer<*>
     )
     h.addAll(handlers)
     return h
@@ -72,14 +72,14 @@ class TypeScriptGenerator @JvmOverloads constructor(
             val visitedClasses = HashSet<Class<*>>()
 
             init {
-                id2typeHandler.forEach { id, typeHandler -> if (id >= FIRST_DESC_ID) type2id[typeHandler.type] = id }
+                id2typeHandler.forEach { id, typeHandler -> if (id >= FirstDescId) type2id[typeHandler.type] = id }
                 includeFile(includeFile)
                 @Suppress("UNCHECKED_CAST") id2typeHandler.values
                     .map { it.type }
                     .filter { it.isEnum }
                     .forEach { generateEnum(it as Class<Enum<*>>) }
                 id2typeHandler.values
-                    .filter { it is ClassTypeHandler }
+                    .filter { it is ClassTypeSerializer }
                     .forEach { generateClass(it.type) }
                 interfaces.forEach { generateInterface(it) }
                 generateServices(initiator, "initiator")
@@ -158,7 +158,7 @@ class TypeScriptGenerator @JvmOverloads constructor(
             fun typeDesc(fieldDesc: FieldDesc): String {
                 val typeHandler = fieldDesc.handler.typeHandler() ?: return "null"
                 return when {
-                    TD_LIST.handler === typeHandler -> "yass.LIST_DESC"
+                    ListTypeDesc.handler === typeHandler -> "yass.LIST_DESC"
                     BooleanDesc.handler === typeHandler -> "yass.BOOLEAN_DESC"
                     DoubleDesc.handler === typeHandler -> "yass.NUMBER_DESC"
                     StringDesc.handler === typeHandler -> "yass.STRING_DESC"
@@ -193,7 +193,7 @@ class TypeScriptGenerator @JvmOverloads constructor(
                     if (id != null) {
                         tabs("static readonly TYPE_DESC = yass.classDesc($id, $name")
                         inc()
-                        val typeHandler = id2typeHandler[id] as ClassTypeHandler
+                        val typeHandler = id2typeHandler[id] as ClassTypeSerializer
                         check(!typeHandler.graph) { "class '$type' is graph (not implemented in TypeScript)" }
                         for (fieldDesc in typeHandler.fieldDescs) {
                             println(",")

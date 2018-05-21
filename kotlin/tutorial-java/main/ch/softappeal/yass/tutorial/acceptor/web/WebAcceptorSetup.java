@@ -10,14 +10,14 @@ import javax.websocket.Endpoint;
 import javax.websocket.server.ServerEndpointConfig;
 
 import static ch.softappeal.yass.Kt.getStdErr;
-import static ch.softappeal.yass.transport.ws.Kt.AsyncWsConnectionFactory;
+import static ch.softappeal.yass.transport.ws.Kt.asyncWsConnectionFactory;
 
 public abstract class WebAcceptorSetup extends WebSetup {
 
     public static final ServerEndpointConfig ENDPOINT_CONFIG = ServerEndpointConfig.Builder
         .create(Endpoint.class, WS_PATH)
         .configurator(new WsConfigurator(
-            AsyncWsConnectionFactory(1_000),
+            asyncWsConnectionFactory(1_000),
             new SessionTransport(
                 Config.PACKET_SERIALIZER,
                 () -> new AcceptorSession(DISPATCH_EXECUTOR)

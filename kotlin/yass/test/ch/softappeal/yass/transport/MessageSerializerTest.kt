@@ -16,7 +16,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 import kotlin.test.fail
 
-private val SERIALIZER = MessageSerializer(JavaSerializer)
+private val SERIALIZER = messageSerializer(JavaSerializer)
 
 private fun <T : Message?> copy(value: T): T = copy(SERIALIZER, value)
 

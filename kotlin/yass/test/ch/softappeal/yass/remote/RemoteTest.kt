@@ -24,7 +24,7 @@ val CalculatorImpl = object : Calculator {
     override fun echo(value: String?) = value
 }
 
-val calculatorId = ContractId<Calculator>(123, SimpleMethodMapperFactory)
+val calculatorId = contractId<Calculator>(123, SimpleMethodMapperFactory)
 
 fun useClient(calculator: Calculator) {
     assertEquals(4, calculator.divide(12, 3))
