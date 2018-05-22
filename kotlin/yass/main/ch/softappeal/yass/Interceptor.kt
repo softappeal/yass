@@ -23,9 +23,9 @@ fun compositeInterceptor(first: Interceptor, second: Interceptor): Interceptor =
 
 @SafeVarargs
 fun compositeInterceptor(vararg interceptors: Interceptor): Interceptor {
-    var c = DirectInterceptor
-    for (interceptor in interceptors) c = compositeInterceptor(c, interceptor)
-    return c
+    var composite = DirectInterceptor
+    for (interceptor in interceptors) composite = compositeInterceptor(composite, interceptor)
+    return composite
 }
 
 internal fun invoke(method: Method, implementation: Any, arguments: List<Any?>): Any? = try {
@@ -40,12 +40,12 @@ internal fun invoke(interceptor: Interceptor, method: Method, implementation: An
 internal fun args(arguments: Array<Any?>?): List<Any?> =
     if (arguments == null) emptyList() else listOf(*arguments)
 
+@Suppress("UNCHECKED_CAST")
 internal fun <C : Any> proxy(contract: Class<C>, invocationHandler: InvocationHandler): C =
-    contract.cast(Proxy.newProxyInstance(contract.classLoader, arrayOf(contract), invocationHandler))
+    Proxy.newProxyInstance(contract.classLoader, arrayOf(contract), invocationHandler) as C
 
-@PublishedApi
 @SafeVarargs
-internal fun <C : Any> proxy(contract: Class<C>, implementation: C, vararg interceptors: Interceptor): C {
+fun <C : Any> proxy(contract: Class<C>, implementation: C, vararg interceptors: Interceptor): C {
     val interceptor = compositeInterceptor(*interceptors)
     if (interceptor === DirectInterceptor) return implementation
     return proxy(
@@ -58,13 +58,12 @@ internal fun <C : Any> proxy(contract: Class<C>, implementation: C, vararg inter
 inline fun <reified C : Any> proxy(implementation: C, vararg interceptors: Interceptor): C =
     proxy(C::class.java, implementation, *interceptors)
 
-fun <T> threadLocalInterceptor(threadLocal: ThreadLocal<T>, value: T?): Interceptor =
-    { _, _, invocation ->
-        val oldValue = threadLocal.get()
-        threadLocal.set(value)
-        try {
-            invocation()
-        } finally {
-            threadLocal.set(oldValue)
-        }
+fun <T : Any?> threadLocalInterceptor(threadLocal: ThreadLocal<T>, value: T): Interceptor = { _, _, invocation ->
+    val oldValue = threadLocal.get()
+    threadLocal.set(value)
+    try {
+        invocation()
+    } finally {
+        threadLocal.set(oldValue)
     }
+}

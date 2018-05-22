@@ -1,22 +1,23 @@
 package ch.softappeal.yass
 
 import org.junit.Test
+import java.lang.reflect.Method
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
 import kotlin.test.assertSame
 import kotlin.test.fail
 
-private val METHOD = Any::class.java.getMethod("toString")
-private val ARGUMENTS = listOf(0)
+val Method: Method = Any::class.java.getMethod("toString")
+private val Arguments = listOf(0)
 
-interface Calculator {
+private interface Calculator {
     fun one(): Int
     fun minus(a: Int): Int
     fun divide(a: Int, b: Int): Int
     fun echo(a: String?): String?
 }
 
-val CalculatorImpl = object : Calculator {
+private class CalculatorImpl : Calculator {
     override fun one() = 1
     override fun minus(a: Int) = -a
     override fun divide(a: Int, b: Int) = a / b
@@ -31,7 +32,7 @@ val JavaCalculatorImpl = object : JavaCalculator {
 }
 
 private val Printer: Interceptor = { method, arguments, invocation ->
-    print("$method( $arguments )")
+    print("$method$arguments")
     try {
         val result = invocation()
         println(" = $result")
@@ -43,12 +44,11 @@ private val Printer: Interceptor = { method, arguments, invocation ->
 }
 
 class InterceptorTest {
-
     @Test
     fun direct() {
         val result = Any()
         assertSame(
-            DirectInterceptor(METHOD, ARGUMENTS) { result },
+            DirectInterceptor(Method, Arguments) { result },
             result
         )
     }
@@ -66,8 +66,8 @@ class InterceptorTest {
         var step = 0
         fun stepInterceptor(begin: Int, end: Int): Interceptor = { method, arguments, invocation ->
             println("enter $begin")
-            assertSame(METHOD, method)
-            assertSame(ARGUMENTS, arguments)
+            assertSame(Method, method)
+            assertSame(Arguments, arguments)
             assertEquals(begin, step)
             step++
             val result = invocation()
@@ -89,14 +89,15 @@ class InterceptorTest {
             step++
             step + offset
         }
-        assertEquals((2 * interceptors.size) + offset + 1, interceptor(METHOD, ARGUMENTS, invocation))
+        assertEquals((2 * interceptors.size) + offset + 1, interceptor(Method, Arguments, invocation))
         assertEquals((2 * interceptors.size) + 1, step)
     }
 
     @Test
-    fun proxy() {
-        assertSame(CalculatorImpl, proxy<Calculator>(CalculatorImpl))
-        val calculator = proxy<Calculator>(CalculatorImpl, Printer)
+    fun proxyTest() {
+        val c = CalculatorImpl()
+        assertSame(c, proxy(c))
+        val calculator: Calculator = proxy<Calculator>(CalculatorImpl(), Printer)
         assertEquals(2, calculator.divide(6, 3))
         try {
             assertEquals(2, calculator.divide(6, 0))
@@ -111,9 +112,9 @@ class InterceptorTest {
     }
 
     @Test
-    fun javaProxy() {
-        assertSame(JavaCalculatorImpl, proxy<JavaCalculator>(JavaCalculatorImpl))
-        val calculator = proxy<JavaCalculator>(JavaCalculatorImpl, Printer)
+    fun javaProxyTest() {
+        assertSame(JavaCalculatorImpl, proxy(JavaCalculatorImpl))
+        val calculator = proxy(JavaCalculatorImpl, Printer)
         assertEquals(2, calculator.divide(6, 3))
         try {
             assertEquals(2, calculator.divide(6, 0))
@@ -135,7 +136,7 @@ class InterceptorTest {
         val value = "value"
         assertSame(
             result,
-            threadLocalInterceptor(threadLocal, value)(METHOD, ARGUMENTS) {
+            threadLocalInterceptor(threadLocal, value)(Method, Arguments) {
                 assertSame(value, threadLocal.get())
                 result
             }
@@ -145,13 +146,12 @@ class InterceptorTest {
         threadLocal.set(oldValue)
         assertSame(
             result,
-            threadLocalInterceptor(threadLocal, value)(METHOD, ARGUMENTS) {
+            threadLocalInterceptor(threadLocal, value)(Method, Arguments) {
                 assertSame(value, threadLocal.get())
                 result
             }
         )
         assertSame(oldValue, threadLocal.get())
-        threadLocalInterceptor(threadLocal, null)(METHOD, ARGUMENTS) {}
+        threadLocalInterceptor(ThreadLocal<String?>(), null)(Method, Arguments) {}
     }
-
 }

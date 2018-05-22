@@ -2,35 +2,29 @@ package ch.softappeal.yass;
 
 import kotlin.jvm.functions.Function0;
 import kotlin.jvm.functions.Function3;
+import org.junit.Assert;
 import org.junit.Test;
 
 import java.lang.reflect.Method;
 import java.util.Collections;
 import java.util.List;
 
+import static ch.softappeal.yass.InterceptorTestKt.getJavaCalculatorImpl;
+import static ch.softappeal.yass.InterceptorTestKt.getMethod;
+import static ch.softappeal.yass.Kt.proxy;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.fail;
 
 public class JInterceptorTest {
-
-    private static final Method METHOD;
-    static {
-        try {
-            METHOD = Object.class.getMethod("toString");
-        } catch (final NoSuchMethodException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
     @Test
     public void test() throws Exception {
         final Function3<Method, List<?>, Function0<?>, Object> interceptor = new TestInterceptor();
         final List<?> arguments = Collections.emptyList();
         final RuntimeException exception = new RuntimeException();
         final Object result = "result";
-        assertSame(result, interceptor.invoke(METHOD, arguments, () -> result));
+        assertSame(result, interceptor.invoke(getMethod(), arguments, () -> result));
         try {
-            interceptor.invoke(METHOD, Collections.emptyList(), () -> {
+            interceptor.invoke(getMethod(), Collections.emptyList(), () -> {
                 throw exception;
             });
             fail();
@@ -39,4 +33,19 @@ public class JInterceptorTest {
         }
     }
 
+    @Test
+    public void proxyTest() {
+        final JavaCalculator calculator = proxy(JavaCalculator.class, getJavaCalculatorImpl());
+        Assert.assertEquals(2, calculator.divide(6, 3));
+        try {
+            Assert.assertEquals(2, calculator.divide(6, 0));
+            Assert.fail();
+        } catch (final ArithmeticException e) {
+            System.out.println(e.getMessage());
+        }
+        Assert.assertEquals(1, calculator.one());
+        Assert.assertEquals(-2, calculator.minus(2));
+        Assert.assertEquals("echo", calculator.echo("echo"));
+        Assert.assertNull(calculator.echo(null));
+    }
 }

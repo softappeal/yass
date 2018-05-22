@@ -115,7 +115,8 @@ private fun create(configurator: WsConfigurator, session: javax.websocket.Sessio
 }
 
 class WsConfigurator(
-    internal val connectionFactory: WsConnectionFactory, internal val transport: SessionTransport, internal val uncaughtExceptionHandler: Thread.UncaughtExceptionHandler
+    internal val connectionFactory: WsConnectionFactory, internal val transport: SessionTransport,
+    internal val uncaughtExceptionHandler: Thread.UncaughtExceptionHandler
 ) : ServerEndpointConfig.Configurator() {
     val endpointInstance: Endpoint = getEndpointInstance(Endpoint::class.java)
 

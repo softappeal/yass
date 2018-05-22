@@ -45,7 +45,7 @@ fun useCalculator(calculator: Calculator) {
 }
 
 fun main(args: Array<String>) {
-    val calculatorId = contractId(Calculator::class.java, 0, SimpleMethodMapperFactory)
+    val calculatorId = contractId<Calculator>(0, SimpleMethodMapperFactory)
     val messageSerializer = JavaSerializer
     val address = InetSocketAddress("localhost", 28947)
     val executor = Executors.newCachedThreadPool()

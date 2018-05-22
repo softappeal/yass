@@ -3,7 +3,7 @@
 
 package ch.softappeal.yass.serialize.fast
 
-import ch.softappeal.yass.Allocate
+import ch.softappeal.yass.AllocatorFactory
 import ch.softappeal.yass.serialize.Reader
 import ch.softappeal.yass.serialize.Serializer
 import ch.softappeal.yass.serialize.Writer
@@ -133,7 +133,7 @@ class FieldDesc internal constructor(val id: Int, val handler: FieldSerializer)
 class ClassTypeSerializer internal constructor(
     type: Class<*>, val graph: Boolean, private val id2fieldHandler: Map<Int, FieldSerializer>
 ) : TypeSerializer(type) {
-    private val allocator = Allocate(type)
+    private val allocator = AllocatorFactory(type)
     val fieldDescs: List<FieldDesc>
 
     init {

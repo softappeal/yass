@@ -42,10 +42,8 @@ private val PrimitiveWrapperClasses = setOf(
 private fun dumper(compact: Boolean, graph: Boolean, concreteValueClasses: Set<Class<*>>, valueDumper: ValueDumper): Dumper {
     val class2fields = ConcurrentHashMap<Class<*>, List<Field>>()
     return { out, value ->
-
         var tabs = 0
         val alreadyDumpedObjects = if (graph) IdentityHashMap<Any, Int>(16) else null
-
         fun appendTabs() {
             for (t in tabs downTo 1) out.append("    ")
         }
@@ -67,7 +65,6 @@ private fun dumper(compact: Boolean, graph: Boolean, concreteValueClasses: Set<C
         }
 
         fun dump(value: Any?) {
-
             fun dumpArray(array: Any) {
                 val length = Array.getLength(array)
                 if (compact) {
@@ -176,7 +173,6 @@ private fun dumper(compact: Boolean, graph: Boolean, concreteValueClasses: Set<C
                 }
                 if (g) out.append('#').append(index)
             }
-
             when (value) {
                 null -> out.append("null")
                 is CharSequence -> out.append('"').append(value).append('"')
@@ -193,7 +189,6 @@ private fun dumper(compact: Boolean, graph: Boolean, concreteValueClasses: Set<C
                 }
             }
         }
-
         dump(value)
         out
     }

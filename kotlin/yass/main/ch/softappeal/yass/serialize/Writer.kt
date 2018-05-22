@@ -80,7 +80,7 @@ fun writer(out: OutputStream) = object : Writer() {
 }
 
 class ByteBufferOutputStream(size: Int) : ByteArrayOutputStream(size) {
-    fun toByteBuffer() = ByteBuffer.wrap(buf, 0, count)
+    fun toByteBuffer(): ByteBuffer = ByteBuffer.wrap(buf, 0, count)
 }
 
 fun utf8toBytes(value: String): ByteArray = value.toByteArray(StandardCharsets.UTF_8)

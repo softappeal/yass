@@ -42,6 +42,7 @@ val StringDesc = TypeDesc(FirstTypeId + 2, StringSerializer)
 val BytesDesc = TypeDesc(FirstTypeId + 3, ByteArraySerializer)
 const val FirstDescId = FirstTypeId + 4
 
+@SafeVarargs
 fun baseTypeSerializers(vararg handlers: BaseTypeSerializer<*>): List<BaseTypeSerializer<*>> {
     val h = mutableListOf(
         BooleanDesc.handler as BaseTypeSerializer<*>,
@@ -53,6 +54,7 @@ fun baseTypeSerializers(vararg handlers: BaseTypeSerializer<*>): List<BaseTypeSe
     return h
 }
 
+@SafeVarargs
 fun baseTypeDescs(vararg descs: TypeDesc): Collection<TypeDesc> {
     val d = mutableListOf(BooleanDesc, DoubleDesc, StringDesc, BytesDesc)
     d.addAll(descs)

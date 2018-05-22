@@ -14,7 +14,7 @@ class ReflectTest {
 
     @Test
     fun noDefaultConstructor() {
-        val instance = Allocate(NoDefaultConstructor::class.java)() as NoDefaultConstructor
+        val instance = AllocatorFactory(NoDefaultConstructor::class.java)() as NoDefaultConstructor
         assertTrue(instance.i == 0)
     }
 
@@ -25,7 +25,7 @@ class ReflectTest {
     @Test
     fun fieldModifiers() {
         FieldModifiers.CONSTRUCTOR_CALLED = false
-        val fieldModifiers = Allocate(FieldModifiers::class.java)() as FieldModifiers
+        val fieldModifiers = AllocatorFactory(FieldModifiers::class.java)() as FieldModifiers
         assertFalse(FieldModifiers.CONSTRUCTOR_CALLED)
         val name2field = name2field(FieldModifiers::class.java)
         val privateField = name2field["privateField"]!!
@@ -49,7 +49,7 @@ class ReflectTest {
 
     @Test
     fun allTypes() {
-        val allTypes = Allocate(AllTypes::class.java)() as AllTypes
+        val allTypes = AllocatorFactory(AllTypes::class.java)() as AllTypes
         val name2field = name2field(AllTypes::class.java)
         val booleanField = name2field["booleanField"]!!
         val byteField = name2field["byteField"]!!
