@@ -12,8 +12,8 @@ import ch.softappeal.yass.remote.session.useExecutor
 import ch.softappeal.yass.remote.useClient
 import ch.softappeal.yass.serialize.JavaSerializer
 import ch.softappeal.yass.transport.ClientSetup
-import ch.softappeal.yass.transport.messageSerializer
 import ch.softappeal.yass.transport.ServerSetup
+import ch.softappeal.yass.transport.messageSerializer
 import org.junit.Test
 import kotlin.system.measureTimeMillis
 import kotlin.test.assertEquals

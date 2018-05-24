@@ -22,6 +22,7 @@ import static ch.softappeal.yass.transport.socket.Kt.socketBinder;
 import static ch.softappeal.yass.transport.socket.Kt.socketConnector;
 import static ch.softappeal.yass.transport.socket.Kt.socketClient;
 import static ch.softappeal.yass.transport.socket.Kt.socketServer;
+import static ch.softappeal.yass.transport.Kt.messageSerializer;
 
 public class HelloWorld {
 
@@ -44,7 +45,7 @@ public class HelloWorld {
         final ExecutorService executor = Executors.newCachedThreadPool(namedThreadFactory("hello", getTerminate()));
         try {
             final SocketAddress address = new InetSocketAddress("localhost", 28947);
-            final Serializer messageSerializer = getJavaSerializer();
+            final Serializer messageSerializer = messageSerializer(getJavaSerializer());
             final ContractId<Calculator> calculatorId = contractId(Calculator.class, 0, getSimpleMethodMapperFactory());
             final Server server = new Server(service(calculatorId, new CalculatorImpl()));
             try (

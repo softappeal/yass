@@ -23,7 +23,7 @@ fun useExecutor(uncaughtExceptionHandler: Thread.UncaughtExceptionHandler = Term
     try {
         test(executor) { done.countDown() }
         done.await()
-        TimeUnit.MILLISECONDS.sleep(100L)
+        TimeUnit.MILLISECONDS.sleep(200L)
     } finally {
         executor.shutdown()
     }

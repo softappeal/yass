@@ -9,7 +9,7 @@ import java.io.PrintWriter
 import java.nio.charset.StandardCharsets
 import kotlin.test.assertEquals
 
-fun compareFile(file: String, printer: (printer: PrintWriter) -> Unit) {
+fun compareFile(file: String, printer: (writer: PrintWriter) -> Unit) {
     val writer = PrintWriter(System.out)
     printer(writer)
     writer.flush()

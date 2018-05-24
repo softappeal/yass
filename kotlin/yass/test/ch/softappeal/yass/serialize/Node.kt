@@ -1,4 +1,4 @@
-package ch.softappeal.yass.serialize.contract
+package ch.softappeal.yass.serialize
 
 import ch.softappeal.yass.Tag
 

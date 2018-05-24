@@ -5,10 +5,10 @@ package ch.softappeal.yass.remote
 
 class ContractId<C : Any> @PublishedApi internal constructor(val contract: Class<C>, val id: Int, val methodMapper: MethodMapper)
 
-fun <C : Any> contractId(contract: Class<C>, id: Int, methodMapperFactory: MethodMapperFactory) =
+fun <C : Any> contractId(contract: Class<C>, id: Int, methodMapperFactory: MethodMapperFactory): ContractId<C> =
     ContractId(contract, id, methodMapperFactory(contract))
 
-inline fun <reified C : Any> contractId(id: Int, methodMapperFactory: MethodMapperFactory) =
+inline fun <reified C : Any> contractId(id: Int, methodMapperFactory: MethodMapperFactory): ContractId<C> =
     ContractId(C::class.java, id, methodMapperFactory(C::class.java))
 
 abstract class Services protected constructor(val methodMapperFactory: MethodMapperFactory) {
@@ -20,10 +20,8 @@ abstract class Services protected constructor(val methodMapperFactory: MethodMap
         return contractId(contract, id, methodMapperFactory)
     }
 
-    protected inline fun <reified C : Any> contractId(id: Int): ContractId<C> {
-        require(identifiers.add(id)) { "service with id $id already added" }
-        return contractId(id, methodMapperFactory)
-    }
+    protected inline fun <reified C : Any> contractId(id: Int): ContractId<C> =
+        contractId(C::class.java, id)
 }
 
 abstract class AbstractInvocation internal constructor(val methodMapping: MethodMapping, val arguments: List<Any?>) {

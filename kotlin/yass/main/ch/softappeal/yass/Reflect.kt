@@ -23,7 +23,7 @@ fun ownFields(type: Class<*>): List<Field> {
 fun allFields(type: Class<*>): List<Field> {
     val fields = mutableListOf<Field>()
     var t: Class<*>? = type
-    while ((t != null) && (t != Throwable::class.java)) {
+    while ((t !== null) && (t !== Throwable::class.java)) {
         fields.addAll(ownFields(t))
         t = t.superclass
     }
@@ -36,4 +36,5 @@ private val Unsafe = {
     field.get(null) as Unsafe
 }()
 
-val AllocatorFactory: (type: Class<*>) -> (() -> Any) = { type -> { Unsafe.allocateInstance(type) } }
+val AllocatorFactory: (type: Class<*>) -> (() -> Any) =
+    { type -> { Unsafe.allocateInstance(type) } }

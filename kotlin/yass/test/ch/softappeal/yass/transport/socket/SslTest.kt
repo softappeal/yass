@@ -69,8 +69,8 @@ private val SERVER_CERT = readKeyStore("Server.cert.pkcs12")
 private val CLIENTCA_CERT = readKeyStore("ClientCA.cert.pkcs12")
 private val CLIENT_KEY = readKeyStore("Client.key.pkcs12")
 
-private val PROTOCOL = "TLSv1.2"
-private val CIPHER = "TLS_RSA_WITH_AES_128_CBC_SHA"
+private const val PROTOCOL = "TLSv1.2"
+private const val CIPHER = "TLS_RSA_WITH_AES_128_CBC_SHA"
 
 class SslTest {
 

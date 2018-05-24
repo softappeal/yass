@@ -39,7 +39,7 @@ public class JInterceptorTest {
         Assert.assertEquals(2, calculator.divide(6, 3));
         try {
             Assert.assertEquals(2, calculator.divide(6, 0));
-            Assert.fail();
+            fail();
         } catch (final ArithmeticException e) {
             System.out.println(e.getMessage());
         }

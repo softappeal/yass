@@ -56,16 +56,16 @@ abstract class Client {
     }
 }
 
-private val PROMISE = ThreadLocal<CompletableFuture<Any>>()
+private val Promise = ThreadLocal<CompletableFuture<Any>>()
 
 fun <T : Any?> promise(execute: () -> T): CompletionStage<T> {
-    val oldPromise = PROMISE.get()
+    val oldPromise = Promise.get()
     val promise = CompletableFuture<T>()
-    @Suppress("UNCHECKED_CAST") PROMISE.set(promise as CompletableFuture<Any>)
+    @Suppress("UNCHECKED_CAST") Promise.set(promise as CompletableFuture<Any>)
     try {
         execute()
     } finally {
-        PROMISE.set(oldPromise)
+        Promise.set(oldPromise)
     }
     return promise
 }
@@ -74,7 +74,7 @@ class AsyncProxy internal constructor(private val client: Client) {
     fun <C : Any> proxy(contractId: ContractId<C>, interceptor: AsyncInterceptor = DirectAsyncInterceptor): C =
         proxy(contractId.contract, InvocationHandler { _, method, arguments ->
             val methodMapping = contractId.methodMapper.map(method)
-            val promise = PROMISE.get()
+            val promise = Promise.get()
             check((promise != null) || methodMapping.oneWay) { "asynchronous request/reply proxy call must be enclosed with 'promise' function" }
             check((promise == null) || !methodMapping.oneWay) { "asynchronous OneWay proxy call must not be enclosed with 'promise' function" }
             client.invoke2(object : ClientInvocation(methodMapping, args(arguments)) {

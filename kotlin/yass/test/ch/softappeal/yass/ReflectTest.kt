@@ -1,25 +1,22 @@
 package ch.softappeal.yass
 
-import ch.softappeal.yass.serialize.contractj.FieldModifiers
-import ch.softappeal.yass.serialize.contractj.NoDefaultConstructor
-import ch.softappeal.yass.serialize.contractj.nested.AllTypes
+import ch.softappeal.yass.serialize.FieldModifiers
+import ch.softappeal.yass.serialize.NoDefaultConstructor
+import ch.softappeal.yass.serialize.nested.AllTypes
 import org.junit.Test
 import java.lang.reflect.Field
-import java.util.Arrays
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
-class ReflectTest {
+private fun name2field(type: Class<*>): Map<String, Field> =
+    allFields(type).associateBy(Field::getName, { it })
 
+class ReflectTest {
     @Test
     fun noDefaultConstructor() {
         val instance = AllocatorFactory(NoDefaultConstructor::class.java)() as NoDefaultConstructor
         assertTrue(instance.i == 0)
-    }
-
-    private fun name2field(type: Class<*>): Map<String, Field> {
-        return allFields(type).associateBy(Field::getName, { it })
     }
 
     @Test
@@ -89,9 +86,8 @@ class ReflectTest {
         assertEquals("xyz", allTypes.stringField)
         assertEquals("xyz", stringField.get(allTypes))
         val objectListField = name2field["objectListField"]!!
-        objectListField.set(allTypes, Arrays.asList("xyz", 42, null))
-        assertTrue(Arrays.asList("xyz", 42, null) == allTypes.objectListField)
-        assertTrue(Arrays.asList("xyz", 42, null) == objectListField.get(allTypes))
+        objectListField.set(allTypes, listOf("xyz", 42, null))
+        assertTrue(listOf("xyz", 42, null) == allTypes.objectListField)
+        assertTrue(listOf("xyz", 42, null) == objectListField.get(allTypes))
     }
-
 }

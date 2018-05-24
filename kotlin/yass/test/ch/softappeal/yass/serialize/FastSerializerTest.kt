@@ -2,11 +2,6 @@ package ch.softappeal.yass.serialize
 
 import ch.softappeal.yass.Tag
 import ch.softappeal.yass.compareFile
-import ch.softappeal.yass.serialize.contract.C1
-import ch.softappeal.yass.serialize.contract.C2
-import ch.softappeal.yass.serialize.contract.Color
-import ch.softappeal.yass.serialize.contract.E1
-import ch.softappeal.yass.serialize.contract.E2
 import ch.softappeal.yass.serialize.fast.BaseTypeSerializer
 import ch.softappeal.yass.serialize.fast.FastSerializer
 import ch.softappeal.yass.serialize.fast.IntSerializer
@@ -67,7 +62,7 @@ class FastSerializerTest {
         )
         fail()
     } catch (e: IllegalArgumentException) {
-        assertEquals("base type 'ch.softappeal.yass.serialize.contract.Color' is an enumeration", e.message)
+        assertEquals("base type 'ch.softappeal.yass.serialize.Color' is an enumeration", e.message)
     }
 
     @Test
@@ -75,7 +70,7 @@ class FastSerializerTest {
         taggedFastSerializer(listOf(), listOf(Color::class.java, Color::class.java))
         fail()
     } catch (e: IllegalArgumentException) {
-        assertEquals("type 'ch.softappeal.yass.serialize.contract.Color' already added", e.message)
+        assertEquals("type 'ch.softappeal.yass.serialize.Color' already added", e.message)
     }
 
     @Test
@@ -107,7 +102,7 @@ class FastSerializerTest {
         simpleFastSerializer(listOf(), listOf(), listOf(Color::class.java))
         fail()
     } catch (e: IllegalArgumentException) {
-        assertEquals("type 'ch.softappeal.yass.serialize.contract.Color' is an enumeration", e.message)
+        assertEquals("type 'ch.softappeal.yass.serialize.Color' is an enumeration", e.message)
     }
 
     @Test
@@ -117,7 +112,7 @@ class FastSerializerTest {
             copy(serializer, Color.BLUE)
             fail()
         } catch (e: IllegalStateException) {
-            assertEquals("missing type 'ch.softappeal.yass.serialize.contract.Color'", e.message)
+            assertEquals("missing type 'ch.softappeal.yass.serialize.Color'", e.message)
         }
 
     }
@@ -141,7 +136,7 @@ class FastSerializerTest {
         fail()
     } catch (e: IllegalStateException) {
         assertEquals(
-            "type id 120 used for 'ch.softappeal.yass.serialize.contract.C2' and 'ch.softappeal.yass.serialize.contract.C1'",
+            "type id 120 used for 'ch.softappeal.yass.serialize.C2' and 'ch.softappeal.yass.serialize.C1'",
             e.message
         )
     }
@@ -218,24 +213,6 @@ class FastSerializerTest {
             write(printer, createGraph())
             write(printer, createNulls())
             write(printer, createValues())
-        }
-    }
-
-    @Test
-    fun javaBytes() {
-        compareFile("ch/softappeal/yass/serialize/TaggedFastSerializerTest.bytes.txt") { printer ->
-            fun write(printer: PrintWriter, value: Any) {
-                val buffer = ByteArrayOutputStream()
-                JAVA_TAGGED_FAST_SERIALIZER.write(writer(buffer), value)
-                val bytes = buffer.toByteArray()
-                for (b in bytes) {
-                    printer.print(" $b")
-                }
-                printer.println()
-            }
-            write(printer, javaCreateGraph())
-            write(printer, javaCreateNulls())
-            write(printer, javaCreateValues())
         }
     }
 

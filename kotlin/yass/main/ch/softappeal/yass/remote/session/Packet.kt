@@ -4,7 +4,6 @@
 package ch.softappeal.yass.remote.session
 
 import ch.softappeal.yass.remote.Message
-import java.io.Serializable
 
 const val EndRequestNumber = 0
 
@@ -12,7 +11,7 @@ fun isEndPacket(requestNumber: Int) = requestNumber == EndRequestNumber
 
 val EndPacket = Packet()
 
-class Packet : Serializable {
+class Packet {
     private val requestNumber: Int
     private val message: Message?
     fun isEnd() = isEndPacket(requestNumber)
@@ -33,9 +32,6 @@ class Packet : Serializable {
         return requestNumber
     }
 
-    fun message(): Message = message!!
-
-    companion object {
-        private const val serialVersionUID = 1L
-    }
+    fun message(): Message =
+        message!!
 }

@@ -1,10 +1,5 @@
 package ch.softappeal.yass.serialize
 
-import ch.softappeal.yass.serialize.contract.Color
-import ch.softappeal.yass.serialize.contract.IntException
-import ch.softappeal.yass.serialize.contract.Node
-import ch.softappeal.yass.serialize.contract.PrimitiveTypes
-import ch.softappeal.yass.serialize.contract.nested.AllTypes
 import ch.softappeal.yass.serialize.fast.BigDecimalSerializer
 import ch.softappeal.yass.serialize.fast.BigIntegerSerializer
 import ch.softappeal.yass.serialize.fast.BooleanArraySerializer
@@ -29,8 +24,11 @@ import ch.softappeal.yass.serialize.fast.StringSerializer
 import ch.softappeal.yass.serialize.fast.TypeDesc
 import ch.softappeal.yass.serialize.fast.simpleFastSerializer
 import ch.softappeal.yass.serialize.fast.taggedFastSerializer
+import ch.softappeal.yass.serialize.nested.AllTypes
 import org.junit.Assert.assertArrayEquals
 import org.junit.Test
+import java.io.ByteArrayInputStream
+import java.io.ByteArrayOutputStream
 import java.math.BigDecimal
 import java.math.BigInteger
 import java.time.Instant
@@ -41,6 +39,17 @@ import kotlin.test.assertFalse
 import kotlin.test.assertNull
 import kotlin.test.assertSame
 import kotlin.test.assertTrue
+
+fun <T : Any?> copy(serializer: Serializer, value: T): T {
+    val buffer = ByteArrayOutputStream()
+    val writer = writer(buffer)
+    serializer.write(writer, value)
+    writer.writeByte(123.toByte()) // write sentinel
+    val reader = reader(ByteArrayInputStream(buffer.toByteArray()))
+    @Suppress("UNCHECKED_CAST") val result = serializer.read(reader) as T
+    assertTrue(reader.readByte() == 123.toByte()) // check sentinel
+    return result
+}
 
 fun createNulls(): AllTypes {
     return AllTypes()

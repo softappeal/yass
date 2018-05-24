@@ -14,7 +14,7 @@ annotation class OneWay
 data class MethodMapping(val method: Method, val id: Int, val oneWay: Boolean = method.isAnnotationPresent(OneWay::class.java)) {
     init {
         if (oneWay) {
-            check(method.returnType == Void.TYPE) { "OneWay method '$method' must return void" }
+            check(method.returnType === Void.TYPE) { "OneWay method '$method' must return void" }
             check(method.exceptionTypes.isEmpty()) { "OneWay method '$method' must not throw exceptions" }
         }
     }
@@ -28,10 +28,10 @@ interface MethodMapper {
 typealias MethodMapperFactory = (contract: Class<*>) -> MethodMapper
 
 fun MethodMapperFactory.mappings(contract: Class<*>): Sequence<MethodMapping> {
-    val mapper = this(contract)
+    val methodMapper = this(contract)
     return contract.methods.asSequence()
-        .map(mapper::map)
-        .sortedBy { it.id }
+        .map(methodMapper::map)
+        .sortedBy(MethodMapping::id)
 }
 
 val SimpleMethodMapperFactory: MethodMapperFactory = { contract ->
@@ -44,8 +44,11 @@ val SimpleMethodMapperFactory: MethodMapperFactory = { contract ->
         mappings.add(mapping)
     }
     object : MethodMapper {
-        override fun map(id: Int) = if (id in 0 until mappings.size) mappings[id] else error("unexpected method id $id for contract '$contract'")
-        override fun map(method: Method) = checkNotNull(name2mapping[method.name]) { "unexpected method '$method' for contract '$contract'" }
+        override fun map(id: Int) =
+            if (id in 0 until mappings.size) mappings[id] else error("unexpected method id $id for contract '$contract'")
+
+        override fun map(method: Method) =
+            checkNotNull(name2mapping[method.name]) { "unexpected method '$method' for contract '$contract'" }
     }
 }
 
@@ -57,7 +60,10 @@ val TaggedMethodMapperFactory: MethodMapperFactory = { contract ->
         if (oldMapping != null) error("tag $id used for methods '$method' and '${oldMapping.method}' in contract '$contract'")
     }
     object : MethodMapper {
-        override fun map(id: Int) = checkNotNull(id2mapping[id]) { "unexpected method id $id for contract '$contract'" }
-        override fun map(method: Method) = checkNotNull(id2mapping[tag(method)]) { "unexpected method '$method' for contract '$contract'" }
+        override fun map(id: Int) =
+            checkNotNull(id2mapping[id]) { "unexpected method id $id for contract '$contract'" }
+
+        override fun map(method: Method) =
+            checkNotNull(id2mapping[tag(method)]) { "unexpected method '$method' for contract '$contract'" }
     }
 }

@@ -7,6 +7,7 @@ import ch.softappeal.yass.remote.service
 import ch.softappeal.yass.serialize.JavaSerializer
 import ch.softappeal.yass.transport.ClientSetup
 import ch.softappeal.yass.transport.ServerSetup
+import ch.softappeal.yass.transport.messageSerializer
 import ch.softappeal.yass.transport.socket.socketBinder
 import ch.softappeal.yass.transport.socket.socketClient
 import ch.softappeal.yass.transport.socket.socketConnector
@@ -28,7 +29,7 @@ fun useCalculator(calculator: Calculator) {
 
 fun main(args: Array<String>) {
     val calculatorId = contractId<Calculator>(0, SimpleMethodMapperFactory)
-    val messageSerializer = JavaSerializer
+    val messageSerializer = messageSerializer(JavaSerializer)
     val address = InetSocketAddress("localhost", 28947)
     val executor = Executors.newCachedThreadPool()
     val server = Server(service(calculatorId, CalculatorImpl()))

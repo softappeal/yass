@@ -54,7 +54,7 @@ class MessageSerializerTest {
     }
 
     @Test
-    fun wite2() = try {
+    fun write2() = try {
         SERIALIZER.write(writer(ByteArrayOutputStream()), "error")
         fail()
     } catch (e: IllegalStateException) {

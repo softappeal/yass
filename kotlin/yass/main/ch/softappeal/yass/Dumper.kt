@@ -16,18 +16,16 @@ val EmptyValueDumper: ValueDumper = { _, _ -> }
 typealias Dumper = (out: StringBuilder, value: Any?) -> StringBuilder
 
 @JvmOverloads
-fun treeDumper(compact: Boolean, valueDumper: ValueDumper = EmptyValueDumper) =
+fun treeDumper(compact: Boolean, valueDumper: ValueDumper = EmptyValueDumper): Dumper =
     dumper(compact, false, emptySet(), valueDumper)
 
 @JvmOverloads
-fun graphDumper(compact: Boolean, concreteValueClasses: Set<Class<*>> = emptySet(), valueDumper: ValueDumper = EmptyValueDumper) =
+fun graphDumper(compact: Boolean, concreteValueClasses: Set<Class<*>> = emptySet(), valueDumper: ValueDumper = EmptyValueDumper): Dumper =
     dumper(compact, true, concreteValueClasses, valueDumper)
 
 fun Dumper.dump(value: Any?): StringBuilder = this(StringBuilder(256), value)
 
-fun Dumper.println(value: Any?) {
-    System.out.println(this.dump(value))
-}
+fun Dumper.toString(value: Any?): String = this.dump(value).toString()
 
 private val PrimitiveWrapperClasses = setOf(
     Boolean::class::javaObjectType.get(),
@@ -52,28 +50,38 @@ private fun dumper(compact: Boolean, graph: Boolean, concreteValueClasses: Set<C
             out.append('\n')
         }
 
-        fun inc(s: String) {
+        fun inc(s: CharSequence) {
             out.append(s)
             appendLine()
             tabs++
         }
 
-        fun dec(s: String) {
+        fun dec(s: CharSequence) {
             tabs--
             appendTabs()
             out.append(s)
+        }
+
+        fun append(s: CharSequence) {
+            out.append(s)
+        }
+
+        fun append(c: Char) {
+            out.append(c)
         }
 
         fun dump(value: Any?) {
             fun dumpArray(array: Any) {
                 val length = Array.getLength(array)
                 if (compact) {
-                    out.append("[ ")
+                    append('[')
+                    var first = true
                     for (i in 0 until length) {
+                        if (!first) append(',')
+                        first = false
                         dump(Array.get(array, i))
-                        out.append(' ')
                     }
-                    out.append(']')
+                    append(']')
                 } else {
                     inc("[")
                     for (i in 0 until length) {
@@ -87,12 +95,14 @@ private fun dumper(compact: Boolean, graph: Boolean, concreteValueClasses: Set<C
 
             fun dumpCollection(collection: Collection<*>) {
                 if (compact) {
-                    out.append("[ ")
+                    append('[')
+                    var first = true
                     for (e in collection) {
+                        if (!first) append(',')
+                        first = false
                         dump(e)
-                        out.append(' ')
                     }
-                    out.append(']')
+                    append(']')
                 } else {
                     inc("[")
                     for (e in collection) {
@@ -106,20 +116,22 @@ private fun dumper(compact: Boolean, graph: Boolean, concreteValueClasses: Set<C
 
             fun dumpMap(map: Map<*, *>) {
                 if (compact) {
-                    out.append("{ ")
+                    append('{')
+                    var first = true
                     for ((k, v) in map) {
+                        if (!first) append(',')
+                        first = false
                         dump(k)
-                        out.append("->")
+                        append('>')
                         dump(v)
-                        out.append(' ')
                     }
-                    out.append('}')
+                    append('}')
                 } else {
                     inc("{")
                     for ((k, v) in map) {
                         appendTabs()
                         dump(k)
-                        out.append(" -> ")
+                        append(" -> ")
                         dump(v)
                         appendLine()
                     }
@@ -127,55 +139,57 @@ private fun dumper(compact: Boolean, graph: Boolean, concreteValueClasses: Set<C
                 }
             }
 
-            fun dumpClassFields(fields: List<Field>, value: Any) {
-                for (field in fields) {
-                    val f = field.get(value)
-                    if (f != null) {
-                        if (compact) {
-                            out.append(field.name).append('=')
-                            dump(f)
-                            out.append(' ')
-                        } else {
-                            appendTabs()
-                            out.append(field.name).append(" = ")
-                            dump(f)
-                            appendLine()
-                        }
-                    }
-                }
-            }
-
-            fun dumpClass(type: Class<*>, value: Any) {
-                val g = graph && !concreteValueClasses.contains(type)
+            fun dumpClass(type: Class<*>, obj: Any) {
+                val checkDumped = graph && !concreteValueClasses.contains(type)
                 val index: Int
-                if (g) {
-                    val reference = alreadyDumpedObjects!![value]
+                if (checkDumped) {
+                    val reference = alreadyDumpedObjects!![obj]
                     if (reference != null) {
-                        out.append('#').append(reference)
+                        append("#$reference")
                         return
                     }
                     index = alreadyDumpedObjects.size
-                    alreadyDumpedObjects[value] = index
-                } else index = 0
+                    alreadyDumpedObjects[obj] = index
+                } else
+                    index = 0
                 val oldLength = out.length
-                valueDumper(out, value)
+                valueDumper(out, obj)
                 if (oldLength == out.length) {
                     val fields = class2fields.computeIfAbsent(type) { allFields(it) }
+                    fun dumpFields() {
+                        var first = true
+                        for (field in fields) {
+                            val f = field.get(obj)
+                            if (f != null) {
+                                if (compact) {
+                                    if (!first) append(',')
+                                    first = false
+                                    append("${field.name}=")
+                                    dump(f)
+                                } else {
+                                    appendTabs()
+                                    append("${field.name} = ")
+                                    dump(f)
+                                    appendLine()
+                                }
+                            }
+                        }
+                    }
                     if (compact) {
-                        out.append(type.simpleName).append("( ")
-                        dumpClassFields(fields, value)
-                        out.append(')')
+                        append("${type.simpleName}(")
+                        dumpFields()
+                        append(')')
                     } else {
-                        inc(type.simpleName + '(')
-                        dumpClassFields(fields, value)
+                        inc("${type.simpleName}(")
+                        dumpFields()
                         dec(")")
                     }
                 }
-                if (g) out.append('#').append(index)
+                if (checkDumped) append("#$index")
             }
             when (value) {
-                null -> out.append("null")
-                is CharSequence -> out.append('"').append(value).append('"')
+                null -> append("null")
+                is CharSequence -> append("\"$value\"")
                 is Collection<*> -> dumpCollection(value)
                 is Map<*, *> -> dumpMap(value)
                 else -> {
@@ -183,7 +197,7 @@ private fun dumper(compact: Boolean, graph: Boolean, concreteValueClasses: Set<C
                     when {
                         type.isEnum || PrimitiveWrapperClasses.contains(type) -> out.append(value)
                         type.isArray -> dumpArray(value)
-                        type === Character::class.java -> out.append('\'').append(value).append('\'')
+                        type === Character::class.java -> append("'$value'")
                         else -> dumpClass(type, value)
                     }
                 }

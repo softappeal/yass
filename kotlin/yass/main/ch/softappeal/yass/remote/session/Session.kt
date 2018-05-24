@@ -26,11 +26,7 @@ interface Connection {
     fun closed()
 }
 
-class SessionClosedException : RuntimeException() {
-    companion object {
-        private const val serialVersionUID = 1L
-    }
-}
+class SessionClosedException : RuntimeException()
 
 abstract class Session : Client(), AutoCloseable {
     @Volatile

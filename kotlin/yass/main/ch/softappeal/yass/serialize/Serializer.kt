@@ -12,6 +12,9 @@ interface Serializer {
 }
 
 val JavaSerializer = object : Serializer {
-    override fun read(reader: Reader) = ObjectInputStream(reader.stream()).use(ObjectInputStream::readObject)
-    override fun write(writer: Writer, value: Any?) = ObjectOutputStream(writer.stream()).use { it.writeObject(value) }
+    override fun read(reader: Reader) =
+        ObjectInputStream(reader.stream()).use(ObjectInputStream::readObject)
+
+    override fun write(writer: Writer, value: Any?) =
+        ObjectOutputStream(writer.stream()).use { it.writeObject(value) }
 }

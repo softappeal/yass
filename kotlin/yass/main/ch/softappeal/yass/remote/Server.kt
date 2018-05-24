@@ -90,7 +90,6 @@ class AsyncService<C : Any>(
     }
 }
 
-@SafeVarargs
 @JvmOverloads
 fun <C : Any> asyncService(contractId: ContractId<C>, implementation: C, interceptor: AsyncInterceptor = DirectAsyncInterceptor) =
     AsyncService(contractId, implementation, interceptor)

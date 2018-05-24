@@ -5,7 +5,6 @@ import kotlin.test.assertEquals
 import kotlin.test.fail
 
 class TagTest {
-
     @Tag(1)
     class TaggedClass(@Tag(2) var a: Int, @Tag(3) val b: Int) {
         @Tag(4)
@@ -35,7 +34,10 @@ class TagTest {
             tag(TaggedClass::class.java.getMethod("noTag"))
             fail()
         } catch (e: IllegalStateException) {
-            assertEquals("missing tag for 'public final void ch.softappeal.yass.TagTest${'$'}TaggedClass.noTag()'", e.message)
+            assertEquals(
+                "missing tag for 'public final void ch.softappeal.yass.TagTest${'$'}TaggedClass.noTag()'",
+                e.message
+            )
         }
     }
 
@@ -48,8 +50,10 @@ class TagTest {
             tag(JavaTaggedClass::class.java.getMethod("noTag"))
             fail()
         } catch (e: IllegalStateException) {
-            assertEquals("missing tag for 'public void ch.softappeal.yass.JavaTaggedClass.noTag()'", e.message)
+            assertEquals(
+                "missing tag for 'public void ch.softappeal.yass.JavaTaggedClass.noTag()'",
+                e.message
+            )
         }
     }
-
 }

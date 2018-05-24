@@ -42,7 +42,7 @@ script:
     - source deactivate
     # run gradle
     - chmod +x ./gradlew
-    - ./gradlew
+    - ./gradlew -i
     # run ts
     - pushd ts
     - chmod +x ./compile

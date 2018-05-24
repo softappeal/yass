@@ -10,4 +10,5 @@ import java.lang.reflect.AnnotatedElement
 @Target(AnnotationTarget.CLASS, AnnotationTarget.FIELD, AnnotationTarget.FUNCTION)
 annotation class Tag(val value: Int)
 
-fun tag(element: AnnotatedElement): Int = (element.getAnnotation(Tag::class.java) ?: error("missing tag for '$element'")).value
+fun tag(element: AnnotatedElement): Int =
+    (element.getAnnotation(Tag::class.java) ?: error("missing tag for '$element'")).value
