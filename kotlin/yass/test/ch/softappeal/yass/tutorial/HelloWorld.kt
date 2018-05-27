@@ -1,9 +1,9 @@
 package ch.softappeal.yass.tutorial
 
 import ch.softappeal.yass.remote.Server
+import ch.softappeal.yass.remote.Service
 import ch.softappeal.yass.remote.SimpleMethodMapperFactory
 import ch.softappeal.yass.remote.contractId
-import ch.softappeal.yass.remote.service
 import ch.softappeal.yass.serialize.JavaSerializer
 import ch.softappeal.yass.transport.ClientSetup
 import ch.softappeal.yass.transport.ServerSetup
@@ -32,7 +32,7 @@ fun main(args: Array<String>) {
     val messageSerializer = messageSerializer(JavaSerializer)
     val address = InetSocketAddress("localhost", 28947)
     val executor = Executors.newCachedThreadPool()
-    val server = Server(service(calculatorId, CalculatorImpl()))
+    val server = Server(Service(calculatorId, CalculatorImpl()))
     socketServer(ServerSetup(server, messageSerializer), executor)
         .start(executor, socketBinder(address))
     val client = socketClient(ClientSetup(messageSerializer), socketConnector(address))

@@ -49,7 +49,7 @@ fun main(args: Array<String>) {
     val messageSerializer = messageSerializer(JavaSerializer)
     val address = InetSocketAddress("localhost", 28947)
     val executor = Executors.newCachedThreadPool()
-    val server = Server(service(calculatorId, CalculatorImpl()))
+    val server = Server(Service(calculatorId, CalculatorImpl()))
     socketServer(ServerSetup(server, messageSerializer), executor)
         .start(executor, socketBinder(address))
     val client = socketClient(ClientSetup(messageSerializer), socketConnector(address))
