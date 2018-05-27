@@ -35,7 +35,7 @@ abstract class ProxyDelegate<S : Session> {
 
 }
 
-/** Thrown exceptions bill be ignored. */
+/** Thrown exceptions will be ignored. */
 typealias Connector = (sessionFactory: SessionFactory) -> Unit
 
 /** Provides proxies surviving reconnects. */

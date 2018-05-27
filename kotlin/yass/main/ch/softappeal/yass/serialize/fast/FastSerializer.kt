@@ -181,13 +181,13 @@ class ClassTypeSerializer internal constructor(
 }
 
 /**
- * This fast and compact serializer supports the following types (type id's must be &gt;= [FirstTypeId]):
+ * This fast and compact serializer supports the following types (type id's must be >= [FirstTypeId]):
  *  - `null`
  *  - Subclasses of [BaseTypeSerializer]
  *  - [List] (deserialize creates an [ArrayList])
  *  - enumeration types (an enumeration constant is serialized with its ordinal number)
  *  - class hierarchies with all non-static and non-transient fields
- *    (field names and id's must be unique in the path to its super classes and id's must be &gt;= [FirstFieldId])
+ *    (field names and id's must be unique in the path to its super classes and id's must be >= [FirstFieldId])
  *  - exceptions (but without fields of [Throwable]; therefore, you should implement [Throwable.message])
  *  - graphs with cycles
  *

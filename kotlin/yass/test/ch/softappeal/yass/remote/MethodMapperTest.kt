@@ -9,7 +9,6 @@ import kotlin.test.assertTrue
 import kotlin.test.fail
 
 class MethodMapperTest {
-
     @Test
     fun javaOneWay() {
         val mapper = SimpleMethodMapperFactory(JavaOneWay::class.java)
@@ -132,13 +131,10 @@ class MethodMapperTest {
     }
 
     @Test
-    fun simpleMethodMapperFactory() {
+    fun simpleMethodMapperFactory() =
         methodMapperFactory(SimpleMethodMapperFactory)
-    }
 
     @Test
-    fun taggedMethodMapperFactory() {
+    fun taggedMethodMapperFactory() =
         methodMapperFactory(TaggedMethodMapperFactory)
-    }
-
 }

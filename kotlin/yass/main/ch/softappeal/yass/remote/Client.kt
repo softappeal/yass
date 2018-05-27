@@ -23,11 +23,9 @@ abstract class ClientInvocation internal constructor(
 }
 
 abstract class Client {
-    val async = AsyncProxy(this)
     @Throws(Exception::class)
     protected abstract fun invoke(invocation: ClientInvocation)
 
-    internal fun invoke2(invocation: ClientInvocation) = invoke(invocation)
     protected open fun syncInvoke(
         contractId: ContractId<*>, interceptor: Interceptor, method: Method, arguments: List<Any?>
     ): Any? = interceptor(method, arguments) {
@@ -35,7 +33,9 @@ abstract class Client {
         val ready = if (methodMapping.oneWay) null else CountDownLatch(1)
         var r: Reply? = null
         invoke(object : ClientInvocation(methodMapping, arguments) {
-            override fun invoke(asyncSupported: Boolean, tunnel: Tunnel) = tunnel(Request(contractId.id, methodMapping.id, arguments))
+            override fun invoke(asyncSupported: Boolean, tunnel: Tunnel) =
+                tunnel(Request(contractId.id, methodMapping.id, arguments))
+
             override fun settle(reply: Reply) {
                 if (ready == null) return
                 r = reply
@@ -54,30 +54,19 @@ abstract class Client {
             InvocationHandler { _, method, arguments -> syncInvoke(contractId, interceptor, method, args(arguments)) }
         )
     }
-}
 
-private val Promise = ThreadLocal<CompletableFuture<Any>>()
-
-fun <T : Any?> promise(execute: () -> T): CompletionStage<T> {
-    val oldPromise = Promise.get()
-    val promise = CompletableFuture<T>()
-    @Suppress("UNCHECKED_CAST") Promise.set(promise as CompletableFuture<Any>)
-    try {
-        execute()
-    } finally {
-        Promise.set(oldPromise)
-    }
-    return promise
-}
-
-class AsyncProxy internal constructor(private val client: Client) {
-    fun <C : Any> proxy(contractId: ContractId<C>, interceptor: AsyncInterceptor = DirectAsyncInterceptor): C =
+    @JvmOverloads
+    fun <C : Any> asyncProxy(contractId: ContractId<C>, interceptor: AsyncInterceptor = DirectAsyncInterceptor): C =
         proxy(contractId.contract, InvocationHandler { _, method, arguments ->
             val methodMapping = contractId.methodMapper.map(method)
             val promise = Promise.get()
-            check((promise != null) || methodMapping.oneWay) { "asynchronous request/reply proxy call must be enclosed with 'promise' function" }
-            check((promise == null) || !methodMapping.oneWay) { "asynchronous OneWay proxy call must not be enclosed with 'promise' function" }
-            client.invoke2(object : ClientInvocation(methodMapping, args(arguments)) {
+            check((promise != null) || methodMapping.oneWay) {
+                "asynchronous request/reply proxy call must be enclosed with 'promise' function"
+            }
+            check((promise == null) || !methodMapping.oneWay) {
+                "asynchronous OneWay proxy call must not be enclosed with 'promise' function"
+            }
+            invoke(object : ClientInvocation(methodMapping, args(arguments)) {
                 override fun invoke(asyncSupported: Boolean, tunnel: Tunnel) {
                     check(asyncSupported) { "asynchronous services not supported (service id ${contractId.id})" }
                     interceptor.entry(this)
@@ -98,6 +87,20 @@ class AsyncProxy internal constructor(private val client: Client) {
             })
             handlePrimitiveTypes(method.returnType)
         })
+}
+
+private val Promise = ThreadLocal<CompletableFuture<Any>>()
+
+fun <T : Any?> promise(execute: () -> T): CompletionStage<T> {
+    val oldPromise = Promise.get()
+    val promise = CompletableFuture<T>()
+    @Suppress("UNCHECKED_CAST") Promise.set(promise as CompletableFuture<Any>)
+    try {
+        execute()
+    } finally {
+        Promise.set(oldPromise)
+    }
+    return promise
 }
 
 private fun handlePrimitiveTypes(type: Class<*>): Any? = when (type) {

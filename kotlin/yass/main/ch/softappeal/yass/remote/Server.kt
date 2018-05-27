@@ -16,7 +16,8 @@ abstract class AbstractService<C : Any> internal constructor(val contractId: Con
 class ServerInvocation internal constructor(
     val service: AbstractService<*>, request: Request
 ) : AbstractInvocation(service.contractId.methodMapper.map(request.methodId), request.arguments) {
-    fun invoke(replyWriter: ReplyWriter) = service.invoke(this, replyWriter)
+    fun invoke(replyWriter: ReplyWriter) =
+        service.invoke(this, replyWriter)
 }
 
 class Server @SafeVarargs constructor(vararg services: AbstractService<*>) {
@@ -29,8 +30,12 @@ class Server @SafeVarargs constructor(vararg services: AbstractService<*>) {
     }
 
     fun invocation(asyncSupported: Boolean, request: Request): ServerInvocation {
-        val service = checkNotNull(id2service[request.serviceId]) { "no service id ${request.serviceId} found (method id ${request.methodId})" }
-        check(asyncSupported || (service !is AsyncService<*>)) { "asynchronous services not supported (service id ${service.contractId.id})" }
+        val service = checkNotNull(id2service[request.serviceId]) {
+            "no service id ${request.serviceId} found (method id ${request.methodId})"
+        }
+        check(asyncSupported || (service !is AsyncService<*>)) {
+            "asynchronous services not supported (service id ${service.contractId.id})"
+        }
         return ServerInvocation(service, request)
     }
 }
@@ -51,6 +56,7 @@ class Service<C : Any> @SafeVarargs constructor(
     }
 }
 
+/** Only needed for Java. */
 @SafeVarargs
 fun <C : Any> service(contractId: ContractId<C>, implementation: C, vararg interceptors: Interceptor) =
     Service(contractId, implementation, *interceptors)
@@ -61,16 +67,17 @@ abstract class Completer {
     abstract fun completeExceptionally(exception: Exception)
 }
 
-private val COMPLETER = ThreadLocal<Completer>()
+private val TheCompleter = ThreadLocal<Completer>()
 
-fun completer(): Completer = checkNotNull(COMPLETER.get()) { "no active asynchronous request/reply service invocation" }
+fun completer(): Completer =
+    checkNotNull(TheCompleter.get()) { "no active asynchronous request/reply service invocation" }
 
 class AsyncService<C : Any>(
     contractId: ContractId<C>, implementation: C, private val interceptor: AsyncInterceptor = DirectAsyncInterceptor
 ) : AbstractService<C>(contractId, implementation) {
     override fun invoke(invocation: AbstractInvocation, replyWriter: ReplyWriter) {
-        val oldCompleter = COMPLETER.get()
-        COMPLETER.set(if (invocation.methodMapping.oneWay) null else object : Completer() {
+        val oldCompleter = TheCompleter.get()
+        TheCompleter.set(if (invocation.methodMapping.oneWay) null else object : Completer() {
             override fun complete(result: Any?) {
                 interceptor.exit(invocation, result)
                 replyWriter(ValueReply(result))
@@ -85,11 +92,12 @@ class AsyncService<C : Any>(
             interceptor.entry(invocation)
             invoke(invocation.methodMapping.method, implementation, invocation.arguments)
         } finally {
-            COMPLETER.set(oldCompleter)
+            TheCompleter.set(oldCompleter)
         }
     }
 }
 
+/** Only needed for Java. */
 @JvmOverloads
 fun <C : Any> asyncService(contractId: ContractId<C>, implementation: C, interceptor: AsyncInterceptor = DirectAsyncInterceptor) =
     AsyncService(contractId, implementation, interceptor)

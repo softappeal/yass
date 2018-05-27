@@ -6,8 +6,9 @@ import kotlin.test.assertEquals
 import kotlin.test.assertSame
 import kotlin.test.fail
 
-class ContractIdTest {
+private abstract class Role : Services(SimpleMethodMapperFactory)
 
+class ContractIdTest {
     @Test
     fun contractId() {
         val contractId = contractId<Calculator>(123, SimpleMethodMapperFactory)
@@ -17,12 +18,10 @@ class ContractIdTest {
 
     @Test
     fun javaContractId() {
-        val contractId = contractId<JavaCalculator>(123, SimpleMethodMapperFactory)
+        val contractId = contractId(JavaCalculator::class.java, 123, SimpleMethodMapperFactory)
         assertEquals(123, contractId.id)
         assertSame(JavaCalculator::class.java, contractId.contract)
     }
-
-    private abstract class Role : Services(SimpleMethodMapperFactory)
 
     @Test
     fun okServices() {
@@ -40,17 +39,14 @@ class ContractIdTest {
     }
 
     @Test
-    fun duplicatedServices() {
-        try {
-            class Initiator : Role() {
-                val calculator0 = contractId<Calculator>(0)
-                val calculator1 = contractId<Calculator>(0)
-            }
-            Initiator()
-            fail()
-        } catch (e: IllegalArgumentException) {
-            assertEquals("service with id 0 already added", e.message)
+    fun duplicatedServices() = try {
+        class Initiator : Role() {
+            val calculator0 = contractId<Calculator>(0)
+            val calculator1 = contractId<Calculator>(0)
         }
+        Initiator()
+        fail()
+    } catch (e: IllegalArgumentException) {
+        assertEquals("service with id 0 already added", e.message)
     }
-
 }

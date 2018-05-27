@@ -143,21 +143,18 @@ private fun syncClient(client: Client) {
 }
 
 class RemoteTest {
-
     @Test
-    fun syncClientSyncServer() {
+    fun syncClientSyncServer() =
         syncClient(client(Server(Service(calculatorId, CalculatorImpl, serverPrinter)), true))
-    }
 
     @Test
-    fun syncClientAsyncServer() {
+    fun syncClientAsyncServer() =
         syncClient(client(Server(AsyncService(calculatorId, AsyncCalculatorImpl, asyncPrinter("server"))), true))
-    }
 
     @Test
     fun asyncClientAsyncServer() {
         val client = client(Server(AsyncService(calculatorId, AsyncCalculatorImpl, asyncPrinter("server"))), true)
-        val calculator = client.async.proxy(calculatorId, asyncPrinter("client"))
+        val calculator = client.asyncProxy(calculatorId, asyncPrinter("client"))
         calculator.oneWay()
         try {
             promise { calculator.oneWay() }
@@ -183,7 +180,7 @@ class RemoteTest {
         val client = client(Server(Service(calculatorId, CalculatorImpl)), false)
         client.proxy(calculatorId).twoWay()
         try {
-            promise { client.async.proxy(calculatorId).twoWay() }
+            promise { client.asyncProxy(calculatorId).twoWay() }
             fail()
         } catch (e: IllegalStateException) {
             assertEquals("asynchronous services not supported (service id 123)", e.message)
@@ -224,5 +221,4 @@ class RemoteTest {
     } catch (e: IllegalStateException) {
         assertEquals("no active asynchronous request/reply service invocation", e.message)
     }
-
 }

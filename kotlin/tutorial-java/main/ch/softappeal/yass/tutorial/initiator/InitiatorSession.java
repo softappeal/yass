@@ -56,7 +56,7 @@ public final class InitiatorSession extends SimpleSession {
         System.out.println("session created");
         final Function3<Method, List<?>, Function0<?>, Object> interceptor = new Logger(this, Logger.Side.CLIENT);
         priceEngine = proxy(ACCEPTOR.priceEngine, interceptor);
-        instrumentService = getAsync().proxy(ACCEPTOR.instrumentService, AsyncLogger.INSTANCE);
+        instrumentService = asyncProxy(ACCEPTOR.instrumentService, AsyncLogger.INSTANCE);
         echoService = proxy(ACCEPTOR.echoService, interceptor);
         genericEchoService = proxy(ACCEPTOR.genericEchoService, interceptor);
     }
