@@ -2,9 +2,11 @@ package ch.softappeal.yass.tutorial.shared;
 
 import ch.softappeal.yass.transport.socket.SslSetup;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.security.KeyStore;
 
-import static ch.softappeal.yass.Kt.inputStreamFactory;
 import static ch.softappeal.yass.transport.socket.Kt.readKeyStore;
 
 public final class SslConfig {
@@ -12,7 +14,11 @@ public final class SslConfig {
     private static final char[] PASSWORD = "StorePass".toCharArray();
 
     private static KeyStore keyStore(final String name) {
-        return readKeyStore(inputStreamFactory("certificates/" + name), PASSWORD);
+        try {
+            return readKeyStore(Files.newInputStream(Paths.get("certificates", name)), PASSWORD);
+        } catch (final IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private static SslSetup sslSetup(final String keyStore, final String trustStore) {

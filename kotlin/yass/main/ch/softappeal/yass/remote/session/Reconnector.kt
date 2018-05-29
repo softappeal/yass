@@ -20,7 +20,7 @@ abstract class ProxyDelegate<S : Session> {
         this.session = session
     }
 
-    private fun connected(session: Session?): Boolean = (session != null) && !session.isClosed()
+    private fun connected(session: Session?): Boolean = (session != null) && !session.isClosed
 
     fun connected() = connected(session)
 

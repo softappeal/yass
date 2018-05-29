@@ -3,7 +3,7 @@
 
 package ch.softappeal.yass.transport.socket
 
-import ch.softappeal.yass.InputStreamFactory
+import java.io.InputStream
 import java.net.ServerSocket
 import java.net.Socket
 import java.security.KeyStore
@@ -83,8 +83,8 @@ fun SslSetup.serverSocketFactory() = object : AbstractServerSocketFactory() {
 }
 
 @JvmOverloads
-fun readKeyStore(keyStore: InputStreamFactory, keyStorePwd: CharArray? = null, keyStoreType: String = "PKCS12"): KeyStore {
+fun readKeyStore(keyStore: InputStream, keyStorePwd: CharArray? = null, keyStoreType: String = "PKCS12"): KeyStore {
     val ks = KeyStore.getInstance(keyStoreType)
-    keyStore().use { ks.load(it, keyStorePwd) }
+    keyStore.use { ks.load(it, keyStorePwd) }
     return ks
 }

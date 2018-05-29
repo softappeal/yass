@@ -28,6 +28,7 @@ import java.lang.reflect.Modifier
 import java.lang.reflect.ParameterizedType
 import java.lang.reflect.Type
 import java.lang.reflect.TypeVariable
+import java.nio.file.Path
 import java.util.HashSet
 import java.util.LinkedHashMap
 
@@ -66,7 +67,7 @@ private fun nullable(type: String): String = "yass.Nullable<$type>"
  */
 class TypeScriptGenerator @JvmOverloads constructor(
     rootPackage: String, serializer: FastSerializer, initiator: Services?, acceptor: Services?,
-    includeFile: String, externalTypes: Map<Class<*>, ExternalDesc>, contractFile: String, additionalTypeCode: String? = null
+    includeFile: Path, externalTypes: Map<Class<*>, ExternalDesc>, contractFile: Path, additionalTypeCode: String? = null
 ) : Generator(rootPackage, serializer, initiator, acceptor) {
     init {
         object : Out(contractFile) {

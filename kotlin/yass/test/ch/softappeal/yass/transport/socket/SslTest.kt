@@ -1,7 +1,6 @@
 package ch.softappeal.yass.transport.socket
 
 import ch.softappeal.yass.Terminate
-import ch.softappeal.yass.inputStreamFactory
 import ch.softappeal.yass.remote.CalculatorImpl
 import ch.softappeal.yass.remote.Server
 import ch.softappeal.yass.remote.Service
@@ -12,6 +11,8 @@ import ch.softappeal.yass.transport.ClientSetup
 import ch.softappeal.yass.transport.ServerSetup
 import org.junit.Test
 import java.lang.reflect.UndeclaredThrowableException
+import java.nio.file.Files
+import java.nio.file.Paths
 import java.security.KeyStore
 import javax.net.ServerSocketFactory
 import javax.net.SocketFactory
@@ -27,7 +28,7 @@ private fun test(
         println("checkName")
         assertEquals(name, (socket() as SSLSocket).session.peerPrincipal.name)
     }
-    useExecutor(uncaughtExceptionHandler) { executor, done ->
+    useExecutor(uncaughtExceptionHandler = uncaughtExceptionHandler) { executor, done ->
         socketServer(ServerSetup(Server(Service(calculatorId, CalculatorImpl, { _, _, invocation ->
             if (needClientAuth) checkName("CN=Client")
             invocation()
@@ -61,7 +62,7 @@ private fun failedTest(serverSocketFactory: ServerSocketFactory, socketFactory: 
 private val PASSWORD = "StorePass".toCharArray()
 
 private fun readKeyStore(name: String): KeyStore {
-    return readKeyStore(inputStreamFactory("../../certificates/$name"), PASSWORD)
+    return readKeyStore(Files.newInputStream(Paths.get("../../certificates", name)), PASSWORD)
 }
 
 private val SERVER_KEY = readKeyStore("Server.key.pkcs12")

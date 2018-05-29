@@ -4,14 +4,16 @@ import ch.softappeal.yass.generate.py.ExternalDesc;
 import ch.softappeal.yass.generate.py.PythonGenerator;
 import ch.softappeal.yass.tutorial.contract.Config;
 
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
 
 public final class GeneratePython3 {
 
     public static void main(final String... args) throws Exception {
-        final Map<String, String> module2includeFile = new HashMap<>();
-        module2includeFile.put("", "../../py3/tutorial/contract_include_root_module.txt");
+        final Map<String, Path> module2includeFile = new HashMap<>();
+        module2includeFile.put("", Paths.get("../../py3/tutorial/contract_include_root_module.txt"));
         final Map<Class<?>, ExternalDesc> externalTypes = new HashMap<>();
         externalTypes.put(Integer.class, new ExternalDesc("Integer", "Integer.TYPE_DESC")); // shows how to use a contract external base type
         new PythonGenerator(
@@ -20,10 +22,10 @@ public final class GeneratePython3 {
             Config.INITIATOR,
             Config.PY_ACCEPTOR,
             true,
-            "../../py3/tutorial/contract_include_each_module.txt",
+            Paths.get("../../py3/tutorial/contract_include_each_module.txt"),
             module2includeFile,
             externalTypes,
-            "build/generated/py3"
+            Paths.get("build/generated/py3")
         );
     }
 

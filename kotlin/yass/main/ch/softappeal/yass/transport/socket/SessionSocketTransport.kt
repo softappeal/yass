@@ -106,7 +106,7 @@ private fun read(
         while (true) {
             val packet = transport.read(reader)
             session.received(packet)
-            if (packet.isEnd()) return
+            if (packet.isEnd) return
         }
     } catch (e: Exception) {
         session.close(e)

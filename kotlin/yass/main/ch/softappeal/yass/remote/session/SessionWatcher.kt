@@ -25,7 +25,7 @@ fun watchSession(
     } catch (e: InterruptedException) {
         return@execute
     }
-    while (!session.isClosed() && !Thread.interrupted()) {
+    while (!session.isClosed && !Thread.interrupted()) {
         try {
             TimeUnit.SECONDS.sleep(intervalSeconds)
         } catch (e: InterruptedException) {

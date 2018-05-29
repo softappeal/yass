@@ -20,11 +20,11 @@ fun packetSerializer(messageSerializer: Serializer) = object : Serializer {
 
     override fun write(writer: Writer, value: Any?) {
         val packet = value as Packet
-        if (packet.isEnd())
+        if (packet.isEnd)
             writer.writeInt(EndRequestNumber)
         else {
-            writer.writeInt(packet.requestNumber())
-            messageSerializer.write(writer, packet.message())
+            writer.writeInt(packet.requestNumber)
+            messageSerializer.write(writer, packet.message)
         }
     }
 }

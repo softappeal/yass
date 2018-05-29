@@ -7,31 +7,35 @@ import ch.softappeal.yass.remote.Message
 
 const val EndRequestNumber = 0
 
-fun isEndPacket(requestNumber: Int) = requestNumber == EndRequestNumber
+fun isEndPacket(requestNumber: Int): Boolean =
+    requestNumber == EndRequestNumber
 
 val EndPacket = Packet()
 
 class Packet {
-    private val requestNumber: Int
-    private val message: Message?
-    fun isEnd() = isEndPacket(requestNumber)
+    private val _requestNumber: Int
+    private val _message: Message?
+
+    val isEnd: Boolean
+        get() = isEndPacket(_requestNumber)
+
+    val requestNumber: Int
+        get() {
+            check(!isEnd)
+            return _requestNumber
+        }
+
+    val message: Message
+        get() = _message!!
 
     constructor(requestNumber: Int, message: Message) {
         require(!isEndPacket(requestNumber))
-        this.requestNumber = requestNumber
-        this.message = message
+        _requestNumber = requestNumber
+        _message = message
     }
 
     internal constructor() {
-        requestNumber = EndRequestNumber
-        message = null
+        _requestNumber = EndRequestNumber
+        _message = null
     }
-
-    fun requestNumber(): Int {
-        check(!isEnd())
-        return requestNumber
-    }
-
-    fun message(): Message =
-        message!!
 }

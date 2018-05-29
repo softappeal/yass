@@ -28,6 +28,7 @@ import ch.softappeal.yass.serialize.fast.primitiveWrapperType
 import java.lang.reflect.Modifier
 import java.lang.reflect.ParameterizedType
 import java.lang.reflect.Type
+import java.nio.file.Path
 import java.util.Comparator
 import java.util.LinkedHashMap
 import java.util.LinkedHashSet
@@ -61,7 +62,7 @@ fun baseTypeDescs(vararg descs: TypeDesc): Collection<TypeDesc> {
     return d
 }
 
-private const val INIT_PY = "/__init__.py"
+private const val INIT_PY = "__init__.py"
 private const val ROOT_MODULE = "contract"
 
 private fun pyBool(value: Boolean) = if (value) "True" else "False"
@@ -69,10 +70,10 @@ private fun pyBool(value: Boolean) = if (value) "True" else "False"
 /** You must use the "-parameters" option for javac to get the real method parameter names. */
 class PythonGenerator(
     rootPackage: String, serializer: FastSerializer, initiator: Services?, acceptor: Services?, private val python3: Boolean,
-    private val includeFileForEachModule: String?, module2includeFile: Map<String, String>?,
-    externalTypes: Map<Class<*>, ExternalDesc>, generatedDir: String
+    private val includeFileForEachModule: Path?, module2includeFile: Map<String, Path>?,
+    externalTypes: Map<Class<*>, ExternalDesc>, generatedDir: Path
 ) : Generator(rootPackage, serializer, initiator, acceptor) {
-    private val module2includeFile = mutableMapOf<String, String>()
+    private val module2includeFile = mutableMapOf<String, Path>()
     private val externalTypes = TreeMap<Class<*>, ExternalDesc>(Comparator.comparing<Class<*>, String> { it.canonicalName })
     private val rootNamespace = Namespace(null, null, ROOT_MODULE, 0)
     private val type2namespace = LinkedHashMap<Class<*>, Namespace>()
@@ -89,8 +90,8 @@ class PythonGenerator(
             }
         }
         interfaces.forEach { rootNamespace.add(it) }
-        rootNamespace.generate("$generatedDir/$ROOT_MODULE")
-        MetaPythonOut("$generatedDir$INIT_PY")
+        rootNamespace.generate(generatedDir.resolve(ROOT_MODULE))
+        MetaPythonOut(generatedDir.resolve(INIT_PY))
     }
 
     private inner class Namespace(val parent: Namespace?, val name: String?, val moduleName: String, val depth: Int) {
@@ -116,9 +117,9 @@ class PythonGenerator(
             add(qualifiedName(type), type)
         }
 
-        fun generate(path: String) {
-            ContractPythonOut("$path$INIT_PY", this)
-            children.forEach { name, namespace -> namespace.generate("$path/$name") }
+        fun generate(path: Path) {
+            ContractPythonOut(path.resolve(INIT_PY), this)
+            children.forEach { name, namespace -> namespace.generate(path.resolve(name)) }
         }
     }
 
@@ -127,7 +128,7 @@ class PythonGenerator(
     fun hasClassDesc(type: Class<*>): Boolean =
         !type.isEnum && !Modifier.isAbstract(type.modifiers) && typeHandler(type) is ClassTypeSerializer
 
-    private inner class ContractPythonOut(file: String, val namespace: Namespace) : Out(file) {
+    private inner class ContractPythonOut(path: Path, val namespace: Namespace) : Out(path) {
         val modules = TreeSet(Comparator.comparing<Namespace, String> { it.moduleName })
 
         init {
@@ -262,7 +263,7 @@ class PythonGenerator(
         }
     }
 
-    private inner class MetaPythonOut(file: String) : Out(file) {
+    private inner class MetaPythonOut(path: Path) : Out(path) {
         init {
             println("import yass")
             if (includeFileForEachModule != null) includeFile(includeFileForEachModule)

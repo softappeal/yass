@@ -1,22 +1,19 @@
 package ch.softappeal.yass.generate
 
-import java.io.BufferedReader
-import java.io.File
-import java.io.FileInputStream
-import java.io.InputStreamReader
 import java.io.PrintWriter
 import java.nio.charset.StandardCharsets
+import java.nio.file.Files
+import java.nio.file.Path
 
-abstract class Out protected constructor(file: String) {
+abstract class Out protected constructor(path: Path) {
 
     private val printer: PrintWriter
     private var buffer: Appendable? = null
     private var tabs = 0
 
     init {
-        val directory = File(file).parentFile
-        check(directory.exists() || directory.mkdirs()) { "directory '$directory' not created" }
-        printer = PrintWriter(file, StandardCharsets.UTF_8.name())
+        Files.createDirectories(path.parent)
+        printer = PrintWriter(path.toFile(), StandardCharsets.UTF_8.name())
     }
 
     protected fun redirect(buffer: Appendable?) {
@@ -68,8 +65,8 @@ abstract class Out protected constructor(file: String) {
         println()
     }
 
-    protected fun includeFile(file: String) {
-        BufferedReader(InputStreamReader(FileInputStream(file), StandardCharsets.UTF_8)).use { input ->
+    protected fun includeFile(path: Path) {
+        Files.newBufferedReader(path, StandardCharsets.UTF_8).use { input ->
             while (true) {
                 val s = input.readLine() ?: break
                 println(s)
