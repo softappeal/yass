@@ -33,8 +33,7 @@ abstract class Session : Client(), AutoCloseable {
     private var opened = false
 
     private lateinit var _connection: Connection
-    val connection: Connection
-        get() = _connection
+    val connection: Connection get() = _connection
 
     private lateinit var server: Server
 
@@ -44,6 +43,20 @@ abstract class Session : Client(), AutoCloseable {
     /** note: it's not worth to use [ConcurrentHashMap] here */
     private val requestNumber2invocation = Collections.synchronizedMap(HashMap<Int, ClientInvocation>(16))
     private val nextRequestNumber = AtomicInteger(EndRequestNumber)
+
+    internal fun iCreated(connection: Connection) {
+        server = requireNotNull(server())
+        closed.set(false)
+        _connection = connection
+        dispatchOpened(Runnable {
+            try {
+                opened = true
+                opened()
+            } catch (e: Exception) {
+                close(e)
+            }
+        })
+    }
 
     /** Called if a session has been opened. Must call [Runnable.run] (possibly in an own thread). */
     @Throws(Exception::class)
@@ -55,15 +68,14 @@ abstract class Session : Client(), AutoCloseable {
 
     /** Gets the server of this session. Called only once after creation of session. */
     @Throws(Exception::class)
-    protected open fun server(): Server =
-        EmptyServer
+    protected open fun server(): Server = EmptyServer
 
     @Throws(Exception::class)
     protected open fun opened() {
         // empty
     }
 
-    /** if ([exception] == null) regular close else reason for close */
+    /** If ([exception] == null) regular close else reason for close. */
     @Throws(Exception::class)
     protected open fun closed(exception: Exception?) {
         // empty
@@ -118,7 +130,7 @@ abstract class Session : Client(), AutoCloseable {
                     }
                 }
             } catch (e: Exception) {
-                close(e)
+                closeThrow(e)
             }
         })
     }
@@ -154,20 +166,6 @@ abstract class Session : Client(), AutoCloseable {
                 _connection.write(Packet(requestNumber, request))
             } catch (e: Exception) {
                 closeThrow(e)
-            }
-        })
-    }
-
-    internal fun iCreated(connection: Connection) {
-        server = requireNotNull(server())
-        closed.set(false)
-        _connection = connection
-        dispatchOpened(Runnable {
-            try {
-                opened = true
-                opened()
-            } catch (e: Exception) {
-                close(e)
             }
         })
     }

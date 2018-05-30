@@ -12,7 +12,6 @@ import java.util.concurrent.Executor
 import java.util.concurrent.TimeUnit
 
 abstract class ProxyDelegate<S : Session> {
-
     @Volatile
     private var session: S? = null
 
@@ -20,9 +19,11 @@ abstract class ProxyDelegate<S : Session> {
         this.session = session
     }
 
-    private fun connected(session: Session?): Boolean = (session != null) && !session.isClosed
+    private fun connected(session: Session?): Boolean =
+        (session != null) && !session.isClosed
 
-    fun connected() = connected(session)
+    fun connected() =
+        connected(session)
 
     fun session(): S {
         val session = this.session
@@ -32,7 +33,6 @@ abstract class ProxyDelegate<S : Session> {
 
     fun <C : Any> proxy(contract: Class<C>, proxyGetter: (session: S) -> C): C =
         proxy(contract, InvocationHandler { _, method, arguments -> invoke(method, proxyGetter(session()) as Any, args(arguments)) })
-
 }
 
 /** Thrown exceptions will be ignored. */
@@ -40,7 +40,6 @@ typealias Connector = (sessionFactory: SessionFactory) -> Unit
 
 /** Provides proxies surviving reconnects. */
 open class Reconnector<S : Session> : ProxyDelegate<S>() {
-
     /** [executor] is called once; must interrupt it's threads to terminate reconnects. */
     @JvmOverloads
     fun start(executor: Executor, intervalSeconds: Long, sessionFactory: SessionFactory, connector: Connector, delaySeconds: Long = 0) {
@@ -68,9 +67,7 @@ open class Reconnector<S : Session> : ProxyDelegate<S>() {
                 } catch (e: InterruptedException) {
                     return@execute
                 }
-
             }
         }
     }
-
 }
