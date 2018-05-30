@@ -20,52 +20,58 @@ val packetSerializer = packetSerializer(messageSerializer)
 class SessionSocketTransportTest {
 
     @Test
-    fun test() = useExecutor { executor, done ->
-        fun connectionHandler(connection: Connection) {
-            println(connection)
-            println((connection as SocketConnection).socket)
-        }
-        socketAcceptor(
-            AcceptorSetup(packetSerializer) { createTestSession(executor, null, ::connectionHandler) },
-            executor,
-            asyncSocketConnectionFactory(executor, 1_000)
-        ).start(executor, socketBinder(address)).use {
-            TimeUnit.MILLISECONDS.sleep(200L)
-            socketInitiate(
-                InitiatorSetup(packetSerializer) { createTestSession(executor, done, ::connectionHandler) },
+    fun test() {
+        useExecutor { executor, done ->
+            fun connectionHandler(connection: Connection) {
+                println(connection)
+                println((connection as SocketConnection).socket)
+            }
+            socketAcceptor(
+                AcceptorSetup(packetSerializer) { createTestSession(executor, null, ::connectionHandler) },
                 executor,
-                SyncSocketConnectionFactory,
-                socketConnector(address)
-            )
+                asyncSocketConnectionFactory(executor, 1_000)
+            ).start(executor, socketBinder(address)).use {
+                TimeUnit.MILLISECONDS.sleep(200L)
+                socketInitiate(
+                    InitiatorSetup(packetSerializer) { createTestSession(executor, done, ::connectionHandler) },
+                    executor,
+                    SyncSocketConnectionFactory,
+                    socketConnector(address)
+                )
+            }
         }
+        TimeUnit.MILLISECONDS.sleep(200L)
     }
 
     @Test
-    fun performance() = useExecutor { executor, done ->
-        socketAcceptor(
-            AcceptorSetup(packetSerializer) {
-                object : SimpleSession(executor) {
-                    override fun server() = Server(Service(calculatorId, CalculatorImpl))
-                }
-            },
-            executor,
-            SyncSocketConnectionFactory
-        ).start(executor, socketBinder(address)).use {
-            TimeUnit.MILLISECONDS.sleep(200L)
-            socketInitiate(
-                InitiatorSetup(packetSerializer) {
+    fun performance() {
+        useExecutor { executor, done ->
+            socketAcceptor(
+                AcceptorSetup(packetSerializer) {
                     object : SimpleSession(executor) {
-                        override fun opened() {
-                            performance(this)
-                            done()
-                        }
+                        override fun server() = Server(Service(calculatorId, CalculatorImpl))
                     }
                 },
                 executor,
-                SyncSocketConnectionFactory,
-                socketConnector(address)
-            )
+                SyncSocketConnectionFactory
+            ).start(executor, socketBinder(address)).use {
+                TimeUnit.MILLISECONDS.sleep(200L)
+                socketInitiate(
+                    InitiatorSetup(packetSerializer) {
+                        object : SimpleSession(executor) {
+                            override fun opened() {
+                                performance(this)
+                                done()
+                            }
+                        }
+                    },
+                    executor,
+                    SyncSocketConnectionFactory,
+                    socketConnector(address)
+                )
+            }
         }
+        TimeUnit.MILLISECONDS.sleep(200L)
     }
 
 }

@@ -42,28 +42,34 @@ class SocketTransportTest {
     }
 
     @Test
-    fun test() = useExecutor { executor, done ->
-        val server = Server(Service(calculatorId, CalculatorImpl, PRINTER, serverPrinter))
-        socketServer(ServerSetup(server, messageSerializer), executor)
-            .start(executor, socketBinder(address)).use {
-                TimeUnit.MILLISECONDS.sleep(200L)
-                useClient(
-                    socketClient(ClientSetup(messageSerializer), socketConnector(address))
-                        .proxy(calculatorId, PRINTER, clientPrinter)
-                )
-            }
-        done()
+    fun test() {
+        useExecutor { executor, done ->
+            val server = Server(Service(calculatorId, CalculatorImpl, PRINTER, serverPrinter))
+            socketServer(ServerSetup(server, messageSerializer), executor)
+                .start(executor, socketBinder(address)).use {
+                    TimeUnit.MILLISECONDS.sleep(200L)
+                    useClient(
+                        socketClient(ClientSetup(messageSerializer), socketConnector(address))
+                            .proxy(calculatorId, PRINTER, clientPrinter)
+                    )
+                }
+            done()
+        }
+        TimeUnit.MILLISECONDS.sleep(200L)
     }
 
     @Test
-    fun performance() = useExecutor { executor, done ->
-        val server = Server(Service(calculatorId, CalculatorImpl))
-        socketServer(ServerSetup(server, messageSerializer), executor)
-            .start(executor, socketBinder(address)).use {
-                TimeUnit.MILLISECONDS.sleep(200L)
-                performance(socketClient(ClientSetup(messageSerializer), socketConnector(address)))
-            }
-        done()
+    fun performance() {
+        useExecutor { executor, done ->
+            val server = Server(Service(calculatorId, CalculatorImpl))
+            socketServer(ServerSetup(server, messageSerializer), executor)
+                .start(executor, socketBinder(address)).use {
+                    TimeUnit.MILLISECONDS.sleep(200L)
+                    performance(socketClient(ClientSetup(messageSerializer), socketConnector(address)))
+                }
+            done()
+        }
+        TimeUnit.MILLISECONDS.sleep(200L)
     }
 
 }
