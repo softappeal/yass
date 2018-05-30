@@ -4,6 +4,7 @@ import ch.softappeal.yass.Interceptor
 import org.junit.Test
 import java.lang.reflect.Method
 import java.util.concurrent.TimeUnit
+import kotlin.system.measureTimeMillis
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
 import kotlin.test.fail
@@ -38,6 +39,17 @@ fun useClient(calculator: Calculator) {
     assertNull(calculator.echo(null))
     assertEquals("hello", calculator.echo("hello"))
     calculator.oneWay()
+}
+
+fun performance(client: Client) {
+    val calculator = client.proxy(calculatorId)
+    val iterations = 1 // 10_000
+    for (warmUp in 1..2) {
+        println("iterations = $iterations, one took ${1_000.0 * measureTimeMillis {
+            for (i in 1..iterations)
+                assertEquals(4, calculator.divide(12, 3))
+        } / iterations}us")
+    }
 }
 
 private fun printer(client: Boolean): Interceptor {

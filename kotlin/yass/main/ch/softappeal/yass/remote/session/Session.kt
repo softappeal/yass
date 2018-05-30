@@ -46,12 +46,15 @@ abstract class Session : Client(), AutoCloseable {
     private val nextRequestNumber = AtomicInteger(EndRequestNumber)
 
     /** Called if a session has been opened. Must call [Runnable.run] (possibly in an own thread). */
+    @Throws(Exception::class)
     protected abstract fun dispatchOpened(runnable: Runnable)
 
     /** Called for an incoming request. Must call [Runnable.run] (possibly in an own thread). */
+    @Throws(Exception::class)
     protected abstract fun dispatchServerInvoke(invocation: ServerInvocation, runnable: Runnable)
 
     /** Gets the server of this session. Called only once after creation of session. */
+    @Throws(Exception::class)
     protected open fun server(): Server =
         EmptyServer
 

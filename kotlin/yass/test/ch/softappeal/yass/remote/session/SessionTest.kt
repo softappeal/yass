@@ -33,15 +33,6 @@ fun useExecutor(
     }
 }
 
-private fun connect(session1: Session, session2: Session) {
-    class LocalConnection(private val session: Session) : Connection {
-        override fun write(packet: Packet) = session.received(packet)
-        override fun closed() = session.close()
-    }
-    session1.created(LocalConnection(session2))
-    session2.created(LocalConnection(session1))
-}
-
 fun createTestSession(
     dispatchExecutor: Executor, done: (() -> Unit)?, connectionHandler: (connection: Connection) -> Unit = {}
 ) = object : SimpleSession(dispatchExecutor) {
@@ -80,6 +71,15 @@ fun createTestSession(
         println("closed")
         exception?.printStackTrace()
     }
+}
+
+private fun connect(session1: Session, session2: Session) {
+    class LocalConnection(private val session: Session) : Connection {
+        override fun write(packet: Packet) = session.received(packet)
+        override fun closed() = session.close()
+    }
+    session1.created(LocalConnection(session2))
+    session2.created(LocalConnection(session1))
 }
 
 class LocalConnectionTest {

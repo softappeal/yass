@@ -4,6 +4,7 @@ import ch.softappeal.yass.remote.CalculatorImpl
 import ch.softappeal.yass.remote.Server
 import ch.softappeal.yass.remote.Service
 import ch.softappeal.yass.remote.calculatorId
+import ch.softappeal.yass.remote.performance
 import ch.softappeal.yass.remote.session.Connection
 import ch.softappeal.yass.remote.session.SimpleSession
 import ch.softappeal.yass.remote.session.createTestSession
@@ -38,7 +39,7 @@ class SessionSocketTransportTest {
     }
 
     @Test
-    fun performance() = useExecutor { executor, done ->
+    fun performance() = useExecutor(2_500L) { executor, done ->
         socketAcceptor(
             AcceptorSetup(packetSerializer) {
                 object : SimpleSession(executor) {
