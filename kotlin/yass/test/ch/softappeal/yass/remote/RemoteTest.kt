@@ -233,4 +233,14 @@ class RemoteTest {
     } catch (e: IllegalStateException) {
         assertEquals("no active asynchronous request/reply service invocation", e.message)
     }
+
+    @Test
+    fun performance() {
+        fun client(server: Server) = object : Client() {
+            override fun invoke(invocation: ClientInvocation) = invocation.invoke(false) { request ->
+                server.invocation(false, request).invoke { reply -> invocation.settle(reply) }
+            }
+        }
+        performance(client(Server(Service(calculatorId, CalculatorImpl))))
+    }
 }

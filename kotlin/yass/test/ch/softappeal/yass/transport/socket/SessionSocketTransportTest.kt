@@ -13,13 +13,14 @@ import ch.softappeal.yass.transport.AcceptorSetup
 import ch.softappeal.yass.transport.InitiatorSetup
 import ch.softappeal.yass.transport.packetSerializer
 import org.junit.Test
+import java.util.concurrent.TimeUnit
 
 val packetSerializer = packetSerializer(messageSerializer)
 
 class SessionSocketTransportTest {
 
     @Test
-    fun test() = useExecutor(2_500L) { executor, done ->
+    fun test() = useExecutor { executor, done ->
         fun connectionHandler(connection: Connection) {
             println(connection)
             println((connection as SocketConnection).socket)
@@ -29,6 +30,7 @@ class SessionSocketTransportTest {
             executor,
             asyncSocketConnectionFactory(executor, 1_000)
         ).start(executor, socketBinder(address)).use {
+            TimeUnit.MILLISECONDS.sleep(200L)
             socketInitiate(
                 InitiatorSetup(packetSerializer) { createTestSession(executor, done, ::connectionHandler) },
                 executor,
@@ -39,16 +41,17 @@ class SessionSocketTransportTest {
     }
 
     @Test
-    fun performance() = useExecutor(2_500L) { executor, done ->
+    fun performance() = useExecutor { executor, done ->
         socketAcceptor(
             AcceptorSetup(packetSerializer) {
                 object : SimpleSession(executor) {
-                    override fun server(): Server = Server(Service(calculatorId, CalculatorImpl))
+                    override fun server() = Server(Service(calculatorId, CalculatorImpl))
                 }
             },
             executor,
             SyncSocketConnectionFactory
         ).start(executor, socketBinder(address)).use {
+            TimeUnit.MILLISECONDS.sleep(200L)
             socketInitiate(
                 InitiatorSetup(packetSerializer) {
                     object : SimpleSession(executor) {

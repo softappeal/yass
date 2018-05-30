@@ -7,18 +7,17 @@ import ch.softappeal.yass.remote.Server
 import ch.softappeal.yass.remote.Service
 import ch.softappeal.yass.remote.calculatorId
 import ch.softappeal.yass.remote.clientPrinter
+import ch.softappeal.yass.remote.performance
 import ch.softappeal.yass.remote.serverPrinter
 import ch.softappeal.yass.remote.useClient
 import org.junit.Test
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.Executor
 import java.util.concurrent.Executors
-import java.util.concurrent.TimeUnit
 import kotlin.test.assertTrue
 import kotlin.test.fail
 
 fun useExecutor(
-    additionalDelayMillis: Long = 0L,
     uncaughtExceptionHandler: Thread.UncaughtExceptionHandler = Terminate,
     test: (executor: Executor, done: () -> Unit) -> Unit
 ) {
@@ -27,7 +26,6 @@ fun useExecutor(
     try {
         test(executor) { done.countDown() }
         done.await()
-        TimeUnit.MILLISECONDS.sleep(additionalDelayMillis + 200L)
     } finally {
         executor.shutdown()
     }
@@ -86,5 +84,19 @@ class LocalConnectionTest {
     @Test
     fun test() = useExecutor { executor, done ->
         connect(createTestSession(executor, done), createTestSession(executor, null))
+    }
+
+    @Test
+    fun performanceTest() = useExecutor { executor, done ->
+        val serverSession = object : SimpleSession(executor) {
+            override fun server() = Server(Service(calculatorId, CalculatorImpl))
+        }
+        val clientSession = object : SimpleSession(executor) {
+            override fun opened() {
+                performance(this)
+                done()
+            }
+        }
+        connect(serverSession, clientSession)
     }
 }
