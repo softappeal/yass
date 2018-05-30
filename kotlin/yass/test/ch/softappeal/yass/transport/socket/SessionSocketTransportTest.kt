@@ -31,7 +31,6 @@ class SessionSocketTransportTest {
                 executor,
                 asyncSocketConnectionFactory(executor, 1_000)
             ).start(executor, socketBinder(address)).use {
-                TimeUnit.MILLISECONDS.sleep(200L)
                 socketInitiate(
                     InitiatorSetup(packetSerializer) { createTestSession(executor, done, ::connectionHandler) },
                     executor,
@@ -55,7 +54,6 @@ class SessionSocketTransportTest {
                 executor,
                 SyncSocketConnectionFactory
             ).start(executor, socketBinder(address)).use {
-                TimeUnit.MILLISECONDS.sleep(200L)
                 socketInitiate(
                     InitiatorSetup(packetSerializer) {
                         object : SimpleSession(executor) {

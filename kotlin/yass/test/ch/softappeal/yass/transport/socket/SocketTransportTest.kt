@@ -47,7 +47,6 @@ class SocketTransportTest {
             val server = Server(Service(calculatorId, CalculatorImpl, PRINTER, serverPrinter))
             socketServer(ServerSetup(server, messageSerializer), executor)
                 .start(executor, socketBinder(address)).use {
-                    TimeUnit.MILLISECONDS.sleep(200L)
                     useClient(
                         socketClient(ClientSetup(messageSerializer), socketConnector(address))
                             .proxy(calculatorId, PRINTER, clientPrinter)
@@ -64,7 +63,6 @@ class SocketTransportTest {
             val server = Server(Service(calculatorId, CalculatorImpl))
             socketServer(ServerSetup(server, messageSerializer), executor)
                 .start(executor, socketBinder(address)).use {
-                    TimeUnit.MILLISECONDS.sleep(200L)
                     performance(socketClient(ClientSetup(messageSerializer), socketConnector(address)))
                 }
             done()
