@@ -14,6 +14,8 @@ import org.junit.Test
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.Executor
 import java.util.concurrent.Executors
+import java.util.concurrent.TimeUnit
+import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 import kotlin.test.fail
 
@@ -27,7 +29,7 @@ fun useExecutor(
         test(executor) { done.countDown() }
         done.await()
     } finally {
-        executor.shutdown()
+        executor.shutdownNow()
     }
 }
 
@@ -98,5 +100,45 @@ class LocalConnectionTest {
             }
         }
         connect(serverSession, clientSession)
+    }
+
+    @Test
+    fun watcherTest1() = useExecutor { executor, done ->
+        val serverSession = SimpleSession(executor)
+        val clientSession = object : SimpleSession(executor) {
+            override fun closed(exception: Exception?) {
+                println(exception)
+            }
+        }
+        connect(serverSession, clientSession)
+        assertFalse(clientSession.isClosed)
+        var failed = false
+        watchSession(executor, clientSession, 1, 2) {
+            println("check")
+            if (failed) throw Exception("failed")
+        }
+        TimeUnit.SECONDS.sleep(3L)
+        failed = true
+        TimeUnit.SECONDS.sleep(3L)
+        done()
+        assertTrue(clientSession.isClosed)
+    }
+
+    @Test
+    fun watcherTest2() = useExecutor { executor, done ->
+        val serverSession = SimpleSession(executor)
+        val clientSession = object : SimpleSession(executor) {
+            override fun closed(exception: Exception?) {
+                println(exception)
+            }
+        }
+        connect(serverSession, clientSession)
+        assertFalse(clientSession.isClosed)
+        watchSession(executor, clientSession, 1, 1) {
+            TimeUnit.SECONDS.sleep(2L)
+        }
+        TimeUnit.SECONDS.sleep(3L)
+        done()
+        assertTrue(clientSession.isClosed)
     }
 }

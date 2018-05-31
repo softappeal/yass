@@ -62,7 +62,7 @@ public final class AcceptorSession extends SimpleSession {
     }
 
     @Override protected void opened() throws InterruptedException {
-        watchSession(getDispatchExecutor(), this, 60L, 2L, () -> { // optional
+        watchSession(getDispatchExecutor(), this, 60L, 2L, 0L, () -> { // optional
             echoService.echo("checkFromAcceptor");
             return null;
         });

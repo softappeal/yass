@@ -182,7 +182,7 @@ fun Session.received(packet: Packet) = iReceived(packet)
 
 fun Session.created(connection: Connection) = iCreated(connection)
 
-abstract class SimpleSession protected constructor(protected val dispatchExecutor: Executor) : Session() {
-    final override fun dispatchOpened(runnable: Runnable) = dispatchExecutor.execute(runnable)
-    final override fun dispatchServerInvoke(invocation: ServerInvocation, runnable: Runnable) = dispatchExecutor.execute(runnable)
+open class SimpleSession(protected val dispatchExecutor: Executor) : Session() {
+    override fun dispatchOpened(runnable: Runnable) = dispatchExecutor.execute(runnable)
+    override fun dispatchServerInvoke(invocation: ServerInvocation, runnable: Runnable) = dispatchExecutor.execute(runnable)
 }

@@ -62,7 +62,7 @@ public final class InitiatorSession extends SimpleSession {
     }
 
     @Override protected void opened() {
-        watchSession(getDispatchExecutor(), this, 60L, 2L, () -> { // optional
+        watchSession(getDispatchExecutor(), this, 60L, 2L, 0L, () -> { // optional
             echoService.echo("checkFromInitiator");
             return null;
         });
