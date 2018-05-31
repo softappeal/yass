@@ -13,36 +13,41 @@ import java.util.concurrent.TimeUnit
 
 abstract class ProxyDelegate<S : Session> {
     @Volatile
-    private var session: S? = null
+    private var _session: S? = null
+
+    val session: S
+        get() {
+            if (!connected(_session)) throw SessionClosedException()
+            return _session!!
+        }
 
     protected fun session(session: S?) {
-        this.session = session
+        this._session = session
     }
 
     private fun connected(session: Session?): Boolean =
         (session != null) && !session.isClosed
 
-    fun connected() =
-        connected(session)
-
-    fun session(): S {
-        val session = this.session
-        if (!connected(session)) throw SessionClosedException()
-        return session!!
-    }
+    val isConnected get() = connected(_session)
 
     fun <C : Any> proxy(contract: Class<C>, proxyGetter: (session: S) -> C): C =
-        proxy(contract, InvocationHandler { _, method, arguments -> invoke(method, proxyGetter(session()) as Any, args(arguments)) })
-}
+        proxy(contract, InvocationHandler { _, method, arguments -> invoke(method, proxyGetter(session) as Any, args(arguments)) })
 
-/** Thrown exceptions will be ignored. */
-typealias Connector = (sessionFactory: SessionFactory) -> Unit
+    inline fun <reified C : Any> proxy(noinline proxyGetter: (session: S) -> C): C =
+        proxy(C::class.java, proxyGetter)
+}
 
 /** Provides proxies surviving reconnects. */
 open class Reconnector<S : Session> : ProxyDelegate<S>() {
-    /** [executor] is called once; must interrupt it's threads to terminate reconnects. */
-    @JvmOverloads
-    fun start(executor: Executor, intervalSeconds: Long, sessionFactory: SessionFactory, connector: Connector, delaySeconds: Long = 0) {
+    /**
+     * [executor] is called once; must interrupt it's threads to terminate reconnects.
+     * Thrown exceptions of [connector] will be ignored.
+     */
+    fun start(
+        executor: Executor,
+        intervalSeconds: Long, sessionFactory: SessionFactory, delaySeconds: Long = 0,
+        connector: (sessionFactory: SessionFactory) -> Unit
+    ) {
         val reconnectorSessionFactory = {
             val session = sessionFactory()
             @Suppress("UNCHECKED_CAST") session(session as S)
@@ -55,7 +60,7 @@ open class Reconnector<S : Session> : ProxyDelegate<S>() {
                 return@execute
             }
             while (!Thread.interrupted()) {
-                if (!connected()) {
+                if (!isConnected) {
                     session(null)
                     try {
                         connector(reconnectorSessionFactory)

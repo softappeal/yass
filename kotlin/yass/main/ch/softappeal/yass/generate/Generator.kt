@@ -4,7 +4,7 @@
 package ch.softappeal.yass.generate
 
 import ch.softappeal.yass.remote.ContractId
-import ch.softappeal.yass.remote.MethodMapper
+import ch.softappeal.yass.remote.MethodMapperFactory
 import ch.softappeal.yass.remote.Services
 import ch.softappeal.yass.serialize.fast.FastSerializer
 import java.lang.reflect.Method
@@ -55,7 +55,7 @@ abstract class Generator(
 ) {
     private val rootPackage: String = if (rootPackage.isEmpty()) "" else "$rootPackage."
     protected val id2typeHandler = serializer.id2typeHandler()
-    private var methodMapperFactory: Function1<Class<*>, MethodMapper>? = null
+    private var methodMapperFactory: MethodMapperFactory? = null
     protected val interfaces: SortedSet<Class<*>> = TreeSet(Comparator.comparing<Class<*>, String>({ it.canonicalName }))
 
     init {

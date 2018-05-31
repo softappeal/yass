@@ -6,7 +6,6 @@ import java.nio.file.Files
 import java.nio.file.Path
 
 abstract class Out protected constructor(path: Path) {
-
     private val printer: PrintWriter
     private var buffer: Appendable? = null
     private var tabs = 0
@@ -78,5 +77,4 @@ abstract class Out protected constructor(path: Path) {
         printer.close()
         check(!printer.checkError()) // needed because PrintWriter doesn't throw IOException
     }
-
 }

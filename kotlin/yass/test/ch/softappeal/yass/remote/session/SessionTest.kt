@@ -1,5 +1,6 @@
 package ch.softappeal.yass.remote.session
 
+import ch.softappeal.yass.StdErr
 import ch.softappeal.yass.Terminate
 import ch.softappeal.yass.namedThreadFactory
 import ch.softappeal.yass.remote.CalculatorImpl
@@ -140,5 +141,34 @@ class LocalConnectionTest {
         TimeUnit.SECONDS.sleep(3L)
         done()
         assertTrue(clientSession.isClosed)
+    }
+
+    class InitiatorSession(dispatchExecutor: Executor) : SimpleSession(dispatchExecutor) {
+        val calculator = proxy(calculatorId)
+    }
+
+    class InitiatorReconnector : Reconnector<InitiatorSession>() {
+        val calculator = proxy { session -> session.calculator }
+    }
+
+    fun test2323() {
+        val executor = Executors.newCachedThreadPool(namedThreadFactory("executor", StdErr))
+        val reconnector = InitiatorReconnector()
+        reconnector.start(executor, 10, { InitiatorSession(executor) }, 0L) { sessionFactory ->
+            println(sessionFactory)
+        }
+        println("started")
+        while (true) {
+            TimeUnit.SECONDS.sleep(1L)
+            if (reconnector.isConnected) {
+                try {
+                    println(reconnector.calculator.echo("knock"))
+                } catch (e: Exception) {
+                    println("race condition: ${e.message}")
+                }
+            } else {
+                println("not connected")
+            }
+        }
     }
 }
