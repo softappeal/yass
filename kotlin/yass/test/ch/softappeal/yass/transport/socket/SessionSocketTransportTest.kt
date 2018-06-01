@@ -18,7 +18,6 @@ import java.util.concurrent.TimeUnit
 val packetSerializer = packetSerializer(messageSerializer)
 
 class SessionSocketTransportTest {
-
     @Test
     fun test() {
         useExecutor { executor, done ->
@@ -73,5 +72,4 @@ class SessionSocketTransportTest {
         }
         TimeUnit.MILLISECONDS.sleep(200L)
     }
-
 }

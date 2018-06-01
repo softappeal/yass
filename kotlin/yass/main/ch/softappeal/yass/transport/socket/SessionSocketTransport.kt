@@ -38,10 +38,12 @@ abstract class SocketConnection internal constructor(
         out.flush()
     }
 
-    override fun closed() = socket.close()
+    override fun closed() =
+        socket.close()
 }
 
-typealias SocketConnectionFactory = (session: Session, transport: SessionTransport, socket: Socket, out: OutputStream) -> SocketConnection
+typealias SocketConnectionFactory =
+    (session: Session, transport: SessionTransport, socket: Socket, out: OutputStream) -> SocketConnection
 
 /** Writes to socket in caller thread. Blocks if socket can't send data. */
 val SyncSocketConnectionFactory: SocketConnectionFactory = { _, transport, socket, out ->
@@ -84,7 +86,9 @@ fun asyncSocketConnectionFactory(writerExecutor: Executor, writerQueueSize: Int)
                 }
             }
 
-            override fun write(packet: Packet) = check(writerQueue.offer(writeToBuffer(packet))) { "writer queue full" }
+            override fun write(packet: Packet) =
+                check(writerQueue.offer(writeToBuffer(packet))) { "writer queue full" }
+
             override fun closed() {
                 try {
                     TimeUnit.SECONDS.sleep(1L) // give the socket a chance to write the end packet
@@ -100,7 +104,7 @@ fun asyncSocketConnectionFactory(writerExecutor: Executor, writerQueueSize: Int)
 private fun read(
     connectionFactory: SocketConnectionFactory, transport: SessionTransport, socket: Socket, reader: Reader, out: OutputStream
 ) {
-    val session = transport.session()
+    val session = transport.createSession()
     try {
         session.created(connectionFactory(session, transport, socket, out))
         while (true) {

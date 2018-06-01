@@ -20,7 +20,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.fail
 
-val PRINTER: Interceptor = { _, _, invocation ->
+private val Printer: Interceptor = { _, _, invocation ->
     val socket = socket
     assertNotNull(socket)
     println("$socket")
@@ -30,7 +30,6 @@ val PRINTER: Interceptor = { _, _, invocation ->
 val messageSerializer = messageSerializer(JavaSerializer)
 
 class SocketTransportTest {
-
     @Test
     fun noSocket() {
         try {
@@ -44,13 +43,13 @@ class SocketTransportTest {
     @Test
     fun test() {
         useExecutor { executor, done ->
-            val server = Server(Service(calculatorId, CalculatorImpl, PRINTER, serverPrinter))
+            val server = Server(Service(calculatorId, CalculatorImpl, Printer, serverPrinter))
             socketServer(ServerSetup(server, messageSerializer), executor)
                 .start(executor, socketBinder(address)).use {
                     TimeUnit.MILLISECONDS.sleep(200L)
                     useClient(
                         socketClient(ClientSetup(messageSerializer), socketConnector(address))
-                            .proxy(calculatorId, PRINTER, clientPrinter)
+                            .proxy(calculatorId, Printer, clientPrinter)
                     )
                 }
             done()
@@ -71,5 +70,4 @@ class SocketTransportTest {
         }
         TimeUnit.MILLISECONDS.sleep(200L)
     }
-
 }

@@ -9,7 +9,6 @@ import ch.softappeal.yass.tutorial.shared.web.WebSetup;
 import javax.websocket.Endpoint;
 import javax.websocket.server.ServerEndpointConfig;
 
-import static ch.softappeal.yass.Kt.getStdErr;
 import static ch.softappeal.yass.transport.ws.Kt.asyncWsConnectionFactory;
 
 public abstract class WebAcceptorSetup extends WebSetup {
@@ -21,8 +20,7 @@ public abstract class WebAcceptorSetup extends WebSetup {
             new SessionTransport(
                 Config.PACKET_SERIALIZER,
                 () -> new AcceptorSession(DISPATCH_EXECUTOR)
-            ),
-            getStdErr()
+            )
         ))
         .build();
 

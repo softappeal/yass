@@ -9,7 +9,6 @@ import kotlin.test.fail
 val address = InetSocketAddress("localhost", 28947)
 
 class SocketTest {
-
     @Test
     fun failedConnect() {
         try {
@@ -31,5 +30,4 @@ class SocketTest {
             }
         }
     }
-
 }

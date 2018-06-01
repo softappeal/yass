@@ -28,7 +28,7 @@ private fun test(
         println("checkName")
         assertEquals(name, (socket as SSLSocket).session.peerPrincipal.name)
     }
-    useExecutor(uncaughtExceptionHandler = uncaughtExceptionHandler) { executor, done ->
+    useExecutor(uncaughtExceptionHandler) { executor, done ->
         socketServer(ServerSetup(Server(Service(calculatorId, CalculatorImpl, { _, _, invocation ->
             if (needClientAuth) checkName("CN=Client")
             invocation()
@@ -74,7 +74,6 @@ private const val PROTOCOL = "TLSv1.2"
 private const val CIPHER = "TLS_RSA_WITH_AES_128_CBC_SHA"
 
 class SslTest {
-
     @Test
     fun onlyServerAuthentication() {
         test(
@@ -110,5 +109,4 @@ class SslTest {
             true
         )
     }
-
 }
