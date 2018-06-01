@@ -11,7 +11,10 @@ import java.nio.charset.StandardCharsets
 abstract class Writer {
     abstract fun writeByte(value: Byte)
     abstract fun writeBytes(buffer: ByteArray, offset: Int, length: Int)
-    fun writeBytes(buffer: ByteArray) = writeBytes(buffer, 0, buffer.size)
+
+    fun writeBytes(buffer: ByteArray) =
+        writeBytes(buffer, 0, buffer.size)
+
     fun writeShort(value: Short) {
         writeByte((value.toInt() shr 8).toByte())
         writeByte((value.toInt() shr 0).toByte())
@@ -40,8 +43,12 @@ abstract class Writer {
         writeByte((value.toInt() shr 0).toByte())
     }
 
-    fun writeFloat(value: Float) = writeInt(java.lang.Float.floatToRawIntBits(value))
-    fun writeDouble(value: Double) = writeLong(java.lang.Double.doubleToRawLongBits(value))
+    fun writeFloat(value: Float) =
+        writeInt(java.lang.Float.floatToRawIntBits(value))
+
+    fun writeDouble(value: Double) =
+        writeLong(java.lang.Double.doubleToRawLongBits(value))
+
     fun writeVarInt(v: Int) {
         var value = v
         while (true) {
@@ -54,7 +61,9 @@ abstract class Writer {
         }
     }
 
-    fun writeZigZagInt(value: Int) = writeVarInt((value shl 1) xor (value shr 31))
+    fun writeZigZagInt(value: Int) =
+        writeVarInt((value shl 1) xor (value shr 31))
+
     fun writeVarLong(v: Long) {
         var value = v
         while (true) {
@@ -67,7 +76,9 @@ abstract class Writer {
         }
     }
 
-    fun writeZigZagLong(value: Long) = writeVarLong((value shl 1) xor (value shr 63))
+    fun writeZigZagLong(value: Long) =
+        writeVarLong((value shl 1) xor (value shr 63))
+
     fun stream() = object : OutputStream() {
         override fun write(i: Int) = writeByte(i.toByte())
         override fun write(b: ByteArray, off: Int, len: Int) = writeBytes(b, off, len)
@@ -83,4 +94,5 @@ class ByteBufferOutputStream(size: Int) : ByteArrayOutputStream(size) {
     fun toByteBuffer(): ByteBuffer = ByteBuffer.wrap(buf, 0, count)
 }
 
-fun utf8toBytes(value: String): ByteArray = value.toByteArray(StandardCharsets.UTF_8)
+fun utf8toBytes(value: String): ByteArray =
+    value.toByteArray(StandardCharsets.UTF_8)

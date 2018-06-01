@@ -11,23 +11,23 @@ import ch.softappeal.yass.serialize.Reader
 import ch.softappeal.yass.serialize.Serializer
 import ch.softappeal.yass.serialize.Writer
 
-private const val REQUEST = 0.toByte()
-private const val VALUE_REPLY = 1.toByte()
-private const val EXCEPTION_REPLY = 2.toByte()
+private const val Request = 0.toByte()
+private const val ValueReply = 1.toByte()
+private const val ExceptionReply = 2.toByte()
 
 fun messageSerializer(contractSerializer: Serializer) = object : Serializer {
     override fun read(reader: Reader): Message {
         val type = reader.readByte()
         return when (type) {
-            REQUEST -> Request(
+            Request -> Request(
                 reader.readZigZagInt(),
                 reader.readZigZagInt(),
                 contractSerializer.read(reader) as List<Any?>
             )
-            VALUE_REPLY -> ValueReply(
+            ValueReply -> ValueReply(
                 contractSerializer.read(reader)
             )
-            EXCEPTION_REPLY -> ExceptionReply(
+            ExceptionReply -> ExceptionReply(
                 contractSerializer.read(reader) as Exception
             )
             else -> error("unexpected type $type")
@@ -36,17 +36,17 @@ fun messageSerializer(contractSerializer: Serializer) = object : Serializer {
 
     override fun write(writer: Writer, value: Any?) = when (value) {
         is Request -> {
-            writer.writeByte(REQUEST)
+            writer.writeByte(Request)
             writer.writeZigZagInt(value.serviceId)
             writer.writeZigZagInt(value.methodId)
             contractSerializer.write(writer, value.arguments)
         }
         is ValueReply -> {
-            writer.writeByte(VALUE_REPLY)
+            writer.writeByte(ValueReply)
             contractSerializer.write(writer, value.value)
         }
         is ExceptionReply -> {
-            writer.writeByte(EXCEPTION_REPLY)
+            writer.writeByte(ExceptionReply)
             contractSerializer.write(writer, value.exception)
         }
         else -> error("unexpected value '$value'")

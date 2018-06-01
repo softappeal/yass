@@ -159,7 +159,7 @@ class TypeScriptGenerator @JvmOverloads constructor(
             }
 
             fun typeDesc(fieldDesc: FieldDesc): String {
-                val typeHandler = fieldDesc.handler.typeHandler() ?: return "null"
+                val typeHandler = fieldDesc.handler.typeHandler ?: return "null"
                 return when {
                     ListTypeDesc.handler === typeHandler -> "yass.LIST_DESC"
                     BooleanDesc.handler === typeHandler -> "yass.BOOLEAN_DESC"

@@ -11,7 +11,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static ch.softappeal.yass.remote.Kt.completer;
+import static ch.softappeal.yass.remote.Kt.getCompleter;
 
 public final class InstrumentServiceImpl implements InstrumentService {
 
@@ -32,7 +32,7 @@ public final class InstrumentServiceImpl implements InstrumentService {
     }
 
     @Override public List<Instrument> getInstruments() {
-        final Completer completer = completer();
+        final Completer completer = getCompleter();
         new Thread(() -> completer.complete(new ArrayList<>(INSTRUMENTS.values()))).start(); // setting result asynchronously
         return null; // needed for compiler; returned result is not used
     }

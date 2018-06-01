@@ -74,7 +74,7 @@ val clientPrinter = printer(true)
 val serverPrinter = printer(false)
 
 private fun sleep(execute: (completer: Completer) -> Unit) {
-    val completer = completer()
+    val completer = completer
     Thread {
         TimeUnit.MILLISECONDS.sleep(100L)
         execute(completer)
@@ -228,7 +228,7 @@ class RemoteTest {
 
     @Test
     fun noCompleter() = try {
-        completer()
+        completer
         fail()
     } catch (e: IllegalStateException) {
         assertEquals("no active asynchronous request/reply service invocation", e.message)

@@ -11,7 +11,6 @@ import java.lang.reflect.Field
 import java.lang.reflect.Modifier
 import java.util.ArrayList
 import java.util.Collections
-import java.util.Comparator
 import java.util.HashMap
 import java.util.IdentityHashMap
 import java.util.SortedMap
@@ -104,23 +103,24 @@ fun primitiveWrapperType(type: Class<*>): Class<*> = when (type) {
 }
 
 class FieldSerializer internal constructor(val field: Field) {
-    private var typeHandler: TypeSerializer? = null
-    fun typeHandler() = typeHandler
+    private var _typeHandler: TypeSerializer? = null
+
+    val typeHandler get() = _typeHandler
 
     internal fun fixup(class2typeDesc: Map<Class<*>, TypeDesc>) {
         val typeDesc = class2typeDesc[primitiveWrapperType(field.type)]
-        typeHandler = typeDesc?.handler
-        if (typeHandler is ClassTypeSerializer) typeHandler = null
+        _typeHandler = typeDesc?.handler
+        if (_typeHandler is ClassTypeSerializer) _typeHandler = null
     }
 
     internal fun read(input: Input, value: Any) =
-        field.set(value, if (typeHandler == null) input.read() else typeHandler!!.read(input))
+        field.set(value, if (_typeHandler == null) input.read() else _typeHandler!!.read(input))
 
     internal fun write(output: Output, id: Int, value: Any) {
         val f = field.get(value)
         if (f != null) {
             output.writer.writeVarInt(id)
-            if (typeHandler == null) output.write(f) else typeHandler!!.write(output, f)
+            if (_typeHandler == null) output.write(f) else _typeHandler!!.write(output, f)
         }
     }
 }
@@ -137,15 +137,16 @@ class ClassTypeSerializer internal constructor(
     val fieldDescs: List<FieldDesc>
 
     init {
-        fieldDescs = mutableListOf()
+        val fds = mutableListOf<FieldDesc>()
         for ((id, handler) in id2fieldHandler) {
             require(id >= FirstFieldId) { "id $id for field '${handler.field}' must be >= $FirstFieldId" }
-            fieldDescs.add(FieldDesc(id, handler))
+            fds.add(FieldDesc(id, handler))
         }
-        Collections.sort(fieldDescs, Comparator.comparingInt(FieldDesc::id))
+        fieldDescs = Collections.unmodifiableList(fds.sortedBy { it.id })
     }
 
-    internal fun fixupFields(class2typeDesc: Map<Class<*>, TypeDesc>) = id2fieldHandler.values.forEach { it.fixup(class2typeDesc) }
+    internal fun fixupFields(class2typeDesc: Map<Class<*>, TypeDesc>) =
+        id2fieldHandler.values.forEach { it.fixup(class2typeDesc) }
 
     override fun read(input: Input): Any {
         val value = allocator()
@@ -200,7 +201,7 @@ class ClassTypeSerializer internal constructor(
  */
 abstract class FastSerializer protected constructor() : Serializer {
     private val class2typeDesc = HashMap<Class<*>, TypeDesc>(64)
-    private val id2typeHandler = HashMap<Int, TypeSerializer>(64)
+    private val _id2typeHandler = HashMap<Int, TypeSerializer>(64)
 
     init {
         addType(NullTypeDesc)
@@ -208,13 +209,14 @@ abstract class FastSerializer protected constructor() : Serializer {
         addType(ListTypeDesc)
     }
 
-    fun id2typeHandler(): SortedMap<Int, TypeSerializer> = TreeMap(id2typeHandler)
+    val id2typeHandler: SortedMap<Int, TypeSerializer>
+        get() = TreeMap(_id2typeHandler)
 
     private fun addType(typeDesc: TypeDesc) {
         require(class2typeDesc.put(typeDesc.handler.type, typeDesc) == null) {
             "type '${typeDesc.handler.type.canonicalName}' already added"
         }
-        val oldTypeHandler = id2typeHandler.put(typeDesc.id, typeDesc.handler)
+        val oldTypeHandler = _id2typeHandler.put(typeDesc.id, typeDesc.handler)
         if (oldTypeHandler != null)
             error("type id ${typeDesc.id} used for '${typeDesc.handler.type.canonicalName}' and '${oldTypeHandler.type.canonicalName}'")
     }
@@ -229,7 +231,8 @@ abstract class FastSerializer protected constructor() : Serializer {
         }))
     }
 
-    protected fun checkClass(type: Class<*>) = require(!type.isEnum) { "type '${type.canonicalName}' is an enumeration" }
+    protected fun checkClass(type: Class<*>) =
+        require(!type.isEnum) { "type '${type.canonicalName}' is an enumeration" }
 
     protected fun addClass(id: Int, type: Class<*>, graph: Boolean, id2field: Map<Int, Field>) {
         require(!Modifier.isAbstract(type.modifiers)) { "type '${type.canonicalName}' is abstract" }
@@ -252,6 +255,6 @@ abstract class FastSerializer protected constructor() : Serializer {
         for (typeDesc in class2typeDesc.values) (typeDesc.handler as? ClassTypeSerializer)?.fixupFields(class2typeDesc)
     }
 
-    override fun read(reader: Reader) = Input(reader, id2typeHandler).read()
+    override fun read(reader: Reader) = Input(reader, _id2typeHandler).read()
     override fun write(writer: Writer, value: Any?) = Output(writer, class2typeDesc).write(value)
 }

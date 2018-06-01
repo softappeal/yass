@@ -327,7 +327,7 @@ class PythonGenerator(
         }
 
         fun typeDesc(fieldDesc: FieldDesc): String {
-            val typeHandler = fieldDesc.handler.typeHandler() ?: return "None"
+            val typeHandler = fieldDesc.handler.typeHandler ?: return "None"
             return when {
                 ListTypeDesc.handler === typeHandler -> "yass.LIST_DESC"
                 BooleanDesc.handler === typeHandler -> "yass.BOOLEAN_DESC"

@@ -54,7 +54,7 @@ abstract class Generator(
     rootPackage: String, serializer: FastSerializer, protected val initiator: Services?, protected val acceptor: Services?
 ) {
     private val rootPackage: String = if (rootPackage.isEmpty()) "" else "$rootPackage."
-    protected val id2typeHandler = serializer.id2typeHandler()
+    protected val id2typeHandler = serializer.id2typeHandler
     private var methodMapperFactory: MethodMapperFactory? = null
     protected val interfaces: SortedSet<Class<*>> = TreeSet(Comparator.comparing<Class<*>, String>({ it.canonicalName }))
 

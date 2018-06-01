@@ -16,9 +16,10 @@ import java.lang.reflect.Method
 import java.net.Socket
 import java.util.concurrent.Executor
 
-private val SOCKET = ThreadLocal<Socket>()
+private val TheSocket = ThreadLocal<Socket>()
 
-fun socket(): Socket = checkNotNull(SOCKET.get()) { "no active invocation" }
+val socket: Socket
+    get() = checkNotNull(TheSocket.get()) { "no active invocation" }
 
 /** Buffering of output is needed to prevent long delays due to Nagle's algorithm. */
 private fun createBuffer(): ByteArrayOutputStream = ByteArrayOutputStream(128)
@@ -32,8 +33,8 @@ private fun flush(buffer: ByteArrayOutputStream, socket: Socket) {
 /** [requestExecutor] is called once for each request. */
 fun socketServer(setup: ServerSetup, requestExecutor: Executor) = object : SocketListener(requestExecutor) {
     override fun accept(socket: Socket) = socket.use {
-        val oldSocket = SOCKET.get()
-        SOCKET.set(socket)
+        val oldSocket = TheSocket.get()
+        TheSocket.set(socket)
         try {
             val reader = reader(socket.getInputStream())
             val transport = setup.resolve(reader)
@@ -43,7 +44,7 @@ fun socketServer(setup: ServerSetup, requestExecutor: Executor) = object : Socke
                 flush(buffer, socket)
             }
         } finally {
-            SOCKET.set(oldSocket)
+            TheSocket.set(oldSocket)
         }
     }
 }
@@ -52,12 +53,12 @@ fun socketClient(setup: ClientSetup, socketConnector: SocketConnector) = object 
     override fun syncInvoke(contractId: ContractId<*>, interceptor: Interceptor, method: Method, arguments: List<Any?>): Any? {
         socketConnector().use { socket ->
             setForceImmediateSend(socket)
-            val oldSocket = SOCKET.get()
-            SOCKET.set(socket)
+            val oldSocket = TheSocket.get()
+            TheSocket.set(socket)
             try {
                 return super.syncInvoke(contractId, interceptor, method, arguments)
             } finally {
-                SOCKET.set(oldSocket)
+                TheSocket.set(oldSocket)
             }
         }
     }
@@ -65,7 +66,7 @@ fun socketClient(setup: ClientSetup, socketConnector: SocketConnector) = object 
     override fun invoke(invocation: ClientInvocation) = invocation.invoke(false) { request ->
         val buffer = createBuffer()
         setup.write(writer(buffer), request)
-        val socket = SOCKET.get()
+        val socket = TheSocket.get()
         flush(buffer, socket)
         invocation.settle(setup.read(reader(socket.getInputStream())))
     }

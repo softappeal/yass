@@ -26,7 +26,7 @@ private fun test(
 ) {
     fun checkName(name: String) {
         println("checkName")
-        assertEquals(name, (socket() as SSLSocket).session.peerPrincipal.name)
+        assertEquals(name, (socket as SSLSocket).session.peerPrincipal.name)
     }
     useExecutor(uncaughtExceptionHandler = uncaughtExceptionHandler) { executor, done ->
         socketServer(ServerSetup(Server(Service(calculatorId, CalculatorImpl, { _, _, invocation ->

@@ -10,7 +10,10 @@ import java.nio.charset.StandardCharsets
 abstract class Reader {
     abstract fun readByte(): Byte
     abstract fun readBytes(buffer: ByteArray, offset: Int, length: Int)
-    fun readBytes(buffer: ByteArray) = readBytes(buffer, 0, buffer.size)
+
+    fun readBytes(buffer: ByteArray) =
+        readBytes(buffer, 0, buffer.size)
+
     fun readShort(): Short = (
         ((readByte().toInt() and 0b1111_1111) shl 8) or
             ((readByte().toInt() and 0b1111_1111) shl 0)
@@ -37,8 +40,12 @@ abstract class Reader {
             ((readByte().toInt() and 0b1111_1111) shl 0)
         ).toChar()
 
-    fun readFloat(): Float = java.lang.Float.intBitsToFloat(readInt())
-    fun readDouble(): Double = java.lang.Double.longBitsToDouble(readLong())
+    fun readFloat(): Float =
+        java.lang.Float.intBitsToFloat(readInt())
+
+    fun readDouble(): Double =
+        java.lang.Double.longBitsToDouble(readLong())
+
     fun readVarInt(): Int {
         var shift = 0
         var value = 0
@@ -107,4 +114,5 @@ fun reader(input: ByteBuffer) = object : Reader() {
     }
 }
 
-fun utf8toString(value: ByteArray): String = String(value, StandardCharsets.UTF_8)
+fun utf8toString(value: ByteArray): String =
+    String(value, StandardCharsets.UTF_8)

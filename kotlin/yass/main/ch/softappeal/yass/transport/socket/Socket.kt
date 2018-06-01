@@ -89,7 +89,7 @@ abstract class SocketListener internal constructor(private val acceptExecutor: E
         try {
             listenerExecutor.execute {
                 try {
-                    while (true) execute(acceptExecutor, serverSocket.accept(), this::accept)
+                    while (true) execute(acceptExecutor, serverSocket.accept(), ::accept)
                 } catch (e: Exception) {
                     if (serverSocket.isClosed) return@execute
                     close(serverSocket, e)

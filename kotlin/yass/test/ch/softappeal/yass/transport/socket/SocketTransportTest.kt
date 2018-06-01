@@ -21,7 +21,7 @@ import kotlin.test.assertNotNull
 import kotlin.test.fail
 
 val PRINTER: Interceptor = { _, _, invocation ->
-    val socket = socket()
+    val socket = socket
     assertNotNull(socket)
     println("$socket")
     invocation()
@@ -34,7 +34,7 @@ class SocketTransportTest {
     @Test
     fun noSocket() {
         try {
-            socket()
+            socket
             fail()
         } catch (e: IllegalStateException) {
             assertEquals("no active invocation", e.message)

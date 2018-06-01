@@ -69,8 +69,8 @@ abstract class Completer {
 
 private val TheCompleter = ThreadLocal<Completer>()
 
-fun completer(): Completer =
-    checkNotNull(TheCompleter.get()) { "no active asynchronous request/reply service invocation" }
+val completer: Completer
+    get() = checkNotNull(TheCompleter.get()) { "no active asynchronous request/reply service invocation" }
 
 class AsyncService<C : Any>(
     contractId: ContractId<C>, implementation: C, private val interceptor: AsyncInterceptor = DirectAsyncInterceptor

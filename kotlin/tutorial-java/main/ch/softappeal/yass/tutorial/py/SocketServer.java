@@ -25,7 +25,7 @@ import static ch.softappeal.yass.Kt.namedThreadFactory;
 import static ch.softappeal.yass.remote.Kt.service;
 import static ch.softappeal.yass.transport.Kt.messageSerializer;
 import static ch.softappeal.yass.transport.socket.Kt.socketBinder;
-import static ch.softappeal.yass.transport.socket.Kt.socket;
+import static ch.softappeal.yass.transport.socket.Kt.getSocket;
 import static ch.softappeal.yass.transport.socket.Kt.socketServer;
 import static ch.softappeal.yass.transport.socket.Kt.serverSocketFactory;
 import static ch.softappeal.yass.tutorial.contract.Config.PY_ACCEPTOR;
@@ -54,7 +54,7 @@ public final class SocketServer {
 
     private static final Function3<Method, List<?>, Function0<?>, Object> PEER = (method, arguments, invocation) -> {
         try {
-            System.out.println(((SSLSocket)socket()).getSession().getPeerPrincipal().getName());
+            System.out.println(((SSLSocket)getSocket()).getSession().getPeerPrincipal().getName());
         } catch (final SSLPeerUnverifiedException e) {
             throw new RuntimeException(e);
         }

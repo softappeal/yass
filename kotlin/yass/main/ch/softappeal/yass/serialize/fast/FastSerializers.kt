@@ -59,7 +59,7 @@ fun taggedFastSerializer(
     }
 }
 
-fun FastSerializer.print(printer: PrintWriter) = id2typeHandler().forEach { id, typeHandler ->
+fun FastSerializer.print(printer: PrintWriter) = id2typeHandler.forEach { id, typeHandler ->
     if (id < FirstTypeId) return@forEach
     val type = typeHandler.type
     printer.print("$id: ${type.canonicalName}")
