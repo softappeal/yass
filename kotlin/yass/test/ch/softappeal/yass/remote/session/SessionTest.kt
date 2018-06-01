@@ -1,6 +1,5 @@
 package ch.softappeal.yass.remote.session
 
-import ch.softappeal.yass.StdErr
 import ch.softappeal.yass.Terminate
 import ch.softappeal.yass.namedThreadFactory
 import ch.softappeal.yass.remote.CalculatorImpl
@@ -143,32 +142,37 @@ class LocalConnectionTest {
         assertTrue(clientSession.isClosed)
     }
 
-    class InitiatorSession(dispatchExecutor: Executor) : SimpleSession(dispatchExecutor) {
-        val calculator = proxy(calculatorId)
-    }
-
-    class InitiatorReconnector : Reconnector<InitiatorSession>() {
-        val calculator = proxy { session -> session.calculator }
-    }
-
-    fun test2323() {
-        val executor = Executors.newCachedThreadPool(namedThreadFactory("executor", StdErr))
-        val reconnector = InitiatorReconnector()
-        reconnector.start(executor, 10, { InitiatorSession(executor) }, 0L) { sessionFactory ->
-            println(sessionFactory)
+    @Test
+    fun reconnectorTest() {
+        class InitiatorSession(dispatchExecutor: Executor) : SimpleSession(dispatchExecutor) {
+            val calculator = proxy(calculatorId)
         }
-        println("started")
-        while (true) {
-            TimeUnit.SECONDS.sleep(1L)
-            if (reconnector.isConnected) {
-                try {
-                    println(reconnector.calculator.echo("knock"))
-                } catch (e: Exception) {
-                    println("race condition: ${e.message}")
-                }
-            } else {
-                println("not connected")
+
+        class AcceptorSession(dispatchExecutor: Executor) : SimpleSession(dispatchExecutor) {
+            override fun server() = Server(Service(calculatorId, CalculatorImpl))
+        }
+
+        class InitiatorReconnector : Reconnector<InitiatorSession>() {
+            val calculator = proxy { session -> session.calculator }
+        }
+        useExecutor { executor, done ->
+            val reconnector = InitiatorReconnector()
+            reconnector.start(executor, 1L, { InitiatorSession(executor) }) { sessionFactory ->
+                println("connect")
+                connect(AcceptorSession(executor), sessionFactory())
             }
+            TimeUnit.MILLISECONDS.sleep(200L)
+            assertTrue(reconnector.isConnected)
+            assertTrue(reconnector.calculator.divide(12, 3) == 4)
+            reconnector.session.close()
+            try {
+                assertTrue(reconnector.calculator.divide(12, 3) == 4)
+                fail()
+            } catch (ignore: SessionClosedException) {
+            }
+            TimeUnit.SECONDS.sleep(2L)
+            assertTrue(reconnector.calculator.divide(12, 3) == 4)
+            done()
         }
     }
 }

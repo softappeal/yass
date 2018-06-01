@@ -11,27 +11,27 @@ import java.lang.reflect.InvocationHandler
 import java.util.concurrent.Executor
 import java.util.concurrent.TimeUnit
 
+private fun isConnected(session: Session?): Boolean =
+    (session != null) && !session.isClosed
+
 abstract class ProxyDelegate<S : Session> {
     @Volatile
     private var _session: S? = null
 
     val session: S
         get() {
-            if (!connected(_session)) throw SessionClosedException()
+            if (!isConnected(_session)) throw SessionClosedException()
             return _session!!
         }
 
-    protected fun session(session: S?) {
-        this._session = session
+    protected fun setSession(session: S?) {
+        _session = session
     }
 
-    private fun connected(session: Session?): Boolean =
-        (session != null) && !session.isClosed
-
-    val isConnected get() = connected(_session)
+    val isConnected get() = isConnected(_session)
 
     fun <C : Any> proxy(contract: Class<C>, proxyGetter: (session: S) -> C): C =
-        proxy(contract, InvocationHandler { _, method, arguments -> invoke(method, proxyGetter(session) as Any, args(arguments)) })
+        proxy(contract, InvocationHandler { _, method, arguments -> invoke(method, proxyGetter(session), args(arguments)) })
 
     inline fun <reified C : Any> proxy(noinline proxyGetter: (session: S) -> C): C =
         proxy(C::class.java, proxyGetter)
@@ -49,8 +49,8 @@ open class Reconnector<S : Session> : ProxyDelegate<S>() {
         connector: (sessionFactory: SessionFactory) -> Unit
     ) {
         val reconnectorSessionFactory = {
-            val session = sessionFactory()
-            @Suppress("UNCHECKED_CAST") session(session as S)
+            val session = requireNotNull(sessionFactory())
+            @Suppress("UNCHECKED_CAST") setSession(session as S)
             session
         }
         executor.execute {
@@ -61,7 +61,7 @@ open class Reconnector<S : Session> : ProxyDelegate<S>() {
             }
             while (!Thread.interrupted()) {
                 if (!isConnected) {
-                    session(null)
+                    setSession(null)
                     try {
                         connector(reconnectorSessionFactory)
                     } catch (ignore: Exception) {
