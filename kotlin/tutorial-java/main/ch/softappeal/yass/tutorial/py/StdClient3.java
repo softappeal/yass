@@ -4,7 +4,7 @@ import ch.softappeal.yass.remote.Client;
 import ch.softappeal.yass.remote.ClientInvocation;
 import ch.softappeal.yass.remote.Reply;
 import ch.softappeal.yass.serialize.Reader;
-import ch.softappeal.yass.serialize.Serializer;;
+import ch.softappeal.yass.serialize.Serializer;
 import ch.softappeal.yass.serialize.Writer;
 
 import java.io.BufferedReader;

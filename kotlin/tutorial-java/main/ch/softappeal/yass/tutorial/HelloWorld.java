@@ -18,11 +18,11 @@ import static ch.softappeal.yass.remote.Kt.contractId;
 import static ch.softappeal.yass.remote.Kt.getSimpleMethodMapperFactory;
 import static ch.softappeal.yass.remote.Kt.service;
 import static ch.softappeal.yass.serialize.Kt.getJavaSerializer;
-import static ch.softappeal.yass.transport.socket.Kt.socketBinder;
-import static ch.softappeal.yass.transport.socket.Kt.socketConnector;
-import static ch.softappeal.yass.transport.socket.Kt.socketClient;
-import static ch.softappeal.yass.transport.socket.Kt.socketServer;
 import static ch.softappeal.yass.transport.Kt.messageSerializer;
+import static ch.softappeal.yass.transport.socket.Kt.socketBinder;
+import static ch.softappeal.yass.transport.socket.Kt.socketClient;
+import static ch.softappeal.yass.transport.socket.Kt.socketConnector;
+import static ch.softappeal.yass.transport.socket.Kt.socketServer;
 
 public class HelloWorld {
 
