@@ -6,6 +6,7 @@ sourceSets {
 
 dependencies {
     compile project(":kotlin:yass")
+    // compile "ch.softappeal.yass:yass:56.0.0"
     compile jetty_dep
     compile undertow_dep
 }
