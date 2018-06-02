@@ -812,29 +812,12 @@ export abstract class Session extends Client {
     }
 }
 
-export class SourceSerializer implements Serializer {
-    constructor(private readonly serializer: Serializer) {
-        // empty
-    }
-    read(reader: Reader): any {
-        reader.readByte(); // skip
-        return this.serializer.read(reader);
-    }
-    write(value: any, writer: Writer): void {
-        writer.writeByte(0); // initiator
-        this.serializer.write(value, writer);
-    }
+export function packetSerializer(contractSerializer: Serializer): Serializer {
+    return new PacketSerializer(new MessageSerializer(contractSerializer));
 }
 
-function connectRaw(url: string, packetSerializer: Serializer, sessionFactory: SessionFactory): void {
-    const ws = new WebSocket(url);
+export function connect(ws: WebSocket, packetSerializer: Serializer, sessionFactory: SessionFactory): void {
     ws.binaryType = "arraybuffer";
-    ws.onerror = () => {
-        throw new Error("WebSocket.onerror");
-    };
-    ws.onclose = () => {
-        throw new Error("WebSocket.onclose");
-    };
     ws.onopen = () => {
         try {
             const session = Session.create(sessionFactory, {
@@ -863,18 +846,6 @@ function connectRaw(url: string, packetSerializer: Serializer, sessionFactory: S
     };
 }
 
-export function packetSerializer(contractSerializer: Serializer): Serializer {
-    return new PacketSerializer(new MessageSerializer(contractSerializer));
-}
-
-export function connect(url: string, contractSerializer: Serializer, sessionFactory: SessionFactory): void {
-    connectRaw(url, packetSerializer(contractSerializer), sessionFactory);
-}
-
-export function connectSource(url: string, contractSerializer: Serializer, sessionFactory: SessionFactory): void {
-    connectRaw(url, new SourceSerializer(packetSerializer(contractSerializer)), sessionFactory);
-}
-
 export class TimeoutException {
     // empty
 }
@@ -883,8 +854,8 @@ export class XhrClient extends Client {
     constructor(
         private readonly url: string,
         private readonly messageSerializer: Serializer,
-        private readonly timeoutMilliSeconds: number,
-        private readonly checkXhr: (xhr: XMLHttpRequest) => void
+        private readonly timeoutMilliSeconds: number = 0,
+        private readonly checkXhr: (xhr: XMLHttpRequest) => void = () => {}
     ) {
         super();
     }
@@ -908,29 +879,4 @@ export class XhrClient extends Client {
             xhr.send(writeTo(this.messageSerializer, request));
         });
     }
-}
-
-export function checkXhrEmpty(xhr: XMLHttpRequest): void {
-    // empty
-}
-
-export class RequestStatusException {
-    constructor(public readonly status: number) {
-        // empty
-    }
-}
-
-export function checkXhrSuccessful(xhr: XMLHttpRequest): void {
-    if ((xhr.status < 200) || (xhr.status > 299)) {
-        throw new RequestStatusException(xhr.status);
-    }
-}
-
-export function xhr(
-    url: string,
-    contractSerializer: Serializer,
-    timeoutMilliSeconds = 0,
-    checkXhr: (xhr: XMLHttpRequest) => void = checkXhrEmpty
-): Client {
-    return new XhrClient(url, new MessageSerializer(contractSerializer), timeoutMilliSeconds, checkXhr);
 }

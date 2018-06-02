@@ -128,12 +128,12 @@ class Session extends yass.Session {
 const hostname = location.hostname;
 
 yass.connect(
-    "ws://" + hostname + ":9090/ws",
-    contract.SERIALIZER,
+    new WebSocket("ws://" + hostname + ":9090/ws"),
+    yass.packetSerializer(contract.SERIALIZER),
     connection => new Session(connection)
 );
 
-const client = yass.xhr("http://" + hostname + ":9090/xhr", contract.SERIALIZER);
+const client = new yass.XhrClient("http://" + hostname + ":9090/xhr", new yass.MessageSerializer(contract.SERIALIZER));
 const echoService = client.proxy(contract.acceptor.echoService, clientLogger);
 export function echoClick() {
     echoService.echo((<any>document.getElementById("echoInput")).value).then(

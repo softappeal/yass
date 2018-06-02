@@ -400,31 +400,27 @@ const hostname = "localhost";
     }
 
     yass.connect(
-        "ws://" + hostname + ":9090/ws",
-        contract.SERIALIZER,
+        new WebSocket("ws://" + hostname + ":9090/ws"),
+        yass.packetSerializer(contract.SERIALIZER),
         connection => new Session(connection)
     );
 
-    class Session2 extends yass.Session { // needed for more coverage (exception cases)
-        constructor(connection: yass.Connection) {
-            super(connection);
-        }
-        protected closed(exception: any): void {
-            log("session 2 closed", exception);
-        }
-    }
-
+    const ws = new WebSocket("ws://" + hostname + ":9999/ws");
+    ws.onerror = () => {
+        log("connection failed");
+    };
     yass.connect(
-        "ws://" + hostname + ":9090/ws",
-        contract.SERIALIZER,
-        connection => new Session2(connection)
+        ws,
+        yass.packetSerializer(contract.SERIALIZER),
+        connection => new Session(connection)
     );
 
 })();
 
 (async function xhrTest() {
 
-    const proxyFactory = yass.xhr("http://" + hostname + ":9090/xhr", contract.SERIALIZER, 0, yass.checkXhrSuccessful);
+    const messageSerializer = new yass.MessageSerializer(contract.SERIALIZER);
+    const proxyFactory = new yass.XhrClient("http://" + hostname + ":9090/xhr", messageSerializer);
     const echoService = proxyFactory.proxy(contract.acceptor.echoService);
 
     log("echo succeeded:", await echoService.echo("echo"));
@@ -434,32 +430,31 @@ const hostname = "localhost";
         log("throwRuntimeException failed:", e)
     }
 
-    yass
-        .xhr("http://" + hostname + ":9090/xhr", contract.SERIALIZER, 500)
+    new yass.XhrClient("http://" + hostname + ":9090/xhr", messageSerializer, 500)
         .proxy(contract.acceptor.echoService)
         .echo("timeout")
         .catch(error => log("timeout failed:", error));
 
-    const rse = new yass.RequestStatusException(123);
-    assert(rse.status === 123);
-
-    yass
-        .xhr(
+    class RequestStatusException {
+        constructor(public readonly status: number) {
+            // empty
+        }
+    }
+    new yass.XhrClient(
             "http://" + hostname + ":9090/xhr",
-            contract.SERIALIZER,
+            messageSerializer,
             0,
             xhr => {
                 log("checkXhr:", xhr.status);
                 assert(xhr.status === 200);
-                throw new yass.RequestStatusException(999);
+                throw new RequestStatusException(999);
             }
         )
         .proxy(contract.acceptor.echoService)
         .echo("wrongStatus")
         .catch(error => log("wrongStatus failed:", error));
 
-    yass
-        .xhr("http://" + hostname + ":9999/xhr", contract.SERIALIZER)
+    new yass.XhrClient("http://" + hostname + ":9999/xhr", messageSerializer)
         .proxy(contract.acceptor.echoService)
         .echo("serverDown")
         .catch(error => log("serverDown failed:", error));
