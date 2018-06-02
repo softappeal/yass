@@ -12,13 +12,13 @@ import static ch.softappeal.yass.Kt.getStdErr;
 import static ch.softappeal.yass.Kt.namedThreadFactory;
 import static ch.softappeal.yass.transport.socket.Kt.getSyncSocketConnectionFactory;
 import static ch.softappeal.yass.transport.socket.Kt.socketConnector;
-import static ch.softappeal.yass.transport.socket.Kt.socketInitiate;
+import static ch.softappeal.yass.transport.socket.Kt.socketInitiator;
 
 public final class SocketInitiator {
 
     public static void main(final String... args) {
         final Executor executor = Executors.newCachedThreadPool(namedThreadFactory("executor", getStdErr()));
-        socketInitiate(
+        socketInitiator(
             new InitiatorSetup(Config.PACKET_SERIALIZER, () -> new InitiatorSession(executor)),
             executor,
             getSyncSocketConnectionFactory(),

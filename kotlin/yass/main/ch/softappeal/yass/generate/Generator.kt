@@ -15,7 +15,7 @@ import java.util.TreeSet
 
 class ServiceDesc(val name: String, val contractId: ContractId<*>)
 
-private val ROOT_CLASSES = setOf(
+private val RootClasses = setOf(
     Any::class.java,
     Exception::class.java,
     RuntimeException::class.java,
@@ -23,7 +23,7 @@ private val ROOT_CLASSES = setOf(
     Throwable::class.java
 )
 
-fun isRootClass(type: Class<*>) = ROOT_CLASSES.contains(type)
+fun isRootClass(type: Class<*>): Boolean = RootClasses.contains(type)
 
 fun getServiceDescs(services: Services): List<ServiceDesc> {
     val serviceDescs = mutableListOf<ServiceDesc>()

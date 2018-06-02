@@ -14,7 +14,7 @@ import static ch.softappeal.yass.Kt.getStdErr;
 import static ch.softappeal.yass.Kt.namedThreadFactory;
 import static ch.softappeal.yass.transport.socket.Kt.getSyncSocketConnectionFactory;
 import static ch.softappeal.yass.transport.socket.Kt.socketConnector;
-import static ch.softappeal.yass.transport.socket.Kt.socketInitiate;
+import static ch.softappeal.yass.transport.socket.Kt.socketInitiator;
 
 public final class ReconnectingSocketInitiator {
 
@@ -27,7 +27,7 @@ public final class ReconnectingSocketInitiator {
             () -> new InitiatorSession(executor),
             0L,
             sessionFactory -> {
-                socketInitiate(
+                socketInitiator(
                     new InitiatorSetup(Config.PACKET_SERIALIZER, sessionFactory),
                     executor,
                     getSyncSocketConnectionFactory(),

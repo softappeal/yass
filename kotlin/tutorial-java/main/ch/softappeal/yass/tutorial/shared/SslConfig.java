@@ -3,6 +3,7 @@ package ch.softappeal.yass.tutorial.shared;
 import ch.softappeal.yass.transport.socket.SslSetup;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.security.KeyStore;
@@ -14,8 +15,8 @@ public final class SslConfig {
     private static final char[] PASSWORD = "StorePass".toCharArray();
 
     private static KeyStore keyStore(final String name) {
-        try {
-            return readKeyStore(Files.newInputStream(Paths.get("certificates", name)), PASSWORD);
+        try (InputStream keyStore = Files.newInputStream(Paths.get("certificates", name))) {
+            return readKeyStore(keyStore, PASSWORD);
         } catch (final IOException e) {
             throw new RuntimeException(e);
         }

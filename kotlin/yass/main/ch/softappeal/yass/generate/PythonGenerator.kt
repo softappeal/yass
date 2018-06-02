@@ -44,14 +44,14 @@ val BytesDesc = TypeDesc(FirstTypeId + 3, ByteArraySerializer)
 const val FirstDescId = FirstTypeId + 4
 
 @SafeVarargs
-fun baseTypeSerializers(vararg handlers: BaseTypeSerializer<*>): List<BaseTypeSerializer<*>> {
+fun baseTypeSerializers(vararg serializers: BaseTypeSerializer<*>): List<BaseTypeSerializer<*>> {
     val h = mutableListOf(
         BooleanDesc.handler as BaseTypeSerializer<*>,
         DoubleDesc.handler as BaseTypeSerializer<*>,
         StringDesc.handler as BaseTypeSerializer<*>,
         BytesDesc.handler as BaseTypeSerializer<*>
     )
-    h.addAll(handlers)
+    h.addAll(serializers)
     return h
 }
 
@@ -62,8 +62,8 @@ fun baseTypeDescs(vararg descs: TypeDesc): Collection<TypeDesc> {
     return d
 }
 
-private const val INIT_PY = "__init__.py"
-private const val ROOT_MODULE = "contract"
+private const val InitPy = "__init__.py"
+private const val RootModule = "contract"
 
 private fun pyBool(value: Boolean) = if (value) "True" else "False"
 
@@ -75,7 +75,7 @@ class PythonGenerator(
 ) : Generator(rootPackage, serializer, initiator, acceptor) {
     private val module2includeFile = mutableMapOf<String, Path>()
     private val externalTypes = TreeMap<Class<*>, ExternalDesc>(Comparator.comparing<Class<*>, String> { it.canonicalName })
-    private val rootNamespace = Namespace(null, null, ROOT_MODULE, 0)
+    private val rootNamespace = Namespace(null, null, RootModule, 0)
     private val type2namespace = LinkedHashMap<Class<*>, Namespace>()
     private val type2id = mutableMapOf<Class<*>, Int>()
 
@@ -90,8 +90,8 @@ class PythonGenerator(
             }
         }
         interfaces.forEach { rootNamespace.add(it) }
-        rootNamespace.generate(generatedDir.resolve(ROOT_MODULE))
-        MetaPythonOut(generatedDir.resolve(INIT_PY))
+        rootNamespace.generate(generatedDir.resolve(RootModule))
+        MetaPythonOut(generatedDir.resolve(InitPy))
     }
 
     private inner class Namespace(val parent: Namespace?, val name: String?, val moduleName: String, val depth: Int) {
@@ -118,7 +118,7 @@ class PythonGenerator(
         }
 
         fun generate(path: Path) {
-            ContractPythonOut(path.resolve(INIT_PY), this)
+            ContractPythonOut(path.resolve(InitPy), this)
             children.forEach { name, namespace -> namespace.generate(path.resolve(name)) }
         }
     }
@@ -138,7 +138,7 @@ class PythonGenerator(
             println("import yass")
             if (includeFileForEachModule != null) includeFile(includeFileForEachModule)
             val moduleIncludeFile = module2includeFile[
-                if (namespace == rootNamespace) "" else namespace.moduleName.substring(ROOT_MODULE.length + 1).replace('_', '.')
+                if (namespace == rootNamespace) "" else namespace.moduleName.substring(RootModule.length + 1).replace('_', '.')
             ]
             if (moduleIncludeFile != null) {
                 println2()
@@ -167,7 +167,7 @@ class PythonGenerator(
             print("from ")
             for (d in namespace.depth + 2 downTo 1) print(".")
             if (module == rootNamespace)
-                println(" import $ROOT_MODULE")
+                println(" import $RootModule")
             else
                 println("${module.parent!!.moduleName.replace('_', '.')} import ${module.name} as ${module.moduleName}")
         }
@@ -307,7 +307,7 @@ class PythonGenerator(
         fun importModule(module: Namespace) {
             print("from .")
             if (module == rootNamespace)
-                println(" import $ROOT_MODULE")
+                println(" import $RootModule")
             else
                 println("${module.parent!!.moduleName.replace('_', '.')} import ${module.name} as ${module.moduleName}")
         }

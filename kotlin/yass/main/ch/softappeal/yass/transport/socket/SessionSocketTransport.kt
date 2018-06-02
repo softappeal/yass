@@ -127,7 +127,7 @@ fun socketAcceptor(setup: AcceptorSetup, readerExecutor: Executor, connectionFac
     }
 
 /** [readerExecutor] is called once. */
-fun socketInitiate(
+fun socketInitiator(
     setup: InitiatorSetup, readerExecutor: Executor, connectionFactory: SocketConnectionFactory, socketConnector: SocketConnector
 ) = execute(readerExecutor, socketConnector()) { socket ->
     val out = socket.getOutputStream()

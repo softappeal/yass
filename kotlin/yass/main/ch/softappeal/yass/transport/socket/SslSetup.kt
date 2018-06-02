@@ -85,6 +85,6 @@ fun SslSetup.serverSocketFactory() = object : AbstractServerSocketFactory() {
 @JvmOverloads
 fun readKeyStore(keyStore: InputStream, keyStorePwd: CharArray? = null, keyStoreType: String = "PKCS12"): KeyStore {
     val ks = KeyStore.getInstance(keyStoreType)
-    keyStore.use { ks.load(it, keyStorePwd) }
+    ks.load(keyStore, keyStorePwd)
     return ks
 }

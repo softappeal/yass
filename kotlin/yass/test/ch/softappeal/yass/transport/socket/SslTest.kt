@@ -62,7 +62,7 @@ private fun failedTest(serverSocketFactory: ServerSocketFactory, socketFactory: 
 private val PASSWORD = "StorePass".toCharArray()
 
 private fun readKeyStore(name: String): KeyStore {
-    return readKeyStore(Files.newInputStream(Paths.get("../../certificates", name)), PASSWORD)
+    return Files.newInputStream(Paths.get("../../certificates", name)).use { readKeyStore(it, PASSWORD) }
 }
 
 private val SERVER_KEY = readKeyStore("Server.key.pkcs12")

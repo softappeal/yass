@@ -31,7 +31,7 @@ class SessionSocketTransportTest {
                 asyncSocketConnectionFactory(executor, 1_000)
             ).start(executor, socketBinder(address)).use {
                 TimeUnit.MILLISECONDS.sleep(200L)
-                socketInitiate(
+                socketInitiator(
                     InitiatorSetup(packetSerializer) { createTestSession(executor, done, ::connectionHandler) },
                     executor,
                     SyncSocketConnectionFactory,
@@ -55,7 +55,7 @@ class SessionSocketTransportTest {
                 SyncSocketConnectionFactory
             ).start(executor, socketBinder(address)).use {
                 TimeUnit.MILLISECONDS.sleep(200L)
-                socketInitiate(
+                socketInitiator(
                     InitiatorSetup(packetSerializer) {
                         object : SimpleSession(executor) {
                             override fun opened() {
