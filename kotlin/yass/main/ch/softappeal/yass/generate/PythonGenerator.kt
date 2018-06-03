@@ -46,10 +46,10 @@ const val FirstDescId = FirstTypeId + 4
 @SafeVarargs
 fun baseTypeSerializers(vararg serializers: BaseTypeSerializer<*>): List<BaseTypeSerializer<*>> {
     val h = mutableListOf(
-        BooleanDesc.handler as BaseTypeSerializer<*>,
-        DoubleDesc.handler as BaseTypeSerializer<*>,
-        StringDesc.handler as BaseTypeSerializer<*>,
-        BytesDesc.handler as BaseTypeSerializer<*>
+        BooleanDesc.serializer as BaseTypeSerializer<*>,
+        DoubleDesc.serializer as BaseTypeSerializer<*>,
+        StringDesc.serializer as BaseTypeSerializer<*>,
+        BytesDesc.serializer as BaseTypeSerializer<*>
     )
     h.addAll(serializers)
     return h
@@ -82,9 +82,9 @@ class PythonGenerator(
     init {
         if (module2includeFile != null) this.module2includeFile.putAll(module2includeFile)
         this.externalTypes.putAll(externalTypes)
-        id2typeHandler.forEach { id, typeHandler ->
+        id2typeSerializer.forEach { id, typeSerializer ->
             if (id >= FirstDescId) {
-                val type = typeHandler.type
+                val type = typeSerializer.type
                 type2id[type] = id
                 if (!this.externalTypes.containsKey(type)) rootNamespace.add(type)
             }
@@ -123,10 +123,10 @@ class PythonGenerator(
         }
     }
 
-    fun typeHandler(type: Class<*>): TypeSerializer = id2typeHandler[type2id[type]]!!
+    fun typeSerializer(type: Class<*>): TypeSerializer = id2typeSerializer[type2id[type]]!!
 
     fun hasClassDesc(type: Class<*>): Boolean =
-        !type.isEnum && !Modifier.isAbstract(type.modifiers) && typeHandler(type) is ClassTypeSerializer
+        !type.isEnum && !Modifier.isAbstract(type.modifiers) && typeSerializer(type) is ClassTypeSerializer
 
     private inner class ContractPythonOut(path: Path, val namespace: Namespace) : Out(path) {
         val modules = TreeSet(Comparator.comparing<Namespace, String> { it.moduleName })
@@ -148,7 +148,7 @@ class PythonGenerator(
             redirect(buffer)
             @Suppress("UNCHECKED_CAST") namespace.types.filter { it.isEnum }.forEach { generateEnum(it as Class<Enum<*>>) }
             namespace.types
-                .filter { t -> !t.isEnum && !t.isInterface && (Modifier.isAbstract(t.modifiers) || typeHandler(t) is ClassTypeSerializer) }
+                .filter { t -> !t.isEnum && !t.isInterface && (Modifier.isAbstract(t.modifiers) || typeSerializer(t) is ClassTypeSerializer) }
                 .forEach { generateClass(it) }
             namespace.types.filter { it.isInterface }.forEach { generateInterface(it) }
             redirect(null)
@@ -274,14 +274,14 @@ class PythonGenerator(
                 if (type.isEnum)
                     println("yass.enumDesc(${type2id[type]}, $qn)")
                 else if (hasClassDesc(type))
-                    println("yass.classDesc(${type2id[type]}, $qn, ${pyBool((typeHandler(type) as ClassTypeSerializer).graph)})")
+                    println("yass.classDesc(${type2id[type]}, $qn, ${pyBool((typeSerializer(type) as ClassTypeSerializer).graph)})")
             }
             println()
             type2namespace.keys.filter { hasClassDesc(it) }.forEach { type ->
                 tabsln("yass.fieldDescs(${getQualifiedName(type)}, [")
-                for (fieldDesc in (typeHandler(type) as ClassTypeSerializer).fieldDescs) {
+                for (fieldDesc in (typeSerializer(type) as ClassTypeSerializer).fieldDescs) {
                     tab()
-                    tabsln("yass.FieldDesc(${fieldDesc.id}, '${fieldDesc.handler.field.name}', ${typeDesc(fieldDesc)}),")
+                    tabsln("yass.FieldDesc(${fieldDesc.id}, '${fieldDesc.serializer.field.name}', ${typeDesc(fieldDesc)}),")
                 }
                 tabsln("])")
             }
@@ -327,16 +327,16 @@ class PythonGenerator(
         }
 
         fun typeDesc(fieldDesc: FieldDesc): String {
-            val typeHandler = fieldDesc.handler.typeHandler ?: return "None"
+            val typeSerializer = fieldDesc.serializer.typeSerializer ?: return "None"
             return when {
-                ListTypeDesc.handler === typeHandler -> "yass.LIST_DESC"
-                BooleanDesc.handler === typeHandler -> "yass.BOOLEAN_DESC"
-                DoubleDesc.handler === typeHandler -> "yass.DOUBLE_DESC"
-                StringDesc.handler === typeHandler -> "yass.STRING_DESC"
-                BytesDesc.handler === typeHandler -> "yass.BYTES_DESC"
+                ListTypeDesc.serializer === typeSerializer -> "yass.LIST_DESC"
+                BooleanDesc.serializer === typeSerializer -> "yass.BOOLEAN_DESC"
+                DoubleDesc.serializer === typeSerializer -> "yass.DOUBLE_DESC"
+                StringDesc.serializer === typeSerializer -> "yass.STRING_DESC"
+                BytesDesc.serializer === typeSerializer -> "yass.BYTES_DESC"
                 else -> {
-                    val externalDesc = externalTypes[primitiveWrapperType(typeHandler.type)]
-                    externalDesc?.typeDesc ?: getQualifiedName(typeHandler.type)
+                    val externalDesc = externalTypes[primitiveWrapperType(typeSerializer.type)]
+                    externalDesc?.typeDesc ?: getQualifiedName(typeSerializer.type)
                 }
             }
         }

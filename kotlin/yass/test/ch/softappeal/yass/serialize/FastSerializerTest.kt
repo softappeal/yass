@@ -220,7 +220,7 @@ class FastSerializerTest {
     fun versioning() {
         val V1_SERIALIZER = taggedFastSerializer(listOf(TypeDesc(3, IntSerializer)), listOf(E1::class.java, C1::class.java))
         val V2_SERIALIZER = taggedFastSerializer(listOf(TypeDesc(3, IntSerializer)), listOf(E2::class.java, C2::class.java))
-        fun copy(input: Any): Any? {
+        fun copy(input: Any): Any {
             val buffer = ByteArrayOutputStream()
             val writer = writer(buffer)
             V1_SERIALIZER.write(writer, input)
@@ -228,11 +228,11 @@ class FastSerializerTest {
             val reader = reader(ByteArrayInputStream(buffer.toByteArray()))
             val output = V2_SERIALIZER.read(reader)
             assertTrue(reader.readByte() == 123.toByte()) // check sentinel
-            return output
+            return output!!
         }
 
-        val c2 = copy(C1(42)) as C2?
-        assertTrue(c2!!.i1 == 42)
+        val c2 = copy(C1(42)) as C2
+        assertTrue(c2.i1 == 42)
         assertNull(c2.i2)
         assertTrue(c2.i2() == 13)
         assertSame(copy(E1.c1), E2.c1)

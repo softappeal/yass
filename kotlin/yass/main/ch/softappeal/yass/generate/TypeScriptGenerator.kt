@@ -43,10 +43,10 @@ const val FirstDescId = FirstTypeId + 4
 @SafeVarargs
 fun baseTypeSerializers(vararg serializers: BaseTypeSerializer<*>): List<BaseTypeSerializer<*>> {
     val h = mutableListOf(
-        BooleanDesc.handler as BaseTypeSerializer<*>,
-        DoubleDesc.handler as BaseTypeSerializer<*>,
-        StringDesc.handler as BaseTypeSerializer<*>,
-        BytesDesc.handler as BaseTypeSerializer<*>
+        BooleanDesc.serializer as BaseTypeSerializer<*>,
+        DoubleDesc.serializer as BaseTypeSerializer<*>,
+        StringDesc.serializer as BaseTypeSerializer<*>,
+        BytesDesc.serializer as BaseTypeSerializer<*>
     )
     h.addAll(serializers)
     return h
@@ -75,13 +75,13 @@ class TypeScriptGenerator @JvmOverloads constructor(
             val visitedClasses = HashSet<Class<*>>()
 
             init {
-                id2typeHandler.forEach { id, typeHandler -> if (id >= FirstDescId) type2id[typeHandler.type] = id }
+                id2typeSerializer.forEach { id, typeSerializer -> if (id >= FirstDescId) type2id[typeSerializer.type] = id }
                 includeFile(includeFile)
-                @Suppress("UNCHECKED_CAST") id2typeHandler.values
+                @Suppress("UNCHECKED_CAST") id2typeSerializer.values
                     .map { it.type }
                     .filter { it.isEnum }
                     .forEach { generateEnum(it as Class<Enum<*>>) }
-                id2typeHandler.values
+                id2typeSerializer.values
                     .filter { it is ClassTypeSerializer }
                     .forEach { generateClass(it.type) }
                 interfaces.forEach { generateInterface(it) }
@@ -159,14 +159,14 @@ class TypeScriptGenerator @JvmOverloads constructor(
             }
 
             fun typeDesc(fieldDesc: FieldDesc): String {
-                val typeHandler = fieldDesc.handler.typeHandler ?: return "null"
+                val typeSerializer = fieldDesc.serializer.typeSerializer ?: return "null"
                 return when {
-                    ListTypeDesc.handler === typeHandler -> "yass.LIST_DESC"
-                    BooleanDesc.handler === typeHandler -> "yass.BOOLEAN_DESC"
-                    DoubleDesc.handler === typeHandler -> "yass.NUMBER_DESC"
-                    StringDesc.handler === typeHandler -> "yass.STRING_DESC"
-                    BytesDesc.handler === typeHandler -> "yass.BYTES_DESC"
-                    else -> jsType(typeHandler.type, false) + ".TYPE_DESC"
+                    ListTypeDesc.serializer === typeSerializer -> "yass.LIST_DESC"
+                    BooleanDesc.serializer === typeSerializer -> "yass.BOOLEAN_DESC"
+                    DoubleDesc.serializer === typeSerializer -> "yass.NUMBER_DESC"
+                    StringDesc.serializer === typeSerializer -> "yass.STRING_DESC"
+                    BytesDesc.serializer === typeSerializer -> "yass.BYTES_DESC"
+                    else -> jsType(typeSerializer.type, false) + ".TYPE_DESC"
                 }
             }
 
@@ -196,11 +196,11 @@ class TypeScriptGenerator @JvmOverloads constructor(
                     if (id != null) {
                         tabs("static readonly TYPE_DESC = yass.classDesc($id, $name")
                         inc()
-                        val typeHandler = id2typeHandler[id] as ClassTypeSerializer
-                        check(!typeHandler.graph) { "class '$type' is graph (not implemented in TypeScript)" }
-                        for (fieldDesc in typeHandler.fieldDescs) {
+                        val typeSerializer = id2typeSerializer[id] as ClassTypeSerializer
+                        check(!typeSerializer.graph) { "class '$type' is graph (not implemented in TypeScript)" }
+                        for (fieldDesc in typeSerializer.fieldDescs) {
                             println(",")
-                            tabs("new yass.FieldDesc(${fieldDesc.id}, '${fieldDesc.handler.field.name}', ${typeDesc(fieldDesc)})")
+                            tabs("new yass.FieldDesc(${fieldDesc.id}, '${fieldDesc.serializer.field.name}', ${typeDesc(fieldDesc)})")
                         }
                         println()
                         dec()

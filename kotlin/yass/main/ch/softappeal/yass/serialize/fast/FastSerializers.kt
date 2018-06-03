@@ -12,11 +12,11 @@ import java.lang.reflect.Field
 /** This serializer assigns type and field id's automatically. Therefore, all peers must have the same version of the contract! */
 @JvmOverloads
 fun simpleFastSerializer(
-    baseTypeHandlers: List<BaseTypeSerializer<*>>, treeConcreteClasses: List<Class<*>>, graphConcreteClasses: List<Class<*>> = emptyList()
+    baseTypeSerializers: List<BaseTypeSerializer<*>>, treeConcreteClasses: List<Class<*>>, graphConcreteClasses: List<Class<*>> = emptyList()
 ) = object : FastSerializer() {
     init {
         var id = FirstTypeId
-        for (typeHandler in baseTypeHandlers) addBaseType(TypeDesc(id++, typeHandler))
+        for (typeSerializer in baseTypeSerializers) addBaseType(TypeDesc(id++, typeSerializer))
         for (type in treeConcreteClasses) if (type.isEnum) addEnum(id++, type) else addClass(id++, type, false)
         for (type in graphConcreteClasses) {
             checkClass(type)
@@ -59,16 +59,16 @@ fun taggedFastSerializer(
     }
 }
 
-fun FastSerializer.print(printer: PrintWriter) = id2typeHandler.forEach { id, typeHandler ->
+fun FastSerializer.print(printer: PrintWriter) = id2typeSerializer.forEach { id, typeSerializer ->
     if (id < FirstTypeId) return@forEach
-    val type = typeHandler.type
+    val type = typeSerializer.type
     printer.print("$id: ${type.canonicalName}")
-    if (typeHandler is BaseTypeSerializer<*>) {
+    if (typeSerializer is BaseTypeSerializer<*>) {
         printer.println()
         if (type.isEnum) for ((i, c) in type.enumConstants.withIndex()) printer.println("    $i: $c")
-    } else if (typeHandler is ClassTypeSerializer) {
-        printer.println(" (graph=${typeHandler.graph})")
-        for (fd in typeHandler.fieldDescs) printer.println("    ${fd.id}: ${fd.handler.field.toGenericString()}")
+    } else if (typeSerializer is ClassTypeSerializer) {
+        printer.println(" (graph=${typeSerializer.graph})")
+        for (fd in typeSerializer.fieldDescs) printer.println("    ${fd.id}: ${fd.serializer.field.toGenericString()}")
     }
     printer.println()
 }
