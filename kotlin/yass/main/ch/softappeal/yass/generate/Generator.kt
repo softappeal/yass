@@ -34,10 +34,8 @@ fun getServiceDescs(services: Services): List<ServiceDesc> {
     return serviceDescs.sortedBy { it.contractId.id }
 }
 
-private fun getInterfaces(services: Services?): Set<Class<*>> = if (services == null)
-    setOf()
-else
-    getServiceDescs(services).map { it.contractId.contract }.toSet()
+private fun getInterfaces(services: Services?): Set<Class<*>> =
+    if (services == null) setOf() else getServiceDescs(services).map { it.contractId.contract }.toSet()
 
 fun getMethods(type: Class<*>): List<Method> = type.methods.asList().sortedBy { it.name }
 

@@ -123,9 +123,9 @@ class PythonGenerator(
         }
     }
 
-    fun typeSerializer(type: Class<*>): TypeSerializer = id2typeSerializer[type2id[type]]!!
+    private fun typeSerializer(type: Class<*>): TypeSerializer = id2typeSerializer[type2id[type]]!!
 
-    fun hasClassDesc(type: Class<*>): Boolean =
+    private fun hasClassDesc(type: Class<*>): Boolean =
         !type.isEnum && !Modifier.isAbstract(type.modifiers) && typeSerializer(type) is ClassTypeSerializer
 
     private inner class ContractPythonOut(path: Path, val namespace: Namespace) : Out(path) {
