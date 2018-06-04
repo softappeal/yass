@@ -7,7 +7,10 @@ import java.io.ObjectInputStream
 import java.io.ObjectOutputStream
 
 interface Serializer {
+    @Throws(Exception::class)
     fun read(reader: Reader): Any?
+
+    @Throws(Exception::class)
     fun write(writer: Writer, value: Any?)
 }
 

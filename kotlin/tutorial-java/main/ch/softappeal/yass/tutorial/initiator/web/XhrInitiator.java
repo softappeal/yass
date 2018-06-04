@@ -42,7 +42,7 @@ public final class XhrInitiator extends WebSetup {
                             try (InputStream in = connection.getInputStream()) { // note: early closing of input seams to make none ssl invocations faster
                                 invocation.settle((Reply)messageSerializer.read(reader(in)));
                             }
-                        } catch (final IOException e) {
+                        } catch (final Exception e) {
                             throw new RuntimeException(e);
                         }
                         return null;

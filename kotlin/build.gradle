@@ -1,3 +1,8 @@
+plugins {
+    id "org.jetbrains.kotlin.jvm" version "1.2.41" apply false
+    id "org.jetbrains.dokka" version "0.9.17" apply false
+}
+
 subprojects {
 
     ext {
@@ -6,7 +11,31 @@ subprojects {
         undertow_dep = 'io.undertow:undertow-websockets-jsr:2.0.4.Final'
     }
 
-    group = "ch.softappeal.yass"
+    apply plugin: "org.jetbrains.kotlin.jvm"
+
+    sourceSets {
+        main { kotlin { srcDir 'main' } }
+        test { kotlin { srcDir 'test' } }
+    }
+
+    dependencies {
+        compile "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
+        testCompile "org.jetbrains.kotlin:kotlin-test-junit"
+    }
+
+    compileKotlin {
+        kotlinOptions {
+            jvmTarget = "1.8"
+            javaParameters = true
+        }
+    }
+
+    compileTestKotlin {
+        kotlinOptions {
+            jvmTarget = "1.8"
+            javaParameters = true
+        }
+    }
 
     repositories {
         mavenCentral()
@@ -15,31 +44,6 @@ subprojects {
     configurations.all {
         resolutionStrategy {
             failOnVersionConflict()
-        }
-    }
-
-    apply plugin: 'maven'
-    apply plugin: 'signing'
-
-    task sign {
-        doLast {
-            pom {
-                project {
-                    name project.name
-                    description 'Yet Another Service Solution'
-                    url 'https://github.com/softappeal/yass'
-                    licenses { license { name 'BSD-3-Clause' } }
-                    scm { url 'https://github.com/softappeal/yass' }
-                    organization { name 'softappeal GmbH Switzerland' }
-                    developers { developer { name 'Angelo Salvade' } }
-                }
-            }.writeTo("build/libs/${project.name}-${version}.pom")
-            if (rootProject.hasProperty('signing.password')) {
-                file("build/libs").listFiles().each { signing.sign(it) }
-            }
-            ant.zip(destfile: "build/${project.name}-${version}_artifacts.zip") {
-                fileset(dir: 'build/libs')
-            }
         }
     }
 

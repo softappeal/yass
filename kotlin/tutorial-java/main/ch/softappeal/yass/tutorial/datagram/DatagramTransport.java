@@ -9,7 +9,6 @@ import ch.softappeal.yass.serialize.ByteBufferOutputStream;
 import ch.softappeal.yass.serialize.Serializer;
 import ch.softappeal.yass.transport.ServerTransport;
 
-import java.io.IOException;
 import java.net.SocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.DatagramChannel;
@@ -41,10 +40,10 @@ public final class DatagramTransport {
                 invocation.invoke(false, request -> {
                     checkOneWay(invocation.getMethodMapping(), request);
                     final ByteBufferOutputStream out = new ByteBufferOutputStream(128);
-                    messageSerializer.write(writer(out), request);
                     try {
+                        messageSerializer.write(writer(out), request);
                         channel.send(out.toByteBuffer(), target);
-                    } catch (final IOException e) {
+                    } catch (final Exception e) {
                         throw new RuntimeException(e);
                     }
                     return null;

@@ -48,13 +48,13 @@ public final class StdClient3 {
         SocketClient.client(new Client() {
             @Override protected void invoke(final ClientInvocation invocation) throws Exception {
                 invocation.invoke(false, request -> {
-                    messageSerializer.write(writer, request);
                     try {
+                        messageSerializer.write(writer, request);
                         out.flush();
-                    } catch (final IOException e) {
+                        invocation.settle((Reply)messageSerializer.read(reader));
+                    } catch (final Exception e) {
                         throw new RuntimeException(e);
                     }
-                    invocation.settle((Reply)messageSerializer.read(reader));
                     return null;
                 });
             }
