@@ -11,7 +11,10 @@ import java.lang.reflect.Method
 @Target(AnnotationTarget.FUNCTION)
 annotation class OneWay
 
-data class MethodMapping(val method: Method, val id: Int, val oneWay: Boolean = method.isAnnotationPresent(OneWay::class.java)) {
+val Method.isOneWay: Boolean
+    get() = isAnnotationPresent(OneWay::class.java)
+
+data class MethodMapping(val method: Method, val id: Int, val oneWay: Boolean = method.isOneWay) {
     init {
         if (oneWay) {
             check(method.returnType === Void.TYPE) { "OneWay method '$method' must return void" }
