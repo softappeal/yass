@@ -1,3 +1,7 @@
+sourceSets {
+    main { java { srcDir 'main' } }
+}
+
 dependencies {
     compile project(":kotlin:yass")
     // compile "ch.softappeal.yass:yass:x.y.z"
@@ -5,18 +9,24 @@ dependencies {
     compile undertow_dep
 }
 
+tasks.withType(JavaCompile) {
+    options.compilerArgs << "-Xlint"
+    options.compilerArgs << "-parameters"
+    options.encoding = "US-ASCII"
+}
+
 task generateTypeScript(type: JavaExec) {
-    main = 'ch.softappeal.yass.tutorial.generate.GenerateTypeScriptKt'
+    main = 'ch.softappeal.yass.tutorial.generate.GenerateTypeScript'
     classpath = sourceSets.main.runtimeClasspath
 }
 
 task generatePython3(type: JavaExec) {
-    main = 'ch.softappeal.yass.tutorial.generate.GeneratePython3Kt'
+    main = 'ch.softappeal.yass.tutorial.generate.GeneratePython3'
     classpath = sourceSets.main.runtimeClasspath
 }
 
 task generatePython2(type: JavaExec) {
-    main = 'ch.softappeal.yass.tutorial.generate.GeneratePython2Kt'
+    main = 'ch.softappeal.yass.tutorial.generate.GeneratePython2'
     classpath = sourceSets.main.runtimeClasspath
 }
 

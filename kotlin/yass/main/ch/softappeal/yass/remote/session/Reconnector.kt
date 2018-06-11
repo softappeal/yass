@@ -30,6 +30,7 @@ abstract class ProxyDelegate<S : Session> {
 
     val isConnected get() = isConnected(_session)
 
+    /** $todo: Only needed for Java. */
     fun <C : Any> proxy(contract: Class<C>, proxyGetter: (session: S) -> C): C =
         proxy(contract, InvocationHandler { _, method, arguments -> invoke(method, proxyGetter(session), args(arguments)) })
 

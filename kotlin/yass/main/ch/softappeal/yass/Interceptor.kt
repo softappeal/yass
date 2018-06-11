@@ -44,6 +44,7 @@ internal fun args(arguments: Array<Any?>?): List<Any?> =
 internal fun <C : Any> proxy(contract: Class<C>, invocationHandler: InvocationHandler): C =
     Proxy.newProxyInstance(contract.classLoader, arrayOf(contract), invocationHandler) as C
 
+/** $todo: Only needed for Java. */
 @SafeVarargs
 fun <C : Any> proxy(contract: Class<C>, implementation: C, vararg interceptors: Interceptor): C {
     val interceptor = compositeInterceptor(*interceptors)

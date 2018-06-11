@@ -105,7 +105,7 @@ fun primitiveWrapperType(type: Class<*>): Class<*> = when (type) {
 class FieldSerializer internal constructor(val field: Field) {
     private var _typeSerializer: TypeSerializer? = null
 
-    val typeSerializer get() = _typeSerializer
+    val typeSerializer: TypeSerializer? get() = _typeSerializer
 
     internal fun fixup(class2typeDesc: Map<Class<*>, TypeDesc>) {
         val typeDesc = class2typeDesc[primitiveWrapperType(field.type)]

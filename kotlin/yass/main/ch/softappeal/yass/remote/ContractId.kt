@@ -5,6 +5,7 @@ package ch.softappeal.yass.remote
 
 class ContractId<C : Any> @PublishedApi internal constructor(val contract: Class<C>, val id: Int, val methodMapper: MethodMapper)
 
+/** $todo: Only needed for Java. */
 fun <C : Any> contractId(contract: Class<C>, id: Int, methodMapperFactory: MethodMapperFactory): ContractId<C> =
     ContractId(contract, id, methodMapperFactory(contract))
 
@@ -15,6 +16,7 @@ abstract class Services protected constructor(val methodMapperFactory: MethodMap
     @PublishedApi
     internal val identifiers = mutableSetOf<Int>()
 
+    /** $todo: Only needed for Java. */
     protected fun <C : Any> contractId(contract: Class<C>, id: Int): ContractId<C> {
         require(identifiers.add(id)) { "service with id $id already added" }
         return contractId(contract, id, methodMapperFactory)

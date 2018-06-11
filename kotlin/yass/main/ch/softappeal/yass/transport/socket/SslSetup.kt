@@ -8,6 +8,8 @@ import java.net.ServerSocket
 import java.net.Socket
 import java.security.KeyStore
 import java.security.SecureRandom
+import javax.net.ServerSocketFactory
+import javax.net.SocketFactory
 import javax.net.ssl.KeyManager
 import javax.net.ssl.KeyManagerFactory
 import javax.net.ssl.SSLContext
@@ -53,7 +55,7 @@ class SslSetup @JvmOverloads constructor(
     }
 }
 
-val SslSetup.socketFactory
+val SslSetup.socketFactory: SocketFactory
     get() = object : AbstractSocketFactory() {
         override fun createSocket(): Socket {
             val socket = context.socketFactory.createSocket() as SSLSocket
@@ -68,7 +70,7 @@ val SslSetup.socketFactory
         }
     }
 
-val SslSetup.serverSocketFactory
+val SslSetup.serverSocketFactory: ServerSocketFactory
     get() = object : AbstractServerSocketFactory() {
         override fun createServerSocket(): ServerSocket {
             val serverSocket = context.serverSocketFactory.createServerSocket() as SSLServerSocket

@@ -56,7 +56,7 @@ class Service<C : Any> @SafeVarargs constructor(
     }
 }
 
-/** Only needed for Java. */
+/** $todo: Only needed for Java. */
 @SafeVarargs
 fun <C : Any> service(contractId: ContractId<C>, implementation: C, vararg interceptors: Interceptor) =
     Service(contractId, implementation, *interceptors)
@@ -97,7 +97,7 @@ class AsyncService<C : Any>(
     }
 }
 
-/** Only needed for Java. */
+/** $todo: Only needed for Java. */
 @JvmOverloads
 fun <C : Any> asyncService(contractId: ContractId<C>, implementation: C, interceptor: AsyncInterceptor = DirectAsyncInterceptor) =
     AsyncService(contractId, implementation, interceptor)
