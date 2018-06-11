@@ -77,8 +77,8 @@ class SslTest {
     @Test
     fun onlyServerAuthentication() {
         test(
-            SslSetup(PROTOCOL, CIPHER, SERVER_KEY, PASSWORD, null).serverSocketFactory(),
-            SslSetup(PROTOCOL, CIPHER, null, null, SERVER_CERT).socketFactory(),
+            SslSetup(PROTOCOL, CIPHER, SERVER_KEY, PASSWORD, null).serverSocketFactory,
+            SslSetup(PROTOCOL, CIPHER, null, null, SERVER_CERT).socketFactory,
             false
         )
     }
@@ -86,8 +86,8 @@ class SslTest {
     @Test
     fun clientAndServerAuthentication() {
         test(
-            SslSetup(PROTOCOL, CIPHER, SERVER_KEY, PASSWORD, CLIENTCA_CERT).serverSocketFactory(),
-            SslSetup(PROTOCOL, CIPHER, CLIENT_KEY, PASSWORD, SERVER_CERT).socketFactory(),
+            SslSetup(PROTOCOL, CIPHER, SERVER_KEY, PASSWORD, CLIENTCA_CERT).serverSocketFactory,
+            SslSetup(PROTOCOL, CIPHER, CLIENT_KEY, PASSWORD, SERVER_CERT).socketFactory,
             true
         )
     }
@@ -95,8 +95,8 @@ class SslTest {
     @Test
     fun wrongServer() {
         failedTest(
-            SslSetup(PROTOCOL, CIPHER, SERVER_KEY, PASSWORD, null).serverSocketFactory(),
-            SslSetup(PROTOCOL, CIPHER, null, null, CLIENTCA_CERT).socketFactory(),
+            SslSetup(PROTOCOL, CIPHER, SERVER_KEY, PASSWORD, null).serverSocketFactory,
+            SslSetup(PROTOCOL, CIPHER, null, null, CLIENTCA_CERT).socketFactory,
             false
         )
     }
@@ -104,8 +104,8 @@ class SslTest {
     @Test
     fun wrongClientCA() {
         failedTest(
-            SslSetup(PROTOCOL, CIPHER, SERVER_KEY, PASSWORD, SERVER_CERT).serverSocketFactory(),
-            SslSetup(PROTOCOL, CIPHER, CLIENT_KEY, PASSWORD, SERVER_CERT).socketFactory(),
+            SslSetup(PROTOCOL, CIPHER, SERVER_KEY, PASSWORD, SERVER_CERT).serverSocketFactory,
+            SslSetup(PROTOCOL, CIPHER, CLIENT_KEY, PASSWORD, SERVER_CERT).socketFactory,
             true
         )
     }

@@ -10,7 +10,7 @@ abstract class Instrument protected constructor(val id: Int, val name: String)
 
 /** Shows how to use graphs. */
 class Node(val id: Double) {
-    val links: List<Node> = mutableListOf()
+    val links = mutableListOf<Node>()
     var next: Node? = null
 }
 

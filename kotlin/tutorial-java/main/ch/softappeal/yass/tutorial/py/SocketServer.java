@@ -25,7 +25,7 @@ import static ch.softappeal.yass.Kt.namedThreadFactory;
 import static ch.softappeal.yass.remote.Kt.service;
 import static ch.softappeal.yass.transport.Kt.messageSerializer;
 import static ch.softappeal.yass.transport.socket.Kt.getSocket;
-import static ch.softappeal.yass.transport.socket.Kt.serverSocketFactory;
+import static ch.softappeal.yass.transport.socket.Kt.getServerSocketFactory;
 import static ch.softappeal.yass.transport.socket.Kt.socketBinder;
 import static ch.softappeal.yass.transport.socket.Kt.socketServer;
 import static ch.softappeal.yass.tutorial.contract.Config.PY_ACCEPTOR;
@@ -74,7 +74,7 @@ public final class SocketServer {
             executor
         ).start(
             executor,
-            socketBinder(SocketSetup.ADDRESS, serverSocketFactory(SslConfig.SERVER))
+            socketBinder(SocketSetup.ADDRESS, getServerSocketFactory(SslConfig.SERVER))
         );
         System.out.println("started");
     }

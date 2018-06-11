@@ -25,7 +25,7 @@ import java.util.List;
 import static ch.softappeal.yass.transport.Kt.messageSerializer;
 import static ch.softappeal.yass.transport.socket.Kt.socketClient;
 import static ch.softappeal.yass.transport.socket.Kt.socketConnector;
-import static ch.softappeal.yass.transport.socket.Kt.socketFactory;
+import static ch.softappeal.yass.transport.socket.Kt.getSocketFactory;
 import static ch.softappeal.yass.tutorial.contract.Config.PY_ACCEPTOR;
 
 public final class SocketClient {
@@ -78,7 +78,7 @@ public final class SocketClient {
     public static void main(final String... args) {
         client(socketClient(
             new ClientSetup(messageSerializer(SERIALIZER)),
-            socketConnector(SocketSetup.ADDRESS, socketFactory(SslConfig.CLIENT))
+            socketConnector(SocketSetup.ADDRESS, getSocketFactory(SslConfig.CLIENT))
         ));
     }
 
