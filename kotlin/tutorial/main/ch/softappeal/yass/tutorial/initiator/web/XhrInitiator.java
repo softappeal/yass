@@ -11,7 +11,6 @@ import ch.softappeal.yass.tutorial.shared.SslConfig;
 import ch.softappeal.yass.tutorial.shared.web.WebSetup;
 
 import javax.net.ssl.HttpsURLConnection;
-import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;

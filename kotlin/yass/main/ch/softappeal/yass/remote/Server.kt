@@ -4,6 +4,7 @@
 package ch.softappeal.yass.remote
 
 import ch.softappeal.yass.Interceptor
+import ch.softappeal.yass.OnlyNeededForJava
 import ch.softappeal.yass.compositeInterceptor
 import ch.softappeal.yass.invoke
 
@@ -56,7 +57,7 @@ class Service<C : Any> @SafeVarargs constructor(
     }
 }
 
-/** $todo: Only needed for Java. */
+@OnlyNeededForJava
 @SafeVarargs
 fun <C : Any> service(contractId: ContractId<C>, implementation: C, vararg interceptors: Interceptor) =
     Service(contractId, implementation, *interceptors)
@@ -97,7 +98,7 @@ class AsyncService<C : Any>(
     }
 }
 
-/** $todo: Only needed for Java. */
+@OnlyNeededForJava
 @JvmOverloads
 fun <C : Any> asyncService(contractId: ContractId<C>, implementation: C, interceptor: AsyncInterceptor = DirectAsyncInterceptor) =
     AsyncService(contractId, implementation, interceptor)

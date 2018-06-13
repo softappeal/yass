@@ -3,6 +3,7 @@
 
 package ch.softappeal.yass.remote.session
 
+import ch.softappeal.yass.OnlyNeededForJava
 import ch.softappeal.yass.args
 import ch.softappeal.yass.invoke
 import ch.softappeal.yass.proxy
@@ -30,7 +31,7 @@ abstract class ProxyDelegate<S : Session> {
 
     val isConnected get() = isConnected(_session)
 
-    /** $todo: Only needed for Java. */
+    @OnlyNeededForJava
     fun <C : Any> proxy(contract: Class<C>, proxyGetter: (session: S) -> C): C =
         proxy(contract, InvocationHandler { _, method, arguments -> invoke(method, proxyGetter(session), args(arguments)) })
 

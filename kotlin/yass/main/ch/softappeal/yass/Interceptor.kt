@@ -8,6 +8,11 @@ import java.lang.reflect.InvocationTargetException
 import java.lang.reflect.Method
 import java.lang.reflect.Proxy
 
+@MustBeDocumented
+@Retention(AnnotationRetention.SOURCE)
+@Target(AnnotationTarget.FUNCTION)
+annotation class OnlyNeededForJava
+
 typealias Invocation = () -> Any?
 
 /** Should return invocation(). */
@@ -44,7 +49,7 @@ internal fun args(arguments: Array<Any?>?): List<Any?> =
 internal fun <C : Any> proxy(contract: Class<C>, invocationHandler: InvocationHandler): C =
     Proxy.newProxyInstance(contract.classLoader, arrayOf(contract), invocationHandler) as C
 
-/** $todo: Only needed for Java. */
+@OnlyNeededForJava
 @SafeVarargs
 fun <C : Any> proxy(contract: Class<C>, implementation: C, vararg interceptors: Interceptor): C {
     val interceptor = compositeInterceptor(*interceptors)
