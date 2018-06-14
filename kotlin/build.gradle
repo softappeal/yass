@@ -7,8 +7,8 @@ subprojects {
 
     ext {
         websocket_dep = 'javax.websocket:javax.websocket-api:1.0'
-        jetty_dep = 'org.eclipse.jetty.websocket:javax-websocket-server-impl:9.4.9.v20180320'
-        undertow_dep = 'io.undertow:undertow-websockets-jsr:2.0.4.Final'
+        jetty_dep = 'org.eclipse.jetty.websocket:javax-websocket-server-impl:9.4.11.v20180605'
+        undertow_dep = 'io.undertow:undertow-websockets-jsr:2.0.9.Final'
     }
 
     apply plugin: "org.jetbrains.kotlin.jvm"

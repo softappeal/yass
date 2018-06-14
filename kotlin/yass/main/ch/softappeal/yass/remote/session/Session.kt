@@ -153,7 +153,7 @@ abstract class Session : Client(), AutoCloseable {
 
     final override fun invoke(invocation: ClientInvocation) {
         if (isClosed) throw SessionClosedException()
-        invocation.invoke(true, { request ->
+        invocation.invoke(true) { request ->
             try {
                 var requestNumber: Int
                 do { // we can't use END_REQUEST_NUMBER as regular requestNumber
@@ -167,7 +167,7 @@ abstract class Session : Client(), AutoCloseable {
             } catch (e: Exception) {
                 closeThrow(e)
             }
-        })
+        }
     }
 }
 

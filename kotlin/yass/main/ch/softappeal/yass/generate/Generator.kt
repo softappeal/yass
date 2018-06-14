@@ -54,7 +54,7 @@ abstract class Generator(
     private val rootPackage: String = if (rootPackage.isEmpty()) "" else "$rootPackage."
     protected val id2typeSerializer = serializer.id2typeSerializer
     private var methodMapperFactory: MethodMapperFactory? = null
-    protected val interfaces: SortedSet<Class<*>> = TreeSet(Comparator.comparing<Class<*>, String>({ it.canonicalName }))
+    protected val interfaces: SortedSet<Class<*>> = TreeSet(Comparator.comparing<Class<*>, String> { it.canonicalName })
 
     init {
         check((initiator == null) || (acceptor == null) || (initiator.methodMapperFactory === acceptor.methodMapperFactory)) {

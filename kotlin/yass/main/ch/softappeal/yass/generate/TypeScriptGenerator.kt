@@ -124,7 +124,7 @@ class TypeScriptGenerator @JvmOverloads constructor(
                 println()
             }
 
-            fun generateEnum(type: Class<out Enum<*>>) = generateType(type, { name ->
+            fun generateEnum(type: Class<out Enum<*>>) = generateType(type) { name ->
                 tabsln("export class $name extends yass.Enum {")
                 inc()
                 additionalTypeCode()
@@ -133,7 +133,7 @@ class TypeScriptGenerator @JvmOverloads constructor(
                 tabsln("static readonly TYPE_DESC = yass.enumDesc(${type2id[type]}, $name);")
                 dec()
                 tabsln("}")
-            })
+            }
 
             fun type(type: Type?): String = when {
                 type is ParameterizedType -> if (type.rawType === List::class.java) {
@@ -179,7 +179,7 @@ class TypeScriptGenerator @JvmOverloads constructor(
                     generateClass((sc as ParameterizedType).rawType as Class<*>)
                 }
                 val superClass = sc
-                generateType(type, { name ->
+                generateType(type) { name ->
                     tabs("export ${if (Modifier.isAbstract(type.modifiers)) "abstract " else ""}class $name")
                     val typeParameters = type.typeParameters
                     if (typeParameters.isNotEmpty()) {
@@ -208,14 +208,14 @@ class TypeScriptGenerator @JvmOverloads constructor(
                     }
                     dec()
                     tabsln("}")
-                })
+                }
             }
 
             fun generateInterface(type: Class<*>) {
                 SimpleMethodMapperFactory.invoke(type) // checks for overloaded methods (JavaScript restriction)
                 val methods = getMethods(type)
                 val methodMapper = methodMapper(type)
-                generateType(type, { name ->
+                generateType(type) { name ->
                     fun generateInterface(name: String, implementation: Boolean) {
                         tabsln("export namespace ${if (implementation) "impl" else "proxy"} {")
                         inc()
@@ -256,7 +256,7 @@ class TypeScriptGenerator @JvmOverloads constructor(
                     tabsln(");")
                     dec()
                     tabsln("}")
-                })
+                }
             }
 
             fun generateServices(services: Services?, role: String) {
