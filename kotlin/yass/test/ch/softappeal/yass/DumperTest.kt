@@ -32,7 +32,7 @@ class DumperTest {
         val timeZone = TimeZone.getDefault()
         try {
             TimeZone.setDefault(TimeZone.getTimeZone("UTC"))
-            compareFile("ch/softappeal/yass/DumperTest.dump.txt", { printer ->
+            compareFile("ch/softappeal/yass/DumperTest.dump.txt") { printer ->
                 fun print(dumper: Dumper, printer: PrintWriter, cycles: Boolean) {
                     val s = StringBuilder(1024)
                     fun dump(value: Any?) {
@@ -51,7 +51,7 @@ class DumperTest {
                 print(dumper(false, false, emptySet()), printer, false)
                 print(dumper(true, true, setOf(BigInteger::class.java, BigDecimal::class.java, Instant::class.java)), printer, true)
                 print(dumper(true, false, emptySet()), printer, false)
-            })
+            }
         } finally {
             TimeZone.setDefault(timeZone)
         }

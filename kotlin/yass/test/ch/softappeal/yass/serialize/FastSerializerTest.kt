@@ -218,15 +218,15 @@ class FastSerializerTest {
 
     @Test
     fun versioning() {
-        val V1_SERIALIZER = taggedFastSerializer(listOf(TypeDesc(3, IntSerializer)), listOf(E1::class.java, C1::class.java))
-        val V2_SERIALIZER = taggedFastSerializer(listOf(TypeDesc(3, IntSerializer)), listOf(E2::class.java, C2::class.java))
+        val v1serializer = taggedFastSerializer(listOf(TypeDesc(3, IntSerializer)), listOf(E1::class.java, C1::class.java))
+        val v2serializer = taggedFastSerializer(listOf(TypeDesc(3, IntSerializer)), listOf(E2::class.java, C2::class.java))
         fun copy(input: Any): Any {
             val buffer = ByteArrayOutputStream()
             val writer = writer(buffer)
-            V1_SERIALIZER.write(writer, input)
+            v1serializer.write(writer, input)
             writer.writeByte(123.toByte()) // write sentinel
             val reader = reader(ByteArrayInputStream(buffer.toByteArray()))
-            val output = V2_SERIALIZER.read(reader)
+            val output = v2serializer.read(reader)
             assertTrue(reader.readByte() == 123.toByte()) // check sentinel
             return output!!
         }

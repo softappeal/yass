@@ -26,6 +26,7 @@ abstract class Client {
     @Throws(Exception::class)
     protected abstract fun invoke(invocation: ClientInvocation)
 
+    @Throws(Exception::class)
     protected open fun syncInvoke(
         contractId: ContractId<*>, interceptor: Interceptor, method: Method, arguments: List<Any?>
     ): Any? = interceptor(method, arguments) {

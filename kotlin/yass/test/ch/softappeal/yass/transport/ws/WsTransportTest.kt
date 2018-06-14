@@ -44,10 +44,7 @@ private fun serverEndpointConfig(executor: Executor): ServerEndpointConfig = Ser
     .create(Endpoint::class.java, PATH)
     .configurator(WsConfigurator(
         asyncWsConnectionFactory(100),
-        SessionTransport(
-            packetSerializer,
-            { createTestSession(executor, null, ::connectionHandler) }
-        )
+        SessionTransport(packetSerializer) { createTestSession(executor, null, ::connectionHandler) }
     ))
     .build()
 
@@ -55,10 +52,7 @@ private fun connect(container: WebSocketContainer, executor: Executor, done: () 
     container.connectToServer(
         WsConfigurator(
             SyncWsConnectionFactory,
-            SessionTransport(
-                packetSerializer,
-                { createTestSession(executor, done, ::connectionHandler) }
-            )
+            SessionTransport(packetSerializer) { createTestSession(executor, done, ::connectionHandler) }
         ).endpointInstance,
         ClientEndpointConfig.Builder.create().build(),
         THE_URI
@@ -118,9 +112,8 @@ class WsTest {
                 true,
                 true
             ),
-            executor,
-            {}
-        )
+            executor
+        ) {}
         TimeUnit.MILLISECONDS.sleep(200)
         server.stop()
         done()
