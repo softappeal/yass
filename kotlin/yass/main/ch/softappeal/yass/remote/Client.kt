@@ -60,7 +60,7 @@ abstract class Client {
     fun <C : Any> asyncProxy(contractId: ContractId<C>, interceptor: AsyncInterceptor = DirectAsyncInterceptor): C =
         proxy(contractId.contract, InvocationHandler { _, method, arguments ->
             val methodMapping = contractId.methodMapper.map(method)
-            val promise = Promise.get()
+            val promise = promise_.get()
             check((promise != null) || methodMapping.oneWay) {
                 "asynchronous request/reply proxy call must be enclosed with 'promise' function"
             }
@@ -90,16 +90,16 @@ abstract class Client {
         })
 }
 
-private val Promise = ThreadLocal<CompletableFuture<Any>>()
+private val promise_ = ThreadLocal<CompletableFuture<Any>>()
 
 fun <T : Any?> promise(execute: () -> T): CompletionStage<T> {
-    val oldPromise = Promise.get()
+    val oldPromise = promise_.get()
     val promise = CompletableFuture<T>()
-    @Suppress("UNCHECKED_CAST") Promise.set(promise as CompletableFuture<Any>)
+    @Suppress("UNCHECKED_CAST") promise_.set(promise as CompletableFuture<Any>)
     try {
         execute()
     } finally {
-        Promise.set(oldPromise)
+        promise_.set(oldPromise)
     }
     return promise
 }

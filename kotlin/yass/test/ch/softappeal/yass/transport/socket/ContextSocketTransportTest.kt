@@ -66,12 +66,19 @@ class ContextSocketTransportTest {
         test(
             { _, _, invocation ->
                 print("server")
-                Serializer.context = null
-                invocation()
+                try {
+                    invocation()
+                } finally {
+                    Serializer.context = null
+                }
             },
             { _, _, invocation ->
                 Serializer.context = "client"
-                invocation()
+                try {
+                    invocation()
+                } finally {
+                    Serializer.context = null
+                }
             }
         )
     }

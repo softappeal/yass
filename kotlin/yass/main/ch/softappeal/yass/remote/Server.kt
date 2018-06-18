@@ -68,17 +68,17 @@ abstract class Completer {
     abstract fun completeExceptionally(exception: Exception)
 }
 
-private val TheCompleter = ThreadLocal<Completer>()
+private val completer_ = ThreadLocal<Completer>()
 
 val completer: Completer
-    get() = checkNotNull(TheCompleter.get()) { "no active asynchronous request/reply service invocation" }
+    get() = checkNotNull(completer_.get()) { "no active asynchronous request/reply service invocation" }
 
 class AsyncService<C : Any>(
     contractId: ContractId<C>, implementation: C, private val interceptor: AsyncInterceptor = DirectAsyncInterceptor
 ) : AbstractService<C>(contractId, implementation) {
     override fun invoke(invocation: AbstractInvocation, replyWriter: ReplyWriter) {
-        val oldCompleter = TheCompleter.get()
-        TheCompleter.set(if (invocation.methodMapping.oneWay) null else object : Completer() {
+        val oldCompleter = completer_.get()
+        completer_.set(if (invocation.methodMapping.oneWay) null else object : Completer() {
             override fun complete(result: Any?) {
                 interceptor.exit(invocation, result)
                 replyWriter(ValueReply(result))
@@ -93,7 +93,7 @@ class AsyncService<C : Any>(
             interceptor.entry(invocation)
             invoke(invocation.methodMapping.method, implementation, invocation.arguments)
         } finally {
-            TheCompleter.set(oldCompleter)
+            completer_.set(oldCompleter)
         }
     }
 }
