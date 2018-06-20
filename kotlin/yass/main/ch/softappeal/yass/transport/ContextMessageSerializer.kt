@@ -9,11 +9,11 @@ import ch.softappeal.yass.serialize.Serializer
 import ch.softappeal.yass.serialize.Writer
 
 class ContextMessageSerializer(private val contextSerializer: Serializer, private val messageSerializer: Serializer) : Serializer {
-    private val conext_ = ThreadLocal<Any?>()
+    private val context_ = ThreadLocal<Any?>()
 
     var context: Any?
-        get() = conext_.get()
-        set(value) = conext_.set(value)
+        get() = context_.get()
+        set(value) = context_.set(value)
 
     override fun read(reader: Reader): Message {
         context = contextSerializer.read(reader)
