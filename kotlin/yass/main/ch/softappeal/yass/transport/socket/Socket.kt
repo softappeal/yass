@@ -45,6 +45,16 @@ fun socketConnector(
     }
 }
 
+@SafeVarargs
+fun firstSocketConnector(vararg socketConnectors: SocketConnector): SocketConnector = fun(): Socket {
+    for (socketConnector in socketConnectors)
+        try {
+            return socketConnector()
+        } catch (ignore: Exception) {
+        }
+    throw RuntimeException("all connectors failed")
+}
+
 typealias SocketBinder = () -> ServerSocket
 
 @JvmOverloads

@@ -4,6 +4,7 @@ import org.junit.Test
 import java.net.BindException
 import java.net.ConnectException
 import java.net.InetSocketAddress
+import kotlin.test.assertEquals
 import kotlin.test.fail
 
 val address = InetSocketAddress("localhost", 28947)
@@ -15,6 +16,22 @@ class SocketTest {
             socketConnector(address)()
             fail()
         } catch (ignored: ConnectException) {
+        }
+    }
+
+    @Test
+    fun failedFirstSocketConnector() {
+        try {
+            firstSocketConnector()()
+            fail()
+        } catch (e: RuntimeException) {
+            assertEquals("all connectors failed", e.message)
+        }
+        try {
+            firstSocketConnector(socketConnector(address))()
+            fail()
+        } catch (e: RuntimeException) {
+            assertEquals("all connectors failed", e.message)
         }
     }
 

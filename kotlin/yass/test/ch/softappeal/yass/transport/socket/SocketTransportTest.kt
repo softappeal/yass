@@ -15,6 +15,7 @@ import ch.softappeal.yass.transport.ClientSetup
 import ch.softappeal.yass.transport.ServerSetup
 import ch.softappeal.yass.transport.messageSerializer
 import org.junit.Test
+import java.net.InetSocketAddress
 import java.util.concurrent.TimeUnit
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
@@ -65,6 +66,26 @@ class SocketTransportTest {
                 .start(executor, socketBinder(address)).use {
                     TimeUnit.MILLISECONDS.sleep(200L)
                     performance(socketClient(ClientSetup(messageSerializer), socketConnector(address)))
+                }
+            done()
+        }
+        TimeUnit.MILLISECONDS.sleep(200L)
+    }
+
+    @Test
+    fun firstSocketConnector() {
+        useExecutor { executor, done ->
+            val server = Server(Service(calculatorId, CalculatorImpl, Printer, serverPrinter))
+            socketServer(ServerSetup(server, messageSerializer), executor)
+                .start(executor, socketBinder(address)).use {
+                    TimeUnit.MILLISECONDS.sleep(200L)
+                    useClient(
+                        socketClient(ClientSetup(messageSerializer), firstSocketConnector(
+                            socketConnector(InetSocketAddress("localhost", 28948), connectTimeoutMilliSeconds = 1),
+                            socketConnector(address)
+                        ))
+                            .proxy(calculatorId, Printer, clientPrinter)
+                    )
                 }
             done()
         }
