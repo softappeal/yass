@@ -43,7 +43,7 @@ val SimpleMethodMapperFactory: MethodMapperFactory = { contract ->
     for (method in contract.methods.sortedBy(Method::getName)) {
         val mapping = MethodMapping(method, mappings.size)
         val oldMapping = name2mapping.put(method.name, mapping)
-        if (oldMapping != null) error("methods '$method' and '${oldMapping.method}' in contract '$contract' are overloaded")
+        check(oldMapping == null) { "methods '$method' and '${oldMapping!!.method}' in contract '$contract' are overloaded" }
         mappings.add(mapping)
     }
     object : MethodMapper {
@@ -60,7 +60,7 @@ val TaggedMethodMapperFactory: MethodMapperFactory = { contract ->
     for (method in contract.methods) {
         val id = tag(method)
         val oldMapping = id2mapping.put(id, MethodMapping(method, id))
-        if (oldMapping != null) error("tag $id used for methods '$method' and '${oldMapping.method}' in contract '$contract'")
+        check(oldMapping == null) { "tag $id used for methods '$method' and '${oldMapping!!.method}' in contract '$contract'" }
     }
     object : MethodMapper {
         override fun map(id: Int) =

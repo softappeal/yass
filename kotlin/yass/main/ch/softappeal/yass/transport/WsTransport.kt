@@ -106,9 +106,7 @@ class WsConfigurator(
                     // note: could be replaced with a lambda in WebSocket API 1.1 but we would loose compatibility with 1.0
                     try {
                         connection!!.yassSession.received(transport.read(reader(input)))
-                        if (input.hasRemaining()) {
-                            throw RuntimeException("input buffer is not empty")
-                        }
+                        check(!input.hasRemaining()) { "input buffer is not empty" }
                     } catch (e: Exception) {
                         connection!!.yassSession.close(e)
                     }

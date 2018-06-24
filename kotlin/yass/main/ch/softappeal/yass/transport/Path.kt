@@ -38,5 +38,8 @@ class ServerSetup(private val pathSerializer: Serializer, private val pathMappin
     constructor(server: Server, messageSerializer: Serializer) :
         this(IntPathSerializer, mapOf(IntPathSerializerDefaultPath to ServerTransport(server, messageSerializer)))
 
-    fun resolve(reader: Reader): ServerTransport = pathMappings[pathSerializer.read(reader)]!!
+    fun resolve(reader: Reader): ServerTransport {
+        val path = pathSerializer.read(reader)
+        return pathMappings[path] ?: error("invalid path '$path'")
+    }
 }

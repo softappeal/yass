@@ -52,7 +52,7 @@ fun firstSocketConnector(vararg socketConnectors: SocketConnector): SocketConnec
             return socketConnector()
         } catch (ignore: Exception) {
         }
-    throw RuntimeException("all connectors failed")
+    error("all connectors failed")
 }
 
 typealias SocketBinder = () -> ServerSocket

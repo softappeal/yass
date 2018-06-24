@@ -217,8 +217,9 @@ abstract class FastSerializer protected constructor() : Serializer {
             "type '${typeDesc.serializer.type.canonicalName}' already added"
         }
         val oldTypeSerializer = _id2typeSerializer.put(typeDesc.id, typeDesc.serializer)
-        if (oldTypeSerializer != null)
-            error("type id ${typeDesc.id} used for '${typeDesc.serializer.type.canonicalName}' and '${oldTypeSerializer.type.canonicalName}'")
+        check(oldTypeSerializer == null) {
+            "type id ${typeDesc.id} used for '${typeDesc.serializer.type.canonicalName}' and '${oldTypeSerializer!!.type.canonicalName}'"
+        }
     }
 
     protected fun addEnum(id: Int, type: Class<*>) {

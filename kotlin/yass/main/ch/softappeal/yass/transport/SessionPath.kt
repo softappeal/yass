@@ -28,5 +28,8 @@ class AcceptorSetup(private val pathSerializer: Serializer, private val pathMapp
     constructor(packetSerializer: Serializer, sessionFactory: SessionFactory)
         : this(IntPathSerializer, mapOf(IntPathSerializerDefaultPath to SessionTransport(packetSerializer, sessionFactory)))
 
-    fun resolve(reader: Reader): SessionTransport = pathMappings[pathSerializer.read(reader)]!!
+    fun resolve(reader: Reader): SessionTransport {
+        val path = pathSerializer.read(reader)
+        return pathMappings[path] ?: error("invalid path '$path'")
+    }
 }

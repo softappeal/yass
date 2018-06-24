@@ -1,6 +1,7 @@
 package ch.softappeal.yass.transport.socket
 
 import org.junit.Test
+import java.lang.IllegalStateException
 import java.net.BindException
 import java.net.ConnectException
 import java.net.InetSocketAddress
@@ -24,13 +25,13 @@ class SocketTest {
         try {
             firstSocketConnector()()
             fail()
-        } catch (e: RuntimeException) {
+        } catch (e: IllegalStateException) {
             assertEquals("all connectors failed", e.message)
         }
         try {
             firstSocketConnector(socketConnector(address))()
             fail()
-        } catch (e: RuntimeException) {
+        } catch (e: IllegalStateException) {
             assertEquals("all connectors failed", e.message)
         }
     }
