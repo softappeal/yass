@@ -3,8 +3,8 @@ package ch.softappeal.yass.tutorial.shared.web;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
-import static ch.softappeal.yass.Kt.getStdErr;
-import static ch.softappeal.yass.Kt.namedThreadFactory;
+import static ch.softappeal.yass.ThreadFactoryKt.getStdErr;
+import static ch.softappeal.yass.ThreadFactoryKt.namedThreadFactory;
 
 public abstract class WebSetup {
 

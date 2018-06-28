@@ -1,6 +1,3 @@
-@file:JvmName("Kt")
-@file:JvmMultifileClass
-
 package ch.softappeal.yass
 
 import java.lang.reflect.Array

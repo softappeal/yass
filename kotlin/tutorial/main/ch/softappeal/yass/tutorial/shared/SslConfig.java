@@ -8,7 +8,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.security.KeyStore;
 
-import static ch.softappeal.yass.transport.socket.Kt.readKeyStore;
+import static ch.softappeal.yass.transport.socket.SslSetupKt.readKeyStore;
 
 public final class SslConfig {
 

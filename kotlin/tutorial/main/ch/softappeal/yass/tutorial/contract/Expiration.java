@@ -4,7 +4,7 @@ import ch.softappeal.yass.serialize.Reader;
 import ch.softappeal.yass.serialize.Writer;
 import ch.softappeal.yass.serialize.fast.BaseTypeSerializer;
 
-import static ch.softappeal.yass.serialize.fast.Kt.getIntSerializer;
+import static ch.softappeal.yass.serialize.fast.BaseTypeSerializersKt.getIntSerializer;
 
 /**
  * Shows how to use a contract internal base type.

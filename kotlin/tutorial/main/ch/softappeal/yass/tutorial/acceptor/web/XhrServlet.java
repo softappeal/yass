@@ -1,6 +1,7 @@
 package ch.softappeal.yass.tutorial.acceptor.web;
 
 import ch.softappeal.yass.remote.Server;
+import ch.softappeal.yass.remote.ServerKt;
 import ch.softappeal.yass.transport.ServerTransport;
 import ch.softappeal.yass.tutorial.contract.Config;
 import ch.softappeal.yass.tutorial.shared.EchoServiceImpl;
@@ -16,8 +17,8 @@ import java.util.Arrays;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import static ch.softappeal.yass.serialize.Kt.reader;
-import static ch.softappeal.yass.serialize.Kt.writer;
+import static ch.softappeal.yass.serialize.ReaderKt.reader;
+import static ch.softappeal.yass.serialize.WriterKt.writer;
 import static ch.softappeal.yass.tutorial.contract.Config.ACCEPTOR;
 
 public class XhrServlet extends HttpServlet {
@@ -45,7 +46,7 @@ public class XhrServlet extends HttpServlet {
 
     private static final ServerTransport SETUP = new ServerTransport(
         new Server(
-            ch.softappeal.yass.remote.Kt.service(
+            ServerKt.service(
                 ACCEPTOR.echoService, EchoServiceImpl.INSTANCE, UnexpectedExceptionHandler.INSTANCE, new Logger(null, Logger.Side.SERVER)
             )
         ),

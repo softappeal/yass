@@ -1,6 +1,3 @@
-@file:JvmName("Kt")
-@file:JvmMultifileClass
-
 package ch.softappeal.yass.transport
 
 import ch.softappeal.yass.remote.ExceptionReply

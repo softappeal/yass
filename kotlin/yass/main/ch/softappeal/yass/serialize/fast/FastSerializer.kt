@@ -1,6 +1,3 @@
-@file:JvmName("Kt")
-@file:JvmMultifileClass
-
 package ch.softappeal.yass.serialize.fast
 
 import ch.softappeal.yass.AllocatorFactory

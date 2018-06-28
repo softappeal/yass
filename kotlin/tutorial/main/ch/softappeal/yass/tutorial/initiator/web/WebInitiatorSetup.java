@@ -10,7 +10,7 @@ import javax.websocket.ClientEndpointConfig;
 import javax.websocket.WebSocketContainer;
 import java.net.URI;
 
-import static ch.softappeal.yass.transport.ws.Kt.getSyncWsConnectionFactory;
+import static ch.softappeal.yass.transport.ws.WsTransportKt.getSyncWsConnectionFactory;
 
 public abstract class WebInitiatorSetup extends WebSetup {
 

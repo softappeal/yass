@@ -1,5 +1,7 @@
 package ch.softappeal.yass.tutorial.contract;
 
+import ch.softappeal.yass.generate.py.PythonGeneratorKt;
+import ch.softappeal.yass.generate.ts.TypeScriptGeneratorKt;
 import ch.softappeal.yass.remote.ContractId;
 import ch.softappeal.yass.remote.Services;
 import ch.softappeal.yass.serialize.Serializer;
@@ -15,16 +17,16 @@ import ch.softappeal.yass.tutorial.contract.instrument.stock.Stock;
 
 import java.util.Arrays;
 
-import static ch.softappeal.yass.remote.Kt.getSimpleMethodMapperFactory;
-import static ch.softappeal.yass.serialize.fast.Kt.getIntSerializer;
-import static ch.softappeal.yass.serialize.fast.Kt.simpleFastSerializer;
-import static ch.softappeal.yass.transport.Kt.messageSerializer;
-import static ch.softappeal.yass.transport.Kt.packetSerializer;
+import static ch.softappeal.yass.remote.MethodMapperKt.getSimpleMethodMapperFactory;
+import static ch.softappeal.yass.serialize.fast.BaseTypeSerializersKt.getIntSerializer;
+import static ch.softappeal.yass.serialize.fast.FastSerializersKt.simpleFastSerializer;
+import static ch.softappeal.yass.transport.MessageSerializerKt.messageSerializer;
+import static ch.softappeal.yass.transport.PacketSerializerKt.packetSerializer;
 
 public final class Config {
 
     public static final FastSerializer CONTRACT_SERIALIZER = simpleFastSerializer(
-        ch.softappeal.yass.generate.ts.Kt.baseTypeSerializers(
+        TypeScriptGeneratorKt.baseTypeSerializers(
             getIntSerializer(),
             Expiration.TYPE_SERIALIZER
         ),
@@ -67,7 +69,7 @@ public final class Config {
     public static final Acceptor ACCEPTOR = new Acceptor();
 
     public static final FastSerializer PY_CONTRACT_SERIALIZER = simpleFastSerializer(
-        ch.softappeal.yass.generate.py.Kt.baseTypeSerializers(
+        PythonGeneratorKt.baseTypeSerializers(
             getIntSerializer(),
             Expiration.TYPE_SERIALIZER
         ),

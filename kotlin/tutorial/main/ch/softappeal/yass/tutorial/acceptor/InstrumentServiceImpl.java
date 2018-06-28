@@ -11,7 +11,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static ch.softappeal.yass.remote.Kt.getCompleter;
+import static ch.softappeal.yass.remote.ServerKt.getCompleter;
 
 public final class InstrumentServiceImpl implements InstrumentService {
 

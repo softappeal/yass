@@ -1,6 +1,3 @@
-@file:JvmName("Kt")
-@file:JvmMultifileClass
-
 package ch.softappeal.yass.generate.ts
 
 import ch.softappeal.yass.generate.Generator

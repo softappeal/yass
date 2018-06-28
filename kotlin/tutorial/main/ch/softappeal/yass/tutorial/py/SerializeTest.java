@@ -5,7 +5,7 @@ import ch.softappeal.yass.tutorial.contract.Config;
 import java.io.ByteArrayOutputStream;
 import java.util.Arrays;
 
-import static ch.softappeal.yass.serialize.Kt.writer;
+import static ch.softappeal.yass.serialize.WriterKt.writer;
 
 public final class SerializeTest {
 

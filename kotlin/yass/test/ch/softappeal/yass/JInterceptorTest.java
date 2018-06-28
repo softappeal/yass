@@ -9,9 +9,9 @@ import java.lang.reflect.Method;
 import java.util.Collections;
 import java.util.List;
 
+import static ch.softappeal.yass.InterceptorKt.proxy;
 import static ch.softappeal.yass.InterceptorTestKt.getJavaCalculatorImpl;
 import static ch.softappeal.yass.InterceptorTestKt.getMethod;
-import static ch.softappeal.yass.Kt.proxy;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.fail;
 

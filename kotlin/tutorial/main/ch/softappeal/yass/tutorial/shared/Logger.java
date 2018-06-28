@@ -10,8 +10,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 
-import static ch.softappeal.yass.Kt.dump;
-import static ch.softappeal.yass.Kt.graphDumper;
+import static ch.softappeal.yass.DumperKt.dump;
+import static ch.softappeal.yass.DumperKt.graphDumper;
 
 /**
  * Shows how to implement an interceptor.

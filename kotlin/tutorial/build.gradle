@@ -5,7 +5,6 @@ sourceSets {
 dependencies {
     compile project(":kotlin:yass")
     // compile "ch.softappeal.yass:yass:x.y.z"
-    // compile files("../yass/yass.jar")
     compile jetty_dep
     compile undertow_dep
 }

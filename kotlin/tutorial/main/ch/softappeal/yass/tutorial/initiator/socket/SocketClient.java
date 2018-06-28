@@ -7,8 +7,8 @@ import ch.softappeal.yass.tutorial.contract.EchoService;
 import ch.softappeal.yass.tutorial.shared.Logger;
 import ch.softappeal.yass.tutorial.shared.socket.SocketSetup;
 
-import static ch.softappeal.yass.transport.socket.Kt.socketClient;
-import static ch.softappeal.yass.transport.socket.Kt.socketConnector;
+import static ch.softappeal.yass.transport.socket.SocketKt.socketConnector;
+import static ch.softappeal.yass.transport.socket.SocketTransportKt.socketClient;
 import static ch.softappeal.yass.tutorial.contract.Config.ACCEPTOR;
 
 public final class SocketClient {

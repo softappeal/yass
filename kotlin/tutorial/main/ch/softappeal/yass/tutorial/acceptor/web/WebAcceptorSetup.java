@@ -9,7 +9,7 @@ import ch.softappeal.yass.tutorial.shared.web.WebSetup;
 import javax.websocket.Endpoint;
 import javax.websocket.server.ServerEndpointConfig;
 
-import static ch.softappeal.yass.transport.ws.Kt.asyncWsConnectionFactory;
+import static ch.softappeal.yass.transport.ws.WsTransportKt.asyncWsConnectionFactory;
 
 public abstract class WebAcceptorSetup extends WebSetup {
 

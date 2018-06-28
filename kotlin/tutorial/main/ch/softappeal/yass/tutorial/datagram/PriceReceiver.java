@@ -14,7 +14,7 @@ import java.net.StandardSocketOptions;
 import java.nio.channels.DatagramChannel;
 import java.util.List;
 
-import static ch.softappeal.yass.remote.Kt.service;
+import static ch.softappeal.yass.remote.ServerKt.service;
 
 public final class PriceReceiver {
 

@@ -16,11 +16,11 @@ import java.nio.charset.StandardCharsets;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import static ch.softappeal.yass.Kt.getTerminate;
-import static ch.softappeal.yass.Kt.namedThreadFactory;
-import static ch.softappeal.yass.serialize.Kt.reader;
-import static ch.softappeal.yass.serialize.Kt.writer;
-import static ch.softappeal.yass.transport.Kt.messageSerializer;
+import static ch.softappeal.yass.ThreadFactoryKt.getTerminate;
+import static ch.softappeal.yass.ThreadFactoryKt.namedThreadFactory;
+import static ch.softappeal.yass.serialize.ReaderKt.reader;
+import static ch.softappeal.yass.serialize.WriterKt.writer;
+import static ch.softappeal.yass.transport.MessageSerializerKt.messageSerializer;
 
 public final class StdClient3 {
 
