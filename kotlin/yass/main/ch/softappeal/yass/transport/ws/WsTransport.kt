@@ -97,7 +97,7 @@ class WsConfigurator(
         override fun onOpen(session: javax.websocket.Session, config: EndpointConfig) {
             try {
                 connection = connectionFactory(transport, session)
-                connection!!.yassSession = transport.createSession()
+                connection!!.yassSession = transport.sessionFactory()
                 connection!!.yassSession.created(connection!!)
                 session.addMessageHandler(MessageHandler.Whole<ByteBuffer> { input ->
                     // note: could be replaced with a lambda in WebSocket API 1.1 but we would loose compatibility with 1.0

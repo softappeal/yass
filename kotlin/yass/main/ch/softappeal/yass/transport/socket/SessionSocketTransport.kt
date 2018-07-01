@@ -101,7 +101,7 @@ fun asyncSocketConnectionFactory(writerExecutor: Executor, writerQueueSize: Int)
 private fun read(
     connectionFactory: SocketConnectionFactory, transport: SessionTransport, socket: Socket, reader: Reader, out: OutputStream
 ) {
-    val session = transport.createSession()
+    val session = transport.sessionFactory()
     try {
         session.created(connectionFactory(session, transport, socket, out))
         while (true) {

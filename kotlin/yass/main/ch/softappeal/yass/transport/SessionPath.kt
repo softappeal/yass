@@ -6,10 +6,9 @@ import ch.softappeal.yass.serialize.Reader
 import ch.softappeal.yass.serialize.Serializer
 import ch.softappeal.yass.serialize.Writer
 
-class SessionTransport(private val packetSerializer: Serializer, private val sessionFactory: SessionFactory) {
+class SessionTransport(private val packetSerializer: Serializer, val sessionFactory: SessionFactory) {
     fun read(reader: Reader) = packetSerializer.read(reader) as Packet
     fun write(writer: Writer, packet: Packet) = packetSerializer.write(writer, packet)
-    fun createSession() = sessionFactory()
 }
 
 class InitiatorSetup(internal val transport: SessionTransport, private val pathSerializer: Serializer, private val path: Any) {
