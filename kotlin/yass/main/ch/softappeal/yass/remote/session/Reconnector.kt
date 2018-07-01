@@ -4,7 +4,6 @@ import ch.softappeal.yass.OnlyNeededForJava
 import ch.softappeal.yass.args
 import ch.softappeal.yass.invoke
 import ch.softappeal.yass.proxy
-import ch.softappeal.yass.transport.SessionFactory
 import java.lang.reflect.InvocationHandler
 import java.util.concurrent.Executor
 import java.util.concurrent.TimeUnit

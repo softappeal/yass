@@ -179,6 +179,8 @@ fun Session.received(packet: Packet) = iReceived(packet)
 
 fun Session.created(connection: Connection) = iCreated(connection)
 
+typealias SessionFactory = () -> Session
+
 open class SimpleSession(protected val dispatchExecutor: Executor) : Session() {
     override fun dispatchOpened(runnable: Runnable) = dispatchExecutor.execute(runnable)
     override fun dispatchServerInvoke(invocation: ServerInvocation, runnable: Runnable) = dispatchExecutor.execute(runnable)
