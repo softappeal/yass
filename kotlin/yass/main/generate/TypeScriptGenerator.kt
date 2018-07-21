@@ -39,14 +39,14 @@ const val FirstDescId = FirstTypeId + 4
 
 @SafeVarargs
 fun baseTypeSerializers(vararg serializers: BaseTypeSerializer<*>): List<BaseTypeSerializer<*>> {
-    val h = mutableListOf(
+    val s = mutableListOf(
         BooleanDesc.serializer as BaseTypeSerializer<*>,
         DoubleDesc.serializer as BaseTypeSerializer<*>,
         StringDesc.serializer as BaseTypeSerializer<*>,
         BytesDesc.serializer as BaseTypeSerializer<*>
     )
-    h.addAll(serializers)
-    return h
+    s.addAll(serializers)
+    return s
 }
 
 @SafeVarargs
