@@ -1,14 +1,25 @@
-package ch.softappeal.yass.serialize
+package ch.softappeal.yass.serialize.fast
 
 import ch.softappeal.yass.Tag
 import ch.softappeal.yass.compareFile
-import ch.softappeal.yass.serialize.fast.BaseTypeSerializer
-import ch.softappeal.yass.serialize.fast.FastSerializer
-import ch.softappeal.yass.serialize.fast.IntSerializer
-import ch.softappeal.yass.serialize.fast.TypeDesc
-import ch.softappeal.yass.serialize.fast.print
-import ch.softappeal.yass.serialize.fast.simpleFastSerializer
-import ch.softappeal.yass.serialize.fast.taggedFastSerializer
+import ch.softappeal.yass.serialize.C1
+import ch.softappeal.yass.serialize.C2
+import ch.softappeal.yass.serialize.Color
+import ch.softappeal.yass.serialize.E1
+import ch.softappeal.yass.serialize.E2
+import ch.softappeal.yass.serialize.IntException
+import ch.softappeal.yass.serialize.Node
+import ch.softappeal.yass.serialize.PrimitiveTypes
+import ch.softappeal.yass.serialize.Reader
+import ch.softappeal.yass.serialize.Writer
+import ch.softappeal.yass.serialize.copy
+import ch.softappeal.yass.serialize.createGraph
+import ch.softappeal.yass.serialize.createNulls
+import ch.softappeal.yass.serialize.createValues
+import ch.softappeal.yass.serialize.nested.AllTypes
+import ch.softappeal.yass.serialize.reader
+import ch.softappeal.yass.serialize.test
+import ch.softappeal.yass.serialize.writer
 import org.junit.Test
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
@@ -19,7 +30,72 @@ import kotlin.test.assertSame
 import kotlin.test.assertTrue
 import kotlin.test.fail
 
+private val TAGGED_FAST_SERIALIZER = taggedFastSerializer(
+    listOf(
+        TypeDesc(3, BooleanSerializer),
+        TypeDesc(4, ByteSerializer),
+        TypeDesc(5, ShortSerializer),
+        TypeDesc(6, IntSerializer),
+        TypeDesc(7, LongSerializer),
+        TypeDesc(8, CharSerializer),
+        TypeDesc(9, FloatSerializer),
+        TypeDesc(10, DoubleSerializer),
+        TypeDesc(11, BooleanArraySerializer),
+        TypeDesc(12, ByteArraySerializer),
+        TypeDesc(13, ShortArraySerializer),
+        TypeDesc(14, IntArraySerializer),
+        TypeDesc(15, LongArraySerializer),
+        TypeDesc(16, CharArraySerializer),
+        TypeDesc(17, FloatArraySerializer),
+        TypeDesc(18, DoubleArraySerializer),
+        TypeDesc(19, StringSerializer),
+        TypeDesc(20, BigIntegerSerializer),
+        TypeDesc(21, BigDecimalSerializer),
+        TypeDesc(22, DateSerializer),
+        TypeDesc(23, InstantSerializer)
+    ),
+    listOf(Color::class.java, PrimitiveTypes::class.java, AllTypes::class.java, IntException::class.java),
+    listOf(Node::class.java)
+)
+
+private val SIMPLE_FAST_SERIALIZER = simpleFastSerializer(
+    listOf(
+        BooleanSerializer,
+        ByteSerializer,
+        ShortSerializer,
+        IntSerializer,
+        LongSerializer,
+        CharSerializer,
+        FloatSerializer,
+        DoubleSerializer,
+        BooleanArraySerializer,
+        ByteArraySerializer,
+        ShortArraySerializer,
+        IntArraySerializer,
+        LongArraySerializer,
+        CharArraySerializer,
+        FloatArraySerializer,
+        DoubleArraySerializer,
+        StringSerializer,
+        BigIntegerSerializer,
+        BigDecimalSerializer,
+        DateSerializer,
+        InstantSerializer
+    ),
+    listOf(Color::class.java, PrimitiveTypes::class.java, AllTypes::class.java, IntException::class.java),
+    listOf(Node::class.java)
+)
+
 class FastSerializerTest {
+    @Test
+    fun simpleFast() {
+        test(SIMPLE_FAST_SERIALIZER)
+    }
+
+    @Test
+    fun taggedFast() {
+        test(TAGGED_FAST_SERIALIZER)
+    }
 
     class A(val a: Int)
 
@@ -34,7 +110,7 @@ class FastSerializerTest {
         fail()
     } catch (e: IllegalArgumentException) {
         assertEquals(
-            "duplicated field name 'private final int ch.softappeal.yass.serialize.FastSerializerTest${'$'}A.a' and 'private final int ch.softappeal.yass.serialize.FastSerializerTest${'$'}A.a' not allowed in class hierarchy",
+            "duplicated field name 'private final int ch.softappeal.yass.serialize.fast.FastSerializerTest${'$'}A.a' and 'private final int ch.softappeal.yass.serialize.fast.FastSerializerTest${'$'}A.a' not allowed in class hierarchy",
             e.message
         )
     }
@@ -127,7 +203,7 @@ class FastSerializerTest {
         taggedFastSerializer(listOf(), listOf(MissingClassTag::class.java))
         fail()
     } catch (e: IllegalStateException) {
-        assertEquals("missing tag for 'class ch.softappeal.yass.serialize.FastSerializerTest${'$'}MissingClassTag'", e.message)
+        assertEquals("missing tag for 'class ch.softappeal.yass.serialize.fast.FastSerializerTest${'$'}MissingClassTag'", e.message)
     }
 
     @Test
@@ -149,7 +225,7 @@ class FastSerializerTest {
         taggedFastSerializer(listOf(), listOf(InvalidTypeTag::class.java))
         fail()
     } catch (e: IllegalArgumentException) {
-        assertEquals("id -1 for type 'ch.softappeal.yass.serialize.FastSerializerTest.InvalidTypeTag' must be >= 0", e.message)
+        assertEquals("id -1 for type 'ch.softappeal.yass.serialize.fast.FastSerializerTest.InvalidTypeTag' must be >= 0", e.message)
     }
 
     @Tag(0)
@@ -164,7 +240,7 @@ class FastSerializerTest {
         fail()
     } catch (e: IllegalArgumentException) {
         assertEquals(
-            "id 0 for field 'private int ch.softappeal.yass.serialize.FastSerializerTest${'$'}InvalidFieldTag.i' must be >= 1",
+            "id 0 for field 'private int ch.softappeal.yass.serialize.fast.FastSerializerTest${'$'}InvalidFieldTag.i' must be >= 1",
             e.message
         )
     }
@@ -183,24 +259,24 @@ class FastSerializerTest {
         fail()
     } catch (e: IllegalArgumentException) {
         assertEquals(
-            "tag 1 used for fields 'private int ch.softappeal.yass.serialize.FastSerializerTest${'$'}DuplicatedFieldTag.i2' and 'private int ch.softappeal.yass.serialize.FastSerializerTest${'$'}DuplicatedFieldTag.i1'",
+            "tag 1 used for fields 'private int ch.softappeal.yass.serialize.fast.FastSerializerTest${'$'}DuplicatedFieldTag.i2' and 'private int ch.softappeal.yass.serialize.fast.FastSerializerTest${'$'}DuplicatedFieldTag.i1'",
             e.message
         )
     }
 
     @Test
     fun taggedPrint() {
-        compareFile("ch/softappeal/yass/serialize/TaggedFastSerializerTest.numbers.txt") { TAGGED_FAST_SERIALIZER.print(it) }
+        compareFile("ch/softappeal/yass/serialize/fast/TaggedFastSerializerTest.numbers.txt") { TAGGED_FAST_SERIALIZER.print(it) }
     }
 
     @Test
     fun simplePrint() {
-        compareFile("ch/softappeal/yass/serialize/SimpleFastSerializerTest.numbers.txt") { SIMPLE_FAST_SERIALIZER.print(it) }
+        compareFile("ch/softappeal/yass/serialize/fast/SimpleFastSerializerTest.numbers.txt") { SIMPLE_FAST_SERIALIZER.print(it) }
     }
 
     @Test
     fun bytes() {
-        compareFile("ch/softappeal/yass/serialize/TaggedFastSerializerTest.bytes.txt") { printer ->
+        compareFile("ch/softappeal/yass/serialize/fast/TaggedFastSerializerTest.bytes.txt") { printer ->
             fun write(printer: PrintWriter, value: Any) {
                 val buffer = ByteArrayOutputStream()
                 TAGGED_FAST_SERIALIZER.write(writer(buffer), value)
@@ -238,5 +314,4 @@ class FastSerializerTest {
         assertSame(copy(E1.c1), E2.c1)
         assertSame(copy(E1.c2), E2.c2)
     }
-
 }

@@ -3,8 +3,8 @@ sourceSets {
 }
 
 dependencies {
-    compile project(":kotlin:yass")
-    // compile "ch.softappeal.yass:yass:x.y.z"
+    compile project(":kotlin:yass-transport-ws")
+    // compile "ch.softappeal.yass:yass-transport-ws:x.y.z"
     compile jetty_dep
     compile undertow_dep
 }

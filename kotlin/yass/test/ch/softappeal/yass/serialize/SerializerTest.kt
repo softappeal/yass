@@ -1,29 +1,5 @@
 package ch.softappeal.yass.serialize
 
-import ch.softappeal.yass.serialize.fast.BigDecimalSerializer
-import ch.softappeal.yass.serialize.fast.BigIntegerSerializer
-import ch.softappeal.yass.serialize.fast.BooleanArraySerializer
-import ch.softappeal.yass.serialize.fast.BooleanSerializer
-import ch.softappeal.yass.serialize.fast.ByteArraySerializer
-import ch.softappeal.yass.serialize.fast.ByteSerializer
-import ch.softappeal.yass.serialize.fast.CharArraySerializer
-import ch.softappeal.yass.serialize.fast.CharSerializer
-import ch.softappeal.yass.serialize.fast.DateSerializer
-import ch.softappeal.yass.serialize.fast.DoubleArraySerializer
-import ch.softappeal.yass.serialize.fast.DoubleSerializer
-import ch.softappeal.yass.serialize.fast.FloatArraySerializer
-import ch.softappeal.yass.serialize.fast.FloatSerializer
-import ch.softappeal.yass.serialize.fast.InstantSerializer
-import ch.softappeal.yass.serialize.fast.IntArraySerializer
-import ch.softappeal.yass.serialize.fast.IntSerializer
-import ch.softappeal.yass.serialize.fast.LongArraySerializer
-import ch.softappeal.yass.serialize.fast.LongSerializer
-import ch.softappeal.yass.serialize.fast.ShortArraySerializer
-import ch.softappeal.yass.serialize.fast.ShortSerializer
-import ch.softappeal.yass.serialize.fast.StringSerializer
-import ch.softappeal.yass.serialize.fast.TypeDesc
-import ch.softappeal.yass.serialize.fast.simpleFastSerializer
-import ch.softappeal.yass.serialize.fast.taggedFastSerializer
 import ch.softappeal.yass.serialize.nested.AllTypes
 import org.junit.Assert.assertArrayEquals
 import org.junit.Test
@@ -260,84 +236,16 @@ private fun checkBaseTypes(serializer: Serializer) {
     assertArrayEquals(copy(serializer, doubles), doubles, 0.0)
 }
 
-private fun test(serializer: Serializer) {
+fun test(serializer: Serializer) {
     checkBaseTypes(serializer)
     checkNulls(copy(serializer, createNulls()))
     checkValues(copy(serializer, createValues()))
     checkGraph(copy(serializer, createGraph()))
 }
 
-val TAGGED_FAST_SERIALIZER = taggedFastSerializer(
-    listOf(
-        TypeDesc(3, BooleanSerializer),
-        TypeDesc(4, ByteSerializer),
-        TypeDesc(5, ShortSerializer),
-        TypeDesc(6, IntSerializer),
-        TypeDesc(7, LongSerializer),
-        TypeDesc(8, CharSerializer),
-        TypeDesc(9, FloatSerializer),
-        TypeDesc(10, DoubleSerializer),
-        TypeDesc(11, BooleanArraySerializer),
-        TypeDesc(12, ByteArraySerializer),
-        TypeDesc(13, ShortArraySerializer),
-        TypeDesc(14, IntArraySerializer),
-        TypeDesc(15, LongArraySerializer),
-        TypeDesc(16, CharArraySerializer),
-        TypeDesc(17, FloatArraySerializer),
-        TypeDesc(18, DoubleArraySerializer),
-        TypeDesc(19, StringSerializer),
-        TypeDesc(20, BigIntegerSerializer),
-        TypeDesc(21, BigDecimalSerializer),
-        TypeDesc(22, DateSerializer),
-        TypeDesc(23, InstantSerializer)
-    ),
-    listOf(Color::class.java, PrimitiveTypes::class.java, AllTypes::class.java, IntException::class.java),
-    listOf(Node::class.java)
-)
-
-val SIMPLE_FAST_SERIALIZER = simpleFastSerializer(
-    listOf(
-        BooleanSerializer,
-        ByteSerializer,
-        ShortSerializer,
-        IntSerializer,
-        LongSerializer,
-        CharSerializer,
-        FloatSerializer,
-        DoubleSerializer,
-        BooleanArraySerializer,
-        ByteArraySerializer,
-        ShortArraySerializer,
-        IntArraySerializer,
-        LongArraySerializer,
-        CharArraySerializer,
-        FloatArraySerializer,
-        DoubleArraySerializer,
-        StringSerializer,
-        BigIntegerSerializer,
-        BigDecimalSerializer,
-        DateSerializer,
-        InstantSerializer
-    ),
-    listOf(Color::class.java, PrimitiveTypes::class.java, AllTypes::class.java, IntException::class.java),
-    listOf(Node::class.java)
-)
-
 class SerializerTest {
-
     @Test
     fun java() {
         test(JavaSerializer)
     }
-
-    @Test
-    fun simpleFast() {
-        test(SIMPLE_FAST_SERIALIZER)
-    }
-
-    @Test
-    fun taggedFast() {
-        test(TAGGED_FAST_SERIALIZER)
-    }
-
 }

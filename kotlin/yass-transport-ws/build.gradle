@@ -1,0 +1,13 @@
+sourceSets {
+    test { java { srcDir 'test' } }
+}
+
+dependencies {
+    compile project(":kotlin:yass")
+    compileOnly websocket_dep
+    testCompile project(":kotlin:yass").sourceSets.test.runtimeClasspath
+    testCompile jetty_dep
+    testCompile undertow_dep
+}
+
+task dist(dependsOn: 'sign')
