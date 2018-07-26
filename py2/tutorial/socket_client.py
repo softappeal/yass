@@ -1,6 +1,7 @@
 import socket
 from functools import partial
 from ssl import SSLContext, SSLSocket, PROTOCOL_TLSv1_2, CERT_REQUIRED
+
 from typing import Any, Optional, cast, List, Callable
 
 from tutorial.base_types_external import Integer

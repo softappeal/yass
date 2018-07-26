@@ -855,7 +855,8 @@ export class XhrClient extends Client {
         private readonly url: string,
         private readonly messageSerializer: Serializer,
         private readonly timeoutMilliSeconds: number = 0,
-        private readonly checkXhr: (xhr: XMLHttpRequest) => void = () => {}
+        private readonly checkXhr: (xhr: XMLHttpRequest) => void = () => {
+        }
     ) {
         super();
     }

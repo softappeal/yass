@@ -1,4 +1,5 @@
 import unittest
+
 from typing import Callable, Any, Set
 
 from tutorial.base_types_external import Integer

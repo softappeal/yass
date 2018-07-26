@@ -441,15 +441,15 @@ const hostname = "localhost";
         }
     }
     new yass.XhrClient(
-            "http://" + hostname + ":9090/xhr",
-            messageSerializer,
-            0,
-            xhr => {
-                log("checkXhr:", xhr.status);
-                assert(xhr.status === 200);
-                throw new RequestStatusException(999);
-            }
-        )
+        "http://" + hostname + ":9090/xhr",
+        messageSerializer,
+        0,
+        xhr => {
+            log("checkXhr:", xhr.status);
+            assert(xhr.status === 200);
+            throw new RequestStatusException(999);
+        }
+    )
         .proxy(contract.acceptor.echoService)
         .echo("wrongStatus")
         .catch(error => log("wrongStatus failed:", error));

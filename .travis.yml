@@ -3,58 +3,58 @@ sudo: false
 language: java
 
 jdk:
-    - oraclejdk8
+- oraclejdk8
 
 addons:
-    apt:
-        packages:
-            - oracle-java8-installer
+  apt:
+    packages:
+    - oracle-java8-installer
 
 branches:
-    only:
-        - master
+  only:
+  - master
 
 install: true
 
 before_install:
-    # node
-    - nvm install 8
-    # python
-    - wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O $HOME/miniconda.sh
-    - bash $HOME/miniconda.sh -b -p $HOME/miniconda
-    - export PATH="$HOME/miniconda/bin:$PATH"
-    - hash -r
-    - conda config --set always_yes yes
-    - conda create --quiet --name py3 python=3.6.5
-    - conda create --quiet --name py2 python=2.7.14
+# node
+- nvm install 8
+# python
+- wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O $HOME/miniconda.sh
+- bash $HOME/miniconda.sh -b -p $HOME/miniconda
+- export PATH="$HOME/miniconda/bin:$PATH"
+- hash -r
+- conda config --set always_yes yes
+- conda create --quiet --name py3 python=3.6.5
+- conda create --quiet --name py2 python=2.7.14
 
 script:
-    # check java
-    - java -version
-    # check node
-    - node --version
-    - npm --version
-    # check python
-    - source activate py3
-    - python --version
-    - source activate py2
-    - python --version
-    - source deactivate
-    # run gradle
-    - chmod +x ./gradlew
-    - ./gradlew
-    # run ts
-    - pushd ts
-    - chmod +x ./compile
-    - ./compile
-    - popd
-    # run py3
-    - pushd py3
-    - chmod +x ./tests
-    - ./tests
-    - popd
-    # run py2
-    - pushd py2
-    - chmod +x ./tests
-    - ./tests
-    - popd
+# check java
+- java -version
+# check node
+- node --version
+- npm --version
+# check python
+- source activate py3
+- python --version
+- source activate py2
+- python --version
+- source deactivate
+# run gradle
+- chmod +x ./gradlew
+- ./gradlew
+# run ts
+- pushd ts
+- chmod +x ./compile
+- ./compile
+- popd
+# run py3
+- pushd py3
+- chmod +x ./tests
+- ./tests
+- popd
+# run py2
+- pushd py2
+- chmod +x ./tests
+- ./tests
+- popd

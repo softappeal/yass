@@ -1,5 +1,6 @@
 import unittest
 from io import BytesIO
+
 from typing import Any, List, cast
 
 from tutorial.generated import SERIALIZER

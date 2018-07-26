@@ -1,7 +1,8 @@
 from collections import OrderedDict
-from enum import Enum
 from io import StringIO
 from struct import Struct
+
+from enum import Enum
 from typing import cast, Any, Dict, List, TypeVar, Generic, Optional, Callable, Set
 
 
