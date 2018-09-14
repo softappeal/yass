@@ -1,7 +1,6 @@
 package ch.softappeal.yass.transport.socket
 
 import org.junit.Test
-import java.lang.IllegalStateException
 import java.net.BindException
 import java.net.ConnectException
 import java.net.InetSocketAddress

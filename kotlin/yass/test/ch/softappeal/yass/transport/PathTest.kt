@@ -6,7 +6,6 @@ import ch.softappeal.yass.serialize.Writer
 import ch.softappeal.yass.serialize.reader
 import org.junit.Test
 import java.io.ByteArrayInputStream
-import java.lang.IllegalStateException
 import kotlin.test.assertEquals
 import kotlin.test.fail
 
