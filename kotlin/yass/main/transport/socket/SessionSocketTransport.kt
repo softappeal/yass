@@ -30,7 +30,7 @@ abstract class SocketConnection internal constructor(
     }
 
     /** Buffering of output is needed to prevent long delays due to Nagle's algorithm. */
-    internal fun flush(buffer: ByteArrayOutputStream) {
+    internal fun write(buffer: ByteArrayOutputStream) {
         buffer.writeTo(out)
         out.flush()
     }
@@ -48,7 +48,7 @@ val SyncSocketConnectionFactory: SocketConnectionFactory = { _, transport, socke
         val writeMutex = Any()
         override fun write(packet: Packet) {
             val buffer = writeToBuffer(packet)
-            synchronized(writeMutex) { flush(buffer) }
+            synchronized(writeMutex) { write(buffer) }
         }
     }
 }
@@ -75,7 +75,7 @@ fun asyncSocketConnectionFactory(writerExecutor: Executor, writerQueueSize: Int)
                                 val buffer2 = writerQueue.poll() ?: break
                                 buffer2.writeTo(buffer)
                             }
-                            flush(buffer)
+                            write(buffer)
                         }
                     } catch (e: Exception) {
                         session.close(e)

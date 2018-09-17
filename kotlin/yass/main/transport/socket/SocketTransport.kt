@@ -21,7 +21,7 @@ val socket: Socket
 /** Buffering of output is needed to prevent long delays due to Nagle's algorithm. */
 private fun createBuffer(): ByteArrayOutputStream = ByteArrayOutputStream(128)
 
-private fun flush(buffer: ByteArrayOutputStream, socket: Socket) {
+private fun write(buffer: ByteArrayOutputStream, socket: Socket) {
     val out = socket.getOutputStream()
     buffer.writeTo(out)
     out.flush()
@@ -38,7 +38,7 @@ fun socketServer(setup: ServerSetup, requestExecutor: Executor) = object : Socke
             transport.invocation(false, transport.read(reader)).invoke { reply ->
                 val buffer = createBuffer()
                 transport.write(writer(buffer), reply)
-                flush(buffer, socket)
+                write(buffer, socket)
             }
         } finally {
             socket_.set(oldSocket)
@@ -64,7 +64,7 @@ fun socketClient(setup: ClientSetup, socketConnector: SocketConnector) = object 
         val buffer = createBuffer()
         setup.write(writer(buffer), request)
         val socket = socket_.get()
-        flush(buffer, socket)
+        write(buffer, socket)
         invocation.settle(setup.read(reader(socket.getInputStream())))
     }
 }
