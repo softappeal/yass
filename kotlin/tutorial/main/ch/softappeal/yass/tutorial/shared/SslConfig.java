@@ -7,6 +7,7 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.security.KeyStore;
+import java.util.Collections;
 
 import static ch.softappeal.yass.transport.socket.SslSetupKt.readKeyStore;
 
@@ -23,7 +24,7 @@ public final class SslConfig {
     }
 
     private static SslSetup sslSetup(final String keyStore, final String trustStore) {
-        return new SslSetup("TLSv1.2", "TLS_RSA_WITH_AES_128_CBC_SHA", keyStore(keyStore), PASSWORD, keyStore(trustStore));
+        return new SslSetup("TLSv1.2", Collections.singletonList("TLS_RSA_WITH_AES_128_CBC_SHA"), keyStore(keyStore), PASSWORD, keyStore(trustStore));
     }
 
     public static final SslSetup SERVER = sslSetup("Server.key.pkcs12", "ClientCA.cert.pkcs12");

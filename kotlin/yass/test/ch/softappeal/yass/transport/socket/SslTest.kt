@@ -71,14 +71,14 @@ private val CLIENTCA_CERT = readKeyStore("ClientCA.cert.pkcs12")
 private val CLIENT_KEY = readKeyStore("Client.key.pkcs12")
 
 private const val PROTOCOL = "TLSv1.2"
-private const val CIPHER = "TLS_RSA_WITH_AES_128_CBC_SHA"
+private val CIPHER_SUITES = listOf("TLS_RSA_WITH_AES_128_CBC_SHA", "TLS_RSA_WITH_AES_256_CBC_SHA")
 
 class SslTest {
     @Test
     fun onlyServerAuthentication() {
         test(
-            SslSetup(PROTOCOL, CIPHER, SERVER_KEY, PASSWORD, null).serverSocketFactory,
-            SslSetup(PROTOCOL, CIPHER, null, null, SERVER_CERT).socketFactory,
+            SslSetup(PROTOCOL, CIPHER_SUITES, SERVER_KEY, PASSWORD, null).serverSocketFactory,
+            SslSetup(PROTOCOL, CIPHER_SUITES, null, null, SERVER_CERT).socketFactory,
             false
         )
     }
@@ -86,8 +86,8 @@ class SslTest {
     @Test
     fun clientAndServerAuthentication() {
         test(
-            SslSetup(PROTOCOL, CIPHER, SERVER_KEY, PASSWORD, CLIENTCA_CERT).serverSocketFactory,
-            SslSetup(PROTOCOL, CIPHER, CLIENT_KEY, PASSWORD, SERVER_CERT).socketFactory,
+            SslSetup(PROTOCOL, CIPHER_SUITES, SERVER_KEY, PASSWORD, CLIENTCA_CERT).serverSocketFactory,
+            SslSetup(PROTOCOL, CIPHER_SUITES, CLIENT_KEY, PASSWORD, SERVER_CERT).socketFactory,
             true
         )
     }
@@ -95,8 +95,8 @@ class SslTest {
     @Test
     fun wrongServer() {
         failedTest(
-            SslSetup(PROTOCOL, CIPHER, SERVER_KEY, PASSWORD, null).serverSocketFactory,
-            SslSetup(PROTOCOL, CIPHER, null, null, CLIENTCA_CERT).socketFactory,
+            SslSetup(PROTOCOL, CIPHER_SUITES, SERVER_KEY, PASSWORD, null).serverSocketFactory,
+            SslSetup(PROTOCOL, CIPHER_SUITES, null, null, CLIENTCA_CERT).socketFactory,
             false
         )
     }
@@ -104,8 +104,8 @@ class SslTest {
     @Test
     fun wrongClientCA() {
         failedTest(
-            SslSetup(PROTOCOL, CIPHER, SERVER_KEY, PASSWORD, SERVER_CERT).serverSocketFactory,
-            SslSetup(PROTOCOL, CIPHER, CLIENT_KEY, PASSWORD, SERVER_CERT).socketFactory,
+            SslSetup(PROTOCOL, CIPHER_SUITES, SERVER_KEY, PASSWORD, SERVER_CERT).serverSocketFactory,
+            SslSetup(PROTOCOL, CIPHER_SUITES, CLIENT_KEY, PASSWORD, SERVER_CERT).socketFactory,
             true
         )
     }

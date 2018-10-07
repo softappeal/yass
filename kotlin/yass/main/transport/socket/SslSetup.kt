@@ -17,7 +17,7 @@ import javax.net.ssl.TrustManagerFactory
 
 class SslSetup @JvmOverloads constructor(
     protocol: String,
-    cipher: String,
+    cipherSuites: List<String>,
     keyStore: KeyStore?,
     keyStorePwd: CharArray?,
     trustStore: KeyStore?,
@@ -27,7 +27,7 @@ class SslSetup @JvmOverloads constructor(
 ) {
     val context: SSLContext
     internal val protocols = arrayOf(protocol)
-    internal val cipherSuites = arrayOf(cipher)
+    internal val cipherSuites = cipherSuites.toTypedArray()
     internal val needClientAuth: Boolean
 
     init {
