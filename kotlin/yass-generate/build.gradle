@@ -1,0 +1,5 @@
+dependencies {
+    compile project(":kotlin:yass")
+}
+
+task dist(dependsOn: 'sign')
