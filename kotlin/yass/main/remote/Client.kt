@@ -19,6 +19,19 @@ abstract class ClientInvocation internal constructor(
     abstract fun settle(reply: Reply)
 }
 
+private fun <C : Any> proxy(contractId: ContractId<C>, invocation: (method: Method, arguments: List<Any?>) -> Any?): C {
+    var proxy: C? = null
+    val objectMethods: Map<Method, (arguments: List<Any?>) -> Any?> = mapOf(
+        Object::class.java.getMethod("toString") to { _ -> "<proxy>" },
+        Object::class.java.getMethod("hashCode") to { _ -> contractId.contract.hashCode() },
+        Object::class.java.getMethod("equals", Object::class.java) to { arguments -> proxy === arguments[0] }
+    )
+    proxy = proxy(contractId.contract, InvocationHandler { _, method, arguments ->
+        objectMethods.getOrElse(method) { { arguments -> invocation(method, arguments) } }(args(arguments))
+    })
+    return proxy
+}
+
 abstract class Client {
     @Throws(Exception::class)
     protected abstract fun invoke(invocation: ClientInvocation)
@@ -35,7 +48,7 @@ abstract class Client {
                 tunnel(Request(contractId.id, methodMapping.id, arguments))
 
             override fun settle(reply: Reply) {
-                if (ready == null) return
+                if (ready == null) return // OneWay
                 r = reply
                 ready.countDown()
             }
@@ -47,15 +60,12 @@ abstract class Client {
     @SafeVarargs
     fun <C : Any> proxy(contractId: ContractId<C>, vararg interceptors: Interceptor): C {
         val interceptor = compositeInterceptor(*interceptors)
-        return proxy(
-            contractId.contract,
-            InvocationHandler { _, method, arguments -> syncInvoke(contractId, interceptor, method, args(arguments)) }
-        )
+        return proxy(contractId) { method, arguments -> syncInvoke(contractId, interceptor, method, arguments) }
     }
 
     @JvmOverloads
     fun <C : Any> asyncProxy(contractId: ContractId<C>, interceptor: AsyncInterceptor = DirectAsyncInterceptor): C =
-        proxy(contractId.contract, InvocationHandler { _, method, arguments ->
+        proxy(contractId) { method, arguments ->
             val methodMapping = contractId.methodMapper.map(method)
             val promise = promise_.get()
             check((promise != null) || methodMapping.oneWay) {
@@ -64,11 +74,11 @@ abstract class Client {
             check((promise == null) || !methodMapping.oneWay) {
                 "asynchronous OneWay proxy call must not be enclosed with 'promise' function"
             }
-            invoke(object : ClientInvocation(methodMapping, args(arguments)) {
+            invoke(object : ClientInvocation(methodMapping, arguments) {
                 override fun invoke(asyncSupported: Boolean, tunnel: Tunnel) {
                     check(asyncSupported) { "asynchronous services not supported (service id ${contractId.id})" }
                     interceptor.entry(this)
-                    tunnel(Request(contractId.id, methodMapping.id, args(arguments)))
+                    tunnel(Request(contractId.id, methodMapping.id, arguments))
                 }
 
                 override fun settle(reply: Reply) {
@@ -84,7 +94,7 @@ abstract class Client {
                 }
             })
             handlePrimitiveTypes(method.returnType)
-        })
+        }
 }
 
 private val promise_ = ThreadLocal<CompletableFuture<Any>>()

@@ -4,9 +4,12 @@ import ch.softappeal.yass.Interceptor
 import org.junit.Test
 import java.lang.reflect.Method
 import java.util.concurrent.TimeUnit
+import java.util.concurrent.atomic.AtomicInteger
 import kotlin.system.measureTimeMillis
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
 import kotlin.test.assertNull
+import kotlin.test.assertTrue
 import kotlin.test.fail
 
 interface Calculator {
@@ -140,6 +143,13 @@ private fun asyncPrinter(side: String) = object : AsyncInterceptor {
     }
 }
 
+private fun testObjectMethods(calculator: Calculator) {
+    assertTrue(calculator.equals(calculator))
+    assertFalse(calculator.equals(""))
+    assertEquals(Calculator::class.java.hashCode(), calculator.hashCode())
+    assertEquals("<proxy>", calculator.toString())
+}
+
 private fun syncClient(client: Client) {
     val calculator = client.proxy(calculatorId, clientPrinter)
     calculator.oneWay()
@@ -152,6 +162,7 @@ private fun syncClient(client: Client) {
         assertEquals("/ by zero", e.message)
     }
     assertEquals("hello", calculator.echo("hello"))
+    testObjectMethods(calculator)
 }
 
 class RemoteTest {
@@ -167,6 +178,7 @@ class RemoteTest {
     fun asyncClientAsyncServer() {
         val client = client(Server(AsyncService(calculatorId, AsyncCalculatorImpl, asyncPrinter("server"))), true)
         val calculator = client.asyncProxy(calculatorId, asyncPrinter("client"))
+        testObjectMethods(calculator)
         calculator.oneWay()
         try {
             promise { calculator.oneWay() }
@@ -181,10 +193,14 @@ class RemoteTest {
         } catch (e: IllegalStateException) {
             assertEquals("asynchronous request/reply proxy call must be enclosed with 'promise' function", e.message)
         }
-        promise { calculator.divide(12, 3) }.thenAcceptAsync(::println)
+        val result = AtomicInteger(0)
+        promise { calculator.divide(12, 3) }.thenAcceptAsync { result.set(it) }
         promise { calculator.divide(12, 0) }.whenCompleteAsync { _, e -> println(e) }
         promise { calculator.echo("hello") }.thenAcceptAsync(::println)
+        println("done")
+        assertEquals(0, result.get())
         TimeUnit.MILLISECONDS.sleep(200L)
+        assertEquals(4, result.get())
     }
 
     @Test
