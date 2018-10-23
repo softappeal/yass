@@ -21,7 +21,10 @@ data class MethodMapping(val method: Method, val id: Int, val oneWay: Boolean = 
 }
 
 interface MethodMapper {
+    @Throws(Exception::class)
     fun map(id: Int): MethodMapping
+
+    @Throws(Exception::class)
     fun map(method: Method): MethodMapping
 }
 

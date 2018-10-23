@@ -6,7 +6,10 @@ import java.nio.ByteBuffer
 import java.nio.charset.StandardCharsets
 
 abstract class Writer {
+    @Throws(Exception::class)
     abstract fun writeByte(value: Byte)
+
+    @Throws(Exception::class)
     abstract fun writeBytes(buffer: ByteArray, offset: Int, length: Int)
 
     fun writeBytes(buffer: ByteArray) =

@@ -17,9 +17,11 @@ import java.util.concurrent.atomic.AtomicInteger
 
 interface Connection {
     /** Called if a packet has to be written out. */
+    @Throws(Exception::class)
     fun write(packet: Packet)
 
     /** Called once if the connection has been closed. */
+    @Throws(Exception::class)
     fun closed()
 }
 

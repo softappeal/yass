@@ -5,7 +5,10 @@ import java.nio.ByteBuffer
 import java.nio.charset.StandardCharsets
 
 abstract class Reader {
+    @Throws(Exception::class)
     abstract fun readByte(): Byte
+
+    @Throws(Exception::class)
     abstract fun readBytes(buffer: ByteArray, offset: Int, length: Int)
 
     fun readBytes(buffer: ByteArray) =
