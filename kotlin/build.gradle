@@ -22,6 +22,12 @@ subprojects {
         testCompile "org.jetbrains.kotlin:kotlin-test-junit"
     }
 
+    tasks.withType(JavaCompile) {
+        options.compilerArgs << "-Xlint"
+        options.compilerArgs << "-parameters"
+        options.encoding = "US-ASCII"
+    }
+
     compileKotlin {
         kotlinOptions {
             jvmTarget = "1.8"
@@ -46,11 +52,6 @@ subprojects {
         }
     }
 
-    task packageSources(type: Jar) {
-        from sourceSets.main.allSource
-        classifier = 'sources'
-    }
-
     apply plugin: "org.jetbrains.dokka"
 
     dokka {
@@ -59,40 +60,50 @@ subprojects {
         outputDirectory = "$buildDir/dokka"
     }
 
-    task packageDokka(type: Jar, dependsOn: 'dokka') {
-        from "$buildDir/dokka"
-        classifier = 'javadoc'
-    }
-
-    artifacts {
-        archives(packageSources)
-        archives(packageDokka)
-    }
-
-    apply plugin: 'maven'
+    apply plugin: 'maven-publish'
     apply plugin: 'signing'
 
     group = "ch.softappeal.yass"
 
-    task sign {
-        doLast {
-            pom {
-                project {
-                    name project.name
-                    description 'Yet Another Service Solution'
-                    url 'https://github.com/softappeal/yass'
-                    licenses { license { name 'BSD-3-Clause' } }
-                    scm { url 'https://github.com/softappeal/yass' }
-                    organization { name 'softappeal GmbH Switzerland' }
-                    developers { developer { name 'Angelo Salvade' } }
+    if (project.name != "tutorial") {
+        task sourcesJar(type: Jar) {
+            from sourceSets.main.allSource
+            classifier = 'sources'
+        }
+
+        task dokkaJar(type: Jar, dependsOn: 'dokka') {
+            from "$buildDir/dokka"
+            classifier = 'javadoc'
+        }
+
+        publishing {
+            publications {
+                mavenJava(MavenPublication) {
+                    from components.java
+                    artifact sourcesJar
+                    artifact dokkaJar
+                    pom {
+                        name = project.name
+                        description = 'Yet Another Service Solution'
+                        url = 'https://github.com/softappeal/yass'
+                        licenses { license { name = 'BSD-3-Clause' } }
+                        scm { url = 'https://github.com/softappeal/yass' }
+                        organization { name = 'softappeal GmbH Switzerland' }
+                        developers { developer { name = 'Angelo Salvade' } }
+                    }
                 }
-            }.writeTo("build/libs/${project.name}-${version}.pom")
-            if (rootProject.hasProperty('signing.password')) {
-                file("build/libs").listFiles().each { signing.sign(it) }
             }
-            ant.zip(destfile: "build/${project.name}-${version}_artifacts.zip") {
-                fileset(dir: 'build/libs')
+            repositories {
+                maven {
+                    // url = "$buildDir/repos"
+                    url = "https://oss.sonatype.org/service/local/staging/deploy/maven2"
+                    credentials { username = ossrhUsername; password = ossrhPassword }
+                }
             }
+        }
+
+        signing {
+            sign publishing.publications.mavenJava
         }
     }
 }
@@ -100,5 +111,44 @@ subprojects {
 task clean {
     doLast {
         ant.delete(dir: ".", includes: "*/out/", includeemptydirs: true)
+    }
+}
+
+project(":kotlin:yass") {
+    sourceSets {
+        test { java { srcDir 'test' } }
+    }
+}
+
+project(":kotlin:yass-generate") {
+    dependencies {
+        compile project(":kotlin:yass")
+    }
+}
+
+project(":kotlin:yass-transport-ws") {
+    sourceSets {
+        test { java { srcDir 'test' } }
+    }
+    dependencies {
+        compile project(":kotlin:yass")
+        compileOnly websocket_dep
+        testCompile project(":kotlin:yass").sourceSets.test.runtimeClasspath
+        testCompile jetty_dep
+        testCompile undertow_dep
+    }
+}
+
+project(":kotlin:tutorial") {
+    sourceSets {
+        main { java { srcDir 'main' } }
+    }
+    dependencies {
+        compile project(":kotlin:yass-transport-ws")
+        compile project(":kotlin:yass-generate")
+        // compile "ch.softappeal.yass:yass-transport-ws:x.y.z"
+        // compile "ch.softappeal.yass:yass-generate:x.y.z"
+        compile jetty_dep
+        compile undertow_dep
     }
 }

@@ -1,3 +1,5 @@
+enableFeaturePreview('STABLE_PUBLISHING')
+
 include "ts"
 include "py3"
 include "py2"

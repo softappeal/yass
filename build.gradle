@@ -1,4 +1,4 @@
-defaultTasks 'clean', 'todo', 'build', 'dist'
+defaultTasks 'clean', 'todo', 'build', 'dokka'
 
 task todo {
     doLast {
