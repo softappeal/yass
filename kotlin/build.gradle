@@ -97,7 +97,10 @@ subprojects {
                 maven {
                     // url = "$buildDir/repos"
                     url = "https://oss.sonatype.org/service/local/staging/deploy/maven2"
-                    credentials { username = ossrhUsername; password = ossrhPassword }
+                    credentials {
+                        username = project.findProperty('ossrhUsername') ?: "dummy"
+                        password = project.findProperty('ossrhPassword') ?: "dummy"
+                    }
                 }
             }
         }
