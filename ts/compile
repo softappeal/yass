@@ -1,3 +1,6 @@
+# abort script on error
+set -e
+
 npm install
 
 node_modules/.bin/tsc

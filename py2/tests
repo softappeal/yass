@@ -1,3 +1,6 @@
+# abort script on error
+set -e
+
 source activate py2
 
 pip install typing==3.6.4
