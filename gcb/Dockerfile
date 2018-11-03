@@ -13,5 +13,4 @@ RUN \
   && conda create --quiet --name py3 python=3.7.1 \
   && conda create --quiet --name py2 python=2.7.15 \
   \
-  && chmod +x /project/gcb/start.sh
-CMD ["/project/gcb/start.sh"]
+  && chmod +x /project/gcb/*.sh
