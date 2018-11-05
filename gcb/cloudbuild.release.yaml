@@ -1,9 +1,9 @@
-# gcloud builds submit --config cloudbuild.release.yaml --substitutions=_CHECKOUT="dev.gcb",_PROJECT_VERSION="0.0.1-dev" .
+# gcloud builds submit --config cloudbuild.release.yaml --substitutions=_PROJECT_VERSION="0.0.1-dev" .
 # gcloud kms encrypt --plaintext-file=key.gpg           --ciphertext-file=key.gpg.enc           --location=global --keyring=yass --key=build
 # gcloud kms encrypt --plaintext-file=gradle.properties --ciphertext-file=gradle.properties.enc --location=global --keyring=yass --key=build
 steps:
 - name: 'gcr.io/cloud-builders/git'
-  args: [ 'clone', 'https://github.com/softappeal/yass.git', '--branch', '${_CHECKOUT}', '--depth', '1' ]
+  args: [ 'clone', 'https://github.com/softappeal/yass.git', '--branch', 'v${_PROJECT_VERSION}', '--depth', '1' ]
 - name: 'gcr.io/cloud-builders/gcloud'
   args:
   - kms
@@ -27,5 +27,4 @@ steps:
 - name: 'gcr.io/cloud-builders/docker'
   args: ['run', '--env', 'PROJECT_VERSION=${_PROJECT_VERSION}', 'gcr.io/$PROJECT_ID/build', '/project/gcb/start.release.sh' ]
 substitutions:
-  _CHECKOUT:
   _PROJECT_VERSION:
