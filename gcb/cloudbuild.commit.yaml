@@ -1,5 +1,5 @@
 steps:
 - name: 'gcr.io/cloud-builders/docker'
-  args: [ 'build',  '-t', 'gcr.io/$PROJECT_ID/build', '-f', 'gcb/Dockerfile', '.' ]
+  args: [ 'build',  '-t', 'gcr.io/$PROJECT_ID/build', '-f', 'gcb/Dockerfile', '--build-arg', 'PROJECT_DIR=.', '.' ]
 - name: 'gcr.io/cloud-builders/docker'
   args: ['run', 'gcr.io/$PROJECT_ID/build', '/project/gcb/start.commit.sh' ]

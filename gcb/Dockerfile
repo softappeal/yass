@@ -1,6 +1,7 @@
 FROM openjdk:8u181
-COPY yass /project
 ARG NODE_VERSION=v10.13.0
+ARG PROJECT_DIR
+COPY ${PROJECT_DIR} /project
 ENV PATH=/node-${NODE_VERSION}-linux-x64/bin:${PATH}
 ENV PATH=/miniconda/bin:${PATH}
 RUN \
