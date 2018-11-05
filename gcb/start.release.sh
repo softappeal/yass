@@ -10,7 +10,6 @@ set -e
 cd /project
 
 # copy secrets
-cp gcb/key.gpg ~/.gradle
 cp gcb/gradle.properties ~/.gradle
 
 # upload to maven central
