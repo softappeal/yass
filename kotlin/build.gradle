@@ -118,6 +118,9 @@ task clean {
 }
 
 project(":kotlin:yass") {
+    dependencies {
+        testCompile 'org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:1.0.0'
+    }
     sourceSets {
         test { java { srcDir 'test' } }
     }
