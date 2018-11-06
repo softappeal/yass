@@ -9,7 +9,9 @@ import java.lang.reflect.Field
 /** This serializer assigns type and field id's automatically. Therefore, all peers must have the same version of the contract! */
 @JvmOverloads
 fun simpleFastSerializer(
-    baseTypeSerializers: List<BaseTypeSerializer<*>>, treeConcreteClasses: List<Class<*>>, graphConcreteClasses: List<Class<*>> = emptyList()
+    baseTypeSerializers: List<BaseTypeSerializer<*>>,
+    treeConcreteClasses: List<Class<*>>,
+    graphConcreteClasses: List<Class<*>> = emptyList()
 ) = object : FastSerializer() {
     init {
         var id = FirstTypeId
@@ -33,7 +35,9 @@ fun simpleFastSerializer(
 /** This serializer assigns type and field id's from its [Tag]. */
 @JvmOverloads
 fun taggedFastSerializer(
-    baseTypeDescs: Collection<TypeDesc>, treeConcreteClasses: Collection<Class<*>>, graphConcreteClasses: Collection<Class<*>> = emptyList()
+    baseTypeDescs: Collection<TypeDesc>,
+    treeConcreteClasses: Collection<Class<*>>,
+    graphConcreteClasses: Collection<Class<*>> = emptyList()
 ) = object : FastSerializer() {
     init {
         baseTypeDescs.forEach { addBaseType(it) }

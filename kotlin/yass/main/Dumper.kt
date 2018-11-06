@@ -17,7 +17,11 @@ fun treeDumper(compact: Boolean, valueDumper: ValueDumper = EmptyValueDumper): D
     dumper(compact, false, emptySet(), valueDumper)
 
 @JvmOverloads
-fun graphDumper(compact: Boolean, concreteValueClasses: Set<Class<*>> = emptySet(), valueDumper: ValueDumper = EmptyValueDumper): Dumper =
+fun graphDumper(
+    compact: Boolean,
+    concreteValueClasses: Set<Class<*>> = emptySet(),
+    valueDumper: ValueDumper = EmptyValueDumper
+): Dumper =
     dumper(compact, true, concreteValueClasses, valueDumper)
 
 fun Dumper.dump(value: Any?): StringBuilder = this(StringBuilder(256), value)

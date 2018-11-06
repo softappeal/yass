@@ -270,7 +270,7 @@ class TypeScriptGenerator @JvmOverloads constructor(
                     }
                     tabsln(
                         "export const ${serviceDesc.name} = new yass.ContractId<${namespace}proxy.$name, " +
-                            "${namespace}impl.$name>(${serviceDesc.contractId.id}, ${namespace}mapper.$name);"
+                                "${namespace}impl.$name>(${serviceDesc.contractId.id}, ${namespace}mapper.$name);"
                     )
                 }
                 dec()

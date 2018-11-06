@@ -80,10 +80,12 @@ class SocketTransportTest {
                 .start(executor, socketBinder(address)).use {
                     TimeUnit.MILLISECONDS.sleep(200L)
                     useClient(
-                        socketClient(ClientSetup(messageSerializer), firstSocketConnector(
-                            socketConnector(InetSocketAddress("localhost", 28948), connectTimeoutMilliSeconds = 1),
-                            socketConnector(address)
-                        ))
+                        socketClient(
+                            ClientSetup(messageSerializer), firstSocketConnector(
+                                socketConnector(InetSocketAddress("localhost", 28948), connectTimeoutMilliSeconds = 1),
+                                socketConnector(address)
+                            )
+                        )
                             .proxy(calculatorId, Printer, clientPrinter)
                     )
                 }

@@ -55,7 +55,10 @@ fun firstSocketConnector(vararg socketConnectors: SocketConnector): SocketConnec
 typealias SocketBinder = () -> ServerSocket
 
 @JvmOverloads
-fun socketBinder(socketAddress: SocketAddress, socketFactory: ServerSocketFactory = ServerSocketFactory.getDefault()): SocketBinder = {
+fun socketBinder(
+    socketAddress: SocketAddress,
+    socketFactory: ServerSocketFactory = ServerSocketFactory.getDefault()
+): SocketBinder = {
     val serverSocket = socketFactory.createServerSocket()
     try {
         serverSocket.bind(socketAddress)

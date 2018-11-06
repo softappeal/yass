@@ -39,8 +39,7 @@ abstract class SocketConnection internal constructor(
         socket.close()
 }
 
-typealias SocketConnectionFactory =
-    (session: Session, transport: SessionTransport, socket: Socket, out: OutputStream) -> SocketConnection
+typealias SocketConnectionFactory = (session: Session, transport: SessionTransport, socket: Socket, out: OutputStream) -> SocketConnection
 
 /** Writes to socket in caller thread. Blocks if socket can't send data. */
 val SyncSocketConnectionFactory: SocketConnectionFactory = { _, transport, socket, out ->

@@ -80,7 +80,7 @@ class MethodMapperTest {
     } catch (e: IllegalStateException) {
         assertTrue(
             e.message.equals("tag 123 used for methods 'public abstract int ch.softappeal.yass.remote.MethodMapperTest${'$'}TagOverloading.a()' and 'public abstract int ch.softappeal.yass.remote.MethodMapperTest${'$'}TagOverloading.b()' in contract 'interface ch.softappeal.yass.remote.MethodMapperTest${'$'}TagOverloading'")
-                || e.message.equals("tag 123 used for methods 'public abstract int ch.softappeal.yass.remote.MethodMapperTest${'$'}TagOverloading.b()' and 'public abstract int ch.softappeal.yass.remote.MethodMapperTest${'$'}TagOverloading.a()' in contract 'interface ch.softappeal.yass.remote.MethodMapperTest${'$'}TagOverloading'")
+                    || e.message.equals("tag 123 used for methods 'public abstract int ch.softappeal.yass.remote.MethodMapperTest${'$'}TagOverloading.b()' and 'public abstract int ch.softappeal.yass.remote.MethodMapperTest${'$'}TagOverloading.a()' in contract 'interface ch.softappeal.yass.remote.MethodMapperTest${'$'}TagOverloading'")
         )
     }
 

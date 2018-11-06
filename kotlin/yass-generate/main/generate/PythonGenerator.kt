@@ -135,7 +135,7 @@ class PythonGenerator(
             println("import yass")
             if (includeFileForEachModule != null) includeFile(includeFileForEachModule)
             val moduleIncludeFile = module2includeFile[
-                if (namespace == rootNamespace) "" else namespace.moduleName.substring(RootModule.length + 1).replace('_', '.')
+                    if (namespace == rootNamespace) "" else namespace.moduleName.substring(RootModule.length + 1).replace('_', '.')
             ]
             if (moduleIncludeFile != null) {
                 println2()

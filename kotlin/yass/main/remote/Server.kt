@@ -45,12 +45,14 @@ class Service<C : Any> @SafeVarargs constructor(
 ) : AbstractService<C>(contractId, implementation) {
     private val interceptor = compositeInterceptor(*interceptors)
     override fun invoke(invocation: AbstractInvocation, replyWriter: ReplyWriter) {
-        replyWriter(try {
-            ValueReply(invoke(interceptor, invocation.methodMapping.method, implementation, invocation.arguments))
-        } catch (e: Exception) {
-            if (invocation.methodMapping.oneWay) throw e
-            ExceptionReply(e)
-        })
+        replyWriter(
+            try {
+                ValueReply(invoke(interceptor, invocation.methodMapping.method, implementation, invocation.arguments))
+            } catch (e: Exception) {
+                if (invocation.methodMapping.oneWay) throw e
+                ExceptionReply(e)
+            }
+        )
     }
 }
 
