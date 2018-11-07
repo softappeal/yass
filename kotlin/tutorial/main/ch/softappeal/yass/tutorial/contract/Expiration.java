@@ -21,7 +21,7 @@ public final class Expiration {
         this.day = day;
     }
 
-    public static final BaseTypeSerializer<?> TYPE_SERIALIZER = new BaseTypeSerializer<Expiration>(Expiration.class) {
+    public static final BaseTypeSerializer<?> TYPE_SERIALIZER = new BaseTypeSerializer<>(Expiration.class) {
         @Override public Expiration read(final Reader reader) {
             return new Expiration(
                 getIntSerializer().read(reader),
