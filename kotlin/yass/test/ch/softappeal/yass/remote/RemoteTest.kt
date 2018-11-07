@@ -1,6 +1,8 @@
 package ch.softappeal.yass.remote
 
 import ch.softappeal.yass.Interceptor
+import kotlinx.coroutines.future.await
+import kotlinx.coroutines.runBlocking
 import org.junit.Test
 import java.lang.reflect.Method
 import java.util.concurrent.TimeUnit
@@ -178,7 +180,9 @@ class RemoteTest {
     fun asyncClientAsyncServer() {
         val client = client(Server(AsyncService(calculatorId, AsyncCalculatorImpl, asyncPrinter("server"))), true)
         val calculator = client.asyncProxy(calculatorId, asyncPrinter("client"))
+
         testObjectMethods(calculator)
+
         calculator.oneWay()
         try {
             promise { calculator.oneWay() }
@@ -201,6 +205,20 @@ class RemoteTest {
         assertEquals(0, result.get())
         TimeUnit.MILLISECONDS.sleep(200L)
         assertEquals(4, result.get())
+
+        println("coroutine")
+        suspend fun <T> coroutine(execute: () -> T): T = promise(execute).await()
+        runBlocking {
+            assertNull(coroutine { calculator.twoWay() })
+            assertEquals(4, coroutine { calculator.divide(12, 3) })
+            try {
+                coroutine { calculator.divide(12, 0) }
+                fail()
+            } catch (e: ArithmeticException) {
+                println(e)
+            }
+            assertEquals("hello", coroutine { calculator.echo("hello") })
+        }
     }
 
     @Test
