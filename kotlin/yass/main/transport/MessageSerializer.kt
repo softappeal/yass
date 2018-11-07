@@ -13,22 +13,19 @@ private const val ValueReply = 1.toByte()
 private const val ExceptionReply = 2.toByte()
 
 fun messageSerializer(contractSerializer: Serializer) = object : Serializer {
-    override fun read(reader: Reader): Message {
-        val type = reader.readByte()
-        return when (type) {
-            Request -> Request(
-                reader.readZigZagInt(),
-                reader.readZigZagInt(),
-                contractSerializer.read(reader) as List<Any?>
-            )
-            ValueReply -> ValueReply(
-                contractSerializer.read(reader)
-            )
-            ExceptionReply -> ExceptionReply(
-                contractSerializer.read(reader) as Exception
-            )
-            else -> error("unexpected type $type")
-        }
+    override fun read(reader: Reader): Message = when (val type = reader.readByte()) {
+        Request -> Request(
+            reader.readZigZagInt(),
+            reader.readZigZagInt(),
+            contractSerializer.read(reader) as List<Any?>
+        )
+        ValueReply -> ValueReply(
+            contractSerializer.read(reader)
+        )
+        ExceptionReply -> ExceptionReply(
+            contractSerializer.read(reader) as Exception
+        )
+        else -> error("unexpected type $type")
     }
 
     override fun write(writer: Writer, value: Any?) = when (value) {

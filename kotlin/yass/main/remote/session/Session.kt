@@ -140,8 +140,7 @@ abstract class Session : Client(), AutoCloseable {
                 iClose(false, null)
                 return
             }
-            val message = packet.message
-            when (message) {
+            when (val message = packet.message) {
                 is Request -> serverInvoke(packet.requestNumber, message)
                 is Reply -> requestNumber2invocation.remove(packet.requestNumber)!!.settle(message)
             }
