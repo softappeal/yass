@@ -3,8 +3,8 @@ package ch.softappeal.yass.remote
 import ch.softappeal.yass.JavaCalculator
 import org.junit.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
 import kotlin.test.assertSame
-import kotlin.test.fail
 
 private abstract class Role : Services(SimpleMethodMapperFactory)
 
@@ -39,14 +39,14 @@ class ContractIdTest {
     }
 
     @Test
-    fun duplicatedServices() = try {
+    fun duplicatedServices() {
         class Initiator : Role() {
             val calculator0 = contractId<Calculator>(0)
             val calculator1 = contractId<Calculator>(0)
         }
-        Initiator()
-        fail()
-    } catch (e: IllegalArgumentException) {
-        assertEquals("service with id 0 already added", e.message)
+        assertEquals(
+            "service with id 0 already added",
+            assertFailsWith<IllegalArgumentException> { Initiator() }.message
+        )
     }
 }

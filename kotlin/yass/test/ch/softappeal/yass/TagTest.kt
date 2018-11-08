@@ -2,7 +2,7 @@ package ch.softappeal.yass
 
 import org.junit.Test
 import kotlin.test.assertEquals
-import kotlin.test.fail
+import kotlin.test.assertFailsWith
 
 class TagTest {
     @Tag(1)
@@ -30,15 +30,10 @@ class TagTest {
         assertEquals(4, tag(TaggedClass::class.java.getDeclaredField("x")))
         assertEquals(5, tag(TaggedClass::class.java.getDeclaredField("y")))
         assertEquals(6, tag(TaggedClass::class.java.getMethod("withTag")))
-        try {
-            tag(TaggedClass::class.java.getMethod("noTag"))
-            fail()
-        } catch (e: IllegalStateException) {
-            assertEquals(
-                "missing tag for 'public final void ch.softappeal.yass.TagTest${'$'}TaggedClass.noTag()'",
-                e.message
-            )
-        }
+        assertEquals(
+            "missing tag for 'public final void ch.softappeal.yass.TagTest${'$'}TaggedClass.noTag()'",
+            assertFailsWith<IllegalStateException> { tag(TaggedClass::class.java.getMethod("noTag")) }.message
+        )
     }
 
     @Test
@@ -46,14 +41,9 @@ class TagTest {
         assertEquals(1, tag(JavaTaggedClass::class.java))
         assertEquals(2, tag(JavaTaggedClass::class.java.getDeclaredField("tag")))
         assertEquals(3, tag(JavaTaggedClass::class.java.getMethod("withTag")))
-        try {
-            tag(JavaTaggedClass::class.java.getMethod("noTag"))
-            fail()
-        } catch (e: IllegalStateException) {
-            assertEquals(
-                "missing tag for 'public void ch.softappeal.yass.JavaTaggedClass.noTag()'",
-                e.message
-            )
-        }
+        assertEquals(
+            "missing tag for 'public void ch.softappeal.yass.JavaTaggedClass.noTag()'",
+            assertFailsWith<IllegalStateException> { tag(JavaTaggedClass::class.java.getMethod("noTag")) }.message
+        )
     }
 }

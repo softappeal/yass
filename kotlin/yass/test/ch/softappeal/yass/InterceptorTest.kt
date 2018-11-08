@@ -3,9 +3,9 @@ package ch.softappeal.yass
 import org.junit.Test
 import java.lang.reflect.Method
 import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
 import kotlin.test.assertNull
 import kotlin.test.assertSame
-import kotlin.test.fail
 
 val Method: Method = Any::class.java.getMethod("toString")
 private val Arguments = listOf(0)
@@ -99,12 +99,7 @@ class InterceptorTest {
         assertSame(c, proxy(c))
         val calculator: Calculator = proxy<Calculator>(CalculatorImpl(), Printer)
         assertEquals(2, calculator.divide(6, 3))
-        try {
-            assertEquals(2, calculator.divide(6, 0))
-            fail()
-        } catch (e: ArithmeticException) {
-            println(e)
-        }
+        assertFailsWith<ArithmeticException> { calculator.divide(6, 0) }
         assertEquals(1, calculator.one())
         assertEquals(-2, calculator.minus(2))
         assertEquals("echo", calculator.echo("echo"))
@@ -116,12 +111,7 @@ class InterceptorTest {
         assertSame(JavaCalculatorImpl, proxy(JavaCalculatorImpl))
         val calculator = proxy(JavaCalculatorImpl, Printer)
         assertEquals(2, calculator.divide(6, 3))
-        try {
-            assertEquals(2, calculator.divide(6, 0))
-            fail()
-        } catch (e: ArithmeticException) {
-            println(e)
-        }
+        assertFailsWith<ArithmeticException> { calculator.divide(6, 0) }
         assertEquals(1, calculator.one())
         assertEquals(-2, calculator.minus(2))
         assertEquals("echo", calculator.echo("echo"))
