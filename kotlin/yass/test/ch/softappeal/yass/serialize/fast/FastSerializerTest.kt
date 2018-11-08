@@ -25,6 +25,7 @@ import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.io.PrintWriter
 import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
 import kotlin.test.assertNull
 import kotlin.test.assertSame
 import kotlin.test.assertTrue
@@ -190,7 +191,19 @@ class FastSerializerTest {
         } catch (e: IllegalStateException) {
             assertEquals("missing type 'ch.softappeal.yass.serialize.Color'", e.message)
         }
+    }
 
+    @Test
+    fun missingBaseClass() {
+        assertEquals(
+            "missing base class 'ch.softappeal.yass.serialize.PrimitiveTypes'",
+            assertFailsWith<IllegalArgumentException> {
+                simpleFastSerializer(
+                    listOf(),
+                    listOf(Color::class.java, AllTypes::class.java)
+                )
+            }.message
+        )
     }
 
     class MissingClassTag {

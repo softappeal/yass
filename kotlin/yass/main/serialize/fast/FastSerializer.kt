@@ -178,6 +178,16 @@ class ClassTypeSerializer internal constructor(
     }
 }
 
+private val RootClasses = setOf(
+    Any::class.java,
+    Exception::class.java,
+    RuntimeException::class.java,
+    Error::class.java,
+    Throwable::class.java
+)
+
+fun isRootClass(type: Class<*>): Boolean = RootClasses.contains(type)
+
 /**
  * This fast and compact serializer supports the following types (type id's must be >= [FirstTypeId]):
  *  - `null`
@@ -250,8 +260,23 @@ abstract class FastSerializer protected constructor() : Serializer {
         addType(typeDesc)
     }
 
-    protected fun fixupFields() {
+    private fun checkParentClasses() {
+        _id2typeSerializer.forEach { id, typeSerializer ->
+            if (id < FirstTypeId) return@forEach
+            if (typeSerializer is ClassTypeSerializer) {
+                var t = typeSerializer.type
+                while (!isRootClass(t)) {
+                    if (!Modifier.isAbstract(t.modifiers))
+                        require(class2typeDesc.contains(t)) { "missing base class '${t.canonicalName}'" }
+                    t = t.superclass
+                }
+            }
+        }
+    }
+
+    protected fun fixup() {
         for (typeDesc in class2typeDesc.values) (typeDesc.serializer as? ClassTypeSerializer)?.fixupFields(class2typeDesc)
+        checkParentClasses()
     }
 
     override fun read(reader: Reader) = Input(reader, _id2typeSerializer).read()

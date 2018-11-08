@@ -21,7 +21,7 @@ fun simpleFastSerializer(
             checkClass(type)
             addClass(id++, type, true)
         }
-        fixupFields()
+        fixup()
     }
 
     fun addClass(typeId: Int, type: Class<*>, graph: Boolean) {
@@ -46,7 +46,7 @@ fun taggedFastSerializer(
             checkClass(type)
             addClass(type, true)
         }
-        fixupFields()
+        fixup()
     }
 
     fun addClass(type: Class<*>, graph: Boolean) {

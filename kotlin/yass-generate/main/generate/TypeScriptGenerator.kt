@@ -4,7 +4,6 @@ import ch.softappeal.yass.generate.Generator
 import ch.softappeal.yass.generate.Out
 import ch.softappeal.yass.generate.getMethods
 import ch.softappeal.yass.generate.getServiceDescs
-import ch.softappeal.yass.generate.isRootClass
 import ch.softappeal.yass.generate.iterate
 import ch.softappeal.yass.ownFields
 import ch.softappeal.yass.remote.Services
@@ -20,6 +19,7 @@ import ch.softappeal.yass.serialize.fast.FirstTypeId
 import ch.softappeal.yass.serialize.fast.ListTypeDesc
 import ch.softappeal.yass.serialize.fast.StringSerializer
 import ch.softappeal.yass.serialize.fast.TypeDesc
+import ch.softappeal.yass.serialize.fast.isRootClass
 import ch.softappeal.yass.serialize.fast.primitiveWrapperType
 import java.lang.reflect.Modifier
 import java.lang.reflect.ParameterizedType
