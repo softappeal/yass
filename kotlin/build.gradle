@@ -18,7 +18,8 @@ subprojects {
     }
 
     dependencies {
-        compile "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
+        compileOnly "org.jetbrains.kotlin:kotlin-stdlib-jdk8" 
+        testCompile "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
         testCompile "org.jetbrains.kotlin:kotlin-test-junit"
     }
 
@@ -160,6 +161,7 @@ project(":kotlin:tutorial") {
         compile project(":kotlin:yass-generate")
         // compile "ch.softappeal.yass:yass-transport-ws:x.y.z"
         // compile "ch.softappeal.yass:yass-generate:x.y.z"
+        compile "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
         compile jetty_dep
         compile undertow_dep
     }
