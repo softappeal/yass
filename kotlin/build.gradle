@@ -52,6 +52,12 @@ subprojects {
         }
     }
 
+    jar {
+        manifest {
+            attributes('Automatic-Module-Name': 'ch.softappeal.' + project.name.replace('-', '.'))
+        }
+    }
+
     apply plugin: "org.jetbrains.dokka"
 
     dokka {
