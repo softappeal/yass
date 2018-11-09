@@ -28,3 +28,4 @@ steps:
   args: ['run', '--env', 'PROJECT_VERSION=${_PROJECT_VERSION}', 'gcr.io/$PROJECT_ID/build', '/project/gcb/start.release.sh' ]
 substitutions:
   _PROJECT_VERSION:
+timeout: 1200s
