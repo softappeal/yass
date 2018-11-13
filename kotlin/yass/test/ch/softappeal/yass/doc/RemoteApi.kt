@@ -1,3 +1,5 @@
+@file:Suppress("UNUSED_PARAMETER", "CAST_NEVER_SUCCEEDS")
+
 package ch.softappeal.yass.doc
 
 import java.util.concurrent.CompletionStage
