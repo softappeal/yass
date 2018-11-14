@@ -142,9 +142,6 @@ project(":kotlin:yass-generate") {
 }
 
 project(":kotlin:yass-transport-ws") {
-    sourceSets {
-        test { java { srcDir 'test' } }
-    }
     dependencies {
         compile project(":kotlin:yass")
         compileOnly websocket_dep
@@ -152,12 +149,12 @@ project(":kotlin:yass-transport-ws") {
         testCompile jetty_dep
         testCompile undertow_dep
     }
+    sourceSets {
+        test { java { srcDir 'test' } }
+    }
 }
 
 project(":kotlin:tutorial") {
-    sourceSets {
-        main { java { srcDir 'main' } }
-    }
     dependencies {
         compile project(":kotlin:yass-transport-ws")
         compile project(":kotlin:yass-generate")
@@ -166,5 +163,8 @@ project(":kotlin:tutorial") {
         compile "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
         compile jetty_dep
         compile undertow_dep
+    }
+    sourceSets {
+        main { java { srcDir 'main' } }
     }
 }
