@@ -15,6 +15,7 @@ subprojects {
     sourceSets {
         main { kotlin { srcDir 'main' } }
         test { kotlin { srcDir 'test' } }
+        test { java { srcDir 'test' } }
     }
 
     dependencies {
@@ -133,9 +134,6 @@ project(":kotlin:yass") {
             exclude group: 'org.jetbrains.kotlin', module: 'kotlin-stdlib-common'
         }
     }
-    sourceSets {
-        test { java { srcDir 'test' } }
-    }
 }
 
 project(":kotlin:yass-generate") {
@@ -151,9 +149,6 @@ project(":kotlin:yass-transport-ws") {
         testCompile project(":kotlin:yass").sourceSets.test.runtimeClasspath
         testCompile jetty_dep
         testCompile undertow_dep
-    }
-    sourceSets {
-        test { java { srcDir 'test' } }
     }
 }
 
