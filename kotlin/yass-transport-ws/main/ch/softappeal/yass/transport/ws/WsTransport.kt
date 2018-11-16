@@ -84,13 +84,13 @@ fun asyncWsConnectionFactory(sendTimeoutMilliSeconds: Long): WsConnectionFactory
     }
 }
 
-class WsConfigurator(
+open class WsConfigurator(
     private val connectionFactory: WsConnectionFactory, private val transport: SessionTransport
 ) : ServerEndpointConfig.Configurator() {
     val endpointInstance: Endpoint = getEndpointInstance(Endpoint::class.java)
 
     @Suppress("UNCHECKED_CAST")
-    override fun <T> getEndpointInstance(endpointClass: Class<T>): T = object : Endpoint() {
+    final override fun <T> getEndpointInstance(endpointClass: Class<T>): T = object : Endpoint() {
         @Volatile
         private var connection: WsConnection? = null
 
