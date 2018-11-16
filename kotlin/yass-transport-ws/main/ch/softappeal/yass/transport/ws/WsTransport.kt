@@ -15,10 +15,8 @@ import javax.websocket.CloseReason
 import javax.websocket.Endpoint
 import javax.websocket.EndpointConfig
 import javax.websocket.Extension
-import javax.websocket.HandshakeResponse
 import javax.websocket.MessageHandler
 import javax.websocket.RemoteEndpoint
-import javax.websocket.server.HandshakeRequest
 import javax.websocket.server.ServerEndpointConfig
 
 abstract class WsConnection internal constructor(
@@ -135,6 +133,4 @@ open class WsConfigurator(
 
     override fun checkOrigin(originHeaderValue: String?) =
         true
-
-    override fun modifyHandshake(sec: ServerEndpointConfig?, request: HandshakeRequest?, response: HandshakeResponse?) {}
 }
