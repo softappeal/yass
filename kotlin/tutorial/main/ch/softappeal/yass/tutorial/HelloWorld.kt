@@ -27,7 +27,7 @@ fun useCalculator(calculator: Calculator) {
     println("2 + 3 = " + calculator.add(2, 3))
 }
 
-fun main(args: Array<String>) {
+fun main() {
     val calculatorId = contractId<Calculator>(0, SimpleMethodMapperFactory)
     val messageSerializer = messageSerializer(JavaSerializer)
     val address = InetSocketAddress("localhost", 28947)

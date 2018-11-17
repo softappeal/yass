@@ -65,7 +65,7 @@ private fun serverSide(): Service<IdentityService> {
     return service(IDENTITY_SERVICE, IdentityServiceImpl(realmGetter), contextInterceptor)
 }
 
-fun main(vararg args: String) {
+fun main() {
     val executor = Executors.newCachedThreadPool(namedThreadFactory("executor", Terminate))
     try {
         socketServer(ServerSetup(Server(serverSide()), CONTEXT), executor).start(executor, socketBinder(ADDRESS)).use {
