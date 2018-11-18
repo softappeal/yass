@@ -48,11 +48,19 @@ fun main() {
     val calculatorId = contractId<Calculator>(0, SimpleMethodMapperFactory)
     val messageSerializer = messageSerializer(JavaSerializer)
     val address = InetSocketAddress("localhost", 28947)
-    val executor = Executors.newCachedThreadPool()
-    val server = Server(Service(calculatorId, CalculatorImpl()))
-    socketServer(ServerSetup(server, messageSerializer), executor)
-        .start(executor, socketBinder(address))
-    val client = socketClient(ClientSetup(messageSerializer), socketConnector(address))
-    useCalculator(client.proxy(calculatorId))
+    val server = Server(
+        Service(calculatorId, CalculatorImpl())
+    )
+    val executor = Executors.newCachedThreadPool(namedThreadFactory("executor", Terminate))
+    try {
+        socketServer(ServerSetup(server, messageSerializer), executor)
+            .start(executor, socketBinder(address))
+            .use {
+                val client = socketClient(ClientSetup(messageSerializer), socketConnector(address))
+                useCalculator(client.proxy(calculatorId))
+            }
+    } finally {
+        executor.shutdown()
+    }
 }
 ```
