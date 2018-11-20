@@ -25,11 +25,11 @@ cd /project
 chmod +x ./gradlew
 
 # check Java 11 compatibility
-# set OLD_JAVA_HOME=$JAVA_HOME
-# export JAVA_HOME=$JAVA_11_HOME
-# ./gradlew --version
-# ./gradlew
-# export JAVA_HOME=$OLD_JAVA_HOME
+set OLD_JAVA_HOME=$JAVA_HOME
+export JAVA_HOME=$JAVA_11_HOME
+./gradlew --version
+./gradlew
+export JAVA_HOME=$OLD_JAVA_HOME
 
 # run gradle
 ./gradlew --version
