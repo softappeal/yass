@@ -13,8 +13,8 @@ import java.io.ByteArrayOutputStream
 import java.io.EOFException
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
 import kotlin.test.assertTrue
-import kotlin.test.fail
 
 private val SERIALIZER = messageSerializer(JavaSerializer)
 
@@ -46,27 +46,26 @@ class MessageSerializerTest {
     }
 
     @Test
-    fun write1() = try {
-        SERIALIZER.write(writer(ByteArrayOutputStream()), null)
-        fail()
-    } catch (e: IllegalStateException) {
-        assertEquals("unexpected value 'null'", e.message)
-    }
+    fun write1() = assertEquals(
+        "unexpected value 'null'",
+        assertFailsWith<IllegalStateException> {
+            SERIALIZER.write(writer(ByteArrayOutputStream()), null)
+        }.message
+    )
 
     @Test
-    fun write2() = try {
-        SERIALIZER.write(writer(ByteArrayOutputStream()), "error")
-        fail()
-    } catch (e: IllegalStateException) {
-        assertEquals("unexpected value 'error'", e.message)
-    }
+    fun write2() = assertEquals(
+        "unexpected value 'error'",
+        assertFailsWith<IllegalStateException> {
+            SERIALIZER.write(writer(ByteArrayOutputStream()), "error")
+        }.message
+    )
 
     @Test
-    fun read() = try {
-        SERIALIZER.read(reader(ByteArrayInputStream(byteArrayOf(123))))
-        fail()
-    } catch (e: IllegalStateException) {
-        assertEquals("unexpected type 123", e.message)
-    }
-
+    fun read() = assertEquals(
+        "unexpected type 123",
+        assertFailsWith<IllegalStateException> {
+            SERIALIZER.read(reader(ByteArrayInputStream(byteArrayOf(123))))
+        }.message
+    )
 }

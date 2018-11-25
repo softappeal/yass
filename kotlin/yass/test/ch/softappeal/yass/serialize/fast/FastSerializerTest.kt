@@ -28,7 +28,6 @@ import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertNull
 import kotlin.test.assertSame
-import kotlin.test.assertTrue
 
 private val TAGGED_FAST_SERIALIZER = taggedFastSerializer(
     listOf(
@@ -104,14 +103,14 @@ class FastSerializerTest {
         "duplicated field name 'private final int " +
             "ch.softappeal.yass.serialize.fast.FastSerializerTest${'$'}A.a' and 'private final int " +
             "ch.softappeal.yass.serialize.fast.FastSerializerTest${'$'}A.a' not allowed in class hierarchy",
-        assertFailsWith<IllegalArgumentException> {
-            val field = A::class.java.getDeclaredField("a")
-            object : FastSerializer() {
-                init {
-                    addClass(999, String::class.java, false, mapOf(1 to field, 2 to field))
-                }
+    assertFailsWith<IllegalArgumentException> {
+        val field = A::class.java.getDeclaredField("a")
+        object : FastSerializer() {
+            init {
+                addClass(999, String::class.java, false, mapOf(1 to field, 2 to field))
             }
-        }.message
+        }
+    }.message
     )
 
     @Test
@@ -311,14 +310,14 @@ class FastSerializerTest {
             writer.writeByte(123.toByte()) // write sentinel
             val reader = reader(ByteArrayInputStream(buffer.toByteArray()))
             val output = v2serializer.read(reader)
-            assertTrue(reader.readByte() == 123.toByte()) // check sentinel
+            assertEquals(123.toByte(), reader.readByte()) // check sentinel
             return output!!
         }
 
         val c2 = copy(C1(42)) as C2
-        assertTrue(c2.i1 == 42)
+        assertEquals(42, c2.i1)
         assertNull(c2.i2)
-        assertTrue(c2.i2() == 13)
+        assertEquals(13, c2.i2())
         assertSame(copy(E1.c1), E2.c1)
         assertSame(copy(E1.c2), E2.c2)
     }

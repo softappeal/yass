@@ -7,12 +7,13 @@ import ch.softappeal.yass.serialize.reader
 import java.io.ByteArrayInputStream
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import kotlin.test.fail
+import kotlin.test.assertFailsWith
 
 class PathTest {
     @Test
-    fun missingMapping() {
-        try {
+    fun missingMapping() = assertEquals(
+        "invalid path 'null'",
+        assertFailsWith<IllegalStateException> {
             ServerSetup(
                 object : Serializer {
                     override fun read(reader: Reader): Any? = null
@@ -20,15 +21,13 @@ class PathTest {
                 },
                 mapOf()
             ).resolve(reader(ByteArrayInputStream(byteArrayOf())))
-            fail()
-        } catch (e: IllegalStateException) {
-            assertEquals("invalid path 'null'", e.message)
-        }
-    }
+        }.message
+    )
 
     @Test
-    fun missingMappingSession() {
-        try {
+    fun missingMappingSession() = assertEquals(
+        "invalid path 'null'",
+        assertFailsWith<IllegalStateException> {
             AcceptorSetup(
                 object : Serializer {
                     override fun read(reader: Reader): Any? = null
@@ -36,9 +35,6 @@ class PathTest {
                 },
                 mapOf()
             ).resolve(reader(ByteArrayInputStream(byteArrayOf())))
-            fail()
-        } catch (e: IllegalStateException) {
-            assertEquals("invalid path 'null'", e.message)
-        }
-    }
+        }.message
+    )
 }

@@ -18,8 +18,8 @@ import java.net.InetSocketAddress
 import java.util.concurrent.TimeUnit
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
 import kotlin.test.assertNotNull
-import kotlin.test.fail
 
 private val Printer: Interceptor = { _, _, invocation ->
     val socket = socket
@@ -32,14 +32,10 @@ val messageSerializer = messageSerializer(JavaSerializer)
 
 class SocketTransportTest {
     @Test
-    fun noSocket() {
-        try {
-            socket
-            fail()
-        } catch (e: IllegalStateException) {
-            assertEquals("no active invocation", e.message)
-        }
-    }
+    fun noSocket() = assertEquals(
+        "no active invocation",
+        assertFailsWith<IllegalStateException> { socket }.message
+    )
 
     @Test
     fun test() {

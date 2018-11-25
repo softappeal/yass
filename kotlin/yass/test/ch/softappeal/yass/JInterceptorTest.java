@@ -13,9 +13,9 @@ import static ch.softappeal.yass.InterceptorKt.proxy;
 import static ch.softappeal.yass.InterceptorTestKt.getJavaCalculatorImpl;
 import static ch.softappeal.yass.InterceptorTestKt.getMethod;
 
-public class JInterceptorTest {
+class JInterceptorTest {
     @Test
-    public void test() {
+    void test() {
         final Function3<Method, List<?>, Function0<?>, Object> interceptor = new TestInterceptor();
         final List<?> arguments = Collections.emptyList();
         final RuntimeException exception = new RuntimeException();
@@ -32,7 +32,7 @@ public class JInterceptorTest {
     }
 
     @Test
-    public void proxyTest() {
+    void proxyTest() {
         final JavaCalculator calculator = proxy(JavaCalculator.class, getJavaCalculatorImpl());
         Assertions.assertEquals(2, calculator.divide(6, 3));
         try {

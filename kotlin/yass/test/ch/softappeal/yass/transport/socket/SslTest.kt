@@ -18,7 +18,7 @@ import javax.net.SocketFactory
 import javax.net.ssl.SSLSocket
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import kotlin.test.fail
+import kotlin.test.assertFailsWith
 
 private fun test(
     serverSocketFactory: ServerSocketFactory, socketFactory: SocketFactory, needClientAuth: Boolean,
@@ -50,17 +50,13 @@ private fun failedTest(
     serverSocketFactory: ServerSocketFactory,
     socketFactory: SocketFactory,
     needClientAuth: Boolean
-) {
-    try {
-        test(
-            serverSocketFactory, socketFactory, needClientAuth,
-            Thread.UncaughtExceptionHandler { _, e ->
-                e.printStackTrace()
-            }
-        )
-        fail()
-    } catch (ignore: UndeclaredThrowableException) {
-    }
+) = assertFailsWith<UndeclaredThrowableException> {
+    test(
+        serverSocketFactory, socketFactory, needClientAuth,
+        Thread.UncaughtExceptionHandler { _, e ->
+            e.printStackTrace()
+        }
+    )
 }
 
 private val PASSWORD = "StorePass".toCharArray()

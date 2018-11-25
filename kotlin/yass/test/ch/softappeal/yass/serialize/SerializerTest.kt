@@ -145,7 +145,7 @@ private fun checkValues(allTypes: AllTypes) {
     assertEquals("hello", (allTypes.primitiveTypesField as AllTypes).stringField)
     val primitiveTypesListField = allTypes.primitiveTypesListField!!
     assertEquals(3, primitiveTypesListField.size)
-    assertEquals(999, primitiveTypesListField[0].intField.toLong())
+    assertEquals(999, primitiveTypesListField[0]!!.intField.toLong())
     assertEquals("world", (primitiveTypesListField[1] as AllTypes).stringField)
     assertNull(primitiveTypesListField[2])
     assertEquals("bad", allTypes.objectField)

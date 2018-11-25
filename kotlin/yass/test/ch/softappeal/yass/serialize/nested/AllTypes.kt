@@ -26,11 +26,11 @@ class AllTypes : PrimitiveTypes {
     @Tag(106)
     var primitiveTypesField: PrimitiveTypes? = null
     @Tag(107)
-    var primitiveTypesListField: List<PrimitiveTypes>? = null
+    var primitiveTypesListField: List<PrimitiveTypes?>? = null
     @Tag(108)
     var objectField: Any? = null
     @Tag(109)
-    var objectListField: List<Any>? = null
+    var objectListField: List<Any?>? = null
     @Tag(110)
     var exception: Exception? = null
 

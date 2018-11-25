@@ -16,7 +16,7 @@ class ReflectTest {
     @Test
     fun noDefaultConstructor() {
         val instance = AllocatorFactory(NoDefaultConstructor::class.java)() as NoDefaultConstructor
-        assertTrue(instance.i == 0)
+        assertEquals(instance.i, 0)
     }
 
     @Test
@@ -29,19 +29,19 @@ class ReflectTest {
         val privateFinalField = name2field["privateFinalField"]!!
         val publicField = name2field["publicField"]!!
         val publicFinalField = name2field["publicFinalField"]!!
-        assertTrue(fieldModifiers.publicFinalField == 0)
-        assertTrue(publicFinalField.get(fieldModifiers) as Int == 0)
-        assertTrue(privateFinalField.get(fieldModifiers) as Int == 0)
+        assertEquals(0, fieldModifiers.publicFinalField)
+        assertEquals(0, publicFinalField.get(fieldModifiers) as Int)
+        assertEquals(0, privateFinalField.get(fieldModifiers) as Int)
         privateField.set(fieldModifiers, 200)
         privateFinalField.set(fieldModifiers, 201)
         publicField.set(fieldModifiers, 202)
         publicFinalField.set(fieldModifiers, 203)
-        assertTrue(fieldModifiers.publicField == 202)
-        assertTrue(fieldModifiers.publicFinalField == 203)
-        assertTrue(privateField.get(fieldModifiers) as Int == 200)
-        assertTrue(privateFinalField.get(fieldModifiers) as Int == 201)
-        assertTrue(publicField.get(fieldModifiers) as Int == 202)
-        assertTrue(publicFinalField.get(fieldModifiers) as Int == 203)
+        assertEquals(202, fieldModifiers.publicField)
+        assertEquals(203, fieldModifiers.publicFinalField)
+        assertEquals(200, privateField.get(fieldModifiers) as Int)
+        assertEquals(201, privateFinalField.get(fieldModifiers) as Int)
+        assertEquals(202, publicField.get(fieldModifiers) as Int)
+        assertEquals(203, publicFinalField.get(fieldModifiers) as Int)
     }
 
     @Test
@@ -66,28 +66,28 @@ class ReflectTest {
         doubleField.set(allTypes, 3.21)
         doubleField.set(allTypes, 3.21)
         assertTrue(allTypes.booleanField)
-        assertTrue(allTypes.byteField.toInt() == 123)
-        assertTrue(allTypes.shortField.toInt() == 12345)
-        assertTrue(allTypes.intField == 123456789)
-        assertTrue(allTypes.longField == 123456789000L)
-        assertTrue(allTypes.charField == 'x')
-        assertTrue(allTypes.floatField == 1.23f)
-        assertTrue(allTypes.doubleField == 3.21)
+        assertEquals(123, allTypes.byteField.toInt())
+        assertEquals(12345, allTypes.shortField.toInt())
+        assertEquals(123456789, allTypes.intField)
+        assertEquals(123456789000L, allTypes.longField)
+        assertEquals('x', allTypes.charField)
+        assertEquals(1.23f, allTypes.floatField)
+        assertEquals(3.21, allTypes.doubleField)
         assertTrue(booleanField.get(allTypes) as Boolean)
-        assertTrue(byteField.get(allTypes) as Byte == 123.toByte())
-        assertTrue(shortField.get(allTypes) as Short == 12345.toShort())
-        assertTrue(intField.get(allTypes) as Int == 123456789)
-        assertTrue(longField.get(allTypes) as Long == 123456789000L)
-        assertTrue(charField.get(allTypes) as Char == 'x')
-        assertTrue(floatField.get(allTypes) as Float == 1.23f)
-        assertTrue(doubleField.get(allTypes) as Double == 3.21)
+        assertEquals(123.toByte(), byteField.get(allTypes) as Byte)
+        assertEquals(12345.toShort(), shortField.get(allTypes) as Short)
+        assertEquals(123456789, intField.get(allTypes) as Int)
+        assertEquals(123456789000L, longField.get(allTypes) as Long)
+        assertEquals('x', charField.get(allTypes) as Char)
+        assertEquals(1.23f, floatField.get(allTypes) as Float)
+        assertEquals(3.21, doubleField.get(allTypes) as Double)
         val stringField = name2field["stringField"]!!
         stringField.set(allTypes, "xyz")
         assertEquals("xyz", allTypes.stringField)
         assertEquals("xyz", stringField.get(allTypes))
         val objectListField = name2field["objectListField"]!!
         objectListField.set(allTypes, listOf("xyz", 42, null))
-        assertTrue(listOf("xyz", 42, null) == allTypes.objectListField)
-        assertTrue(listOf("xyz", 42, null) == objectListField.get(allTypes))
+        assertEquals(listOf("xyz", 42, null), allTypes.objectListField)
+        assertEquals(listOf("xyz", 42, null), objectListField.get(allTypes))
     }
 }
