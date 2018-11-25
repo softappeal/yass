@@ -1,7 +1,6 @@
 package ch.softappeal.yass.serialize
 
 import ch.softappeal.yass.serialize.nested.AllTypes
-import org.junit.jupiter.api.Assertions.assertArrayEquals
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.math.BigDecimal
@@ -23,7 +22,7 @@ fun <T : Any?> copy(serializer: Serializer, value: T): T {
     writer.writeByte(123.toByte()) // write sentinel
     val reader = reader(ByteArrayInputStream(buffer.toByteArray()))
     @Suppress("UNCHECKED_CAST") val result = serializer.read(reader) as T
-    assertTrue(reader.readByte() == 123.toByte()) // check sentinel
+    assertEquals(reader.readByte(), 123.toByte()) // check sentinel
     return result
 }
 
@@ -33,13 +32,13 @@ fun createNulls(): AllTypes {
 
 private fun checkNulls(allTypes: AllTypes) {
     assertFalse(allTypes.booleanField)
-    assertTrue(allTypes.byteField.toInt() == 0)
-    assertTrue(allTypes.shortField.toInt() == 0)
-    assertTrue(allTypes.intField == 0)
-    assertTrue(allTypes.longField == 0L)
-    assertTrue(allTypes.charField == ' ')
-    assertTrue(allTypes.floatField == 0f)
-    assertTrue(allTypes.doubleField == 0.0)
+    assertEquals(0, allTypes.byteField.toInt())
+    assertEquals(0, allTypes.shortField.toInt())
+    assertEquals(0, allTypes.intField)
+    assertEquals(0L, allTypes.longField)
+    assertEquals(' ', allTypes.charField)
+    assertEquals(0f, allTypes.floatField)
+    assertEquals(0.0, allTypes.doubleField)
     assertNull(allTypes.booleanArrayField)
     assertNull(allTypes.byteArrayField)
     assertNull(allTypes.shortArrayField)
@@ -112,21 +111,21 @@ fun createValues(): AllTypes {
 
 private fun checkValues(allTypes: AllTypes) {
     assertFalse(allTypes.booleanField)
-    assertTrue(allTypes.byteField.toInt() == 100)
-    assertTrue(allTypes.shortField.toInt() == 101)
-    assertTrue(allTypes.intField == 102)
-    assertTrue(allTypes.longField == 103L)
-    assertTrue(allTypes.charField == 'x')
-    assertTrue(allTypes.floatField == 1.23f)
-    assertTrue(allTypes.doubleField == 3.21)
-    assertTrue(allTypes.booleanWrapperField == true)
-    assertTrue(allTypes.byteWrapperField == (-100).toByte())
-    assertTrue(allTypes.shortWrapperField == (-101).toShort())
-    assertTrue(allTypes.intWrapperField == -102)
-    assertTrue(allTypes.longWrapperField == -103L)
-    assertTrue(allTypes.charWrapperField == 'y')
-    assertTrue(allTypes.floatWrapperField == -1.23f)
-    assertTrue(allTypes.doubleWrapperField == -3.21)
+    assertEquals(100, allTypes.byteField.toInt())
+    assertEquals(101, allTypes.shortField.toInt())
+    assertEquals(102, allTypes.intField)
+    assertEquals(103L, allTypes.longField)
+    assertEquals('x', allTypes.charField)
+    assertEquals(1.23f, allTypes.floatField)
+    assertEquals(3.21, allTypes.doubleField)
+    assertEquals(true, allTypes.booleanWrapperField)
+    assertEquals((-100).toByte(), allTypes.byteWrapperField)
+    assertEquals((-101).toShort(), allTypes.shortWrapperField)
+    assertEquals(-102, allTypes.intWrapperField)
+    assertEquals(-103L, allTypes.longWrapperField)
+    assertEquals('y', allTypes.charWrapperField)
+    assertEquals(-1.23f, allTypes.floatWrapperField)
+    assertEquals(-3.21, allTypes.doubleWrapperField)
     assertTrue(Arrays.equals(allTypes.booleanArrayField, booleanArrayOf(false, true, false)))
     assertTrue(Arrays.equals(allTypes.byteArrayField, byteArrayOf(1.toByte(), (-2).toByte())))
     assertTrue(Arrays.equals(allTypes.shortArrayField, shortArrayOf((-1).toShort(), 2.toShort())))
@@ -139,23 +138,23 @@ private fun checkValues(allTypes: AllTypes) {
     assertEquals(Color.BLUE, allTypes.colorField)
     assertEquals(BigDecimal("98.7"), allTypes.bigDecimalField)
     assertEquals(BigInteger("987"), allTypes.bigIntegerField)
-    assertTrue(allTypes.dateField!!.time == 123456789L)
+    assertEquals(123456789L, allTypes.dateField!!.time)
     val instant = allTypes.instantField!!
-    assertTrue(instant.epochSecond == 123L)
-    assertTrue(instant.nano == 456789)
+    assertEquals(123L, instant.epochSecond)
+    assertEquals(456789, instant.nano)
     assertEquals("hello", (allTypes.primitiveTypesField as AllTypes).stringField)
     val primitiveTypesListField = allTypes.primitiveTypesListField!!
-    assertTrue(primitiveTypesListField.size == 3)
+    assertEquals(3, primitiveTypesListField.size)
     assertEquals(999, primitiveTypesListField[0].intField.toLong())
     assertEquals("world", (primitiveTypesListField[1] as AllTypes).stringField)
     assertNull(primitiveTypesListField[2])
     assertEquals("bad", allTypes.objectField)
     val objectListField = allTypes.objectListField!!
-    assertTrue(objectListField.size == 3)
+    assertEquals(3, objectListField.size)
     assertEquals("good", objectListField[0])
     assertNull(objectListField[1])
     assertEquals(123, objectListField[2])
-    assertTrue((allTypes.exception as IntException).value == 123)
+    assertEquals(123, (allTypes.exception as IntException).value)
 }
 
 fun createGraph(): Node {
@@ -171,9 +170,9 @@ fun createGraph(): Node {
 private fun checkGraph(n1: Node) {
     val n2 = n1.link
     val n3 = n2!!.link
-    assertTrue(n1.id == 1)
-    assertTrue(n2.id == 2)
-    assertTrue(n3!!.id == 3)
+    assertEquals(n1.id, 1)
+    assertEquals(n2.id, 2)
+    assertEquals(n3!!.id, 3)
     assertSame(n3.link, n2)
 }
 
@@ -194,47 +193,51 @@ private fun checkBaseTypes(serializer: Serializer) {
     assertEquals(BigDecimal("1.23"), copy(serializer, BigDecimal("1.23")))
     assertEquals(Date(9876543210L), copy(serializer, Date(9876543210L)))
     assertTrue(Arrays.equals(booleanArrayOf(true, false), copy(serializer, booleanArrayOf(true, false))))
-    assertArrayEquals(byteArrayOf(1.toByte(), 2.toByte()), copy(serializer, byteArrayOf(1.toByte(), 2.toByte())))
-    assertArrayEquals(shortArrayOf(1.toShort(), 2.toShort()), copy(serializer, shortArrayOf(1.toShort(), 2.toShort())))
-    assertArrayEquals(intArrayOf(1, 2), copy(serializer, intArrayOf(1, 2)))
-    assertArrayEquals(longArrayOf(1L, 2L), copy(serializer, longArrayOf(1L, 2L)))
-    assertArrayEquals(charArrayOf('a', 'b'), copy(serializer, charArrayOf('a', 'b')))
-    assertArrayEquals(floatArrayOf(1f, 2f), copy(serializer, floatArrayOf(1.0f, 2f)))
-    assertArrayEquals(doubleArrayOf(1.0, 2.0), copy(serializer, doubleArrayOf(1.0, 2.0)))
+    assertTrue(
+        Arrays.equals(byteArrayOf(1.toByte(), 2.toByte()), copy(serializer, byteArrayOf(1.toByte(), 2.toByte())))
+    )
+    assertTrue(
+        Arrays.equals(shortArrayOf(1.toShort(), 2.toShort()), copy(serializer, shortArrayOf(1.toShort(), 2.toShort())))
+    )
+    assertTrue(Arrays.equals(intArrayOf(1, 2), copy(serializer, intArrayOf(1, 2))))
+    assertTrue(Arrays.equals(longArrayOf(1L, 2L), copy(serializer, longArrayOf(1L, 2L))))
+    assertTrue(Arrays.equals(charArrayOf('a', 'b'), copy(serializer, charArrayOf('a', 'b'))))
+    assertTrue(Arrays.equals(floatArrayOf(1f, 2f), copy(serializer, floatArrayOf(1.0f, 2f))))
+    assertTrue(Arrays.equals(doubleArrayOf(1.0, 2.0), copy(serializer, doubleArrayOf(1.0, 2.0))))
     assertEquals(emptyList(), copy(serializer, emptyList<Any>()))
     assertEquals(listOf(1, null, "2"), copy(serializer, listOf(1, null, "2")))
     assertEquals(listOf("1", null, "2"), copy(serializer, listOf("1", null, "2")))
-    assertTrue(copy(serializer, AllTypes()).javaClass === AllTypes::class.java)
-    assertTrue(copy(serializer, PrimitiveTypes()).javaClass === PrimitiveTypes::class.java)
-    assertTrue(copy(serializer, IntException(123)).value == 123)
+    assertSame(AllTypes::class.java, copy(serializer, AllTypes()).javaClass)
+    assertSame(PrimitiveTypes::class.java, copy(serializer, PrimitiveTypes()).javaClass)
+    assertEquals(123, copy(serializer, IntException(123)).value)
     val booleans = BooleanArray(10000)
     Arrays.fill(booleans, true)
-    assertArrayEquals(copy(serializer, booleans), booleans)
+    assertTrue(Arrays.equals(copy(serializer, booleans), booleans))
     var bytes = ByteArray(10000)
     Arrays.fill(bytes, 123.toByte())
-    assertArrayEquals(copy(serializer, bytes), bytes)
+    assertTrue(Arrays.equals(copy(serializer, bytes), bytes))
     bytes = ByteArray(0)
-    assertArrayEquals(copy(serializer, bytes), bytes)
+    assertTrue(Arrays.equals(copy(serializer, bytes), bytes))
     bytes = byteArrayOf(1.toByte(), (-2).toByte(), 3.toByte())
-    assertArrayEquals(copy(serializer, bytes), bytes)
+    assertTrue(Arrays.equals(copy(serializer, bytes), bytes))
     val shorts = ShortArray(10000)
     Arrays.fill(shorts, 12345.toShort())
-    assertArrayEquals(copy(serializer, shorts), shorts)
+    assertTrue(Arrays.equals(copy(serializer, shorts), shorts))
     val ints = IntArray(10000)
     Arrays.fill(ints, 12345678)
-    assertArrayEquals(copy(serializer, ints), ints)
+    assertTrue(Arrays.equals(copy(serializer, ints), ints))
     val longs = LongArray(10000)
     Arrays.fill(longs, 12345678901234585L)
-    assertArrayEquals(copy(serializer, longs), longs)
+    assertTrue(Arrays.equals(copy(serializer, longs), longs))
     val chars = CharArray(10000)
     Arrays.fill(chars, 'x')
-    assertArrayEquals(copy(serializer, chars), chars)
+    assertTrue(Arrays.equals(copy(serializer, chars), chars))
     val floats = FloatArray(10000)
     Arrays.fill(floats, 123.987f)
-    assertArrayEquals(copy(serializer, floats), floats)
+    assertTrue(Arrays.equals(copy(serializer, floats), floats))
     val doubles = DoubleArray(10000)
     Arrays.fill(doubles, 123.987)
-    assertArrayEquals(copy(serializer, doubles), doubles)
+    assertTrue(Arrays.equals(copy(serializer, doubles), doubles))
 }
 
 fun test(serializer: Serializer) {

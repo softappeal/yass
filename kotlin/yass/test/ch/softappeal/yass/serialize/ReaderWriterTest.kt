@@ -1,16 +1,14 @@
 package ch.softappeal.yass.serialize
 
-import org.junit.jupiter.api.Assertions.assertArrayEquals
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.util.Arrays
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
 import kotlin.test.assertTrue
-import kotlin.test.fail
 
 class ReaderWriterTest {
-
     @Test
     fun adaptorByte() {
         val p0 = 0
@@ -26,23 +24,21 @@ class ReaderWriterTest {
         writer.write(m100)
         writer.write(m128)
         val buffer = out.toByteArray()
-        assertTrue(buffer[0] == p0.toByte())
-        assertTrue(buffer[1] == p100.toByte())
-        assertTrue(buffer[2] == p127.toByte())
-        assertTrue(buffer[3] == m100.toByte())
-        assertTrue(buffer[4] == m128.toByte())
+        assertEquals(p0.toByte(), buffer[0])
+        assertEquals(p100.toByte(), buffer[1])
+        assertEquals(p127.toByte(), buffer[2])
+        assertEquals(m100.toByte(), buffer[3])
+        assertEquals(m128.toByte(), buffer[4])
         val reader = reader(ByteArrayInputStream(buffer)).stream()
-        assertTrue(reader.read() == (p0 and 0b1111_1111))
-        assertTrue(reader.read() == (p100 and 0b1111_1111))
-        assertTrue(reader.read() == (p127 and 0b1111_1111))
-        assertTrue(reader.read() == (m100 and 0b1111_1111))
-        assertTrue(reader.read() == (m128 and 0b1111_1111))
-        try {
-            reader.read()
-            fail()
-        } catch (e: IllegalStateException) {
-            println(e)
-        }
+        assertEquals((p0 and 0b1111_1111), reader.read())
+        assertEquals((p100 and 0b1111_1111), reader.read())
+        assertEquals((p127 and 0b1111_1111), reader.read())
+        assertEquals((m100 and 0b1111_1111), reader.read())
+        assertEquals((m128 and 0b1111_1111), reader.read())
+        assertEquals(
+            "end of stream reached",
+            assertFailsWith<IllegalStateException> { reader.read() }.message
+        )
     }
 
     @Test
@@ -52,17 +48,15 @@ class ReaderWriterTest {
         val writer = writer(out).stream()
         writer.write(input, 0, input.size)
         val buffer = out.toByteArray()
-        assertArrayEquals(input, buffer)
+        assertTrue(Arrays.equals(input, buffer))
         val reader = reader(ByteArrayInputStream(buffer)).stream()
         val output = ByteArray(input.size)
-        assertTrue(reader.read(output, 0, output.size) == input.size)
-        assertArrayEquals(output, input)
-        try {
-            reader.read()
-            fail()
-        } catch (e: IllegalStateException) {
-            println(e)
-        }
+        assertEquals(input.size, reader.read(output, 0, output.size))
+        assertTrue(Arrays.equals(output, input))
+        assertEquals(
+            "end of stream reached",
+            assertFailsWith<IllegalStateException> { reader.read() }.message
+        )
     }
 
     @Test
@@ -120,44 +114,44 @@ class ReaderWriterTest {
         writer.writeDouble(Double.POSITIVE_INFINITY)
         writer.writeDouble(Double.NaN)
         val reader = reader(ByteArrayInputStream(out.toByteArray()))
-        assertTrue(reader.readShort() == 12.toShort())
-        assertTrue(reader.readShort() == 0.toShort())
-        assertTrue(reader.readShort() == (-34).toShort())
-        assertTrue(reader.readShort() == 0x1234.toShort())
-        assertTrue(reader.readShort() == (-0x124).toShort())
-        assertTrue(reader.readShort() == Short.MIN_VALUE)
-        assertTrue(reader.readShort() == Short.MAX_VALUE)
-        assertTrue(reader.readInt() == 12)
-        assertTrue(reader.readInt() == 0)
-        assertTrue(reader.readInt() == -34)
-        assertTrue(reader.readInt() == 0x1234_5678)
-        assertTrue(reader.readInt() == -0x123_4568)
-        assertTrue(reader.readInt() == Integer.MIN_VALUE)
-        assertTrue(reader.readInt() == Integer.MAX_VALUE)
-        assertTrue(reader.readLong() == 12L)
-        assertTrue(reader.readLong() == 0L)
-        assertTrue(reader.readLong() == -34L)
-        assertTrue(reader.readLong() == 0x1234_5678_9ABC_DEF0)
-        assertTrue(reader.readLong() == -0x123_4567_89ab_cdf0)
-        assertTrue(reader.readLong() == Long.MIN_VALUE)
-        assertTrue(reader.readLong() == Long.MAX_VALUE)
-        assertTrue(reader.readChar() == '\u1234')
-        assertTrue(reader.readChar() == '\uFEDC')
-        assertTrue(reader.readChar() == Character.MIN_VALUE)
-        assertTrue(reader.readChar() == Character.MAX_VALUE)
-        assertTrue(reader.readFloat() == 1.2345e-12f)
-        assertTrue(reader.readFloat() == Float.MAX_VALUE)
-        assertTrue(reader.readFloat() == Float.MIN_VALUE)
-        assertTrue(reader.readFloat() == java.lang.Float.MIN_NORMAL)
-        assertTrue(reader.readFloat() == Float.NEGATIVE_INFINITY)
-        assertTrue(reader.readFloat() == Float.POSITIVE_INFINITY)
+        assertEquals(12.toShort(), reader.readShort())
+        assertEquals(0.toShort(), reader.readShort())
+        assertEquals((-34).toShort(), reader.readShort())
+        assertEquals(0x1234.toShort(), reader.readShort())
+        assertEquals((-0x124).toShort(), reader.readShort())
+        assertEquals(Short.MIN_VALUE, reader.readShort())
+        assertEquals(Short.MAX_VALUE, reader.readShort())
+        assertEquals(12, reader.readInt())
+        assertEquals(0, reader.readInt())
+        assertEquals(-34, reader.readInt())
+        assertEquals(0x1234_5678, reader.readInt())
+        assertEquals(-0x123_4568, reader.readInt())
+        assertEquals(Integer.MIN_VALUE, reader.readInt())
+        assertEquals(Integer.MAX_VALUE, reader.readInt())
+        assertEquals(12L, reader.readLong())
+        assertEquals(0L, reader.readLong())
+        assertEquals(-34L, reader.readLong())
+        assertEquals(0x1234_5678_9ABC_DEF0, reader.readLong())
+        assertEquals(-0x123_4567_89ab_cdf0, reader.readLong())
+        assertEquals(Long.MIN_VALUE, reader.readLong())
+        assertEquals(Long.MAX_VALUE, reader.readLong())
+        assertEquals('\u1234', reader.readChar())
+        assertEquals('\uFEDC', reader.readChar())
+        assertEquals(Character.MIN_VALUE, reader.readChar())
+        assertEquals(Character.MAX_VALUE, reader.readChar())
+        assertEquals(1.2345e-12f, reader.readFloat())
+        assertEquals(Float.MAX_VALUE, reader.readFloat())
+        assertEquals(Float.MIN_VALUE, reader.readFloat())
+        assertEquals(java.lang.Float.MIN_NORMAL, reader.readFloat())
+        assertEquals(Float.NEGATIVE_INFINITY, reader.readFloat())
+        assertEquals(Float.POSITIVE_INFINITY, reader.readFloat())
         assertEquals("NaN", reader.readFloat().toString())
-        assertTrue(reader.readDouble() == 1.2345e-12)
-        assertTrue(reader.readDouble() == Double.MAX_VALUE)
-        assertTrue(reader.readDouble() == Double.MIN_VALUE)
-        assertTrue(reader.readDouble() == java.lang.Double.MIN_NORMAL)
-        assertTrue(reader.readDouble() == Double.NEGATIVE_INFINITY)
-        assertTrue(reader.readDouble() == Double.POSITIVE_INFINITY)
+        assertEquals(1.2345e-12, reader.readDouble())
+        assertEquals(Double.MAX_VALUE, reader.readDouble())
+        assertEquals(Double.MIN_VALUE, reader.readDouble())
+        assertEquals(java.lang.Double.MIN_NORMAL, reader.readDouble())
+        assertEquals(Double.NEGATIVE_INFINITY, reader.readDouble())
+        assertEquals(Double.POSITIVE_INFINITY, reader.readDouble())
         assertEquals("NaN", reader.readDouble().toString())
     }
 
@@ -186,26 +180,26 @@ class ReaderWriterTest {
         writer.writeZigZagInt(Integer.MIN_VALUE)
         writer.writeZigZagInt(Integer.MAX_VALUE)
         val reader = reader(ByteArrayInputStream(out.toByteArray()))
-        assertTrue(reader.readVarInt() == 12)
-        assertTrue(reader.readVarInt() == 0)
-        assertTrue(reader.readVarInt() == 128)
-        assertTrue(reader.readVarInt() == 60000)
-        assertTrue(reader.readVarInt() == 60000000)
-        assertTrue(reader.readVarInt() == -34)
-        assertTrue(reader.readVarInt() == 0x12345678)
-        assertTrue(reader.readVarInt() == -0x1234568)
-        assertTrue(reader.readVarInt() == Integer.MIN_VALUE)
-        assertTrue(reader.readVarInt() == Integer.MAX_VALUE)
-        assertTrue(reader.readZigZagInt() == 12)
-        assertTrue(reader.readZigZagInt() == 0)
-        assertTrue(reader.readZigZagInt() == 128)
-        assertTrue(reader.readZigZagInt() == 60000)
-        assertTrue(reader.readZigZagInt() == 60000000)
-        assertTrue(reader.readZigZagInt() == -34)
-        assertTrue(reader.readZigZagInt() == 0x12345678)
-        assertTrue(reader.readZigZagInt() == -0x1234568)
-        assertTrue(reader.readZigZagInt() == Integer.MIN_VALUE)
-        assertTrue(reader.readZigZagInt() == Integer.MAX_VALUE)
+        assertEquals(12, reader.readVarInt())
+        assertEquals(0, reader.readVarInt())
+        assertEquals(128, reader.readVarInt())
+        assertEquals(60000, reader.readVarInt())
+        assertEquals(60000000, reader.readVarInt())
+        assertEquals(-34, reader.readVarInt())
+        assertEquals(0x12345678, reader.readVarInt())
+        assertEquals(-0x1234568, reader.readVarInt())
+        assertEquals(Integer.MIN_VALUE, reader.readVarInt())
+        assertEquals(Integer.MAX_VALUE, reader.readVarInt())
+        assertEquals(12, reader.readZigZagInt())
+        assertEquals(0, reader.readZigZagInt())
+        assertEquals(128, reader.readZigZagInt())
+        assertEquals(60000, reader.readZigZagInt())
+        assertEquals(60000000, reader.readZigZagInt())
+        assertEquals(-34, reader.readZigZagInt())
+        assertEquals(0x12345678, reader.readZigZagInt())
+        assertEquals(-0x1234568, reader.readZigZagInt())
+        assertEquals(Integer.MIN_VALUE, reader.readZigZagInt())
+        assertEquals(Integer.MAX_VALUE, reader.readZigZagInt())
     }
 
     @Test
@@ -229,27 +223,27 @@ class ReaderWriterTest {
         writer.writeZigZagLong(Long.MIN_VALUE)
         writer.writeZigZagLong(Long.MAX_VALUE)
         val reader = reader(ByteArrayInputStream(out.toByteArray()))
-        assertTrue(reader.readVarLong() == 12L)
-        assertTrue(reader.readVarLong() == 0L)
-        assertTrue(reader.readVarLong() == 128L)
-        assertTrue(reader.readVarLong() == -34L)
-        assertTrue(reader.readVarLong() == 0x123456789ABCDEF0)
-        assertTrue(reader.readVarLong() == -0x123456789abcdf0)
-        assertTrue(reader.readVarLong() == Long.MIN_VALUE)
-        assertTrue(reader.readVarLong() == Long.MAX_VALUE)
-        assertTrue(reader.readZigZagLong() == 12L)
-        assertTrue(reader.readZigZagLong() == 0L)
-        assertTrue(reader.readZigZagLong() == 128L)
-        assertTrue(reader.readZigZagLong() == -34L)
-        assertTrue(reader.readZigZagLong() == 0x123456789ABCDEF0)
-        assertTrue(reader.readZigZagLong() == -0x123456789abcdf0)
-        assertTrue(reader.readZigZagLong() == Long.MIN_VALUE)
-        assertTrue(reader.readZigZagLong() == Long.MAX_VALUE)
+        assertEquals(12L, reader.readVarLong())
+        assertEquals(0L, reader.readVarLong())
+        assertEquals(128L, reader.readVarLong())
+        assertEquals(-34L, reader.readVarLong())
+        assertEquals(0x123456789ABCDEF0, reader.readVarLong())
+        assertEquals(-0x123456789abcdf0, reader.readVarLong())
+        assertEquals(Long.MIN_VALUE, reader.readVarLong())
+        assertEquals(Long.MAX_VALUE, reader.readVarLong())
+        assertEquals(12L, reader.readZigZagLong())
+        assertEquals(0L, reader.readZigZagLong())
+        assertEquals(128L, reader.readZigZagLong())
+        assertEquals(-34L, reader.readZigZagLong())
+        assertEquals(0x123456789ABCDEF0, reader.readZigZagLong())
+        assertEquals(-0x123456789abcdf0, reader.readZigZagLong())
+        assertEquals(Long.MIN_VALUE, reader.readZigZagLong())
+        assertEquals(Long.MAX_VALUE, reader.readZigZagLong())
     }
 
     private fun string(utf8Length: Int, value: String) {
         val bytes = utf8toBytes(value)
-        assertTrue(bytes.size == utf8Length)
+        assertEquals(utf8Length, bytes.size)
         assertEquals(value, utf8toString(bytes))
     }
 
@@ -267,5 +261,4 @@ class ReaderWriterTest {
         string(5, ">\u4321<")
         string(5, ">\uFFFF<")
     }
-
 }
