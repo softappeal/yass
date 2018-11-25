@@ -12,7 +12,7 @@ public final class GenerateTypeScript {
 
     public static void main(final String... args) throws Exception {
         final Map<Class<?>, ExternalDesc> externalTypes = new HashMap<>();
-        externalTypes.put(Integer.class, new ExternalDesc("Integer", "IntegerHandler")); // shows how to use a contract external base type
+        externalTypes.put(Integer.class, new ExternalDesc("Integer", "IntegerHandler"));
         new TypeScriptGenerator(
             Config.class.getPackage().getName(),
             Config.CONTRACT_SERIALIZER,

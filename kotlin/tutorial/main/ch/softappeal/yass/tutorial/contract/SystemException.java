@@ -12,7 +12,8 @@ public final class SystemException extends RuntimeException {
         this.details = Objects.requireNonNull(details);
     }
 
-    @Override public String getMessage() {
+    @Override
+    public String getMessage() {
         return details;
     }
 

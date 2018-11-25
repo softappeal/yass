@@ -11,7 +11,8 @@ import ch.softappeal.yass.tutorial.contract.instrument.InstrumentService;
 public final class InitiatorReconnector extends Reconnector<InitiatorSession> {
 
     public final PriceEngine priceEngine = proxy(PriceEngine.class, session -> session.priceEngine);
-    public final InstrumentService instrumentService = proxy(InstrumentService.class, session -> session.instrumentService);
+    public final InstrumentService instrumentService =
+        proxy(InstrumentService.class, session -> session.instrumentService);
     public final EchoService echoService = proxy(EchoService.class, session -> session.echoService);
 
 }

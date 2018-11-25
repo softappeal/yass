@@ -38,7 +38,12 @@ private val PrimitiveWrapperClasses = setOf(
     Double::class::javaObjectType.get()
 )
 
-private fun dumper(compact: Boolean, graph: Boolean, concreteValueClasses: Set<Class<*>>, valueDumper: ValueDumper): Dumper {
+private fun dumper(
+    compact: Boolean,
+    graph: Boolean,
+    concreteValueClasses: Set<Class<*>>,
+    valueDumper: ValueDumper
+): Dumper {
     val class2fields = ConcurrentHashMap<Class<*>, List<Field>>()
     return { out, value ->
         var tabs = 0

@@ -37,7 +37,8 @@ public final class Logger implements Function3<Method, List<?>, Function0<?>, Ob
         );
     }
 
-    @Override public Object invoke(final Method method, final List<?> arguments, final Function0<?> invocation) {
+    @Override
+    public Object invoke(final Method method, final List<?> arguments, final Function0<?> invocation) {
         log("entry", method, arguments);
         try {
             final Object result = invocation.invoke();

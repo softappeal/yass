@@ -19,8 +19,10 @@ public final class PriceSender {
 
     public static void main(final String... args) throws Exception {
         final DatagramChannel channel = DatagramChannel.open();
-        final Client clientBid = DatagramTransport.client(Config.MESSAGE_SERIALIZER, channel, new InetSocketAddress(GROUP_BID, PORT));
-        final Client clientAsk = DatagramTransport.client(Config.MESSAGE_SERIALIZER, channel, new InetSocketAddress(GROUP_ASK, PORT));
+        final Client clientBid =
+            DatagramTransport.client(Config.MESSAGE_SERIALIZER, channel, new InetSocketAddress(GROUP_BID, PORT));
+        final Client clientAsk =
+            DatagramTransport.client(Config.MESSAGE_SERIALIZER, channel, new InetSocketAddress(GROUP_ASK, PORT));
         final PriceListener priceListenerBid = clientBid.proxy(Config.INITIATOR.priceListener);
         final PriceListener priceListenerAsk = clientAsk.proxy(Config.INITIATOR.priceListener);
         for (int value = 1; true; value++) {

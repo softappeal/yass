@@ -24,7 +24,10 @@ val Terminate = UncaughtExceptionHandler { thread, throwable ->
 
 @JvmOverloads
 fun namedThreadFactory(
-    name: String, uncaughtExceptionHandler: UncaughtExceptionHandler, priority: Int = Thread.NORM_PRIORITY, daemon: Boolean = false
+    name: String,
+    uncaughtExceptionHandler: UncaughtExceptionHandler,
+    priority: Int = Thread.NORM_PRIORITY,
+    daemon: Boolean = false
 ): ThreadFactory {
     val number = AtomicInteger(1)
     return ThreadFactory { r ->

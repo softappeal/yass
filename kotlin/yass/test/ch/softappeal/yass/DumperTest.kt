@@ -48,12 +48,22 @@ class DumperTest {
                     printer.append(s)
                 }
                 print(
-                    dumper(false, true, setOf(BigInteger::class.java, BigDecimal::class.java, Instant::class.java)),
+                    dumper(
+                        false, true,
+                        setOf(BigInteger::class.java, BigDecimal::class.java, Instant::class.java)
+                    ),
                     printer,
                     true
                 )
                 print(dumper(false, false, emptySet()), printer, false)
-                print(dumper(true, true, setOf(BigInteger::class.java, BigDecimal::class.java, Instant::class.java)), printer, true)
+                print(
+                    dumper(
+                        true, true,
+                        setOf(BigInteger::class.java, BigDecimal::class.java, Instant::class.java)
+                    ),
+                    printer,
+                    true
+                )
                 print(dumper(true, false, emptySet()), printer, false)
             }
         } finally {

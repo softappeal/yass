@@ -17,7 +17,7 @@ import static org.junit.Assert.fail;
 
 public class JInterceptorTest {
     @Test
-    public void test() throws Exception {
+    public void test() {
         final Function3<Method, List<?>, Function0<?>, Object> interceptor = new TestInterceptor();
         final List<?> arguments = Collections.emptyList();
         final RuntimeException exception = new RuntimeException();

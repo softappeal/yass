@@ -16,6 +16,7 @@ import static ch.softappeal.yass.remote.ServerKt.getCompleter;
 public final class InstrumentServiceImpl implements InstrumentService {
 
     static final Map<Integer, Instrument> INSTRUMENTS;
+
     static {
         final List<String> names = Arrays.asList("IBM", "Google", "Apple", "Microsoft");
         final Map<Integer, Instrument> instruments = new HashMap<>(names.size());
@@ -31,13 +32,16 @@ public final class InstrumentServiceImpl implements InstrumentService {
         // disable
     }
 
-    @Override public List<Instrument> getInstruments() {
+    @Override
+    public List<Instrument> getInstruments() {
         final Completer completer = getCompleter();
-        new Thread(() -> completer.complete(new ArrayList<>(INSTRUMENTS.values()))).start(); // setting result asynchronously
+        new Thread(() -> completer.complete(new ArrayList<>(INSTRUMENTS.values())))
+            .start(); // setting result asynchronously
         return null; // needed for compiler; returned result is not used
     }
 
-    @Override public void showOneWay(final boolean testBoolean, final int testInt) {
+    @Override
+    public void showOneWay(final boolean testBoolean, final int testInt) {
         // empty
     }
 

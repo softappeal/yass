@@ -29,7 +29,10 @@ abstract class ProxyDelegate<S : Session> {
 
     @OnlyNeededForJava
     fun <C : Any> proxy(contract: Class<C>, proxyGetter: (session: S) -> C): C =
-        proxy(contract, InvocationHandler { _, method, arguments -> invoke(method, proxyGetter(session), args(arguments)) })
+        proxy(
+            contract,
+            InvocationHandler { _, method, arguments -> invoke(method, proxyGetter(session), args(arguments)) }
+        )
 
     inline fun <reified C : Any> proxy(noinline proxyGetter: (session: S) -> C): C =
         proxy(C::class.java, proxyGetter)

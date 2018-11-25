@@ -15,7 +15,7 @@ public final class GeneratePython2 {
         final Map<String, Path> module2includeFile = new HashMap<>();
         module2includeFile.put("", Paths.get("../../py2/tutorial/contract_include_root_module.txt"));
         final Map<Class<?>, ExternalDesc> externalTypes = new HashMap<>();
-        externalTypes.put(Integer.class, new ExternalDesc("Integer", "Integer.TYPE_DESC")); // shows how to use a contract external base type
+        externalTypes.put(Integer.class, new ExternalDesc("Integer", "Integer.TYPE_DESC"));
         new PythonGenerator(
             Config.class.getPackage().getName(),
             Config.PY_CONTRACT_SERIALIZER,

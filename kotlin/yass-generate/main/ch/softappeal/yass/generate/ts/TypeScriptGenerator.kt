@@ -63,8 +63,14 @@ private fun nullable(type: String): String = "yass.Nullable<$type>"
  * additionalTypeCode: see [pull request](https://github.com/softappeal/yass/pull/4)
  */
 class TypeScriptGenerator @JvmOverloads constructor(
-    rootPackage: String, serializer: FastSerializer, initiator: Services?, acceptor: Services?,
-    includeFile: Path, externalTypes: Map<Class<*>, ExternalDesc>, contractFile: Path, additionalTypeCode: String? = null
+    rootPackage: String,
+    serializer: FastSerializer,
+    initiator: Services?,
+    acceptor: Services?,
+    includeFile: Path,
+    externalTypes: Map<Class<*>, ExternalDesc>,
+    contractFile: Path,
+    additionalTypeCode: String? = null
 ) : Generator(rootPackage, serializer, initiator, acceptor) {
     init {
         object : Out(contractFile) {
@@ -72,7 +78,9 @@ class TypeScriptGenerator @JvmOverloads constructor(
             val visitedClasses = HashSet<Class<*>>()
 
             init {
-                id2typeSerializer.forEach { id, typeSerializer -> if (id >= FirstDescId) type2id[typeSerializer.type] = id }
+                id2typeSerializer.forEach { id, typeSerializer ->
+                    if (id >= FirstDescId) type2id[typeSerializer.type] = id
+                }
                 includeFile(includeFile)
                 @Suppress("UNCHECKED_CAST") id2typeSerializer.values
                     .map { it.type }
@@ -125,7 +133,8 @@ class TypeScriptGenerator @JvmOverloads constructor(
                 tabsln("export class $name extends yass.Enum {")
                 inc()
                 additionalTypeCode()
-                for (e in type.enumConstants) tabsln("static readonly ${e.name} = new $name(${e.ordinal}, '${e.name}');")
+                for (e in type.enumConstants)
+                    tabsln("static readonly ${e.name} = new $name(${e.ordinal}, '${e.name}');")
                 tabsln("static readonly VALUES = <$name[]>yass.enumValues($name);")
                 tabsln("static readonly TYPE_DESC = yass.enumDesc(${type2id[type]}, $name);")
                 dec()
@@ -197,7 +206,10 @@ class TypeScriptGenerator @JvmOverloads constructor(
                         check(!typeSerializer.graph) { "class '$type' is graph (not implemented in TypeScript)" }
                         for (fieldDesc in typeSerializer.fieldDescs) {
                             println(",")
-                            tabs("new yass.FieldDesc(${fieldDesc.id}, '${fieldDesc.serializer.field.name}', ${typeDesc(fieldDesc)})")
+                            tabs(
+                                "new yass.FieldDesc(${fieldDesc.id}, '${fieldDesc.serializer.field.name}'," +
+                                        " ${typeDesc(fieldDesc)})"
+                            )
                         }
                         println()
                         dec()

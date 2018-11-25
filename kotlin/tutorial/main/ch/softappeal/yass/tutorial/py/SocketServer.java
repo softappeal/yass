@@ -33,7 +33,8 @@ import static ch.softappeal.yass.tutorial.contract.Config.PY_ACCEPTOR;
 public final class SocketServer {
 
     private static final class EchoServiceImpl implements EchoService {
-        @Override public Object echo(final Object value) {
+        @Override
+        public Object echo(final Object value) {
             if ("exception".equals(value)) {
                 throw new SystemException("exception");
             }
@@ -42,19 +43,23 @@ public final class SocketServer {
     }
 
     private static final class InstrumentServiceImpl implements InstrumentService {
-        @Override public List<Instrument> getInstruments() {
+        @Override
+        public List<Instrument> getInstruments() {
             return Collections.emptyList();
         }
-        @Override public void showOneWay(final boolean testBoolean, final int testInt) {
+
+        @Override
+        public void showOneWay(final boolean testBoolean, final int testInt) {
             // empty
         }
     }
 
-    private static final Function3<Method, List<?>, Function0<?>, Object> LOGGER = new Logger(null, Logger.Side.SERVER);
+    private static final Function3<Method, List<?>, Function0<?>, Object> LOGGER =
+        new Logger(null, Logger.Side.SERVER);
 
     private static final Function3<Method, List<?>, Function0<?>, Object> PEER = (method, arguments, invocation) -> {
         try {
-            System.out.println(((SSLSocket)getSocket()).getSession().getPeerPrincipal().getName());
+            System.out.println(((SSLSocket) getSocket()).getSession().getPeerPrincipal().getName());
         } catch (final SSLPeerUnverifiedException e) {
             throw new RuntimeException(e);
         }

@@ -36,7 +36,10 @@ fun <E> iterate(iterable: Iterable<E>, notFirstAction: () -> Unit, alwaysAction:
 }
 
 abstract class Generator(
-    rootPackage: String, serializer: FastSerializer, protected val initiator: Services?, protected val acceptor: Services?
+    rootPackage: String,
+    serializer: FastSerializer,
+    protected val initiator: Services?,
+    protected val acceptor: Services?
 ) {
     private val rootPackage: String = if (rootPackage.isEmpty()) "" else "$rootPackage."
     protected val id2typeSerializer = serializer.id2typeSerializer
@@ -44,9 +47,11 @@ abstract class Generator(
     protected val interfaces: SortedSet<Class<*>> = TreeSet(Comparator.comparing<Class<*>, String> { it.canonicalName })
 
     init {
-        check((initiator == null) || (acceptor == null) || (initiator.methodMapperFactory === acceptor.methodMapperFactory)) {
-            "initiator and acceptor must have same methodMapperFactory"
-        }
+        check(
+            (initiator == null) ||
+                    (acceptor == null) ||
+                    (initiator.methodMapperFactory === acceptor.methodMapperFactory)
+        ) { "initiator and acceptor must have same methodMapperFactory" }
         if (initiator != null) methodMapperFactory = initiator.methodMapperFactory
         if (acceptor != null) methodMapperFactory = acceptor.methodMapperFactory
         interfaces.addAll(getInterfaces(initiator))
@@ -55,7 +60,9 @@ abstract class Generator(
     }
 
     protected fun checkType(type: Class<*>) {
-        check(type.canonicalName.startsWith(rootPackage)) { "type '${type.canonicalName}' doesn't have root package '$rootPackage'" }
+        check(type.canonicalName.startsWith(rootPackage)) {
+            "type '${type.canonicalName}' doesn't have root package '$rootPackage'"
+        }
     }
 
     protected fun qualifiedName(type: Class<*>) = type.canonicalName.substring(rootPackage.length)

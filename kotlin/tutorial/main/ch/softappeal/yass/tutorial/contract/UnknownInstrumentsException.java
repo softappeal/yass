@@ -19,7 +19,8 @@ public final class UnknownInstrumentsException extends ApplicationException {
         this.instrumentIds = Objects.requireNonNull(instrumentIds);
     }
 
-    @Override public String getMessage() {
+    @Override
+    public String getMessage() {
         return "there are " + instrumentIds.size() + " unknown instruments";
     }
 

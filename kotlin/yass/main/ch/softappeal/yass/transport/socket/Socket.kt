@@ -120,7 +120,8 @@ abstract class AbstractSocketFactory : SocketFactory() {
     override fun createSocket(host: String, port: Int): Socket = unsupported()
     override fun createSocket(host: String, port: Int, localHost: InetAddress, localPort: Int): Socket = unsupported()
     override fun createSocket(host: InetAddress, port: Int): Socket = unsupported()
-    override fun createSocket(host: InetAddress, port: Int, localHost: InetAddress, localPort: Int): Socket = unsupported()
+    override fun createSocket(host: InetAddress, port: Int, localHost: InetAddress, localPort: Int): Socket =
+        unsupported()
 }
 
 abstract class AbstractServerSocketFactory : ServerSocketFactory() {

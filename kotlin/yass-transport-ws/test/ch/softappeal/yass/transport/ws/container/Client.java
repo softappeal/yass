@@ -24,7 +24,9 @@ public final class Client {
                 public void onOpen(Session session, EndpointConfig config) {
                     session.addMessageHandler(new MessageHandler.Whole<byte[]>() {
                         final AtomicInteger counter = new AtomicInteger(0);
-                        @Override public void onMessage(final byte[] message) {
+
+                        @Override
+                        public void onMessage(final byte[] message) {
                             System.out.println("message: " + counter.getAndIncrement() + ", " + message.length);
                             try {
                                 TimeUnit.MILLISECONDS.sleep(100);
@@ -37,7 +39,8 @@ public final class Client {
             },
             ClientEndpointConfig.Builder.create()
                 .configurator(new ClientEndpointConfig.Configurator() {
-                    @Override public void beforeRequest(final Map<String, List<String>> headers) {
+                    @Override
+                    public void beforeRequest(final Map<String, List<String>> headers) {
                         headers.put("Custom_" + System.currentTimeMillis(), Arrays.asList("foo"));
                     }
                 })

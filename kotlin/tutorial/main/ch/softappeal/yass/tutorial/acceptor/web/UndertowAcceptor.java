@@ -34,15 +34,20 @@ public final class UndertowAcceptor extends WebAcceptorSetup {
                         new WebSocketDeploymentInfo()
                             .addEndpoint(ENDPOINT_CONFIG)
                             .setWorker(Xnio.getInstance().createWorker(OptionMap.builder().getMap()))
-                            .setBuffers(new XnioByteBufferPool(new ByteBufferSlicePool(1024, 10240)))
+                            .setBuffers(
+                                new XnioByteBufferPool(new ByteBufferSlicePool(1024, 10240))
+                            )
                     )
             );
         deployment.deploy();
         final HttpHandler servletHandler = deployment.start();
-        final ResourceHandler fileHandler = Handlers.resource(new FileResourceManager(new File(WEB_PATH), 100));
+        final ResourceHandler fileHandler =
+            Handlers.resource(new FileResourceManager(new File(WEB_PATH), 100));
         Undertow.builder()
             .addHttpListener(PORT, HOST)
-            .addHttpsListener(PORT + 1, HOST, SslConfig.SERVER.getContext()) // note: we don't know how to force client authentication
+            .addHttpsListener( // note: we don't know how to force client authentication
+                PORT + 1, HOST, SslConfig.SERVER.getContext()
+            )
             .setHandler(exchange -> {
                 final String path = exchange.getRequestPath();
                 if (WS_PATH.equals(path) || XHR_PATH.equals(path)) {

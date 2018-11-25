@@ -26,20 +26,23 @@ public final class XhrInitiator extends WebSetup {
         Objects.requireNonNull(messageSerializer);
         Objects.requireNonNull(url);
         return new Client() {
-            @Override public void invoke(final ClientInvocation invocation) throws Exception {
-                final HttpURLConnection connection = (HttpURLConnection)url.openConnection();
+            @Override
+            public void invoke(final ClientInvocation invocation) throws Exception {
+                final HttpURLConnection connection = (HttpURLConnection) url.openConnection();
                 try {
                     if (ssl) {
-                        ((HttpsURLConnection)connection).setSSLSocketFactory(SslConfig.CLIENT.getContext().getSocketFactory());
-                        ((HttpsURLConnection)connection).setHostnameVerifier((s, sslSession) -> true);
+                        ((HttpsURLConnection) connection)
+                            .setSSLSocketFactory(SslConfig.CLIENT.getContext().getSocketFactory());
+                        ((HttpsURLConnection) connection).setHostnameVerifier((s, sslSession) -> true);
                     }
                     connection.setDoOutput(true);
                     connection.setRequestMethod("POST");
                     invocation.invoke(false, request -> {
                         try {
                             messageSerializer.write(writer(connection.getOutputStream()), request);
-                            try (InputStream in = connection.getInputStream()) { // note: early closing of input seams to make none ssl invocations faster
-                                invocation.settle((Reply)messageSerializer.read(reader(in)));
+                            try (InputStream in = connection.getInputStream()) {
+                                // note: early closing of input seams to make none ssl invocations faster
+                                invocation.settle((Reply) messageSerializer.read(reader(in)));
                             }
                         } catch (final Exception e) {
                             throw new RuntimeException(e);

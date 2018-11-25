@@ -2,7 +2,11 @@ package ch.softappeal.yass.remote
 
 import ch.softappeal.yass.OnlyNeededForJava
 
-class ContractId<C : Any> @PublishedApi internal constructor(val contract: Class<C>, val id: Int, val methodMapper: MethodMapper)
+class ContractId<C : Any> @PublishedApi internal constructor(
+    val contract: Class<C>,
+    val id: Int,
+    val methodMapper: MethodMapper
+)
 
 inline fun <reified C : Any> contractId(id: Int, methodMapperFactory: MethodMapperFactory): ContractId<C> =
     ContractId(C::class.java, id, methodMapperFactory(C::class.java))

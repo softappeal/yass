@@ -37,7 +37,8 @@ public final class AcceptorSession extends SimpleSession {
 
     private final Set<Integer> subscribedInstrumentIds = Collections.synchronizedSet(new HashSet<>());
 
-    @Override protected Server server() {
+    @Override
+    protected Server server() {
         final Function3<Method, List<?>, Function0<?>, Object> interceptor = compositeInterceptor(
             UnexpectedExceptionHandler.INSTANCE,
             new Logger(this, Logger.Side.SERVER)
@@ -56,13 +57,15 @@ public final class AcceptorSession extends SimpleSession {
     public AcceptorSession(final Executor dispatchExecutor) {
         super(dispatchExecutor);
         System.out.println("session " + this + " created");
-        final Function3<Method, List<?>, Function0<?>, Object> interceptor = new Logger(this, Logger.Side.CLIENT);
+        final Function3<Method, List<?>, Function0<?>, Object> interceptor =
+            new Logger(this, Logger.Side.CLIENT);
         priceListener = proxy(INITIATOR.priceListener, interceptor);
         echoService = proxy(INITIATOR.echoService, interceptor);
     }
 
-    @Override protected void opened() throws InterruptedException {
-        watchSession(getDispatchExecutor(), this, 60L, 2L, 0L, () -> { // optional
+    @Override
+    protected void opened() throws InterruptedException {
+        watchSession(getDispatchExecutor(), this, 60L, 2L, 0L, () -> {
             echoService.echo("checkFromAcceptor");
             return null;
         });
@@ -78,7 +81,13 @@ public final class AcceptorSession extends SimpleSession {
             final List<Price> prices = new ArrayList<>();
             for (final int subscribedInstrumentId : subscribedInstrumentIds.toArray(new Integer[0])) {
                 if (random.nextBoolean()) {
-                    prices.add(new Price(subscribedInstrumentId, random.nextInt(99) + 1, PriceKind.values()[random.nextInt(2)]));
+                    prices.add(
+                        new Price(
+                            subscribedInstrumentId,
+                            random.nextInt(99) + 1,
+                            PriceKind.values()[random.nextInt(2)]
+                        )
+                    );
                 }
             }
             if (!prices.isEmpty()) {
@@ -89,13 +98,16 @@ public final class AcceptorSession extends SimpleSession {
         System.out.println("session " + this + " opened end");
     }
 
-    @Override protected void closed(final Exception exception) {
+    @Override
+    protected void closed(final Exception exception) {
         System.out.println("session " + this + " closed: " + exception);
     }
 
     private static final AtomicInteger ID = new AtomicInteger(1);
     private final String id = String.valueOf(ID.getAndIncrement());
-    @Override public String toString() {
+
+    @Override
+    public String toString() {
         return id;
     }
 

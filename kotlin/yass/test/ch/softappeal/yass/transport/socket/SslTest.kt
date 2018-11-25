@@ -46,7 +46,11 @@ private fun test(
     }
 }
 
-private fun failedTest(serverSocketFactory: ServerSocketFactory, socketFactory: SocketFactory, needClientAuth: Boolean) {
+private fun failedTest(
+    serverSocketFactory: ServerSocketFactory,
+    socketFactory: SocketFactory,
+    needClientAuth: Boolean
+) {
     try {
         test(
             serverSocketFactory, socketFactory, needClientAuth,

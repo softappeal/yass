@@ -4,8 +4,9 @@ package ch.softappeal.yass.transport.ws.container;
 
 // import java.io.File;
 
-/*
- * note: Doesn't work, see http://stackoverflow.com/questions/33381420/tomcat-throws-the-remote-endpoint-was-in-state-binary-full-writing-when.
+/**
+ * note: Doesn't work, see
+ * http://stackoverflow.com/questions/33381420/tomcat-throws-the-remote-endpoint-was-in-state-binary-full-writing-when.
  */
 public final class TomcatContainer {
 

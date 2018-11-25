@@ -82,7 +82,10 @@ class SocketTransportTest {
                     useClient(
                         socketClient(
                             ClientSetup(messageSerializer), firstSocketConnector(
-                                socketConnector(InetSocketAddress("localhost", 28948), connectTimeoutMilliSeconds = 1),
+                                socketConnector(
+                                    InetSocketAddress("localhost", 28948),
+                                    connectTimeoutMilliSeconds = 1
+                                ),
                                 socketConnector(address)
                             )
                         )

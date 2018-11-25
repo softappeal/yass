@@ -98,7 +98,8 @@ open class WsConfigurator(
                 connection!!.yassSession = transport.sessionFactory()
                 connection!!.yassSession.created(connection!!)
                 session.addMessageHandler(MessageHandler.Whole<ByteBuffer> { input ->
-                    // note: could be replaced with a lambda in WebSocket API 1.1 but we would loose compatibility with 1.0
+                    // note: could be replaced with a lambda in WebSocket API 1.1
+                    //       but we would loose compatibility with 1.0
                     try {
                         connection!!.yassSession.received(transport.read(reader(input)))
                         check(!input.hasRemaining()) { "input buffer is not empty" }

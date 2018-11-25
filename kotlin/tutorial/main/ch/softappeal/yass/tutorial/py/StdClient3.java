@@ -26,10 +26,15 @@ public final class StdClient3 {
 
     public static void start(final String pythonPgm, final String pythonDirectory) throws IOException {
         final long start = System.currentTimeMillis();
-        final Process process = new ProcessBuilder(pythonPgm, "-u", "-m", "tutorial.std_server").directory(new File(pythonDirectory)).start();
+        final Process process = new ProcessBuilder(pythonPgm, "-u", "-m", "tutorial.std_server")
+            .directory(new File(pythonDirectory)).start();
         final ExecutorService stderr = Executors.newSingleThreadExecutor(namedThreadFactory("stderr", getTerminate()));
         stderr.execute(() -> {
-            try (BufferedReader err = new BufferedReader(new InputStreamReader(process.getErrorStream(), StandardCharsets.UTF_8))) {
+            try (
+                BufferedReader err = new BufferedReader(
+                    new InputStreamReader(process.getErrorStream(), StandardCharsets.UTF_8)
+                )
+            ) {
                 while (true) {
                     final String s = err.readLine();
                     if (s == null) {
@@ -46,12 +51,13 @@ public final class StdClient3 {
         final Reader reader = reader(process.getInputStream());
         final Serializer messageSerializer = messageSerializer(SocketClient.SERIALIZER);
         SocketClient.client(new Client() {
-            @Override protected void invoke(final ClientInvocation invocation) throws Exception {
+            @Override
+            protected void invoke(final ClientInvocation invocation) throws Exception {
                 invocation.invoke(false, request -> {
                     try {
                         messageSerializer.write(writer, request);
                         out.flush();
-                        invocation.settle((Reply)messageSerializer.read(reader));
+                        invocation.settle((Reply) messageSerializer.read(reader));
                     } catch (final Exception e) {
                         throw new RuntimeException(e);
                     }

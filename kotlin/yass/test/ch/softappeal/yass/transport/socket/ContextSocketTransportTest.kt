@@ -24,7 +24,10 @@ private fun print(message: String) {
 
 private fun test(serverInterceptor: Interceptor, clientInterceptor: Interceptor) {
     useExecutor { executor, done ->
-        socketServer(ServerSetup(Server(Service(calculatorId, CalculatorImpl, serverInterceptor)), Serializer), executor)
+        socketServer(
+            ServerSetup(Server(Service(calculatorId, CalculatorImpl, serverInterceptor)), Serializer),
+            executor
+        )
             .start(executor, socketBinder(address)).use {
                 TimeUnit.MILLISECONDS.sleep(200L)
                 val calculator = socketClient(ClientSetup(Serializer), socketConnector(address))

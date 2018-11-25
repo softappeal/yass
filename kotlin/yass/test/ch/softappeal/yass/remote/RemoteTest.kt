@@ -60,7 +60,10 @@ fun performance(client: Client) {
 private fun printer(client: Boolean): Interceptor {
     return { method, arguments, invocation ->
         fun print(type: String, data: Any?, arguments: List<Any?>? = null) =
-            println("${if (client) "client" else "server"} - ${Thread.currentThread().name} - $type - $data ${arguments ?: ""}")
+            println(
+                "${if (client) "client" else "server"} - ${Thread.currentThread().name} -" +
+                        " $type - $data ${arguments ?: ""}"
+            )
         print("enter", method.name, arguments)
         try {
             val result = invocation()
@@ -116,7 +119,12 @@ private val service = Service(calculatorId, CalculatorImpl)
 private val asyncService = AsyncService(calculatorId, CalculatorImpl)
 
 private fun client(server: Server, clientAsyncSupported: Boolean) = object : Client() {
-    override fun syncInvoke(contractId: ContractId<*>, interceptor: Interceptor, method: Method, arguments: List<Any?>): Any? {
+    override fun syncInvoke(
+        contractId: ContractId<*>,
+        interceptor: Interceptor,
+        method: Method,
+        arguments: List<Any?>
+    ): Any? {
         println("sync ${method.name}")
         return super.syncInvoke(contractId, interceptor, method, arguments)
     }
@@ -173,12 +181,19 @@ class RemoteTest {
         syncClient(client(Server(Service(calculatorId, CalculatorImpl, serverPrinter)), true))
 
     @Test
-    fun syncClientAsyncServer() =
-        syncClient(client(Server(AsyncService(calculatorId, AsyncCalculatorImpl, asyncPrinter("server"))), true))
+    fun syncClientAsyncServer() = syncClient(
+        client(
+            Server(AsyncService(calculatorId, AsyncCalculatorImpl, asyncPrinter("server"))),
+            true
+        )
+    )
 
     @Test
     fun asyncClientAsyncServer() {
-        val client = client(Server(AsyncService(calculatorId, AsyncCalculatorImpl, asyncPrinter("server"))), true)
+        val client = client(
+            Server(AsyncService(calculatorId, AsyncCalculatorImpl, asyncPrinter("server"))),
+            true
+        )
         val calculator = client.asyncProxy(calculatorId, asyncPrinter("client"))
 
         testObjectMethods(calculator)
@@ -188,14 +203,20 @@ class RemoteTest {
             promise { calculator.oneWay() }
             fail()
         } catch (e: IllegalStateException) {
-            assertEquals("asynchronous OneWay proxy call must not be enclosed with 'promise' function", e.message)
+            assertEquals(
+                "asynchronous OneWay proxy call must not be enclosed with 'promise' function",
+                e.message
+            )
         }
         promise { calculator.twoWay() }.thenAcceptAsync(::println)
         try {
             calculator.twoWay()
             fail()
         } catch (e: IllegalStateException) {
-            assertEquals("asynchronous request/reply proxy call must be enclosed with 'promise' function", e.message)
+            assertEquals(
+                "asynchronous request/reply proxy call must be enclosed with 'promise' function",
+                e.message
+            )
         }
         val result = AtomicInteger(0)
         promise { calculator.divide(12, 3) }.thenAcceptAsync { result.set(it) }

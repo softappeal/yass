@@ -2,42 +2,29 @@ package ch.softappeal.yass.remote.session
 
 import ch.softappeal.yass.remote.ValueReply
 import org.junit.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
 import kotlin.test.assertFalse
 import kotlin.test.assertSame
 import kotlin.test.assertTrue
-import kotlin.test.fail
 
 class PacketTest {
-
     @Test
     fun end() {
         assertTrue(EndPacket.isEnd)
         assertTrue(isEndPacket(EndRequestNumber))
         assertFalse(isEndPacket(1))
-        try {
-            EndPacket.message
-            fail()
-        } catch (ignore: KotlinNullPointerException) {
-        }
-        try {
-            EndPacket.requestNumber
-            fail()
-        } catch (ignore: IllegalStateException) {
-        }
+        assertFailsWith<KotlinNullPointerException> { EndPacket.message }
+        assertFailsWith<IllegalStateException> { EndPacket.requestNumber }
     }
 
     @Test
     fun normal() {
         val message = ValueReply(null)
         val packet = Packet(123, message)
-        assertTrue(packet.requestNumber == 123)
+        assertEquals(123, packet.requestNumber)
         assertSame(message, packet.message)
         assertFalse(packet.isEnd)
-        try {
-            Packet(EndRequestNumber, message)
-            fail()
-        } catch (ignore: IllegalArgumentException) {
-        }
+        assertFailsWith<IllegalArgumentException> { Packet(EndRequestNumber, message) }
     }
-
 }

@@ -12,7 +12,10 @@ import ch.softappeal.yass.serialize.Writer
 fun packetSerializer(messageSerializer: Serializer) = object : Serializer {
     override fun read(reader: Reader): Packet {
         val requestNumber = reader.readInt()
-        return if (isEndPacket(requestNumber)) EndPacket else Packet(requestNumber, messageSerializer.read(reader) as Message)
+        return if (isEndPacket(requestNumber))
+            EndPacket
+        else
+            Packet(requestNumber, messageSerializer.read(reader) as Message)
     }
 
     override fun write(writer: Writer, value: Any?) {

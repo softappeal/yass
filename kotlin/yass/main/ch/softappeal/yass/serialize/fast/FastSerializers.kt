@@ -6,7 +6,10 @@ import ch.softappeal.yass.tag
 import java.io.PrintWriter
 import java.lang.reflect.Field
 
-/** This serializer assigns type and field id's automatically. Therefore, all peers must have the same version of the contract! */
+/**
+ * This serializer assigns type and field id's automatically.
+ * Therefore, all peers must have the same version of the contract!
+ */
 @JvmOverloads
 fun simpleFastSerializer(
     baseTypeSerializers: List<BaseTypeSerializer<*>>,
@@ -41,11 +44,10 @@ fun taggedFastSerializer(
 ) = object : FastSerializer() {
     init {
         baseTypeDescs.forEach { addBaseType(it) }
-        treeConcreteClasses.forEach { type -> if (type.isEnum) addEnum(tag(type), type) else addClass(type, false) }
-        graphConcreteClasses.forEach { type ->
-            checkClass(type)
-            addClass(type, true)
-        }
+        treeConcreteClasses
+            .forEach { type -> if (type.isEnum) addEnum(tag(type), type) else addClass(type, false) }
+        graphConcreteClasses
+            .forEach { type -> checkClass(type); addClass(type, true) }
         fixup()
     }
 

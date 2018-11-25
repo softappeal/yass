@@ -25,9 +25,15 @@ public class XhrServlet extends HttpServlet {
 
     private static final long serialVersionUID = 1L;
 
-    private static void invoke(final ServerTransport transport, final HttpServletRequest httpRequest, final HttpServletResponse httpResponse) {
-        Optional.ofNullable((X509Certificate[])httpRequest.getAttribute("javax.servlet.request.X509Certificate"))
-            .ifPresent(certificates -> System.out.println(Arrays.stream(certificates).map(X509Certificate::getSubjectDN).collect(Collectors.toList())));
+    private static void invoke(
+        final ServerTransport transport, final HttpServletRequest httpRequest, final HttpServletResponse httpResponse
+    ) {
+        Optional.ofNullable((X509Certificate[]) httpRequest.getAttribute("javax.servlet.request.X509Certificate"))
+            .ifPresent(
+                certificates -> System.out.println(
+                    Arrays.stream(certificates).map(X509Certificate::getSubjectDN).collect(Collectors.toList())
+                )
+            );
         try {
             transport.invocation(false, transport.read(reader(httpRequest.getInputStream()))).invoke(
                 reply -> {
@@ -47,13 +53,16 @@ public class XhrServlet extends HttpServlet {
     private static final ServerTransport SETUP = new ServerTransport(
         new Server(
             ServerKt.service(
-                ACCEPTOR.echoService, EchoServiceImpl.INSTANCE, UnexpectedExceptionHandler.INSTANCE, new Logger(null, Logger.Side.SERVER)
+                ACCEPTOR.echoService,
+                EchoServiceImpl.INSTANCE,
+                UnexpectedExceptionHandler.INSTANCE, new Logger(null, Logger.Side.SERVER)
             )
         ),
         Config.MESSAGE_SERIALIZER
     );
 
-    @Override protected void doPost(final HttpServletRequest request, final HttpServletResponse response) {
+    @Override
+    protected void doPost(final HttpServletRequest request, final HttpServletResponse response) {
         invoke(SETUP, request, response);
     }
 

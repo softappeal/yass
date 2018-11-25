@@ -24,7 +24,9 @@ public final class UndertowContainer {
                         new WebSocketDeploymentInfo()
                             .addEndpoint(ApplicationConfig.ENDPOINT_CONFIG)
                             .setWorker(Xnio.getInstance().createWorker(OptionMap.builder().getMap()))
-                            .setBuffers(new XnioByteBufferPool(new ByteBufferSlicePool(1024, 10240)))
+                            .setBuffers(
+                                new XnioByteBufferPool(new ByteBufferSlicePool(1024, 10240))
+                            )
                     )
             );
         deployment.deploy();

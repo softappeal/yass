@@ -39,7 +39,8 @@ abstract class SocketConnection internal constructor(
         socket.close()
 }
 
-typealias SocketConnectionFactory = (session: Session, transport: SessionTransport, socket: Socket, out: OutputStream) -> SocketConnection
+typealias SocketConnectionFactory =
+            (session: Session, transport: SessionTransport, socket: Socket, out: OutputStream) -> SocketConnection
 
 /** Writes to socket in caller thread. Blocks if socket can't send data. */
 val SyncSocketConnectionFactory: SocketConnectionFactory = { _, transport, socket, out ->
@@ -98,7 +99,11 @@ fun asyncSocketConnectionFactory(writerExecutor: Executor, writerQueueSize: Int)
 }
 
 private fun read(
-    connectionFactory: SocketConnectionFactory, transport: SessionTransport, socket: Socket, reader: Reader, out: OutputStream
+    connectionFactory: SocketConnectionFactory,
+    transport: SessionTransport,
+    socket: Socket,
+    reader: Reader,
+    out: OutputStream
 ) {
     val session = transport.sessionFactory()
     try {
@@ -124,7 +129,10 @@ fun socketAcceptor(setup: AcceptorSetup, readerExecutor: Executor, connectionFac
 
 /** [readerExecutor] is called once. */
 fun socketInitiator(
-    setup: InitiatorSetup, readerExecutor: Executor, connectionFactory: SocketConnectionFactory, socketConnector: SocketConnector
+    setup: InitiatorSetup,
+    readerExecutor: Executor,
+    connectionFactory: SocketConnectionFactory,
+    socketConnector: SocketConnector
 ) = execute(readerExecutor, socketConnector()) { socket ->
     val out = socket.getOutputStream()
     setup.writePath(writer(out))

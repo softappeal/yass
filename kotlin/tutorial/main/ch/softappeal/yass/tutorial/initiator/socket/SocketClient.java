@@ -14,7 +14,8 @@ import static ch.softappeal.yass.tutorial.contract.Config.ACCEPTOR;
 public final class SocketClient {
 
     public static void main(final String... args) {
-        final Client client = socketClient(new ClientSetup(Config.MESSAGE_SERIALIZER), socketConnector(SocketSetup.ADDRESS));
+        final Client client =
+            socketClient(new ClientSetup(Config.MESSAGE_SERIALIZER), socketConnector(SocketSetup.ADDRESS));
         final EchoService echoService = client.proxy(ACCEPTOR.echoService, new Logger(null, Logger.Side.CLIENT));
         System.out.println(echoService.echo("echo"));
     }

@@ -26,7 +26,8 @@ internal class Output(val writer: Writer, private val class2typeDesc: Map<Class<
     fun write(value: Any?): Unit = when (value) {
         null -> NullTypeDesc.write(this, null)
         is List<*> -> ListTypeDesc.write(this, value)
-        else -> (class2typeDesc[value.javaClass] ?: error("missing type '${value.javaClass.canonicalName}'")).write(this, value)
+        else -> (class2typeDesc[value.javaClass] ?: error("missing type '${value.javaClass.canonicalName}'"))
+            .write(this, value)
     }
 }
 
@@ -154,7 +155,8 @@ class ClassTypeSerializer internal constructor(
         while (true) {
             val id = input.reader.readVarInt()
             if (id == EndFieldId) return value
-            (id2fieldSerializer[id] ?: error("class '${type.canonicalName}' doesn't have a field with id $id")).read(input, value)
+            (id2fieldSerializer[id] ?: error("class '${type.canonicalName}' doesn't have a field with id $id"))
+                .read(input, value)
         }
     }
 
@@ -249,14 +251,18 @@ abstract class FastSerializer protected constructor() : Serializer {
         val name2field = mutableMapOf<String, Field>()
         for ((fieldId, field) in id2field) {
             val oldField = name2field.put(field.name, field)
-            require(oldField == null) { "duplicated field name '$field' and '$oldField' not allowed in class hierarchy" }
+            require(oldField == null) {
+                "duplicated field name '$field' and '$oldField' not allowed in class hierarchy"
+            }
             id2fieldSerializer[fieldId] = FieldSerializer(field)
         }
         addType(TypeDesc(id, ClassTypeSerializer(type, graph, id2fieldSerializer)))
     }
 
     protected fun addBaseType(typeDesc: TypeDesc) {
-        require(!typeDesc.serializer.type.isEnum) { "base type '${typeDesc.serializer.type.canonicalName}' is an enumeration" }
+        require(!typeDesc.serializer.type.isEnum) {
+            "base type '${typeDesc.serializer.type.canonicalName}' is an enumeration"
+        }
         addType(typeDesc)
     }
 
@@ -275,7 +281,8 @@ abstract class FastSerializer protected constructor() : Serializer {
     }
 
     protected fun fixup() {
-        for (typeDesc in class2typeDesc.values) (typeDesc.serializer as? ClassTypeSerializer)?.fixupFields(class2typeDesc)
+        for (typeDesc in class2typeDesc.values)
+            (typeDesc.serializer as? ClassTypeSerializer)?.fixupFields(class2typeDesc)
         checkParentClasses()
     }
 

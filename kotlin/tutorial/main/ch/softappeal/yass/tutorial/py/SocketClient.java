@@ -44,7 +44,7 @@ public final class SocketClient {
             1.34545e98d,
             "Hello",
             ">\u0001\u0012\u007F\u0080\u0234\u07FF\u0800\u4321\uFFFF<",
-            new byte[] {0, 127, -1, 10, -45},
+            new byte[]{0, 127, -1, 10, -45},
             new Expiration(2017, 11, 29),
             PriceKind.ASK,
             PriceKind.BID,
@@ -68,7 +68,7 @@ public final class SocketClient {
             System.out.println(e.details);
         }
         final byte[] big = new byte[1_000_000];
-        if (((byte[])echoService.echo(big)).length != big.length) {
+        if (((byte[]) echoService.echo(big)).length != big.length) {
             throw new RuntimeException();
         }
         instrumentService.showOneWay(true, 123);

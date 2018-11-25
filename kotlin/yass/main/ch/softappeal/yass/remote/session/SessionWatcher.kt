@@ -6,7 +6,8 @@ import java.util.concurrent.TimeUnit
 
 /**
  * Closes a session if it isn't healthy.
- * [executor] is used twice; must interrupt it's threads to terminate checks, checks are also terminated if session is closed.
+ * [executor] is used twice; must interrupt it's threads to terminate checks,
+ *     checks are also terminated if session is closed.
  * [sessionChecker] must execute without an exception within timeout if session is ok.
  */
 fun watchSession(

@@ -13,6 +13,7 @@ public interface InstrumentService {
      * This method does nothing meaningful.
      * It just shows how to make {@link OneWay} method calls.
      */
-    @OneWay void showOneWay(boolean testBoolean, int testInt);
+    @OneWay
+    void showOneWay(boolean testBoolean, int testInt);
 
 }

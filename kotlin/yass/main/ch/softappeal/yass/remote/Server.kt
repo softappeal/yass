@@ -7,7 +7,10 @@ import ch.softappeal.yass.invoke
 
 typealias ReplyWriter = (reply: Reply) -> Unit
 
-abstract class AbstractService<C : Any> internal constructor(val contractId: ContractId<C>, internal val implementation: C) {
+abstract class AbstractService<C : Any> internal constructor(
+    val contractId: ContractId<C>,
+    internal val implementation: C
+) {
     internal abstract fun invoke(invocation: AbstractInvocation, replyWriter: ReplyWriter)
 }
 
@@ -23,7 +26,9 @@ class Server @SafeVarargs constructor(vararg services: AbstractService<*>) {
 
     init {
         for (service in services) {
-            check(id2service.put(service.contractId.id, service) == null) { "service id ${service.contractId.id} already added" }
+            check(
+                id2service.put(service.contractId.id, service) == null
+            ) { "service id ${service.contractId.id} already added" }
         }
     }
 
@@ -99,5 +104,8 @@ class AsyncService<C : Any>(
 
 @OnlyNeededForJava
 @JvmOverloads
-fun <C : Any> asyncService(contractId: ContractId<C>, implementation: C, interceptor: AsyncInterceptor = DirectAsyncInterceptor) =
-    AsyncService(contractId, implementation, interceptor)
+fun <C : Any> asyncService(
+    contractId: ContractId<C>,
+    implementation: C,
+    interceptor: AsyncInterceptor = DirectAsyncInterceptor
+) = AsyncService(contractId, implementation, interceptor)

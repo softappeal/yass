@@ -22,14 +22,17 @@ public final class Expiration {
     }
 
     public static final BaseTypeSerializer<?> TYPE_SERIALIZER = new BaseTypeSerializer<Expiration>(Expiration.class) {
-        @Override public Expiration read(final Reader reader) {
+        @Override
+        public Expiration read(final Reader reader) {
             return new Expiration(
                 getIntSerializer().read(reader),
                 getIntSerializer().read(reader),
                 getIntSerializer().read(reader)
             );
         }
-        @Override public void write(final Writer writer, final Expiration value) {
+
+        @Override
+        public void write(final Writer writer, final Expiration value) {
             getIntSerializer().write(writer, value.year);
             getIntSerializer().write(writer, value.month);
             getIntSerializer().write(writer, value.day);

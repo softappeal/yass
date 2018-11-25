@@ -6,7 +6,8 @@ public final class GenericEchoServiceImpl implements GenericEchoService {
         // disable
     }
 
-    @Override public Pair<Boolean, TripleWrapper> echo(final Pair<Boolean, TripleWrapper> value) {
+    @Override
+    public Pair<Boolean, TripleWrapper> echo(final Pair<Boolean, TripleWrapper> value) {
         return value;
     }
 

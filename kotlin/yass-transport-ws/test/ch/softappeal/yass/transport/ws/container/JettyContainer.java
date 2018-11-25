@@ -16,7 +16,9 @@ public class JettyContainer {
         final ServletContextHandler contextHandler = new ServletContextHandler(ServletContextHandler.NO_SESSIONS);
         contextHandler.setContextPath("/");
         server.setHandler(contextHandler);
-        WebSocketServerContainerInitializer.configureContext(contextHandler).addEndpoint(ApplicationConfig.ENDPOINT_CONFIG);
+        WebSocketServerContainerInitializer
+            .configureContext(contextHandler)
+            .addEndpoint(ApplicationConfig.ENDPOINT_CONFIG);
         server.start();
     }
 

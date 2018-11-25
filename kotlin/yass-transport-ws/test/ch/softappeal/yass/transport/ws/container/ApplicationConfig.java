@@ -25,16 +25,22 @@ public final class ApplicationConfig implements ServerApplicationConfig {
     public static final ServerEndpointConfig ENDPOINT_CONFIG = ServerEndpointConfig.Builder
         .create(Endpoint.class, WS_PATH)
         .configurator(new ServerEndpointConfig.Configurator() {
-            @Override public void modifyHandshake(final ServerEndpointConfig sec, final HandshakeRequest request, final HandshakeResponse response) {
+            @Override
+            public void modifyHandshake(
+                final ServerEndpointConfig sec, final HandshakeRequest request, final HandshakeResponse response
+            ) {
                 // note: works in Tomcat and Jetty but not in Undertow
                 //     http://dev.eclipse.org/mhonarc/lists/jetty-users/msg07615.html
                 //     http://lists.jboss.org/pipermail/undertow-dev/2017-February/001892.html
                 //     https://java.net/jira/browse/WEBSOCKET_SPEC-218
                 //     https://java.net/jira/browse/WEBSOCKET_SPEC-235
-                //     http://stackoverflow.com/questions/17936440/accessing-httpsession-from-httpservletrequest-in-a-web-socket-serverendpoint/17994303#17994303
+                //     http://stackoverflow.com/questions/17936440/accessing-httpsession-from-httpservletrequest-\
+                //       in-a-web-socket-serverendpoint/17994303#17994303
                 sec.getUserProperties().putAll(request.getHeaders());
             }
-            @Override public <T> T getEndpointInstance(final Class<T> endpointClass) {
+
+            @Override
+            public <T> T getEndpointInstance(final Class<T> endpointClass) {
                 return endpointClass.cast(new Endpoint() {
                     void send(final RemoteEndpoint.Async remote) {
                         EXECUTOR.execute(() -> {
@@ -46,7 +52,10 @@ public final class ApplicationConfig implements ServerApplicationConfig {
                                     ByteBuffer.wrap(new byte[50_000]),
                                     result -> {
                                         final long end = System.nanoTime();
-                                        System.out.println("result: " + threadId + ", " + result.isOK() + ", " + ((end - start) / 1_000_000) + "ms");
+                                        System.out.println(
+                                            "result: " + threadId + ", " + result.isOK() + ", " +
+                                                ((end - start) / 1_000_000) + "ms"
+                                        );
                                     }
                                 );
                             }
@@ -54,6 +63,7 @@ public final class ApplicationConfig implements ServerApplicationConfig {
                             System.out.println("end: " + threadId + ", " + ((end - start) / 1_000_000) + "ms");
                         });
                     }
+
                     public void onOpen(Session session, EndpointConfig config) {
                         System.out.println("getUserProperties: " + session.getUserProperties().keySet());
                         final RemoteEndpoint.Async remote = session.getAsyncRemote();
@@ -64,12 +74,14 @@ public final class ApplicationConfig implements ServerApplicationConfig {
             }
         }).build();
 
-    @Override public Set<ServerEndpointConfig> getEndpointConfigs(final Set<Class<? extends Endpoint>> endpointClasses) {
+    @Override
+    public Set<ServerEndpointConfig> getEndpointConfigs(final Set<Class<? extends Endpoint>> endpointClasses) {
         System.out.println("ApplicationConfig");
         return new HashSet<>(Arrays.asList(ENDPOINT_CONFIG));
     }
 
-    @Override public Set<Class<?>> getAnnotatedEndpointClasses(final Set<Class<?>> scanned) {
+    @Override
+    public Set<Class<?>> getAnnotatedEndpointClasses(final Set<Class<?>> scanned) {
         return Collections.emptySet();
     }
 

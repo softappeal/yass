@@ -35,7 +35,8 @@ import static ch.softappeal.yass.tutorial.contract.Config.INITIATOR;
 
 public final class InitiatorSession extends SimpleSession {
 
-    @Override protected Server server() {
+    @Override
+    protected Server server() {
         final Function3<Method, List<?>, Function0<?>, Object> interceptor = compositeInterceptor(
             UnexpectedExceptionHandler.INSTANCE,
             new Logger(this, Logger.Side.SERVER)
@@ -54,15 +55,17 @@ public final class InitiatorSession extends SimpleSession {
     public InitiatorSession(final Executor dispatchExecutor) {
         super(dispatchExecutor);
         System.out.println("session created");
-        final Function3<Method, List<?>, Function0<?>, Object> interceptor = new Logger(this, Logger.Side.CLIENT);
+        final Function3<Method, List<?>, Function0<?>, Object> interceptor =
+            new Logger(this, Logger.Side.CLIENT);
         priceEngine = proxy(ACCEPTOR.priceEngine, interceptor);
         instrumentService = asyncProxy(ACCEPTOR.instrumentService, AsyncLogger.INSTANCE);
         echoService = proxy(ACCEPTOR.echoService, interceptor);
         genericEchoService = proxy(ACCEPTOR.genericEchoService, interceptor);
     }
 
-    @Override protected void opened() {
-        watchSession(getDispatchExecutor(), this, 60L, 2L, 0L, () -> { // optional
+    @Override
+    protected void opened() {
+        watchSession(getDispatchExecutor(), this, 60L, 2L, 0L, () -> {
             echoService.echo("checkFromInitiator");
             return null;
         });
@@ -90,7 +93,8 @@ public final class InitiatorSession extends SimpleSession {
         instrumentService.showOneWay(false, 123);
         promise(instrumentService::getInstruments).thenAcceptAsync(instruments -> {
             try {
-                priceEngine.subscribe(instruments.stream().map(instrument -> instrument.id).collect(Collectors.toList()));
+                priceEngine
+                    .subscribe(instruments.stream().map(instrument -> instrument.id).collect(Collectors.toList()));
             } catch (final UnknownInstrumentsException ignore) {
                 // empty
             }
@@ -98,7 +102,8 @@ public final class InitiatorSession extends SimpleSession {
         System.out.println("session opened end");
     }
 
-    @Override protected void closed(final Exception exception) {
+    @Override
+    protected void closed(final Exception exception) {
         System.out.println("session closed: " + exception);
     }
 

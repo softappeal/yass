@@ -15,8 +15,16 @@ val IntPathSerializer = object : Serializer {
     override fun write(writer: Writer, value: Any?) = writer.writeInt(value as Int)
 }
 
-class ClientSetup(private val messageSerializer: Serializer, private val pathSerializer: Serializer, private val path: Any) {
-    constructor(messageSerializer: Serializer) : this(messageSerializer, IntPathSerializer, IntPathSerializerDefaultPath)
+class ClientSetup(
+    private val messageSerializer: Serializer,
+    private val pathSerializer: Serializer,
+    private val path: Any
+) {
+    constructor(messageSerializer: Serializer) : this(
+        messageSerializer,
+        IntPathSerializer,
+        IntPathSerializerDefaultPath
+    )
 
     fun read(reader: Reader) = messageSerializer.read(reader) as Reply
     fun write(writer: Writer, request: Request) {
@@ -26,7 +34,9 @@ class ClientSetup(private val messageSerializer: Serializer, private val pathSer
 }
 
 class ServerTransport(private val server: Server, private val messageSerializer: Serializer) {
-    fun invocation(asyncSupported: Boolean, request: Request): ServerInvocation = server.invocation(asyncSupported, request)
+    fun invocation(asyncSupported: Boolean, request: Request): ServerInvocation =
+        server.invocation(asyncSupported, request)
+
     fun read(reader: Reader): Request = messageSerializer.read(reader) as Request
     fun write(writer: Writer, reply: Reply) = messageSerializer.write(writer, reply)
 }

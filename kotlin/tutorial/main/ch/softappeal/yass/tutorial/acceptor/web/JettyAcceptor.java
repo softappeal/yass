@@ -44,7 +44,7 @@ public final class JettyAcceptor extends WebAcceptorSetup {
         resourceHandler.setDirectoriesListed(true);
         resourceHandler.setResourceBase(WEB_PATH);
         final HandlerList handlers = new HandlerList();
-        handlers.setHandlers(new Handler[] {resourceHandler, contextHandler});
+        handlers.setHandlers(new Handler[]{resourceHandler, contextHandler});
         server.setHandler(handlers);
         WebSocketServerContainerInitializer.configureContext(contextHandler).addEndpoint(ENDPOINT_CONFIG);
         server.start();

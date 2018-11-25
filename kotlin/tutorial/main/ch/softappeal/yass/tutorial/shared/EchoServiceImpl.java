@@ -10,7 +10,8 @@ public final class EchoServiceImpl implements EchoService {
         // disable
     }
 
-    @Override public Object echo(final Object value) {
+    @Override
+    public Object echo(final Object value) {
         if ("throwRuntimeException".equals(value)) {
             throw new RuntimeException("throwRuntimeException");
         }

@@ -31,7 +31,9 @@ class SslSetup @JvmOverloads constructor(
     internal val needClientAuth: Boolean
 
     init {
-        check((keyStore != null) || (trustStore != null)) { "at least one of keyStore or trustStore must be defined" }
+        check((keyStore != null) || (trustStore != null)) {
+            "at least one of keyStore or trustStore must be defined"
+        }
         context = SSLContext.getInstance(protocol)
         var keyManagers: Array<KeyManager>? = null
         if (keyStore != null) {

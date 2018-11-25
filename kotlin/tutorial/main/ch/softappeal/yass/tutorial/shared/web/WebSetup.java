@@ -14,6 +14,7 @@ public abstract class WebSetup {
     public static final String XHR_PATH = "/xhr";
     protected static final String WEB_PATH = "ts";
 
-    public static final Executor DISPATCH_EXECUTOR = Executors.newCachedThreadPool(namedThreadFactory("dispatchExecutor", getStdErr()));
+    public static final Executor DISPATCH_EXECUTOR =
+        Executors.newCachedThreadPool(namedThreadFactory("dispatchExecutor", getStdErr()));
 
 }

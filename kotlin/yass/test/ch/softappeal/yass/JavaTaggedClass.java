@@ -2,7 +2,6 @@ package ch.softappeal.yass;
 
 @Tag(1)
 public class JavaTaggedClass {
-
     @Tag(2)
     int tag;
 
@@ -14,5 +13,4 @@ public class JavaTaggedClass {
     public void noTag() {
         // empty
     }
-
 }

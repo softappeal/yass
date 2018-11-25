@@ -11,7 +11,8 @@ public final class PriceListenerImpl implements PriceListener {
         // disable
     }
 
-    @Override public void newPrices(final List<Price> prices) {
+    @Override
+    public void newPrices(final List<Price> prices) {
         // do something with prices
     }
 

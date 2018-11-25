@@ -25,7 +25,11 @@ public final class SocketServer {
         socketServer(
             new ServerSetup(
                 new Server(
-                    service(ACCEPTOR.echoService, EchoServiceImpl.INSTANCE, UnexpectedExceptionHandler.INSTANCE, new Logger(null, Logger.Side.SERVER))
+                    service(
+                        ACCEPTOR.echoService,
+                        EchoServiceImpl.INSTANCE,
+                        UnexpectedExceptionHandler.INSTANCE, new Logger(null, Logger.Side.SERVER)
+                    )
                 ),
                 Config.MESSAGE_SERIALIZER
             ),

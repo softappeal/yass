@@ -26,17 +26,21 @@ public final class DatagramTransport {
     private static void checkOneWay(final MethodMapping methodMapping, final Request request) {
         if (!methodMapping.getOneWay()) {
             throw new IllegalArgumentException(
-                "transport not allowed for rpc method (serviceId " + request.getServiceId() + ", methodId " + request.getMethodId() + ')'
+                "transport not allowed for rpc method (serviceId " + request.getServiceId() +
+                    ", methodId " + request.getMethodId() + ')'
             );
         }
     }
 
-    public static Client client(final Serializer messageSerializer, final DatagramChannel channel, final SocketAddress target) {
+    public static Client client(
+        final Serializer messageSerializer, final DatagramChannel channel, final SocketAddress target
+    ) {
         Objects.requireNonNull(messageSerializer);
         Objects.requireNonNull(channel);
         Objects.requireNonNull(target);
         return new Client() {
-            @Override public void invoke(final ClientInvocation invocation) {
+            @Override
+            public void invoke(final ClientInvocation invocation) {
                 invocation.invoke(false, request -> {
                     checkOneWay(invocation.getMethodMapping(), request);
                     final ByteBufferOutputStream out = new ByteBufferOutputStream(128);
@@ -52,7 +56,9 @@ public final class DatagramTransport {
         };
     }
 
-    public static void invoke(final ServerTransport setup, final DatagramChannel channel, final int maxRequestBytes) throws Exception {
+    public static void invoke(
+        final ServerTransport setup, final DatagramChannel channel, final int maxRequestBytes
+    ) throws Exception {
         final ByteBuffer in = ByteBuffer.allocate(maxRequestBytes);
         channel.receive(in);
         in.flip();

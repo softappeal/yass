@@ -11,7 +11,11 @@ class SessionTransport(private val packetSerializer: Serializer, val sessionFact
     fun write(writer: Writer, packet: Packet) = packetSerializer.write(writer, packet)
 }
 
-class InitiatorSetup(internal val transport: SessionTransport, private val pathSerializer: Serializer, private val path: Any) {
+class InitiatorSetup(
+    internal val transport: SessionTransport,
+    private val pathSerializer: Serializer,
+    private val path: Any
+) {
     constructor(packetSerializer: Serializer, sessionFactory: SessionFactory) :
             this(SessionTransport(packetSerializer, sessionFactory), IntPathSerializer, IntPathSerializerDefaultPath)
 
@@ -19,8 +23,10 @@ class InitiatorSetup(internal val transport: SessionTransport, private val pathS
 }
 
 class AcceptorSetup(private val pathSerializer: Serializer, private val pathMappings: Map<out Any, SessionTransport>) {
-    constructor(packetSerializer: Serializer, sessionFactory: SessionFactory)
-            : this(IntPathSerializer, mapOf(IntPathSerializerDefaultPath to SessionTransport(packetSerializer, sessionFactory)))
+    constructor(packetSerializer: Serializer, sessionFactory: SessionFactory) : this(
+        IntPathSerializer,
+        mapOf(IntPathSerializerDefaultPath to SessionTransport(packetSerializer, sessionFactory))
+    )
 
     fun resolve(reader: Reader): SessionTransport {
         val path = pathSerializer.read(reader)

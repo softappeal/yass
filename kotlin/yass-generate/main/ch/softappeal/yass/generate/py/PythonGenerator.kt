@@ -66,12 +66,19 @@ private fun pyBool(value: Boolean) = if (value) "True" else "False"
 
 /** You must use the "-parameters" option for javac to get the real method parameter names. */
 class PythonGenerator(
-    rootPackage: String, serializer: FastSerializer, initiator: Services?, acceptor: Services?, private val python3: Boolean,
-    private val includeFileForEachModule: Path?, module2includeFile: Map<String, Path>?,
-    externalTypes: Map<Class<*>, ExternalDesc>, generatedDir: Path
+    rootPackage: String,
+    serializer: FastSerializer,
+    initiator: Services?,
+    acceptor: Services?,
+    private val python3: Boolean,
+    private val includeFileForEachModule: Path?,
+    module2includeFile: Map<String, Path>?,
+    externalTypes: Map<Class<*>, ExternalDesc>,
+    generatedDir: Path
 ) : Generator(rootPackage, serializer, initiator, acceptor) {
     private val module2includeFile = mutableMapOf<String, Path>()
-    private val externalTypes = TreeMap<Class<*>, ExternalDesc>(Comparator.comparing<Class<*>, String> { it.canonicalName })
+    private val externalTypes =
+        TreeMap<Class<*>, ExternalDesc>(Comparator.comparing<Class<*>, String> { it.canonicalName })
     private val rootNamespace = Namespace(null, null, RootModule, 0)
     private val type2namespace = LinkedHashMap<Class<*>, Namespace>()
     private val type2id = mutableMapOf<Class<*>, Int>()
@@ -106,7 +113,9 @@ class PythonGenerator(
                 types.add(type)
                 type2namespace[type] = this
             } else // intermediate
-                children.computeIfAbsent(qualifiedName.substring(0, dot)) { Namespace(this, it, "${moduleName}_$it", depth + 1) }
+                children.computeIfAbsent(qualifiedName.substring(0, dot)) {
+                    Namespace(this, it, "${moduleName}_$it", depth + 1)
+                }
                     .add(qualifiedName.substring(dot + 1), type)
         }
 
@@ -135,7 +144,10 @@ class PythonGenerator(
             println("import yass")
             if (includeFileForEachModule != null) includeFile(includeFileForEachModule)
             val moduleIncludeFile = module2includeFile[
-                    if (namespace == rootNamespace) "" else namespace.moduleName.substring(RootModule.length + 1).replace('_', '.')
+                    if (namespace == rootNamespace)
+                        ""
+                    else
+                        namespace.moduleName.substring(RootModule.length + 1).replace('_', '.')
             ]
             if (moduleIncludeFile != null) {
                 println2()
@@ -143,9 +155,15 @@ class PythonGenerator(
             }
             val buffer = StringBuilder()
             redirect(buffer)
-            @Suppress("UNCHECKED_CAST") namespace.types.filter { it.isEnum }.forEach { generateEnum(it as Class<Enum<*>>) }
+            @Suppress("UNCHECKED_CAST") namespace.types
+                .filter { it.isEnum }
+                .forEach { generateEnum(it as Class<Enum<*>>) }
             namespace.types
-                .filter { t -> !t.isEnum && !t.isInterface && (Modifier.isAbstract(t.modifiers) || typeSerializer(t) is ClassTypeSerializer) }
+                .filter { t ->
+                    !t.isEnum &&
+                            !t.isInterface &&
+                            (Modifier.isAbstract(t.modifiers) || typeSerializer(t) is ClassTypeSerializer)
+                }
                 .forEach { generateClass(it) }
             namespace.types.filter { it.isInterface }.forEach { generateInterface(it) }
             redirect(null)
@@ -166,7 +184,10 @@ class PythonGenerator(
             if (module == rootNamespace)
                 println(" import $RootModule")
             else
-                println("${module.parent!!.moduleName.replace('_', '.')} import ${module.name} as ${module.moduleName}")
+                println(
+                    "${module.parent!!.moduleName.replace('_', '.')} " +
+                            "import ${module.name} as ${module.moduleName}"
+                )
         }
 
         fun generateEnum(type: Class<out Enum<*>>) {
@@ -245,13 +266,19 @@ class PythonGenerator(
                 tabs("def ${method.name}(self")
                 val parameters = method.parameters
                 if (python3) {
-                    parameters.forEach { parameter -> print(", ${parameter.name}: ${pythonType(parameter.parameterizedType)}") }
-                    println(") -> ${if (methodMapper.map(method).oneWay) "None" else pythonType(method.genericReturnType)}:")
+                    parameters.forEach { parameter ->
+                        print(", ${parameter.name}: ${pythonType(parameter.parameterizedType)}")
+                    }
+                    println(
+                        ") -> ${if (methodMapper.map(method).oneWay) "None" else pythonType(method.genericReturnType)}:"
+                    )
                 } else {
                     parameters.forEach { parameter -> print(", ${parameter.name}") }
                     print("):  # type: (")
                     iterate(parameters.asList(), { print(", ") }, { print(pythonType(it.parameterizedType)) })
-                    println(") -> ${if (methodMapper.map(method).oneWay) "None" else pythonType(method.genericReturnType)}")
+                    println(
+                        ") -> ${if (methodMapper.map(method).oneWay) "None" else pythonType(method.genericReturnType)}"
+                    )
                 }
                 tab()
                 tabsln("raise NotImplementedError()")
@@ -271,14 +298,20 @@ class PythonGenerator(
                 if (type.isEnum)
                     println("yass.enumDesc(${type2id[type]}, $qn)")
                 else if (hasClassDesc(type))
-                    println("yass.classDesc(${type2id[type]}, $qn, ${pyBool((typeSerializer(type) as ClassTypeSerializer).graph)})")
+                    println(
+                        "yass.classDesc(${type2id[type]}, $qn, " +
+                                "${pyBool((typeSerializer(type) as ClassTypeSerializer).graph)})"
+                    )
             }
             println()
             type2namespace.keys.filter { hasClassDesc(it) }.forEach { type ->
                 tabsln("yass.fieldDescs(${getQualifiedName(type)}, [")
                 for (fieldDesc in (typeSerializer(type) as ClassTypeSerializer).fieldDescs) {
                     tab()
-                    tabsln("yass.FieldDesc(${fieldDesc.id}, '${fieldDesc.serializer.field.name}', ${typeDesc(fieldDesc)}),")
+                    tabsln(
+                        "yass.FieldDesc(${fieldDesc.id}, '${fieldDesc.serializer.field.name}', " +
+                                "${typeDesc(fieldDesc)}),"
+                    )
                 }
                 tabsln("])")
             }
@@ -286,7 +319,9 @@ class PythonGenerator(
             println("SERIALIZER = yass.FastSerializer([")
             inc()
             externalTypes.values.forEach { externalDesc -> tabsln("${externalDesc.typeDesc},") }
-            type2namespace.keys.filter { t -> !Modifier.isAbstract(t.modifiers) }.forEach { t -> tabsln("${getQualifiedName(t)},") }
+            type2namespace.keys
+                .filter { t -> !Modifier.isAbstract(t.modifiers) }
+                .forEach { t -> tabsln("${getQualifiedName(t)},") }
             dec()
             println("])")
             println()
@@ -306,7 +341,10 @@ class PythonGenerator(
             if (module == rootNamespace)
                 println(" import $RootModule")
             else
-                println("${module.parent!!.moduleName.replace('_', '.')} import ${module.name} as ${module.moduleName}")
+                println(
+                    "${module.parent!!.moduleName.replace('_', '.')} " +
+                            "import ${module.name} as ${module.moduleName}"
+                )
         }
 
         fun generateServices(services: Services?, role: String) {

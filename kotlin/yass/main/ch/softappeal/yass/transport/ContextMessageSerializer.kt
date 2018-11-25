@@ -5,7 +5,9 @@ import ch.softappeal.yass.serialize.Reader
 import ch.softappeal.yass.serialize.Serializer
 import ch.softappeal.yass.serialize.Writer
 
-class ContextMessageSerializer(private val contextSerializer: Serializer, private val messageSerializer: Serializer) : Serializer {
+class ContextMessageSerializer(
+    private val contextSerializer: Serializer, private val messageSerializer: Serializer
+) : Serializer {
     private val _context = ThreadLocal<Any?>()
 
     var context: Any?

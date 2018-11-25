@@ -18,7 +18,8 @@ public final class UnexpectedExceptionHandler implements Function3<Method, List<
     /**
      * Swallows exceptions of oneWay methods (these are logged in {@link Logger}).
      */
-    @Override public Object invoke(final Method method, final List<?> arguments, final Function0<?> invocation) {
+    @Override
+    public Object invoke(final Method method, final List<?> arguments, final Function0<?> invocation) {
         try {
             return invocation.invoke();
         } catch (final Exception e) {
@@ -28,7 +29,8 @@ public final class UnexpectedExceptionHandler implements Function3<Method, List<
             if (e instanceof ApplicationException) {
                 throw e; // pass through contract exception
             }
-            throw new SystemException(e.getClass().getName() + ": " + e.getMessage()); // remap unexpected exception to a contract exception
+            // remap unexpected exception to a contract exception
+            throw new SystemException(e.getClass().getName() + ": " + e.getMessage());
         }
     }
 

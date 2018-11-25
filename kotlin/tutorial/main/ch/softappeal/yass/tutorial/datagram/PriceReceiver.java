@@ -22,7 +22,8 @@ public final class PriceReceiver {
         final ServerTransport transport = new ServerTransport(
             new Server(
                 service(Config.INITIATOR.priceListener, new PriceListener() {
-                    @Override public void newPrices(final List<Price> prices) {
+                    @Override
+                    public void newPrices(final List<Price> prices) {
                         final Price price = prices.get(0);
                         System.out.println("received " + price.kind + ": " + price.value);
                     }

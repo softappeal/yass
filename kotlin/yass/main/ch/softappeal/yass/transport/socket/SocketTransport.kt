@@ -47,7 +47,12 @@ fun socketServer(setup: ServerSetup, requestExecutor: Executor) = object : Socke
 }
 
 fun socketClient(setup: ClientSetup, socketConnector: SocketConnector) = object : Client() {
-    override fun syncInvoke(contractId: ContractId<*>, interceptor: Interceptor, method: Method, arguments: List<Any?>): Any? {
+    override fun syncInvoke(
+        contractId: ContractId<*>,
+        interceptor: Interceptor,
+        method: Method,
+        arguments: List<Any?>
+    ): Any? {
         socketConnector().use { socket ->
             setForceImmediateSend(socket)
             val oldSocket = socket_.get()

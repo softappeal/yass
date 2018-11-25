@@ -29,9 +29,11 @@ internal interface IdentityService {
     fun createIdentity(logonName: String)
 }
 
-private val CONTEXT_SERIALIZER = simpleFastSerializer(listOf(IntSerializer, StringSerializer), listOf(Context::class.java))
+private val CONTEXT_SERIALIZER =
+    simpleFastSerializer(listOf(IntSerializer, StringSerializer), listOf(Context::class.java))
 private val CONTRACT_SERIALIZER = simpleFastSerializer(listOf(StringSerializer), listOf())
-private val CONTEXT_MESSAGE_SERIALIZER = ContextMessageSerializer(CONTEXT_SERIALIZER, messageSerializer(CONTRACT_SERIALIZER))
+private val CONTEXT_MESSAGE_SERIALIZER =
+    ContextMessageSerializer(CONTEXT_SERIALIZER, messageSerializer(CONTRACT_SERIALIZER))
 private val IDENTITY_SERVICE_ID = contractId<IdentityService>(1, SimpleMethodMapperFactory)
 private val ADDRESS = InetSocketAddress("localhost", 28947)
 

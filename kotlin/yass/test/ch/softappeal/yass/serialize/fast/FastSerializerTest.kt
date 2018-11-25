@@ -111,7 +111,9 @@ class FastSerializerTest {
         fail()
     } catch (e: IllegalArgumentException) {
         assertEquals(
-            "duplicated field name 'private final int ch.softappeal.yass.serialize.fast.FastSerializerTest${'$'}A.a' and 'private final int ch.softappeal.yass.serialize.fast.FastSerializerTest${'$'}A.a' not allowed in class hierarchy",
+            "duplicated field name 'private final int " +
+                    "ch.softappeal.yass.serialize.fast.FastSerializerTest${'$'}A.a' and 'private final int " +
+                    "ch.softappeal.yass.serialize.fast.FastSerializerTest${'$'}A.a' not allowed in class hierarchy",
             e.message
         )
     }
@@ -216,7 +218,11 @@ class FastSerializerTest {
         taggedFastSerializer(listOf(), listOf(MissingClassTag::class.java))
         fail()
     } catch (e: IllegalStateException) {
-        assertEquals("missing tag for 'class ch.softappeal.yass.serialize.fast.FastSerializerTest${'$'}MissingClassTag'", e.message)
+        assertEquals(
+            "missing tag for " +
+                    "'class ch.softappeal.yass.serialize.fast.FastSerializerTest${'$'}MissingClassTag'",
+            e.message
+        )
     }
 
     @Test
@@ -238,7 +244,11 @@ class FastSerializerTest {
         taggedFastSerializer(listOf(), listOf(InvalidTypeTag::class.java))
         fail()
     } catch (e: IllegalArgumentException) {
-        assertEquals("id -1 for type 'ch.softappeal.yass.serialize.fast.FastSerializerTest.InvalidTypeTag' must be >= 0", e.message)
+        assertEquals(
+            "id -1 for type " +
+                    "'ch.softappeal.yass.serialize.fast.FastSerializerTest.InvalidTypeTag' must be >= 0",
+            e.message
+        )
     }
 
     @Tag(0)
@@ -253,7 +263,9 @@ class FastSerializerTest {
         fail()
     } catch (e: IllegalArgumentException) {
         assertEquals(
-            "id 0 for field 'private int ch.softappeal.yass.serialize.fast.FastSerializerTest${'$'}InvalidFieldTag.i' must be >= 1",
+            "id 0 for field " +
+                    "'private int ch.softappeal.yass.serialize.fast.FastSerializerTest${'$'}InvalidFieldTag.i' " +
+                    "must be >= 1",
             e.message
         )
     }
@@ -272,19 +284,25 @@ class FastSerializerTest {
         fail()
     } catch (e: IllegalArgumentException) {
         assertEquals(
-            "tag 1 used for fields 'private int ch.softappeal.yass.serialize.fast.FastSerializerTest${'$'}DuplicatedFieldTag.i2' and 'private int ch.softappeal.yass.serialize.fast.FastSerializerTest${'$'}DuplicatedFieldTag.i1'",
+            "tag 1 used for fields 'private int " +
+                    "ch.softappeal.yass.serialize.fast.FastSerializerTest${'$'}DuplicatedFieldTag.i2' and " +
+                    "'private int ch.softappeal.yass.serialize.fast.FastSerializerTest${'$'}DuplicatedFieldTag.i1'",
             e.message
         )
     }
 
     @Test
     fun taggedPrint() {
-        compareFile("ch/softappeal/yass/serialize/fast/TaggedFastSerializerTest.numbers.txt") { TAGGED_FAST_SERIALIZER.print(it) }
+        compareFile("ch/softappeal/yass/serialize/fast/TaggedFastSerializerTest.numbers.txt") {
+            TAGGED_FAST_SERIALIZER.print(it)
+        }
     }
 
     @Test
     fun simplePrint() {
-        compareFile("ch/softappeal/yass/serialize/fast/SimpleFastSerializerTest.numbers.txt") { SIMPLE_FAST_SERIALIZER.print(it) }
+        compareFile("ch/softappeal/yass/serialize/fast/SimpleFastSerializerTest.numbers.txt") {
+            SIMPLE_FAST_SERIALIZER.print(it)
+        }
     }
 
     @Test
@@ -307,8 +325,11 @@ class FastSerializerTest {
 
     @Test
     fun versioning() {
-        val v1serializer = taggedFastSerializer(listOf(TypeDesc(3, IntSerializer)), listOf(E1::class.java, C1::class.java))
-        val v2serializer = taggedFastSerializer(listOf(TypeDesc(3, IntSerializer)), listOf(E2::class.java, C2::class.java))
+        val v1serializer =
+            taggedFastSerializer(listOf(TypeDesc(3, IntSerializer)), listOf(E1::class.java, C1::class.java))
+        val v2serializer =
+            taggedFastSerializer(listOf(TypeDesc(3, IntSerializer)), listOf(E2::class.java, C2::class.java))
+
         fun copy(input: Any): Any {
             val buffer = ByteArrayOutputStream()
             val writer = writer(buffer)
