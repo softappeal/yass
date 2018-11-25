@@ -10,7 +10,7 @@ package ch.softappeal.yass.transport.ws.container;
  */
 public final class TomcatContainer {
 
-    public static void main(final String... args) throws Exception {
+    public static void main(final String... args) {
         /*
         final var tomcat = new Tomcat();
         tomcat.setPort(8080);

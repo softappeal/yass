@@ -10,7 +10,7 @@ import java.util.Map;
 
 public final class GenerateTypeScript {
 
-    public static void main(final String... args) throws Exception {
+    public static void main(final String... args) {
         final Map<Class<?>, ExternalDesc> externalTypes = new HashMap<>();
         externalTypes.put(Integer.class, new ExternalDesc("Integer", "IntegerHandler"));
         new TypeScriptGenerator(

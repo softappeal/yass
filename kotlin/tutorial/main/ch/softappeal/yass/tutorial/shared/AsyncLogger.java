@@ -12,7 +12,7 @@ public class AsyncLogger implements AsyncInterceptor {
     }
 
     @Override
-    public void entry(final AbstractInvocation invocation) throws Exception {
+    public void entry(final AbstractInvocation invocation) {
         System.out.println(
             "entry " + invocation.hashCode() + ": " + invocation.getMethodMapping().getMethod().getName() + " " +
                 dump(Logger.DUMPER, invocation.getArguments())
@@ -20,7 +20,7 @@ public class AsyncLogger implements AsyncInterceptor {
     }
 
     @Override
-    public void exit(final AbstractInvocation invocation, final Object result) throws Exception {
+    public void exit(final AbstractInvocation invocation, final Object result) {
         System.out.println(
             "exit " + invocation.hashCode() + ": " + invocation.getMethodMapping().getMethod().getName() + " " +
                 dump(Logger.DUMPER, result)
@@ -28,7 +28,7 @@ public class AsyncLogger implements AsyncInterceptor {
     }
 
     @Override
-    public void exception(final AbstractInvocation invocation, final Exception exception) throws Exception {
+    public void exception(final AbstractInvocation invocation, final Exception exception) {
         System.out.println(
             "exception " + invocation.hashCode() + ": " + invocation.getMethodMapping().getMethod().getName() + " " +
                 exception

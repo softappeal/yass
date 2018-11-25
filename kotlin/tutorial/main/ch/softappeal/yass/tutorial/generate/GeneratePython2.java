@@ -11,7 +11,7 @@ import java.util.Map;
 
 public final class GeneratePython2 {
 
-    public static void main(final String... args) throws Exception {
+    public static void main(final String... args) {
         final Map<String, Path> module2includeFile = new HashMap<>();
         module2includeFile.put("", Paths.get("../../py2/tutorial/contract_include_root_module.txt"));
         final Map<Class<?>, ExternalDesc> externalTypes = new HashMap<>();

@@ -103,14 +103,14 @@ class FastSerializerTest {
         "duplicated field name 'private final int " +
             "ch.softappeal.yass.serialize.fast.FastSerializerTest${'$'}A.a' and 'private final int " +
             "ch.softappeal.yass.serialize.fast.FastSerializerTest${'$'}A.a' not allowed in class hierarchy",
-    assertFailsWith<IllegalArgumentException> {
-        val field = A::class.java.getDeclaredField("a")
-        object : FastSerializer() {
-            init {
-                addClass(999, String::class.java, false, mapOf(1 to field, 2 to field))
+        assertFailsWith<IllegalArgumentException> {
+            val field = A::class.java.getDeclaredField("a")
+            object : FastSerializer() {
+                init {
+                    addClass(999, String::class.java, false, mapOf(1 to field, 2 to field))
+                }
             }
-        }
-    }.message
+        }.message
     )
 
     @Test

@@ -52,7 +52,7 @@ public final class StdClient3 {
         final Serializer messageSerializer = messageSerializer(SocketClient.SERIALIZER);
         SocketClient.client(new Client() {
             @Override
-            protected void invoke(final ClientInvocation invocation) throws Exception {
+            protected void invoke(final ClientInvocation invocation) {
                 invocation.invoke(false, request -> {
                     try {
                         messageSerializer.write(writer, request);
