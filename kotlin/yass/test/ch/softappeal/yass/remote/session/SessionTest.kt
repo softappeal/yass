@@ -15,9 +15,10 @@ import java.util.concurrent.Executor
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 import kotlin.test.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
-import kotlin.test.fail
 
 fun useExecutor(
     uncaughtExceptionHandler: Thread.UncaughtExceptionHandler = Terminate,
@@ -38,11 +39,7 @@ fun createTestSession(
 ) = object : SimpleSession(dispatchExecutor) {
     init {
         assertTrue(isClosed)
-        try {
-            proxy(calculatorId).oneWay()
-            fail()
-        } catch (ignore: SessionClosedException) {
-        }
+        assertFailsWith<SessionClosedException> { proxy(calculatorId).oneWay() }
         println("init")
     }
 
@@ -57,11 +54,7 @@ fun createTestSession(
         if (done == null) return
         useClient(proxy(calculatorId, clientPrinter))
         close()
-        try {
-            proxy(calculatorId).twoWay()
-            fail()
-        } catch (ignore: SessionClosedException) {
-        }
+        assertFailsWith<SessionClosedException> { proxy(calculatorId).twoWay() }
         println("done")
         done()
     }
@@ -163,15 +156,11 @@ class LocalConnectionTest {
             }
             TimeUnit.MILLISECONDS.sleep(200L)
             assertTrue(reconnector.isConnected)
-            assertTrue(reconnector.calculator.divide(12, 3) == 4)
+            assertEquals(4, reconnector.calculator.divide(12, 3))
             reconnector.session.close()
-            try {
-                assertTrue(reconnector.calculator.divide(12, 3) == 4)
-                fail()
-            } catch (ignore: SessionClosedException) {
-            }
+            assertFailsWith<SessionClosedException> { reconnector.calculator.divide(12, 3) }
             TimeUnit.SECONDS.sleep(2L)
-            assertTrue(reconnector.calculator.divide(12, 3) == 4)
+            assertEquals(4, reconnector.calculator.divide(12, 3))
             done()
         }
     }

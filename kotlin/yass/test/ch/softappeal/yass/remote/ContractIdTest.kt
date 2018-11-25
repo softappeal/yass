@@ -35,7 +35,6 @@ class ContractIdTest {
         assertSame(Calculator::class.java, initiator.calculator0.contract)
         assertEquals(1, initiator.calculator1.id)
         assertSame(Calculator::class.java, initiator.calculator1.contract)
-
     }
 
     @Test

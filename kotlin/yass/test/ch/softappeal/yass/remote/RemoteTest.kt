@@ -9,6 +9,7 @@ import java.util.concurrent.atomic.AtomicInteger
 import kotlin.system.measureTimeMillis
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
 import kotlin.test.assertFalse
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
@@ -34,12 +35,10 @@ val calculatorId = contractId<Calculator>(123, SimpleMethodMapperFactory)
 
 fun useClient(calculator: Calculator) {
     assertEquals(4, calculator.divide(12, 3))
-    try {
-        calculator.divide(12, 0)
-        fail()
-    } catch (e: ArithmeticException) {
-        assertEquals("/ by zero", e.message)
-    }
+    assertEquals(
+        "/ by zero",
+        assertFailsWith<ArithmeticException> { calculator.divide(12, 0) }.message
+    )
     calculator.twoWay()
     assertNull(calculator.echo(null))
     assertEquals("hello", calculator.echo("hello"))
@@ -165,12 +164,10 @@ private fun syncClient(client: Client) {
     calculator.oneWay()
     calculator.twoWay()
     assertEquals(4, calculator.divide(12, 3))
-    try {
-        calculator.divide(12, 0)
-        fail()
-    } catch (e: ArithmeticException) {
-        assertEquals("/ by zero", e.message)
-    }
+    assertEquals(
+        "/ by zero",
+        assertFailsWith<ArithmeticException> { calculator.divide(12, 0) }.message
+    )
     assertEquals("hello", calculator.echo("hello"))
     testObjectMethods(calculator)
 }
@@ -199,25 +196,15 @@ class RemoteTest {
         testObjectMethods(calculator)
 
         calculator.oneWay()
-        try {
-            promise { calculator.oneWay() }
-            fail()
-        } catch (e: IllegalStateException) {
-            assertEquals(
-                "asynchronous OneWay proxy call must not be enclosed with 'promise' function",
-                e.message
-            )
-        }
+        assertEquals(
+            "asynchronous OneWay proxy call must not be enclosed with 'promise' function",
+            assertFailsWith<IllegalStateException> { promise { calculator.oneWay() } }.message
+        )
         promise { calculator.twoWay() }.thenAcceptAsync(::println)
-        try {
-            calculator.twoWay()
-            fail()
-        } catch (e: IllegalStateException) {
-            assertEquals(
-                "asynchronous request/reply proxy call must be enclosed with 'promise' function",
-                e.message
-            )
-        }
+        assertEquals(
+            "asynchronous request/reply proxy call must be enclosed with 'promise' function",
+            assertFailsWith<IllegalStateException> { calculator.twoWay() }.message
+        )
         val result = AtomicInteger(0)
         promise { calculator.divide(12, 3) }.thenAcceptAsync { result.set(it) }
         promise { calculator.divide(12, 0) }.whenCompleteAsync { _, e -> println(e) }
@@ -236,7 +223,7 @@ class RemoteTest {
                 coroutine { calculator.divide(12, 0) }
                 fail()
             } catch (e: ArithmeticException) {
-                println(e)
+                assertEquals("/ by zero", e.message)
             }
             assertEquals("hello", coroutine { calculator.echo("hello") })
         }
@@ -246,48 +233,42 @@ class RemoteTest {
     fun asyncProxy() {
         val client = client(Server(Service(calculatorId, CalculatorImpl)), false)
         client.proxy(calculatorId).twoWay()
-        try {
-            promise { client.asyncProxy(calculatorId).twoWay() }
-            fail()
-        } catch (e: IllegalStateException) {
-            assertEquals("asynchronous services not supported (service id 123)", e.message)
-        }
+        assertEquals(
+            "asynchronous services not supported (service id 123)",
+            assertFailsWith<IllegalStateException> { promise { client.asyncProxy(calculatorId).twoWay() } }.message
+        )
     }
 
     @Test
-    fun duplicatedService() = try {
-        Server(service, service)
-        fail()
-    } catch (e: IllegalStateException) {
-        assertEquals("service id 123 already added", e.message)
-    }
+    fun duplicatedService() = assertEquals(
+        "service id 123 already added",
+        assertFailsWith<IllegalStateException> { Server(service, service) }.message
+    )
 
     @Test
-    fun noService() = try {
-        Server(service).invocation(true, Request(987, 0, listOf()))
-        fail()
-    } catch (e: IllegalStateException) {
-        assertEquals("no service id 987 found (method id 0)", e.message)
-    }
+    fun noService() = assertEquals(
+        "no service id 987 found (method id 0)",
+        assertFailsWith<IllegalStateException> {
+            Server(service).invocation(true, Request(987, 0, listOf()))
+        }.message
+    )
 
     @Test
     fun asyncService() {
         Server(asyncService).invocation(true, Request(calculatorId.id, 0, listOf()))
-        try {
-            Server(asyncService).invocation(false, Request(calculatorId.id, 0, listOf()))
-            fail()
-        } catch (e: IllegalStateException) {
-            assertEquals("asynchronous services not supported (service id 123)", e.message)
-        }
+        assertEquals(
+            "asynchronous services not supported (service id 123)",
+            assertFailsWith<IllegalStateException> {
+                Server(asyncService).invocation(false, Request(calculatorId.id, 0, listOf()))
+            }.message
+        )
     }
 
     @Test
-    fun noCompleter() = try {
-        completer
-        fail()
-    } catch (e: IllegalStateException) {
-        assertEquals("no active asynchronous request/reply service invocation", e.message)
-    }
+    fun noCompleter() = assertEquals(
+        "no active asynchronous request/reply service invocation",
+        assertFailsWith<IllegalStateException> { completer }.message
+    )
 
     @Test
     fun performance() {
