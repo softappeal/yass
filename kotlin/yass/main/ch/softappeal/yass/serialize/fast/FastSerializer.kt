@@ -228,7 +228,7 @@ abstract class FastSerializer protected constructor() : Serializer {
         val oldTypeSerializer = _id2typeSerializer.put(typeDesc.id, typeDesc.serializer)
         check(oldTypeSerializer == null) {
             "type id ${typeDesc.id} used for '${typeDesc.serializer.type.canonicalName}' " +
-                    "and '${oldTypeSerializer!!.type.canonicalName}'"
+                "and '${oldTypeSerializer!!.type.canonicalName}'"
         }
     }
 

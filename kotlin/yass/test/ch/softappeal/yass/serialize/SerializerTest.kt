@@ -103,7 +103,7 @@ fun createValues(): AllTypes {
     allTypes.instantField = Instant.ofEpochSecond(123, 456789)
     allTypes.primitiveTypesField = AllTypes("hello")
     allTypes.primitiveTypesListField =
-            Arrays.asList<PrimitiveTypes>(PrimitiveTypes(999), AllTypes("world"), null)
+        Arrays.asList<PrimitiveTypes>(PrimitiveTypes(999), AllTypes("world"), null)
     allTypes.objectField = "bad"
     allTypes.objectListField = Arrays.asList<Any>("good", null, 123)
     allTypes.exception = IntException(123)

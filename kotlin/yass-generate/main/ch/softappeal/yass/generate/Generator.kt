@@ -49,8 +49,8 @@ abstract class Generator(
     init {
         check(
             (initiator == null) ||
-                    (acceptor == null) ||
-                    (initiator.methodMapperFactory === acceptor.methodMapperFactory)
+                (acceptor == null) ||
+                (initiator.methodMapperFactory === acceptor.methodMapperFactory)
         ) { "initiator and acceptor must have same methodMapperFactory" }
         if (initiator != null) methodMapperFactory = initiator.methodMapperFactory
         if (acceptor != null) methodMapperFactory = acceptor.methodMapperFactory

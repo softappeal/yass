@@ -43,7 +43,7 @@ class ServerTransport(private val server: Server, private val messageSerializer:
 
 class ServerSetup(private val pathSerializer: Serializer, private val pathMappings: Map<out Any, ServerTransport>) {
     constructor(server: Server, messageSerializer: Serializer) :
-            this(IntPathSerializer, mapOf(IntPathSerializerDefaultPath to ServerTransport(server, messageSerializer)))
+        this(IntPathSerializer, mapOf(IntPathSerializerDefaultPath to ServerTransport(server, messageSerializer)))
 
     fun resolve(reader: Reader): ServerTransport {
         val path = pathSerializer.read(reader)

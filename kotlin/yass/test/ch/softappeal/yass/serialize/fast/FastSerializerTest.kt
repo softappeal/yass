@@ -112,8 +112,8 @@ class FastSerializerTest {
     } catch (e: IllegalArgumentException) {
         assertEquals(
             "duplicated field name 'private final int " +
-                    "ch.softappeal.yass.serialize.fast.FastSerializerTest${'$'}A.a' and 'private final int " +
-                    "ch.softappeal.yass.serialize.fast.FastSerializerTest${'$'}A.a' not allowed in class hierarchy",
+                "ch.softappeal.yass.serialize.fast.FastSerializerTest${'$'}A.a' and 'private final int " +
+                "ch.softappeal.yass.serialize.fast.FastSerializerTest${'$'}A.a' not allowed in class hierarchy",
             e.message
         )
     }
@@ -220,7 +220,7 @@ class FastSerializerTest {
     } catch (e: IllegalStateException) {
         assertEquals(
             "missing tag for " +
-                    "'class ch.softappeal.yass.serialize.fast.FastSerializerTest${'$'}MissingClassTag'",
+                "'class ch.softappeal.yass.serialize.fast.FastSerializerTest${'$'}MissingClassTag'",
             e.message
         )
     }
@@ -246,7 +246,7 @@ class FastSerializerTest {
     } catch (e: IllegalArgumentException) {
         assertEquals(
             "id -1 for type " +
-                    "'ch.softappeal.yass.serialize.fast.FastSerializerTest.InvalidTypeTag' must be >= 0",
+                "'ch.softappeal.yass.serialize.fast.FastSerializerTest.InvalidTypeTag' must be >= 0",
             e.message
         )
     }
@@ -264,8 +264,8 @@ class FastSerializerTest {
     } catch (e: IllegalArgumentException) {
         assertEquals(
             "id 0 for field " +
-                    "'private int ch.softappeal.yass.serialize.fast.FastSerializerTest${'$'}InvalidFieldTag.i' " +
-                    "must be >= 1",
+                "'private int ch.softappeal.yass.serialize.fast.FastSerializerTest${'$'}InvalidFieldTag.i' " +
+                "must be >= 1",
             e.message
         )
     }
@@ -285,8 +285,8 @@ class FastSerializerTest {
     } catch (e: IllegalArgumentException) {
         assertEquals(
             "tag 1 used for fields 'private int " +
-                    "ch.softappeal.yass.serialize.fast.FastSerializerTest${'$'}DuplicatedFieldTag.i2' and " +
-                    "'private int ch.softappeal.yass.serialize.fast.FastSerializerTest${'$'}DuplicatedFieldTag.i1'",
+                "ch.softappeal.yass.serialize.fast.FastSerializerTest${'$'}DuplicatedFieldTag.i2' and " +
+                "'private int ch.softappeal.yass.serialize.fast.FastSerializerTest${'$'}DuplicatedFieldTag.i1'",
             e.message
         )
     }

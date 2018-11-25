@@ -24,7 +24,7 @@ class MethodMapperTest {
     @Test
     fun oneWayResult() = assertEquals(
         "OneWay method 'public abstract int " +
-                "ch.softappeal.yass.remote.MethodMapperTest${'$'}OneWayResult.test()' must return void",
+            "ch.softappeal.yass.remote.MethodMapperTest${'$'}OneWayResult.test()' must return void",
         assertFailsWith<IllegalStateException> { SimpleMethodMapperFactory(OneWayResult::class.java) }.message
     )
 
@@ -37,8 +37,8 @@ class MethodMapperTest {
     @Test
     fun oneWayException() = assertEquals(
         "OneWay method 'public abstract void " +
-                "ch.softappeal.yass.remote.MethodMapperTest${'$'}OneWayException.test() " +
-                "throws java.lang.RuntimeException' must not throw exceptions",
+            "ch.softappeal.yass.remote.MethodMapperTest${'$'}OneWayException.test() " +
+            "throws java.lang.RuntimeException' must not throw exceptions",
         assertFailsWith<IllegalStateException> { SimpleMethodMapperFactory(OneWayException::class.java) }.message
     )
 
@@ -50,10 +50,10 @@ class MethodMapperTest {
     @Test
     fun nameOverloading() = assertEquals(
         "methods 'public abstract void " +
-                "ch.softappeal.yass.remote.MethodMapperTest${'$'}NameOverloading.test(java.lang.String)' and " +
-                "'public abstract void ch.softappeal.yass.remote.MethodMapperTest${'$'}NameOverloading.test()' " +
-                "in contract 'interface ch.softappeal.yass.remote.MethodMapperTest${'$'}NameOverloading' " +
-                "are overloaded",
+            "ch.softappeal.yass.remote.MethodMapperTest${'$'}NameOverloading.test(java.lang.String)' and " +
+            "'public abstract void ch.softappeal.yass.remote.MethodMapperTest${'$'}NameOverloading.test()' " +
+            "in contract 'interface ch.softappeal.yass.remote.MethodMapperTest${'$'}NameOverloading' " +
+            "are overloaded",
         assertFailsWith<IllegalStateException> { SimpleMethodMapperFactory(NameOverloading::class.java) }.message
     )
 
@@ -72,16 +72,16 @@ class MethodMapperTest {
         assertTrue(
             message.equals(
                 "tag 123 used for methods 'public abstract int " +
-                        "ch.softappeal.yass.remote.MethodMapperTest${'$'}TagOverloading.a()' and " +
-                        "'public abstract int ch.softappeal.yass.remote.MethodMapperTest${'$'}TagOverloading.b()' " +
-                        "in contract 'interface ch.softappeal.yass.remote.MethodMapperTest${'$'}TagOverloading'"
-            )
-                    || message.equals(
-                "tag 123 used for methods 'public abstract int " +
+                    "ch.softappeal.yass.remote.MethodMapperTest${'$'}TagOverloading.a()' and " +
+                    "'public abstract int ch.softappeal.yass.remote.MethodMapperTest${'$'}TagOverloading.b()' " +
+                    "in contract 'interface ch.softappeal.yass.remote.MethodMapperTest${'$'}TagOverloading'"
+            ) ||
+                message.equals(
+                    "tag 123 used for methods 'public abstract int " +
                         "ch.softappeal.yass.remote.MethodMapperTest${'$'}TagOverloading.b()' and " +
                         "'public abstract int ch.softappeal.yass.remote.MethodMapperTest${'$'}TagOverloading.a()' " +
                         "in contract 'interface ch.softappeal.yass.remote.MethodMapperTest${'$'}TagOverloading'"
-            )
+                )
         )
     }
 
@@ -119,13 +119,13 @@ class MethodMapperTest {
         check(TestService::class.java.getMethod("oneWay", Int::class.javaPrimitiveType), 2, true)
         assertEquals(
             "unexpected method id 999 for contract " +
-                    "'interface ch.softappeal.yass.remote.MethodMapperTest${'$'}TestService'",
+                "'interface ch.softappeal.yass.remote.MethodMapperTest${'$'}TestService'",
             assertFailsWith<IllegalStateException> { mapper.map(999) }.message
         )
         assertEquals(
             "unexpected method " +
-                    "'public abstract int ch.softappeal.yass.remote.MethodMapperTest${'$'}TagOverloading.a()' " +
-                    "for contract 'interface ch.softappeal.yass.remote.MethodMapperTest${'$'}TestService'",
+                "'public abstract int ch.softappeal.yass.remote.MethodMapperTest${'$'}TagOverloading.a()' " +
+                "for contract 'interface ch.softappeal.yass.remote.MethodMapperTest${'$'}TestService'",
             assertFailsWith<IllegalStateException> {
                 mapper.map(TagOverloading::class.java.getMethod("a"))
             }.message

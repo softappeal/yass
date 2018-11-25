@@ -15,30 +15,30 @@ abstract class Reader {
         readBytes(buffer, 0, buffer.size)
 
     fun readShort(): Short = (
-            ((readByte().toInt() and 0b1111_1111) shl 8) or
-                    ((readByte().toInt() and 0b1111_1111) shl 0)
-            ).toShort()
+        ((readByte().toInt() and 0b1111_1111) shl 8) or
+            ((readByte().toInt() and 0b1111_1111) shl 0)
+        ).toShort()
 
     fun readInt(): Int =
         ((readByte().toInt() and 0b1111_1111) shl 24) or
-                ((readByte().toInt() and 0b1111_1111) shl 16) or
-                ((readByte().toInt() and 0b1111_1111) shl 8) or
-                ((readByte().toInt() and 0b1111_1111) shl 0)
+            ((readByte().toInt() and 0b1111_1111) shl 16) or
+            ((readByte().toInt() and 0b1111_1111) shl 8) or
+            ((readByte().toInt() and 0b1111_1111) shl 0)
 
     fun readLong(): Long =
         ((readByte().toLong() and 0b1111_1111) shl 56) or
-                ((readByte().toLong() and 0b1111_1111) shl 48) or
-                ((readByte().toLong() and 0b1111_1111) shl 40) or
-                ((readByte().toLong() and 0b1111_1111) shl 32) or
-                ((readByte().toLong() and 0b1111_1111) shl 24) or
-                ((readByte().toLong() and 0b1111_1111) shl 16) or
-                ((readByte().toLong() and 0b1111_1111) shl 8) or
-                ((readByte().toLong() and 0b1111_1111) shl 0)
+            ((readByte().toLong() and 0b1111_1111) shl 48) or
+            ((readByte().toLong() and 0b1111_1111) shl 40) or
+            ((readByte().toLong() and 0b1111_1111) shl 32) or
+            ((readByte().toLong() and 0b1111_1111) shl 24) or
+            ((readByte().toLong() and 0b1111_1111) shl 16) or
+            ((readByte().toLong() and 0b1111_1111) shl 8) or
+            ((readByte().toLong() and 0b1111_1111) shl 0)
 
     fun readChar(): Char = (
-            ((readByte().toInt() and 0b1111_1111) shl 8) or
-                    ((readByte().toInt() and 0b1111_1111) shl 0)
-            ).toChar()
+        ((readByte().toInt() and 0b1111_1111) shl 8) or
+            ((readByte().toInt() and 0b1111_1111) shl 0)
+        ).toChar()
 
     fun readFloat(): Float =
         java.lang.Float.intBitsToFloat(readInt())

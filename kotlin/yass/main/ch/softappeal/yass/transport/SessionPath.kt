@@ -17,7 +17,7 @@ class InitiatorSetup(
     private val path: Any
 ) {
     constructor(packetSerializer: Serializer, sessionFactory: SessionFactory) :
-            this(SessionTransport(packetSerializer, sessionFactory), IntPathSerializer, IntPathSerializerDefaultPath)
+        this(SessionTransport(packetSerializer, sessionFactory), IntPathSerializer, IntPathSerializerDefaultPath)
 
     fun writePath(writer: Writer) = pathSerializer.write(writer, path)
 }

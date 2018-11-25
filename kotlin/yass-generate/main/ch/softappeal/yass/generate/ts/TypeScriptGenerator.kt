@@ -208,7 +208,7 @@ class TypeScriptGenerator @JvmOverloads constructor(
                             println(",")
                             tabs(
                                 "new yass.FieldDesc(${fieldDesc.id}, '${fieldDesc.serializer.field.name}'," +
-                                        " ${typeDesc(fieldDesc)})"
+                                    " ${typeDesc(fieldDesc)})"
                             )
                         }
                         println()
@@ -282,7 +282,7 @@ class TypeScriptGenerator @JvmOverloads constructor(
                     }
                     tabsln(
                         "export const ${serviceDesc.name} = new yass.ContractId<${namespace}proxy.$name, " +
-                                "${namespace}impl.$name>(${serviceDesc.contractId.id}, ${namespace}mapper.$name);"
+                            "${namespace}impl.$name>(${serviceDesc.contractId.id}, ${namespace}mapper.$name);"
                     )
                 }
                 dec()

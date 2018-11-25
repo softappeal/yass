@@ -40,7 +40,7 @@ abstract class SocketConnection internal constructor(
 }
 
 typealias SocketConnectionFactory =
-            (session: Session, transport: SessionTransport, socket: Socket, out: OutputStream) -> SocketConnection
+        (session: Session, transport: SessionTransport, socket: Socket, out: OutputStream) -> SocketConnection
 
 /** Writes to socket in caller thread. Blocks if socket can't send data. */
 val SyncSocketConnectionFactory: SocketConnectionFactory = { _, transport, socket, out ->

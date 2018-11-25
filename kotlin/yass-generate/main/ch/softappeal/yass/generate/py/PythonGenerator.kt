@@ -144,10 +144,10 @@ class PythonGenerator(
             println("import yass")
             if (includeFileForEachModule != null) includeFile(includeFileForEachModule)
             val moduleIncludeFile = module2includeFile[
-                    if (namespace == rootNamespace)
-                        ""
-                    else
-                        namespace.moduleName.substring(RootModule.length + 1).replace('_', '.')
+                if (namespace == rootNamespace)
+                    ""
+                else
+                    namespace.moduleName.substring(RootModule.length + 1).replace('_', '.')
             ]
             if (moduleIncludeFile != null) {
                 println2()
@@ -161,8 +161,8 @@ class PythonGenerator(
             namespace.types
                 .filter { t ->
                     !t.isEnum &&
-                            !t.isInterface &&
-                            (Modifier.isAbstract(t.modifiers) || typeSerializer(t) is ClassTypeSerializer)
+                        !t.isInterface &&
+                        (Modifier.isAbstract(t.modifiers) || typeSerializer(t) is ClassTypeSerializer)
                 }
                 .forEach { generateClass(it) }
             namespace.types.filter { it.isInterface }.forEach { generateInterface(it) }
@@ -186,7 +186,7 @@ class PythonGenerator(
             else
                 println(
                     "${module.parent!!.moduleName.replace('_', '.')} " +
-                            "import ${module.name} as ${module.moduleName}"
+                        "import ${module.name} as ${module.moduleName}"
                 )
         }
 
@@ -300,7 +300,7 @@ class PythonGenerator(
                 else if (hasClassDesc(type))
                     println(
                         "yass.classDesc(${type2id[type]}, $qn, " +
-                                "${pyBool((typeSerializer(type) as ClassTypeSerializer).graph)})"
+                            "${pyBool((typeSerializer(type) as ClassTypeSerializer).graph)})"
                     )
             }
             println()
@@ -310,7 +310,7 @@ class PythonGenerator(
                     tab()
                     tabsln(
                         "yass.FieldDesc(${fieldDesc.id}, '${fieldDesc.serializer.field.name}', " +
-                                "${typeDesc(fieldDesc)}),"
+                            "${typeDesc(fieldDesc)}),"
                     )
                 }
                 tabsln("])")
@@ -343,7 +343,7 @@ class PythonGenerator(
             else
                 println(
                     "${module.parent!!.moduleName.replace('_', '.')} " +
-                            "import ${module.name} as ${module.moduleName}"
+                        "import ${module.name} as ${module.moduleName}"
                 )
         }
 

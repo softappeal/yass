@@ -61,7 +61,7 @@ private fun printer(client: Boolean): Interceptor {
         fun print(type: String, data: Any?, arguments: List<Any?>? = null) =
             println(
                 "${if (client) "client" else "server"} - ${Thread.currentThread().name} -" +
-                        " $type - $data ${arguments ?: ""}"
+                    " $type - $data ${arguments ?: ""}"
             )
         print("enter", method.name, arguments)
         try {
