@@ -1,7 +1,7 @@
 package ch.softappeal.yass.remote
 
 import ch.softappeal.yass.JavaCalculator
-import org.junit.Test
+import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertSame

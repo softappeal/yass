@@ -2,7 +2,7 @@ package ch.softappeal.yass.generate
 
 import ch.softappeal.yass.serialize.fast.IntSerializer
 import ch.softappeal.yass.serialize.fast.TypeDesc
-import org.junit.Test
+import kotlin.test.Test
 import kotlin.test.assertEquals
 import ch.softappeal.yass.generate.py.baseTypeDescs as pyBaseTypeDescs
 import ch.softappeal.yass.generate.ts.baseTypeDescs as tsBaseTypeDescs

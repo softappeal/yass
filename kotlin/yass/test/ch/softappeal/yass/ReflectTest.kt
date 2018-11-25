@@ -3,8 +3,8 @@ package ch.softappeal.yass
 import ch.softappeal.yass.serialize.FieldModifiers
 import ch.softappeal.yass.serialize.NoDefaultConstructor
 import ch.softappeal.yass.serialize.nested.AllTypes
-import org.junit.Test
 import java.lang.reflect.Field
+import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue

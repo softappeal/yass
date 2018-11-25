@@ -3,13 +3,13 @@ package ch.softappeal.yass
 import ch.softappeal.yass.serialize.createGraph
 import ch.softappeal.yass.serialize.createNulls
 import ch.softappeal.yass.serialize.createValues
-import org.junit.Test
 import java.io.PrintWriter
 import java.math.BigDecimal
 import java.math.BigInteger
 import java.time.Instant
 import java.util.Date
 import java.util.TimeZone
+import kotlin.test.Test
 import kotlin.test.assertEquals
 
 private fun dumper(compact: Boolean, graph: Boolean, concreteValueClasses: Set<Class<*>>): Dumper {

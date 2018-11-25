@@ -10,11 +10,11 @@ import ch.softappeal.yass.remote.clientPrinter
 import ch.softappeal.yass.remote.performance
 import ch.softappeal.yass.remote.serverPrinter
 import ch.softappeal.yass.remote.useClient
-import org.junit.Test
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.Executor
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
+import kotlin.test.Test
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 import kotlin.test.fail

@@ -3,11 +3,11 @@ package ch.softappeal.yass.remote
 import ch.softappeal.yass.Interceptor
 import kotlinx.coroutines.future.await
 import kotlinx.coroutines.runBlocking
-import org.junit.Test
 import java.lang.reflect.Method
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicInteger
 import kotlin.system.measureTimeMillis
+import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertNull

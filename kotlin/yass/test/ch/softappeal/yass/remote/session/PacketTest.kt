@@ -1,7 +1,7 @@
 package ch.softappeal.yass.remote.session
 
 import ch.softappeal.yass.remote.ValueReply
-import org.junit.Test
+import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertFalse

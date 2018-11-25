@@ -14,9 +14,9 @@ import ch.softappeal.yass.serialize.JavaSerializer
 import ch.softappeal.yass.transport.ClientSetup
 import ch.softappeal.yass.transport.ServerSetup
 import ch.softappeal.yass.transport.messageSerializer
-import org.junit.Test
 import java.net.InetSocketAddress
 import java.util.concurrent.TimeUnit
+import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.fail

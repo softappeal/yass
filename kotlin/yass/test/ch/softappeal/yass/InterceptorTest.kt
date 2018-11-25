@@ -1,7 +1,7 @@
 package ch.softappeal.yass
 
-import org.junit.Test
 import java.lang.reflect.Method
+import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertNull

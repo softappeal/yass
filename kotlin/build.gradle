@@ -20,7 +20,7 @@ subprojects {
 
     dependencies {
         compile "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
-        testCompile "org.jetbrains.kotlin:kotlin-test-junit"
+        testCompile "org.jetbrains.kotlin:kotlin-test-junit5"
     }
 
     tasks.withType(JavaCompile) {

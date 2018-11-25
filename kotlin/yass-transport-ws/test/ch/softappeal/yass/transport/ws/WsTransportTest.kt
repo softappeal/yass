@@ -18,7 +18,6 @@ import org.eclipse.jetty.server.ServerConnector
 import org.eclipse.jetty.servlet.ServletContextHandler
 import org.eclipse.jetty.websocket.jsr356.ClientContainer
 import org.eclipse.jetty.websocket.jsr356.server.deploy.WebSocketServerContainerInitializer
-import org.junit.Test
 import org.xnio.ByteBufferSlicePool
 import org.xnio.OptionMap
 import org.xnio.Options
@@ -30,6 +29,7 @@ import javax.websocket.ClientEndpointConfig
 import javax.websocket.Endpoint
 import javax.websocket.WebSocketContainer
 import javax.websocket.server.ServerEndpointConfig
+import kotlin.test.Test
 
 private const val PORT = 9090
 private const val PATH = "/test"

@@ -11,8 +11,8 @@ import ch.softappeal.yass.transport.ClientSetup
 import ch.softappeal.yass.transport.ContextMessageSerializer
 import ch.softappeal.yass.transport.ServerSetup
 import ch.softappeal.yass.transport.messageSerializer
-import org.junit.Test
 import java.util.concurrent.TimeUnit
+import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
 

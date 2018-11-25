@@ -12,8 +12,8 @@ import ch.softappeal.yass.remote.session.useExecutor
 import ch.softappeal.yass.transport.AcceptorSetup
 import ch.softappeal.yass.transport.InitiatorSetup
 import ch.softappeal.yass.transport.packetSerializer
-import org.junit.Test
 import java.util.concurrent.TimeUnit
+import kotlin.test.Test
 
 val packetSerializer = packetSerializer(messageSerializer)
 

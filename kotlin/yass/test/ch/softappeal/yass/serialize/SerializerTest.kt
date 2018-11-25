@@ -1,8 +1,7 @@
 package ch.softappeal.yass.serialize
 
 import ch.softappeal.yass.serialize.nested.AllTypes
-import org.junit.Assert.assertArrayEquals
-import org.junit.Test
+import org.junit.jupiter.api.Assertions.assertArrayEquals
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.math.BigDecimal
@@ -10,6 +9,7 @@ import java.math.BigInteger
 import java.time.Instant
 import java.util.Arrays
 import java.util.Date
+import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertNull
@@ -199,8 +199,8 @@ private fun checkBaseTypes(serializer: Serializer) {
     assertArrayEquals(intArrayOf(1, 2), copy(serializer, intArrayOf(1, 2)))
     assertArrayEquals(longArrayOf(1L, 2L), copy(serializer, longArrayOf(1L, 2L)))
     assertArrayEquals(charArrayOf('a', 'b'), copy(serializer, charArrayOf('a', 'b')))
-    assertArrayEquals(floatArrayOf(1f, 2f), copy(serializer, floatArrayOf(1f, 2f)), 0f)
-    assertArrayEquals(doubleArrayOf(1.0, 2.0), copy(serializer, doubleArrayOf(1.0, 2.0)), 0.0)
+    assertArrayEquals(floatArrayOf(1f, 2f), copy(serializer, floatArrayOf(1.0f, 2f)))
+    assertArrayEquals(doubleArrayOf(1.0, 2.0), copy(serializer, doubleArrayOf(1.0, 2.0)))
     assertEquals(emptyList(), copy(serializer, emptyList<Any>()))
     assertEquals(listOf(1, null, "2"), copy(serializer, listOf(1, null, "2")))
     assertEquals(listOf("1", null, "2"), copy(serializer, listOf("1", null, "2")))
@@ -231,10 +231,10 @@ private fun checkBaseTypes(serializer: Serializer) {
     assertArrayEquals(copy(serializer, chars), chars)
     val floats = FloatArray(10000)
     Arrays.fill(floats, 123.987f)
-    assertArrayEquals(copy(serializer, floats), floats, 0f)
+    assertArrayEquals(copy(serializer, floats), floats)
     val doubles = DoubleArray(10000)
     Arrays.fill(doubles, 123.987)
-    assertArrayEquals(copy(serializer, doubles), doubles, 0.0)
+    assertArrayEquals(copy(serializer, doubles), doubles)
 }
 
 fun test(serializer: Serializer) {

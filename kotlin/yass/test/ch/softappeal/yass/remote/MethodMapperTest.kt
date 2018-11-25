@@ -1,8 +1,8 @@
 package ch.softappeal.yass.remote
 
 import ch.softappeal.yass.Tag
-import org.junit.Test
 import java.lang.reflect.Method
+import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue

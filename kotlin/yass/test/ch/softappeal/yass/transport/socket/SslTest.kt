@@ -9,7 +9,6 @@ import ch.softappeal.yass.remote.session.useExecutor
 import ch.softappeal.yass.remote.useClient
 import ch.softappeal.yass.transport.ClientSetup
 import ch.softappeal.yass.transport.ServerSetup
-import org.junit.Test
 import java.lang.reflect.UndeclaredThrowableException
 import java.nio.file.Files
 import java.nio.file.Paths
@@ -17,6 +16,7 @@ import java.security.KeyStore
 import javax.net.ServerSocketFactory
 import javax.net.SocketFactory
 import javax.net.ssl.SSLSocket
+import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.fail
 

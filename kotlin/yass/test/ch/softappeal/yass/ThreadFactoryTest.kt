@@ -1,7 +1,7 @@
 package ch.softappeal.yass
 
-import org.junit.Test
 import kotlin.test.Ignore
+import kotlin.test.Test
 import kotlin.test.assertEquals
 
 class ThreadFactoryTest {

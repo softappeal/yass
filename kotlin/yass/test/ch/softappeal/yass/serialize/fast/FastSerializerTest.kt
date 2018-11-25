@@ -20,10 +20,10 @@ import ch.softappeal.yass.serialize.nested.AllTypes
 import ch.softappeal.yass.serialize.reader
 import ch.softappeal.yass.serialize.test
 import ch.softappeal.yass.serialize.writer
-import org.junit.Test
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.io.PrintWriter
+import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertNull

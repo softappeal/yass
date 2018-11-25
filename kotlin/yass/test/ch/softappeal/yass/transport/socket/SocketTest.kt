@@ -1,9 +1,9 @@
 package ch.softappeal.yass.transport.socket
 
-import org.junit.Test
 import java.net.BindException
 import java.net.ConnectException
 import java.net.InetSocketAddress
+import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.fail
 

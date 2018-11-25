@@ -8,10 +8,10 @@ import ch.softappeal.yass.serialize.JavaSerializer
 import ch.softappeal.yass.serialize.copy
 import ch.softappeal.yass.serialize.reader
 import ch.softappeal.yass.serialize.writer
-import org.junit.Test
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.io.EOFException
+import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 import kotlin.test.fail
