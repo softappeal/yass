@@ -179,47 +179,101 @@ class RemoteTest {
         )
     )
 
-    @Test
-    fun asyncClientAsyncServer() {
+    private fun asyncProxyForCalculator(): Calculator {
         val client = client(
             Server(AsyncService(calculatorId, AsyncCalculatorImpl, asyncPrinter("server"))),
             true
         )
-        val calculator = client.asyncProxy(calculatorId, asyncPrinter("client"))
+        return client.asyncProxy(calculatorId, asyncPrinter("client"))
+    }
 
-        testObjectMethods(calculator)
+    interface AsyncCalculator {
+        fun oneWay()
+        fun twoWay(): CompletionStage<Unit>
+        fun divide(a: Int, b: Int): CompletionStage<Int>
+        fun echo(value: String?): CompletionStage<String?>
+    }
 
-        calculator.oneWay()
+    @Test
+    fun asyncClientAsyncServer() {
+        val asyncCalculator = asyncProxyForCalculator()
+        testObjectMethods(asyncCalculator)
         assertEquals(
             "asynchronous OneWay proxy call must not be enclosed with 'promise' function",
-            assertFailsWith<IllegalStateException> { promise { calculator.oneWay() } }.message
+            assertFailsWith<IllegalStateException> { promise { asyncCalculator.oneWay() } }.message
         )
-        promise { calculator.twoWay() }.thenAcceptAsync(::println)
         assertEquals(
             "asynchronous request/reply proxy call must be enclosed with 'promise' function",
-            assertFailsWith<IllegalStateException> { calculator.twoWay() }.message
+            assertFailsWith<IllegalStateException> { asyncCalculator.twoWay() }.message
         )
+        val calculator: AsyncCalculator = object : AsyncCalculator {
+            override fun oneWay() {
+                asyncCalculator.oneWay()
+            }
+
+            override fun twoWay(): CompletionStage<Unit> {
+                return promise { asyncCalculator.twoWay() }
+            }
+
+            override fun divide(a: Int, b: Int): CompletionStage<Int> {
+                return promise { asyncCalculator.divide(a, b) }
+            }
+
+            override fun echo(value: String?): CompletionStage<String?> {
+                return promise { asyncCalculator.echo(value) }
+            }
+        }
+        calculator.oneWay()
+        calculator.twoWay().thenAcceptAsync { println("twoWay.thenAcceptAsync $it") }
         val result = AtomicInteger(0)
-        promise { calculator.divide(12, 3) }.thenAcceptAsync { result.set(it) }
-        promise { calculator.divide(12, 0) }.whenCompleteAsync { _, e -> println(e) }
-        promise { calculator.echo("hello") }.thenAcceptAsync(::println)
+        calculator.divide(12, 3).thenAcceptAsync { result.set(it) }
+        calculator.divide(12, 0).whenCompleteAsync { _, e -> println(e) }
+        calculator.echo("hello").thenAcceptAsync(::println)
         println("done")
         assertEquals(0, result.get())
         TimeUnit.MILLISECONDS.sleep(200L)
         assertEquals(4, result.get())
+    }
 
-        println("coroutine")
+    interface SuspendCalculator {
+        fun oneWay()
+        suspend fun twoWay()
+        suspend fun divide(a: Int, b: Int): Int
+        suspend fun echo(value: String?): String?
+    }
+
+    @Test
+    fun asyncClientAsyncServerCoroutine() {
         suspend fun <T> coroutine(execute: () -> T): T = promise(execute).await()
+        val asyncCalculator = asyncProxyForCalculator()
+        val calculator: SuspendCalculator = object : SuspendCalculator {
+            override fun oneWay() {
+                asyncCalculator.oneWay()
+            }
+
+            override suspend fun twoWay() {
+                return coroutine { asyncCalculator.twoWay() }
+            }
+
+            override suspend fun divide(a: Int, b: Int): Int {
+                return coroutine { asyncCalculator.divide(a, b) }
+            }
+
+            override suspend fun echo(value: String?): String? {
+                return coroutine { asyncCalculator.echo(value) }
+            }
+        }
         runBlocking {
-            assertNull(coroutine { calculator.twoWay() })
-            assertEquals(4, coroutine { calculator.divide(12, 3) })
+            calculator.oneWay()
+            assertNull(calculator.twoWay())
+            assertEquals(4, calculator.divide(12, 3))
             try {
-                coroutine { calculator.divide(12, 0) }
+                calculator.divide(12, 0)
                 fail()
             } catch (e: ArithmeticException) {
                 assertEquals("/ by zero", e.message)
             }
-            assertEquals("hello", coroutine { calculator.echo("hello") })
+            assertEquals("hello", calculator.echo("hello"))
         }
     }
 
