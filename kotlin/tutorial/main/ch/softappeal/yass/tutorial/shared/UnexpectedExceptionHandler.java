@@ -1,13 +1,11 @@
 package ch.softappeal.yass.tutorial.shared;
 
-import ch.softappeal.yass.remote.OneWay;
-import ch.softappeal.yass.tutorial.contract.ApplicationException;
-import ch.softappeal.yass.tutorial.contract.SystemException;
-import kotlin.jvm.functions.Function0;
-import kotlin.jvm.functions.Function3;
+import ch.softappeal.yass.remote.*;
+import ch.softappeal.yass.tutorial.contract.*;
+import kotlin.jvm.functions.*;
 
-import java.lang.reflect.Method;
-import java.util.List;
+import java.lang.reflect.*;
+import java.util.*;
 
 public final class UnexpectedExceptionHandler implements Function3<Method, List<?>, Function0<?>, Object> {
 

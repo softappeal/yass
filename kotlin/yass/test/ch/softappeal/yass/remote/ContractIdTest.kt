@@ -1,10 +1,7 @@
 package ch.softappeal.yass.remote
 
-import ch.softappeal.yass.JavaCalculator
-import kotlin.test.Test
-import kotlin.test.assertEquals
-import kotlin.test.assertFailsWith
-import kotlin.test.assertSame
+import ch.softappeal.yass.*
+import kotlin.test.*
 
 private abstract class Role : Services(SimpleMethodMapperFactory)
 

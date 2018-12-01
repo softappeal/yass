@@ -1,35 +1,26 @@
 package ch.softappeal.yass.transport.ws
 
+import ch.softappeal.yass.remote.session.*
 import ch.softappeal.yass.remote.session.Connection
-import ch.softappeal.yass.remote.session.createTestSession
-import ch.softappeal.yass.remote.session.useExecutor
-import ch.softappeal.yass.transport.SessionTransport
-import ch.softappeal.yass.transport.socket.packetSerializer
-import io.undertow.Undertow
-import io.undertow.server.XnioByteBufferPool
-import io.undertow.servlet.Servlets
-import io.undertow.servlet.api.ThreadSetupHandler
-import io.undertow.servlet.core.ContextClassLoaderSetupAction
-import io.undertow.servlet.util.DefaultClassIntrospector
-import io.undertow.websockets.jsr.ServerWebSocketContainer
-import io.undertow.websockets.jsr.WebSocketDeploymentInfo
-import org.eclipse.jetty.server.Server
-import org.eclipse.jetty.server.ServerConnector
-import org.eclipse.jetty.servlet.ServletContextHandler
-import org.eclipse.jetty.websocket.jsr356.ClientContainer
-import org.eclipse.jetty.websocket.jsr356.server.deploy.WebSocketServerContainerInitializer
-import org.xnio.ByteBufferSlicePool
-import org.xnio.OptionMap
-import org.xnio.Options
-import org.xnio.Xnio
-import java.net.URI
-import java.util.concurrent.Executor
-import java.util.concurrent.TimeUnit
-import javax.websocket.ClientEndpointConfig
-import javax.websocket.Endpoint
-import javax.websocket.WebSocketContainer
-import javax.websocket.server.ServerEndpointConfig
-import kotlin.test.Test
+import ch.softappeal.yass.transport.*
+import ch.softappeal.yass.transport.socket.*
+import io.undertow.*
+import io.undertow.server.*
+import io.undertow.servlet.*
+import io.undertow.servlet.api.*
+import io.undertow.servlet.core.*
+import io.undertow.servlet.util.*
+import io.undertow.websockets.jsr.*
+import org.eclipse.jetty.server.*
+import org.eclipse.jetty.servlet.*
+import org.eclipse.jetty.websocket.jsr356.*
+import org.eclipse.jetty.websocket.jsr356.server.deploy.*
+import org.xnio.*
+import java.net.*
+import java.util.concurrent.*
+import javax.websocket.*
+import javax.websocket.server.*
+import kotlin.test.*
 
 private const val PORT = 9090
 private const val PATH = "/test"

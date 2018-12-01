@@ -1,34 +1,25 @@
 package ch.softappeal.yass.tutorial.py;
 
-import ch.softappeal.yass.remote.Server;
-import ch.softappeal.yass.transport.ServerSetup;
-import ch.softappeal.yass.tutorial.contract.EchoService;
-import ch.softappeal.yass.tutorial.contract.Instrument;
-import ch.softappeal.yass.tutorial.contract.SystemException;
-import ch.softappeal.yass.tutorial.contract.instrument.InstrumentService;
-import ch.softappeal.yass.tutorial.shared.Logger;
-import ch.softappeal.yass.tutorial.shared.SslConfig;
-import ch.softappeal.yass.tutorial.shared.socket.SocketSetup;
-import kotlin.jvm.functions.Function0;
-import kotlin.jvm.functions.Function3;
+import ch.softappeal.yass.remote.*;
+import ch.softappeal.yass.transport.*;
+import ch.softappeal.yass.tutorial.contract.*;
+import ch.softappeal.yass.tutorial.contract.instrument.*;
+import ch.softappeal.yass.tutorial.shared.*;
+import ch.softappeal.yass.tutorial.shared.socket.*;
+import kotlin.jvm.functions.*;
 
-import javax.net.ssl.SSLPeerUnverifiedException;
-import javax.net.ssl.SSLSocket;
-import java.lang.reflect.Method;
-import java.util.Collections;
-import java.util.List;
-import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
+import javax.net.ssl.*;
+import java.lang.reflect.*;
+import java.util.*;
+import java.util.concurrent.*;
 
-import static ch.softappeal.yass.ThreadFactoryKt.getStdErr;
-import static ch.softappeal.yass.ThreadFactoryKt.namedThreadFactory;
-import static ch.softappeal.yass.remote.ServerKt.service;
-import static ch.softappeal.yass.transport.MessageSerializerKt.messageSerializer;
-import static ch.softappeal.yass.transport.socket.SocketKt.socketBinder;
-import static ch.softappeal.yass.transport.socket.SocketTransportKt.getSocket;
-import static ch.softappeal.yass.transport.socket.SocketTransportKt.socketServer;
-import static ch.softappeal.yass.transport.socket.SslSetupKt.getServerSocketFactory;
-import static ch.softappeal.yass.tutorial.contract.Config.PY_ACCEPTOR;
+import static ch.softappeal.yass.ThreadFactoryKt.*;
+import static ch.softappeal.yass.remote.ServerKt.*;
+import static ch.softappeal.yass.transport.MessageSerializerKt.*;
+import static ch.softappeal.yass.transport.socket.SocketKt.*;
+import static ch.softappeal.yass.transport.socket.SocketTransportKt.*;
+import static ch.softappeal.yass.transport.socket.SslSetupKt.*;
+import static ch.softappeal.yass.tutorial.contract.Config.*;
 
 public final class SocketServer {
 

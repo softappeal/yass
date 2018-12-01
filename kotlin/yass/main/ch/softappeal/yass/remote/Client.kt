@@ -1,14 +1,9 @@
 package ch.softappeal.yass.remote
 
-import ch.softappeal.yass.Interceptor
-import ch.softappeal.yass.args
-import ch.softappeal.yass.compositeInterceptor
+import ch.softappeal.yass.*
 import ch.softappeal.yass.proxy
-import java.lang.reflect.InvocationHandler
-import java.lang.reflect.Method
-import java.util.concurrent.CompletableFuture
-import java.util.concurrent.CompletionStage
-import java.util.concurrent.CountDownLatch
+import java.lang.reflect.*
+import java.util.concurrent.*
 
 typealias Tunnel = (request: Request) -> Unit
 

@@ -1,9 +1,9 @@
 package ch.softappeal.yass
 
-import java.lang.Thread.UncaughtExceptionHandler
-import java.util.Date
-import java.util.concurrent.ThreadFactory
-import java.util.concurrent.atomic.AtomicInteger
+import java.lang.Thread.*
+import java.util.*
+import java.util.concurrent.*
+import java.util.concurrent.atomic.*
 
 val StdErr = UncaughtExceptionHandler { thread, throwable ->
     try {

@@ -1,11 +1,7 @@
 package ch.softappeal.yass
 
-import java.lang.reflect.Method
-import kotlin.test.Test
-import kotlin.test.assertEquals
-import kotlin.test.assertFailsWith
-import kotlin.test.assertNull
-import kotlin.test.assertSame
+import java.lang.reflect.*
+import kotlin.test.*
 
 val Method: Method = Any::class.java.getMethod("toString")
 private val Arguments = listOf(0)

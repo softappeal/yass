@@ -1,12 +1,8 @@
 package ch.softappeal.yass.serialize
 
-import java.io.ByteArrayInputStream
-import java.io.ByteArrayOutputStream
-import java.util.Arrays
-import kotlin.test.Test
-import kotlin.test.assertEquals
-import kotlin.test.assertFailsWith
-import kotlin.test.assertTrue
+import java.io.*
+import java.util.*
+import kotlin.test.*
 
 class ReaderWriterTest {
     @Test

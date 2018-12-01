@@ -1,17 +1,13 @@
 package ch.softappeal.yass.tutorial.acceptor;
 
-import ch.softappeal.yass.remote.Completer;
-import ch.softappeal.yass.tutorial.contract.Instrument;
-import ch.softappeal.yass.tutorial.contract.instrument.InstrumentService;
-import ch.softappeal.yass.tutorial.contract.instrument.stock.Stock;
+import ch.softappeal.yass.remote.*;
+import ch.softappeal.yass.tutorial.contract.*;
+import ch.softappeal.yass.tutorial.contract.instrument.*;
+import ch.softappeal.yass.tutorial.contract.instrument.stock.*;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
-import static ch.softappeal.yass.remote.ServerKt.getCompleter;
+import static ch.softappeal.yass.remote.ServerKt.*;
 
 public final class InstrumentServiceImpl implements InstrumentService {
 

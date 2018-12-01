@@ -1,10 +1,7 @@
 package ch.softappeal.yass.transport
 
-import ch.softappeal.yass.remote.session.Packet
-import ch.softappeal.yass.remote.session.SessionFactory
-import ch.softappeal.yass.serialize.Reader
-import ch.softappeal.yass.serialize.Serializer
-import ch.softappeal.yass.serialize.Writer
+import ch.softappeal.yass.remote.session.*
+import ch.softappeal.yass.serialize.*
 
 class SessionTransport(private val packetSerializer: Serializer, val sessionFactory: SessionFactory) {
     fun read(reader: Reader) = packetSerializer.read(reader) as Packet

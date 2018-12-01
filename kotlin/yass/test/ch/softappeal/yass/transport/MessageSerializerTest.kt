@@ -1,20 +1,9 @@
 package ch.softappeal.yass.transport
 
-import ch.softappeal.yass.remote.ExceptionReply
-import ch.softappeal.yass.remote.Message
-import ch.softappeal.yass.remote.Request
-import ch.softappeal.yass.remote.ValueReply
-import ch.softappeal.yass.serialize.JavaSerializer
-import ch.softappeal.yass.serialize.copy
-import ch.softappeal.yass.serialize.reader
-import ch.softappeal.yass.serialize.writer
-import java.io.ByteArrayInputStream
-import java.io.ByteArrayOutputStream
-import java.io.EOFException
-import kotlin.test.Test
-import kotlin.test.assertEquals
-import kotlin.test.assertFailsWith
-import kotlin.test.assertTrue
+import ch.softappeal.yass.remote.*
+import ch.softappeal.yass.serialize.*
+import java.io.*
+import kotlin.test.*
 
 private val SERIALIZER = messageSerializer(JavaSerializer)
 

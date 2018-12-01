@@ -1,9 +1,7 @@
 package ch.softappeal.yass.generate
 
-import ch.softappeal.yass.serialize.fast.IntSerializer
-import ch.softappeal.yass.serialize.fast.TypeDesc
-import kotlin.test.Test
-import kotlin.test.assertEquals
+import ch.softappeal.yass.serialize.fast.*
+import kotlin.test.*
 import ch.softappeal.yass.generate.py.baseTypeDescs as pyBaseTypeDescs
 import ch.softappeal.yass.generate.ts.baseTypeDescs as tsBaseTypeDescs
 

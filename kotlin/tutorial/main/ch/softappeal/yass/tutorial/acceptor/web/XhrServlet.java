@@ -1,25 +1,19 @@
 package ch.softappeal.yass.tutorial.acceptor.web;
 
-import ch.softappeal.yass.remote.Server;
-import ch.softappeal.yass.remote.ServerKt;
-import ch.softappeal.yass.transport.ServerTransport;
-import ch.softappeal.yass.tutorial.contract.Config;
-import ch.softappeal.yass.tutorial.shared.EchoServiceImpl;
-import ch.softappeal.yass.tutorial.shared.Logger;
-import ch.softappeal.yass.tutorial.shared.UnexpectedExceptionHandler;
+import ch.softappeal.yass.remote.*;
+import ch.softappeal.yass.transport.*;
+import ch.softappeal.yass.tutorial.contract.*;
+import ch.softappeal.yass.tutorial.shared.*;
 
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.security.cert.X509Certificate;
-import java.util.Arrays;
-import java.util.Optional;
-import java.util.stream.Collectors;
+import javax.servlet.http.*;
+import java.io.*;
+import java.security.cert.*;
+import java.util.*;
+import java.util.stream.*;
 
-import static ch.softappeal.yass.serialize.ReaderKt.reader;
-import static ch.softappeal.yass.serialize.WriterKt.writer;
-import static ch.softappeal.yass.tutorial.contract.Config.ACCEPTOR;
+import static ch.softappeal.yass.serialize.ReaderKt.*;
+import static ch.softappeal.yass.serialize.WriterKt.*;
+import static ch.softappeal.yass.tutorial.contract.Config.*;
 
 public class XhrServlet extends HttpServlet {
 

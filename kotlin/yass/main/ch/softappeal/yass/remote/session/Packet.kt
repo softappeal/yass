@@ -1,6 +1,6 @@
 package ch.softappeal.yass.remote.session
 
-import ch.softappeal.yass.remote.Message
+import ch.softappeal.yass.remote.*
 
 const val EndRequestNumber = 0
 

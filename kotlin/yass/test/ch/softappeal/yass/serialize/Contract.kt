@@ -1,6 +1,6 @@
 package ch.softappeal.yass.serialize
 
-import ch.softappeal.yass.Tag
+import ch.softappeal.yass.*
 
 @Tag(120)
 class C1(

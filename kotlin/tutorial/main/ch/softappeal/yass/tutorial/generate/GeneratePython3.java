@@ -1,13 +1,10 @@
 package ch.softappeal.yass.tutorial.generate;
 
-import ch.softappeal.yass.generate.py.ExternalDesc;
-import ch.softappeal.yass.generate.py.PythonGenerator;
-import ch.softappeal.yass.tutorial.contract.Config;
+import ch.softappeal.yass.generate.py.*;
+import ch.softappeal.yass.tutorial.contract.*;
 
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.HashMap;
-import java.util.Map;
+import java.nio.file.*;
+import java.util.*;
 
 public final class GeneratePython3 {
 

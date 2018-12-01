@@ -1,6 +1,6 @@
 package ch.softappeal.yass
 
-import java.lang.reflect.AnnotatedElement
+import java.lang.reflect.*
 
 @MustBeDocumented
 @Retention

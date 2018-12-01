@@ -1,9 +1,8 @@
 package ch.softappeal.yass.serialize
 
-import java.io.ByteArrayOutputStream
-import java.io.OutputStream
-import java.nio.ByteBuffer
-import java.nio.charset.StandardCharsets
+import java.io.*
+import java.nio.*
+import java.nio.charset.*
 
 abstract class Writer {
     @Throws(Exception::class)

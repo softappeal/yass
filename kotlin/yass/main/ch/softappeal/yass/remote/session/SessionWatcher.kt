@@ -1,8 +1,6 @@
 package ch.softappeal.yass.remote.session
 
-import java.util.concurrent.CountDownLatch
-import java.util.concurrent.Executor
-import java.util.concurrent.TimeUnit
+import java.util.concurrent.*
 
 /**
  * Closes a session if it isn't healthy.

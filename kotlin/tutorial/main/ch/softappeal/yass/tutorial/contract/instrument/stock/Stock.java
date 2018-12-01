@@ -1,6 +1,6 @@
 package ch.softappeal.yass.tutorial.contract.instrument.stock;
 
-import ch.softappeal.yass.tutorial.contract.Instrument;
+import ch.softappeal.yass.tutorial.contract.*;
 
 /**
  * Shows deep nesting.

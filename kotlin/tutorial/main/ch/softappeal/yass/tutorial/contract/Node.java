@@ -1,7 +1,6 @@
 package ch.softappeal.yass.tutorial.contract;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 /**
  * Shows how to use graphs.

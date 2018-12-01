@@ -1,6 +1,6 @@
 package ch.softappeal.yass.tutorial.contract;
 
-import java.util.List;
+import java.util.*;
 
 public interface PriceEngine {
 

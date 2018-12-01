@@ -1,8 +1,8 @@
 package ch.softappeal.yass.tutorial.contract;
 
-import ch.softappeal.yass.remote.OneWay;
+import ch.softappeal.yass.remote.*;
 
-import java.util.List;
+import java.util.*;
 
 public interface PriceListener {
 

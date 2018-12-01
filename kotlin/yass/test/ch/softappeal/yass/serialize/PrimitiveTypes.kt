@@ -1,8 +1,7 @@
 package ch.softappeal.yass.serialize
 
-import ch.softappeal.yass.Tag
-
-import java.io.Serializable
+import ch.softappeal.yass.*
+import java.io.*
 
 @Tag(40)
 open class PrimitiveTypes : Serializable {

@@ -1,8 +1,8 @@
 package ch.softappeal.yass.tutorial.contract.generic;
 
-import ch.softappeal.yass.tutorial.contract.PriceKind;
+import ch.softappeal.yass.tutorial.contract.*;
 
-import java.util.List;
+import java.util.*;
 
 public final class TripleWrapper {
 

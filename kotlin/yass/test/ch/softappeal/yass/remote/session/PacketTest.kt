@@ -1,12 +1,7 @@
 package ch.softappeal.yass.remote.session
 
-import ch.softappeal.yass.remote.ValueReply
-import kotlin.test.Test
-import kotlin.test.assertEquals
-import kotlin.test.assertFailsWith
-import kotlin.test.assertFalse
-import kotlin.test.assertSame
-import kotlin.test.assertTrue
+import ch.softappeal.yass.remote.*
+import kotlin.test.*
 
 class PacketTest {
     @Test

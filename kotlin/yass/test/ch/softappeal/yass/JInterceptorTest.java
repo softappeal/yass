@@ -1,17 +1,13 @@
 package ch.softappeal.yass;
 
-import kotlin.jvm.functions.Function0;
-import kotlin.jvm.functions.Function3;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
+import kotlin.jvm.functions.*;
+import org.junit.jupiter.api.*;
 
 import java.lang.reflect.Method;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
-import static ch.softappeal.yass.InterceptorKt.proxy;
-import static ch.softappeal.yass.InterceptorTestKt.getJavaCalculatorImpl;
-import static ch.softappeal.yass.InterceptorTestKt.getMethod;
+import static ch.softappeal.yass.InterceptorKt.*;
+import static ch.softappeal.yass.InterceptorTestKt.*;
 
 class JInterceptorTest {
     @Test

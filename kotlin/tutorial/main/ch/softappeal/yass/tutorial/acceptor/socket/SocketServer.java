@@ -1,22 +1,18 @@
 package ch.softappeal.yass.tutorial.acceptor.socket;
 
-import ch.softappeal.yass.remote.Server;
-import ch.softappeal.yass.transport.ServerSetup;
-import ch.softappeal.yass.tutorial.contract.Config;
-import ch.softappeal.yass.tutorial.shared.EchoServiceImpl;
-import ch.softappeal.yass.tutorial.shared.Logger;
-import ch.softappeal.yass.tutorial.shared.UnexpectedExceptionHandler;
-import ch.softappeal.yass.tutorial.shared.socket.SocketSetup;
+import ch.softappeal.yass.remote.*;
+import ch.softappeal.yass.transport.*;
+import ch.softappeal.yass.tutorial.contract.*;
+import ch.softappeal.yass.tutorial.shared.*;
+import ch.softappeal.yass.tutorial.shared.socket.*;
 
-import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
+import java.util.concurrent.*;
 
-import static ch.softappeal.yass.ThreadFactoryKt.getStdErr;
-import static ch.softappeal.yass.ThreadFactoryKt.namedThreadFactory;
-import static ch.softappeal.yass.remote.ServerKt.service;
-import static ch.softappeal.yass.transport.socket.SocketKt.socketBinder;
-import static ch.softappeal.yass.transport.socket.SocketTransportKt.socketServer;
-import static ch.softappeal.yass.tutorial.contract.Config.ACCEPTOR;
+import static ch.softappeal.yass.ThreadFactoryKt.*;
+import static ch.softappeal.yass.remote.ServerKt.*;
+import static ch.softappeal.yass.transport.socket.SocketKt.*;
+import static ch.softappeal.yass.transport.socket.SocketTransportKt.*;
+import static ch.softappeal.yass.tutorial.contract.Config.*;
 
 public final class SocketServer {
 

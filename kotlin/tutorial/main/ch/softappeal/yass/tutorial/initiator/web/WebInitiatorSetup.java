@@ -1,16 +1,15 @@
 package ch.softappeal.yass.tutorial.initiator.web;
 
-import ch.softappeal.yass.transport.SessionTransport;
-import ch.softappeal.yass.transport.ws.WsConfigurator;
-import ch.softappeal.yass.tutorial.contract.Config;
-import ch.softappeal.yass.tutorial.initiator.InitiatorSession;
-import ch.softappeal.yass.tutorial.shared.web.WebSetup;
+import ch.softappeal.yass.transport.*;
+import ch.softappeal.yass.transport.ws.*;
+import ch.softappeal.yass.tutorial.contract.*;
+import ch.softappeal.yass.tutorial.initiator.*;
+import ch.softappeal.yass.tutorial.shared.web.*;
 
-import javax.websocket.ClientEndpointConfig;
-import javax.websocket.WebSocketContainer;
-import java.net.URI;
+import javax.websocket.*;
+import java.net.*;
 
-import static ch.softappeal.yass.transport.ws.WsTransportKt.getSyncWsConnectionFactory;
+import static ch.softappeal.yass.transport.ws.WsTransportKt.*;
 
 public abstract class WebInitiatorSetup extends WebSetup {
 

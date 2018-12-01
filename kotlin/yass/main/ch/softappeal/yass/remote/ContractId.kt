@@ -1,6 +1,6 @@
 package ch.softappeal.yass.remote
 
-import ch.softappeal.yass.OnlyNeededForJava
+import ch.softappeal.yass.*
 
 class ContractId<C : Any> @PublishedApi internal constructor(
     val contract: Class<C>,

@@ -1,15 +1,14 @@
 package ch.softappeal.yass.tutorial.initiator.socket;
 
-import ch.softappeal.yass.remote.Client;
-import ch.softappeal.yass.transport.ClientSetup;
-import ch.softappeal.yass.tutorial.contract.Config;
-import ch.softappeal.yass.tutorial.contract.EchoService;
-import ch.softappeal.yass.tutorial.shared.Logger;
-import ch.softappeal.yass.tutorial.shared.socket.SocketSetup;
+import ch.softappeal.yass.remote.*;
+import ch.softappeal.yass.transport.*;
+import ch.softappeal.yass.tutorial.contract.*;
+import ch.softappeal.yass.tutorial.shared.*;
+import ch.softappeal.yass.tutorial.shared.socket.*;
 
-import static ch.softappeal.yass.transport.socket.SocketKt.socketConnector;
-import static ch.softappeal.yass.transport.socket.SocketTransportKt.socketClient;
-import static ch.softappeal.yass.tutorial.contract.Config.ACCEPTOR;
+import static ch.softappeal.yass.transport.socket.SocketKt.*;
+import static ch.softappeal.yass.transport.socket.SocketTransportKt.*;
+import static ch.softappeal.yass.tutorial.contract.Config.*;
 
 public final class SocketClient {
 

@@ -1,13 +1,8 @@
 package ch.softappeal.yass.transport
 
-import ch.softappeal.yass.remote.Message
-import ch.softappeal.yass.remote.session.EndPacket
-import ch.softappeal.yass.remote.session.EndRequestNumber
-import ch.softappeal.yass.remote.session.Packet
-import ch.softappeal.yass.remote.session.isEndPacket
-import ch.softappeal.yass.serialize.Reader
-import ch.softappeal.yass.serialize.Serializer
-import ch.softappeal.yass.serialize.Writer
+import ch.softappeal.yass.remote.*
+import ch.softappeal.yass.remote.session.*
+import ch.softappeal.yass.serialize.*
 
 fun packetSerializer(messageSerializer: Serializer) = object : Serializer {
     override fun read(reader: Reader): Packet {

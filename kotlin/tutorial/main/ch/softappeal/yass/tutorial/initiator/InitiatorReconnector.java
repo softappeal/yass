@@ -1,9 +1,8 @@
 package ch.softappeal.yass.tutorial.initiator;
 
-import ch.softappeal.yass.remote.session.Reconnector;
-import ch.softappeal.yass.tutorial.contract.EchoService;
-import ch.softappeal.yass.tutorial.contract.PriceEngine;
-import ch.softappeal.yass.tutorial.contract.instrument.InstrumentService;
+import ch.softappeal.yass.remote.session.*;
+import ch.softappeal.yass.tutorial.contract.*;
+import ch.softappeal.yass.tutorial.contract.instrument.*;
 
 /**
  * The proxies of this class survive a session reconnect.

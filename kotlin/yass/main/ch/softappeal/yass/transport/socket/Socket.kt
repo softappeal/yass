@@ -1,12 +1,8 @@
 package ch.softappeal.yass.transport.socket
 
-import java.net.InetAddress
-import java.net.ServerSocket
-import java.net.Socket
-import java.net.SocketAddress
-import java.util.concurrent.Executor
-import javax.net.ServerSocketFactory
-import javax.net.SocketFactory
+import java.net.*
+import java.util.concurrent.*
+import javax.net.*
 
 internal fun close(socket: Socket, e: Exception) = try {
     socket.close()

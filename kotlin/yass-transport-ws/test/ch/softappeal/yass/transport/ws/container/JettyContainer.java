@@ -1,9 +1,8 @@
 package ch.softappeal.yass.transport.ws.container;
 
-import org.eclipse.jetty.server.Server;
-import org.eclipse.jetty.server.ServerConnector;
-import org.eclipse.jetty.servlet.ServletContextHandler;
-import org.eclipse.jetty.websocket.jsr356.server.deploy.WebSocketServerContainerInitializer;
+import org.eclipse.jetty.server.*;
+import org.eclipse.jetty.servlet.*;
+import org.eclipse.jetty.websocket.jsr356.server.deploy.*;
 
 public class JettyContainer {
 

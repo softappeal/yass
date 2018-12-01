@@ -1,26 +1,18 @@
 package ch.softappeal.yass.tutorial.py;
 
-import ch.softappeal.yass.remote.Client;
-import ch.softappeal.yass.remote.ClientInvocation;
-import ch.softappeal.yass.remote.Reply;
+import ch.softappeal.yass.remote.*;
 import ch.softappeal.yass.serialize.Reader;
-import ch.softappeal.yass.serialize.Serializer;
 import ch.softappeal.yass.serialize.Writer;
+import ch.softappeal.yass.serialize.*;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.nio.charset.StandardCharsets;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.io.*;
+import java.nio.charset.*;
+import java.util.concurrent.*;
 
-import static ch.softappeal.yass.ThreadFactoryKt.getTerminate;
-import static ch.softappeal.yass.ThreadFactoryKt.namedThreadFactory;
-import static ch.softappeal.yass.serialize.ReaderKt.reader;
-import static ch.softappeal.yass.serialize.WriterKt.writer;
-import static ch.softappeal.yass.transport.MessageSerializerKt.messageSerializer;
+import static ch.softappeal.yass.ThreadFactoryKt.*;
+import static ch.softappeal.yass.serialize.ReaderKt.*;
+import static ch.softappeal.yass.serialize.WriterKt.*;
+import static ch.softappeal.yass.transport.MessageSerializerKt.*;
 
 public final class StdClient3 {
 

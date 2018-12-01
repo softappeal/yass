@@ -1,8 +1,8 @@
 package ch.softappeal.yass.tutorial.shared;
 
-import ch.softappeal.yass.tutorial.contract.EchoService;
+import ch.softappeal.yass.tutorial.contract.*;
 
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 
 public final class EchoServiceImpl implements EchoService {
 

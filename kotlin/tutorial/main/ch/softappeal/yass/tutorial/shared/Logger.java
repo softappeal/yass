@@ -1,17 +1,12 @@
 package ch.softappeal.yass.tutorial.shared;
 
-import ch.softappeal.yass.remote.session.Session;
-import kotlin.jvm.functions.Function0;
-import kotlin.jvm.functions.Function2;
-import kotlin.jvm.functions.Function3;
+import ch.softappeal.yass.remote.session.*;
+import kotlin.jvm.functions.*;
 
-import java.lang.reflect.Method;
-import java.util.Date;
-import java.util.List;
-import java.util.Objects;
+import java.lang.reflect.*;
+import java.util.*;
 
-import static ch.softappeal.yass.DumperKt.dump;
-import static ch.softappeal.yass.DumperKt.graphDumper;
+import static ch.softappeal.yass.DumperKt.*;
 
 /**
  * Shows how to implement an interceptor.

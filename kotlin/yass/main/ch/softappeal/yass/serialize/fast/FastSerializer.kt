@@ -1,17 +1,9 @@
 package ch.softappeal.yass.serialize.fast
 
-import ch.softappeal.yass.AllocatorFactory
-import ch.softappeal.yass.serialize.Reader
-import ch.softappeal.yass.serialize.Serializer
-import ch.softappeal.yass.serialize.Writer
-import java.lang.reflect.Field
-import java.lang.reflect.Modifier
-import java.util.ArrayList
-import java.util.Collections
-import java.util.HashMap
-import java.util.IdentityHashMap
-import java.util.SortedMap
-import java.util.TreeMap
+import ch.softappeal.yass.*
+import ch.softappeal.yass.serialize.*
+import java.lang.reflect.*
+import java.util.*
 
 internal class Input(val reader: Reader, private val id2typeSerializer: Map<Int, TypeSerializer>) {
     var graphObjects: MutableList<Any>? = null

@@ -1,9 +1,8 @@
 package ch.softappeal.yass.tutorial.shared;
 
-import ch.softappeal.yass.remote.AbstractInvocation;
-import ch.softappeal.yass.remote.AsyncInterceptor;
+import ch.softappeal.yass.remote.*;
 
-import static ch.softappeal.yass.DumperKt.dump;
+import static ch.softappeal.yass.DumperKt.*;
 
 public class AsyncLogger implements AsyncInterceptor {
 

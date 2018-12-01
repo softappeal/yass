@@ -1,6 +1,6 @@
 package ch.softappeal.yass.tutorial.contract;
 
-import java.util.Objects;
+import java.util.*;
 
 public abstract class Instrument {
 

@@ -1,7 +1,6 @@
 package ch.softappeal.yass.serialize
 
-import java.io.ObjectInputStream
-import java.io.ObjectOutputStream
+import java.io.*
 
 interface Serializer {
     @Throws(Exception::class)

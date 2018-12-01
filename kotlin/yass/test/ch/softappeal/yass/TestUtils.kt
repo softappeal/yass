@@ -1,13 +1,8 @@
 package ch.softappeal.yass
 
-import java.io.BufferedReader
-import java.io.CharArrayReader
-import java.io.CharArrayWriter
-import java.io.FileInputStream
-import java.io.InputStreamReader
-import java.io.PrintWriter
-import java.nio.charset.StandardCharsets
-import kotlin.test.assertEquals
+import java.io.*
+import java.nio.charset.*
+import kotlin.test.*
 
 fun compareFile(file: String, printer: (writer: PrintWriter) -> Unit) {
     val writer = PrintWriter(System.out)

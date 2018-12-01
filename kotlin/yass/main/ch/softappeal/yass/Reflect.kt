@@ -1,8 +1,7 @@
 package ch.softappeal.yass
 
 import sun.misc.Unsafe
-import java.lang.reflect.Field
-import java.lang.reflect.Modifier
+import java.lang.reflect.*
 
 fun ownFields(type: Class<*>): List<Field> {
     val fields = mutableListOf<Field>()

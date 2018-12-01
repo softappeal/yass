@@ -1,37 +1,21 @@
 package ch.softappeal.yass.tutorial.acceptor;
 
-import ch.softappeal.yass.remote.Server;
-import ch.softappeal.yass.remote.session.SimpleSession;
-import ch.softappeal.yass.tutorial.contract.EchoService;
-import ch.softappeal.yass.tutorial.contract.Price;
-import ch.softappeal.yass.tutorial.contract.PriceKind;
-import ch.softappeal.yass.tutorial.contract.PriceListener;
-import ch.softappeal.yass.tutorial.contract.SystemException;
-import ch.softappeal.yass.tutorial.contract.generic.GenericEchoServiceImpl;
-import ch.softappeal.yass.tutorial.shared.AsyncLogger;
-import ch.softappeal.yass.tutorial.shared.EchoServiceImpl;
-import ch.softappeal.yass.tutorial.shared.Logger;
-import ch.softappeal.yass.tutorial.shared.UnexpectedExceptionHandler;
-import kotlin.jvm.functions.Function0;
-import kotlin.jvm.functions.Function3;
+import ch.softappeal.yass.remote.*;
+import ch.softappeal.yass.remote.session.*;
+import ch.softappeal.yass.tutorial.contract.*;
+import ch.softappeal.yass.tutorial.contract.generic.*;
+import ch.softappeal.yass.tutorial.shared.*;
+import kotlin.jvm.functions.*;
 
-import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Random;
-import java.util.Set;
-import java.util.concurrent.Executor;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.lang.reflect.*;
+import java.util.*;
+import java.util.concurrent.*;
+import java.util.concurrent.atomic.*;
 
-import static ch.softappeal.yass.InterceptorKt.compositeInterceptor;
-import static ch.softappeal.yass.remote.ServerKt.asyncService;
-import static ch.softappeal.yass.remote.ServerKt.service;
-import static ch.softappeal.yass.remote.session.SessionWatcherKt.watchSession;
-import static ch.softappeal.yass.tutorial.contract.Config.ACCEPTOR;
-import static ch.softappeal.yass.tutorial.contract.Config.INITIATOR;
+import static ch.softappeal.yass.InterceptorKt.*;
+import static ch.softappeal.yass.remote.ServerKt.*;
+import static ch.softappeal.yass.remote.session.SessionWatcherKt.*;
+import static ch.softappeal.yass.tutorial.contract.Config.*;
 
 public final class AcceptorSession extends SimpleSession {
 

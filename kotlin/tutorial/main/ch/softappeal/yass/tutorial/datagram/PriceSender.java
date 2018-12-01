@@ -1,15 +1,12 @@
 package ch.softappeal.yass.tutorial.datagram;
 
-import ch.softappeal.yass.remote.Client;
-import ch.softappeal.yass.tutorial.contract.Config;
-import ch.softappeal.yass.tutorial.contract.Price;
-import ch.softappeal.yass.tutorial.contract.PriceKind;
-import ch.softappeal.yass.tutorial.contract.PriceListener;
+import ch.softappeal.yass.remote.*;
+import ch.softappeal.yass.tutorial.contract.*;
 
-import java.net.InetSocketAddress;
-import java.nio.channels.DatagramChannel;
-import java.util.Collections;
-import java.util.concurrent.TimeUnit;
+import java.net.*;
+import java.nio.channels.*;
+import java.util.*;
+import java.util.concurrent.*;
 
 public final class PriceSender {
 

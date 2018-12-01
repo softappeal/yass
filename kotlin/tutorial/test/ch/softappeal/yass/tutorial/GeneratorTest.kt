@@ -1,11 +1,9 @@
 package ch.softappeal.yass.tutorial
 
-import ch.softappeal.yass.tutorial.generate.GeneratePython2
-import ch.softappeal.yass.tutorial.generate.GeneratePython3
-import ch.softappeal.yass.tutorial.generate.GenerateTypeScript
-import java.io.File
-import java.util.Arrays
-import kotlin.test.Test
+import ch.softappeal.yass.tutorial.generate.*
+import java.io.*
+import java.util.*
+import kotlin.test.*
 
 private fun compareDirs(dir1: File, dir2: File) {
     dir1.listFiles().forEach {

@@ -1,10 +1,8 @@
 package ch.softappeal.yass.serialize.fast
 
-import ch.softappeal.yass.Tag
-import ch.softappeal.yass.allFields
-import ch.softappeal.yass.tag
-import java.io.PrintWriter
-import java.lang.reflect.Field
+import ch.softappeal.yass.*
+import java.io.*
+import java.lang.reflect.*
 
 /**
  * This serializer assigns type and field id's automatically.

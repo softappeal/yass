@@ -1,6 +1,6 @@
 package ch.softappeal.yass.tutorial.initiator.web;
 
-import org.eclipse.jetty.websocket.jsr356.ClientContainer;
+import org.eclipse.jetty.websocket.jsr356.*;
 
 public final class JettyInitiator extends WebInitiatorSetup {
 

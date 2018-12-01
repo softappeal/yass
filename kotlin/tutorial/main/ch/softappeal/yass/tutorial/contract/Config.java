@@ -1,27 +1,21 @@
 package ch.softappeal.yass.tutorial.contract;
 
-import ch.softappeal.yass.generate.py.PythonGeneratorKt;
-import ch.softappeal.yass.generate.ts.TypeScriptGeneratorKt;
-import ch.softappeal.yass.remote.ContractId;
-import ch.softappeal.yass.remote.Services;
-import ch.softappeal.yass.serialize.Serializer;
-import ch.softappeal.yass.serialize.fast.FastSerializer;
-import ch.softappeal.yass.tutorial.contract.generic.GenericEchoService;
-import ch.softappeal.yass.tutorial.contract.generic.Pair;
-import ch.softappeal.yass.tutorial.contract.generic.PairBoolBool;
-import ch.softappeal.yass.tutorial.contract.generic.Triple;
-import ch.softappeal.yass.tutorial.contract.generic.TripleWrapper;
-import ch.softappeal.yass.tutorial.contract.instrument.Bond;
-import ch.softappeal.yass.tutorial.contract.instrument.InstrumentService;
-import ch.softappeal.yass.tutorial.contract.instrument.stock.Stock;
+import ch.softappeal.yass.generate.py.*;
+import ch.softappeal.yass.generate.ts.*;
+import ch.softappeal.yass.remote.*;
+import ch.softappeal.yass.serialize.*;
+import ch.softappeal.yass.serialize.fast.*;
+import ch.softappeal.yass.tutorial.contract.generic.*;
+import ch.softappeal.yass.tutorial.contract.instrument.*;
+import ch.softappeal.yass.tutorial.contract.instrument.stock.*;
 
-import java.util.Arrays;
+import java.util.*;
 
-import static ch.softappeal.yass.remote.MethodMapperKt.getSimpleMethodMapperFactory;
-import static ch.softappeal.yass.serialize.fast.BaseTypeSerializersKt.getIntSerializer;
-import static ch.softappeal.yass.serialize.fast.FastSerializersKt.simpleFastSerializer;
-import static ch.softappeal.yass.transport.MessageSerializerKt.messageSerializer;
-import static ch.softappeal.yass.transport.PacketSerializerKt.packetSerializer;
+import static ch.softappeal.yass.remote.MethodMapperKt.*;
+import static ch.softappeal.yass.serialize.fast.BaseTypeSerializersKt.*;
+import static ch.softappeal.yass.serialize.fast.FastSerializersKt.*;
+import static ch.softappeal.yass.transport.MessageSerializerKt.*;
+import static ch.softappeal.yass.transport.PacketSerializerKt.*;
 
 public final class Config {
 

@@ -1,14 +1,9 @@
 package ch.softappeal.yass.generate
 
-import ch.softappeal.yass.remote.ContractId
-import ch.softappeal.yass.remote.MethodMapperFactory
-import ch.softappeal.yass.remote.Services
-import ch.softappeal.yass.serialize.fast.FastSerializer
-import java.lang.reflect.Method
-import java.lang.reflect.Modifier
-import java.util.Comparator
-import java.util.SortedSet
-import java.util.TreeSet
+import ch.softappeal.yass.remote.*
+import ch.softappeal.yass.serialize.fast.*
+import java.lang.reflect.*
+import java.util.*
 
 class ServiceDesc(val name: String, val contractId: ContractId<*>)
 

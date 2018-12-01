@@ -1,21 +1,16 @@
 package ch.softappeal.yass.tutorial.datagram;
 
-import ch.softappeal.yass.remote.Client;
-import ch.softappeal.yass.remote.ClientInvocation;
-import ch.softappeal.yass.remote.MethodMapping;
-import ch.softappeal.yass.remote.Request;
-import ch.softappeal.yass.remote.ServerInvocation;
-import ch.softappeal.yass.serialize.ByteBufferOutputStream;
-import ch.softappeal.yass.serialize.Serializer;
-import ch.softappeal.yass.transport.ServerTransport;
+import ch.softappeal.yass.remote.*;
+import ch.softappeal.yass.serialize.*;
+import ch.softappeal.yass.transport.*;
 
-import java.net.SocketAddress;
-import java.nio.ByteBuffer;
-import java.nio.channels.DatagramChannel;
-import java.util.Objects;
+import java.net.*;
+import java.nio.*;
+import java.nio.channels.*;
+import java.util.*;
 
-import static ch.softappeal.yass.serialize.ReaderKt.reader;
-import static ch.softappeal.yass.serialize.WriterKt.writer;
+import static ch.softappeal.yass.serialize.ReaderKt.*;
+import static ch.softappeal.yass.serialize.WriterKt.*;
 
 public final class DatagramTransport {
 

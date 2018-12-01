@@ -1,9 +1,8 @@
 package ch.softappeal.yass.tutorial.contract.instrument;
 
-import ch.softappeal.yass.tutorial.contract.Expiration;
-import ch.softappeal.yass.tutorial.contract.Instrument;
+import ch.softappeal.yass.tutorial.contract.*;
 
-import java.util.Objects;
+import java.util.*;
 
 public final class Bond extends Instrument {
 

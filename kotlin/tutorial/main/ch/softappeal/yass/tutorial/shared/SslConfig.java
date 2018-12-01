@@ -1,15 +1,13 @@
 package ch.softappeal.yass.tutorial.shared;
 
-import ch.softappeal.yass.transport.socket.SslSetup;
+import ch.softappeal.yass.transport.socket.*;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.security.KeyStore;
-import java.util.Collections;
+import java.io.*;
+import java.nio.file.*;
+import java.security.*;
+import java.util.*;
 
-import static ch.softappeal.yass.transport.socket.SslSetupKt.readKeyStore;
+import static ch.softappeal.yass.transport.socket.SslSetupKt.*;
 
 public final class SslConfig {
 

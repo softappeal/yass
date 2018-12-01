@@ -1,20 +1,15 @@
 package ch.softappeal.yass.tutorial.acceptor.web;
 
-import ch.softappeal.yass.tutorial.shared.SslConfig;
-import io.undertow.Handlers;
-import io.undertow.Undertow;
-import io.undertow.server.HttpHandler;
-import io.undertow.server.XnioByteBufferPool;
-import io.undertow.server.handlers.resource.FileResourceManager;
-import io.undertow.server.handlers.resource.ResourceHandler;
-import io.undertow.servlet.Servlets;
-import io.undertow.servlet.api.DeploymentManager;
-import io.undertow.websockets.jsr.WebSocketDeploymentInfo;
-import org.xnio.ByteBufferSlicePool;
-import org.xnio.OptionMap;
-import org.xnio.Xnio;
+import ch.softappeal.yass.tutorial.shared.*;
+import io.undertow.*;
+import io.undertow.server.*;
+import io.undertow.server.handlers.resource.*;
+import io.undertow.servlet.*;
+import io.undertow.servlet.api.*;
+import io.undertow.websockets.jsr.*;
+import org.xnio.*;
 
-import java.io.File;
+import java.io.*;
 
 public final class UndertowAcceptor extends WebAcceptorSetup {
 

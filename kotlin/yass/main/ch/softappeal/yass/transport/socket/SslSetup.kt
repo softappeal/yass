@@ -1,19 +1,10 @@
 package ch.softappeal.yass.transport.socket
 
-import java.io.InputStream
-import java.net.ServerSocket
-import java.net.Socket
-import java.security.KeyStore
-import java.security.SecureRandom
-import javax.net.ServerSocketFactory
-import javax.net.SocketFactory
-import javax.net.ssl.KeyManager
-import javax.net.ssl.KeyManagerFactory
-import javax.net.ssl.SSLContext
-import javax.net.ssl.SSLServerSocket
-import javax.net.ssl.SSLSocket
-import javax.net.ssl.TrustManager
-import javax.net.ssl.TrustManagerFactory
+import java.io.*
+import java.net.*
+import java.security.*
+import javax.net.*
+import javax.net.ssl.*
 
 class SslSetup @JvmOverloads constructor(
     protocol: String,

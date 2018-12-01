@@ -1,9 +1,7 @@
 package ch.softappeal.yass.transport
 
-import ch.softappeal.yass.remote.Message
-import ch.softappeal.yass.serialize.Reader
-import ch.softappeal.yass.serialize.Serializer
-import ch.softappeal.yass.serialize.Writer
+import ch.softappeal.yass.remote.*
+import ch.softappeal.yass.serialize.*
 
 class ContextMessageSerializer(
     private val contextSerializer: Serializer, private val messageSerializer: Serializer

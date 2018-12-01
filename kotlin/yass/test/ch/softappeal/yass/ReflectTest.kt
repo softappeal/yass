@@ -1,13 +1,9 @@
 package ch.softappeal.yass
 
-import ch.softappeal.yass.serialize.FieldModifiers
-import ch.softappeal.yass.serialize.NoDefaultConstructor
-import ch.softappeal.yass.serialize.nested.AllTypes
-import java.lang.reflect.Field
-import kotlin.test.Test
-import kotlin.test.assertEquals
-import kotlin.test.assertFalse
-import kotlin.test.assertTrue
+import ch.softappeal.yass.serialize.*
+import ch.softappeal.yass.serialize.nested.*
+import java.lang.reflect.*
+import kotlin.test.*
 
 private fun name2field(type: Class<*>): Map<String, Field> =
     allFields(type).associateBy(Field::getName) { it }

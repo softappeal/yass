@@ -1,20 +1,10 @@
 package ch.softappeal.yass.transport.ws.container;
 
-import javax.websocket.Endpoint;
-import javax.websocket.EndpointConfig;
-import javax.websocket.HandshakeResponse;
-import javax.websocket.RemoteEndpoint;
-import javax.websocket.Session;
-import javax.websocket.server.HandshakeRequest;
-import javax.websocket.server.ServerApplicationConfig;
-import javax.websocket.server.ServerEndpointConfig;
-import java.nio.ByteBuffer;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
+import javax.websocket.*;
+import javax.websocket.server.*;
+import java.nio.*;
+import java.util.*;
+import java.util.concurrent.*;
 
 public final class ApplicationConfig implements ServerApplicationConfig {
 

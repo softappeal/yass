@@ -1,19 +1,12 @@
 package ch.softappeal.yass.remote.session
 
-import ch.softappeal.yass.remote.Client
-import ch.softappeal.yass.remote.ClientInvocation
-import ch.softappeal.yass.remote.EmptyServer
-import ch.softappeal.yass.remote.ExceptionReply
-import ch.softappeal.yass.remote.Reply
-import ch.softappeal.yass.remote.Request
-import ch.softappeal.yass.remote.Server
-import ch.softappeal.yass.remote.ServerInvocation
+import ch.softappeal.yass.remote.*
 import java.util.Collections
 import java.util.HashMap
-import java.util.concurrent.ConcurrentHashMap
-import java.util.concurrent.Executor
-import java.util.concurrent.atomic.AtomicBoolean
-import java.util.concurrent.atomic.AtomicInteger
+import java.util.concurrent.*
+import java.util.concurrent.atomic.*
+import kotlin.collections.ArrayList
+import kotlin.collections.set
 
 interface Connection {
     /** Called if a packet has to be written out. */

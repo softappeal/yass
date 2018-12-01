@@ -1,36 +1,12 @@
 package ch.softappeal.yass.generate.py
 
-import ch.softappeal.yass.generate.Generator
-import ch.softappeal.yass.generate.Out
-import ch.softappeal.yass.generate.getMethods
-import ch.softappeal.yass.generate.getServiceDescs
-import ch.softappeal.yass.generate.iterate
-import ch.softappeal.yass.ownFields
-import ch.softappeal.yass.remote.Services
-import ch.softappeal.yass.remote.SimpleMethodMapperFactory
-import ch.softappeal.yass.serialize.fast.BaseTypeSerializer
-import ch.softappeal.yass.serialize.fast.BooleanSerializer
-import ch.softappeal.yass.serialize.fast.ByteArraySerializer
-import ch.softappeal.yass.serialize.fast.ClassTypeSerializer
-import ch.softappeal.yass.serialize.fast.DoubleSerializer
-import ch.softappeal.yass.serialize.fast.FastSerializer
-import ch.softappeal.yass.serialize.fast.FieldDesc
-import ch.softappeal.yass.serialize.fast.FirstTypeId
-import ch.softappeal.yass.serialize.fast.ListTypeDesc
-import ch.softappeal.yass.serialize.fast.StringSerializer
-import ch.softappeal.yass.serialize.fast.TypeDesc
-import ch.softappeal.yass.serialize.fast.TypeSerializer
-import ch.softappeal.yass.serialize.fast.isRootClass
-import ch.softappeal.yass.serialize.fast.primitiveWrapperType
-import java.lang.reflect.Modifier
-import java.lang.reflect.ParameterizedType
-import java.lang.reflect.Type
-import java.nio.file.Path
-import java.util.Comparator
-import java.util.LinkedHashMap
-import java.util.LinkedHashSet
-import java.util.TreeMap
-import java.util.TreeSet
+import ch.softappeal.yass.*
+import ch.softappeal.yass.generate.*
+import ch.softappeal.yass.remote.*
+import ch.softappeal.yass.serialize.fast.*
+import java.lang.reflect.*
+import java.nio.file.*
+import java.util.*
 
 class ExternalDesc(internal val name: String, internal val typeDesc: String)
 

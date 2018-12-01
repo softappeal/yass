@@ -1,32 +1,23 @@
 package ch.softappeal.yass.tutorial.py;
 
-import ch.softappeal.yass.remote.Client;
-import ch.softappeal.yass.serialize.Serializer;
-import ch.softappeal.yass.transport.ClientSetup;
-import ch.softappeal.yass.tutorial.contract.Config;
-import ch.softappeal.yass.tutorial.contract.EchoService;
-import ch.softappeal.yass.tutorial.contract.Expiration;
-import ch.softappeal.yass.tutorial.contract.Node;
-import ch.softappeal.yass.tutorial.contract.PriceKind;
-import ch.softappeal.yass.tutorial.contract.SystemException;
-import ch.softappeal.yass.tutorial.contract.UnknownInstrumentsException;
-import ch.softappeal.yass.tutorial.contract.instrument.InstrumentService;
-import ch.softappeal.yass.tutorial.contract.instrument.stock.Stock;
-import ch.softappeal.yass.tutorial.shared.Logger;
-import ch.softappeal.yass.tutorial.shared.SslConfig;
-import ch.softappeal.yass.tutorial.shared.socket.SocketSetup;
-import kotlin.jvm.functions.Function0;
-import kotlin.jvm.functions.Function3;
+import ch.softappeal.yass.remote.*;
+import ch.softappeal.yass.serialize.*;
+import ch.softappeal.yass.transport.*;
+import ch.softappeal.yass.tutorial.contract.*;
+import ch.softappeal.yass.tutorial.contract.instrument.*;
+import ch.softappeal.yass.tutorial.contract.instrument.stock.*;
+import ch.softappeal.yass.tutorial.shared.*;
+import ch.softappeal.yass.tutorial.shared.socket.*;
+import kotlin.jvm.functions.*;
 
-import java.lang.reflect.Method;
-import java.util.Arrays;
-import java.util.List;
+import java.lang.reflect.*;
+import java.util.*;
 
-import static ch.softappeal.yass.transport.MessageSerializerKt.messageSerializer;
-import static ch.softappeal.yass.transport.socket.SocketKt.socketConnector;
-import static ch.softappeal.yass.transport.socket.SocketTransportKt.socketClient;
-import static ch.softappeal.yass.transport.socket.SslSetupKt.getSocketFactory;
-import static ch.softappeal.yass.tutorial.contract.Config.PY_ACCEPTOR;
+import static ch.softappeal.yass.transport.MessageSerializerKt.*;
+import static ch.softappeal.yass.transport.socket.SocketKt.*;
+import static ch.softappeal.yass.transport.socket.SocketTransportKt.*;
+import static ch.softappeal.yass.transport.socket.SslSetupKt.*;
+import static ch.softappeal.yass.tutorial.contract.Config.*;
 
 public final class SocketClient {
 

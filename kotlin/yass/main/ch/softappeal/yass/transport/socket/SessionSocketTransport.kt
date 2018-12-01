@@ -1,24 +1,12 @@
 package ch.softappeal.yass.transport.socket
 
-import ch.softappeal.yass.remote.session.Connection
-import ch.softappeal.yass.remote.session.Packet
-import ch.softappeal.yass.remote.session.Session
-import ch.softappeal.yass.remote.session.close
-import ch.softappeal.yass.remote.session.created
-import ch.softappeal.yass.remote.session.received
+import ch.softappeal.yass.remote.session.*
+import ch.softappeal.yass.serialize.*
 import ch.softappeal.yass.serialize.Reader
-import ch.softappeal.yass.serialize.reader
-import ch.softappeal.yass.serialize.writer
-import ch.softappeal.yass.transport.AcceptorSetup
-import ch.softappeal.yass.transport.InitiatorSetup
-import ch.softappeal.yass.transport.SessionTransport
-import java.io.ByteArrayOutputStream
-import java.io.OutputStream
-import java.net.Socket
-import java.util.concurrent.ArrayBlockingQueue
-import java.util.concurrent.BlockingQueue
-import java.util.concurrent.Executor
-import java.util.concurrent.TimeUnit
+import ch.softappeal.yass.transport.*
+import java.io.*
+import java.net.*
+import java.util.concurrent.*
 
 abstract class SocketConnection internal constructor(
     private val transport: SessionTransport, val socket: Socket, private val out: OutputStream

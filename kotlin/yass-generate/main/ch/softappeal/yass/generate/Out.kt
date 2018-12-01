@@ -1,9 +1,8 @@
 package ch.softappeal.yass.generate
 
-import java.io.PrintWriter
-import java.nio.charset.StandardCharsets
-import java.nio.file.Files
-import java.nio.file.Path
+import java.io.*
+import java.nio.charset.*
+import java.nio.file.*
 
 abstract class Out protected constructor(path: Path) {
     private val printer: PrintWriter

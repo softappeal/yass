@@ -1,7 +1,6 @@
 package ch.softappeal.yass.tutorial.shared.socket;
 
-import java.net.InetSocketAddress;
-import java.net.SocketAddress;
+import java.net.*;
 
 public final class SocketSetup {
 

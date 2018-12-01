@@ -1,8 +1,8 @@
 package ch.softappeal.yass.tutorial.py;
 
-import java.io.IOException;
+import java.io.*;
 
-import static ch.softappeal.yass.tutorial.py.StdClient3.start;
+import static ch.softappeal.yass.tutorial.py.StdClient3.*;
 
 public final class StdClient2 {
 

@@ -1,23 +1,12 @@
 package ch.softappeal.yass.transport.ws
 
-import ch.softappeal.yass.remote.session.Connection
-import ch.softappeal.yass.remote.session.Packet
+import ch.softappeal.yass.remote.session.*
 import ch.softappeal.yass.remote.session.Session
-import ch.softappeal.yass.remote.session.close
-import ch.softappeal.yass.remote.session.created
-import ch.softappeal.yass.remote.session.received
-import ch.softappeal.yass.serialize.ByteBufferOutputStream
-import ch.softappeal.yass.serialize.reader
-import ch.softappeal.yass.serialize.writer
-import ch.softappeal.yass.transport.SessionTransport
-import java.nio.ByteBuffer
-import javax.websocket.CloseReason
-import javax.websocket.Endpoint
-import javax.websocket.EndpointConfig
-import javax.websocket.Extension
-import javax.websocket.MessageHandler
-import javax.websocket.RemoteEndpoint
-import javax.websocket.server.ServerEndpointConfig
+import ch.softappeal.yass.serialize.*
+import ch.softappeal.yass.transport.*
+import java.nio.*
+import javax.websocket.*
+import javax.websocket.server.*
 
 abstract class WsConnection internal constructor(
     private val transport: SessionTransport, val session: javax.websocket.Session

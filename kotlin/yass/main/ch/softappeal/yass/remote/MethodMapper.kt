@@ -1,7 +1,7 @@
 package ch.softappeal.yass.remote
 
-import ch.softappeal.yass.tag
-import java.lang.reflect.Method
+import ch.softappeal.yass.*
+import java.lang.reflect.*
 
 @MustBeDocumented
 @Retention

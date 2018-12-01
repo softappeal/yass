@@ -1,20 +1,14 @@
 package ch.softappeal.yass.tutorial.datagram;
 
-import ch.softappeal.yass.remote.Server;
-import ch.softappeal.yass.transport.ServerTransport;
-import ch.softappeal.yass.tutorial.contract.Config;
-import ch.softappeal.yass.tutorial.contract.Price;
-import ch.softappeal.yass.tutorial.contract.PriceListener;
+import ch.softappeal.yass.remote.*;
+import ch.softappeal.yass.transport.*;
+import ch.softappeal.yass.tutorial.contract.*;
 
-import java.net.InetAddress;
-import java.net.InetSocketAddress;
-import java.net.NetworkInterface;
-import java.net.StandardProtocolFamily;
-import java.net.StandardSocketOptions;
-import java.nio.channels.DatagramChannel;
-import java.util.List;
+import java.net.*;
+import java.nio.channels.*;
+import java.util.*;
 
-import static ch.softappeal.yass.remote.ServerKt.service;
+import static ch.softappeal.yass.remote.ServerKt.*;
 
 public final class PriceReceiver {
 

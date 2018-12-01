@@ -1,9 +1,8 @@
 package ch.softappeal.yass.tutorial.initiator;
 
-import ch.softappeal.yass.tutorial.contract.Price;
-import ch.softappeal.yass.tutorial.contract.PriceListener;
+import ch.softappeal.yass.tutorial.contract.*;
 
-import java.util.List;
+import java.util.*;
 
 public final class PriceListenerImpl implements PriceListener {
 

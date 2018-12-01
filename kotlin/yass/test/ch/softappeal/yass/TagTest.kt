@@ -1,8 +1,6 @@
 package ch.softappeal.yass
 
-import kotlin.test.Test
-import kotlin.test.assertEquals
-import kotlin.test.assertFailsWith
+import kotlin.test.*
 
 class TagTest {
     @Tag(1)

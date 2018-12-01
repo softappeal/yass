@@ -1,13 +1,9 @@
 package ch.softappeal.yass.serialize.fast
 
-import ch.softappeal.yass.serialize.Reader
-import ch.softappeal.yass.serialize.Writer
-import ch.softappeal.yass.serialize.utf8toBytes
-import ch.softappeal.yass.serialize.utf8toString
-import java.math.BigDecimal
-import java.math.BigInteger
-import java.time.Instant
-import java.util.Date
+import ch.softappeal.yass.serialize.*
+import java.math.*
+import java.time.*
+import java.util.*
 
 val BooleanSerializer = object : BaseTypeSerializer<Boolean>(Boolean::class.javaObjectType) {
     override fun read(reader: Reader) = reader.readByte().toInt() != 0

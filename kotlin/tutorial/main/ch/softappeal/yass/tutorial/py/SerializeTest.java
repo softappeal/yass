@@ -1,11 +1,11 @@
 package ch.softappeal.yass.tutorial.py;
 
-import ch.softappeal.yass.tutorial.contract.Config;
+import ch.softappeal.yass.tutorial.contract.*;
 
-import java.io.ByteArrayOutputStream;
-import java.util.Arrays;
+import java.io.*;
+import java.util.*;
 
-import static ch.softappeal.yass.serialize.WriterKt.writer;
+import static ch.softappeal.yass.serialize.WriterKt.*;
 
 public final class SerializeTest {
 

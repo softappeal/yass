@@ -1,11 +1,10 @@
 package ch.softappeal.yass;
 
-import kotlin.jvm.functions.Function0;
-import kotlin.jvm.functions.Function3;
-import org.jetbrains.annotations.NotNull;
+import kotlin.jvm.functions.*;
+import org.jetbrains.annotations.*;
 
-import java.lang.reflect.Method;
-import java.util.List;
+import java.lang.reflect.*;
+import java.util.*;
 
 public class TestInterceptor implements Function3<Method, List<?>, Function0<?>, Object> {
     @Override

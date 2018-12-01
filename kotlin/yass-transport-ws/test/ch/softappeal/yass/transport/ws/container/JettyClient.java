@@ -1,6 +1,6 @@
 package ch.softappeal.yass.transport.ws.container;
 
-import org.eclipse.jetty.websocket.jsr356.ClientContainer;
+import org.eclipse.jetty.websocket.jsr356.*;
 
 public final class JettyClient {
 

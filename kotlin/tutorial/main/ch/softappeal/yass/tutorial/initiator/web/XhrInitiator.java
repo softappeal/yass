@@ -1,24 +1,19 @@
 package ch.softappeal.yass.tutorial.initiator.web;
 
-import ch.softappeal.yass.remote.Client;
-import ch.softappeal.yass.remote.ClientInvocation;
-import ch.softappeal.yass.remote.Reply;
-import ch.softappeal.yass.serialize.Serializer;
-import ch.softappeal.yass.tutorial.contract.Config;
-import ch.softappeal.yass.tutorial.contract.EchoService;
-import ch.softappeal.yass.tutorial.shared.Logger;
-import ch.softappeal.yass.tutorial.shared.SslConfig;
-import ch.softappeal.yass.tutorial.shared.web.WebSetup;
+import ch.softappeal.yass.remote.*;
+import ch.softappeal.yass.serialize.*;
+import ch.softappeal.yass.tutorial.contract.*;
+import ch.softappeal.yass.tutorial.shared.*;
+import ch.softappeal.yass.tutorial.shared.web.*;
 
-import javax.net.ssl.HttpsURLConnection;
-import java.io.InputStream;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.util.Objects;
+import javax.net.ssl.*;
+import java.io.*;
+import java.net.*;
+import java.util.*;
 
-import static ch.softappeal.yass.serialize.ReaderKt.reader;
-import static ch.softappeal.yass.serialize.WriterKt.writer;
-import static ch.softappeal.yass.tutorial.contract.Config.ACCEPTOR;
+import static ch.softappeal.yass.serialize.ReaderKt.*;
+import static ch.softappeal.yass.serialize.WriterKt.*;
+import static ch.softappeal.yass.tutorial.contract.Config.*;
 
 public final class XhrInitiator extends WebSetup {
 

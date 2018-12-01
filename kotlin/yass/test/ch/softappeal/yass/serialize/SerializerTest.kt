@@ -1,19 +1,11 @@
 package ch.softappeal.yass.serialize
 
-import ch.softappeal.yass.serialize.nested.AllTypes
-import java.io.ByteArrayInputStream
-import java.io.ByteArrayOutputStream
-import java.math.BigDecimal
-import java.math.BigInteger
-import java.time.Instant
-import java.util.Arrays
-import java.util.Date
-import kotlin.test.Test
-import kotlin.test.assertEquals
-import kotlin.test.assertFalse
-import kotlin.test.assertNull
-import kotlin.test.assertSame
-import kotlin.test.assertTrue
+import ch.softappeal.yass.serialize.nested.*
+import java.io.*
+import java.math.*
+import java.time.*
+import java.util.*
+import kotlin.test.*
 
 fun <T : Any?> copy(serializer: Serializer, value: T): T {
     val buffer = ByteArrayOutputStream()

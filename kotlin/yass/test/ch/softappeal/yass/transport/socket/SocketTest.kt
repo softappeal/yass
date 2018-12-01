@@ -1,11 +1,7 @@
 package ch.softappeal.yass.transport.socket
 
-import java.net.BindException
-import java.net.ConnectException
-import java.net.InetSocketAddress
-import kotlin.test.Test
-import kotlin.test.assertEquals
-import kotlin.test.assertFailsWith
+import java.net.*
+import kotlin.test.*
 
 val address = InetSocketAddress("localhost", 28947)
 

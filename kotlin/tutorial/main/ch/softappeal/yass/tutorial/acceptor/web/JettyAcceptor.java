@@ -1,20 +1,12 @@
 package ch.softappeal.yass.tutorial.acceptor.web;
 
-import ch.softappeal.yass.tutorial.shared.SslConfig;
-import org.eclipse.jetty.http.HttpVersion;
-import org.eclipse.jetty.server.Handler;
-import org.eclipse.jetty.server.HttpConfiguration;
-import org.eclipse.jetty.server.HttpConnectionFactory;
-import org.eclipse.jetty.server.SecureRequestCustomizer;
-import org.eclipse.jetty.server.Server;
-import org.eclipse.jetty.server.ServerConnector;
-import org.eclipse.jetty.server.SslConnectionFactory;
-import org.eclipse.jetty.server.handler.HandlerList;
-import org.eclipse.jetty.server.handler.ResourceHandler;
-import org.eclipse.jetty.servlet.ServletContextHandler;
-import org.eclipse.jetty.servlet.ServletHolder;
-import org.eclipse.jetty.util.ssl.SslContextFactory;
-import org.eclipse.jetty.websocket.jsr356.server.deploy.WebSocketServerContainerInitializer;
+import ch.softappeal.yass.tutorial.shared.*;
+import org.eclipse.jetty.http.*;
+import org.eclipse.jetty.server.*;
+import org.eclipse.jetty.server.handler.*;
+import org.eclipse.jetty.servlet.*;
+import org.eclipse.jetty.util.ssl.*;
+import org.eclipse.jetty.websocket.jsr356.server.deploy.*;
 
 public final class JettyAcceptor extends WebAcceptorSetup {
 

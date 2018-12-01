@@ -1,12 +1,8 @@
 package ch.softappeal.yass.remote.session
 
-import ch.softappeal.yass.OnlyNeededForJava
-import ch.softappeal.yass.args
-import ch.softappeal.yass.invoke
-import ch.softappeal.yass.proxy
-import java.lang.reflect.InvocationHandler
-import java.util.concurrent.Executor
-import java.util.concurrent.TimeUnit
+import ch.softappeal.yass.*
+import java.lang.reflect.*
+import java.util.concurrent.*
 
 private fun isConnected(session: Session?): Boolean =
     (session != null) && !session.isClosed

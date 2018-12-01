@@ -1,13 +1,10 @@
 package ch.softappeal.yass.serialize.nested
 
-import ch.softappeal.yass.Tag
-import ch.softappeal.yass.serialize.Color
-import ch.softappeal.yass.serialize.PrimitiveTypes
-
-import java.math.BigDecimal
-import java.math.BigInteger
-import java.time.Instant
-import java.util.Date
+import ch.softappeal.yass.*
+import ch.softappeal.yass.serialize.*
+import java.math.*
+import java.time.*
+import java.util.*
 
 @Tag(41)
 class AllTypes : PrimitiveTypes {

@@ -1,15 +1,12 @@
 package ch.softappeal.yass.tutorial.initiator.web;
 
-import io.undertow.server.XnioByteBufferPool;
-import io.undertow.servlet.core.ContextClassLoaderSetupAction;
-import io.undertow.servlet.util.DefaultClassIntrospector;
-import io.undertow.websockets.jsr.ServerWebSocketContainer;
-import org.xnio.ByteBufferSlicePool;
-import org.xnio.OptionMap;
-import org.xnio.Options;
-import org.xnio.Xnio;
+import io.undertow.server.*;
+import io.undertow.servlet.core.*;
+import io.undertow.servlet.util.*;
+import io.undertow.websockets.jsr.*;
+import org.xnio.*;
 
-import java.util.Collections;
+import java.util.*;
 
 public final class UndertowInitiator extends WebInitiatorSetup {
 

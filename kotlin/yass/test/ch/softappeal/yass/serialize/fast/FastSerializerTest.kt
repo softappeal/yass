@@ -1,33 +1,12 @@
 package ch.softappeal.yass.serialize.fast
 
-import ch.softappeal.yass.Tag
-import ch.softappeal.yass.compareFile
-import ch.softappeal.yass.serialize.C1
-import ch.softappeal.yass.serialize.C2
-import ch.softappeal.yass.serialize.Color
-import ch.softappeal.yass.serialize.E1
-import ch.softappeal.yass.serialize.E2
-import ch.softappeal.yass.serialize.IntException
-import ch.softappeal.yass.serialize.Node
-import ch.softappeal.yass.serialize.PrimitiveTypes
+import ch.softappeal.yass.*
+import ch.softappeal.yass.serialize.*
 import ch.softappeal.yass.serialize.Reader
 import ch.softappeal.yass.serialize.Writer
-import ch.softappeal.yass.serialize.copy
-import ch.softappeal.yass.serialize.createGraph
-import ch.softappeal.yass.serialize.createNulls
-import ch.softappeal.yass.serialize.createValues
-import ch.softappeal.yass.serialize.nested.AllTypes
-import ch.softappeal.yass.serialize.reader
-import ch.softappeal.yass.serialize.test
-import ch.softappeal.yass.serialize.writer
-import java.io.ByteArrayInputStream
-import java.io.ByteArrayOutputStream
-import java.io.PrintWriter
-import kotlin.test.Test
-import kotlin.test.assertEquals
-import kotlin.test.assertFailsWith
-import kotlin.test.assertNull
-import kotlin.test.assertSame
+import ch.softappeal.yass.serialize.nested.*
+import java.io.*
+import kotlin.test.*
 
 private val TAGGED_FAST_SERIALIZER = taggedFastSerializer(
     listOf(

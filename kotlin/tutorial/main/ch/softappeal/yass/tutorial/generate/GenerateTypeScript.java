@@ -1,12 +1,10 @@
 package ch.softappeal.yass.tutorial.generate;
 
-import ch.softappeal.yass.generate.ts.ExternalDesc;
-import ch.softappeal.yass.generate.ts.TypeScriptGenerator;
-import ch.softappeal.yass.tutorial.contract.Config;
+import ch.softappeal.yass.generate.ts.*;
+import ch.softappeal.yass.tutorial.contract.*;
 
-import java.nio.file.Paths;
-import java.util.HashMap;
-import java.util.Map;
+import java.nio.file.*;
+import java.util.*;
 
 public final class GenerateTypeScript {
 

@@ -1,12 +1,8 @@
 package ch.softappeal.yass.remote
 
-import ch.softappeal.yass.Tag
-import java.lang.reflect.Method
-import kotlin.test.Test
-import kotlin.test.assertEquals
-import kotlin.test.assertFailsWith
-import kotlin.test.assertFalse
-import kotlin.test.assertTrue
+import ch.softappeal.yass.*
+import java.lang.reflect.*
+import kotlin.test.*
 
 class MethodMapperTest {
     @Test
