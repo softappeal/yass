@@ -25,19 +25,23 @@ private fun write(buffer: ByteArrayOutputStream, socket: Socket) {
 
 /** [requestExecutor] is called once for each request. */
 fun socketServer(setup: ServerSetup, requestExecutor: Executor) = object : SocketListener(requestExecutor) {
-    override fun accept(socket: Socket) = socket.use {
-        val oldSocket = socket_.get()
-        socket_.set(socket)
+    override fun accept(socket: Socket) {
+        val transport: ServerTransport
+        val serverInvocation: ServerInvocation
         try {
             val reader = reader(socket.getInputStream())
-            val transport = setup.resolve(reader)
-            transport.invocation(false, transport.read(reader)).invoke { reply ->
+            transport = setup.resolve(reader)
+            serverInvocation = transport.invocation(true, transport.read(reader))
+        } catch (e: Exception) {
+            close(socket, e)
+            throw e
+        }
+        threadLocal(socket_, socket) {
+            serverInvocation.invoke({ socket.close() }) { reply ->
                 val buffer = createBuffer()
                 transport.write(writer(buffer), reply)
                 write(buffer, socket)
             }
-        } finally {
-            socket_.set(oldSocket)
         }
     }
 }
@@ -51,13 +55,7 @@ fun socketClient(setup: ClientSetup, socketConnector: SocketConnector) = object 
     ): Any? {
         socketConnector().use { socket ->
             setForceImmediateSend(socket)
-            val oldSocket = socket_.get()
-            socket_.set(socket)
-            try {
-                return super.syncInvoke(contractId, interceptor, method, arguments)
-            } finally {
-                socket_.set(oldSocket)
-            }
+            return threadLocal(socket_, socket) { super.syncInvoke(contractId, interceptor, method, arguments) }
         }
     }
 

@@ -8,14 +8,17 @@ abstract class AbstractService<C : Any> internal constructor(
     val contractId: ContractId<C>,
     internal val implementation: C
 ) {
-    internal abstract fun invoke(invocation: AbstractInvocation, replyWriter: ReplyWriter)
+    internal abstract fun invoke(invocation: AbstractInvocation, cleanup: () -> Unit, replyWriter: ReplyWriter)
 }
 
 class ServerInvocation internal constructor(
     val service: AbstractService<*>, request: Request
 ) : AbstractInvocation(service.contractId.methodMapper.map(request.methodId), request.arguments) {
+    fun invoke(cleanup: () -> Unit, replyWriter: ReplyWriter) =
+        service.invoke(this, cleanup, replyWriter)
+
     fun invoke(replyWriter: ReplyWriter) =
-        service.invoke(this, replyWriter)
+        invoke({}, replyWriter)
 }
 
 class Server @SafeVarargs constructor(vararg services: AbstractService<*>) {
@@ -46,15 +49,19 @@ class Service<C : Any> @SafeVarargs constructor(
     contractId: ContractId<C>, implementation: C, vararg interceptors: Interceptor
 ) : AbstractService<C>(contractId, implementation) {
     private val interceptor = compositeInterceptor(*interceptors)
-    override fun invoke(invocation: AbstractInvocation, replyWriter: ReplyWriter) {
+    override fun invoke(invocation: AbstractInvocation, cleanup: () -> Unit, replyWriter: ReplyWriter) = try {
         replyWriter(
             try {
-                ValueReply(invoke(interceptor, invocation.methodMapping.method, implementation, invocation.arguments))
+                ValueReply(
+                    invoke(interceptor, invocation.methodMapping.method, implementation, invocation.arguments)
+                )
             } catch (e: Exception) {
                 if (invocation.methodMapping.oneWay) throw e
                 ExceptionReply(e)
             }
         )
+    } finally {
+        cleanup()
     }
 }
 
@@ -77,22 +84,29 @@ val completer: Completer
 class AsyncService<C : Any>(
     contractId: ContractId<C>, implementation: C, private val interceptor: AsyncInterceptor = DirectAsyncInterceptor
 ) : AbstractService<C>(contractId, implementation) {
-    override fun invoke(invocation: AbstractInvocation, replyWriter: ReplyWriter) {
+    override fun invoke(invocation: AbstractInvocation, cleanup: () -> Unit, replyWriter: ReplyWriter) {
         val oldCompleter = completer_.get()
         completer_.set(if (invocation.methodMapping.oneWay) null else object : Completer() {
-            override fun complete(result: Any?) {
+            override fun complete(result: Any?) = try {
                 interceptor.exit(invocation, result)
                 replyWriter(ValueReply(result))
+            } finally {
+                cleanup()
             }
 
-            override fun completeExceptionally(exception: Exception) {
+            override fun completeExceptionally(exception: Exception) = try {
                 interceptor.exception(invocation, exception)
                 replyWriter(ExceptionReply(exception))
+            } finally {
+                cleanup()
             }
         })
         try {
             interceptor.entry(invocation)
             invoke(invocation.methodMapping.method, implementation, invocation.arguments)
+        } catch (e: Exception) {
+            addSuppressed(e) { cleanup() }
+            throw e
         } finally {
             completer_.set(oldCompleter)
         }

@@ -1,5 +1,6 @@
 package ch.softappeal.yass.remote.session
 
+import ch.softappeal.yass.*
 import ch.softappeal.yass.remote.*
 import java.util.Collections
 import java.util.HashMap
@@ -100,11 +101,7 @@ abstract class Session : Client(), AutoCloseable {
     }
 
     private fun closeThrow(e: Exception) {
-        try {
-            close(e)
-        } catch (e2: Exception) {
-            e.addSuppressed(e2)
-        }
+        addSuppressed(e) { close(e) }
         throw e
     }
 

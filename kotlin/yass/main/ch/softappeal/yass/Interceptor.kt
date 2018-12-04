@@ -58,12 +58,22 @@ fun <C : Any> proxy(contract: Class<C>, implementation: C, vararg interceptors: 
 inline fun <reified C : Any> proxy(implementation: C, vararg interceptors: Interceptor): C =
     proxy(C::class.java, implementation, *interceptors)
 
-fun <T : Any?> threadLocalInterceptor(threadLocal: ThreadLocal<T>, value: T): Interceptor = { _, _, invocation ->
+fun addSuppressed(e: Exception, block: () -> Unit) = try {
+    block()
+} catch (e2: Exception) {
+    e.addSuppressed(e2)
+}
+
+fun <T : Any?, B : Any?> threadLocal(threadLocal: ThreadLocal<T>, value: T, block: () -> B): B {
     val oldValue = threadLocal.get()
     threadLocal.set(value)
     try {
-        invocation()
+        return block()
     } finally {
         threadLocal.set(oldValue)
     }
+}
+
+fun <T : Any?> threadLocalInterceptor(threadLocal: ThreadLocal<T>, value: T): Interceptor = { _, _, invocation ->
+    threadLocal(threadLocal, value) { invocation() }
 }

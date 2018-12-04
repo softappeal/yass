@@ -124,7 +124,10 @@ private fun client(server: Server, clientAsyncSupported: Boolean) = object : Cli
 
     override fun invoke(invocation: ClientInvocation) = invocation.invoke(clientAsyncSupported) { request ->
         Thread {
-            server.invocation(true, request).invoke { reply -> invocation.settle(reply) }
+            server.invocation(true, request)
+                .invoke({ println("cleanup ${invocation.methodMapping.method.name}") }) { reply ->
+                    invocation.settle(reply)
+                }
         }.start()
     }
 }
@@ -322,7 +325,7 @@ class RemoteTest {
     fun performance() {
         fun client(server: Server) = object : Client() {
             override fun invoke(invocation: ClientInvocation) = invocation.invoke(false) { request ->
-                server.invocation(false, request).invoke { reply -> invocation.settle(reply) }
+                server.invocation(true, request).invoke { reply -> invocation.settle(reply) }
             }
         }
         performance(client(Server(Service(calculatorId, CalculatorImpl))))

@@ -61,7 +61,7 @@ public final class DatagramTransport {
         if (in.hasRemaining()) {
             throw new RuntimeException("input buffer is not empty");
         }
-        final ServerInvocation invocation = setup.invocation(false, request);
+        final ServerInvocation invocation = setup.invocation(true, request);
         checkOneWay(invocation.getMethodMapping(), request);
         invocation.invoke(reply -> null);
     }

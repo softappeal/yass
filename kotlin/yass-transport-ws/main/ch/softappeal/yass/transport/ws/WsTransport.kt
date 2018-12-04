@@ -1,5 +1,6 @@
 package ch.softappeal.yass.transport.ws
 
+import ch.softappeal.yass.*
 import ch.softappeal.yass.remote.session.*
 import ch.softappeal.yass.remote.session.Session
 import ch.softappeal.yass.serialize.*
@@ -97,11 +98,7 @@ open class WsConfigurator(
                     }
                 })
             } catch (e: Exception) {
-                try {
-                    session.close()
-                } catch (e2: Exception) {
-                    e.addSuppressed(e2)
-                }
+                addSuppressed(e) { session.close() }
                 throw e
             }
         }

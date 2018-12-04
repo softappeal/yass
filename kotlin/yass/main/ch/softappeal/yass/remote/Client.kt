@@ -95,14 +95,9 @@ abstract class Client {
 private val promise_ = ThreadLocal<CompletableFuture<Any>>()
 
 fun <T : Any?> promise(execute: () -> T): CompletionStage<T> {
-    val oldPromise = promise_.get()
     val promise = CompletableFuture<T>()
-    @Suppress("UNCHECKED_CAST") promise_.set(promise as CompletableFuture<Any>)
-    try {
-        execute()
-    } finally {
-        promise_.set(oldPromise)
-    }
+    @Suppress("UNCHECKED_CAST")
+    threadLocal(promise_, promise as CompletableFuture<Any>) { execute() }
     return promise
 }
 

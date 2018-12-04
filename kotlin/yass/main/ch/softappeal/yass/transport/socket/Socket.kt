@@ -1,20 +1,15 @@
 package ch.softappeal.yass.transport.socket
 
+import ch.softappeal.yass.*
 import java.net.*
 import java.util.concurrent.*
 import javax.net.*
 
-internal fun close(socket: Socket, e: Exception) = try {
-    socket.close()
-} catch (e2: Exception) {
-    e.addSuppressed(e2)
-}
+internal fun close(socket: Socket, e: Exception) =
+    addSuppressed(e) { socket.close() }
 
-internal fun close(serverSocket: ServerSocket, e: Exception) = try {
-    serverSocket.close()
-} catch (e2: Exception) {
-    e.addSuppressed(e2)
-}
+internal fun close(serverSocket: ServerSocket, e: Exception) =
+    addSuppressed(e) { serverSocket.close() }
 
 typealias SocketConnector = () -> Socket
 
