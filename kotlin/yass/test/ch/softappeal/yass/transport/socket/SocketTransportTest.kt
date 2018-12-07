@@ -16,6 +16,24 @@ private val Printer: Interceptor = { _, _, invocation ->
     invocation()
 }
 
+private fun asyncInterceptor(side: String) = object : AsyncInterceptor {
+    private val printer = asyncPrinter(side)
+    override fun entry(invocation: AbstractInvocation) {
+        printer.entry(invocation)
+        val socket = socket
+        assertNotNull(socket)
+        println("$socket")
+    }
+
+    override fun exit(invocation: AbstractInvocation, result: Any?) {
+        printer.exit(invocation, result)
+    }
+
+    override fun exception(invocation: AbstractInvocation, exception: Exception) {
+        printer.exception(invocation, exception)
+    }
+}
+
 val messageSerializer = messageSerializer(JavaSerializer)
 
 class SocketTransportTest {
@@ -26,9 +44,27 @@ class SocketTransportTest {
     )
 
     @Test
-    fun test() {
+    fun syncClientSyncServer() {
         useExecutor { executor, done ->
             val server = Server(Service(calculatorId, CalculatorImpl, Printer, serverPrinter))
+            socketServer(ServerSetup(server, messageSerializer), executor)
+                .start(executor, socketBinder(address)).use {
+                    TimeUnit.MILLISECONDS.sleep(200L)
+                    useClient(
+                        socketClient(ClientSetup(messageSerializer), socketConnector(address))
+                            .proxy(calculatorId, Printer, clientPrinter)
+                    )
+                }
+            done()
+        }
+        TimeUnit.MILLISECONDS.sleep(200L)
+    }
+
+    @Ignore // $$$ runs forever
+    @Test
+    fun syncClientAsyncServer() {
+        useExecutor { executor, done ->
+            val server = Server(AsyncService(calculatorId, AsyncCalculatorImpl, asyncInterceptor("server")))
             socketServer(ServerSetup(server, messageSerializer), executor)
                 .start(executor, socketBinder(address)).use {
                     TimeUnit.MILLISECONDS.sleep(200L)
