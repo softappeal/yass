@@ -50,17 +50,14 @@ class Service<C : Any> @SafeVarargs constructor(
 ) : AbstractService<C>(contractId, implementation) {
     private val interceptor = compositeInterceptor(*interceptors)
     override fun invoke(invocation: AbstractInvocation, cleanup: () -> Unit, replyWriter: ReplyWriter) {
-        try {
-            val reply = try {
-                ValueReply(invoke(interceptor, invocation.methodMapping.method, implementation, invocation.arguments))
-            } catch (e: Exception) {
-                if (invocation.methodMapping.oneWay) throw e
-                ExceptionReply(e)
-            }
-            if (!invocation.methodMapping.oneWay) replyWriter(reply)
-        } finally {
-            cleanup()
+        val reply = try {
+            ValueReply(invoke(interceptor, invocation.methodMapping.method, implementation, invocation.arguments))
+        } catch (e: Exception) {
+            if (invocation.methodMapping.oneWay) throw e
+            ExceptionReply(e)
         }
+        if (!invocation.methodMapping.oneWay) replyWriter(reply)
+        cleanup()
     }
 }
 
@@ -75,7 +72,7 @@ abstract class Completer {
     abstract fun completeExceptionally(exception: Exception)
 }
 
-private val completer_ = ThreadLocal<Completer>()
+private val completer_ = ThreadLocal<Completer?>()
 
 val completer: Completer
     get() = checkNotNull(completer_.get()) { "no active asynchronous request/reply service invocation" }
@@ -84,30 +81,26 @@ class AsyncService<C : Any>(
     contractId: ContractId<C>, implementation: C, private val interceptor: AsyncInterceptor = DirectAsyncInterceptor
 ) : AbstractService<C>(contractId, implementation) {
     override fun invoke(invocation: AbstractInvocation, cleanup: () -> Unit, replyWriter: ReplyWriter) {
-        val oldCompleter = completer_.get()
-        completer_.set(if (invocation.methodMapping.oneWay) null else object : Completer() {
-            override fun complete(result: Any?) = try {
-                interceptor.exit(invocation, result)
-                replyWriter(ValueReply(result))
-            } finally {
-                cleanup()
-            }
+        threadLocal(
+            completer_,
+            if (invocation.methodMapping.oneWay) null else object : Completer() {
+                override fun complete(result: Any?) = try {
+                    interceptor.exit(invocation, result)
+                    replyWriter(ValueReply(result))
+                } finally {
+                    cleanup()
+                }
 
-            override fun completeExceptionally(exception: Exception) = try {
-                interceptor.exception(invocation, exception)
-                replyWriter(ExceptionReply(exception))
-            } finally {
-                cleanup()
+                override fun completeExceptionally(exception: Exception) = try {
+                    interceptor.exception(invocation, exception)
+                    replyWriter(ExceptionReply(exception))
+                } finally {
+                    cleanup()
+                }
             }
-        })
-        try {
+        ) {
             interceptor.entry(invocation)
             invoke(invocation.methodMapping.method, implementation, invocation.arguments)
-        } catch (e: Exception) {
-            addSuppressed(e) { cleanup() }
-            throw e
-        } finally {
-            completer_.set(oldCompleter)
         }
     }
 }

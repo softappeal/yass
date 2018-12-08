@@ -25,18 +25,10 @@ private fun write(buffer: ByteArrayOutputStream, socket: Socket) {
 /** [requestExecutor] is called once for each request. */
 fun socketServer(setup: ServerSetup, requestExecutor: Executor) = object : SocketListener(requestExecutor) {
     override fun accept(socket: Socket) {
-        val transport: ServerTransport
-        val invocation: ServerInvocation
-        try {
-            val reader = reader(socket.getInputStream())
-            transport = setup.resolve(reader)
-            invocation = transport.invocation(true, transport.read(reader))
-        } catch (e: Exception) {
-            close(socket, e)
-            throw e
-        }
+        val reader = reader(socket.getInputStream())
+        val transport = setup.resolve(reader)
         threadLocal(socket_, socket) {
-            invocation.invoke({ socket.close() }) { reply ->
+            transport.invocation(true, transport.read(reader)).invoke({ socket.close() }) { reply ->
                 val buffer = createBuffer()
                 transport.write(writer(buffer), reply)
                 write(buffer, socket)

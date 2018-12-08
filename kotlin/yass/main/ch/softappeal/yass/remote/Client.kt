@@ -10,8 +10,7 @@ typealias Tunnel = (request: Request) -> Unit
 abstract class ClientInvocation internal constructor(
     methodMapping: MethodMapping, arguments: List<Any?>
 ) : AbstractInvocation(methodMapping, arguments) {
-    abstract fun invoke(asyncSupported: Boolean, cleanup: () -> Unit, tunnel: Tunnel)
-    fun invoke(asyncSupported: Boolean, tunnel: Tunnel) = invoke(asyncSupported, {}, tunnel)
+    abstract fun invoke(asyncSupported: Boolean, tunnel: Tunnel)
     abstract fun settle(reply: Reply)
 }
 
@@ -45,7 +44,7 @@ abstract class Client {
                     val ready = if (methodMapping.oneWay) null else CountDownLatch(1)
                     var r: Reply? = null
                     invoke(object : ClientInvocation(methodMapping, arguments) {
-                        override fun invoke(asyncSupported: Boolean, cleanup: () -> Unit, tunnel: Tunnel) =
+                        override fun invoke(asyncSupported: Boolean, tunnel: Tunnel) =
                             tunnel(Request(contractId.id, methodMapping.id, arguments))
 
                         override fun settle(reply: Reply) {
@@ -73,7 +72,7 @@ abstract class Client {
                 "asynchronous OneWay proxy call must not be enclosed with 'promise' function"
             }
             invoke(object : ClientInvocation(methodMapping, arguments) {
-                override fun invoke(asyncSupported: Boolean, cleanup: () -> Unit, tunnel: Tunnel) {
+                override fun invoke(asyncSupported: Boolean, tunnel: Tunnel) {
                     check(asyncSupported) { "asynchronous services not supported (service id ${contractId.id})" }
                     interceptor.entry(this)
                     tunnel(Request(contractId.id, methodMapping.id, arguments))
