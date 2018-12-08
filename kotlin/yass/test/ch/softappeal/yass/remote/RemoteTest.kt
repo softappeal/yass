@@ -3,7 +3,6 @@ package ch.softappeal.yass.remote
 import ch.softappeal.yass.*
 import kotlinx.coroutines.*
 import kotlinx.coroutines.future.*
-import java.lang.reflect.*
 import java.util.concurrent.*
 import kotlin.system.*
 import kotlin.test.*
@@ -217,14 +216,9 @@ fun performance(client: Client) {
 }
 
 private fun client(server: Server, clientAsyncSupported: Boolean) = object : Client() {
-    override fun syncInvoke(
-        contractId: ContractId<*>,
-        interceptor: Interceptor,
-        method: Method,
-        arguments: List<Any?>
-    ): Any? {
-        println("sync ${method.name}")
-        return super.syncInvoke(contractId, interceptor, method, arguments)
+    override fun executeInContext(action: () -> Any?): Any? {
+        println("executeInContext")
+        return action()
     }
 
     override fun invoke(invocation: ClientInvocation) = invocation.invoke(clientAsyncSupported) { request ->

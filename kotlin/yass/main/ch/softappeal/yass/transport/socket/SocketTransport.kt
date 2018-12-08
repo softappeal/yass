@@ -5,7 +5,6 @@ import ch.softappeal.yass.remote.*
 import ch.softappeal.yass.serialize.*
 import ch.softappeal.yass.transport.*
 import java.io.*
-import java.lang.reflect.*
 import java.net.*
 import java.util.concurrent.*
 
@@ -47,16 +46,9 @@ fun socketServer(setup: ServerSetup, requestExecutor: Executor) = object : Socke
 }
 
 fun socketClient(setup: ClientSetup, socketConnector: SocketConnector) = object : Client() {
-    override fun syncInvoke(
-        contractId: ContractId<*>,
-        interceptor: Interceptor,
-        method: Method,
-        arguments: List<Any?>
-    ): Any? {
-        socketConnector().use { socket ->
-            setForceImmediateSend(socket)
-            return threadLocal(socket_, socket) { super.syncInvoke(contractId, interceptor, method, arguments) }
-        }
+    override fun executeInContext(action: () -> Any?) = socketConnector().use { socket ->
+        setForceImmediateSend(socket)
+        threadLocal(socket_, socket) { action() }
     }
 
     override fun invoke(invocation: ClientInvocation) = invocation.invoke(false) { request ->
