@@ -27,17 +27,17 @@ private fun write(buffer: ByteArrayOutputStream, socket: Socket) {
 fun socketServer(setup: ServerSetup, requestExecutor: Executor) = object : SocketListener(requestExecutor) {
     override fun accept(socket: Socket) {
         val transport: ServerTransport
-        val serverInvocation: ServerInvocation
+        val invocation: ServerInvocation
         try {
             val reader = reader(socket.getInputStream())
             transport = setup.resolve(reader)
-            serverInvocation = transport.invocation(true, transport.read(reader))
+            invocation = transport.invocation(true, transport.read(reader))
         } catch (e: Exception) {
             close(socket, e)
             throw e
         }
         threadLocal(socket_, socket) {
-            serverInvocation.invoke({ socket.close() }) { reply ->
+            invocation.invoke({ socket.close() }) { reply ->
                 val buffer = createBuffer()
                 transport.write(writer(buffer), reply)
                 write(buffer, socket)
@@ -64,6 +64,8 @@ fun socketClient(setup: ClientSetup, socketConnector: SocketConnector) = object 
         setup.write(writer(buffer), request)
         val socket = socket_.get()
         write(buffer, socket)
-        invocation.settle(setup.read(reader(socket.getInputStream())))
+        if (!invocation.methodMapping.oneWay) {
+            invocation.settle(setup.read(reader(socket.getInputStream())))
+        }
     }
 }

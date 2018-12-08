@@ -70,8 +70,14 @@ fun suspendCalculator(asyncCalculator: Calculator): SuspendCalculator = object :
 }
 
 val CalculatorImpl = object : Calculator {
-    override fun oneWay() {}
-    override fun twoWay() {}
+    override fun oneWay() {
+        println("oneWay")
+    }
+
+    override fun twoWay() {
+        println("twoWay")
+    }
+
     override fun divide(a: Int, b: Int) = a / b
     override fun echo(value: String?) = value
 }

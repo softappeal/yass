@@ -19,22 +19,38 @@ private val Printer: Interceptor = { _, _, invocation ->
 private fun asyncInterceptor(side: String) = object : AsyncInterceptor {
     private val printer = asyncPrinter(side)
     override fun entry(invocation: AbstractInvocation) {
+        println(socket)
         printer.entry(invocation)
-        val socket = socket
-        assertNotNull(socket)
-        println("$socket")
     }
 
     override fun exit(invocation: AbstractInvocation, result: Any?) {
+        assertFailsWith<IllegalStateException> { socket }
         printer.exit(invocation, result)
     }
 
     override fun exception(invocation: AbstractInvocation, exception: Exception) {
+        assertFailsWith<IllegalStateException> { socket }
         printer.exception(invocation, exception)
     }
 }
 
 val messageSerializer = messageSerializer(JavaSerializer)
+
+private fun syncClient(service: AbstractService<Calculator>) {
+    useExecutor { executor, done ->
+        val server = Server(service)
+        socketServer(ServerSetup(server, messageSerializer), executor)
+            .start(executor, socketBinder(address)).use {
+                TimeUnit.MILLISECONDS.sleep(200L)
+                useClient(
+                    socketClient(ClientSetup(messageSerializer), socketConnector(address))
+                        .proxy(calculatorId, Printer, clientPrinter)
+                )
+            }
+        done()
+    }
+    TimeUnit.MILLISECONDS.sleep(200L)
+}
 
 class SocketTransportTest {
     @Test
@@ -44,39 +60,12 @@ class SocketTransportTest {
     )
 
     @Test
-    fun syncClientSyncServer() {
-        useExecutor { executor, done ->
-            val server = Server(Service(calculatorId, CalculatorImpl, Printer, serverPrinter))
-            socketServer(ServerSetup(server, messageSerializer), executor)
-                .start(executor, socketBinder(address)).use {
-                    TimeUnit.MILLISECONDS.sleep(200L)
-                    useClient(
-                        socketClient(ClientSetup(messageSerializer), socketConnector(address))
-                            .proxy(calculatorId, Printer, clientPrinter)
-                    )
-                }
-            done()
-        }
-        TimeUnit.MILLISECONDS.sleep(200L)
-    }
+    fun syncClientSyncServer() =
+        syncClient(Service(calculatorId, CalculatorImpl, Printer, serverPrinter))
 
-    @Ignore // $$$ runs forever
     @Test
-    fun syncClientAsyncServer() {
-        useExecutor { executor, done ->
-            val server = Server(AsyncService(calculatorId, AsyncCalculatorImpl, asyncInterceptor("server")))
-            socketServer(ServerSetup(server, messageSerializer), executor)
-                .start(executor, socketBinder(address)).use {
-                    TimeUnit.MILLISECONDS.sleep(200L)
-                    useClient(
-                        socketClient(ClientSetup(messageSerializer), socketConnector(address))
-                            .proxy(calculatorId, Printer, clientPrinter)
-                    )
-                }
-            done()
-        }
-        TimeUnit.MILLISECONDS.sleep(200L)
-    }
+    fun syncClientAsyncServer() =
+        syncClient(AsyncService(calculatorId, AsyncCalculatorImpl, asyncInterceptor("server")))
 
     @Test
     fun performance() {

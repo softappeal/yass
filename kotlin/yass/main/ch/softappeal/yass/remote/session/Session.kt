@@ -110,12 +110,10 @@ abstract class Session : Client(), AutoCloseable {
         dispatchServerInvoke(invocation, Runnable {
             try {
                 invocation.invoke { reply ->
-                    if (!invocation.methodMapping.oneWay) {
-                        try {
-                            _connection.write(Packet(requestNumber, reply))
-                        } catch (e: Exception) {
-                            closeThrow(e)
-                        }
+                    try {
+                        _connection.write(Packet(requestNumber, reply))
+                    } catch (e: Exception) {
+                        closeThrow(e)
                     }
                 }
             } catch (e: Exception) {
