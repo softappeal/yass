@@ -19,17 +19,23 @@ private val Printer: Interceptor = { _, _, invocation ->
 private fun asyncInterceptor(side: String) = object : AsyncInterceptor {
     private val printer = asyncPrinter(side)
     override fun entry(invocation: AbstractInvocation) {
-        println(socket)
+        println("$side - $socket")
         printer.entry(invocation)
     }
 
     override fun exit(invocation: AbstractInvocation, result: Any?) {
-        assertFailsWith<IllegalStateException> { socket }
+        if ("server" == side)
+            assertFailsWith<IllegalStateException> { socket }
+        else
+            println("$side - $socket")
         printer.exit(invocation, result)
     }
 
     override fun exception(invocation: AbstractInvocation, exception: Exception) {
-        assertFailsWith<IllegalStateException> { socket }
+        if ("server" == side)
+            assertFailsWith<IllegalStateException> { socket }
+        else
+            println("$side - $socket")
         printer.exception(invocation, exception)
     }
 }
@@ -59,15 +65,10 @@ class SocketTransportTest {
                 .start(executor, socketBinder(address)).use {
                     TimeUnit.MILLISECONDS.sleep(200L)
                     val client = socketClient(ClientSetup(messageSerializer), socketConnector(address))
-                    if (true) // $$$ fix if client async support added
-                        useSyncClient(
-                            client.proxy(calculatorId, Printer, clientPrinter)
-                        )
-                    else
-                        useClient(
-                            client.proxy(calculatorId, Printer, clientPrinter),
-                            client.asyncProxy(asyncCalculatorId, asyncInterceptor("client"))
-                        )
+                    useClient(
+                        client.proxy(calculatorId, Printer, clientPrinter),
+                        client.asyncProxy(asyncCalculatorId, asyncInterceptor("client"))
+                    )
                 }
             done()
         }

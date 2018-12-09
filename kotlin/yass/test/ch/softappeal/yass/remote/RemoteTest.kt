@@ -220,11 +220,6 @@ fun performance(client: Client) {
 }
 
 private fun client(server: Server, clientAsyncSupported: Boolean) = object : Client() {
-    override fun executeInContext(action: () -> Any?): Any? {
-        println("executeInContext")
-        return action()
-    }
-
     override fun invoke(invocation: ClientInvocation) = invocation.invoke(clientAsyncSupported) { request ->
         Thread {
             server.invocation(true, request)

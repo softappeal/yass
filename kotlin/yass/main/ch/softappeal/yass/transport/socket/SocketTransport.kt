@@ -38,18 +38,25 @@ fun socketServer(setup: ServerSetup, requestExecutor: Executor) = object : Socke
 }
 
 fun socketClient(setup: ClientSetup, socketConnector: SocketConnector) = object : Client() {
-    override fun executeInContext(action: () -> Any?) = socketConnector().use { socket ->
-        setForceImmediateSend(socket)
-        threadLocal(socket_, socket) { action() }
+    override fun executeInContext(action: () -> Any?): Any? {
+        val socket = socketConnector()
+        try {
+            setForceImmediateSend(socket)
+        } catch (e: Exception) {
+            close(socket, e)
+            throw e
+        }
+        return threadLocal(socket_, socket) { action() }
     }
 
-    override fun invoke(invocation: ClientInvocation) = invocation.invoke(false) { request ->
-        val buffer = createBuffer()
-        setup.write(writer(buffer), request)
-        val socket = socket_.get()
-        write(buffer, socket)
-        if (!invocation.methodMapping.oneWay) {
-            invocation.settle(setup.read(reader(socket.getInputStream())))
+    override fun invoke(invocation: ClientInvocation) = socket_.get().use { socket ->
+        invocation.invoke(true) { request ->
+            val buffer = createBuffer()
+            setup.write(writer(buffer), request)
+            write(buffer, socket)
+            if (!invocation.methodMapping.oneWay) {
+                invocation.settle(setup.read(reader(socket.getInputStream())))
+            }
         }
     }
 }

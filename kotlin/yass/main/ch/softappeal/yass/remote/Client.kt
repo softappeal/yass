@@ -72,25 +72,27 @@ abstract class Client {
             check((promise == null) || !methodMapping.oneWay) {
                 "asynchronous OneWay proxy call must not be enclosed with 'promise' function"
             }
-            invoke(object : ClientInvocation(methodMapping, arguments) {
-                override fun invoke(asyncSupported: Boolean, tunnel: Tunnel) {
-                    check(asyncSupported) { "asynchronous services not supported (service id ${contractId.id})" }
-                    interceptor.entry(this)
-                    tunnel(Request(contractId.id, methodMapping.id, arguments))
-                }
-
-                override fun settle(reply: Reply) {
-                    if (promise == null) return // OneWay
-                    try {
-                        val result = reply.process()
-                        interceptor.exit(this, result)
-                        promise.complete(result)
-                    } catch (e: Exception) {
-                        interceptor.exception(this, e)
-                        promise.completeExceptionally(e)
+            executeInContext {
+                invoke(object : ClientInvocation(methodMapping, arguments) {
+                    override fun invoke(asyncSupported: Boolean, tunnel: Tunnel) {
+                        check(asyncSupported) { "asynchronous services not supported (service id ${contractId.id})" }
+                        interceptor.entry(this)
+                        tunnel(Request(contractId.id, methodMapping.id, arguments))
                     }
-                }
-            })
+
+                    override fun settle(reply: Reply) {
+                        if (promise == null) return // OneWay
+                        try {
+                            val result = reply.process()
+                            interceptor.exit(this, result)
+                            promise.complete(result)
+                        } catch (e: Exception) {
+                            interceptor.exception(this, e)
+                            promise.completeExceptionally(e)
+                        }
+                    }
+                })
+            }
             handlePrimitiveTypes(method.returnType)
         }
 }
