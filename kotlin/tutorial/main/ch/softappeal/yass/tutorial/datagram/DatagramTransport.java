@@ -36,7 +36,7 @@ public final class DatagramTransport {
         return new Client() {
             @Override
             public void invoke(final ClientInvocation invocation) {
-                invocation.invoke(false, request -> {
+                invocation.invoke(true, request -> {
                     checkOneWay(invocation.getMethodMapping(), request);
                     final ByteBufferOutputStream out = new ByteBufferOutputStream(128);
                     try {
