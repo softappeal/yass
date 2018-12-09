@@ -97,7 +97,7 @@ class WsTest {
         connect(
             ServerWebSocketContainer(
                 DefaultClassIntrospector.INSTANCE,
-                xnio.createWorker(OptionMap.create(Options.THREAD_DAEMON, true)),
+                { xnio.createWorker(OptionMap.create(Options.THREAD_DAEMON, true)) },
                 XnioByteBufferPool(ByteBufferSlicePool(1024, 10240)),
                 listOf<ThreadSetupHandler>(ContextClassLoaderSetupAction(ClassLoader.getSystemClassLoader())),
                 true,

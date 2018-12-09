@@ -6,6 +6,7 @@ import io.undertow.servlet.util.*;
 import io.undertow.websockets.jsr.*;
 import org.xnio.*;
 
+import java.io.*;
 import java.util.*;
 
 public final class UndertowInitiator extends WebInitiatorSetup {
@@ -13,7 +14,13 @@ public final class UndertowInitiator extends WebInitiatorSetup {
     public static void main(final String... args) throws Exception {
         run(new ServerWebSocketContainer(
             DefaultClassIntrospector.INSTANCE,
-            Xnio.getInstance().createWorker(OptionMap.create(Options.THREAD_DAEMON, true)),
+            () -> {
+                try {
+                    return Xnio.getInstance().createWorker(OptionMap.create(Options.THREAD_DAEMON, true));
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            },
             new XnioByteBufferPool(new ByteBufferSlicePool(1024, 10240)),
             Collections.singletonList(new ContextClassLoaderSetupAction(ClassLoader.getSystemClassLoader())),
             true,

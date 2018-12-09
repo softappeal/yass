@@ -1,13 +1,13 @@
 plugins {
-    id "org.jetbrains.kotlin.jvm" version "1.3.10" apply false
+    id "org.jetbrains.kotlin.jvm" version "1.3.11" apply false
     id "org.jetbrains.dokka" version "0.9.17" apply false
 }
 
 subprojects {
     ext {
         websocket_dep = 'javax.websocket:javax.websocket-api:1.0'
-        jetty_dep = 'org.eclipse.jetty.websocket:javax-websocket-server-impl:9.4.12.v20180830'
-        undertow_dep = 'io.undertow:undertow-websockets-jsr:2.0.15.Final'
+        jetty_dep = 'org.eclipse.jetty.websocket:javax-websocket-server-impl:9.4.14.v20181114'
+        undertow_dep = 'io.undertow:undertow-websockets-jsr:2.0.16.Final'
     }
 
     apply plugin: "org.jetbrains.kotlin.jvm"
