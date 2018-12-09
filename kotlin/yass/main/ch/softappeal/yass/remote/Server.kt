@@ -101,6 +101,7 @@ class AsyncService<C : Any>(
         ) {
             interceptor.entry(invocation)
             invoke(invocation.methodMapping.method, implementation, invocation.arguments)
+            if (invocation.methodMapping.oneWay) cleanup()
         }
     }
 }
