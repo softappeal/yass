@@ -10,7 +10,7 @@ val packetSerializer = packetSerializer(messageSerializer)
 
 class SessionSocketTransportTest {
     @Test
-    fun test() {
+    fun invocations() {
         useExecutor { executor, done ->
             fun connectionHandler(connection: Connection) {
                 println(connection)

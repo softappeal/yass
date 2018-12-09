@@ -36,22 +36,6 @@ private fun asyncInterceptor(side: String) = object : AsyncInterceptor {
 
 val messageSerializer = messageSerializer(JavaSerializer)
 
-private fun syncClient(service: AbstractService<Calculator>) {
-    useExecutor { executor, done ->
-        val server = Server(service)
-        socketServer(ServerSetup(server, messageSerializer), executor)
-            .start(executor, socketBinder(address)).use {
-                TimeUnit.MILLISECONDS.sleep(200L)
-                useClient(
-                    socketClient(ClientSetup(messageSerializer), socketConnector(address))
-                        .proxy(calculatorId, Printer, clientPrinter)
-                )
-            }
-        done()
-    }
-    TimeUnit.MILLISECONDS.sleep(200L)
-}
-
 class SocketTransportTest {
     @Test
     fun noSocket() = assertEquals(
@@ -60,12 +44,35 @@ class SocketTransportTest {
     )
 
     @Test
-    fun syncClientSyncServer() =
-        syncClient(Service(calculatorId, CalculatorImpl, Printer, serverPrinter))
-
-    @Test
-    fun syncClientAsyncServer() =
-        syncClient(AsyncService(calculatorId, AsyncCalculatorImpl, asyncInterceptor("server")))
+    fun invocations() {
+        useExecutor { executor, done ->
+            socketServer(
+                ServerSetup(
+                    Server(
+                        Service(calculatorId, CalculatorImpl, Printer, serverPrinter),
+                        AsyncService(asyncCalculatorId, AsyncCalculatorImpl, asyncInterceptor("server"))
+                    ),
+                    messageSerializer
+                ),
+                executor
+            )
+                .start(executor, socketBinder(address)).use {
+                    TimeUnit.MILLISECONDS.sleep(200L)
+                    val client = socketClient(ClientSetup(messageSerializer), socketConnector(address))
+                    if (true) // $$$ fix if client async support added
+                        useSyncClient(
+                            client.proxy(calculatorId, Printer, clientPrinter)
+                        )
+                    else
+                        useClient(
+                            client.proxy(calculatorId, Printer, clientPrinter),
+                            client.asyncProxy(asyncCalculatorId, asyncInterceptor("client"))
+                        )
+                }
+            done()
+        }
+        TimeUnit.MILLISECONDS.sleep(200L)
+    }
 
     @Test
     fun performance() {
@@ -88,7 +95,7 @@ class SocketTransportTest {
             socketServer(ServerSetup(server, messageSerializer), executor)
                 .start(executor, socketBinder(address)).use {
                     TimeUnit.MILLISECONDS.sleep(200L)
-                    useClient(
+                    useSyncClient(
                         socketClient(
                             ClientSetup(messageSerializer), firstSocketConnector(
                                 socketConnector(

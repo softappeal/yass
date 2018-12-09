@@ -48,6 +48,7 @@ private fun connect(container: WebSocketContainer, executor: Executor, done: () 
         ClientEndpointConfig.Builder.create().build(),
         THE_URI
     )
+    TimeUnit.MILLISECONDS.sleep(1_000)
 }
 
 class WsTest {
@@ -65,7 +66,6 @@ class WsTest {
         val container = ClientContainer()
         container.start()
         connect(container, executor) {}
-        TimeUnit.MILLISECONDS.sleep(200)
         container.stop()
         server.stop()
         done()
@@ -105,7 +105,6 @@ class WsTest {
             ),
             executor
         ) {}
-        TimeUnit.MILLISECONDS.sleep(200)
         server.stop()
         done()
     }

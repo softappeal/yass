@@ -25,7 +25,7 @@ private fun test(
             invocation()
         })), messageSerializer), executor)
             .start(executor, socketBinder(address, serverSocketFactory)).use {
-                useClient(
+                useSyncClient(
                     socketClient(ClientSetup(messageSerializer), socketConnector(address, socketFactory))
                         .proxy(calculatorId, { _, _, invocation ->
                             checkName("CN=Server")

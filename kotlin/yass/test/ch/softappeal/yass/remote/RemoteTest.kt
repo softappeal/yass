@@ -16,21 +16,21 @@ interface Calculator {
     fun echo(value: String?): String?
 }
 
-interface AsyncCalculator {
+private interface AsyncCalculator {
     fun oneWay()
     fun twoWay(): CompletionStage<Unit>
     fun divide(a: Int, b: Int): CompletionStage<Int>
     fun echo(value: String?): CompletionStage<String?>
 }
 
-interface SuspendCalculator {
+private interface SuspendCalculator {
     fun oneWay()
     suspend fun twoWay()
     suspend fun divide(a: Int, b: Int): Int
     suspend fun echo(value: String?): String?
 }
 
-fun asyncCalculator(asyncCalculator: Calculator): AsyncCalculator = object : AsyncCalculator {
+private fun asyncCalculator(asyncCalculator: Calculator): AsyncCalculator = object : AsyncCalculator {
     override fun oneWay() {
         asyncCalculator.oneWay()
     }
@@ -48,7 +48,7 @@ fun asyncCalculator(asyncCalculator: Calculator): AsyncCalculator = object : Asy
     }
 }
 
-fun suspendCalculator(asyncCalculator: Calculator): SuspendCalculator = object : SuspendCalculator {
+private fun suspendCalculator(asyncCalculator: Calculator): SuspendCalculator = object : SuspendCalculator {
     private suspend fun <T> coroutine(execute: () -> T): T = promise(execute).await()
 
     override fun oneWay() {
@@ -122,7 +122,7 @@ private fun testObjectMethods(calculator: Calculator) {
     assertEquals("<proxy>", calculator.toString())
 }
 
-fun useClient(calculator: Calculator) {
+fun useSyncClient(calculator: Calculator) {
     testObjectMethods(calculator)
     assertEquals(4, calculator.divide(12, 3))
     assertEquals(
@@ -135,7 +135,7 @@ fun useClient(calculator: Calculator) {
     calculator.oneWay()
 }
 
-fun useAsyncClient(asyncCalculator: Calculator) {
+private fun useAsyncClient(asyncCalculator: Calculator) {
     assertEquals(
         "asynchronous OneWay proxy call must not be enclosed with 'promise' function",
         assertFailsWith<IllegalStateException> { promise { asyncCalculator.oneWay() } }.message
@@ -161,15 +161,18 @@ fun useAsyncClient(asyncCalculator: Calculator) {
     }
 }
 
-val calculatorId = contractId<Calculator>(123, SimpleMethodMapperFactory)
+fun useClient(calculator: Calculator, asyncCalculator: Calculator) {
+    useSyncClient(calculator)
+    useAsyncClient(asyncCalculator)
+}
 
-private fun printer(client: Boolean): Interceptor {
+val calculatorId = contractId<Calculator>(123, SimpleMethodMapperFactory)
+val asyncCalculatorId = contractId<Calculator>(321, SimpleMethodMapperFactory)
+
+private fun printer(side: String): Interceptor {
     return { method, arguments, invocation ->
         fun print(type: String, data: Any?, arguments: List<Any?>? = null) =
-            println(
-                "${if (client) "client" else "server"} - ${Thread.currentThread().name} -" +
-                    " $type - $data ${arguments ?: ""}"
-            )
+            println("$side - ${Thread.currentThread().name} - $type - $data ${arguments ?: ""}")
         print("enter", method.name, arguments)
         try {
             val result = invocation()
@@ -178,14 +181,12 @@ private fun printer(client: Boolean): Interceptor {
         } catch (e: Exception) {
             print("exception", e)
             throw e
-        } finally {
-            if (client) println()
         }
     }
 }
 
-val clientPrinter = printer(true)
-val serverPrinter = printer(false)
+val clientPrinter = printer("client")
+val serverPrinter = printer("server")
 
 private var counter = 0
 
@@ -231,23 +232,20 @@ private fun client(server: Server, clientAsyncSupported: Boolean) = object : Cli
     }
 }
 
-private fun useClient(client: Client) {
-    useClient(client.proxy(calculatorId, clientPrinter))
-}
-
-private val syncServer = client(Server(Service(calculatorId, CalculatorImpl, serverPrinter)), true)
-
 class RemoteTest {
     @Test
-    fun syncClientSyncServer() = useClient(syncServer)
-
-    @Test
-    fun syncClientAsyncServer() = useClient(
-        client(Server(AsyncService(calculatorId, AsyncCalculatorImpl, asyncPrinter("server"))), true)
-    )
-
-    @Test
-    fun asyncClientSyncServer() = useAsyncClient(syncServer.asyncProxy(calculatorId, asyncPrinter("client")))
+    fun invocations() {
+        val client = client(
+            Server(
+                Service(calculatorId, CalculatorImpl, serverPrinter),
+                AsyncService(asyncCalculatorId, AsyncCalculatorImpl, asyncPrinter("server"))
+            ), true
+        )
+        useClient(
+            client.proxy(calculatorId, clientPrinter),
+            client.asyncProxy(asyncCalculatorId, asyncPrinter("client"))
+        )
+    }
 
     @Test
     fun asyncProxy() {

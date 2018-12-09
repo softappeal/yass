@@ -30,14 +30,20 @@ fun createTestSession(
 
     override fun server(): Server {
         assertTrue(isClosed)
-        return Server(Service(calculatorId, CalculatorImpl, serverPrinter))
+        return Server(
+            Service(calculatorId, CalculatorImpl, serverPrinter),
+            AsyncService(asyncCalculatorId, AsyncCalculatorImpl, asyncPrinter("server"))
+        )
     }
 
     override fun opened() {
         println("opened")
         connectionHandler(connection)
         if (done == null) return
-        useClient(proxy(calculatorId, clientPrinter))
+        useClient(
+            proxy(calculatorId, clientPrinter),
+            asyncProxy(asyncCalculatorId, asyncPrinter("client"))
+        )
         close()
         assertFailsWith<SessionClosedException> { proxy(calculatorId).twoWay() }
         println("done")
@@ -62,7 +68,7 @@ private fun connect(session1: Session, session2: Session) {
 
 class LocalConnectionTest {
     @Test
-    fun test() = useExecutor { executor, done ->
+    fun invocations() = useExecutor { executor, done ->
         connect(createTestSession(executor, done), createTestSession(executor, null))
     }
 
