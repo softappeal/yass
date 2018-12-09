@@ -119,7 +119,10 @@ private fun testObjectMethods(calculator: Calculator) {
     assertTrue(calculator.equals(calculator))
     assertFalse(calculator.equals(""))
     assertEquals(Calculator::class.java.hashCode(), calculator.hashCode())
-    assertEquals("<proxy>", calculator.toString())
+    assertTrue(
+        "<yass proxy for ContractId(ch.softappeal.yass.remote.Calculator, 123)>" == calculator.toString() ||
+            "<yass proxy for ContractId(ch.softappeal.yass.remote.Calculator, 321)>" == calculator.toString()
+    )
 }
 
 fun useSyncClient(calculator: Calculator) {

@@ -17,7 +17,8 @@ abstract class ClientInvocation internal constructor(
 private fun <C : Any> proxy(contractId: ContractId<C>, invocation: (method: Method, arguments: List<Any?>) -> Any?): C {
     var proxy: C? = null
     val objectMethods: Map<Method, (arguments: List<Any?>) -> Any?> = mapOf(
-        Object::class.java.getMethod("toString") to { _ -> "<proxy>" },
+        Object::class.java.getMethod("toString") to
+            { _ -> "<yass proxy for ContractId(${contractId.contract.canonicalName}, ${contractId.id})>" },
         Object::class.java.getMethod("hashCode") to { _ -> contractId.contract.hashCode() },
         Object::class.java.getMethod("equals", Object::class.java) to { arguments -> proxy === arguments[0] }
     )
