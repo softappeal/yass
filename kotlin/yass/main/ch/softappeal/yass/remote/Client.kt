@@ -32,6 +32,7 @@ abstract class Client {
     @Throws(Exception::class)
     protected abstract fun invoke(invocation: ClientInvocation)
 
+    /** Must return invocation of [action] ( which calls [invoke]). */
     @Throws(Exception::class)
     protected open fun executeInContext(action: () -> Any?): Any? = action()
 

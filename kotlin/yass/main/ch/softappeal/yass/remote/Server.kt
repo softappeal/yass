@@ -80,29 +80,27 @@ val completer: Completer
 class AsyncService<C : Any>(
     contractId: ContractId<C>, implementation: C, private val interceptor: AsyncInterceptor = DirectAsyncInterceptor
 ) : AbstractService<C>(contractId, implementation) {
-    override fun invoke(invocation: AbstractInvocation, cleanup: () -> Unit, replyWriter: ReplyWriter) {
-        threadLocal(
-            completer_,
-            if (invocation.methodMapping.oneWay) null else object : Completer() {
-                override fun complete(result: Any?) = try {
-                    interceptor.exit(invocation, result)
-                    replyWriter(ValueReply(result))
-                } finally {
-                    cleanup()
-                }
-
-                override fun completeExceptionally(exception: Exception) = try {
-                    interceptor.exception(invocation, exception)
-                    replyWriter(ExceptionReply(exception))
-                } finally {
-                    cleanup()
-                }
+    override fun invoke(invocation: AbstractInvocation, cleanup: () -> Unit, replyWriter: ReplyWriter) = threadLocal(
+        completer_,
+        if (invocation.methodMapping.oneWay) null else object : Completer() {
+            override fun complete(result: Any?) = try {
+                interceptor.exit(invocation, result)
+                replyWriter(ValueReply(result))
+            } finally {
+                cleanup()
             }
-        ) {
-            interceptor.entry(invocation)
-            invoke(invocation.methodMapping.method, implementation, invocation.arguments)
-            if (invocation.methodMapping.oneWay) cleanup()
+
+            override fun completeExceptionally(exception: Exception) = try {
+                interceptor.exception(invocation, exception)
+                replyWriter(ExceptionReply(exception))
+            } finally {
+                cleanup()
+            }
         }
+    ) {
+        interceptor.entry(invocation)
+        invoke(invocation.methodMapping.method, implementation, invocation.arguments)
+        if (invocation.methodMapping.oneWay) cleanup()
     }
 }
 
