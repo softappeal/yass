@@ -274,6 +274,21 @@ function writer2reader(writer: yass.Writer): yass.Reader {
 
 })();
 
+(function contextMessageSerializerTest() {
+    const contextMessageSerializer = new yass.ContextMessageSerializer(
+        new yass.FastSerializer(),
+        new yass.MessageSerializer(contract.SERIALIZER)
+    );
+    const writer = new yass.Writer(100);
+    contextMessageSerializer.context = "hello";
+    contextMessageSerializer.write(new yass.ValueReply(null), writer);
+    assert(contextMessageSerializer.context === null);
+    const reader = writer2reader(writer);
+    assert(contextMessageSerializer.read(reader) instanceof yass.ValueReply);
+    assert(reader.isEmpty());
+    assert(contextMessageSerializer.context === "hello");
+})();
+
 const hostname = "localhost";
 
 (function remoteTest() {

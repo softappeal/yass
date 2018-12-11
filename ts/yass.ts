@@ -464,7 +464,7 @@ export class MessageSerializer implements Serializer {
             this.contractSerializer.write(message.value, writer);
         } else {
             writer.writeByte(MessageSerializer.EXCEPTION_REPLY);
-            this.contractSerializer.write((<ExceptionReply>message).exception, writer);
+            this.contractSerializer.write((message as ExceptionReply).exception, writer);
         }
     }
 }
@@ -675,6 +675,26 @@ export class PacketSerializer implements Serializer {
     }
 }
 
+export class ContextMessageSerializer implements Serializer {
+    context: any;
+    constructor(private readonly contextSerializer: Serializer, private readonly messageSerializer: Serializer) {
+        // empty
+    }
+    read(reader: Reader): Message {
+        this.context = this.contextSerializer.read(reader);
+        return this.messageSerializer.read(reader) as Message;
+    }
+    /** Sets context to null. */
+    write(value: Message, writer: Writer): void {
+        try {
+            this.contextSerializer.write(this.context, writer);
+        } finally {
+            this.context = null;
+        }
+        this.messageSerializer.write(value, writer);
+    }
+}
+
 export interface Connection {
     write(packet: Packet): void;
     closed(): void;
@@ -764,7 +784,7 @@ export abstract class Session extends Client {
             } else { // client invoke
                 const invocation = this.requestNumber2invocation[packet.requestNumber];
                 delete this.requestNumber2invocation[packet.requestNumber];
-                invocation.settle(<Reply>message);
+                invocation.settle(message as Reply);
             }
         } catch (exception) {
             Session.doClose(this, exception);
