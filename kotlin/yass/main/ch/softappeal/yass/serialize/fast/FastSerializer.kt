@@ -210,8 +210,7 @@ abstract class FastSerializer protected constructor() : Serializer {
         addType(ListTypeDesc)
     }
 
-    val id2typeSerializer: SortedMap<Int, TypeSerializer>
-        get() = TreeMap(_id2typeSerializer)
+    val id2typeSerializer: SortedMap<Int, TypeSerializer> get() = TreeMap(_id2typeSerializer)
 
     private fun addType(typeDesc: TypeDesc) {
         require(class2typeDesc.put(typeDesc.serializer.type, typeDesc) == null) {

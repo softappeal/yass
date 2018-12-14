@@ -13,7 +13,7 @@ abstract class ProxyDelegate<S : Session> {
 
     val session: S
         get() {
-            if (!isConnected(_session)) throw SessionClosedException()
+            if (!isConnected) throw SessionClosedException()
             return _session!!
         }
 

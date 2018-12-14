@@ -13,8 +13,7 @@ class Packet {
     private val _requestNumber: Int
     private val _message: Message?
 
-    val isEnd: Boolean
-        get() = isEndPacket(_requestNumber)
+    val isEnd: Boolean get() = isEndPacket(_requestNumber)
 
     val requestNumber: Int
         get() {
@@ -22,8 +21,7 @@ class Packet {
             return _requestNumber
         }
 
-    val message: Message
-        get() = _message!!
+    val message: Message get() = _message!!
 
     constructor(requestNumber: Int, message: Message) {
         require(!isEndPacket(requestNumber))

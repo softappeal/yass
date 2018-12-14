@@ -160,9 +160,8 @@ class TypeScriptGenerator @JvmOverloads constructor(
                 var sc: Type? = type.genericSuperclass
                 if (sc is Class<*>) {
                     if (isRootClass(sc)) sc = null else generateClass(sc)
-                } else {
+                } else
                     generateClass((sc as ParameterizedType).rawType as Class<*>)
-                }
                 val superClass = sc
                 generateType(type) { name ->
                     tabs("export ${if (Modifier.isAbstract(type.modifiers)) "abstract " else ""}class $name")

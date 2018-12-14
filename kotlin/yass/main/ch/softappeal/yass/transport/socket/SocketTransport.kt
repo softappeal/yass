@@ -10,8 +10,7 @@ import java.util.concurrent.*
 
 private val socket_ = ThreadLocal<Socket>()
 
-val socket: Socket
-    get() = checkNotNull(socket_.get()) { "no active invocation" }
+val socket: Socket get() = checkNotNull(socket_.get()) { "no active invocation" }
 
 /** Buffering of output is needed to prevent long delays due to Nagle's algorithm. */
 private fun createBuffer(): ByteArrayOutputStream = ByteArrayOutputStream(128)

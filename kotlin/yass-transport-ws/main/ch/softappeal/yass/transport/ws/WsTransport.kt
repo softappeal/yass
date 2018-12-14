@@ -63,11 +63,10 @@ fun asyncWsConnectionFactory(sendTimeoutMilliSeconds: Long): WsConnectionFactory
         }
 
         override fun write(packet: Packet) = remoteEndpoint.sendBinary(writeToBuffer(packet)) { result ->
-            if (result == null) {
+            if (result == null)
                 onError(null)
-            } else if (!result.isOK) {
+            else if (!result.isOK)
                 onError(result.exception)
-            }
         }
     }
 }
