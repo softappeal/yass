@@ -16,8 +16,7 @@ fun <C : Any> contractId(contract: Class<C>, id: Int, methodMapperFactory: Metho
     ContractId(contract, id, methodMapperFactory(contract))
 
 abstract class Services protected constructor(val methodMapperFactory: MethodMapperFactory) {
-    @PublishedApi
-    internal val identifiers = mutableSetOf<Int>()
+    private val identifiers = mutableSetOf<Int>()
 
     @OnlyNeededForJava
     protected fun <C : Any> contractId(contract: Class<C>, id: Int): ContractId<C> {
