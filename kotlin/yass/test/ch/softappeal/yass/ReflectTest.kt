@@ -17,9 +17,9 @@ class ReflectTest {
 
     @Test
     fun fieldModifiers() {
-        FieldModifiers.CONSTRUCTOR_CALLED = false
+        CONSTRUCTOR_CALLED = false
         val fieldModifiers = AllocatorFactory(FieldModifiers::class.java)() as FieldModifiers
-        assertFalse(FieldModifiers.CONSTRUCTOR_CALLED)
+        assertFalse(CONSTRUCTOR_CALLED)
         val name2field = name2field(FieldModifiers::class.java)
         val privateField = name2field["privateField"]!!
         val privateFinalField = name2field["privateFinalField"]!!

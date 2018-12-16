@@ -59,8 +59,4 @@ open class PrimitiveTypes : Serializable {
     }
 
     constructor()
-
-    companion object {
-        private const val serialVersionUID = 1L
-    }
 }

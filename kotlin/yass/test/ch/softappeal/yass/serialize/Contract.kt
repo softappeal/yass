@@ -29,10 +29,4 @@ class NoDefaultConstructor private constructor(val i: Int)
 @Tag(42)
 class IntException(
     @Tag(1) var value: Int
-) : Exception() {
-    constructor() : this(0)
-
-    companion object {
-        private const val serialVersionUID = 1L
-    }
-}
+) : Exception()
