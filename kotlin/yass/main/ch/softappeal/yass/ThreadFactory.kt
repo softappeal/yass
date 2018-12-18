@@ -4,13 +4,14 @@ import java.lang.Thread.*
 import java.util.*
 import java.util.concurrent.*
 import java.util.concurrent.atomic.*
+import kotlin.system.*
 
 val StdErr = UncaughtExceptionHandler { thread, throwable ->
     try {
         System.err.println("### UncaughtExceptionHandler at '${Date()}' in thread '${thread?.name}' ###")
         throwable?.printStackTrace()
     } finally {
-        if (throwable !is Exception) System.exit(1)
+        if (throwable !is Exception) exitProcess(1)
     }
 }
 
@@ -18,7 +19,7 @@ val Terminate = UncaughtExceptionHandler { thread, throwable ->
     try {
         StdErr.uncaughtException(thread, throwable)
     } finally {
-        System.exit(1)
+        exitProcess(1)
     }
 }
 
