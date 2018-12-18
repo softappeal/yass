@@ -6,7 +6,7 @@ import java.lang.reflect.*
 import kotlin.test.*
 
 private fun name2field(type: Class<*>): Map<String, Field> =
-    allFields(type).associateBy(Field::getName) { it }
+    allFields(type).associateBy(Field::getName)
 
 class ReflectTest {
     @Test

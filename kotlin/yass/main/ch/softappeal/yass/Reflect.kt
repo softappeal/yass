@@ -3,27 +3,22 @@ package ch.softappeal.yass
 import sun.misc.Unsafe
 import java.lang.reflect.*
 
-fun ownFields(type: Class<*>): List<Field> {
-    val fields = mutableListOf<Field>()
-    for (field in type.declaredFields) {
+fun ownFields(type: Class<*>): Sequence<Field> = type.declaredFields.asSequence()
+    .filter { field ->
         val modifiers = field.modifiers
-        if (!Modifier.isStatic(modifiers) && !Modifier.isTransient(modifiers)) {
-            fields.add(field)
+        if (Modifier.isStatic(modifiers) || Modifier.isTransient(modifiers)) false else {
             if (!Modifier.isPublic(modifiers) || Modifier.isFinal(modifiers)) field.isAccessible = true
+            true
         }
     }
-    fields.sortBy { it.name }
-    return fields
-}
+    .sortedBy(Field::getName)
 
-fun allFields(type: Class<*>): List<Field> {
-    val fields = mutableListOf<Field>()
+fun allFields(type: Class<*>): Sequence<Field> = emptySequence<Field>().apply {
     var t: Class<*>? = type
-    while ((t !== null) && (t !== Throwable::class.java)) {
-        fields.addAll(ownFields(t))
+    while (t != null && t !== Throwable::class.java) {
+        plus(ownFields(t))
         t = t.superclass
     }
-    return fields
 }
 
 private val Unsafe = {

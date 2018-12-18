@@ -161,7 +161,7 @@ private fun dumper(
                 val oldLength = out.length
                 valueDumper(out, obj)
                 if (oldLength == out.length) {
-                    val fields = class2fields.computeIfAbsent(type) { allFields(it) }
+                    val fields = class2fields.computeIfAbsent(type) { allFields(it).toList() }
                     fun dumpFields() {
                         var first = true
                         for (field in fields) {

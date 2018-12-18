@@ -217,7 +217,7 @@ class PythonGenerator(
             inc()
             if (hasSuper) tabsln("${getQualifiedName(superClass!!)}.__init__(self)")
             val ownFields = ownFields(type)
-            if (ownFields.isEmpty() && !hasSuper)
+            if (ownFields.none() && !hasSuper)
                 tabsln("pass")
             else {
                 for (field in ownFields) {

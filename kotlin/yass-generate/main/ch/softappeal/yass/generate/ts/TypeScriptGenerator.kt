@@ -175,7 +175,7 @@ class TypeScriptGenerator @JvmOverloads constructor(
                     println(" {")
                     inc()
                     additionalTypeCode()
-                    for (field in ownFields(type)) tabsln("${field.name}: ${nullable(type(field.genericType))};")
+                    ownFields(type).forEach { tabsln("${it.name}: ${nullable(type(it.genericType))};") }
                     val id = type2id[type]
                     if (id != null) {
                         tabs("static readonly TYPE_DESC = yass.classDesc($id, $name")
