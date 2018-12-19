@@ -196,7 +196,7 @@ private fun checkBaseTypes(serializer: Serializer) {
     assertTrue(Arrays.equals(charArrayOf('a', 'b'), copy(serializer, charArrayOf('a', 'b'))))
     assertTrue(Arrays.equals(floatArrayOf(1f, 2f), copy(serializer, floatArrayOf(1.0f, 2f))))
     assertTrue(Arrays.equals(doubleArrayOf(1.0, 2.0), copy(serializer, doubleArrayOf(1.0, 2.0))))
-    assertEquals(emptyList(), copy(serializer, emptyList<Any>()))
+    assertEquals(listOf(), copy(serializer, listOf<Any>()))
     assertEquals(listOf(1, null, "2"), copy(serializer, listOf(1, null, "2")))
     assertEquals(listOf("1", null, "2"), copy(serializer, listOf("1", null, "2")))
     assertSame(AllTypes::class.java, copy(serializer, AllTypes()).javaClass)

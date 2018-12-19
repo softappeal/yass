@@ -12,7 +12,7 @@ import java.lang.reflect.*
 fun simpleFastSerializer(
     baseTypeSerializers: List<BaseTypeSerializer<*>>,
     treeConcreteClasses: List<Class<*>>,
-    graphConcreteClasses: List<Class<*>> = emptyList()
+    graphConcreteClasses: List<Class<*>> = listOf()
 ) = object : FastSerializer() {
     init {
         var id = FirstTypeId
@@ -38,7 +38,7 @@ fun simpleFastSerializer(
 fun taggedFastSerializer(
     baseTypeDescs: Collection<TypeDesc>,
     treeConcreteClasses: Collection<Class<*>>,
-    graphConcreteClasses: Collection<Class<*>> = emptyList()
+    graphConcreteClasses: Collection<Class<*>> = listOf()
 ) = object : FastSerializer() {
     init {
         baseTypeDescs.forEach { addBaseType(it) }

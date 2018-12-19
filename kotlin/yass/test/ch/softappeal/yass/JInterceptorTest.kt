@@ -6,13 +6,13 @@ class JInterceptorTest {
     @Test
     fun test() {
         val interceptor = TestInterceptor()
-        val arguments = emptyList<Any>()
+        val arguments = listOf<Any>()
         val exception = RuntimeException()
         val result = "result"
         assertSame(result, interceptor.invoke(Method, arguments) { result })
         assertSame(
             exception,
-            assertFailsWith<Exception> { interceptor.invoke(Method, emptyList<Any>()) { throw exception } }
+            assertFailsWith<Exception> { interceptor.invoke(Method, listOf<Any>()) { throw exception } }
         )
     }
 

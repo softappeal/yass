@@ -17,7 +17,9 @@ val DirectInterceptor: Interceptor = { _, _, invocation -> invocation() }
 fun compositeInterceptor(first: Interceptor, second: Interceptor): Interceptor = when {
     first === DirectInterceptor -> second
     second === DirectInterceptor -> first
-    else -> { method, arguments, invocation -> first(method, arguments) { second(method, arguments, invocation) } }
+    else -> { method, arguments, invocation ->
+        first(method, arguments) { second(method, arguments, invocation) }
+    }
 }
 
 @SafeVarargs
@@ -37,7 +39,7 @@ internal fun invoke(interceptor: Interceptor, method: Method, implementation: An
     interceptor(method, arguments) { invoke(method, implementation, arguments) }
 
 internal fun args(arguments: Array<Any?>?): List<Any?> =
-    if (arguments == null) emptyList() else listOf(*arguments)
+    if (arguments == null) listOf() else listOf(*arguments)
 
 @Suppress("UNCHECKED_CAST")
 internal fun <C : Any> proxy(contract: Class<C>, invocationHandler: InvocationHandler): C =
@@ -58,7 +60,7 @@ fun <C : Any> proxy(contract: Class<C>, implementation: C, vararg interceptors: 
 inline fun <reified C : Any> proxy(implementation: C, vararg interceptors: Interceptor): C =
     proxy(C::class.java, implementation, *interceptors)
 
-fun addSuppressed(e: Exception, block: () -> Unit) = try {
+fun addSuppressed(e: Exception, block: () -> Unit): Unit = try {
     block()
 } catch (e2: Exception) {
     e.addSuppressed(e2)

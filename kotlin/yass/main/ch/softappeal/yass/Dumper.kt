@@ -14,12 +14,12 @@ typealias Dumper = (out: StringBuilder, value: Any?) -> StringBuilder
 
 @JvmOverloads
 fun treeDumper(compact: Boolean, valueDumper: ValueDumper = EmptyValueDumper): Dumper =
-    dumper(compact, false, emptySet(), valueDumper)
+    dumper(compact, false, setOf(), valueDumper)
 
 @JvmOverloads
 fun graphDumper(
     compact: Boolean,
-    concreteValueClasses: Set<Class<*>> = emptySet(),
+    concreteValueClasses: Set<Class<*>> = setOf(),
     valueDumper: ValueDumper = EmptyValueDumper
 ): Dumper =
     dumper(compact, true, concreteValueClasses, valueDumper)
@@ -48,6 +48,7 @@ private fun dumper(
     return { out, value ->
         var tabs = 0
         val alreadyDumpedObjects = if (graph) IdentityHashMap<Any, Int>(16) else null
+
         fun appendTabs() {
             for (t in tabs downTo 1) out.append("    ")
         }
@@ -156,8 +157,7 @@ private fun dumper(
                     }
                     index = alreadyDumpedObjects.size
                     alreadyDumpedObjects[obj] = index
-                } else
-                    index = 0
+                } else index = 0
                 val oldLength = out.length
                 valueDumper(out, obj)
                 if (oldLength == out.length) {
@@ -193,6 +193,7 @@ private fun dumper(
                 }
                 if (checkDumped) append("#$index")
             }
+
             when (value) {
                 null -> append("null")
                 is CharSequence -> append("\"$value\"")
@@ -209,6 +210,7 @@ private fun dumper(
                 }
             }
         }
+
         dump(value)
         out
     }

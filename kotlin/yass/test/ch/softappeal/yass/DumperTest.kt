@@ -50,7 +50,7 @@ class DumperTest {
                     printer,
                     true
                 )
-                print(dumper(false, false, emptySet()), printer, false)
+                print(dumper(false, false, setOf()), printer, false)
                 print(
                     dumper(
                         true, true,
@@ -59,7 +59,7 @@ class DumperTest {
                     printer,
                     true
                 )
-                print(dumper(true, false, emptySet()), printer, false)
+                print(dumper(true, false, setOf()), printer, false)
             }
         } finally {
             TimeZone.setDefault(timeZone)
