@@ -21,10 +21,8 @@ abstract class WsConnection internal constructor(
     }
 
     internal fun onClose(closeReason: CloseReason) {
-        if (closeReason.closeCode.code == CloseReason.CloseCodes.NORMAL_CLOSURE.code)
-            yassSession.close()
-        else
-            onError(RuntimeException(closeReason.toString()))
+        if (closeReason.closeCode.code == CloseReason.CloseCodes.NORMAL_CLOSURE.code) yassSession.close()
+        else onError(RuntimeException(closeReason.toString()))
     }
 
     internal fun onError(t: Throwable?) = when (t) {
@@ -42,7 +40,7 @@ typealias WsConnectionFactory = (transport: SessionTransport, session: javax.web
 /** Sends messages synchronously. Blocks if socket can't send data. */
 val SyncWsConnectionFactory: WsConnectionFactory = { transport, session ->
     object : WsConnection(transport, session) {
-        private val writeMutex = Any()
+        val writeMutex = Any()
         override fun write(packet: Packet) {
             val buffer = writeToBuffer(packet)
             synchronized(writeMutex) {
@@ -56,17 +54,15 @@ val SyncWsConnectionFactory: WsConnectionFactory = { transport, session ->
 fun asyncWsConnectionFactory(sendTimeoutMilliSeconds: Long): WsConnectionFactory = { transport, session ->
     require(sendTimeoutMilliSeconds >= 0) { "sendTimeoutMilliSeconds < 0" }
     object : WsConnection(transport, session) {
-        private val remoteEndpoint: RemoteEndpoint.Async = session.asyncRemote
+        val remoteEndpoint: RemoteEndpoint.Async = session.asyncRemote
 
         init {
             remoteEndpoint.sendTimeout = sendTimeoutMilliSeconds
         }
 
         override fun write(packet: Packet) = remoteEndpoint.sendBinary(writeToBuffer(packet)) { result ->
-            if (result == null)
-                onError(null)
-            else if (!result.isOK)
-                onError(result.exception)
+            if (result == null) onError(null)
+            else if (!result.isOK) onError(result.exception)
         }
     }
 }
@@ -79,7 +75,7 @@ open class WsConfigurator(
     @Suppress("UNCHECKED_CAST")
     final override fun <T> getEndpointInstance(endpointClass: Class<T>): T = object : Endpoint() {
         @Volatile
-        private var connection: WsConnection? = null
+        var connection: WsConnection? = null
 
         override fun onOpen(session: javax.websocket.Session, config: EndpointConfig) {
             try {
@@ -117,6 +113,5 @@ open class WsConfigurator(
     override fun getNegotiatedExtensions(installed: List<Extension>, requested: List<Extension>): List<Extension> =
         requested.filter { r -> installed.any { i -> i.name == r.name } }
 
-    override fun checkOrigin(originHeaderValue: String?) =
-        true
+    override fun checkOrigin(originHeaderValue: String?) = true
 }
