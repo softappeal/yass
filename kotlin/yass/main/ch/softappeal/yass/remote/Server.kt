@@ -14,10 +14,10 @@ abstract class AbstractService<C : Any> internal constructor(
 class ServerInvocation internal constructor(
     val service: AbstractService<*>, request: Request
 ) : AbstractInvocation(service.contractId.methodMapper.map(request.methodId), request.arguments) {
-    fun invoke(cleanup: () -> Unit, replyWriter: ReplyWriter) =
+    fun invoke(cleanup: () -> Unit, replyWriter: ReplyWriter): Unit =
         service.invoke(this, cleanup, replyWriter)
 
-    fun invoke(replyWriter: ReplyWriter) =
+    fun invoke(replyWriter: ReplyWriter): Unit =
         invoke({}, replyWriter)
 }
 
@@ -25,11 +25,10 @@ class Server @SafeVarargs constructor(vararg services: AbstractService<*>) {
     private val id2service = mutableMapOf<Int, AbstractService<*>>()
 
     init {
-        for (service in services) {
+        for (service in services)
             check(
                 id2service.put(service.contractId.id, service) == null
             ) { "service id ${service.contractId.id} already added" }
-        }
     }
 
     fun invocation(asyncSupported: Boolean, request: Request): ServerInvocation {

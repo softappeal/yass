@@ -75,21 +75,21 @@ open class WsConfigurator(
     @Suppress("UNCHECKED_CAST")
     final override fun <T> getEndpointInstance(endpointClass: Class<T>): T = object : Endpoint() {
         @Volatile
-        var connection: WsConnection? = null
+        lateinit var connection: WsConnection
 
         override fun onOpen(session: javax.websocket.Session, config: EndpointConfig) {
             try {
                 connection = connectionFactory(transport, session)
-                connection!!.yassSession = transport.sessionFactory()
-                connection!!.yassSession.created(connection!!)
+                connection.yassSession = transport.sessionFactory()
+                connection.yassSession.created(connection)
                 session.addMessageHandler(MessageHandler.Whole<ByteBuffer> { input ->
                     // note: could be replaced with a lambda in WebSocket API 1.1
                     //       but we would loose compatibility with 1.0
                     try {
-                        connection!!.yassSession.received(transport.read(reader(input)))
+                        connection.yassSession.received(transport.read(reader(input)))
                         check(!input.hasRemaining()) { "input buffer is not empty" }
                     } catch (e: Exception) {
-                        connection!!.yassSession.close(e)
+                        connection.yassSession.close(e)
                     }
                 })
             } catch (e: Exception) {
@@ -99,11 +99,11 @@ open class WsConfigurator(
         }
 
         override fun onClose(session: javax.websocket.Session?, closeReason: CloseReason?) {
-            if (connection != null) connection!!.onClose(closeReason!!)
+            if (::connection.isInitialized) connection.onClose(closeReason!!)
         }
 
         override fun onError(session: javax.websocket.Session?, throwable: Throwable?) {
-            if (connection != null) connection!!.onError(throwable)
+            if (::connection.isInitialized) connection.onError(throwable)
         }
     } as T
 
