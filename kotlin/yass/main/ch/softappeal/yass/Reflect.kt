@@ -13,12 +13,14 @@ fun ownFields(type: Class<*>): Sequence<Field> = type.declaredFields.asSequence(
     }
     .sortedBy(Field::getName)
 
-fun allFields(type: Class<*>): Sequence<Field> = emptySequence<Field>().apply {
+fun allFields(type: Class<*>): List<Field> {
+    val fields = mutableListOf<Field>()
     var t: Class<*>? = type
     while (t != null && t !== Throwable::class.java) {
-        plus(ownFields(t))
+        fields.addAll(ownFields(t))
         t = t.superclass
     }
+    return fields
 }
 
 private val Unsafe = {

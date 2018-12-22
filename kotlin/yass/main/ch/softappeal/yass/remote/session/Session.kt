@@ -2,12 +2,9 @@ package ch.softappeal.yass.remote.session
 
 import ch.softappeal.yass.*
 import ch.softappeal.yass.remote.*
-import java.util.Collections
-import java.util.HashMap
+import java.util.*
 import java.util.concurrent.*
 import java.util.concurrent.atomic.*
-import kotlin.collections.ArrayList
-import kotlin.collections.set
 
 interface Connection {
     /** Called if a packet has to be written out. */
@@ -22,9 +19,6 @@ interface Connection {
 class SessionClosedException : RuntimeException()
 
 abstract class Session : Client(), AutoCloseable {
-    @Volatile
-    private var opened = false
-
     private lateinit var _connection: Connection
     val connection: Connection get() = _connection
 
@@ -35,29 +29,29 @@ abstract class Session : Client(), AutoCloseable {
 
     /** note: it's not worth to use [ConcurrentHashMap] here */
     private val requestNumber2invocation = Collections.synchronizedMap(HashMap<Int, ClientInvocation>(16))
+
     private val nextRequestNumber = AtomicInteger(EndRequestNumber)
 
     internal fun iCreated(connection: Connection) {
         server = requireNotNull(server())
-        closed.set(false)
         _connection = connection
-        dispatchOpened(Runnable {
+        closed.set(false)
+        dispatchOpened {
             try {
-                opened = true
                 opened()
             } catch (e: Exception) {
                 close(e)
             }
-        })
+        }
     }
 
-    /** Called if a session has been opened. Must call [Runnable.run] (possibly in an own thread). */
+    /** Called if a session has been opened. Must call [action] (possibly in an own thread). */
     @Throws(Exception::class)
-    protected abstract fun dispatchOpened(runnable: Runnable)
+    protected abstract fun dispatchOpened(action: () -> Unit)
 
-    /** Called for an incoming request. Must call [Runnable.run] (possibly in an own thread). */
+    /** Called for an incoming request. Must call [action] (possibly in an own thread). */
     @Throws(Exception::class)
-    protected abstract fun dispatchServerInvoke(invocation: ServerInvocation, runnable: Runnable)
+    protected abstract fun dispatchServerInvoke(invocation: ServerInvocation, action: () -> Unit)
 
     /** Gets the server of this session. Called only once after creation of session. */
     @Throws(Exception::class)
@@ -78,12 +72,11 @@ abstract class Session : Client(), AutoCloseable {
         iClose(true, null)
 
     private fun settlePendingInvocations() {
-        for (invocation in ArrayList(requestNumber2invocation.values)) {
+        for (invocation in requestNumber2invocation.values.toList())
             try {
                 invocation.settle(ExceptionReply(SessionClosedException()))
             } catch (ignore: Exception) {
             }
-        }
     }
 
     internal fun iClose(sendEnd: Boolean, exception: Exception?) {
@@ -92,7 +85,7 @@ abstract class Session : Client(), AutoCloseable {
             try {
                 settlePendingInvocations()
             } finally {
-                if (opened) closed(exception)
+                closed(exception)
             }
             if (sendEnd) _connection.write(EndPacket)
         } finally {
@@ -107,7 +100,7 @@ abstract class Session : Client(), AutoCloseable {
 
     private fun serverInvoke(requestNumber: Int, request: Request) {
         val invocation = server.invocation(true, request)
-        dispatchServerInvoke(invocation, Runnable {
+        dispatchServerInvoke(invocation) {
             try {
                 invocation.invoke { reply ->
                     try {
@@ -119,7 +112,7 @@ abstract class Session : Client(), AutoCloseable {
             } catch (e: Exception) {
                 closeThrow(e)
             }
-        })
+        }
     }
 
     internal fun iReceived(packet: Packet) {
@@ -139,20 +132,24 @@ abstract class Session : Client(), AutoCloseable {
 
     final override fun invoke(invocation: ClientInvocation) {
         if (isClosed) throw SessionClosedException()
-        invocation.invoke(true) { request ->
-            try {
-                var requestNumber: Int
-                do { // we can't use END_REQUEST_NUMBER as regular requestNumber
-                    requestNumber = nextRequestNumber.incrementAndGet()
-                } while (requestNumber == EndRequestNumber)
-                if (!invocation.methodMapping.oneWay) {
-                    requestNumber2invocation[requestNumber] = invocation
-                    if (isClosed) settlePendingInvocations() // needed due to race conditions
+        try {
+            invocation.invoke(true) { request ->
+                try {
+                    var requestNumber: Int
+                    do { // we can't use END_REQUEST_NUMBER as regular requestNumber
+                        requestNumber = nextRequestNumber.incrementAndGet()
+                    } while (requestNumber == EndRequestNumber)
+                    if (!invocation.methodMapping.oneWay) {
+                        requestNumber2invocation[requestNumber] = invocation
+                        if (isClosed) settlePendingInvocations() // needed due to race conditions
+                    }
+                    _connection.write(Packet(requestNumber, request))
+                } catch (e: Exception) {
+                    closeThrow(e)
                 }
-                _connection.write(Packet(requestNumber, request))
-            } catch (e: Exception) {
-                closeThrow(e)
             }
+        } catch (e: Exception) {
+            closeThrow(e)
         }
     }
 }
@@ -171,7 +168,7 @@ fun Session.created(connection: Connection) = iCreated(connection)
 typealias SessionFactory = () -> Session
 
 open class SimpleSession(protected val dispatchExecutor: Executor) : Session() {
-    override fun dispatchOpened(runnable: Runnable) = dispatchExecutor.execute(runnable)
-    override fun dispatchServerInvoke(invocation: ServerInvocation, runnable: Runnable) =
-        dispatchExecutor.execute(runnable)
+    override fun dispatchOpened(action: () -> Unit) = dispatchExecutor.execute { action() }
+    override fun dispatchServerInvoke(invocation: ServerInvocation, action: () -> Unit) =
+        dispatchExecutor.execute { action() }
 }

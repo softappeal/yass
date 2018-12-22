@@ -13,7 +13,6 @@ class SessionSocketTransportTest {
     fun invocations() {
         useExecutor { executor, done ->
             fun connectionHandler(connection: Connection) {
-                println(connection)
                 println((connection as SocketConnection).socket)
             }
             socketAcceptor(

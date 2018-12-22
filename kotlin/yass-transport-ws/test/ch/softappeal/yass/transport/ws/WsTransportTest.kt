@@ -27,7 +27,6 @@ private const val PATH = "/test"
 private val THE_URI = URI.create("ws://localhost:$PORT$PATH")
 
 private fun connectionHandler(connection: Connection) {
-    println(connection)
     println((connection as WsConnection).session)
 }
 
