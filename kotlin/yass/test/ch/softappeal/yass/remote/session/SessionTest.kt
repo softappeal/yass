@@ -137,7 +137,7 @@ class LocalConnectionTest {
         }
 
         class InitiatorReconnector : Reconnector<InitiatorSession>() {
-            val calculator = proxy { session -> session.calculator }
+            val calculator = proxy(InitiatorSession::calculator)
         }
         useExecutor { executor, done ->
             val reconnector = InitiatorReconnector()

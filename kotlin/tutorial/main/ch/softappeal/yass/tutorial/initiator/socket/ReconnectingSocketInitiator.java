@@ -20,7 +20,6 @@ public final class ReconnectingSocketInitiator {
             executor,
             10,
             () -> new InitiatorSession(executor),
-            0L,
             sessionFactory -> {
                 socketInitiator(
                     new InitiatorSetup(Config.PACKET_SERIALIZER, sessionFactory),

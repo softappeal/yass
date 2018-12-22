@@ -40,11 +40,14 @@ open class Reconnector<S : Session> : ProxyDelegate<S>() {
      * [executor] is called once; must interrupt it's threads to terminate reconnects.
      * Thrown exceptions of [connector] will be ignored.
      */
+    @JvmOverloads
     fun start(
         executor: Executor,
         intervalSeconds: Long, sessionFactory: SessionFactory, delaySeconds: Long = 0,
         connector: (sessionFactory: SessionFactory) -> Unit
     ) {
+        require(intervalSeconds >= 1)
+        require(delaySeconds >= 0)
         val reconnectorSessionFactory = {
             val session = requireNotNull(sessionFactory())
             @Suppress("UNCHECKED_CAST") setSession(session as S)
