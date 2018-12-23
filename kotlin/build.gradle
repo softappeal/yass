@@ -12,6 +12,10 @@ subprojects {
 
     apply plugin: "org.jetbrains.kotlin.jvm"
 
+    test {
+        useJUnitPlatform()
+    }
+
     sourceSets {
         main { kotlin { srcDir 'main' } }
         test { kotlin { srcDir 'test' } }
@@ -21,6 +25,7 @@ subprojects {
     dependencies {
         compile "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
         testCompile "org.jetbrains.kotlin:kotlin-test-junit5"
+        testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.0.0'
     }
 
     tasks.withType(JavaCompile) {
