@@ -41,11 +41,14 @@ fun taggedFastSerializer(
     graphConcreteClasses: Collection<Class<*>> = listOf()
 ) = object : FastSerializer() {
     init {
-        baseTypeDescs.forEach { addBaseType(it) }
+        baseTypeDescs.forEach(::addBaseType)
         treeConcreteClasses
             .forEach { type -> if (type.isEnum) addEnum(tag(type), type) else addClass(type, false) }
         graphConcreteClasses
-            .forEach { type -> checkClass(type); addClass(type, true) }
+            .forEach { type ->
+                checkClass(type)
+                addClass(type, true)
+            }
         fixup()
     }
 
