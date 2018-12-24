@@ -7,6 +7,8 @@ import java.util.concurrent.*
 import kotlin.system.*
 import kotlin.test.*
 
+class DivisionByZeroException(val a: Int) : RuntimeException()
+
 interface Calculator {
     @OneWay
     fun oneWay()
@@ -77,7 +79,11 @@ val CalculatorImpl = object : Calculator {
         println("twoWay")
     }
 
-    override fun divide(a: Int, b: Int) = a / b
+    override fun divide(a: Int, b: Int): Int {
+        if (b == 0) throw DivisionByZeroException(a)
+        return a / b
+    }
+
     override fun echo(value: String?) = value
 }
 
@@ -102,7 +108,7 @@ val AsyncCalculatorImpl = object : Calculator {
     override fun divide(a: Int, b: Int): Int {
         sleep {
             if (b == 0)
-                it.completeExceptionally(ArithmeticException("/ by zero"))
+                it.completeExceptionally(DivisionByZeroException(a))
             else
                 it.complete(a / b)
         }
@@ -129,8 +135,8 @@ fun useSyncClient(calculator: Calculator) {
     testObjectMethods(calculator)
     assertEquals(4, calculator.divide(12, 3))
     assertEquals(
-        "/ by zero",
-        assertFailsWith<ArithmeticException> { calculator.divide(12, 0) }.message
+        12,
+        assertFailsWith<DivisionByZeroException> { calculator.divide(12, 0) }.a
     )
     calculator.twoWay()
     assertNull(calculator.echo(null))
@@ -154,8 +160,8 @@ private fun useAsyncClient(asyncCalculator: Calculator) {
         try {
             calculator.divide(12, 0)
             fail()
-        } catch (e: ArithmeticException) {
-            assertEquals("/ by zero", e.message)
+        } catch (e: DivisionByZeroException) {
+            assertEquals(12, e.a)
         }
         assertNull(calculator.twoWay())
         assertNull(calculator.echo(null))
