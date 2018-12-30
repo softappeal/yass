@@ -37,7 +37,7 @@ def createObjects(withCycles=True):  # type: (bool) -> Any
         u"Hello",
         u">\u0001\u0012\u007F\u0080\u0234\u07FF\u0800\u4321\uFFFF<",
         b'\x00\x7f\xff\x0a\xd3',
-        Expiration(2017, 11, 29),
+        Expiration(2017),
         PriceKind.ASK,
         PriceKind.BID,
         stock,

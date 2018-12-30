@@ -15,7 +15,7 @@ RUN \
   && wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -q -O miniconda.sh \
   && bash /miniconda.sh -b -p /miniconda \
   && conda config --set always_yes yes \
-  && conda create --quiet --name py3 python=3.7.1 \
+  && conda create --quiet --name py3 python=3.6.7 \
   && conda create --quiet --name py2 python=2.7.15 \
   \
   && chmod +x /project/gcb/*.sh

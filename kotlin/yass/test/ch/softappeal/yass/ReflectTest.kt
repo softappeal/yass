@@ -8,6 +8,8 @@ import kotlin.test.*
 private fun name2field(type: Class<*>): Map<String, Field> =
     allFields(type).associateBy(Field::getName)
 
+class NoDefaultConstructor private constructor(val i: Int)
+
 class ReflectTest {
     @Test
     fun noDefaultConstructor() {

@@ -55,7 +55,7 @@ class Service<C : Any> @SafeVarargs constructor(
             if (invocation.methodMapping.oneWay) throw e
             ExceptionReply(e)
         }
-        if (!invocation.methodMapping.oneWay) replyWriter(reply)
+        replyWriter(reply)
         cleanup()
     }
 }
@@ -99,7 +99,10 @@ class AsyncService<C : Any>(
     ) {
         interceptor.entry(invocation)
         invoke(invocation.methodMapping.method, implementation, invocation.arguments)
-        if (invocation.methodMapping.oneWay) cleanup()
+        if (invocation.methodMapping.oneWay) {
+            replyWriter(ValueReply(null))
+            cleanup()
+        }
     }
 }
 

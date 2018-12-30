@@ -37,7 +37,7 @@ def createObjects(withCycles=True) -> Any:
         "Hello",
         ">\u0001\u0012\u007F\u0080\u0234\u07FF\u0800\u4321\uFFFF<",
         bytes([0, 127, 256 - 1, 10, 256 - 45]),
-        Expiration(2017, 11, 29),
+        Expiration(2017),
         PriceKind.ASK,
         PriceKind.BID,
         stock,

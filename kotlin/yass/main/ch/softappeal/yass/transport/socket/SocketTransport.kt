@@ -55,7 +55,7 @@ fun socketClient(setup: ClientSetup, socketConnector: SocketConnector) = object 
             val buffer = createBuffer()
             setup.write(writer(buffer), request)
             write(buffer, socket)
-            if (!invocation.methodMapping.oneWay) invocation.settle(setup.read(reader(socket.getInputStream())))
+            invocation.settle(setup.read(reader(socket.getInputStream())))
         }
     }
 }

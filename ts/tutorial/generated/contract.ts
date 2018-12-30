@@ -5,20 +5,16 @@ import {Integer, IntegerHandler} from "../baseTypes-external";
 class ExpirationHandler implements yass.TypeHandler<Expiration> {
     read(reader: yass.Reader): Expiration {
         return new Expiration(
-            reader.readZigZagInt(),
-            reader.readZigZagInt(),
             reader.readZigZagInt()
         );
     }
     write(value: Expiration, writer: yass.Writer): void {
         writer.writeZigZagInt(value.year);
-        writer.writeZigZagInt(value.month);
-        writer.writeZigZagInt(value.day);
     }
     static readonly TYPE_DESC = new yass.TypeDesc(yass.FIRST_DESC_ID + 1, new ExpirationHandler());
 }
 export class Expiration {
-    constructor(public readonly year: number, public readonly month: number, public readonly day: number) {
+    constructor(public readonly year: number) {
         // empty
     }
     static readonly TYPE_DESC = ExpirationHandler.TYPE_DESC;

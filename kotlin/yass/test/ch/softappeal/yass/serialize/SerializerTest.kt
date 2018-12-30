@@ -2,8 +2,6 @@ package ch.softappeal.yass.serialize
 
 import ch.softappeal.yass.serialize.nested.*
 import java.io.*
-import java.math.*
-import java.time.*
 import java.util.*
 import kotlin.test.*
 
@@ -31,14 +29,7 @@ private fun checkNulls(allTypes: AllTypes) {
     assertEquals(' ', allTypes.charField)
     assertEquals(0f, allTypes.floatField)
     assertEquals(0.0, allTypes.doubleField)
-    assertNull(allTypes.booleanArrayField)
     assertNull(allTypes.byteArrayField)
-    assertNull(allTypes.shortArrayField)
-    assertNull(allTypes.intArrayField)
-    assertNull(allTypes.longArrayField)
-    assertNull(allTypes.charArrayField)
-    assertNull(allTypes.floatArrayField)
-    assertNull(allTypes.doubleArrayField)
     assertNull(allTypes.booleanWrapperField)
     assertNull(allTypes.byteWrapperField)
     assertNull(allTypes.shortWrapperField)
@@ -49,10 +40,6 @@ private fun checkNulls(allTypes: AllTypes) {
     assertNull(allTypes.doubleWrapperField)
     assertNull(allTypes.stringField)
     assertNull(allTypes.colorField)
-    assertNull(allTypes.bigDecimalField)
-    assertNull(allTypes.bigIntegerField)
-    assertNull(allTypes.dateField)
-    assertNull(allTypes.instantField)
     assertNull(allTypes.primitiveTypesField)
     assertNull(allTypes.primitiveTypesListField)
     assertNull(allTypes.objectField)
@@ -78,20 +65,9 @@ fun createValues(): AllTypes {
     allTypes.charWrapperField = 'y'
     allTypes.floatWrapperField = -1.23f
     allTypes.doubleWrapperField = -3.21
-    allTypes.booleanArrayField = booleanArrayOf(false, true, false)
     allTypes.byteArrayField = byteArrayOf(1.toByte(), (-2).toByte())
-    allTypes.shortArrayField = shortArrayOf((-1).toShort(), 2.toShort())
-    allTypes.intArrayField = intArrayOf(1, -2)
-    allTypes.longArrayField = longArrayOf(-1L, 2L)
-    allTypes.charArrayField = charArrayOf('x', 'y')
-    allTypes.floatArrayField = floatArrayOf(-1f, 2f)
-    allTypes.doubleArrayField = doubleArrayOf(1.0, -2.0)
     allTypes.stringField = "999"
     allTypes.colorField = Color.BLUE
-    allTypes.bigDecimalField = BigDecimal("98.7")
-    allTypes.bigIntegerField = BigInteger("987")
-    allTypes.dateField = Date(123456789L)
-    allTypes.instantField = Instant.ofEpochSecond(123, 456789)
     allTypes.primitiveTypesField = AllTypes("hello")
     allTypes.primitiveTypesListField =
         Arrays.asList<PrimitiveTypes>(PrimitiveTypes(999), AllTypes("world"), null)
@@ -118,22 +94,9 @@ private fun checkValues(allTypes: AllTypes) {
     assertEquals('y', allTypes.charWrapperField)
     assertEquals(-1.23f, allTypes.floatWrapperField)
     assertEquals(-3.21, allTypes.doubleWrapperField)
-    assertTrue(Arrays.equals(allTypes.booleanArrayField, booleanArrayOf(false, true, false)))
     assertTrue(Arrays.equals(allTypes.byteArrayField, byteArrayOf(1.toByte(), (-2).toByte())))
-    assertTrue(Arrays.equals(allTypes.shortArrayField, shortArrayOf((-1).toShort(), 2.toShort())))
-    assertTrue(Arrays.equals(allTypes.intArrayField, intArrayOf(1, -2)))
-    assertTrue(Arrays.equals(allTypes.longArrayField, longArrayOf(-1L, 2L)))
-    assertTrue(Arrays.equals(allTypes.charArrayField, charArrayOf('x', 'y')))
-    assertTrue(Arrays.equals(allTypes.floatArrayField, floatArrayOf(-1f, 2f)))
-    assertTrue(Arrays.equals(allTypes.doubleArrayField, doubleArrayOf(1.0, -2.0)))
     assertEquals("999", allTypes.stringField)
     assertEquals(Color.BLUE, allTypes.colorField)
-    assertEquals(BigDecimal("98.7"), allTypes.bigDecimalField)
-    assertEquals(BigInteger("987"), allTypes.bigIntegerField)
-    assertEquals(123456789L, allTypes.dateField!!.time)
-    val instant = allTypes.instantField!!
-    assertEquals(123L, instant.epochSecond)
-    assertEquals(456789, instant.nano)
     assertEquals("hello", (allTypes.primitiveTypesField as AllTypes).stringField)
     val primitiveTypesListField = allTypes.primitiveTypesListField!!
     assertEquals(3, primitiveTypesListField.size)
@@ -181,30 +144,15 @@ private fun checkBaseTypes(serializer: Serializer) {
     assertEquals(1.23, copy(serializer, 1.23))
     assertEquals("123", copy(serializer, "123"))
     assertEquals(Color.RED, copy(serializer, Color.RED))
-    assertEquals(BigInteger("123"), copy(serializer, BigInteger("123")))
-    assertEquals(BigDecimal("1.23"), copy(serializer, BigDecimal("1.23")))
-    assertEquals(Date(9876543210L), copy(serializer, Date(9876543210L)))
-    assertTrue(Arrays.equals(booleanArrayOf(true, false), copy(serializer, booleanArrayOf(true, false))))
     assertTrue(
         Arrays.equals(byteArrayOf(1.toByte(), 2.toByte()), copy(serializer, byteArrayOf(1.toByte(), 2.toByte())))
     )
-    assertTrue(
-        Arrays.equals(shortArrayOf(1.toShort(), 2.toShort()), copy(serializer, shortArrayOf(1.toShort(), 2.toShort())))
-    )
-    assertTrue(Arrays.equals(intArrayOf(1, 2), copy(serializer, intArrayOf(1, 2))))
-    assertTrue(Arrays.equals(longArrayOf(1L, 2L), copy(serializer, longArrayOf(1L, 2L))))
-    assertTrue(Arrays.equals(charArrayOf('a', 'b'), copy(serializer, charArrayOf('a', 'b'))))
-    assertTrue(Arrays.equals(floatArrayOf(1f, 2f), copy(serializer, floatArrayOf(1.0f, 2f))))
-    assertTrue(Arrays.equals(doubleArrayOf(1.0, 2.0), copy(serializer, doubleArrayOf(1.0, 2.0))))
     assertEquals(listOf(), copy(serializer, listOf<Any>()))
     assertEquals(listOf(1, null, "2"), copy(serializer, listOf(1, null, "2")))
     assertEquals(listOf("1", null, "2"), copy(serializer, listOf("1", null, "2")))
     assertSame(AllTypes::class.java, copy(serializer, AllTypes()).javaClass)
     assertSame(PrimitiveTypes::class.java, copy(serializer, PrimitiveTypes()).javaClass)
     assertEquals(123, copy(serializer, IntException(123)).value)
-    val booleans = BooleanArray(10000)
-    Arrays.fill(booleans, true)
-    assertTrue(Arrays.equals(copy(serializer, booleans), booleans))
     var bytes = ByteArray(10000)
     Arrays.fill(bytes, 123.toByte())
     assertTrue(Arrays.equals(copy(serializer, bytes), bytes))
@@ -212,24 +160,6 @@ private fun checkBaseTypes(serializer: Serializer) {
     assertTrue(Arrays.equals(copy(serializer, bytes), bytes))
     bytes = byteArrayOf(1.toByte(), (-2).toByte(), 3.toByte())
     assertTrue(Arrays.equals(copy(serializer, bytes), bytes))
-    val shorts = ShortArray(10000)
-    Arrays.fill(shorts, 12345.toShort())
-    assertTrue(Arrays.equals(copy(serializer, shorts), shorts))
-    val ints = IntArray(10000)
-    Arrays.fill(ints, 12345678)
-    assertTrue(Arrays.equals(copy(serializer, ints), ints))
-    val longs = LongArray(10000)
-    Arrays.fill(longs, 12345678901234585L)
-    assertTrue(Arrays.equals(copy(serializer, longs), longs))
-    val chars = CharArray(10000)
-    Arrays.fill(chars, 'x')
-    assertTrue(Arrays.equals(copy(serializer, chars), chars))
-    val floats = FloatArray(10000)
-    Arrays.fill(floats, 123.987f)
-    assertTrue(Arrays.equals(copy(serializer, floats), floats))
-    val doubles = DoubleArray(10000)
-    Arrays.fill(doubles, 123.987)
-    assertTrue(Arrays.equals(copy(serializer, doubles), doubles))
 }
 
 fun test(serializer: Serializer) {

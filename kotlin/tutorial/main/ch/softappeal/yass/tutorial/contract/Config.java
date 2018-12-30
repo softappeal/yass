@@ -35,7 +35,9 @@ public final class Config {
             PairBoolBool.class,
             Triple.class,
             TripleWrapper.class
-        )
+        ),
+        Collections.emptyList(),
+        false
     );
 
     public static final Serializer MESSAGE_SERIALIZER = messageSerializer(CONTRACT_SERIALIZER);
@@ -77,7 +79,8 @@ public final class Config {
         ),
         Arrays.asList(
             Node.class
-        )
+        ),
+        false
     );
 
     public static final class PyAcceptor extends Role {

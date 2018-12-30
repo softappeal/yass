@@ -23,12 +23,10 @@ class Test(unittest.TestCase):
         self.assertEqual(str(i), '123')
 
     def testExpiration(self):
-        e = Expiration(2017, 11, 30)
+        e = Expiration(2017)
         self.assertEqual(yass.typeDesc(e).id, 8)
         self.assertEqual(e.year, 2017)
-        self.assertEqual(e.month, 11)
-        self.assertEqual(e.day, 30)
-        self.assertEqual(str(e), '2017-11-30')
+        self.assertEqual(str(e), '2017')
 
     def testClasses(self):
         bond = Bond()

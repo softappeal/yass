@@ -12,8 +12,9 @@ import java.lang.reflect.*
 fun simpleFastSerializer(
     baseTypeSerializers: List<BaseTypeSerializer<*>>,
     treeConcreteClasses: List<Class<*>>,
-    graphConcreteClasses: List<Class<*>> = listOf()
-) = object : FastSerializer() {
+    graphConcreteClasses: List<Class<*>> = listOf(),
+    skipping: Boolean = true
+) = object : FastSerializer(skipping) {
     init {
         var id = FirstTypeId
         for (typeSerializer in baseTypeSerializers) addBaseType(TypeDesc(id++, typeSerializer))
@@ -38,8 +39,9 @@ fun simpleFastSerializer(
 fun taggedFastSerializer(
     baseTypeDescs: Collection<TypeDesc>,
     treeConcreteClasses: Collection<Class<*>>,
-    graphConcreteClasses: Collection<Class<*>> = listOf()
-) = object : FastSerializer() {
+    graphConcreteClasses: Collection<Class<*>> = listOf(),
+    skipping: Boolean = true
+) = object : FastSerializer(skipping) {
     init {
         baseTypeDescs.forEach(::addBaseType)
         treeConcreteClasses
@@ -63,16 +65,21 @@ fun taggedFastSerializer(
     }
 }
 
-fun FastSerializer.print(printer: PrintWriter) = id2typeSerializer.forEach { id, typeSerializer ->
-    if (id < FirstTypeId) return@forEach
-    val type = typeSerializer.type
-    printer.print("$id: ${type.canonicalName}")
-    if (typeSerializer is BaseTypeSerializer<*>) {
-        printer.println()
-        if (type.isEnum) for ((i, c) in type.enumConstants.withIndex()) printer.println("    $i: $c")
-    } else if (typeSerializer is ClassTypeSerializer) {
-        printer.println(" (graph=${typeSerializer.graph})")
-        for (fd in typeSerializer.fieldDescs) printer.println("    ${fd.id}: ${fd.serializer.field.toGenericString()}")
-    }
+fun FastSerializer.print(printer: PrintWriter) {
+    printer.println("skipping = $skipping")
     printer.println()
+    id2typeSerializer.forEach { id, typeSerializer ->
+        if (id < FirstTypeId) return@forEach
+        with(typeSerializer.type) {
+            printer.print("$id: $canonicalName ${typeSerializer.wireType}")
+            if (typeSerializer is BaseTypeSerializer<*>) {
+                printer.println()
+                if (isEnum) for ((i, c) in enumConstants.withIndex()) printer.println("    $i: $c")
+            } else if (typeSerializer is ClassTypeSerializer) {
+                printer.println(" ${if (typeSerializer.graph) "graph" else "tree"}")
+                for (fd in typeSerializer.fieldDescs) printer.println("    ${fd.id}: ${fd.serializer.field.toGenericString()}")
+            }
+            printer.println()
+        }
+    }
 }

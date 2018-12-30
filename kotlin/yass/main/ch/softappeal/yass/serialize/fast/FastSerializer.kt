@@ -6,7 +6,7 @@ import java.lang.reflect.*
 import java.util.*
 
 internal class Input(val reader: Reader, private val id2typeSerializer: Map<Int, TypeSerializer>) {
-    var graphObjects: MutableList<Any>? = null
+    var objects: MutableList<Any>? = null
     fun read(): Any? {
         val id = reader.readVarInt()
         return (id2typeSerializer[id] ?: error("no type with id $id")).read(this)
@@ -23,7 +23,17 @@ internal class Output(val writer: Writer, private val class2typeDesc: Map<Class<
     }
 }
 
-abstract class TypeSerializer internal constructor(val type: Class<*>) {
+enum class WireType {
+    Intern,
+    Binary,
+    VarInt,
+    Bytes1,
+    Bytes2,
+    Bytes4,
+    Bytes8
+}
+
+abstract class TypeSerializer internal constructor(val type: Class<*>, val wireType: WireType) {
     internal abstract fun read(input: Input): Any?
     internal abstract fun write(output: Output, value: Any?)
     internal open fun write(output: Output, id: Int, value: Any?) {
@@ -42,19 +52,19 @@ class TypeDesc(val id: Int, val serializer: TypeSerializer) {
 
 private class VoidType
 
-val NullTypeDesc = TypeDesc(0, object : TypeSerializer(VoidType::class.java) {
+val NullTypeDesc = TypeDesc(0, object : TypeSerializer(VoidType::class.java, WireType.Intern) {
     override fun read(input: Input): Any? = null
     override fun write(output: Output, value: Any?) {}
 })
 
 private class ReferenceType
 
-val ReferenceTypeDesc = TypeDesc(1, object : TypeSerializer(ReferenceType::class.java) {
-    override fun read(input: Input) = input.graphObjects!![input.reader.readVarInt()]
+val ReferenceTypeDesc = TypeDesc(1, object : TypeSerializer(ReferenceType::class.java, WireType.Intern) {
+    override fun read(input: Input) = input.objects!![input.reader.readVarInt()]
     override fun write(output: Output, value: Any?) = output.writer.writeVarInt(value as Int)
 })
 
-val ListTypeDesc = TypeDesc(2, object : TypeSerializer(List::class.java) {
+val ListTypeDesc = TypeDesc(2, object : TypeSerializer(List::class.java, WireType.Intern) {
     override fun read(input: Input): List<*> {
         var length = input.reader.readVarInt()
         val list = mutableListOf<Any?>()
@@ -71,7 +81,13 @@ val ListTypeDesc = TypeDesc(2, object : TypeSerializer(List::class.java) {
 
 const val FirstTypeId = 3
 
-abstract class BaseTypeSerializer<V : Any> protected constructor(type: Class<V>) : TypeSerializer(type) {
+abstract class BaseTypeSerializer<V : Any> protected constructor(
+    type: Class<V>, wireType: WireType
+) : TypeSerializer(type, wireType) {
+    init {
+        check(wireType != WireType.Intern)
+    }
+
     final override fun read(input: Input) = read(input.reader)
     @Suppress("UNCHECKED_CAST")
     final override fun write(output: Output, value: Any?) = write(output.writer, value as V)
@@ -80,17 +96,18 @@ abstract class BaseTypeSerializer<V : Any> protected constructor(type: Class<V>)
     abstract fun read(reader: Reader): V
 }
 
-fun primitiveWrapperType(type: Class<*>): Class<*> = when (type) {
-    Boolean::class.javaPrimitiveType -> Boolean::class.javaObjectType
-    Byte::class.javaPrimitiveType -> Byte::class.javaObjectType
-    Short::class.javaPrimitiveType -> Short::class.javaObjectType
-    Int::class.javaPrimitiveType -> Int::class.javaObjectType
-    Long::class.javaPrimitiveType -> Long::class.javaObjectType
-    Char::class.javaPrimitiveType -> Char::class.javaObjectType
-    Float::class.javaPrimitiveType -> Float::class.javaObjectType
-    Double::class.javaPrimitiveType -> Double::class.javaObjectType
-    else -> type
-}
+private val PrimitiveWrapperType = mapOf(
+    Boolean::class.javaPrimitiveType to Boolean::class.javaObjectType,
+    Byte::class.javaPrimitiveType to Byte::class.javaObjectType,
+    Short::class.javaPrimitiveType to Short::class.javaObjectType,
+    Int::class.javaPrimitiveType to Int::class.javaObjectType,
+    Long::class.javaPrimitiveType to Long::class.javaObjectType,
+    Char::class.javaPrimitiveType to Char::class.javaObjectType,
+    Float::class.javaPrimitiveType to Float::class.javaObjectType,
+    Double::class.javaPrimitiveType to Double::class.javaObjectType
+)
+
+fun primitiveWrapperType(type: Class<*>): Class<*> = PrimitiveWrapperType.getOrDefault(type, type)
 
 class FieldSerializer internal constructor(val field: Field) {
     private var _typeSerializer: TypeSerializer? = null
@@ -122,7 +139,7 @@ class FieldDesc internal constructor(val id: Int, val serializer: FieldSerialize
 
 class ClassTypeSerializer internal constructor(
     type: Class<*>, val graph: Boolean, private val id2fieldSerializer: Map<Int, FieldSerializer>
-) : TypeSerializer(type) {
+) : TypeSerializer(type, WireType.Intern) {
     private val allocator = AllocatorFactory(type)
     val fieldDescs: List<FieldDesc>
 
@@ -141,14 +158,17 @@ class ClassTypeSerializer internal constructor(
     override fun read(input: Input): Any {
         val value = allocator()
         if (graph) {
-            if (input.graphObjects == null) input.graphObjects = mutableListOf()
-            input.graphObjects!!.add(value)
+            if (input.objects == null) input.objects = mutableListOf()
+            input.objects!!.add(value)
         }
         while (true) {
             val id = input.reader.readVarInt()
             if (id == EndFieldId) return value
-            (id2fieldSerializer[id] ?: error("class '${type.canonicalName}' doesn't have a field with id $id"))
-                .read(input, value)
+            val fieldSerializer = id2fieldSerializer[id]
+            if (fieldSerializer == null)
+                error("class '${type.canonicalName}' doesn't have a field with id $id")
+            else
+                fieldSerializer.read(input, value)
         }
     }
 
@@ -192,19 +212,13 @@ fun isRootClass(type: Class<*>): Boolean = RootClasses.contains(type)
  *    (field names and id's must be unique in the path to its super classes and id's must be >= [FirstFieldId])
  *  - exceptions (but without fields of [Throwable]; therefore, you should implement [Throwable.message])
  *  - graphs with cycles
- *
- * There is some support for contract versioning:
- * - Deserialization of old classes to new classes with new nullable fields is allowed.
- *   These fields will be set to `null` (ignoring constructors).
- *   Default values for these fields could be implemented with a getter method checking for `null`.
- * - Serialization of new classes with new nullable fields to old classes is allowed if the new values are `null`.
- * - Deserialization of old enumerations to new enumerations with new constants at the end is allowed.
  */
-abstract class FastSerializer protected constructor() : Serializer {
+abstract class FastSerializer protected constructor(val skipping: Boolean) : Serializer {
     private val class2typeDesc = HashMap<Class<*>, TypeDesc>(64)
     private val _id2typeSerializer = HashMap<Int, TypeSerializer>(64)
 
     init {
+        check(!skipping) { "skipping is not yet implemented" }
         addType(NullTypeDesc)
         addType(ReferenceTypeDesc)
         addType(ListTypeDesc)
@@ -227,7 +241,7 @@ abstract class FastSerializer protected constructor() : Serializer {
         require(type.isEnum) { "type '${type.canonicalName}' is not an enumeration" }
         @Suppress("UNCHECKED_CAST") val enumeration = type as Class<Enum<*>>
         val constants = enumeration.enumConstants
-        addType(TypeDesc(id, object : BaseTypeSerializer<Enum<*>>(enumeration) {
+        addType(TypeDesc(id, object : BaseTypeSerializer<Enum<*>>(enumeration, WireType.VarInt) {
             override fun read(reader: Reader) = constants[reader.readVarInt()]
             override fun write(writer: Writer, value: Enum<*>) = writer.writeVarInt(value.ordinal)
         }))

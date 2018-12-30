@@ -36,7 +36,7 @@ public final class SocketClient {
             "Hello",
             ">\u0001\u0012\u007F\u0080\u0234\u07FF\u0800\u4321\uFFFF<",
             new byte[]{0, 127, -1, 10, -45},
-            new Expiration(2017, 11, 29),
+            new Expiration(2017),
             PriceKind.ASK,
             PriceKind.BID,
             new Stock(123, "YASS", true),

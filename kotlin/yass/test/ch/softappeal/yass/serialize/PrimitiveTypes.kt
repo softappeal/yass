@@ -21,22 +21,8 @@ open class PrimitiveTypes : Serializable {
     var floatField: Float = 0.toFloat()
     @Tag(7)
     var doubleField: Double = 0.toDouble()
-    @Tag(10)
-    var booleanArrayField: BooleanArray? = null
     @Tag(11)
     var byteArrayField: ByteArray? = null
-    @Tag(12)
-    var shortArrayField: ShortArray? = null
-    @Tag(13)
-    var intArrayField: IntArray? = null
-    @Tag(14)
-    var longArrayField: LongArray? = null
-    @Tag(15)
-    var charArrayField: CharArray? = null
-    @Tag(16)
-    var floatArrayField: FloatArray? = null
-    @Tag(17)
-    var doubleArrayField: DoubleArray? = null
     @Tag(20)
     var booleanWrapperField: Boolean? = null
     @Tag(21)

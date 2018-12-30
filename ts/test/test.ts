@@ -224,12 +224,10 @@ function writer2reader(writer: yass.Writer): yass.Reader {
 
     let bond = new contract.instrument.Bond();
     bond.coupon = 3.5;
-    bond.expiration = new contract.Expiration(2013, 2, 20);
+    bond.expiration = new contract.Expiration(2013);
     bond = copy(bond);
     assert(bond.coupon === 3.5);
     assert(bond.expiration!.year === 2013);
-    assert(bond.expiration!.month === 2);
-    assert(bond.expiration!.day === 20);
 
     let e = new contract.UnknownInstrumentsException();
     e.instrumentIds = [new IntegerImpl(100), new IntegerImpl(200)];
@@ -355,11 +353,9 @@ const hostname = "localhost";
             echoService.echo(new IntegerImpl(-87654321)).then(result => assert(result.get() === -87654321));
             echoService.echo(123.456e98).then(result => assert(result === 123.456e98));
             echoService.echo(-9.384762637432E-12).then(result => assert(result === -9.384762637432E-12));
-            echoService.echo(new contract.Expiration(9, 8, 7)).then(expiration => {
+            echoService.echo(new contract.Expiration(9)).then(expiration => {
                 log("then", expiration);
                 assert(expiration.year === 9);
-                assert(expiration.month === 8);
-                assert(expiration.day === 7);
             });
             const writer = new yass.Writer(1);
             writer.writeByte(123);

@@ -1,117 +1,79 @@
-3: java.lang.Boolean
+skipping = false
 
-4: java.lang.Byte
+3: java.lang.Boolean Bytes1
 
-5: java.lang.Short
+4: java.lang.Byte Bytes1
 
-6: java.lang.Integer
+5: java.lang.Short VarInt
 
-7: java.lang.Long
+6: java.lang.Integer VarInt
 
-8: java.lang.Character
+7: java.lang.Long VarInt
 
-9: java.lang.Float
+8: java.lang.Character Bytes2
 
-10: java.lang.Double
+9: java.lang.Float Bytes4
 
-11: boolean[]
+10: java.lang.Double Bytes8
 
-12: byte[]
+11: byte[] Binary
 
-13: short[]
+12: java.lang.String Binary
 
-14: int[]
-
-15: long[]
-
-16: char[]
-
-17: float[]
-
-18: double[]
-
-19: java.lang.String
-
-20: java.math.BigInteger
-
-21: java.math.BigDecimal
-
-22: java.util.Date
-
-23: java.time.Instant
-
-24: ch.softappeal.yass.serialize.Color
+13: ch.softappeal.yass.serialize.Color VarInt
     0: RED
     1: GREEN
     2: BLUE
 
-25: ch.softappeal.yass.serialize.PrimitiveTypes (graph=false)
-    1: private boolean[] ch.softappeal.yass.serialize.PrimitiveTypes.booleanArrayField
-    2: private boolean ch.softappeal.yass.serialize.PrimitiveTypes.booleanField
-    3: private java.lang.Boolean ch.softappeal.yass.serialize.PrimitiveTypes.booleanWrapperField
-    4: private byte[] ch.softappeal.yass.serialize.PrimitiveTypes.byteArrayField
-    5: private byte ch.softappeal.yass.serialize.PrimitiveTypes.byteField
-    6: private java.lang.Byte ch.softappeal.yass.serialize.PrimitiveTypes.byteWrapperField
-    7: private char[] ch.softappeal.yass.serialize.PrimitiveTypes.charArrayField
-    8: private char ch.softappeal.yass.serialize.PrimitiveTypes.charField
-    9: private java.lang.Character ch.softappeal.yass.serialize.PrimitiveTypes.charWrapperField
-    10: private double[] ch.softappeal.yass.serialize.PrimitiveTypes.doubleArrayField
-    11: private double ch.softappeal.yass.serialize.PrimitiveTypes.doubleField
-    12: private java.lang.Double ch.softappeal.yass.serialize.PrimitiveTypes.doubleWrapperField
-    13: private float[] ch.softappeal.yass.serialize.PrimitiveTypes.floatArrayField
-    14: private float ch.softappeal.yass.serialize.PrimitiveTypes.floatField
-    15: private java.lang.Float ch.softappeal.yass.serialize.PrimitiveTypes.floatWrapperField
-    16: private int[] ch.softappeal.yass.serialize.PrimitiveTypes.intArrayField
-    17: private int ch.softappeal.yass.serialize.PrimitiveTypes.intField
-    18: private java.lang.Integer ch.softappeal.yass.serialize.PrimitiveTypes.intWrapperField
-    19: private long[] ch.softappeal.yass.serialize.PrimitiveTypes.longArrayField
-    20: private long ch.softappeal.yass.serialize.PrimitiveTypes.longField
-    21: private java.lang.Long ch.softappeal.yass.serialize.PrimitiveTypes.longWrapperField
-    22: private short[] ch.softappeal.yass.serialize.PrimitiveTypes.shortArrayField
+14: ch.softappeal.yass.serialize.PrimitiveTypes Intern tree
+    1: private boolean ch.softappeal.yass.serialize.PrimitiveTypes.booleanField
+    2: private java.lang.Boolean ch.softappeal.yass.serialize.PrimitiveTypes.booleanWrapperField
+    3: private byte[] ch.softappeal.yass.serialize.PrimitiveTypes.byteArrayField
+    4: private byte ch.softappeal.yass.serialize.PrimitiveTypes.byteField
+    5: private java.lang.Byte ch.softappeal.yass.serialize.PrimitiveTypes.byteWrapperField
+    6: private char ch.softappeal.yass.serialize.PrimitiveTypes.charField
+    7: private java.lang.Character ch.softappeal.yass.serialize.PrimitiveTypes.charWrapperField
+    8: private double ch.softappeal.yass.serialize.PrimitiveTypes.doubleField
+    9: private java.lang.Double ch.softappeal.yass.serialize.PrimitiveTypes.doubleWrapperField
+    10: private float ch.softappeal.yass.serialize.PrimitiveTypes.floatField
+    11: private java.lang.Float ch.softappeal.yass.serialize.PrimitiveTypes.floatWrapperField
+    12: private int ch.softappeal.yass.serialize.PrimitiveTypes.intField
+    13: private java.lang.Integer ch.softappeal.yass.serialize.PrimitiveTypes.intWrapperField
+    14: private long ch.softappeal.yass.serialize.PrimitiveTypes.longField
+    15: private java.lang.Long ch.softappeal.yass.serialize.PrimitiveTypes.longWrapperField
+    16: private short ch.softappeal.yass.serialize.PrimitiveTypes.shortField
+    17: private java.lang.Short ch.softappeal.yass.serialize.PrimitiveTypes.shortWrapperField
+
+15: ch.softappeal.yass.serialize.nested.AllTypes Intern tree
+    1: private ch.softappeal.yass.serialize.Color ch.softappeal.yass.serialize.nested.AllTypes.colorField
+    2: private java.lang.Exception ch.softappeal.yass.serialize.nested.AllTypes.exception
+    3: private java.lang.Object ch.softappeal.yass.serialize.nested.AllTypes.objectField
+    4: private java.util.List<?> ch.softappeal.yass.serialize.nested.AllTypes.objectListField
+    5: private ch.softappeal.yass.serialize.PrimitiveTypes ch.softappeal.yass.serialize.nested.AllTypes.primitiveTypesField
+    6: private java.util.List<? extends ch.softappeal.yass.serialize.PrimitiveTypes> ch.softappeal.yass.serialize.nested.AllTypes.primitiveTypesListField
+    7: private java.lang.String ch.softappeal.yass.serialize.nested.AllTypes.stringField
+    8: private boolean ch.softappeal.yass.serialize.PrimitiveTypes.booleanField
+    9: private java.lang.Boolean ch.softappeal.yass.serialize.PrimitiveTypes.booleanWrapperField
+    10: private byte[] ch.softappeal.yass.serialize.PrimitiveTypes.byteArrayField
+    11: private byte ch.softappeal.yass.serialize.PrimitiveTypes.byteField
+    12: private java.lang.Byte ch.softappeal.yass.serialize.PrimitiveTypes.byteWrapperField
+    13: private char ch.softappeal.yass.serialize.PrimitiveTypes.charField
+    14: private java.lang.Character ch.softappeal.yass.serialize.PrimitiveTypes.charWrapperField
+    15: private double ch.softappeal.yass.serialize.PrimitiveTypes.doubleField
+    16: private java.lang.Double ch.softappeal.yass.serialize.PrimitiveTypes.doubleWrapperField
+    17: private float ch.softappeal.yass.serialize.PrimitiveTypes.floatField
+    18: private java.lang.Float ch.softappeal.yass.serialize.PrimitiveTypes.floatWrapperField
+    19: private int ch.softappeal.yass.serialize.PrimitiveTypes.intField
+    20: private java.lang.Integer ch.softappeal.yass.serialize.PrimitiveTypes.intWrapperField
+    21: private long ch.softappeal.yass.serialize.PrimitiveTypes.longField
+    22: private java.lang.Long ch.softappeal.yass.serialize.PrimitiveTypes.longWrapperField
     23: private short ch.softappeal.yass.serialize.PrimitiveTypes.shortField
     24: private java.lang.Short ch.softappeal.yass.serialize.PrimitiveTypes.shortWrapperField
 
-26: ch.softappeal.yass.serialize.nested.AllTypes (graph=false)
-    1: private java.math.BigDecimal ch.softappeal.yass.serialize.nested.AllTypes.bigDecimalField
-    2: private java.math.BigInteger ch.softappeal.yass.serialize.nested.AllTypes.bigIntegerField
-    3: private ch.softappeal.yass.serialize.Color ch.softappeal.yass.serialize.nested.AllTypes.colorField
-    4: private java.util.Date ch.softappeal.yass.serialize.nested.AllTypes.dateField
-    5: private java.lang.Exception ch.softappeal.yass.serialize.nested.AllTypes.exception
-    6: private java.time.Instant ch.softappeal.yass.serialize.nested.AllTypes.instantField
-    7: private java.lang.Object ch.softappeal.yass.serialize.nested.AllTypes.objectField
-    8: private java.util.List<?> ch.softappeal.yass.serialize.nested.AllTypes.objectListField
-    9: private ch.softappeal.yass.serialize.PrimitiveTypes ch.softappeal.yass.serialize.nested.AllTypes.primitiveTypesField
-    10: private java.util.List<? extends ch.softappeal.yass.serialize.PrimitiveTypes> ch.softappeal.yass.serialize.nested.AllTypes.primitiveTypesListField
-    11: private java.lang.String ch.softappeal.yass.serialize.nested.AllTypes.stringField
-    12: private boolean[] ch.softappeal.yass.serialize.PrimitiveTypes.booleanArrayField
-    13: private boolean ch.softappeal.yass.serialize.PrimitiveTypes.booleanField
-    14: private java.lang.Boolean ch.softappeal.yass.serialize.PrimitiveTypes.booleanWrapperField
-    15: private byte[] ch.softappeal.yass.serialize.PrimitiveTypes.byteArrayField
-    16: private byte ch.softappeal.yass.serialize.PrimitiveTypes.byteField
-    17: private java.lang.Byte ch.softappeal.yass.serialize.PrimitiveTypes.byteWrapperField
-    18: private char[] ch.softappeal.yass.serialize.PrimitiveTypes.charArrayField
-    19: private char ch.softappeal.yass.serialize.PrimitiveTypes.charField
-    20: private java.lang.Character ch.softappeal.yass.serialize.PrimitiveTypes.charWrapperField
-    21: private double[] ch.softappeal.yass.serialize.PrimitiveTypes.doubleArrayField
-    22: private double ch.softappeal.yass.serialize.PrimitiveTypes.doubleField
-    23: private java.lang.Double ch.softappeal.yass.serialize.PrimitiveTypes.doubleWrapperField
-    24: private float[] ch.softappeal.yass.serialize.PrimitiveTypes.floatArrayField
-    25: private float ch.softappeal.yass.serialize.PrimitiveTypes.floatField
-    26: private java.lang.Float ch.softappeal.yass.serialize.PrimitiveTypes.floatWrapperField
-    27: private int[] ch.softappeal.yass.serialize.PrimitiveTypes.intArrayField
-    28: private int ch.softappeal.yass.serialize.PrimitiveTypes.intField
-    29: private java.lang.Integer ch.softappeal.yass.serialize.PrimitiveTypes.intWrapperField
-    30: private long[] ch.softappeal.yass.serialize.PrimitiveTypes.longArrayField
-    31: private long ch.softappeal.yass.serialize.PrimitiveTypes.longField
-    32: private java.lang.Long ch.softappeal.yass.serialize.PrimitiveTypes.longWrapperField
-    33: private short[] ch.softappeal.yass.serialize.PrimitiveTypes.shortArrayField
-    34: private short ch.softappeal.yass.serialize.PrimitiveTypes.shortField
-    35: private java.lang.Short ch.softappeal.yass.serialize.PrimitiveTypes.shortWrapperField
-
-27: ch.softappeal.yass.serialize.IntException (graph=false)
+16: ch.softappeal.yass.serialize.IntException Intern tree
     1: private int ch.softappeal.yass.serialize.IntException.value
 
-28: ch.softappeal.yass.serialize.Node (graph=true)
+17: ch.softappeal.yass.serialize.Node Intern graph
     1: private int ch.softappeal.yass.serialize.Node.id
     2: private ch.softappeal.yass.serialize.Node ch.softappeal.yass.serialize.Node.link
 

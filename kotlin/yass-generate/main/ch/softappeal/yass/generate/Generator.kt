@@ -42,6 +42,7 @@ abstract class Generator(
     protected val interfaces: SortedSet<Class<*>> = TreeSet(Comparator.comparing<Class<*>, String> { it.canonicalName })
 
     init {
+        check(!serializer.skipping) { "skipping serializer is not yet supported" }
         check(
             (initiator == null) ||
                 (acceptor == null) ||
