@@ -44,25 +44,6 @@ private val SIMPLE_FAST_SERIALIZER = simpleFastSerializer(
     false
 )
 
-@Tag(120)
-class C1(
-    @Tag(1) val i1: Int
-)
-
-@Tag(120)
-class C2(
-    @Tag(1) val i1: Int,
-    @Tag(2) val i2: Int?
-) {
-    fun i2(): Int = i2 ?: 13
-}
-
-@Tag(200)
-enum class E1 { c1, c2 }
-
-@Tag(200)
-enum class E2 { c1, c2, c3 }
-
 class FastSerializerTest {
     @Test
     fun simpleFast() {
@@ -189,9 +170,16 @@ class FastSerializerTest {
         }.message
     )
 
+    @Tag(120)
+    private class C1
+
+    @Tag(120)
+    private class C2
+
     @Test
     fun duplicatedTypeTag() = assertEquals(
-        "type id 120 used for 'ch.softappeal.yass.serialize.fast.C2' and 'ch.softappeal.yass.serialize.fast.C1'",
+        "type id 120 used for 'ch.softappeal.yass.serialize.fast.FastSerializerTest.C2' and " +
+            "'ch.softappeal.yass.serialize.fast.FastSerializerTest.C1'",
         assertFailsWith<IllegalStateException> {
             taggedFastSerializer(listOf(), listOf(C1::class.java, C2::class.java), skipping = false)
         }.message
@@ -273,39 +261,5 @@ class FastSerializerTest {
             write(printer, createNulls())
             write(printer, createValues())
         }
-    }
-
-    @Test
-    fun versioning() {
-        val v1serializer =
-            taggedFastSerializer(
-                listOf(TypeDesc(3, IntSerializer)),
-                listOf(E1::class.java, C1::class.java),
-                skipping = false
-            )
-        val v2serializer =
-            taggedFastSerializer(
-                listOf(TypeDesc(3, IntSerializer)),
-                listOf(E2::class.java, C2::class.java),
-                skipping = false
-            )
-
-        fun copy(input: Any): Any {
-            val buffer = ByteArrayOutputStream()
-            val writer = writer(buffer)
-            v1serializer.write(writer, input)
-            writer.writeByte(123.toByte()) // write sentinel
-            val reader = reader(ByteArrayInputStream(buffer.toByteArray()))
-            val output = v2serializer.read(reader)
-            assertEquals(123.toByte(), reader.readByte()) // check sentinel
-            return output!!
-        }
-
-        val c2 = copy(C1(42)) as C2
-        assertEquals(42, c2.i1)
-        assertNull(c2.i2)
-        assertEquals(13, c2.i2())
-        assertSame(copy(E1.c1), E2.c1)
-        assertSame(copy(E1.c2), E2.c2)
     }
 }
