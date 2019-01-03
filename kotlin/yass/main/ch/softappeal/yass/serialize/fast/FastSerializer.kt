@@ -5,39 +5,11 @@ import ch.softappeal.yass.serialize.*
 import java.lang.reflect.*
 import java.util.*
 
-internal class Input(val reader: Reader, private val id2typeSerializer: Map<Int, TypeSerializer>) {
-    var objects: MutableList<Any>? = null
-    fun read(): Any? {
-        val id = reader.readVarInt()
-        return (id2typeSerializer[id] ?: error("no type with id $id")).read(this)
-    }
-}
-
-internal class Output(val writer: Writer, private val class2typeDesc: Map<Class<*>, TypeDesc>) {
-    var object2reference: MutableMap<Any, Int>? = null
-    fun write(value: Any?): Unit = when (value) {
-        null -> NullTypeDesc.write(this, null)
-        is List<*> -> ListTypeDesc.write(this, value)
-        else -> (class2typeDesc[value.javaClass] ?: error("missing type '${value.javaClass.canonicalName}'"))
-            .write(this, value)
-    }
-}
-
-enum class WireType {
-    Intern,
-    Binary,
-    VarInt,
-    Bytes1,
-    Bytes2,
-    Bytes4,
-    Bytes8
-}
-
-abstract class TypeSerializer internal constructor(val type: Class<*>, val wireType: WireType) {
-    internal abstract fun read(input: Input): Any?
-    internal abstract fun write(output: Output, value: Any?)
-    internal open fun write(output: Output, id: Int, value: Any?) {
-        output.writer.writeVarInt(id)
+abstract class TypeSerializer internal constructor(val type: Class<*>, private val objectType: ObjectType) {
+    internal abstract fun read(input: FastSerializer.Input): Any?
+    internal abstract fun write(output: FastSerializer.Output, value: Any?)
+    internal open fun write(output: FastSerializer.Output, id: Int, value: Any?) {
+        output.writer.writeVarInt(if (output.skipping) objectType.skippingId(id) else id)
         write(output, value)
     }
 }
@@ -45,34 +17,35 @@ abstract class TypeSerializer internal constructor(val type: Class<*>, val wireT
 class TypeDesc(val id: Int, val serializer: TypeSerializer) {
     init {
         require(id >= 0) { "id $id for type '${serializer.type.canonicalName}' must be >= 0" }
+        require(id <= MaxTypeId) { "id $id for type '${serializer.type.canonicalName}' must be <= $MaxTypeId" }
     }
 
-    internal fun write(output: Output, value: Any?) = serializer.write(output, id, value)
+    internal fun write(output: FastSerializer.Output, value: Any?) = serializer.write(output, id, value)
 }
 
 private class VoidType
 
-val NullTypeDesc = TypeDesc(0, object : TypeSerializer(VoidType::class.java, WireType.Intern) {
-    override fun read(input: Input): Any? = null
-    override fun write(output: Output, value: Any?) {}
+val NullTypeDesc = TypeDesc(0, object : TypeSerializer(VoidType::class.java, ObjectType.TreeClass) {
+    override fun read(input: FastSerializer.Input): Any? = null
+    override fun write(output: FastSerializer.Output, value: Any?) {}
 })
 
 private class ReferenceType
 
-val ReferenceTypeDesc = TypeDesc(1, object : TypeSerializer(ReferenceType::class.java, WireType.Intern) {
-    override fun read(input: Input) = input.objects!![input.reader.readVarInt()]
-    override fun write(output: Output, value: Any?) = output.writer.writeVarInt(value as Int)
+val ReferenceTypeDesc = TypeDesc(1, object : TypeSerializer(ReferenceType::class.java, ObjectType.TreeClass) {
+    override fun read(input: FastSerializer.Input) = input.objects!![input.reader.readVarInt()]
+    override fun write(output: FastSerializer.Output, value: Any?) = output.writer.writeVarInt(value as Int)
 })
 
-val ListTypeDesc = TypeDesc(2, object : TypeSerializer(List::class.java, WireType.Intern) {
-    override fun read(input: Input): List<*> {
+val ListTypeDesc = TypeDesc(2, object : TypeSerializer(List::class.java, ObjectType.TreeClass) {
+    override fun read(input: FastSerializer.Input): List<*> {
         var length = input.reader.readVarInt()
         val list = mutableListOf<Any?>()
         while (length-- > 0) list.add(input.read())
         return list
     }
 
-    override fun write(output: Output, value: Any?) {
+    override fun write(output: FastSerializer.Output, value: Any?) {
         val list = value as List<*>
         output.writer.writeVarInt(list.size)
         for (e in list) output.write(e)
@@ -82,15 +55,15 @@ val ListTypeDesc = TypeDesc(2, object : TypeSerializer(List::class.java, WireTyp
 const val FirstTypeId = 3
 
 abstract class BaseTypeSerializer<V : Any> protected constructor(
-    type: Class<V>, wireType: WireType
-) : TypeSerializer(type, wireType) {
+    type: Class<V>, val fieldType: FieldType
+) : TypeSerializer(type, fieldType.objectType) {
     init {
-        check(wireType != WireType.Intern)
+        check(fieldType != FieldType.ClassOrReference && fieldType != FieldType.List)
     }
 
-    final override fun read(input: Input) = read(input.reader)
+    final override fun read(input: FastSerializer.Input) = read(input.reader)
     @Suppress("UNCHECKED_CAST")
-    final override fun write(output: Output, value: Any?) = write(output.writer, value as V)
+    final override fun write(output: FastSerializer.Output, value: Any?) = write(output.writer, value as V)
 
     abstract fun write(writer: Writer, value: V)
     abstract fun read(reader: Reader): V
@@ -109,88 +82,10 @@ private val PrimitiveWrapperType = mapOf(
 
 fun primitiveWrapperType(type: Class<*>): Class<*> = PrimitiveWrapperType.getOrDefault(type, type)
 
-class FieldSerializer internal constructor(val field: Field) {
-    private var _typeSerializer: TypeSerializer? = null
-
-    val typeSerializer: TypeSerializer? get() = _typeSerializer
-
-    internal fun fixup(class2typeDesc: Map<Class<*>, TypeDesc>) {
-        val typeDesc = class2typeDesc[primitiveWrapperType(field.type)]
-        _typeSerializer = typeDesc?.serializer
-        if (_typeSerializer is ClassTypeSerializer) _typeSerializer = null
-    }
-
-    internal fun read(input: Input, value: Any) =
-        field.set(value, if (_typeSerializer == null) input.read() else _typeSerializer!!.read(input))
-
-    internal fun write(output: Output, id: Int, value: Any) {
-        val f = field.get(value)
-        if (f != null) {
-            output.writer.writeVarInt(id)
-            if (_typeSerializer == null) output.write(f) else _typeSerializer!!.write(output, f)
-        }
-    }
-}
-
-private const val EndFieldId = 0
+internal const val EndFieldId = 0
 const val FirstFieldId = EndFieldId + 1
 
-class FieldDesc internal constructor(val id: Int, val serializer: FieldSerializer)
-
-class ClassTypeSerializer internal constructor(
-    type: Class<*>, val graph: Boolean, private val id2fieldSerializer: Map<Int, FieldSerializer>
-) : TypeSerializer(type, WireType.Intern) {
-    private val allocator = AllocatorFactory(type)
-    val fieldDescs: List<FieldDesc>
-
-    init {
-        val fds = mutableListOf<FieldDesc>()
-        for ((id, serializer) in id2fieldSerializer) {
-            require(id >= FirstFieldId) { "id $id for field '${serializer.field}' must be >= $FirstFieldId" }
-            fds.add(FieldDesc(id, serializer))
-        }
-        fieldDescs = Collections.unmodifiableList(fds.sortedBy { it.id })
-    }
-
-    internal fun fixupFields(class2typeDesc: Map<Class<*>, TypeDesc>) =
-        id2fieldSerializer.values.forEach { it.fixup(class2typeDesc) }
-
-    override fun read(input: Input): Any {
-        val value = allocator()
-        if (graph) {
-            if (input.objects == null) input.objects = mutableListOf()
-            input.objects!!.add(value)
-        }
-        while (true) {
-            val id = input.reader.readVarInt()
-            if (id == EndFieldId) return value
-            val fieldSerializer = id2fieldSerializer[id]
-            if (fieldSerializer == null)
-                error("class '${type.canonicalName}' doesn't have a field with id $id")
-            else
-                fieldSerializer.read(input, value)
-        }
-    }
-
-    override fun write(output: Output, id: Int, value: Any?) {
-        if (graph) {
-            if (output.object2reference == null) output.object2reference = IdentityHashMap(16)
-            val object2reference = output.object2reference
-            val reference = object2reference!![value]
-            if (reference != null) {
-                ReferenceTypeDesc.write(output, reference)
-                return
-            }
-            object2reference[value!!] = object2reference.size
-        }
-        super.write(output, id, value)
-    }
-
-    override fun write(output: Output, value: Any?) {
-        for (fieldDesc in fieldDescs) fieldDesc.serializer.write(output, fieldDesc.id, value!!)
-        output.writer.writeVarInt(EndFieldId)
-    }
-}
+class FieldDesc internal constructor(val id: Int, val serializer: FastSerializer.FieldSerializer)
 
 private val RootClasses = setOf(
     Any::class.java,
@@ -218,13 +113,12 @@ abstract class FastSerializer protected constructor(val skipping: Boolean) : Ser
     private val _id2typeSerializer = HashMap<Int, TypeSerializer>(64)
 
     init {
-        check(!skipping) { "skipping is not yet implemented" }
         addType(NullTypeDesc)
         addType(ReferenceTypeDesc)
         addType(ListTypeDesc)
     }
 
-    val id2typeSerializer: SortedMap<Int, TypeSerializer> get() = TreeMap(_id2typeSerializer)
+    val id2typeSerializer: Map<Int, TypeSerializer> get() = TreeMap(_id2typeSerializer)
 
     private fun addType(typeDesc: TypeDesc) {
         require(class2typeDesc.put(typeDesc.serializer.type, typeDesc) == null) {
@@ -241,7 +135,7 @@ abstract class FastSerializer protected constructor(val skipping: Boolean) : Ser
         require(type.isEnum) { "type '${type.canonicalName}' is not an enumeration" }
         @Suppress("UNCHECKED_CAST") val enumeration = type as Class<Enum<*>>
         val constants = enumeration.enumConstants
-        addType(TypeDesc(id, object : BaseTypeSerializer<Enum<*>>(enumeration, WireType.VarInt) {
+        addType(TypeDesc(id, object : BaseTypeSerializer<Enum<*>>(enumeration, FieldType.VarInt) {
             override fun read(reader: Reader) = constants[reader.readVarInt()]
             override fun write(writer: Writer, value: Enum<*>) = writer.writeVarInt(value.ordinal)
         }))
@@ -249,6 +143,93 @@ abstract class FastSerializer protected constructor(val skipping: Boolean) : Ser
 
     protected fun checkClass(type: Class<*>) =
         require(!type.isEnum) { "type '${type.canonicalName}' is an enumeration" }
+
+    inner class ClassTypeSerializer internal constructor(
+        type: Class<*>, val graph: Boolean, private val id2fieldSerializer: Map<Int, FieldSerializer>
+    ) : TypeSerializer(type, if (graph) ObjectType.GraphClass else ObjectType.TreeClass) {
+        private val allocator = AllocatorFactory(type)
+        val fieldDescs: List<FieldDesc>
+
+        init {
+            val fds = mutableListOf<FieldDesc>()
+            for ((id, serializer) in id2fieldSerializer) {
+                require(id >= FirstFieldId) { "id $id for field '${serializer.field}' must be >= $FirstFieldId" }
+                require(id <= MaxFieldId) { "id $id for field '${serializer.field}' must be <= $MaxFieldId" }
+                fds.add(FieldDesc(id, serializer))
+            }
+            fieldDescs = Collections.unmodifiableList(fds.sortedBy { it.id })
+        }
+
+        internal fun fixupFields() {
+            for ((id, serializer) in id2fieldSerializer) serializer.fixup(id)
+        }
+
+        override fun read(input: Input): Any {
+            val value = allocator()
+            if (graph) {
+                if (input.objects == null) input.objects = mutableListOf()
+                input.objects!!.add(value)
+            }
+            while (true) {
+                val fieldId = input.reader.readVarInt()
+                val id = if (skipping) fieldIdFromSkippingId(fieldId) else fieldId
+                if (id == EndFieldId) return value
+                val fieldSerializer = id2fieldSerializer[id]
+                if (fieldSerializer == null) {
+                    if (skipping) fieldTypeFromSkippingId(fieldId).skip(input.reader)
+                    else error("class '${type.canonicalName}' doesn't have a field with id $id")
+                } else fieldSerializer.read(input, value)
+            }
+        }
+
+        override fun write(output: Output, id: Int, value: Any?) {
+            if (graph) {
+                if (output.object2reference == null) output.object2reference = IdentityHashMap(16)
+                val object2reference = output.object2reference
+                val reference = object2reference!![value]
+                if (reference != null) {
+                    ReferenceTypeDesc.write(output, reference)
+                    return
+                }
+                object2reference[value!!] = object2reference.size
+            }
+            super.write(output, id, value)
+        }
+
+        override fun write(output: Output, value: Any?) {
+            for (fieldDesc in fieldDescs) fieldDesc.serializer.write(output, value!!)
+            output.writer.writeVarInt(EndFieldId)
+        }
+    }
+
+    inner class FieldSerializer internal constructor(val field: Field) {
+        private var _typeSerializer: TypeSerializer? = null
+        val typeSerializer: TypeSerializer? get() = _typeSerializer
+
+        private var id: Int = 0
+
+        internal fun fixup(fieldId: Int) {
+            val typeDesc = class2typeDesc[primitiveWrapperType(field.type)]
+            _typeSerializer = typeDesc?.serializer
+            if (_typeSerializer is ClassTypeSerializer) _typeSerializer = null
+            id = if (!skipping) fieldId else when (_typeSerializer) {
+                null -> FieldType.ClassOrReference
+                ListTypeDesc.serializer -> FieldType.List
+                else -> (_typeSerializer as BaseTypeSerializer<*>).fieldType
+            }.skippingId(fieldId)
+        }
+
+        internal fun read(input: Input, value: Any) =
+            field.set(value, if (_typeSerializer == null) input.read() else _typeSerializer!!.read(input))
+
+        internal fun write(output: Output, value: Any) {
+            val f = field.get(value)
+            if (f != null) {
+                output.writer.writeVarInt(id)
+                if (_typeSerializer == null) output.write(f) else _typeSerializer!!.write(output, f)
+            }
+        }
+    }
 
     protected fun addClass(id: Int, type: Class<*>, graph: Boolean, id2field: Map<Int, Field>) {
         require(!Modifier.isAbstract(type.modifiers)) { "type '${type.canonicalName}' is abstract" }
@@ -286,11 +267,30 @@ abstract class FastSerializer protected constructor(val skipping: Boolean) : Ser
     }
 
     protected fun fixup() {
-        for (typeDesc in class2typeDesc.values)
-            (typeDesc.serializer as? ClassTypeSerializer)?.fixupFields(class2typeDesc)
+        for (typeDesc in class2typeDesc.values) (typeDesc.serializer as? ClassTypeSerializer)?.fixupFields()
         checkParentClasses()
     }
 
-    override fun read(reader: Reader) = Input(reader, _id2typeSerializer).read()
-    override fun write(writer: Writer, value: Any?) = Output(writer, class2typeDesc).write(value)
+    internal inner class Input(val reader: Reader) {
+        var objects: MutableList<Any>? = null
+        fun read(): Any? {
+            val objectId = reader.readVarInt()
+            val id = if (skipping) typeIdFromSkippingId(objectId) else objectId
+            return (_id2typeSerializer[id] ?: error("no type with id $id")).read(this)
+        }
+    }
+
+    internal inner class Output(val writer: Writer) {
+        val skipping = this@FastSerializer.skipping
+        var object2reference: MutableMap<Any, Int>? = null
+        fun write(value: Any?): Unit = when (value) {
+            null -> NullTypeDesc.write(this, null)
+            is List<*> -> ListTypeDesc.write(this, value)
+            else -> (class2typeDesc[value.javaClass] ?: error("missing type '${value.javaClass.canonicalName}'"))
+                .write(this, value)
+        }
+    }
+
+    override fun read(reader: Reader) = Input(reader).read()
+    override fun write(writer: Writer, value: Any?) = Output(writer).write(value)
 }

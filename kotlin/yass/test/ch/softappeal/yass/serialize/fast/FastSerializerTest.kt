@@ -2,13 +2,14 @@ package ch.softappeal.yass.serialize.fast
 
 import ch.softappeal.yass.*
 import ch.softappeal.yass.serialize.*
+import ch.softappeal.yass.serialize.PrimitiveTypes
 import ch.softappeal.yass.serialize.Reader
 import ch.softappeal.yass.serialize.Writer
 import ch.softappeal.yass.serialize.nested.*
 import java.io.*
 import kotlin.test.*
 
-private val TAGGED_FAST_SERIALIZER = taggedFastSerializer(
+private fun taggedFastSerializer(skipping: Boolean) = taggedFastSerializer(
     listOf(
         TypeDesc(3, BooleanSerializer),
         TypeDesc(4, ByteSerializer),
@@ -23,10 +24,13 @@ private val TAGGED_FAST_SERIALIZER = taggedFastSerializer(
     ),
     listOf(Color::class.java, PrimitiveTypes::class.java, AllTypes::class.java, IntException::class.java),
     listOf(Node::class.java),
-    false
+    skipping
 )
 
-private val SIMPLE_FAST_SERIALIZER = simpleFastSerializer(
+private val TAGGED_FAST_SERIALIZER = taggedFastSerializer(false)
+private val TAGGED_FAST_SERIALIZER_SKIPPING = taggedFastSerializer(true)
+
+private fun simpleFastSerializer(skipping: Boolean) = simpleFastSerializer(
     listOf(
         BooleanSerializer,
         ByteSerializer,
@@ -41,8 +45,11 @@ private val SIMPLE_FAST_SERIALIZER = simpleFastSerializer(
     ),
     listOf(Color::class.java, PrimitiveTypes::class.java, AllTypes::class.java, IntException::class.java),
     listOf(Node::class.java),
-    false
+    skipping
 )
+
+private val SIMPLE_FAST_SERIALIZER = simpleFastSerializer(false)
+private val SIMPLE_FAST_SERIALIZER_SKIPPING = simpleFastSerializer(true)
 
 class FastSerializerTest {
     @Test
@@ -51,8 +58,18 @@ class FastSerializerTest {
     }
 
     @Test
+    fun simpleFastSkipping() {
+        test(SIMPLE_FAST_SERIALIZER_SKIPPING)
+    }
+
+    @Test
     fun taggedFast() {
         test(TAGGED_FAST_SERIALIZER)
+    }
+
+    @Test
+    fun taggedFastSkipping() {
+        test(TAGGED_FAST_SERIALIZER_SKIPPING)
     }
 
     class A(val a: Int)
@@ -89,7 +106,7 @@ class FastSerializerTest {
         "base type 'ch.softappeal.yass.serialize.Color' is an enumeration",
         assertFailsWith<IllegalArgumentException> {
             taggedFastSerializer(
-                listOf(TypeDesc(1, object : BaseTypeSerializer<Color>(Color::class.java, WireType.Bytes1) {
+                listOf(TypeDesc(1, object : BaseTypeSerializer<Color>(Color::class.java, FieldType.Bytes1) {
                     override fun read(reader: Reader) = Color.BLUE
                     override fun write(writer: Writer, value: Color) {}
                 })),

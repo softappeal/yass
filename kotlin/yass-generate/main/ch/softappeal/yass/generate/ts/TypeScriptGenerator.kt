@@ -66,7 +66,7 @@ class TypeScriptGenerator @JvmOverloads constructor(
                     .filter { it.isEnum }
                     .forEach { generateEnum(it as Class<Enum<*>>) }
                 id2typeSerializer.values
-                    .filter { it is ClassTypeSerializer }
+                    .filter { it is FastSerializer.ClassTypeSerializer }
                     .forEach { generateClass(it.type) }
                 interfaces.forEach { generateInterface(it) }
                 generateServices(initiator, "initiator")
@@ -180,7 +180,7 @@ class TypeScriptGenerator @JvmOverloads constructor(
                     if (id != null) {
                         tabs("static readonly TYPE_DESC = yass.classDesc($id, $name")
                         inc()
-                        val typeSerializer = id2typeSerializer[id] as ClassTypeSerializer
+                        val typeSerializer = id2typeSerializer[id] as FastSerializer.ClassTypeSerializer
                         check(!typeSerializer.graph) { "class '$type' is graph (not implemented in TypeScript)" }
                         for (fieldDesc in typeSerializer.fieldDescs) {
                             println(",")

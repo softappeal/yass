@@ -108,7 +108,7 @@ class PythonGenerator(
     private fun typeSerializer(type: Class<*>): TypeSerializer = id2typeSerializer[type2id[type]]!!
 
     private fun hasClassDesc(type: Class<*>): Boolean =
-        !type.isEnum && !Modifier.isAbstract(type.modifiers) && typeSerializer(type) is ClassTypeSerializer
+        !type.isEnum && !Modifier.isAbstract(type.modifiers) && typeSerializer(type) is FastSerializer.ClassTypeSerializer
 
     private inner class ContractPythonOut(path: Path, val namespace: Namespace) : Out(path) {
         val modules = TreeSet(Comparator.comparing<Namespace, String> { it.moduleName })
@@ -138,7 +138,7 @@ class PythonGenerator(
                 .filter { t ->
                     !t.isEnum &&
                         !t.isInterface &&
-                        (Modifier.isAbstract(t.modifiers) || typeSerializer(t) is ClassTypeSerializer)
+                        (Modifier.isAbstract(t.modifiers) || typeSerializer(t) is FastSerializer.ClassTypeSerializer)
                 }
                 .forEach { generateClass(it) }
             namespace.types.filter { it.isInterface }.forEach { generateInterface(it) }
@@ -276,13 +276,13 @@ class PythonGenerator(
                 else if (hasClassDesc(type))
                     println(
                         "yass.classDesc(${type2id[type]}, $qn, " +
-                            "${pyBool((typeSerializer(type) as ClassTypeSerializer).graph)})"
+                            "${pyBool((typeSerializer(type) as FastSerializer.ClassTypeSerializer).graph)})"
                     )
             }
             println()
             type2namespace.keys.filter { hasClassDesc(it) }.forEach { type ->
                 tabsln("yass.fieldDescs(${getQualifiedName(type)}, [")
-                for (fieldDesc in (typeSerializer(type) as ClassTypeSerializer).fieldDescs) {
+                for (fieldDesc in (typeSerializer(type) as FastSerializer.ClassTypeSerializer).fieldDescs) {
                     tab()
                     tabsln(
                         "yass.FieldDesc(${fieldDesc.id}, '${fieldDesc.serializer.field.name}', " +

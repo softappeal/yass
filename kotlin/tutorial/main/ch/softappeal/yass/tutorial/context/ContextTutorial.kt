@@ -1,4 +1,4 @@
-package ch.softappeal.yass.tutorial
+package ch.softappeal.yass.tutorial.context
 
 import ch.softappeal.yass.*
 import ch.softappeal.yass.remote.*
@@ -15,8 +15,8 @@ internal interface IdentityService {
 }
 
 private val CONTEXT_SERIALIZER =
-    simpleFastSerializer(listOf(IntSerializer, StringSerializer), listOf(Context::class.java), skipping = false)
-private val CONTRACT_SERIALIZER = simpleFastSerializer(listOf(StringSerializer), listOf(), skipping = false)
+    simpleFastSerializer(listOf(IntSerializer, StringSerializer), listOf(Context::class.java))
+private val CONTRACT_SERIALIZER = simpleFastSerializer(listOf(StringSerializer), listOf())
 private val CONTEXT_MESSAGE_SERIALIZER =
     ContextMessageSerializer(CONTEXT_SERIALIZER, messageSerializer(CONTRACT_SERIALIZER))
 private val IDENTITY_SERVICE_ID = contractId<IdentityService>(1, SimpleMethodMapperFactory)

@@ -16,7 +16,7 @@ public final class Expiration {
         this.year = year;
     }
 
-    public static final BaseTypeSerializer<?> TYPE_SERIALIZER = new BaseTypeSerializer<Expiration>(Expiration.class, getIntSerializer().getWireType()) {
+    public static final BaseTypeSerializer<?> TYPE_SERIALIZER = new BaseTypeSerializer<Expiration>(Expiration.class, getIntSerializer().getFieldType()) {
         @Override
         public Expiration read(final Reader reader) {
             return new Expiration(

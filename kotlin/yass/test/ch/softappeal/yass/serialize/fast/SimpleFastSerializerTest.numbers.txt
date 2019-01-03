@@ -25,7 +25,7 @@ skipping = false
     1: GREEN
     2: BLUE
 
-14: ch.softappeal.yass.serialize.PrimitiveTypes Intern tree
+14: ch.softappeal.yass.serialize.PrimitiveTypes tree
     1: private boolean ch.softappeal.yass.serialize.PrimitiveTypes.booleanField
     2: private java.lang.Boolean ch.softappeal.yass.serialize.PrimitiveTypes.booleanWrapperField
     3: private byte[] ch.softappeal.yass.serialize.PrimitiveTypes.byteArrayField
@@ -44,7 +44,7 @@ skipping = false
     16: private short ch.softappeal.yass.serialize.PrimitiveTypes.shortField
     17: private java.lang.Short ch.softappeal.yass.serialize.PrimitiveTypes.shortWrapperField
 
-15: ch.softappeal.yass.serialize.nested.AllTypes Intern tree
+15: ch.softappeal.yass.serialize.nested.AllTypes tree
     1: private ch.softappeal.yass.serialize.Color ch.softappeal.yass.serialize.nested.AllTypes.colorField
     2: private java.lang.Exception ch.softappeal.yass.serialize.nested.AllTypes.exception
     3: private java.lang.Object ch.softappeal.yass.serialize.nested.AllTypes.objectField
@@ -70,10 +70,10 @@ skipping = false
     23: private short ch.softappeal.yass.serialize.PrimitiveTypes.shortField
     24: private java.lang.Short ch.softappeal.yass.serialize.PrimitiveTypes.shortWrapperField
 
-16: ch.softappeal.yass.serialize.IntException Intern tree
+16: ch.softappeal.yass.serialize.IntException tree
     1: private int ch.softappeal.yass.serialize.IntException.value
 
-17: ch.softappeal.yass.serialize.Node Intern graph
+17: ch.softappeal.yass.serialize.Node graph
     1: private int ch.softappeal.yass.serialize.Node.id
     2: private ch.softappeal.yass.serialize.Node ch.softappeal.yass.serialize.Node.link
 

@@ -71,13 +71,14 @@ fun FastSerializer.print(printer: PrintWriter) {
     id2typeSerializer.forEach { id, typeSerializer ->
         if (id < FirstTypeId) return@forEach
         with(typeSerializer.type) {
-            printer.print("$id: $canonicalName ${typeSerializer.wireType}")
+            printer.print("$id: $canonicalName")
             if (typeSerializer is BaseTypeSerializer<*>) {
-                printer.println()
+                printer.println(" ${typeSerializer.fieldType}")
                 if (isEnum) for ((i, c) in enumConstants.withIndex()) printer.println("    $i: $c")
-            } else if (typeSerializer is ClassTypeSerializer) {
+            } else if (typeSerializer is FastSerializer.ClassTypeSerializer) {
                 printer.println(" ${if (typeSerializer.graph) "graph" else "tree"}")
-                for (fd in typeSerializer.fieldDescs) printer.println("    ${fd.id}: ${fd.serializer.field.toGenericString()}")
+                for (fd in typeSerializer.fieldDescs)
+                    printer.println("    ${fd.id}: ${fd.serializer.field.toGenericString()}")
             }
             printer.println()
         }
