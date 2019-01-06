@@ -167,6 +167,11 @@ enum class NewEnum {
     C2
 }
 
+@Tag(41)
+class NewLink(
+    @Tag(1) var next: NewLink?
+)
+
 private val Serializer2 = taggedFastSerializer(
     BaseTypes.toMutableList().apply { add(TypeDesc(999, NewBooleanSerializer)) },
     listOf(
@@ -178,7 +183,8 @@ private val Serializer2 = taggedFastSerializer(
         NewEnum::class.java
     ),
     listOf(
-        Link::class.java
+        Link::class.java,
+        NewLink::class.java
     )
 )
 
@@ -310,12 +316,18 @@ class SkippingFastSerializerTest {
 
     @Test
     fun objectTypesFrom2() {
-        with(copyFrom2(ObjectTypes2(any = cycle, link2 = null)) as ObjectTypes) {
+        with(copyFrom2(ObjectTypes2(any = cycle)) as ObjectTypes) {
             assertEquals(listOf(123), list)
             assertNull(link!!.next)
             assertTrue(any is Link)
             assertSame(any, any.next!!.next)
         }
+    }
+
+    private val cycle2 = NewLink(NewLink(null))
+
+    init {
+        cycle2.next!!.next = cycle2
     }
 
     private val skipList2 = listOf(
@@ -329,6 +341,7 @@ class SkippingFastSerializerTest {
         123,
         "string",
 
+        cycle2,
         NewBoolean(true),
         NewBoolean(false),
         NewEnum.C1,
@@ -338,11 +351,14 @@ class SkippingFastSerializerTest {
         listOf(
             123,
             null,
+            cycle2,
             "string",
             NewBoolean(false),
             NewEnum.C2,
+            NewLink(null),
             NewClass()
-        )
+        ),
+        NewLink(null)
     )
 
     @Test
@@ -362,7 +378,7 @@ class SkippingFastSerializerTest {
             cycle,
             ObjectTypes2(link2 = null)
         )
-        with(copyFrom2(ObjectTypes2(any = cycle, list = list, list2 = skipList2, link2 = null)) as ObjectTypes) {
+        with(copyFrom2(ObjectTypes2(any = cycle, list = list, list2 = skipList2)) as ObjectTypes) {
             assertEquals(list.size, this.list!!.size)
             assertNull(link!!.next)
             assertTrue(any is Link)
@@ -373,19 +389,27 @@ class SkippingFastSerializerTest {
     @Test
     fun skippingAny() {
         skipList2.forEach {
-            assertNull((copyFrom2(ObjectTypes2(any2 = it, link2 = null)) as ObjectTypes).link!!.next)
+            assertNull((copyFrom2(ObjectTypes2(any = cycle, any2 = it)) as ObjectTypes).link!!.next)
         }
     }
 
     @Test
     fun skippingReferences() {
-        copyFrom2(ObjectTypes2(any = cycle, any2 = cycle, link2 = null))
-        copyFrom2(ObjectTypes2(any = cycle, list2 = listOf(cycle), link2 = null))
+        copyFrom2(ObjectTypes2(any = cycle, any2 = cycle))
+        copyFrom2(ObjectTypes2(any = cycle, list2 = listOf(cycle)))
     }
 
     @Test
-    fun illegalSkippingGraphClasses() {
-        assertFails { copyFrom2(ObjectTypes2(link2 = cycle)) }
-        assertFails { copyFrom2(ObjectTypes2(link2 = null, list2 = listOf(cycle))) }
+    fun skippingGraphClasses() {
+        with(copyFrom2(ObjectTypes2(link2 = cycle)) as ObjectTypes) {
+            assertEquals(listOf(123), list)
+            assertNull(link!!.next)
+            assertTrue(any is PrimitiveTypes)
+        }
+        with(copyFrom2(ObjectTypes2(link2 = null, list2 = listOf(cycle))) as ObjectTypes) {
+            assertEquals(listOf(123), list)
+            assertNull(link!!.next)
+            assertTrue(any is PrimitiveTypes)
+        }
     }
 }

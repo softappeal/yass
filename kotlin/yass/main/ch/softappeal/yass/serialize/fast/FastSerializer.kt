@@ -176,7 +176,7 @@ abstract class FastSerializer protected constructor(val skipping: Boolean) : Ser
                 if (id == EndFieldId) return value
                 val fieldSerializer = id2fieldSerializer[id]
                 if (fieldSerializer == null) {
-                    if (skipping) fieldTypeFromSkippingId(fieldId).skip(input.reader)
+                    if (skipping) fieldTypeFromSkippingId(fieldId).skip(input)
                     else error("class '${type.canonicalName}' doesn't have a field with id $id")
                 } else fieldSerializer.read(input, value)
             }
