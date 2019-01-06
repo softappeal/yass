@@ -11,7 +11,7 @@ import java.util.*
 class ExternalDesc(internal val name: String, internal val typeDesc: String)
 
 val BooleanDesc = TypeDesc(FirstTypeId, BooleanSerializer)
-val DoubleDesc = TypeDesc(FirstTypeId + 1, DoubleSerializer)
+val DoubleDesc = TypeDesc(FirstTypeId + 1, DoubleSerializerNoSkipping)
 val StringDesc = TypeDesc(FirstTypeId + 2, StringSerializer)
 val BytesDesc = TypeDesc(FirstTypeId + 3, ByteArraySerializer)
 const val FirstDescId = FirstTypeId + 4

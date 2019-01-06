@@ -1,12 +1,11 @@
 package ch.softappeal.yass.serialize.fast
 
 /* $$$
-- remove Bytes 1..4 -> we would gain for both enums one bit
 - enum consts with tags
 - unknown enum consts map to required ordinal 0
  */
 
-private const val ObjectTypeBits = 3
+private const val ObjectTypeBits = 2
 internal const val MaxTypeId = Int.MAX_VALUE shr ObjectTypeBits
 
 internal fun typeIdFromSkippingId(skippingId: Int): Int = skippingId ushr ObjectTypeBits
@@ -38,25 +37,13 @@ internal enum class ObjectType {
     },
     VarInt {
         override fun skip(input: FastSerializer.Input) = FieldType.VarInt.skip(input)
-    },
-    Bytes1 {
-        override fun skip(input: FastSerializer.Input) = FieldType.Bytes1.skip(input)
-    },
-    Bytes2 {
-        override fun skip(input: FastSerializer.Input) = FieldType.Bytes2.skip(input)
-    },
-    Bytes4 {
-        override fun skip(input: FastSerializer.Input) = FieldType.Bytes4.skip(input)
-    },
-    Bytes8 {
-        override fun skip(input: FastSerializer.Input) = FieldType.Bytes8.skip(input)
     };
 
     fun skippingId(id: Int): Int = (id shl ObjectTypeBits) or ordinal
     abstract fun skip(input: FastSerializer.Input)
 }
 
-private const val FieldTypeBits = 3
+private const val FieldTypeBits = 2
 internal const val MaxFieldId = Int.MAX_VALUE shr FieldTypeBits
 
 internal fun fieldIdFromSkippingId(skippingId: Int): Int = skippingId ushr FieldTypeBits
@@ -98,26 +85,6 @@ enum class FieldType(internal val objectType: ObjectType) {
     VarInt(ObjectType.VarInt) {
         override fun skip(input: FastSerializer.Input) {
             input.reader.readVarLong()
-        }
-    },
-    Bytes1(ObjectType.Bytes1) {
-        override fun skip(input: FastSerializer.Input) {
-            input.reader.readByte()
-        }
-    },
-    Bytes2(ObjectType.Bytes2) {
-        override fun skip(input: FastSerializer.Input) {
-            repeat(2) { input.reader.readByte() }
-        }
-    },
-    Bytes4(ObjectType.Bytes4) {
-        override fun skip(input: FastSerializer.Input) {
-            repeat(4) { input.reader.readByte() }
-        }
-    },
-    Bytes8(ObjectType.Bytes8) {
-        override fun skip(input: FastSerializer.Input) {
-            repeat(8) { input.reader.readByte() }
         }
     };
 

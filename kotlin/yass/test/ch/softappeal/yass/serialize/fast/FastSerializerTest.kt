@@ -12,13 +12,9 @@ import kotlin.test.*
 private fun taggedFastSerializer(skipping: Boolean) = taggedFastSerializer(
     listOf(
         TypeDesc(3, BooleanSerializer),
-        TypeDesc(4, ByteSerializer),
         TypeDesc(5, ShortSerializer),
         TypeDesc(6, IntSerializer),
         TypeDesc(7, LongSerializer),
-        TypeDesc(8, CharSerializer),
-        TypeDesc(9, FloatSerializer),
-        TypeDesc(10, DoubleSerializer),
         TypeDesc(12, ByteArraySerializer),
         TypeDesc(19, StringSerializer)
     ),
@@ -33,13 +29,9 @@ private val TAGGED_FAST_SERIALIZER_SKIPPING = taggedFastSerializer(true)
 private fun simpleFastSerializer(skipping: Boolean) = simpleFastSerializer(
     listOf(
         BooleanSerializer,
-        ByteSerializer,
         ShortSerializer,
         IntSerializer,
         LongSerializer,
-        CharSerializer,
-        FloatSerializer,
-        DoubleSerializer,
         ByteArraySerializer,
         StringSerializer
     ),
@@ -106,7 +98,7 @@ class FastSerializerTest {
         "base type 'ch.softappeal.yass.serialize.Color' is an enumeration",
         assertFailsWith<IllegalArgumentException> {
             taggedFastSerializer(
-                listOf(TypeDesc(1, object : BaseTypeSerializer<Color>(Color::class.java, FieldType.Bytes1) {
+                listOf(TypeDesc(1, object : BaseTypeSerializer<Color>(Color::class.java, FieldType.VarInt) {
                     override fun read(reader: Reader) = Color.BLUE
                     override fun write(writer: Writer, value: Color) {}
                 })),

@@ -1,20 +1,12 @@
 skipping = false
 
-3: java.lang.Boolean Bytes1
-
-4: java.lang.Byte Bytes1
+3: java.lang.Boolean VarInt
 
 5: java.lang.Short VarInt
 
 6: java.lang.Integer VarInt
 
 7: java.lang.Long VarInt
-
-8: java.lang.Character Bytes2
-
-9: java.lang.Float Bytes4
-
-10: java.lang.Double Bytes8
 
 12: byte[] Binary
 
@@ -26,41 +18,25 @@ skipping = false
     2: BLUE
 
 40: ch.softappeal.yass.serialize.PrimitiveTypes tree
-    1: private byte ch.softappeal.yass.serialize.PrimitiveTypes.byteField
     2: private short ch.softappeal.yass.serialize.PrimitiveTypes.shortField
     3: private int ch.softappeal.yass.serialize.PrimitiveTypes.intField
     4: private long ch.softappeal.yass.serialize.PrimitiveTypes.longField
-    5: private char ch.softappeal.yass.serialize.PrimitiveTypes.charField
-    6: private float ch.softappeal.yass.serialize.PrimitiveTypes.floatField
-    7: private double ch.softappeal.yass.serialize.PrimitiveTypes.doubleField
     11: private byte[] ch.softappeal.yass.serialize.PrimitiveTypes.byteArrayField
     20: private java.lang.Boolean ch.softappeal.yass.serialize.PrimitiveTypes.booleanWrapperField
-    21: private java.lang.Byte ch.softappeal.yass.serialize.PrimitiveTypes.byteWrapperField
     22: private java.lang.Short ch.softappeal.yass.serialize.PrimitiveTypes.shortWrapperField
     23: private java.lang.Integer ch.softappeal.yass.serialize.PrimitiveTypes.intWrapperField
     24: private java.lang.Long ch.softappeal.yass.serialize.PrimitiveTypes.longWrapperField
-    25: private java.lang.Character ch.softappeal.yass.serialize.PrimitiveTypes.charWrapperField
-    26: private java.lang.Float ch.softappeal.yass.serialize.PrimitiveTypes.floatWrapperField
-    27: private java.lang.Double ch.softappeal.yass.serialize.PrimitiveTypes.doubleWrapperField
     28: private boolean ch.softappeal.yass.serialize.PrimitiveTypes.booleanField
 
 41: ch.softappeal.yass.serialize.nested.AllTypes tree
-    1: private byte ch.softappeal.yass.serialize.PrimitiveTypes.byteField
     2: private short ch.softappeal.yass.serialize.PrimitiveTypes.shortField
     3: private int ch.softappeal.yass.serialize.PrimitiveTypes.intField
     4: private long ch.softappeal.yass.serialize.PrimitiveTypes.longField
-    5: private char ch.softappeal.yass.serialize.PrimitiveTypes.charField
-    6: private float ch.softappeal.yass.serialize.PrimitiveTypes.floatField
-    7: private double ch.softappeal.yass.serialize.PrimitiveTypes.doubleField
     11: private byte[] ch.softappeal.yass.serialize.PrimitiveTypes.byteArrayField
     20: private java.lang.Boolean ch.softappeal.yass.serialize.PrimitiveTypes.booleanWrapperField
-    21: private java.lang.Byte ch.softappeal.yass.serialize.PrimitiveTypes.byteWrapperField
     22: private java.lang.Short ch.softappeal.yass.serialize.PrimitiveTypes.shortWrapperField
     23: private java.lang.Integer ch.softappeal.yass.serialize.PrimitiveTypes.intWrapperField
     24: private java.lang.Long ch.softappeal.yass.serialize.PrimitiveTypes.longWrapperField
-    25: private java.lang.Character ch.softappeal.yass.serialize.PrimitiveTypes.charWrapperField
-    26: private java.lang.Float ch.softappeal.yass.serialize.PrimitiveTypes.floatWrapperField
-    27: private java.lang.Double ch.softappeal.yass.serialize.PrimitiveTypes.doubleWrapperField
     28: private boolean ch.softappeal.yass.serialize.PrimitiveTypes.booleanField
     100: private java.lang.String ch.softappeal.yass.serialize.nested.AllTypes.stringField
     101: private ch.softappeal.yass.serialize.Color ch.softappeal.yass.serialize.nested.AllTypes.colorField

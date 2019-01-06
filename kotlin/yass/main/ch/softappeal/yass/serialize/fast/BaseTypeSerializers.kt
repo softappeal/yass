@@ -2,14 +2,9 @@ package ch.softappeal.yass.serialize.fast
 
 import ch.softappeal.yass.serialize.*
 
-val BooleanSerializer = object : BaseTypeSerializer<Boolean>(Boolean::class.javaObjectType, FieldType.Bytes1) {
+val BooleanSerializer = object : BaseTypeSerializer<Boolean>(Boolean::class.javaObjectType, FieldType.VarInt) {
     override fun read(reader: Reader) = reader.readByte().toInt() != 0
     override fun write(writer: Writer, value: Boolean) = writer.writeByte((if (value) 1 else 0).toByte())
-}
-
-val ByteSerializer = object : BaseTypeSerializer<Byte>(Byte::class.javaObjectType, FieldType.Bytes1) {
-    override fun read(reader: Reader) = reader.readByte()
-    override fun write(writer: Writer, value: Byte) = writer.writeByte(value)
 }
 
 val ShortSerializer = object : BaseTypeSerializer<Short>(Short::class.javaObjectType, FieldType.VarInt) {
@@ -25,21 +20,6 @@ val IntSerializer = object : BaseTypeSerializer<Int>(Int::class.javaObjectType, 
 val LongSerializer = object : BaseTypeSerializer<Long>(Long::class.javaObjectType, FieldType.VarInt) {
     override fun read(reader: Reader) = reader.readZigZagLong()
     override fun write(writer: Writer, value: Long) = writer.writeZigZagLong(value)
-}
-
-val CharSerializer = object : BaseTypeSerializer<Char>(Char::class.javaObjectType, FieldType.Bytes2) {
-    override fun read(reader: Reader) = reader.readChar()
-    override fun write(writer: Writer, value: Char) = writer.writeChar(value)
-}
-
-val FloatSerializer = object : BaseTypeSerializer<Float>(Float::class.javaObjectType, FieldType.Bytes4) {
-    override fun read(reader: Reader) = reader.readFloat()
-    override fun write(writer: Writer, value: Float) = writer.writeFloat(value)
-}
-
-val DoubleSerializer = object : BaseTypeSerializer<Double>(Double::class.javaObjectType, FieldType.Bytes8) {
-    override fun read(reader: Reader) = reader.readDouble()
-    override fun write(writer: Writer, value: Double) = writer.writeDouble(value)
 }
 
 val ByteArraySerializer = object : BaseTypeSerializer<ByteArray>(ByteArray::class.java, FieldType.Binary) {

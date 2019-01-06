@@ -47,38 +47,21 @@ class ReflectTest {
         val allTypes = AllocatorFactory(AllTypes::class.java)() as AllTypes
         val name2field = name2field(AllTypes::class.java)
         val booleanField = name2field["booleanField"]!!
-        val byteField = name2field["byteField"]!!
         val shortField = name2field["shortField"]!!
         val intField = name2field["intField"]!!
         val longField = name2field["longField"]!!
-        val charField = name2field["charField"]!!
-        val floatField = name2field["floatField"]!!
-        val doubleField = name2field["doubleField"]!!
         booleanField.set(allTypes, true)
-        byteField.set(allTypes, 123.toByte())
         shortField.set(allTypes, 12345.toShort())
         intField.set(allTypes, 123456789)
         longField.set(allTypes, 123456789000L)
-        charField.set(allTypes, 'x')
-        floatField.set(allTypes, 1.23f)
-        doubleField.set(allTypes, 3.21)
-        doubleField.set(allTypes, 3.21)
         assertTrue(allTypes.booleanField)
-        assertEquals(123, allTypes.byteField.toInt())
         assertEquals(12345, allTypes.shortField.toInt())
         assertEquals(123456789, allTypes.intField)
         assertEquals(123456789000L, allTypes.longField)
-        assertEquals('x', allTypes.charField)
-        assertEquals(1.23f, allTypes.floatField)
-        assertEquals(3.21, allTypes.doubleField)
         assertTrue(booleanField.get(allTypes) as Boolean)
-        assertEquals(123.toByte(), byteField.get(allTypes) as Byte)
         assertEquals(12345.toShort(), shortField.get(allTypes) as Short)
         assertEquals(123456789, intField.get(allTypes) as Int)
         assertEquals(123456789000L, longField.get(allTypes) as Long)
-        assertEquals('x', charField.get(allTypes) as Char)
-        assertEquals(1.23f, floatField.get(allTypes) as Float)
-        assertEquals(3.21, doubleField.get(allTypes) as Double)
         val stringField = name2field["stringField"]!!
         stringField.set(allTypes, "xyz")
         assertEquals("xyz", allTypes.stringField)

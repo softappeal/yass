@@ -22,22 +22,14 @@ fun createNulls(): AllTypes {
 
 private fun checkNulls(allTypes: AllTypes) {
     assertFalse(allTypes.booleanField)
-    assertEquals(0, allTypes.byteField.toInt())
     assertEquals(0, allTypes.shortField.toInt())
     assertEquals(0, allTypes.intField)
     assertEquals(0L, allTypes.longField)
-    assertEquals(' ', allTypes.charField)
-    assertEquals(0f, allTypes.floatField)
-    assertEquals(0.0, allTypes.doubleField)
     assertNull(allTypes.byteArrayField)
     assertNull(allTypes.booleanWrapperField)
-    assertNull(allTypes.byteWrapperField)
     assertNull(allTypes.shortWrapperField)
     assertNull(allTypes.intWrapperField)
     assertNull(allTypes.longWrapperField)
-    assertNull(allTypes.charWrapperField)
-    assertNull(allTypes.floatWrapperField)
-    assertNull(allTypes.doubleWrapperField)
     assertNull(allTypes.stringField)
     assertNull(allTypes.colorField)
     assertNull(allTypes.primitiveTypesField)
@@ -50,21 +42,13 @@ private fun checkNulls(allTypes: AllTypes) {
 fun createValues(): AllTypes {
     val allTypes = AllTypes()
     allTypes.booleanField = false
-    allTypes.byteField = 100.toByte()
     allTypes.shortField = 101.toShort()
     allTypes.intField = 102
     allTypes.longField = 103L
-    allTypes.charField = 'x'
-    allTypes.floatField = 1.23f
-    allTypes.doubleField = 3.21
     allTypes.booleanWrapperField = true
-    allTypes.byteWrapperField = (-100).toByte()
     allTypes.shortWrapperField = (-101).toShort()
     allTypes.intWrapperField = -102
     allTypes.longWrapperField = -103L
-    allTypes.charWrapperField = 'y'
-    allTypes.floatWrapperField = -1.23f
-    allTypes.doubleWrapperField = -3.21
     allTypes.byteArrayField = byteArrayOf(1.toByte(), (-2).toByte())
     allTypes.stringField = "999"
     allTypes.colorField = Color.BLUE
@@ -79,21 +63,13 @@ fun createValues(): AllTypes {
 
 private fun checkValues(allTypes: AllTypes) {
     assertFalse(allTypes.booleanField)
-    assertEquals(100, allTypes.byteField.toInt())
     assertEquals(101, allTypes.shortField.toInt())
     assertEquals(102, allTypes.intField)
     assertEquals(103L, allTypes.longField)
-    assertEquals('x', allTypes.charField)
-    assertEquals(1.23f, allTypes.floatField)
-    assertEquals(3.21, allTypes.doubleField)
     assertEquals(true, allTypes.booleanWrapperField)
-    assertEquals((-100).toByte(), allTypes.byteWrapperField)
     assertEquals((-101).toShort(), allTypes.shortWrapperField)
     assertEquals(-102, allTypes.intWrapperField)
     assertEquals(-103L, allTypes.longWrapperField)
-    assertEquals('y', allTypes.charWrapperField)
-    assertEquals(-1.23f, allTypes.floatWrapperField)
-    assertEquals(-3.21, allTypes.doubleWrapperField)
     assertTrue(Arrays.equals(allTypes.byteArrayField, byteArrayOf(1.toByte(), (-2).toByte())))
     assertEquals("999", allTypes.stringField)
     assertEquals(Color.BLUE, allTypes.colorField)
@@ -135,13 +111,9 @@ private fun checkBaseTypes(serializer: Serializer) {
     assertNull(copy(serializer, null))
     assertEquals(false, copy(serializer, false))
     assertEquals(true, copy(serializer, true))
-    assertEquals(123.toByte(), copy(serializer, 123.toByte()))
     assertEquals(123.toShort(), copy(serializer, 123.toShort()))
     assertEquals(123, copy(serializer, 123))
     assertEquals(123L, copy(serializer, 123L))
-    assertEquals('x', copy(serializer, 'x'))
-    assertEquals(1.23f, copy(serializer, 1.23f))
-    assertEquals(1.23, copy(serializer, 1.23))
     assertEquals("123", copy(serializer, "123"))
     assertEquals(Color.RED, copy(serializer, Color.RED))
     assertTrue(
