@@ -107,14 +107,15 @@ fun <T : Any?> promise(execute: () -> T): CompletionStage<T> {
     return promise
 }
 
-private fun handlePrimitiveTypes(type: Class<*>): Any? = when (type) {
-    Boolean::class.javaPrimitiveType -> java.lang.Boolean.FALSE
-    Byte::class.javaPrimitiveType -> 0.toByte()
-    Short::class.javaPrimitiveType -> 0.toShort()
-    Int::class.javaPrimitiveType -> 0
-    Long::class.javaPrimitiveType -> 0.toLong()
-    Char::class.javaPrimitiveType -> 0.toChar()
-    Float::class.javaPrimitiveType -> 0.toFloat()
-    Double::class.javaPrimitiveType -> 0.toDouble()
-    else -> null
-}
+private val HandlePrimitiveTypes = mapOf(
+    Boolean::class.javaPrimitiveType to false,
+    Byte::class.javaPrimitiveType to 0.toByte(),
+    Short::class.javaPrimitiveType to 0.toShort(),
+    Int::class.javaPrimitiveType to 0,
+    Long::class.javaPrimitiveType to 0.toLong(),
+    Char::class.javaPrimitiveType to 0.toChar(),
+    Float::class.javaPrimitiveType to 0.toFloat(),
+    Double::class.javaPrimitiveType to 0.toDouble()
+)
+
+private fun handlePrimitiveTypes(type: Class<*>): Any? = HandlePrimitiveTypes[type]

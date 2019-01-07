@@ -1,9 +1,11 @@
 package ch.softappeal.yass.serialize.fast
 
+import ch.softappeal.yass.serialize.*
+
 /* $$$
 - enum consts with tags
-- unknown enum consts map to required ordinal 0
- */
+- unknown enum consts map to required ordinal 0 or even better to null
+*/
 
 private const val ObjectTypeBits = 2
 internal const val MaxTypeId = Int.MAX_VALUE shr ObjectTypeBits
@@ -78,16 +80,17 @@ enum class FieldType(internal val objectType: ObjectType) {
         }
     },
     Binary(ObjectType.Binary) {
-        override fun skip(input: FastSerializer.Input) {
-            repeat(input.reader.readVarInt()) { input.reader.readByte() }
-        }
+        override fun skip(input: FastSerializer.Input) = skip(input.reader)
+        override fun skip(reader: Reader) = repeat(reader.readVarInt()) { reader.readByte() }
     },
     VarInt(ObjectType.VarInt) {
-        override fun skip(input: FastSerializer.Input) {
-            input.reader.readVarLong()
+        override fun skip(input: FastSerializer.Input) = skip(input.reader)
+        override fun skip(reader: Reader) {
+            reader.readVarLong()
         }
     };
 
     internal fun skippingId(id: Int): Int = (id shl FieldTypeBits) or ordinal
     internal abstract fun skip(input: FastSerializer.Input)
+    internal open fun skip(reader: Reader): Unit = error("only needed by tests")
 }

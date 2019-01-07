@@ -15,7 +15,7 @@ private fun taggedFastSerializer(skipping: Boolean) = taggedFastSerializer(
         TypeDesc(5, ShortSerializer),
         TypeDesc(6, IntSerializer),
         TypeDesc(7, LongSerializer),
-        TypeDesc(12, ByteArraySerializer),
+        TypeDesc(12, BinarySerializer),
         TypeDesc(19, StringSerializer)
     ),
     listOf(Color::class.java, PrimitiveTypes::class.java, AllTypes::class.java, IntException::class.java),
@@ -32,7 +32,7 @@ private fun simpleFastSerializer(skipping: Boolean) = simpleFastSerializer(
         ShortSerializer,
         IntSerializer,
         LongSerializer,
-        ByteArraySerializer,
+        BinarySerializer,
         StringSerializer
     ),
     listOf(Color::class.java, PrimitiveTypes::class.java, AllTypes::class.java, IntException::class.java),

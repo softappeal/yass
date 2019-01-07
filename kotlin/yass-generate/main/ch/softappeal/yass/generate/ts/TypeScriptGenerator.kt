@@ -13,7 +13,7 @@ class ExternalDesc(internal val name: String, internal val typeDescHolder: Strin
 val BooleanDesc = TypeDesc(FirstTypeId, BooleanSerializer)
 val DoubleDesc = TypeDesc(FirstTypeId + 1, DoubleSerializerNoSkipping)
 val StringDesc = TypeDesc(FirstTypeId + 2, StringSerializer)
-val BytesDesc = TypeDesc(FirstTypeId + 3, ByteArraySerializer)
+val BinaryDesc = TypeDesc(FirstTypeId + 3, BinarySerializer)
 const val FirstDescId = FirstTypeId + 4
 
 @SafeVarargs
@@ -22,7 +22,7 @@ fun baseTypeSerializers(vararg serializers: BaseTypeSerializer<*>): List<BaseTyp
         BooleanDesc.serializer as BaseTypeSerializer<*>,
         DoubleDesc.serializer as BaseTypeSerializer<*>,
         StringDesc.serializer as BaseTypeSerializer<*>,
-        BytesDesc.serializer as BaseTypeSerializer<*>
+        BinaryDesc.serializer as BaseTypeSerializer<*>
     )
     s.addAll(serializers)
     return s
@@ -30,7 +30,7 @@ fun baseTypeSerializers(vararg serializers: BaseTypeSerializer<*>): List<BaseTyp
 
 @SafeVarargs
 fun baseTypeDescs(vararg descs: TypeDesc): Collection<TypeDesc> {
-    val d = mutableListOf(BooleanDesc, DoubleDesc, StringDesc, BytesDesc)
+    val d = mutableListOf(BooleanDesc, DoubleDesc, StringDesc, BinaryDesc)
     d.addAll(descs)
     return d
 }
@@ -150,7 +150,7 @@ class TypeScriptGenerator @JvmOverloads constructor(
                     BooleanDesc.serializer === typeSerializer -> "yass.BOOLEAN_DESC"
                     DoubleDesc.serializer === typeSerializer -> "yass.NUMBER_DESC"
                     StringDesc.serializer === typeSerializer -> "yass.STRING_DESC"
-                    BytesDesc.serializer === typeSerializer -> "yass.BYTES_DESC"
+                    BinaryDesc.serializer === typeSerializer -> "yass.BYTES_DESC"
                     else -> jsType(typeSerializer.type, false) + ".TYPE_DESC"
                 }
             }

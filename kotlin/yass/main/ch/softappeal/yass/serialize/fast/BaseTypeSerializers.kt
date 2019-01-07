@@ -7,6 +7,11 @@ val BooleanSerializer = object : BaseTypeSerializer<Boolean>(Boolean::class.java
     override fun write(writer: Writer, value: Boolean) = writer.writeByte((if (value) 1 else 0).toByte())
 }
 
+val ByteSerializer = object : BaseTypeSerializer<Byte>(Byte::class.javaObjectType, FieldType.VarInt) {
+    override fun read(reader: Reader) = reader.readZigZagInt().toByte()
+    override fun write(writer: Writer, value: Byte) = writer.writeZigZagInt(value.toInt())
+}
+
 val ShortSerializer = object : BaseTypeSerializer<Short>(Short::class.javaObjectType, FieldType.VarInt) {
     override fun read(reader: Reader) = reader.readZigZagInt().toShort()
     override fun write(writer: Writer, value: Short) = writer.writeZigZagInt(value.toInt())
@@ -22,7 +27,43 @@ val LongSerializer = object : BaseTypeSerializer<Long>(Long::class.javaObjectTyp
     override fun write(writer: Writer, value: Long) = writer.writeZigZagLong(value)
 }
 
-val ByteArraySerializer = object : BaseTypeSerializer<ByteArray>(ByteArray::class.java, FieldType.Binary) {
+val CharSerializer = object : BaseTypeSerializer<Char>(Char::class.javaObjectType, FieldType.Binary) {
+    override fun read(reader: Reader): Char {
+        reader.readByte()
+        return reader.readChar()
+    }
+
+    override fun write(writer: Writer, value: Char) {
+        writer.writeByte(2)
+        writer.writeChar(value)
+    }
+}
+
+val FloatSerializer = object : BaseTypeSerializer<Float>(Float::class.javaObjectType, FieldType.Binary) {
+    override fun read(reader: Reader): Float {
+        reader.readByte()
+        return reader.readFloat()
+    }
+
+    override fun write(writer: Writer, value: Float) {
+        writer.writeByte(4)
+        writer.writeFloat(value)
+    }
+}
+
+val DoubleSerializer = object : BaseTypeSerializer<Double>(Double::class.javaObjectType, FieldType.Binary) {
+    override fun read(reader: Reader): Double {
+        reader.readByte()
+        return reader.readDouble()
+    }
+
+    override fun write(writer: Writer, value: Double) {
+        writer.writeByte(8)
+        writer.writeDouble(value)
+    }
+}
+
+val BinarySerializer = object : BaseTypeSerializer<ByteArray>(ByteArray::class.java, FieldType.Binary) {
     override fun read(reader: Reader): ByteArray {
         val length = reader.readVarInt()
         var value = ByteArray(Math.min(length, 128))
@@ -42,7 +83,7 @@ val ByteArraySerializer = object : BaseTypeSerializer<ByteArray>(ByteArray::clas
     }
 }
 
-val StringSerializer = object : BaseTypeSerializer<String>(String::class.java, ByteArraySerializer.fieldType) {
-    override fun read(reader: Reader) = utf8toString(ByteArraySerializer.read(reader))
-    override fun write(writer: Writer, value: String) = ByteArraySerializer.write(writer, utf8toBytes(value))
+val StringSerializer = object : BaseTypeSerializer<String>(String::class.java, BinarySerializer.fieldType) {
+    override fun read(reader: Reader) = utf8toString(BinarySerializer.read(reader))
+    override fun write(writer: Writer, value: String) = BinarySerializer.write(writer, utf8toBytes(value))
 }

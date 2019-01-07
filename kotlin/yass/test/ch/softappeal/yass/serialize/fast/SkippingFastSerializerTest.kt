@@ -13,7 +13,7 @@ private val BaseTypes = listOf(
     TypeDesc(5, ShortSerializer),
     TypeDesc(6, IntSerializer),
     TypeDesc(7, LongSerializer),
-    TypeDesc(11, ByteArraySerializer),
+    TypeDesc(11, BinarySerializer),
     TypeDesc(12, StringSerializer)
 )
 
