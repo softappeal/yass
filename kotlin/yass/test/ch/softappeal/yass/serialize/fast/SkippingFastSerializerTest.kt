@@ -10,9 +10,13 @@ import kotlin.test.*
 
 private val BaseTypes = listOf(
     TypeDesc(3, BooleanSerializer),
+    TypeDesc(4, ByteSerializer),
     TypeDesc(5, ShortSerializer),
     TypeDesc(6, IntSerializer),
     TypeDesc(7, LongSerializer),
+    TypeDesc(8, CharSerializer),
+    TypeDesc(9, FloatSerializer),
+    TypeDesc(10, DoubleSerializer),
     TypeDesc(11, BinarySerializer),
     TypeDesc(12, StringSerializer)
 )
@@ -31,9 +35,13 @@ class Link(
 @Tag(536_870_911)
 class PrimitiveTypes(
     @Tag(536_870_911) val boolean: Boolean = true,
+    @Tag(2) val byte: Byte = 1,
     @Tag(3) val short: Short = 2,
     @Tag(4) val int: Int = 3,
     @Tag(5) val long: Long = 4,
+    @Tag(6) val char: Char = '5',
+    @Tag(7) val float: Float = 6.0f,
+    @Tag(8) val double: Double = 7.0,
     @Tag(9) val binary: ByteArray = byteArrayOf(123),
     @Tag(10) val string: String = "string",
     @Tag(11) val enum: Enum = Enum.C2
@@ -42,9 +50,13 @@ class PrimitiveTypes(
 @Tag(31)
 class NullablePrimitiveTypes(
     @Tag(1) val boolean: Boolean? = true,
+    @Tag(2) val byte: Byte? = 1,
     @Tag(3) val short: Short? = 2,
     @Tag(4) val int: Int? = 3,
     @Tag(5) val long: Long? = 4,
+    @Tag(6) val char: Char? = '5',
+    @Tag(7) val float: Float? = 6f,
+    @Tag(8) val double: Double? = 7.0,
     @Tag(9) val binary: ByteArray? = byteArrayOf(123),
     @Tag(10) val string: String? = "string",
     @Tag(11) val enum: Enum? = Enum.C2
@@ -73,17 +85,25 @@ private val Serializer = taggedFastSerializer(
 @Tag(536_870_911)
 class PrimitiveTypes2(
     @Tag(536_870_911) val boolean: Boolean = true,
+    @Tag(2) val byte: Byte = 1,
     @Tag(3) val short: Short = 2,
     @Tag(4) val int: Int = 3,
     @Tag(5) val long: Long = 4,
+    @Tag(6) val char: Char = '5',
+    @Tag(7) val float: Float = 6.0f,
+    @Tag(8) val double: Double = 7.0,
     @Tag(9) val binary: ByteArray = byteArrayOf(123),
     @Tag(10) val string: String = "string",
     @Tag(11) val enum: Enum = Enum.C2,
 
     @Tag(21) val boolean2: Boolean = true,
+    @Tag(22) val byte2: Byte = 1,
     @Tag(23) val short2: Short = 2,
     @Tag(24) val int2: Int = 3,
     @Tag(25) val long2: Long = 4,
+    @Tag(26) val char2: Char = '5',
+    @Tag(27) val float2: Float = 6.0f,
+    @Tag(28) val double2: Double = 7.0,
     @Tag(29) val binary2: ByteArray = byteArrayOf(123),
     @Tag(30) val string2: String = "string",
     @Tag(31) val enum2: Enum = Enum.C2
@@ -92,17 +112,25 @@ class PrimitiveTypes2(
 @Tag(31)
 class NullablePrimitiveTypes2(
     @Tag(1) val boolean: Boolean? = true,
+    @Tag(2) val byte: Byte? = 1,
     @Tag(3) val short: Short? = 2,
     @Tag(4) val int: Int? = 3,
     @Tag(5) val long: Long? = 4,
+    @Tag(6) val char: Char? = '5',
+    @Tag(7) val float: Float? = 6f,
+    @Tag(8) val double: Double? = 7.0,
     @Tag(9) val binary: ByteArray? = byteArrayOf(123),
     @Tag(10) val string: String? = "string",
     @Tag(11) val enum: Enum? = Enum.C2,
 
     @Tag(21) val boolean2: Boolean? = true,
+    @Tag(22) val byte2: Byte? = 1,
     @Tag(23) val short2: Short? = 2,
     @Tag(24) val int2: Int? = 3,
     @Tag(25) val long2: Long? = 4,
+    @Tag(26) val char2: Char? = '5',
+    @Tag(27) val float2: Float? = 6f,
+    @Tag(28) val double2: Double? = 7.0,
     @Tag(29) val binary2: ByteArray? = byteArrayOf(123),
     @Tag(30) val string2: String? = "string",
     @Tag(31) val enum2: Enum? = Enum.C2
@@ -178,17 +206,25 @@ class SkippingFastSerializerTest {
     fun primitiveTypesTo2() {
         with(copyTo2(PrimitiveTypes()) as PrimitiveTypes2) {
             assertEquals(true, boolean)
+            assertEquals(1, byte)
             assertEquals(2, short)
             assertEquals(3, int)
             assertEquals(4, long)
+            assertEquals('5', char)
+            assertEquals(6f, float)
+            assertEquals(7.0, double)
             assertTrue(Arrays.equals(byteArrayOf(123), binary))
             assertEquals("string", string)
             assertEquals(Enum.C2, enum)
 
             assertEquals(false, boolean2)
+            assertEquals(0, byte2)
             assertEquals(0, short2)
             assertEquals(0, int2)
             assertEquals(0, long2)
+            assertEquals(0.toChar(), char2)
+            assertEquals(0f, float2)
+            assertEquals(0.0, double2)
             assertNull(binary2)
             assertNull(string2)
             assertNull(enum2)
@@ -199,9 +235,13 @@ class SkippingFastSerializerTest {
     fun primitiveTypesFrom2() {
         with(copyFrom2(PrimitiveTypes2()) as PrimitiveTypes) {
             assertEquals(true, boolean)
+            assertEquals(1, byte)
             assertEquals(2, short)
             assertEquals(3, int)
             assertEquals(4, long)
+            assertEquals('5', char)
+            assertEquals(6f, float)
+            assertEquals(7.0, double)
             assertTrue(Arrays.equals(byteArrayOf(123), binary))
             assertEquals("string", string)
             assertEquals(Enum.C2, enum)
@@ -212,17 +252,25 @@ class SkippingFastSerializerTest {
     fun nullablePrimitiveTypesTo2() {
         with(copyTo2(NullablePrimitiveTypes()) as NullablePrimitiveTypes2) {
             assertEquals(true, boolean)
+            assertEquals(1, byte)
             assertEquals(2, short)
             assertEquals(3, int)
             assertEquals(4, long)
+            assertEquals('5', char)
+            assertEquals(6f, float)
+            assertEquals(7.0, double)
             assertTrue(Arrays.equals(byteArrayOf(123), binary))
             assertEquals("string", string)
             assertEquals(Enum.C2, enum)
 
             assertNull(boolean2)
+            assertNull(byte2)
             assertNull(short2)
             assertNull(int2)
             assertNull(long2)
+            assertNull(char2)
+            assertNull(float2)
+            assertNull(double2)
             assertNull(binary2)
             assertNull(string2)
             assertNull(enum2)
@@ -233,9 +281,13 @@ class SkippingFastSerializerTest {
     fun nullablePrimitiveTypesFrom2() {
         with(copyFrom2(NullablePrimitiveTypes2()) as NullablePrimitiveTypes) {
             assertEquals(true, boolean)
+            assertEquals(1, byte)
             assertEquals(2, short)
             assertEquals(3, int)
             assertEquals(4, long)
+            assertEquals('5', char)
+            assertEquals(6f, float)
+            assertEquals(7.0, double)
             assertTrue(Arrays.equals(byteArrayOf(123), binary))
             assertEquals("string", string)
             assertEquals(Enum.C2, enum)
