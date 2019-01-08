@@ -2,8 +2,10 @@ package ch.softappeal.yass.serialize.fast
 
 import ch.softappeal.yass.*
 import ch.softappeal.yass.serialize.*
+import ch.softappeal.yass.serialize.fast.ObjectType.*
 import java.lang.reflect.*
 import java.util.*
+import kotlin.reflect.*
 
 abstract class TypeSerializer internal constructor(val type: Class<*>, private val objectType: ObjectType) {
     internal abstract fun read(input: FastSerializer.Input): Any?
@@ -25,19 +27,19 @@ class TypeDesc(val id: Int, val serializer: TypeSerializer) {
 
 private class VoidType
 
-val NullTypeDesc = TypeDesc(0, object : TypeSerializer(VoidType::class.java, ObjectType.TreeClass) {
+val NullTypeDesc = TypeDesc(0, object : TypeSerializer(VoidType::class.java, TreeClass) {
     override fun read(input: FastSerializer.Input): Any? = null
     override fun write(output: FastSerializer.Output, value: Any?) {}
 })
 
 private class ReferenceType
 
-val ReferenceTypeDesc = TypeDesc(1, object : TypeSerializer(ReferenceType::class.java, ObjectType.TreeClass) {
+val ReferenceTypeDesc = TypeDesc(1, object : TypeSerializer(ReferenceType::class.java, TreeClass) {
     override fun read(input: FastSerializer.Input) = input.objects!![input.reader.readVarInt()]
     override fun write(output: FastSerializer.Output, value: Any?) = output.writer.writeVarInt(value as Int)
 })
 
-val ListTypeDesc = TypeDesc(2, object : TypeSerializer(List::class.java, ObjectType.TreeClass) {
+val ListTypeDesc = TypeDesc(2, object : TypeSerializer(List::class.java, TreeClass) {
     override fun read(input: FastSerializer.Input): List<*> {
         var length = input.reader.readVarInt()
         val list = mutableListOf<Any?>()
@@ -57,8 +59,10 @@ const val FirstTypeId = 3
 abstract class BaseTypeSerializer<V : Any> protected constructor(
     type: Class<V>, val fieldType: FieldType
 ) : TypeSerializer(type, fieldType.objectType) {
+    protected constructor(type: KClass<V>, fieldType: FieldType) : this(type.javaObjectType, fieldType)
+
     init {
-        check(fieldType != FieldType.ClassOrReference && fieldType != FieldType.List)
+        check(fieldType != FieldType.Class && fieldType != FieldType.List)
     }
 
     final override fun read(input: FastSerializer.Input) = read(input.reader)
@@ -150,7 +154,7 @@ abstract class FastSerializer protected constructor(val skipping: Boolean) : Ser
 
     inner class ClassTypeSerializer internal constructor(
         type: Class<*>, val graph: Boolean, private val id2fieldSerializer: Map<Int, FieldSerializer>
-    ) : TypeSerializer(type, if (graph) ObjectType.GraphClass else ObjectType.TreeClass) {
+    ) : TypeSerializer(type, if (graph) GraphClass else TreeClass) {
         private val allocator = AllocatorFactory(type)
         val fieldDescs: List<FieldDesc>
 
@@ -170,17 +174,14 @@ abstract class FastSerializer protected constructor(val skipping: Boolean) : Ser
 
         override fun read(input: Input): Any {
             val value = allocator()
-            if (graph) {
-                if (input.objects == null) input.objects = mutableListOf()
-                input.objects!!.add(value)
-            }
+            if (graph) input.addToObjects(value)
             while (true) {
-                val fieldId = input.reader.readVarInt()
-                val id = if (skipping) fieldIdFromSkippingId(fieldId) else fieldId
+                val skippingId = input.reader.readVarInt()
+                val id = if (skipping) fieldIdFromSkippingId(skippingId) else skippingId
                 if (id == EndFieldId) return value
                 val fieldSerializer = id2fieldSerializer[id]
                 if (fieldSerializer == null) {
-                    if (skipping) fieldTypeFromSkippingId(fieldId).skip(input)
+                    if (skipping) fieldTypeFromSkippingId(skippingId).skip(input)
                     else error("class '${type.canonicalName}' doesn't have a field with id $id")
                 } else fieldSerializer.read(input, value)
             }
@@ -217,7 +218,7 @@ abstract class FastSerializer protected constructor(val skipping: Boolean) : Ser
             _typeSerializer = typeDesc?.serializer
             if (_typeSerializer is ClassTypeSerializer) _typeSerializer = null
             id = if (!skipping) fieldId else when (_typeSerializer) {
-                null -> FieldType.ClassOrReference
+                null -> FieldType.Class
                 ListTypeDesc.serializer -> FieldType.List
                 else -> (_typeSerializer as BaseTypeSerializer<*>).fieldType
             }.skippingId(fieldId)
@@ -277,9 +278,14 @@ abstract class FastSerializer protected constructor(val skipping: Boolean) : Ser
 
     internal inner class Input(val reader: Reader) {
         var objects: MutableList<Any>? = null
+        fun addToObjects(value: Any) {
+            if (objects == null) objects = mutableListOf()
+            objects!!.add(value)
+        }
+
         fun read(): Any? {
-            val objectId = reader.readVarInt()
-            val id = if (skipping) typeIdFromSkippingId(objectId) else objectId
+            val skippingId = reader.readVarInt()
+            val id = if (skipping) typeIdFromSkippingId(skippingId) else skippingId
             return (_id2typeSerializer[id] ?: error("no type with id $id")).read(this)
         }
     }

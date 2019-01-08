@@ -71,7 +71,7 @@ class ObjectTypes2(
 class NewBoolean(val value: Boolean)
 
 private val NewBooleanSerializer =
-    object : BaseTypeSerializer<NewBoolean>(NewBoolean::class.javaObjectType, FieldType.VarInt) {
+    object : BaseTypeSerializer<NewBoolean>(NewBoolean::class, FieldType.VarInt) {
         override fun read(reader: Reader) = NewBoolean(reader.readByte().toInt() != 0)
         override fun write(writer: Writer, value: NewBoolean) = writer.writeByte((if (value.value) 1 else 0).toByte())
     }
@@ -93,15 +93,15 @@ class NewLink(
 val Serializer2 = taggedFastSerializer(
     BaseTypes.toMutableList().apply { add(TypeDesc(999, NewBooleanSerializer)) },
     listOf(
-        Enum::class.java,
-        PrimitiveTypes2::class.java,
-        NullablePrimitiveTypes2::class.java,
-        ObjectTypes2::class.java,
-        NewClass::class.java,
-        NewEnum::class.java
+        Enum::class,
+        PrimitiveTypes2::class,
+        NullablePrimitiveTypes2::class,
+        ObjectTypes2::class,
+        NewClass::class,
+        NewEnum::class
     ),
     listOf(
-        Link::class.java,
-        NewLink::class.java
+        Link::class,
+        NewLink::class
     )
 )

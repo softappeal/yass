@@ -18,8 +18,8 @@ private fun taggedFastSerializer(skipping: Boolean) = taggedFastSerializer(
         TypeDesc(12, BinarySerializer),
         TypeDesc(19, StringSerializer)
     ),
-    listOf(Color::class.java, PrimitiveTypes::class.java, AllTypes::class.java, IntException::class.java),
-    listOf(Node::class.java),
+    listOf(Color::class, PrimitiveTypes::class, AllTypes::class, IntException::class),
+    listOf(Node::class),
     skipping
 )
 
@@ -35,8 +35,8 @@ private fun simpleFastSerializer(skipping: Boolean) = simpleFastSerializer(
         BinarySerializer,
         StringSerializer
     ),
-    listOf(Color::class.java, PrimitiveTypes::class.java, AllTypes::class.java, IntException::class.java),
-    listOf(Node::class.java),
+    listOf(Color::class, PrimitiveTypes::class, AllTypes::class, IntException::class),
+    listOf(Node::class),
     skipping
 )
 
@@ -98,7 +98,7 @@ class FastSerializerTest {
         "base type 'ch.softappeal.yass.serialize.Color' is an enumeration",
         assertFailsWith<IllegalArgumentException> {
             taggedFastSerializer(
-                listOf(TypeDesc(1, object : BaseTypeSerializer<Color>(Color::class.java, FieldType.VarInt) {
+                listOf(TypeDesc(1, object : BaseTypeSerializer<Color>(Color::class, FieldType.VarInt) {
                     override fun read(reader: Reader) = Color.BLUE
                     override fun write(writer: Writer, value: Color) {}
                 })),
@@ -112,7 +112,7 @@ class FastSerializerTest {
     fun duplicatedClass() = assertEquals(
         "type 'ch.softappeal.yass.serialize.Color' already added",
         assertFailsWith<IllegalArgumentException> {
-            taggedFastSerializer(listOf(), listOf(Color::class.java, Color::class.java), skipping = false)
+            taggedFastSerializer(listOf(), listOf(Color::class, Color::class), skipping = false)
         }.message
     )
 
@@ -120,7 +120,7 @@ class FastSerializerTest {
     fun abstractClass() = assertEquals(
         "type 'ch.softappeal.yass.serialize.fast.FastSerializer' is abstract",
         assertFailsWith<IllegalArgumentException> {
-            simpleFastSerializer(listOf(), listOf(FastSerializer::class.java), skipping = false)
+            simpleFastSerializer(listOf(), listOf(FastSerializer::class), skipping = false)
         }.message
     )
 
@@ -128,7 +128,7 @@ class FastSerializerTest {
     fun illegalInterface() = assertEquals(
         "type 'java.lang.AutoCloseable' is abstract",
         assertFailsWith<IllegalArgumentException> {
-            simpleFastSerializer(listOf(), listOf(AutoCloseable::class.java), skipping = false)
+            simpleFastSerializer(listOf(), listOf(AutoCloseable::class), skipping = false)
         }.message
     )
 
@@ -136,7 +136,7 @@ class FastSerializerTest {
     fun illegalAnnotation() = assertEquals(
         "type 'ch.softappeal.yass.Tag' is abstract",
         assertFailsWith<IllegalArgumentException> {
-            simpleFastSerializer(listOf(), listOf(Tag::class.java), skipping = false)
+            simpleFastSerializer(listOf(), listOf(Tag::class), skipping = false)
         }.message
     )
 
@@ -144,7 +144,7 @@ class FastSerializerTest {
     fun illegalEnumeration() = assertEquals(
         "type 'ch.softappeal.yass.serialize.Color' is an enumeration",
         assertFailsWith<IllegalArgumentException> {
-            simpleFastSerializer(listOf(), listOf(), listOf(Color::class.java), false)
+            simpleFastSerializer(listOf(), listOf(), listOf(Color::class), false)
         }.message
     )
 
@@ -161,7 +161,7 @@ class FastSerializerTest {
     fun missingBaseClass() = assertEquals(
         "missing base class 'ch.softappeal.yass.serialize.PrimitiveTypes'",
         assertFailsWith<IllegalArgumentException> {
-            simpleFastSerializer(listOf(), listOf(Color::class.java, AllTypes::class.java), skipping = false)
+            simpleFastSerializer(listOf(), listOf(Color::class, AllTypes::class), skipping = false)
         }.message
     )
 
@@ -175,7 +175,7 @@ class FastSerializerTest {
         "missing tag for " +
             "'class ch.softappeal.yass.serialize.fast.FastSerializerTest${'$'}MissingClassTag'",
         assertFailsWith<IllegalStateException> {
-            taggedFastSerializer(listOf(), listOf(MissingClassTag::class.java), skipping = false)
+            taggedFastSerializer(listOf(), listOf(MissingClassTag::class), skipping = false)
         }.message
     )
 
@@ -190,19 +190,19 @@ class FastSerializerTest {
         "type id 120 used for 'ch.softappeal.yass.serialize.fast.FastSerializerTest.C2' and " +
             "'ch.softappeal.yass.serialize.fast.FastSerializerTest.C1'",
         assertFailsWith<IllegalStateException> {
-            taggedFastSerializer(listOf(), listOf(C1::class.java, C2::class.java), skipping = false)
+            taggedFastSerializer(listOf(), listOf(C1::class, C2::class), skipping = false)
         }.message
     )
 
     @Tag(-1)
-    class InvalidTypeTag// empty
+    class InvalidTypeTag
 
     @Test
     fun invalidTypeTag() = assertEquals(
         "id -1 for type " +
             "'ch.softappeal.yass.serialize.fast.FastSerializerTest.InvalidTypeTag' must be >= 0",
         assertFailsWith<IllegalArgumentException> {
-            taggedFastSerializer(listOf(), listOf(InvalidTypeTag::class.java), skipping = false)
+            taggedFastSerializer(listOf(), listOf(InvalidTypeTag::class), skipping = false)
         }.message
     )
 
@@ -218,7 +218,7 @@ class FastSerializerTest {
             "'private int ch.softappeal.yass.serialize.fast.FastSerializerTest${'$'}InvalidFieldTag.i' " +
             "must be >= 1",
         assertFailsWith<IllegalArgumentException> {
-            taggedFastSerializer(listOf(), listOf(InvalidFieldTag::class.java), skipping = false)
+            taggedFastSerializer(listOf(), listOf(InvalidFieldTag::class), skipping = false)
         }.message
     )
 
@@ -236,7 +236,7 @@ class FastSerializerTest {
             "ch.softappeal.yass.serialize.fast.FastSerializerTest${'$'}DuplicatedFieldTag.i2' and " +
             "'private int ch.softappeal.yass.serialize.fast.FastSerializerTest${'$'}DuplicatedFieldTag.i1'",
         assertFailsWith<IllegalArgumentException> {
-            taggedFastSerializer(listOf(), listOf(DuplicatedFieldTag::class.java), skipping = false)
+            taggedFastSerializer(listOf(), listOf(DuplicatedFieldTag::class), skipping = false)
         }.message
     )
 

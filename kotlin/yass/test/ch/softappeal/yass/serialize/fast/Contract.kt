@@ -66,12 +66,12 @@ class ObjectTypes(
 val Serializer = taggedFastSerializer(
     BaseTypes,
     listOf(
-        Enum::class.java,
-        PrimitiveTypes::class.java,
-        NullablePrimitiveTypes::class.java,
-        ObjectTypes::class.java
+        Enum::class,
+        PrimitiveTypes::class,
+        NullablePrimitiveTypes::class,
+        ObjectTypes::class
     ),
     listOf(
-        Link::class.java
+        Link::class
     )
 )

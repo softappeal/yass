@@ -23,7 +23,7 @@ public final class Logger implements Function3<Method, List<?>, Function0<?>, Ob
         this.side = Objects.requireNonNull(side);
     }
 
-    public static final Function2<StringBuilder, Object, StringBuilder> DUMPER = graphDumper(true);
+    public static final Function2<StringBuilder, Object, StringBuilder> DUMPER = jGraphDumper(true);
 
     private void log(final String type, final Method method, final Object data) {
         System.out.printf(

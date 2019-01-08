@@ -14,8 +14,7 @@ internal interface IdentityService {
     fun createIdentity(logonName: String)
 }
 
-private val CONTEXT_SERIALIZER =
-    simpleFastSerializer(listOf(IntSerializer, StringSerializer), listOf(Context::class.java))
+private val CONTEXT_SERIALIZER = simpleFastSerializer(listOf(IntSerializer, StringSerializer), listOf(Context::class))
 private val CONTRACT_SERIALIZER = simpleFastSerializer(listOf(StringSerializer), listOf())
 private val CONTEXT_MESSAGE_SERIALIZER =
     ContextMessageSerializer(CONTEXT_SERIALIZER, messageSerializer(CONTRACT_SERIALIZER))

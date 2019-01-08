@@ -6,7 +6,7 @@ import ch.softappeal.yass.serialize.fast.*
 import java.lang.reflect.*
 import java.util.*
 
-val DoubleSerializerNoSkipping = object : BaseTypeSerializer<Double>(Double::class.javaObjectType, FieldType.Binary) {
+val DoubleSerializerNoSkipping = object : BaseTypeSerializer<Double>(Double::class, FieldType.Binary) {
     override fun read(reader: Reader) = reader.readDouble()
     override fun write(writer: Writer, value: Double) = writer.writeDouble(value)
 }

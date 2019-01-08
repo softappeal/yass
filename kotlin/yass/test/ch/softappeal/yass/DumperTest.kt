@@ -5,13 +5,14 @@ import java.io.*
 import java.math.*
 import java.time.*
 import java.util.*
+import kotlin.reflect.*
 import kotlin.test.*
 
-private fun dumper(compact: Boolean, graph: Boolean, concreteValueClasses: Set<Class<*>>): Dumper {
+private fun dumper(compact: Boolean, graph: Boolean, concreteValueClasses: Set<KClass<*>>): Dumper {
     val valueDumper: ValueDumper = { out, value ->
         val type = value.javaClass
         if (
-            concreteValueClasses.contains(type) ||
+            concreteValueClasses.contains(type.kotlin) ||
             (Date::class.java === type) ||
             (BigInteger::class.java === type) ||
             (BigDecimal::class.java === type) ||
@@ -45,7 +46,7 @@ class DumperTest {
                 print(
                     dumper(
                         false, true,
-                        setOf(BigInteger::class.java, BigDecimal::class.java, Instant::class.java)
+                        setOf(BigInteger::class, BigDecimal::class, Instant::class)
                     ),
                     printer,
                     true
@@ -54,7 +55,7 @@ class DumperTest {
                 print(
                     dumper(
                         true, true,
-                        setOf(BigInteger::class.java, BigDecimal::class.java, Instant::class.java)
+                        setOf(BigInteger::class, BigDecimal::class, Instant::class)
                     ),
                     printer,
                     true
@@ -68,7 +69,7 @@ class DumperTest {
 
     @Test
     fun dump() {
-        val dumper = graphDumper(true, setOf(BigInteger::class.java)) { out, value ->
+        val dumper = graphDumper(true, setOf(BigInteger::class)) { out, value ->
             if (value is BigInteger) out.append(value.toInt() + 1)
         }
         assertEquals("2", dumper(StringBuilder(128), BigInteger.valueOf(1)).toString())

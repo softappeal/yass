@@ -4,6 +4,7 @@ import java.lang.reflect.*
 import java.lang.reflect.Array
 import java.util.*
 import java.util.concurrent.*
+import kotlin.reflect.*
 
 /** Dumps a value class (these should not reference other objects) to out (should be an one-liner). */
 typealias ValueDumper = (out: StringBuilder, value: Any) -> Unit
@@ -17,25 +18,30 @@ fun treeDumper(compact: Boolean, valueDumper: ValueDumper = EmptyValueDumper): D
     dumper(compact, false, setOf(), valueDumper)
 
 @JvmOverloads
-fun graphDumper(
+fun jGraphDumper(
     compact: Boolean,
     concreteValueClasses: Set<Class<*>> = setOf(),
     valueDumper: ValueDumper = EmptyValueDumper
-): Dumper =
-    dumper(compact, true, concreteValueClasses, valueDumper)
+): Dumper = dumper(compact, true, concreteValueClasses, valueDumper)
+
+fun graphDumper(
+    compact: Boolean,
+    concreteValueClasses: Set<KClass<*>> = setOf(),
+    valueDumper: ValueDumper = EmptyValueDumper
+) = jGraphDumper(compact, concreteValueClasses.map { it.java }.toSet(), valueDumper)
 
 fun Dumper.dump(value: Any?): StringBuilder = this(StringBuilder(256), value)
 
 fun Dumper.toString(value: Any?): String = this.dump(value).toString()
 
 private val PrimitiveWrapperClasses = setOf(
-    Boolean::class::javaObjectType.get(),
-    Byte::class::javaObjectType.get(),
-    Short::class::javaObjectType.get(),
-    Int::class::javaObjectType.get(),
-    Long::class::javaObjectType.get(),
-    Float::class::javaObjectType.get(),
-    Double::class::javaObjectType.get()
+    Boolean::class.javaObjectType,
+    Byte::class.javaObjectType,
+    Short::class.javaObjectType,
+    Int::class.javaObjectType,
+    Long::class.javaObjectType,
+    Float::class.javaObjectType,
+    Double::class.javaObjectType
 )
 
 private fun dumper(

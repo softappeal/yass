@@ -75,6 +75,10 @@ abstract class Reader {
         error("malformed input")
     }
 
+    fun skipVar() {
+        while ((readByte().toInt() and 0b1000_0000) != 0) Unit
+    }
+
     fun readZigZagLong(): Long {
         val value = readVarLong()
         return (value ushr 1) xor -(value and 0b0000_0001)

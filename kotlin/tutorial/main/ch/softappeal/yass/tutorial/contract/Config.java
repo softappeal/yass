@@ -19,7 +19,7 @@ import static ch.softappeal.yass.transport.PacketSerializerKt.*;
 
 public final class Config {
 
-    public static final FastSerializer CONTRACT_SERIALIZER = simpleFastSerializer(
+    public static final FastSerializer CONTRACT_SERIALIZER = jSimpleFastSerializer(
         TypeScriptGeneratorKt.baseTypeSerializers(
             getIntSerializer(),
             Expiration.TYPE_SERIALIZER
@@ -64,7 +64,7 @@ public final class Config {
     public static final Initiator INITIATOR = new Initiator();
     public static final Acceptor ACCEPTOR = new Acceptor();
 
-    public static final FastSerializer PY_CONTRACT_SERIALIZER = simpleFastSerializer(
+    public static final FastSerializer PY_CONTRACT_SERIALIZER = jSimpleFastSerializer(
         PythonGeneratorKt.baseTypeSerializers(
             getIntSerializer(),
             Expiration.TYPE_SERIALIZER

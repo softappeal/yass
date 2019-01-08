@@ -3,13 +3,14 @@ package ch.softappeal.yass.serialize.fast
 import ch.softappeal.yass.*
 import java.io.*
 import java.lang.reflect.*
+import kotlin.reflect.*
 
 /**
  * This serializer assigns type and field id's automatically.
  * Therefore, all peers must have the same version of the contract!
  */
 @JvmOverloads
-fun simpleFastSerializer(
+fun jSimpleFastSerializer(
     baseTypeSerializers: List<BaseTypeSerializer<*>>,
     treeConcreteClasses: List<Class<*>>,
     graphConcreteClasses: List<Class<*>> = listOf(),
@@ -34,9 +35,21 @@ fun simpleFastSerializer(
     }
 }
 
+fun simpleFastSerializer(
+    baseTypeSerializers: List<BaseTypeSerializer<*>>,
+    treeConcreteClasses: List<KClass<*>>,
+    graphConcreteClasses: List<KClass<*>> = listOf(),
+    skipping: Boolean = true
+) = jSimpleFastSerializer(
+    baseTypeSerializers,
+    treeConcreteClasses.map { it.java },
+    graphConcreteClasses.map { it.java },
+    skipping
+)
+
 /** This serializer assigns type and field id's from its [Tag]. */
 @JvmOverloads
-fun taggedFastSerializer(
+fun jTaggedFastSerializer(
     baseTypeDescs: Collection<TypeDesc>,
     treeConcreteClasses: Collection<Class<*>>,
     graphConcreteClasses: Collection<Class<*>> = listOf(),
@@ -64,6 +77,18 @@ fun taggedFastSerializer(
         addClass(tag(type), type, graph, id2field)
     }
 }
+
+fun taggedFastSerializer(
+    baseTypeDescs: Collection<TypeDesc>,
+    treeConcreteClasses: Collection<KClass<*>>,
+    graphConcreteClasses: Collection<KClass<*>> = listOf(),
+    skipping: Boolean = true
+) = jTaggedFastSerializer(
+    baseTypeDescs,
+    treeConcreteClasses.map { it.java },
+    graphConcreteClasses.map { it.java },
+    skipping
+)
 
 fun FastSerializer.print(printer: PrintWriter) {
     printer.println("skipping = $skipping")
