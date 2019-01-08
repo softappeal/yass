@@ -2,11 +2,6 @@ package ch.softappeal.yass.serialize.fast
 
 import ch.softappeal.yass.serialize.*
 
-/* $$$
-- enum consts with tags
-- unknown enum consts map to required ordinal 0 or even better to null
-*/
-
 private const val ObjectTypeBits = 2
 internal const val MaxTypeId = Int.MAX_VALUE shr ObjectTypeBits
 
@@ -28,7 +23,6 @@ internal enum class ObjectType {
     },
     GraphClass {
         override fun skip(input: FastSerializer.Input) {
-            println("$$$ GraphClass")
             if (input.objects == null) input.objects = mutableListOf()
             input.objects!!.add(SkippedGraphObject)
             TreeClass.skip(input)
@@ -59,16 +53,12 @@ enum class FieldType(internal val objectType: ObjectType) {
             val skippingId = input.reader.readVarInt()
             when (typeIdFromSkippingId(skippingId)) {
                 NullTypeDesc.id -> {
-                    println("$$$ null")
+                    // empty
                 }
                 ReferenceTypeDesc.id -> {
-                    println("$$$ reference")
                     input.objects!![input.reader.readVarInt()] // $$$ paranoia check
                 }
-                ListTypeDesc.id -> {
-                    println("$$$ list")
-                    List.skip(input)
-                }
+                ListTypeDesc.id -> List.skip(input)
                 else -> objectTypeFromSkippingId(skippingId).skip(input)
             }
         }

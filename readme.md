@@ -20,7 +20,7 @@
   * socket (including TLS)
   * WebSocket
 
-* has a fast and compact binary serializer
+* has a fast and compact binary serializer that can skip unknown/new fields
 
 * needs no third-party libraries
 

@@ -107,6 +107,10 @@ fun isRootClass(type: Class<*>): Boolean = RootClasses.contains(type)
  *    (field names and id's must be unique in the path to its super classes and id's must be >= [FirstFieldId])
  *  - exceptions (but without fields of [Throwable]; therefore, you should implement [Throwable.message])
  *  - graphs with cycles
+ *
+ *  If [skipping] is set, old contract:
+ *  - skips new field
+ *  - sets removed field to null or to default value for primitive types
  */
 abstract class FastSerializer protected constructor(val skipping: Boolean) : Serializer {
     private val class2typeDesc = HashMap<Class<*>, TypeDesc>(64)
