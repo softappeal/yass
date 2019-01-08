@@ -27,16 +27,9 @@ val LongSerializer = object : BaseTypeSerializer<Long>(Long::class.javaObjectTyp
     override fun write(writer: Writer, value: Long) = writer.writeZigZagLong(value)
 }
 
-val CharSerializer = object : BaseTypeSerializer<Char>(Char::class.javaObjectType, FieldType.Binary) {
-    override fun read(reader: Reader): Char {
-        reader.readByte()
-        return reader.readChar()
-    }
-
-    override fun write(writer: Writer, value: Char) {
-        writer.writeByte(2)
-        writer.writeChar(value)
-    }
+val CharSerializer = object : BaseTypeSerializer<Char>(Char::class.javaObjectType, FieldType.VarInt) {
+    override fun read(reader: Reader): Char = reader.readVarInt().toChar()
+    override fun write(writer: Writer, value: Char) = writer.writeVarInt(value.toInt())
 }
 
 val FloatSerializer = object : BaseTypeSerializer<Float>(Float::class.javaObjectType, FieldType.Binary) {

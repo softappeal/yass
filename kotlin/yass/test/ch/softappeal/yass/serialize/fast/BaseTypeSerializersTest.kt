@@ -63,7 +63,11 @@ class BaseTypeSerializersTest {
             check(Long.MIN_VALUE, 10)
         }
         with(CharSerializer) {
-            check('\u0000', 3)
+            check('\u0000', 1)
+            check('x', 1)
+            check('\u007f', 1)
+            check('\u0080', 2)
+            check('\u3fff', 2)
             check('\uffff', 3)
         }
         with(FloatSerializer) {
