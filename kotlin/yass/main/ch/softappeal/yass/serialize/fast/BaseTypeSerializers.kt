@@ -45,6 +45,11 @@ val FloatSerializer = object : BaseTypeSerializer<Float>(Float::class, Binary) {
     }
 }
 
+val FloatSerializerNoSkipping = object : BaseTypeSerializer<Float>(Float::class, Binary) {
+    override fun read(reader: Reader) = reader.readFloat()
+    override fun write(writer: Writer, value: Float) = writer.writeFloat(value)
+}
+
 val DoubleSerializer = object : BaseTypeSerializer<Double>(Double::class, Binary) {
     override fun read(reader: Reader): Double {
         reader.readByte()
@@ -55,6 +60,11 @@ val DoubleSerializer = object : BaseTypeSerializer<Double>(Double::class, Binary
         writer.writeByte(8)
         writer.writeDouble(value)
     }
+}
+
+val DoubleSerializerNoSkipping = object : BaseTypeSerializer<Double>(Double::class, Binary) {
+    override fun read(reader: Reader) = reader.readDouble()
+    override fun write(writer: Writer, value: Double) = writer.writeDouble(value)
 }
 
 val BinarySerializer = object : BaseTypeSerializer<ByteArray>(ByteArray::class, Binary) {

@@ -5,7 +5,7 @@ import java.io.*
 import java.util.*
 import kotlin.test.*
 
-private fun <T : Any> BaseTypeSerializer<T>.check(value: T, bytes: Int) {
+private fun <T : Any> BaseTypeSerializer<T>.check(value: T, bytes: Int, skipping: Boolean = true) {
     // test serializing
     var buffer = ByteArrayOutputStream()
     write(writer(buffer), value)
@@ -18,12 +18,15 @@ private fun <T : Any> BaseTypeSerializer<T>.check(value: T, bytes: Int) {
     assertFailsWith<IllegalStateException> { reader.readByte() }
 
     // test skipping
+    if (!skipping) return
     buffer = ByteArrayOutputStream()
     write(writer(buffer), value)
     reader = reader(ByteArrayInputStream(buffer.toByteArray()))
     fieldType.skip(reader)
     assertFailsWith<IllegalStateException> { reader.readByte() }
 }
+
+private fun <T : Any> BaseTypeSerializer<T>.checkNoSkipping(value: T, bytes: Int) = check(value, bytes, false)
 
 class BaseTypeSerializersTest {
     @Test
@@ -78,6 +81,14 @@ class BaseTypeSerializersTest {
             check(Float.NEGATIVE_INFINITY, 5)
             check(Float.NaN, 5)
         }
+        with(FloatSerializerNoSkipping) {
+            checkNoSkipping(123.3f, 4)
+            checkNoSkipping(Float.MIN_VALUE, 4)
+            checkNoSkipping(Float.MAX_VALUE, 4)
+            checkNoSkipping(Float.POSITIVE_INFINITY, 4)
+            checkNoSkipping(Float.NEGATIVE_INFINITY, 4)
+            checkNoSkipping(Float.NaN, 4)
+        }
         with(DoubleSerializer) {
             check(123.3, 9)
             check(Double.MIN_VALUE, 9)
@@ -85,6 +96,14 @@ class BaseTypeSerializersTest {
             check(Double.POSITIVE_INFINITY, 9)
             check(Double.NEGATIVE_INFINITY, 9)
             check(Double.NaN, 9)
+        }
+        with(DoubleSerializerNoSkipping) {
+            checkNoSkipping(123.3, 8)
+            checkNoSkipping(Double.MIN_VALUE, 8)
+            checkNoSkipping(Double.MAX_VALUE, 8)
+            checkNoSkipping(Double.POSITIVE_INFINITY, 8)
+            checkNoSkipping(Double.NEGATIVE_INFINITY, 8)
+            checkNoSkipping(Double.NaN, 8)
         }
         with(BinarySerializer) {
             check(byteArrayOf(), 1)
