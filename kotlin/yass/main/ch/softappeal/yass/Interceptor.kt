@@ -1,6 +1,7 @@
 package ch.softappeal.yass
 
 import java.lang.reflect.*
+import java.lang.reflect.Proxy.*
 
 @MustBeDocumented
 @Retention(AnnotationRetention.SOURCE)
@@ -41,9 +42,20 @@ internal fun invoke(interceptor: Interceptor, method: Method, implementation: An
 internal fun args(arguments: Array<Any?>?): List<Any?> =
     if (arguments == null) listOf() else listOf(*arguments)
 
-@Suppress("UNCHECKED_CAST")
-internal fun <C : Any> proxy(contract: Class<C>, invocationHandler: InvocationHandler): C =
-    Proxy.newProxyInstance(contract.classLoader, arrayOf(contract), invocationHandler) as C
+internal fun <C : Any> proxy(contract: Class<C>, invocationHandler: InvocationHandler): C {
+    var proxy: Any? = null
+    val objectMethods: Map<Method, (arguments: Array<Any?>?) -> Any?> = mapOf(
+        Object::class.java.getMethod("toString") to { _ -> "<yass proxy for '${contract.canonicalName}'>" },
+        Object::class.java.getMethod("hashCode") to { _ -> contract.hashCode() },
+        Object::class.java.getMethod("equals", Object::class.java) to { arguments -> proxy === arguments!![0] }
+    )
+    proxy = newProxyInstance(contract.classLoader, arrayOf(contract), InvocationHandler { p, method, arguments ->
+        val objectMethod = objectMethods[method]
+        if (objectMethod != null) return@InvocationHandler objectMethod(arguments)
+        invocationHandler(p, method, arguments)
+    })
+    @Suppress("UNCHECKED_CAST") return proxy as C
+}
 
 @OnlyNeededForJava
 @SafeVarargs

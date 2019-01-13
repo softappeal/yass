@@ -41,6 +41,17 @@ private val Printer: Interceptor = { method, arguments, invocation ->
 
 class InterceptorTest {
     @Test
+    fun objectMethods() {
+        val calculator: Calculator = proxy<Calculator>(CalculatorImpl(), Printer)
+        println(calculator.divide(12, 4))
+        assertTrue(calculator.equals(calculator))
+        assertFalse(calculator.equals(""))
+        assertFalse(calculator.equals(null))
+        assertEquals(Calculator::class.java.hashCode(), calculator.hashCode())
+        assertEquals("<yass proxy for 'ch.softappeal.yass.Calculator'>", calculator.toString())
+    }
+
+    @Test
     fun direct() {
         val result = Any()
         assertSame(

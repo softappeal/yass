@@ -29,7 +29,9 @@ class SService<C : Any> @SafeVarargs constructor(
     private val interceptor = sCompositeInterceptor(*interceptors)
     internal suspend fun invoke(invocation: SServiceInvocation) = with(invocation) {
         try {
-            ValueReply(methodMapping.method.sInvoke(interceptor, implementation, request.arguments))
+            ValueReply(interceptor(methodMapping.method, request.arguments) {
+                methodMapping.method.sInvoke(implementation, request.arguments)
+            })
         } catch (e: Exception) {
             if (oneWay) throw e
             ExceptionReply(e)

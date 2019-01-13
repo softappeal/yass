@@ -14,19 +14,8 @@ abstract class ClientInvocation internal constructor(
     abstract fun settle(reply: Reply)
 }
 
-private fun <C : Any> proxy(contractId: ContractId<C>, invocation: (method: Method, arguments: List<Any?>) -> Any?): C {
-    var proxy: C? = null
-    val objectMethods: Map<Method, (arguments: List<Any?>) -> Any?> = mapOf(
-        Object::class.java.getMethod("toString") to
-            { _ -> "<yass proxy for ContractId(${contractId.contract.canonicalName}, ${contractId.id})>" },
-        Object::class.java.getMethod("hashCode") to { _ -> contractId.contract.hashCode() },
-        Object::class.java.getMethod("equals", Object::class.java) to { arguments -> proxy === arguments[0] }
-    )
-    proxy = proxy(contractId.contract, InvocationHandler { _, method, arguments ->
-        objectMethods.getOrElse(method) { { arguments -> invocation(method, arguments) } }(args(arguments))
-    })
-    return proxy
-}
+private fun <C : Any> proxy(contractId: ContractId<C>, invocation: (method: Method, arguments: List<Any?>) -> Any?): C =
+    proxy(contractId.contract, InvocationHandler { _, method, arguments -> invocation(method, args(arguments)) })
 
 abstract class Client {
     @Throws(Exception::class)
@@ -102,8 +91,7 @@ private val promise_ = ThreadLocal<CompletableFuture<Any>>()
 
 fun <T : Any?> promise(execute: () -> T): CompletionStage<T> {
     val promise = CompletableFuture<T>()
-    @Suppress("UNCHECKED_CAST")
-    threadLocal(promise_, promise as CompletableFuture<Any>) { execute() }
+    @Suppress("UNCHECKED_CAST") threadLocal(promise_, promise as CompletableFuture<Any>) { execute() }
     return promise
 }
 

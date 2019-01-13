@@ -1,10 +1,41 @@
 package ch.softappeal.yass
 
 import java.lang.reflect.*
-import java.lang.reflect.Proxy.*
 import kotlin.coroutines.*
 import kotlin.coroutines.intrinsics.*
 import kotlin.reflect.*
+
+internal typealias SInvoker = suspend (method: Method, arguments: List<Any?>) -> Any?
+
+private interface SFunction {
+    suspend fun invoke(): Any?
+}
+
+private val SRemover = SFunction::class.java.methods[0]
+
+private fun Method.sInvoke(arguments: List<Any?>, continuation: Continuation<*>, invoker: SInvoker) = try {
+    SRemover.invoke(object : SFunction {
+        override suspend fun invoke(): Any? = invoker(this@sInvoke, arguments)
+    }, continuation)
+} catch (e: InvocationTargetException) {
+    throw e.cause!!
+}
+
+internal suspend fun Method.sInvoke(implementation: Any, arguments: List<Any?>): Any? =
+    suspendCoroutineUninterceptedOrReturn { continuation ->
+        sInvoke(arguments, continuation) { _, _ ->
+            try {
+                invoke(implementation, *arguments.toTypedArray(), continuation)
+            } catch (e: InvocationTargetException) {
+                throw e.cause!!
+            }
+        }
+    }
+
+internal fun Method.isSuspend(): Boolean {
+    val lastParameterType = parameterTypes.lastOrNull()
+    return lastParameterType != null && Continuation::class.java.isAssignableFrom(lastParameterType)
+}
 
 typealias SInvocation = suspend () -> Any?
 
@@ -28,59 +59,21 @@ fun sCompositeInterceptor(vararg interceptors: SInterceptor): SInterceptor {
     return composite
 }
 
-internal typealias SInvoker = suspend (method: Method, arguments: List<Any?>) -> Any?
-
-private interface SFunction {
-    suspend fun invoke(): Any?
-}
-
-private val SRemover = SFunction::class.java.methods[0]
-
-private fun sRemove(
-    interceptor: SInterceptor, method: Method, arguments: List<Any?>, continuation: Continuation<*>, invoker: SInvoker
-): Any? = try {
-    SRemover.invoke(object : SFunction {
-        override suspend fun invoke(): Any? =
-            interceptor(method, arguments) { invoker(method, arguments) }
-    }, continuation)
-} catch (e: InvocationTargetException) {
-    throw e.cause!!
-}
-
-internal suspend fun Method.sInvoke(interceptor: SInterceptor, implementation: Any, arguments: List<Any?>): Any? =
-    suspendCoroutineUninterceptedOrReturn { continuation ->
-        sRemove(interceptor, this, arguments, continuation) { _, _ ->
-            try {
-                invoke(implementation, *arguments.toTypedArray(), continuation)
-            } catch (e: InvocationTargetException) {
-                throw e.cause!!
-            }
-        }
-    }
-
-internal fun Method.isSuspend(): Boolean {
-    val lastParameterType = parameterTypes.lastOrNull()
-    return lastParameterType != null && Continuation::class.java.isAssignableFrom(lastParameterType)
-}
-
-@Suppress("UNCHECKED_CAST")
 internal fun <C : Any> sProxy(sContract: KClass<C>, interceptor: SInterceptor, invoker: SInvoker): C {
-    sContract.java.methods.forEach { method -> require(method.isSuspend()) { "'$method' is not a suspend function" } }
-    return newProxyInstance(sContract.java.classLoader, arrayOf(sContract.java)) { _, method, arguments ->
-        val continuation = arguments.last() as Continuation<*>
-        val argumentsNoContinuation = arguments.take(arguments.size - 1)
-        sRemove(interceptor, method, argumentsNoContinuation, continuation) { _, _ ->
-            invoker(method, argumentsNoContinuation)
+    sContract.java.methods.forEach { method ->
+        require(method.isSuspend()) { "'$method' is not a suspend function" }
+    }
+    return proxy(sContract.java, InvocationHandler { _, method, arguments ->
+        method.sInvoke(arguments.take(arguments.size - 1), arguments.last() as Continuation<*>) { _, args ->
+            interceptor(method, args) { invoker(method, args) }
         }
-    } as C
+    })
 }
 
 @PublishedApi
 internal fun <C : Any> sProxy(sContract: KClass<C>, implementation: C, interceptor: SInterceptor): C {
     if (interceptor === SDirectInterceptor) return implementation
-    return sProxy(sContract, interceptor) { method, arguments ->
-        method.sInvoke(SDirectInterceptor, implementation, arguments)
-    }
+    return sProxy(sContract, interceptor) { method, arguments -> method.sInvoke(implementation, arguments) }
 }
 
 @SafeVarargs

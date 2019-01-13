@@ -121,18 +121,7 @@ val AsyncCalculatorImpl = object : Calculator {
     }
 }
 
-private fun testObjectMethods(calculator: Calculator) {
-    assertTrue(calculator.equals(calculator))
-    assertFalse(calculator.equals(""))
-    assertEquals(Calculator::class.java.hashCode(), calculator.hashCode())
-    assertTrue(
-        "<yass proxy for ContractId(ch.softappeal.yass.remote.Calculator, 123)>" == calculator.toString() ||
-            "<yass proxy for ContractId(ch.softappeal.yass.remote.Calculator, 321)>" == calculator.toString()
-    )
-}
-
 fun useSyncClient(calculator: Calculator) {
-    testObjectMethods(calculator)
     assertEquals(4, calculator.divide(12, 3))
     assertEquals(
         12,
@@ -153,7 +142,6 @@ private fun useAsyncClient(asyncCalculator: Calculator) {
         "asynchronous request/reply proxy call must be enclosed with 'promise' function",
         assertFailsWith<IllegalStateException> { asyncCalculator.twoWay() }.message
     )
-    testObjectMethods(asyncCalculator)
     val calculator = suspendCalculator(asyncCalculator)
     runBlocking {
         assertEquals(4, calculator.divide(12, 3))

@@ -137,12 +137,6 @@ val yass = project(":kotlin:yass") {
 
 val yassTestRuntime = yass.sourceSets.test.get().runtimeClasspath
 
-val yassGenerate = project(":kotlin:yass-generate") {
-    dependencies {
-        compile(yass)
-    }
-}
-
 val yassTransportWs = project(":kotlin:yass-transport-ws") {
     dependencies {
         compile(yass)
@@ -150,6 +144,12 @@ val yassTransportWs = project(":kotlin:yass-transport-ws") {
         testCompile(yassTestRuntime)
         testCompile(jetty)
         testCompile(undertow)
+    }
+}
+
+val yassGenerate = project(":kotlin:yass-generate") {
+    dependencies {
+        compile(yass)
     }
 }
 

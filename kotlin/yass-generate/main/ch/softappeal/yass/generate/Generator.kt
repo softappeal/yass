@@ -6,7 +6,7 @@ import ch.softappeal.yass.serialize.fast.*
 import java.lang.reflect.*
 import java.util.*
 
-// $todo: handle SFastSerializer and suspend functions (returnType of suspend function is always Object)
+// $todo: add intermediate representation for encapsulating with/without suspend contracts
 
 class ServiceDesc(val name: String, val contractId: ContractId<*>)
 
