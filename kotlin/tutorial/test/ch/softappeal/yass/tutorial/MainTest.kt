@@ -8,14 +8,4 @@ class MainTest {
     fun serializeTest() {
         SerializeTest.main()
     }
-
-    @Test
-    fun tutorial() {
-        main()
-    }
-
-    @Test
-    fun context() {
-        ch.softappeal.yass.tutorial.context.main()
-    }
 }

@@ -76,6 +76,15 @@ private val NewBooleanSerializer =
         override fun write(writer: Writer, value: NewBoolean) = writer.writeByte((if (value.value) 1 else 0).toByte())
     }
 
+private val SNewBooleanSerializer =
+    object : SBaseTypeSerializer<NewBoolean>(NewBoolean::class, SFieldType.VarInt) {
+        override suspend fun read(reader: SReader) =
+            NewBoolean(reader.readByte().toInt() != 0)
+
+        override suspend fun write(writer: SWriter, value: NewBoolean) =
+            writer.writeByte((if (value.value) 1 else 0).toByte())
+    }
+
 @Tag(343)
 class NewClass
 
@@ -92,6 +101,22 @@ class NewLink(
 
 val Serializer2 = taggedFastSerializer(
     BaseTypes.toMutableList().apply { add(TypeDesc(999, NewBooleanSerializer)) },
+    listOf(
+        Enum::class,
+        PrimitiveTypes2::class,
+        NullablePrimitiveTypes2::class,
+        ObjectTypes2::class,
+        NewClass::class,
+        NewEnum::class
+    ),
+    listOf(
+        Link::class,
+        NewLink::class
+    )
+)
+
+val SSerializer2 = sTaggedFastSerializer(
+    SBaseTypes.toMutableList().apply { add(STypeDesc(999, SNewBooleanSerializer)) },
     listOf(
         Enum::class,
         PrimitiveTypes2::class,

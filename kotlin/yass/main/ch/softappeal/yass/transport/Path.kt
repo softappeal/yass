@@ -29,7 +29,7 @@ class ClientSetup(
 }
 
 class ServerTransport(private val server: Server, private val messageSerializer: Serializer) {
-    fun invocation(asyncSupported: Boolean, request: Request): ServerInvocation =
+    fun invocation(asyncSupported: Boolean, request: Request): ServiceInvocation =
         server.invocation(asyncSupported, request)
 
     fun read(reader: Reader): Request = messageSerializer.read(reader) as Request

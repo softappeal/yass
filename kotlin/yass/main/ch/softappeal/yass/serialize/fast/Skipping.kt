@@ -3,13 +3,13 @@ package ch.softappeal.yass.serialize.fast
 import ch.softappeal.yass.serialize.*
 import ch.softappeal.yass.serialize.fast.FastSerializer.*
 
-private const val ObjectTypeBits = 2
+internal const val ObjectTypeBits = 2
 internal const val MaxTypeId = Int.MAX_VALUE shr ObjectTypeBits
 internal fun typeIdFromSkippingId(skippingId: Int): Int = skippingId ushr ObjectTypeBits
 private fun objectTypeFromSkippingId(skippingId: Int): ObjectType =
     ObjectType.values()[skippingId and ((1 shl ObjectTypeBits) - 1)]
 
-private val SkippedGraphObject = Any()
+internal val SkippedGraphObject = Any()
 
 internal enum class ObjectType {
     TreeClass {
@@ -38,7 +38,7 @@ internal enum class ObjectType {
     abstract fun skip(input: Input)
 }
 
-private const val FieldTypeBits = 2
+internal const val FieldTypeBits = 2
 internal const val MaxFieldId = Int.MAX_VALUE shr FieldTypeBits
 internal fun fieldIdFromSkippingId(skippingId: Int): Int = skippingId ushr FieldTypeBits
 internal fun fieldTypeFromSkippingId(skippingId: Int): FieldType =

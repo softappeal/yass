@@ -1,33 +1,24 @@
 # yass (Yet Another Service Solution)
 
 * is a small library for efficient peer-to-peer communication
-  * Kotlin
-  * TypeScript
-  * Python 2 & 3 (with support for type hints)
-  * high throughput, low latency, reactive services
-
+    * Kotlin
+    * TypeScript
+    * Python 2 & 3 (with support for type hints)
+    * high throughput, low latency, reactive services
 * supports type-safe contracts with DTOs and interfaces
-
 * supports request/reply and OneWay style method invocations
-
 * supports sync/async client/server invocations
-
+* supports Kotlin coroutines (suspend functions)
 * supports interceptors
-
 * provides session based bidirectional messaging
-
 * provides transports for
-  * socket (including TLS)
-  * WebSocket
-
+    * socket (including TLS)
+    * WebSocket
 * has a fast and compact binary serializer that can skip unknown/new fields
-
 * needs no third-party libraries
-
 * uses https://semver.org
-
 * is Open Source (BSD-3-Clause license)
-  * Kotlin artifacts on https://search.maven.org (GroupId: ch.softappeal.yass)
+    * Kotlin artifacts on https://search.maven.org (GroupId: ch.softappeal.yass)
 
 ## HelloWorld
 

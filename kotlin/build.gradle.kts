@@ -1,11 +1,17 @@
 import org.jetbrains.kotlin.gradle.tasks.*
 
 plugins {
-    id("org.jetbrains.kotlin.jvm") version "1.3.20"
+    id("org.jetbrains.kotlin.jvm") version "1.3.21"
     id("org.jetbrains.dokka") version "0.9.17"
     `maven-publish`
     signing
 }
+
+val kotlinxCoroutinesJdk8 = "org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:1.1.1"
+val jupiterEngine = "org.junit.jupiter:junit-jupiter-engine:5.0.0"
+val websocketApi = "javax.websocket:javax.websocket-api:1.0"
+val jetty = "org.eclipse.jetty.websocket:javax-websocket-server-impl:9.4.14.v20181114"
+val undertow = "io.undertow:undertow-websockets-jsr:2.0.17.Final"
 
 allprojects {
     apply(plugin = "org.jetbrains.kotlin.jvm")
@@ -21,7 +27,7 @@ allprojects {
     dependencies {
         compile(kotlin("stdlib-jdk8"))
         testCompile(kotlin("test-junit5"))
-        testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.0.0")
+        testRuntimeOnly(jupiterEngine)
     }
 
     tasks.withType<JavaCompile> {
@@ -43,7 +49,7 @@ allprojects {
     }
 
     configurations.all {
-        resolutionStrategy.failOnVersionConflict()
+        // $todo resolutionStrategy.failOnVersionConflict()
     }
 
     tasks.test {
@@ -62,7 +68,7 @@ allprojects {
         outputDirectory = "$buildDir/dokka"
     }
 
-    if (project.name !in setOf("kotlin", "tutorial")) {
+    if (project.name in setOf("yass", "yass-generate", "yass-transport-ws")) {
         group = "ch.softappeal.yass"
 
         tasks.register<Jar>("sourcesJar") {
@@ -125,9 +131,11 @@ tasks.clean {
 
 val yass = project(":kotlin:yass") {
     dependencies {
-        testCompile("org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:1.1.1")
+        testCompile(kotlinxCoroutinesJdk8)
     }
 }
+
+val yassTestRuntime = yass.sourceSets.test.get().runtimeClasspath
 
 val yassGenerate = project(":kotlin:yass-generate") {
     dependencies {
@@ -135,17 +143,20 @@ val yassGenerate = project(":kotlin:yass-generate") {
     }
 }
 
-val websocketApi = "javax.websocket:javax.websocket-api:1.0"
-val jetty = "org.eclipse.jetty.websocket:javax-websocket-server-impl:9.4.14.v20181114"
-val undertow = "io.undertow:undertow-websockets-jsr:2.0.16.Final"
-
 val yassTransportWs = project(":kotlin:yass-transport-ws") {
     dependencies {
         compile(yass)
         compileOnly(websocketApi)
-        testCompile(yass.sourceSets.test.get().runtimeClasspath)
+        testCompile(yassTestRuntime)
         testCompile(jetty)
         testCompile(undertow)
+    }
+}
+
+project(":kotlin:tutorial-kotlin") {
+    dependencies {
+        compile(yass)
+        // compile("ch.softappeal.yass:yass:x.y.z")
     }
 }
 
@@ -153,8 +164,6 @@ project(":kotlin:tutorial") {
     dependencies {
         compile(yassTransportWs)
         compile(yassGenerate)
-        // compile("ch.softappeal.yass:yass-transport-ws:x.y.z")
-        // compile("ch.softappeal.yass:yass-generate:x.y.z")
         compile(jetty)
         compile(undertow)
     }

@@ -6,6 +6,8 @@ import ch.softappeal.yass.serialize.fast.*
 import java.lang.reflect.*
 import java.util.*
 
+// $todo: handle SFastSerializer and suspend functions (returnType of suspend function is always Object)
+
 class ServiceDesc(val name: String, val contractId: ContractId<*>)
 
 fun getServiceDescs(services: Services): List<ServiceDesc> {

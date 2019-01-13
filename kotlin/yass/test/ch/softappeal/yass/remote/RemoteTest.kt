@@ -157,12 +157,7 @@ private fun useAsyncClient(asyncCalculator: Calculator) {
     val calculator = suspendCalculator(asyncCalculator)
     runBlocking {
         assertEquals(4, calculator.divide(12, 3))
-        try {
-            calculator.divide(12, 0)
-            fail()
-        } catch (e: DivisionByZeroException) {
-            assertEquals(12, e.a)
-        }
+        assertEquals(12, sAssertFailsWith<DivisionByZeroException> { calculator.divide(12, 0) }.a)
         assertNull(calculator.twoWay())
         assertNull(calculator.echo(null))
         assertEquals("hello", calculator.echo("hello"))

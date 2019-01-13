@@ -3,12 +3,8 @@ package ch.softappeal.yass.transport
 import ch.softappeal.yass.remote.*
 import ch.softappeal.yass.serialize.*
 
-internal const val Request = 0.toByte()
-internal const val ValueReply = 1.toByte()
-internal const val ExceptionReply = 2.toByte()
-
-fun messageSerializer(contractSerializer: Serializer) = object : Serializer {
-    override fun read(reader: Reader): Message = when (val type = reader.readByte()) {
+fun sMessageSerializer(contractSerializer: SSerializer) = object : SSerializer {
+    override suspend fun read(reader: SReader): Message = when (val type = reader.readByte()) {
         Request -> Request(
             reader.readZigZagInt(),
             reader.readZigZagInt(),
@@ -23,7 +19,7 @@ fun messageSerializer(contractSerializer: Serializer) = object : Serializer {
         else -> error("unexpected type $type")
     }
 
-    override fun write(writer: Writer, value: Any?) = when (value) {
+    override suspend fun write(writer: SWriter, value: Any?) = when (value) {
         is Request -> {
             writer.writeByte(Request)
             writer.writeZigZagInt(value.serviceId)

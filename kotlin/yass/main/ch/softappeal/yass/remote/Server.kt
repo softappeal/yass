@@ -11,7 +11,7 @@ abstract class AbstractService<C : Any> internal constructor(
     internal abstract fun invoke(invocation: AbstractInvocation, cleanup: () -> Unit, replyWriter: ReplyWriter)
 }
 
-class ServerInvocation internal constructor(
+class ServiceInvocation internal constructor(
     val service: AbstractService<*>, request: Request
 ) : AbstractInvocation(service.contractId.methodMapper.map(request.methodId), request.arguments) {
     fun invoke(cleanup: () -> Unit, replyWriter: ReplyWriter): Unit =
@@ -31,14 +31,14 @@ class Server @SafeVarargs constructor(vararg services: AbstractService<*>) {
             ) { "service id ${service.contractId.id} already added" }
     }
 
-    fun invocation(asyncSupported: Boolean, request: Request): ServerInvocation {
+    fun invocation(asyncSupported: Boolean, request: Request): ServiceInvocation {
         val service = checkNotNull(id2service[request.serviceId]) {
             "no service id ${request.serviceId} found (method id ${request.methodId})"
         }
         check(asyncSupported || (service !is AsyncService<*>)) {
             "asynchronous services not supported (service id ${service.contractId.id})"
         }
-        return ServerInvocation(service, request)
+        return ServiceInvocation(service, request)
     }
 }
 

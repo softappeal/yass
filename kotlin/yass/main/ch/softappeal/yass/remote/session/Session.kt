@@ -51,7 +51,7 @@ abstract class Session : Client(), AutoCloseable {
 
     /** Called for an incoming request. Must call [action] (possibly in an own thread). */
     @Throws(Exception::class)
-    protected abstract fun dispatchServerInvoke(invocation: ServerInvocation, action: () -> Unit)
+    protected abstract fun dispatchService(invocation: ServiceInvocation, action: () -> Unit)
 
     /** Gets the server of this session. Called only once after creation of session. */
     @Throws(Exception::class)
@@ -98,9 +98,9 @@ abstract class Session : Client(), AutoCloseable {
         throw e
     }
 
-    private fun serverInvoke(requestNumber: Int, request: Request) {
+    private fun serviceInvoke(requestNumber: Int, request: Request) {
         val invocation = server.invocation(true, request)
-        dispatchServerInvoke(invocation) {
+        dispatchService(invocation) {
             try {
                 invocation.invoke { reply ->
                     if (!invocation.methodMapping.oneWay) {
@@ -124,7 +124,7 @@ abstract class Session : Client(), AutoCloseable {
                 return
             }
             when (val message = packet.message) {
-                is Request -> serverInvoke(packet.requestNumber, message)
+                is Request -> serviceInvoke(packet.requestNumber, message)
                 is Reply -> requestNumber2invocation.remove(packet.requestNumber)!!.settle(message)
             }
         } catch (e: Exception) {
@@ -171,6 +171,6 @@ typealias SessionFactory = () -> Session
 
 open class SimpleSession(protected val dispatchExecutor: Executor) : Session() {
     override fun dispatchOpened(action: () -> Unit) = dispatchExecutor.execute { action() }
-    override fun dispatchServerInvoke(invocation: ServerInvocation, action: () -> Unit) =
+    override fun dispatchService(invocation: ServiceInvocation, action: () -> Unit) =
         dispatchExecutor.execute { action() }
 }

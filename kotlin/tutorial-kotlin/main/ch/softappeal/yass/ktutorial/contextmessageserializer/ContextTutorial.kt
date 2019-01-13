@@ -1,4 +1,4 @@
-package ch.softappeal.yass.tutorial.context
+package ch.softappeal.yass.ktutorial.contextmessageserializer
 
 import ch.softappeal.yass.*
 import ch.softappeal.yass.remote.*

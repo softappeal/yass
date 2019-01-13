@@ -1,4 +1,4 @@
-package ch.softappeal.yass.tutorial
+package ch.softappeal.yass.ktutorial.helloworld
 
 import ch.softappeal.yass.*
 import ch.softappeal.yass.remote.*

@@ -13,7 +13,7 @@ private fun compareDirs(dir1: File, dir2: File) {
         else if (it.isDirectory && !file2.isDirectory)
             throw RuntimeException("$it: first is a dir, second is a file")
         else if (!it.isDirectory && file2.isDirectory)
-            throw RuntimeException(it.toString() + "$it: first is a file, second is a dir")
+            throw RuntimeException("$it: first is a file, second is a dir")
         else if (it.isDirectory)
             compareDirs(it, file2)
         else if (!Arrays.equals(it.readBytes(), file2.readBytes()))

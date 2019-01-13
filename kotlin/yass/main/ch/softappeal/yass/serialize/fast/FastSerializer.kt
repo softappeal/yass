@@ -25,14 +25,14 @@ class TypeDesc(val id: Int, val serializer: TypeSerializer) {
     internal fun write(output: FastSerializer.Output, value: Any?) = serializer.write(output, id, value)
 }
 
-private class VoidType
+internal class VoidType
 
 val NullTypeDesc = TypeDesc(0, object : TypeSerializer(VoidType::class.java, TreeClass) {
     override fun read(input: FastSerializer.Input): Any? = null
     override fun write(output: FastSerializer.Output, value: Any?) {}
 })
 
-private class ReferenceType
+internal class ReferenceType
 
 val ReferenceTypeDesc = TypeDesc(1, object : TypeSerializer(ReferenceType::class.java, TreeClass) {
     override fun read(input: FastSerializer.Input) = input.objects!![input.reader.readVarInt()]
