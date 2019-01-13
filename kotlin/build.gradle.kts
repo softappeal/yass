@@ -1,5 +1,6 @@
 import org.jetbrains.kotlin.gradle.tasks.*
 
+val kotlinVersion = "1.3.21"
 plugins {
     id("org.jetbrains.kotlin.jvm") version "1.3.21"
     id("org.jetbrains.dokka") version "0.9.17"
@@ -8,6 +9,7 @@ plugins {
 }
 
 val kotlinxCoroutinesJdk8 = "org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:1.1.1"
+val ktorVersion = "1.1.2"
 val jupiterEngine = "org.junit.jupiter:junit-jupiter-engine:5.0.0"
 val websocketApi = "javax.websocket:javax.websocket-api:1.0"
 val jetty = "org.eclipse.jetty.websocket:javax-websocket-server-impl:9.4.14.v20181114"
@@ -18,6 +20,20 @@ allprojects {
     apply(plugin = "org.jetbrains.dokka")
     apply(plugin = "maven-publish")
     apply(plugin = "signing")
+
+    configurations.all {
+        resolutionStrategy {
+            failOnVersionConflict()
+            if (true) { // $todo: needed because not all kotlin dependencies are yet in sync
+                force(
+                    "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlinVersion",
+                    "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlinVersion",
+                    "org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion",
+                    "org.jetbrains.kotlin:kotlin-stdlib-common:$kotlinVersion"
+                )
+            }
+        }
+    }
 
     sourceSets {
         main { java.srcDir("main") }
@@ -46,10 +62,7 @@ allprojects {
 
     repositories {
         mavenCentral()
-    }
-
-    configurations.all {
-        // $todo resolutionStrategy.failOnVersionConflict()
+        jcenter() // needed for ktor
     }
 
     tasks.test {
@@ -68,7 +81,7 @@ allprojects {
         outputDirectory = "$buildDir/dokka"
     }
 
-    if (project.name in setOf("yass", "yass-generate", "yass-transport-ws")) {
+    if (project.name.startsWith("yass")) {
         group = "ch.softappeal.yass"
 
         tasks.register<Jar>("sourcesJar") {
@@ -136,6 +149,18 @@ val yass = project(":kotlin:yass") {
 }
 
 val yassTestRuntime = yass.sourceSets.test.get().runtimeClasspath
+
+project(":kotlin:yass-transport-ktor") {
+    dependencies {
+        compile(yass)
+        compile("io.ktor:ktor-network:$ktorVersion")
+        compile("io.ktor:ktor-client:$ktorVersion")
+        compile("io.ktor:ktor-server-core:$ktorVersion")
+        testCompile("io.ktor:ktor-server-cio:$ktorVersion")
+        testCompile("io.ktor:ktor-client-cio:$ktorVersion")
+        testCompile(yassTestRuntime)
+    }
+}
 
 val yassTransportWs = project(":kotlin:yass-transport-ws") {
     dependencies {

@@ -14,6 +14,7 @@
 * provides transports for
     * socket (including TLS)
     * WebSocket
+    * https://ktor.io
 * has a fast and compact binary serializer that can skip unknown/new fields
 * needs no third-party libraries
 * uses https://semver.org
