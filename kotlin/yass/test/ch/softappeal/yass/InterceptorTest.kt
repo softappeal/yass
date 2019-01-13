@@ -4,7 +4,7 @@ import java.lang.reflect.*
 import kotlin.test.*
 
 val Method: Method = Any::class.java.getMethod("toString")
-private val Arguments = listOf(0)
+val Arguments = listOf(0)
 
 private interface Calculator {
     fun one(): Int

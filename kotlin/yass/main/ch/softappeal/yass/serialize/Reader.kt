@@ -101,7 +101,7 @@ fun reader(input: InputStream) = object : Reader() {
     }
 
     override fun readBytes(buffer: ByteArray, offset: Int, length: Int) {
-        // check(input.readNBytes(buffer, offset, length) == length) { "end of stream reached" } $todo: if Java >= 9
+        // check(input.readNBytes(buffer, offset, length) == length) { "end of stream reached" } $note: if Java >= 9
         var n = 0
         while (n < length) {
             val count = input.read(buffer, offset + n, length - n)

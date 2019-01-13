@@ -216,7 +216,7 @@ class PythonGenerator(
             tabsln("def __init__(self)${if (python3) " -> None:" else ":  # type: () -> None"}")
             inc()
             if (hasSuper) tabsln("${getQualifiedName(superClass!!)}.__init__(self)")
-            val ownFields = ownFields(type)
+            val ownFields = type.ownFields
             if (ownFields.none() && !hasSuper)
                 tabsln("pass")
             else {

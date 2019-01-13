@@ -9,6 +9,7 @@ import kotlin.reflect.*
  * This serializer assigns type and field id's automatically.
  * Therefore, all peers must have the same version of the contract!
  */
+@OnlyNeededForJava
 @JvmOverloads
 fun jSimpleFastSerializer(
     baseTypeSerializers: List<BaseTypeSerializer<*>>,
@@ -30,7 +31,7 @@ fun jSimpleFastSerializer(
     fun addClass(typeId: Int, type: Class<*>, graph: Boolean) {
         val id2field = mutableMapOf<Int, Field>()
         var fieldId = FirstFieldId
-        for (field in allFields(type)) id2field[fieldId++] = field
+        for (field in type.allFields) id2field[fieldId++] = field
         addClass(typeId, type, graph, id2field)
     }
 }
@@ -48,6 +49,7 @@ fun simpleFastSerializer(
 )
 
 /** This serializer assigns type and field id's from its [Tag]. */
+@OnlyNeededForJava
 @JvmOverloads
 fun jTaggedFastSerializer(
     baseTypeDescs: Collection<TypeDesc>,
@@ -69,7 +71,7 @@ fun jTaggedFastSerializer(
 
     fun addClass(type: Class<*>, graph: Boolean) {
         val id2field = mutableMapOf<Int, Field>()
-        for (field in allFields(type)) {
+        for (field in type.allFields) {
             val id = tag(field)
             val oldField = id2field.put(id, field)
             require(oldField == null) { "tag $id used for fields '$field' and '$oldField'" }

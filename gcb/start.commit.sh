@@ -4,8 +4,8 @@
 set -e
 
 # check java
-java -version
 $JAVA_11_HOME/bin/java -version
+$JAVA_8_HOME/bin/java -version
 
 # check node
 node --version
@@ -24,14 +24,13 @@ cd /project
 # prepare gradle
 chmod +x ./gradlew
 
-# check Java 11 compatibility
-set OLD_JAVA_HOME=$JAVA_HOME
+# run gradle
 export JAVA_HOME=$JAVA_11_HOME
 ./gradlew --version
 ./gradlew
-export JAVA_HOME=$OLD_JAVA_HOME
 
 # run gradle
+export JAVA_HOME=$JAVA_8_HOME
 ./gradlew --version
 ./gradlew
 

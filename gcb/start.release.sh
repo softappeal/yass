@@ -13,4 +13,5 @@ cd /project
 cp gcb/gradle.properties ~/.gradle
 
 # upload to maven central
+export JAVA_HOME=$JAVA_8_HOME
 ./gradlew publish -Pversion=$PROJECT_VERSION

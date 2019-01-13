@@ -1,5 +1,6 @@
 package ch.softappeal.yass.generate
 
+import ch.softappeal.yass.*
 import ch.softappeal.yass.remote.*
 import ch.softappeal.yass.serialize.fast.*
 import java.lang.reflect.*
@@ -9,7 +10,7 @@ class ServiceDesc(val name: String, val contractId: ContractId<*>)
 
 fun getServiceDescs(services: Services): List<ServiceDesc> {
     val serviceDescs = mutableListOf<ServiceDesc>()
-    for (field in services.javaClass.fields) {
+    for (field in services.javaClass.allFields) {
         if (!Modifier.isStatic(field.modifiers) && (field.type === ContractId::class.java))
             serviceDescs.add(ServiceDesc(field.name, field.get(services) as ContractId<*>))
     }
