@@ -3,7 +3,7 @@
     "description": "yass",
     "version": "0.0.0",
     "devDependencies": {
-        "typescript": "3.1.6",
+        "typescript": "3.3.3",
         "systemjs": "0.21.5",
         "ws": "6.1.0",
         "xhr2": "0.1.4",

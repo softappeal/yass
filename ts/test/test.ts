@@ -3,7 +3,7 @@ import {IntegerImpl} from "../tutorial/baseTypes-external";
 import * as contract from "../tutorial/generated/contract";
 import PriceKind = contract.PriceKind;
 
-function log(...args: any[]): void {
+function log(...args: any): void {
     console.log.apply(console, args);
 }
 
