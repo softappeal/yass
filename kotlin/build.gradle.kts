@@ -9,7 +9,12 @@ plugins {
 }
 
 val kotlinxCoroutinesJdk8 = "org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:1.1.1"
-val ktorVersion = "1.1.2"
+val ktorVersion = "1.1.3"
+val ktorNetwork = "io.ktor:ktor-network:$ktorVersion"
+val ktorClient = "io.ktor:ktor-client:$ktorVersion"
+val ktorServerCore = "io.ktor:ktor-server-core:$ktorVersion"
+val ktorServerCio = "io.ktor:ktor-server-cio:$ktorVersion"
+val ktorClientCio = "io.ktor:ktor-client-cio:$ktorVersion"
 val jupiterEngine = "org.junit.jupiter:junit-jupiter-engine:5.0.0"
 val websocketApi = "javax.websocket:javax.websocket-api:1.0"
 val jetty = "org.eclipse.jetty.websocket:javax-websocket-server-impl:9.4.14.v20181114"
@@ -150,14 +155,14 @@ val yass = project(":kotlin:yass") {
 
 val yassTestRuntime = yass.sourceSets.test.get().runtimeClasspath
 
-project(":kotlin:yass-transport-ktor") {
+val yassTransportKtor = project(":kotlin:yass-transport-ktor") {
     dependencies {
         compile(yass)
-        compile("io.ktor:ktor-network:$ktorVersion")
-        compile("io.ktor:ktor-client:$ktorVersion")
-        compile("io.ktor:ktor-server-core:$ktorVersion")
-        testCompile("io.ktor:ktor-server-cio:$ktorVersion")
-        testCompile("io.ktor:ktor-client-cio:$ktorVersion")
+        compile(ktorNetwork)
+        compile(ktorClient)
+        compile(ktorServerCore)
+        testCompile(ktorServerCio)
+        testCompile(ktorClientCio)
         testCompile(yassTestRuntime)
     }
 }
@@ -180,8 +185,10 @@ val yassGenerate = project(":kotlin:yass-generate") {
 
 project(":kotlin:tutorial-kotlin") {
     dependencies {
-        compile(yass)
-        // compile("ch.softappeal.yass:yass:x.y.z")
+        compile(yassTransportKtor)
+        // compile("ch.softappeal.yass:yass-transport-ktor:x.y.z")
+        compile(ktorServerCio)
+        compile(ktorClientCio)
     }
 }
 

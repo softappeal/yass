@@ -12,6 +12,8 @@ interface TestService {
     suspend fun echo(value: Any?): Any?
     @OneWay
     suspend fun oneWay()
+
+    suspend fun noResult()
 }
 
 class DivisionByZeroException : RuntimeException()
@@ -27,6 +29,7 @@ val TestServiceImpl = object : TestService {
     }
 
     override suspend fun oneWay() {}
+    override suspend fun noResult() {}
 }
 
 enum class Color { Red, Green, Blue }
@@ -69,6 +72,7 @@ suspend fun TestService.test() {
     sAssertFailsWith<DivisionByZeroException> { divide(12, 0) }
     assertNull(echo(null))
     oneWay()
+    noResult()
     assertEquals(Color.Red, echo(Color.Red))
 }
 

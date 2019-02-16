@@ -20,12 +20,12 @@ private val SocketInterceptor: SInterceptor = { _, _, invocation ->
 class SocketTransportTest {
     private val tcp = aSocket(ActorSelectorManager(Dispatchers.IO)).tcp()
     private val address = InetSocketAddress("127.0.0.1", 2323)
-    private val client = socketClient(SClientSetup(MessageSerializer)) { tcp.connect(address) }
+    private val client = sSocketClient(SClientSetup(MessageSerializer)) { tcp.connect(address) }
 
     @Test
     fun test() = try {
         runBlocking {
-            val job = startSocketServer(
+            val job = sStartSocketServer(
                 this, tcp.bind(address), SServerSetup(
                     SServer(SService(TestServiceId, TestServiceImpl, SocketInterceptor, ServerPrinter)),
                     MessageSerializer
@@ -42,7 +42,7 @@ class SocketTransportTest {
     @Test
     fun performance() = try {
         runBlocking {
-            val job = startSocketServer(
+            val job = sStartSocketServer(
                 this, tcp.bind(address), SServerSetup(
                     SServer(SService(TestServiceId, TestServiceImpl)),
                     MessageSerializer

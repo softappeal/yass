@@ -15,7 +15,10 @@ private val SRemover = SFunction::class.java.methods[0]
 
 private fun Method.sInvoke(arguments: List<Any?>, continuation: Continuation<*>, invoker: SInvoker) = try {
     SRemover.invoke(object : SFunction {
-        override suspend fun invoke(): Any? = invoker(this@sInvoke, arguments)
+        override suspend fun invoke(): Any? {
+            val result = invoker(this@sInvoke, arguments)
+            return if (result === Unit) null else result
+        }
     }, continuation)
 } catch (e: InvocationTargetException) {
     throw e.cause!!

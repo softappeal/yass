@@ -6,7 +6,9 @@ import io.ktor.network.sockets.*
 import kotlinx.coroutines.*
 import kotlin.coroutines.*
 
-fun socketClient(setup: SClientSetup, socketConnector: suspend () -> Socket) = object : SClient() {
+typealias SocketConnector = suspend () -> Socket
+
+fun sSocketClient(setup: SClientSetup, socketConnector: SocketConnector) = object : SClient() {
     override suspend fun invoke(request: Request, oneWay: Boolean): Reply? = socketConnector().use { socket ->
         val writeChannel = socket.openWriteChannel()
         setup.write(writeChannel.writer(), request)
@@ -20,12 +22,12 @@ class SocketCCE(val socket: Socket) : AbstractCoroutineContextElement(SocketCCE)
     companion object Key : CoroutineContext.Key<SocketCCE>
 }
 
-fun CoroutineScope.startSocketServer(
-    acceptCoroutineScope: CoroutineScope, serverSocket: ServerSocket, setup: SServerSetup
+fun CoroutineScope.sStartSocketServer(
+    acceptScope: CoroutineScope, serverSocket: ServerSocket, setup: SServerSetup
 ): Job = launch {
     while (true) {
         val socket = serverSocket.accept()
-        acceptCoroutineScope.launch(SocketCCE(socket)) {
+        acceptScope.launch(SocketCCE(socket)) {
             socket.use {
                 val reader = socket.openReadChannel().reader()
                 val transport = setup.resolve(reader)

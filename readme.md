@@ -1,7 +1,7 @@
 # yass (Yet Another Service Solution)
 
 * is a small library for efficient peer-to-peer communication
-    * Kotlin
+    * Kotlin/Java
     * TypeScript
     * Python 2 & 3 (with support for type hints)
     * high throughput, low latency, reactive services
@@ -25,34 +25,35 @@
 
 ```kotlin
 interface Calculator {
-    fun add(a: Int, b: Int): Int
+    suspend fun add(a: Int, b: Int): Int
 }
 
 class CalculatorImpl : Calculator {
-    override fun add(a: Int, b: Int) = a + b
+    override suspend fun add(a: Int, b: Int) = a + b
 }
 
-fun useCalculator(calculator: Calculator) {
+suspend fun useCalculator(calculator: Calculator) {
     println("2 + 3 = " + calculator.add(2, 3))
 }
 
+val CalculatorId = contractId<Calculator>(0, SimpleMethodMapperFactory)
+
+val Server = SServer(
+    SService(CalculatorId, CalculatorImpl())
+)
+
+val ContractSerializer = sSimpleFastSerializer(listOf(SIntSerializer), listOf())
+
+val MessageSerializer = sMessageSerializer(ContractSerializer)
+
 fun main() {
-    val calculatorId = contractId<Calculator>(0, SimpleMethodMapperFactory)
-    val messageSerializer = messageSerializer(JavaSerializer)
+    val tcp = aSocket(ActorSelectorManager(Dispatchers.IO)).tcp()
     val address = InetSocketAddress("localhost", 28947)
-    val server = Server(
-        Service(calculatorId, CalculatorImpl())
-    )
-    val executor = Executors.newCachedThreadPool(namedThreadFactory("executor", Terminate))
-    try {
-        socketServer(ServerSetup(server, messageSerializer), executor)
-            .start(executor, socketBinder(address))
-            .use {
-                val client = socketClient(ClientSetup(messageSerializer), socketConnector(address))
-                useCalculator(client.proxy(calculatorId))
-            }
-    } finally {
-        executor.shutdown()
+    runBlocking {
+        val serverJob = sStartSocketServer(GlobalScope, tcp.bind(address), SServerSetup(Server, MessageSerializer))
+        val client = sSocketClient(SClientSetup(MessageSerializer)) { tcp.connect(address) }
+        useCalculator(client.proxy(CalculatorId))
+        serverJob.cancel()
     }
 }
 ```

@@ -9,7 +9,7 @@ class SessionTransport(private val packetSerializer: Serializer, val sessionFact
 }
 
 class InitiatorSetup(
-    internal val transport: SessionTransport,
+    val transport: SessionTransport,
     private val pathSerializer: Serializer,
     private val path: Any
 ) {

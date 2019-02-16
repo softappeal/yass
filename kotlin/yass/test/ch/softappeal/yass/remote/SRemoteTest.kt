@@ -66,6 +66,7 @@ class SRemoteTest {
         assertEquals(5, counter.get())
         delay(100)
         assertEquals(6, counter.get())
+        divider.noResult()
     }
 
     @Test

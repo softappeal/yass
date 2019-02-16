@@ -11,7 +11,7 @@ import kotlin.test.*
 private val Serializer = ContextMessageSerializer(JavaSerializer, messageSerializer(JavaSerializer))
 
 private fun print(message: String) {
-    println("$message - thread ${Thread.currentThread().id} : context ${Serializer.context}")
+    println("$message - thread ${Thread.currentThread().id} : context ${cmsContext}")
 }
 
 private fun test(serverInterceptor: Interceptor, clientInterceptor: Interceptor) {
@@ -24,9 +24,9 @@ private fun test(serverInterceptor: Interceptor, clientInterceptor: Interceptor)
                 TimeUnit.MILLISECONDS.sleep(200L)
                 val calculator = socketClient(ClientSetup(Serializer), socketConnector(address))
                     .proxy(calculatorId, clientInterceptor)
-                assertNull(Serializer.context)
+                assertNull(cmsContext)
                 assertEquals(3, calculator.divide(12, 4))
-                assertNull(Serializer.context)
+                assertNull(cmsContext)
             }
         done()
     }
@@ -42,16 +42,16 @@ class ContextSocketTransportTest {
                 try {
                     invocation()
                 } finally {
-                    Serializer.context = "server"
+                    cmsContext = "server"
                 }
             },
             { _, _, invocation ->
-                Serializer.context = "client"
+                cmsContext = "client"
                 try {
                     invocation()
                 } finally {
                     print("client")
-                    Serializer.context = null
+                    cmsContext = null
                 }
             }
         )
@@ -65,15 +65,15 @@ class ContextSocketTransportTest {
                 try {
                     invocation()
                 } finally {
-                    Serializer.context = null
+                    cmsContext = null
                 }
             },
             { _, _, invocation ->
-                Serializer.context = "client"
+                cmsContext = "client"
                 try {
                     invocation()
                 } finally {
-                    Serializer.context = null
+                    cmsContext = null
                 }
             }
         )
@@ -86,7 +86,7 @@ class ContextSocketTransportTest {
                 try {
                     invocation()
                 } finally {
-                    Serializer.context = "server"
+                    cmsContext = "server"
                 }
             },
             { _, _, invocation ->
@@ -94,7 +94,7 @@ class ContextSocketTransportTest {
                     invocation()
                 } finally {
                     print("client")
-                    Serializer.context = null
+                    cmsContext = null
                 }
             }
         )
