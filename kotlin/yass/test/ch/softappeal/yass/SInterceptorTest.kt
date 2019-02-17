@@ -3,6 +3,7 @@ package ch.softappeal.yass
 import ch.softappeal.yass.remote.*
 import kotlinx.coroutines.*
 import kotlin.coroutines.*
+import kotlin.system.*
 import kotlin.test.*
 
 private fun log(location: Int) = println("$location: ${Thread.currentThread().name}")
@@ -123,5 +124,23 @@ private class SInterceptorTest {
                 sProxy(NoSuspend::class, SDirectInterceptor) { _, _ -> }
             }.message
         )
+    }
+
+    @Test
+    fun performance() = runBlocking {
+        var counter = 0
+        val divider: Divider = sProxy(DividerImpl, { _, _, invocation ->
+            counter++
+            invocation()
+        })
+        val times = 1_000
+        repeat(2) {
+            println(measureTimeMillis {
+                repeat(times) {
+                    assertEquals(4, divider.divide(12, 3))
+                }
+            })
+        }
+        assertEquals(2 * times, counter)
     }
 }
