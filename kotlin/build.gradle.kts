@@ -67,7 +67,6 @@ allprojects {
 
     repositories {
         mavenCentral()
-        jcenter() // needed for ktor
     }
 
     tasks.test {
