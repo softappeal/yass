@@ -15,12 +15,11 @@ val Address = InetSocketAddress("127.0.0.1", 23237)
 val Tcp = aSocket(ActorSelectorManager(Dispatchers.IO)).tcp()
 
 @KtorExperimentalAPI
-fun main() {
-    runBlocking {
-        sStartSocketInitiator(SInitiatorSetup(PacketSerializer) {
-            object : InitiatorSession() {
-                override fun connectionContext() = (connection as SSocketConnection).socket.remoteAddress.toString()
-            }
-        }) { Tcp.connect(Address) }
-    }
+fun main() = runBlocking(TutorialDispatcher) {
+    sStartSocketInitiator(SInitiatorSetup(PacketSerializer) {
+        object : InitiatorSession() {
+            override fun connectionContext() = (connection as SSocketConnection).socket.remoteAddress.toString()
+        }
+    }) { Tcp.connect(Address) }
+    threadPrintln("initiator started")
 }

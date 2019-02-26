@@ -7,12 +7,11 @@ import io.ktor.util.*
 import kotlinx.coroutines.*
 
 @KtorExperimentalAPI
-fun main() {
-    runBlocking {
-        sStartSocketAcceptor(GlobalScope, Tcp.bind(Address), SAcceptorSetup(PacketSerializer) {
-            object : AcceptorSession() {
-                override fun connectionContext() = (connection as SSocketConnection).socket.remoteAddress.toString()
-            }
-        })
-    }
+fun main() = runBlocking(TutorialDispatcher) {
+    sStartSocketAcceptor(this, Tcp.bind(Address), SAcceptorSetup(PacketSerializer) {
+        object : AcceptorSession() {
+            override fun connectionContext() = (connection as SSocketConnection).socket.remoteAddress.toString()
+        }
+    })
+    threadPrintln("acceptor started")
 }

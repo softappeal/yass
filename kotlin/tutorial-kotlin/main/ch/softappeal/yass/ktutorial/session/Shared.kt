@@ -4,6 +4,12 @@ import ch.softappeal.yass.*
 import ch.softappeal.yass.remote.*
 import ch.softappeal.yass.remote.session.*
 import kotlinx.coroutines.*
+import java.util.*
+import java.util.concurrent.*
+
+fun threadPrintln(s: String) {
+    println("${Date()} | ${Thread.currentThread().name} | $s")
+}
 
 private val EchoServiceImpl = object : EchoService {
     override suspend fun echo(value: Any?): Any? = value
@@ -22,13 +28,13 @@ private val CalculatorImpl = object : Calculator {
 
 private val WeatherListenerImpl = object : WeatherListener {
     override suspend fun update(weather: Weather) {
-        println("weather update: $weather")
+        threadPrintln("weather update: $weather")
     }
 }
 
 private fun printer(side: String): SInterceptor = { method, arguments, invocation ->
     fun print(type: String, data: Any?, arguments: List<Any?>? = null) =
-        println(">>> $side - $type - $data ${arguments ?: ""}")
+        threadPrintln("$side - $type - $data ${arguments ?: ""}")
     print("enter", method.name, arguments)
     try {
         val result = invocation()
@@ -47,9 +53,11 @@ abstract class BaseSession : SSession() {
     protected abstract fun connectionContext(): String
 
     override suspend fun closed(exception: Exception?) {
-        println("$this closed $exception")
+        threadPrintln("$this closed $exception")
     }
 }
+
+val TutorialDispatcher = Executors.newSingleThreadExecutor().asCoroutineDispatcher()
 
 abstract class InitiatorSession : BaseSession() {
     override fun server() = SServer(
@@ -61,15 +69,15 @@ abstract class InitiatorSession : BaseSession() {
     private val calculator = proxy(Acceptor.calculator, ClientPrinter)
 
     override fun opened() {
-        println("$this ${connectionContext()} opened")
-        GlobalScope.launch {
-            println(echoService.echo("hello from initiator"))
-            println(calculator.add(1, 2))
-            println(calculator.divide(12, 4))
+        threadPrintln("$this ${connectionContext()} opened")
+        GlobalScope.launch(TutorialDispatcher) {
+            threadPrintln("${echoService.echo("hello from initiator")}")
+            threadPrintln("${calculator.add(1, 2)}")
+            threadPrintln("${calculator.divide(12, 4)}")
             try {
                 calculator.divide(12, 0)
             } catch (e: DivisionByZeroException) {
-                println(e)
+                threadPrintln("$e")
             }
         }
     }
@@ -85,9 +93,9 @@ abstract class AcceptorSession : BaseSession() {
     private val weatherListener = proxy(Initiator.weatherListener, ClientPrinter)
 
     override fun opened() {
-        println("$this ${connectionContext()} opened")
-        GlobalScope.launch {
-            println(echoService.echo("hello from acceptor"))
+        threadPrintln("$this ${connectionContext()} opened")
+        GlobalScope.launch(TutorialDispatcher) {
+            threadPrintln("${echoService.echo("hello from acceptor")}")
             weatherListener.update(Weather(12, WeatherType.Rainy))
             weatherListener.update(Weather(24, WeatherType.Sunny))
         }
