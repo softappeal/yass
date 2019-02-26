@@ -50,7 +50,7 @@ fun main() {
     val tcp = aSocket(ActorSelectorManager(Dispatchers.IO)).tcp()
     val address = InetSocketAddress("localhost", 28947)
     runBlocking {
-        val serverJob = sStartSocketServer(GlobalScope, tcp.bind(address), SServerSetup(Server, MessageSerializer))
+        val serverJob = sStartSocketServer(this, tcp.bind(address), SServerSetup(Server, MessageSerializer))
         val client = sSocketClient(SClientSetup(MessageSerializer)) { tcp.connect(address) }
         useCalculator(client.proxy(CalculatorId))
         serverJob.cancel()

@@ -70,7 +70,7 @@ abstract class InitiatorSession : BaseSession() {
 
     override fun opened() {
         threadPrintln("$this ${connectionContext()} opened")
-        GlobalScope.launch(TutorialDispatcher) {
+        CoroutineScope(TutorialDispatcher).launch {
             threadPrintln("${echoService.echo("hello from initiator")}")
             threadPrintln("${calculator.add(1, 2)}")
             threadPrintln("${calculator.divide(12, 4)}")
@@ -94,7 +94,7 @@ abstract class AcceptorSession : BaseSession() {
 
     override fun opened() {
         threadPrintln("$this ${connectionContext()} opened")
-        GlobalScope.launch(TutorialDispatcher) {
+        CoroutineScope(TutorialDispatcher).launch {
             threadPrintln("${echoService.echo("hello from acceptor")}")
             weatherListener.update(Weather(12, WeatherType.Rainy))
             weatherListener.update(Weather(24, WeatherType.Sunny))

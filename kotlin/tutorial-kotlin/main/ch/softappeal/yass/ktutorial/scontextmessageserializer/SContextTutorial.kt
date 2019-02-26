@@ -63,7 +63,7 @@ fun main() {
     val address = InetSocketAddress("localhost", 28947)
     runBlocking {
         val serverJob = sStartSocketServer(
-            CoroutineScope(GlobalScope.coroutineContext + ContextCCE()),
+            CoroutineScope(ContextCCE()),
             tcp.bind(address),
             SServerSetup(SServer(serverSide()), ContextMessageSerializer)
         )
