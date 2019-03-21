@@ -108,9 +108,10 @@ function writer2reader(writer: yass.Writer): yass.Reader {
     });
 
     function utf8(bytes: number, value: string): void {
-        assert(yass.Writer.calcUtf8bytes(value) === bytes);
+        const codePoints = yass.Writer.toCodePoints(value);
+        assert(yass.Writer.calcUtf8bytes(codePoints) === bytes);
         const writer = new yass.Writer(100);
-        writer.writeUtf8(value);
+        writer.writeUtf8(codePoints);
         assert(writer.getArray().length === bytes);
         const reader = writer2reader(writer);
         assert(reader.readUtf8(bytes) === value);
@@ -127,7 +128,11 @@ function writer2reader(writer: yass.Writer): yass.Reader {
     utf8(4, ">\u07FF<");
     utf8(5, ">\u0800<");
     utf8(5, ">\u4321<");
-    utf8(5, ">\uFFFF<");
+    utf8(5, ">\u7FFF<");
+    utf8(6, ">\u8000<");
+    utf8(6, ">\uFFFF<");
+    utf8(6, ">\u{10400}<");
+    utf8(6, ">\u{10FFFF}<");
 
 })();
 
@@ -434,7 +439,7 @@ const hostname = "localhost";
     const proxyFactory = new yass.XhrClient("http://" + hostname + ":9090/xhr", messageSerializer);
     const echoService = proxyFactory.proxy(contract.acceptor.echoService);
 
-    log("echo succeeded:", await echoService.echo("echo"));
+    log("echo succeeded:", await echoService.echo("echo \u{10400}"));
     try {
         await echoService.echo("throwRuntimeException");
     } catch (e) {

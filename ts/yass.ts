@@ -40,32 +40,42 @@ export class Writer {
     writeZigZagInt(value: number): void {
         this.writeVarInt((value << 1) ^ (value >> 31));
     }
-    static calcUtf8bytes(value: string): number {
+    static toCodePoints(value: string): number[] {
+        return Array.from(value, s => s.codePointAt(0)) as number[];
+    }
+    static calcUtf8bytes(codePoints: number[]): number {
         let bytes = 0;
-        for (let c = 0; c < value.length; c++) {
-            const code = value.charCodeAt(c);
-            if (code < 0x80) {
+        for (let c = 0; c < codePoints.length; c++) {
+            const codePoint = codePoints[c];
+            if (codePoint < 0x80) {
                 bytes += 1;
-            } else if (code < 0x800) {
+            } else if (codePoint < 0x800) {
                 bytes += 2;
-            } else {
+            } else if (codePoint < 0x8000) {
                 bytes += 3;
+            } else {
+                bytes += 4;
             }
         }
         return bytes;
     }
-    writeUtf8(value: string): void {
-        for (let c = 0; c < value.length; c++) {
-            const code = value.charCodeAt(c);
-            if (code < 0x80) { // 0xxx xxxx
-                this.writeByte(code);
-            } else if (code < 0x800) { // 110x xxxx  10xx xxxx
-                this.writeByte(0xC0 | ((code >> 6) & 0x1F));
-                this.writeByte(0x80 | (code & 0x3F));
-            } else { // 1110 xxxx  10xx xxxx  10xx xxxx
-                this.writeByte(0xE0 | ((code >> 12) & 0x0F));
-                this.writeByte(0x80 | ((code >> 6) & 0x3F));
-                this.writeByte(0x80 | (code & 0x3F));
+    writeUtf8(codePoints: number[]): void {
+        for (let c = 0; c < codePoints.length; c++) {
+            const codePoint = codePoints[c];
+            if (codePoint < 0x80) { // 0xxx xxxx
+                this.writeByte(codePoint);
+            } else if (codePoint < 0x800) { // 110x xxxx  10xx xxxx
+                this.writeByte(0xC0 | ((codePoint >> 6) & 0x1F));
+                this.writeByte(0x80 | (codePoint & 0x3F));
+            } else if (codePoint < 0x8000) { // 1110 xxxx  10xx xxxx  10xx xxxx
+                this.writeByte(0xE0 | ((codePoint >> 12) & 0x0F));
+                this.writeByte(0x80 | ((codePoint >> 6) & 0x3F));
+                this.writeByte(0x80 | (codePoint & 0x3F));
+            } else { // 1111 0xxx  10xx xxxx  10xx xxxx  10xx xxxx
+                this.writeByte(0xF0 | ((codePoint >> 18) & 0x07));
+                this.writeByte(0x80 | ((codePoint >> 12) & 0x3F));
+                this.writeByte(0x80 | ((codePoint >> 6) & 0x3F));
+                this.writeByte(0x80 | (codePoint & 0x3F));
             }
         }
     }
@@ -119,29 +129,29 @@ export class Reader {
     readUtf8(bytes: number): string {
         let result = "";
         while (bytes-- > 0) {
-            let code: number;
+            let codePoint: number;
             const b1 = this.readByte();
             if ((b1 & 0x80) === 0) { // 0xxx xxxx
-                code = b1;
+                codePoint = b1;
             } else if ((b1 & 0xE0) === 0xC0) { // 110x xxxx  10xx xxxx
                 const b2 = this.readByte();
-                if ((b2 & 0xC0) !== 0x80) {
-                    throw new Error("malformed String input (1)");
-                }
-                code = ((b1 & 0x1F) << 6) | (b2 & 0x3F);
+                codePoint = ((b1 & 0x1F) << 6) | (b2 & 0x3F);
                 bytes--;
             } else if ((b1 & 0xF0) === 0xE0) { // 1110 xxxx  10xx xxxx  10xx xxxx
                 const b2 = this.readByte();
                 const b3 = this.readByte();
-                if (((b2 & 0xC0) !== 0x80) || ((b3 & 0xC0) !== 0x80)) {
-                    throw new Error("malformed String input (2)");
-                }
-                code = ((b1 & 0x0F) << 12) | ((b2 & 0x3F) << 6) | (b3 & 0x3F);
+                codePoint = ((b1 & 0x0F) << 12) | ((b2 & 0x3F) << 6) | (b3 & 0x3F);
                 bytes -= 2;
+            } else if ((b1 & 0xF8) === 0xF0) { // 1111 0xxx  10xx xxxx  10xx xxxx  10xx xxxx
+                const b2 = this.readByte();
+                const b3 = this.readByte();
+                const b4 = this.readByte();
+                codePoint = ((b1 & 0x07) << 18) | ((b2 & 0x3F) << 12) | ((b3 & 0x3F) << 6) | (b4 & 0x3F);
+                bytes -= 3;
             } else {
-                throw new Error("malformed String input (3)");
+                throw new Error("malformed String input");
             }
-            result += String.fromCharCode(code);
+            result += String.fromCodePoint(codePoint);
         }
         return result;
     }
@@ -233,8 +243,9 @@ class StringTypeHandler implements TypeHandler<string> {
         return reader.readUtf8(reader.readVarInt());
     }
     write(value: string, writer: Writer): void {
-        writer.writeVarInt(Writer.calcUtf8bytes(value));
-        writer.writeUtf8(value);
+        const codePoints = Writer.toCodePoints(value);
+        writer.writeVarInt(Writer.calcUtf8bytes(codePoints));
+        writer.writeUtf8(codePoints);
     }
 }
 export const STRING_DESC = new TypeDesc(5, new StringTypeHandler());
