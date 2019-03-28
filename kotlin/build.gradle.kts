@@ -3,9 +3,13 @@ import org.jetbrains.kotlin.gradle.tasks.*
 val kotlinVersion = "1.3.21"
 plugins {
     id("org.jetbrains.kotlin.jvm") version "1.3.21"
-    id("org.jetbrains.dokka") version "0.9.17"
+    id("org.jetbrains.dokka") version "0.9.18"
     `maven-publish`
     signing
+}
+
+repositories {
+    jcenter() // needed for dokka
 }
 
 val kotlinxCoroutinesJdk8 = "org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:1.1.1"
