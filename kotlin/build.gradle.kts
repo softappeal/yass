@@ -8,21 +8,22 @@ plugins {
     signing
 }
 
-repositories {
-    jcenter() // needed for dokka
-}
-
 val kotlinxCoroutinesJdk8 = "org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:1.1.1"
+val jupiterEngine = "org.junit.jupiter:junit-jupiter-engine:5.0.0"
+val websocketApi = "javax.websocket:javax.websocket-api:1.0"
+val jetty = "org.eclipse.jetty.websocket:javax-websocket-server-impl:9.4.14.v20181114"
+val undertow = "io.undertow:undertow-websockets-jsr:2.0.17.Final"
 val ktorVersion = "1.1.3"
+
 val ktorNetwork = "io.ktor:ktor-network:$ktorVersion"
 val ktorClient = "io.ktor:ktor-client:$ktorVersion"
 val ktorServerCore = "io.ktor:ktor-server-core:$ktorVersion"
 val ktorServerCio = "io.ktor:ktor-server-cio:$ktorVersion"
 val ktorClientCio = "io.ktor:ktor-client-cio:$ktorVersion"
-val jupiterEngine = "org.junit.jupiter:junit-jupiter-engine:5.0.0"
-val websocketApi = "javax.websocket:javax.websocket-api:1.0"
-val jetty = "org.eclipse.jetty.websocket:javax-websocket-server-impl:9.4.14.v20181114"
-val undertow = "io.undertow:undertow-websockets-jsr:2.0.17.Final"
+
+repositories {
+    jcenter() // needed for dokka
+}
 
 allprojects {
     apply(plugin = "org.jetbrains.kotlin.jvm")
