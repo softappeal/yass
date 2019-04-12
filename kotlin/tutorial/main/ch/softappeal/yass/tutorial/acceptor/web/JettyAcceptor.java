@@ -18,7 +18,7 @@ public final class JettyAcceptor extends WebAcceptorSetup {
         server.addConnector(serverConnector);
         final HttpConfiguration https = new HttpConfiguration();
         https.addCustomizer(new SecureRequestCustomizer());
-        final SslContextFactory sslContextFactory = new SslContextFactory();
+        final SslContextFactory.Server sslContextFactory = new SslContextFactory.Server();
         sslContextFactory.setSslContext(SslConfig.SERVER.getContext());
         sslContextFactory.setNeedClientAuth(true);
         final ServerConnector sslServerConnector = new ServerConnector(

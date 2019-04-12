@@ -1,8 +1,8 @@
 import org.jetbrains.kotlin.gradle.tasks.*
 
-val kotlinVersion = "1.3.21"
+val kotlinVersion = "1.3.30"
 plugins {
-    id("org.jetbrains.kotlin.jvm") version "1.3.21"
+    id("org.jetbrains.kotlin.jvm") version "1.3.30"
     id("org.jetbrains.dokka") version "0.9.18"
     `maven-publish`
     signing
@@ -11,8 +11,8 @@ plugins {
 val kotlinxCoroutinesJdk8 = "org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:1.1.1"
 val jupiterEngine = "org.junit.jupiter:junit-jupiter-engine:5.0.0"
 val websocketApi = "javax.websocket:javax.websocket-api:1.0"
-val jetty = "org.eclipse.jetty.websocket:javax-websocket-server-impl:9.4.14.v20181114"
-val undertow = "io.undertow:undertow-websockets-jsr:2.0.17.Final"
+val jetty = "org.eclipse.jetty.websocket:javax-websocket-server-impl:9.4.16.v20190411"
+val undertow = "io.undertow:undertow-websockets-jsr:2.0.20.Final"
 val ktorVersion = "1.1.3"
 
 val ktorNetwork = "io.ktor:ktor-network:$ktorVersion"
