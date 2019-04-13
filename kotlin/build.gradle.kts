@@ -1,4 +1,4 @@
-import org.jetbrains.kotlin.gradle.tasks.*
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 val kotlinVersion = "1.3.30"
 plugins {
@@ -8,7 +8,7 @@ plugins {
     signing
 }
 
-val kotlinxCoroutinesJdk8 = "org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:1.1.1"
+val kotlinxCoroutinesJdk8 = "org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:1.2.0"
 val jupiterEngine = "org.junit.jupiter:junit-jupiter-engine:5.0.0"
 val websocketApi = "javax.websocket:javax.websocket-api:1.0"
 val jetty = "org.eclipse.jetty.websocket:javax-websocket-server-impl:9.4.16.v20190411"
@@ -22,7 +22,7 @@ val ktorServerCio = "io.ktor:ktor-server-cio:$ktorVersion"
 val ktorClientCio = "io.ktor:ktor-client-cio:$ktorVersion"
 
 repositories {
-    jcenter() // needed for dokka
+    jcenter()
 }
 
 allprojects {
@@ -72,6 +72,7 @@ allprojects {
 
     repositories {
         mavenCentral()
+        jcenter()
     }
 
     tasks.test {
