@@ -4,15 +4,15 @@ ARG PROJECT_DIR
 COPY ${PROJECT_DIR} /project
 ENV PATH=/node-${NODE_VERSION}-linux-x64/bin:${PATH}
 ENV PATH=/miniconda/bin:${PATH}
-ENV JAVA_11_HOME=/jdk-11.0.2
-ENV JAVA_8_HOME=/jdk1.8.0_201
+ENV JAVA_11_HOME=/amazon-corretto-11.0.3.7.1-linux-x64
+ENV JAVA_8_HOME=/amazon-corretto-8.212.04.1-linux-x64
 RUN \
      apt-get update -qq && apt-get install -qq wget xz-utils \
   \
-  && wget https://download.java.net/java/GA/jdk11/9/GPL/openjdk-11.0.2_linux-x64_bin.tar.gz -q -O openjdk-11.tar.gz \
-  && tar xf openjdk-11.tar.gz \
+  && wget https://d3pxv6yz143wms.cloudfront.net/11.0.3.7.1/amazon-corretto-11.0.3.7.1-linux-x64.tar.gz -q -O jdk-11.tar.gz \
+  && tar xf jdk-11.tar.gz \
   \
-  && wget --no-cookies --no-check-certificate --header "Cookie: gpw_e24=https%3A%2F%2Fwww.oracle.com%2Ftechnetwork%2Fjava%2Fjavase%2Fdownloads%2Fjdk8-downloads-2133151.html; oraclelicense=accept-securebackup-cookie;" "https://download.oracle.com/otn-pub/java/jdk/8u201-b09/42970487e3af4f5aa5bca3f542482c60/jdk-8u201-linux-x64.tar.gz" -q -O jdk-8.tar.gz \
+  && wget https://d3pxv6yz143wms.cloudfront.net/8.212.04.1/amazon-corretto-8.212.04.1-linux-x64.tar.gz -q -O jdk-8.tar.gz \
   && tar xf jdk-8.tar.gz \
   \
   && wget https://nodejs.org/dist/${NODE_VERSION}/node-${NODE_VERSION}-linux-x64.tar.xz -q -O node.tar.xz \
