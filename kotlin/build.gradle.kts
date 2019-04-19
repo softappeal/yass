@@ -13,7 +13,7 @@ val jupiterEngine = "org.junit.jupiter:junit-jupiter-engine:5.0.0"
 val websocketApi = "javax.websocket:javax.websocket-api:1.0"
 val jetty = "org.eclipse.jetty.websocket:javax-websocket-server-impl:9.4.16.v20190411"
 val undertow = "io.undertow:undertow-websockets-jsr:2.0.20.Final"
-val ktorVersion = "1.1.3"
+val ktorVersion = "1.1.4"
 
 val ktorNetwork = "io.ktor:ktor-network:$ktorVersion"
 val ktorClient = "io.ktor:ktor-client:$ktorVersion"
@@ -34,7 +34,7 @@ allprojects {
     configurations.all {
         resolutionStrategy {
             failOnVersionConflict()
-            if (true) { // $todo: needed because not all kotlin dependencies are yet in sync
+            if (false) { // $todo: needed if not all kotlin dependencies are in sync
                 force(
                     "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlinVersion",
                     "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlinVersion",
