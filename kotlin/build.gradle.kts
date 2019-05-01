@@ -1,14 +1,14 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
-val kotlinVersion = "1.3.30"
+val kotlinVersion = "1.3.31"
 plugins {
-    id("org.jetbrains.kotlin.jvm") version "1.3.30"
+    id("org.jetbrains.kotlin.jvm") version "1.3.31"
     id("org.jetbrains.dokka") version "0.9.18"
     `maven-publish`
     signing
 }
 
-val kotlinxCoroutinesJdk8 = "org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:1.2.0"
+val kotlinxCoroutinesJdk8 = "org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:1.2.1"
 val jupiterEngine = "org.junit.jupiter:junit-jupiter-engine:5.0.0"
 val websocketApi = "javax.websocket:javax.websocket-api:1.0"
 val jetty = "org.eclipse.jetty.websocket:javax-websocket-server-impl:9.4.16.v20190411"
@@ -34,7 +34,7 @@ allprojects {
     configurations.all {
         resolutionStrategy {
             failOnVersionConflict()
-            if (false) { // $todo: needed if not all kotlin dependencies are in sync
+            if (true) { // $todo: needed if not all kotlin dependencies are in sync
                 force(
                     "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlinVersion",
                     "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlinVersion",
@@ -72,7 +72,6 @@ allprojects {
 
     repositories {
         mavenCentral()
-        jcenter()
     }
 
     tasks.test {

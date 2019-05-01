@@ -5,14 +5,14 @@ COPY ${PROJECT_DIR} /project
 ENV PATH=/node-${NODE_VERSION}-linux-x64/bin:${PATH}
 ENV PATH=/miniconda/bin:${PATH}
 ENV JAVA_11_HOME=/amazon-corretto-11.0.3.7.1-linux-x64
-ENV JAVA_8_HOME=/amazon-corretto-8.212.04.1-linux-x64
+ENV JAVA_8_HOME=/amazon-corretto-8.212.04.2-linux-x64
 RUN \
      apt-get update -qq && apt-get install -qq wget xz-utils \
   \
   && wget https://d3pxv6yz143wms.cloudfront.net/11.0.3.7.1/amazon-corretto-11.0.3.7.1-linux-x64.tar.gz -q -O jdk-11.tar.gz \
   && tar xf jdk-11.tar.gz \
   \
-  && wget https://d3pxv6yz143wms.cloudfront.net/8.212.04.1/amazon-corretto-8.212.04.1-linux-x64.tar.gz -q -O jdk-8.tar.gz \
+  && wget https://d3pxv6yz143wms.cloudfront.net/8.212.04.2/amazon-corretto-8.212.04.2-linux-x64.tar.gz -q -O jdk-8.tar.gz \
   && tar xf jdk-8.tar.gz \
   \
   && wget https://nodejs.org/dist/${NODE_VERSION}/node-${NODE_VERSION}-linux-x64.tar.xz -q -O node.tar.xz \
