@@ -1,14 +1,14 @@
 {
-    "compilerOptions": {
-        "target": "ES6",
-        "noEmitOnError": true,
-        "strict": true,
-        "noImplicitReturns": true,
-        "noFallthroughCasesInSwitch": true,
-        "sourceMap": true,
-        "noUnusedLocals": true,
-        "noUnusedParameters": false,
-        "esModuleInterop": true,
-        "module": "commonjs"
-    }
+  "compilerOptions": {
+    "target": "ES6",
+    "noEmitOnError": true,
+    "strict": true,
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true,
+    "sourceMap": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": false,
+    "esModuleInterop": true,
+    "module": "commonjs"
+  }
 }

@@ -2,30 +2,30 @@
 # gcloud kms encrypt --plaintext-file=key.gpg           --ciphertext-file=key.gpg.enc           --location=global --keyring=yass --key=build
 # gcloud kms encrypt --plaintext-file=gradle.properties --ciphertext-file=gradle.properties.enc --location=global --keyring=yass --key=build
 steps:
-- name: 'gcr.io/cloud-builders/git'
-  args: [ 'clone', 'https://github.com/softappeal/yass.git', '--branch', 'v${_PROJECT_VERSION}', '--depth', '1' ]
-- name: 'gcr.io/cloud-builders/gcloud'
-  args:
-  - kms
-  - decrypt
-  - --ciphertext-file=yass/gcb/key.gpg.enc
-  - --plaintext-file=yass/gcb/key.gpg
-  - --location=global
-  - --keyring=yass
-  - --key=build
-- name: 'gcr.io/cloud-builders/gcloud'
-  args:
-  - kms
-  - decrypt
-  - --ciphertext-file=yass/gcb/gradle.properties.enc
-  - --plaintext-file=yass/gcb/gradle.properties
-  - --location=global
-  - --keyring=yass
-  - --key=build
-- name: 'gcr.io/cloud-builders/docker'
-  args: [ 'build', '-t', 'gcr.io/$PROJECT_ID/build', '-f', 'yass/gcb/Dockerfile', '--build-arg', 'PROJECT_DIR=yass', '.' ]
-- name: 'gcr.io/cloud-builders/docker'
-  args: ['run', '--env', 'PROJECT_VERSION=${_PROJECT_VERSION}', 'gcr.io/$PROJECT_ID/build', '/project/gcb/start.release.sh' ]
+  - name: 'gcr.io/cloud-builders/git'
+    args: [ 'clone', 'https://github.com/softappeal/yass.git', '--branch', 'v${_PROJECT_VERSION}', '--depth', '1' ]
+  - name: 'gcr.io/cloud-builders/gcloud'
+    args:
+      - kms
+      - decrypt
+      - --ciphertext-file=yass/gcb/key.gpg.enc
+      - --plaintext-file=yass/gcb/key.gpg
+      - --location=global
+      - --keyring=yass
+      - --key=build
+  - name: 'gcr.io/cloud-builders/gcloud'
+    args:
+      - kms
+      - decrypt
+      - --ciphertext-file=yass/gcb/gradle.properties.enc
+      - --plaintext-file=yass/gcb/gradle.properties
+      - --location=global
+      - --keyring=yass
+      - --key=build
+  - name: 'gcr.io/cloud-builders/docker'
+    args: [ 'build', '-t', 'gcr.io/$PROJECT_ID/build', '-f', 'yass/gcb/Dockerfile', '--build-arg', 'PROJECT_DIR=yass', '.' ]
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['run', '--env', 'PROJECT_VERSION=${_PROJECT_VERSION}', 'gcr.io/$PROJECT_ID/build', '/project/gcb/start.release.sh' ]
 substitutions:
   _PROJECT_VERSION:
 timeout: 1200s
