@@ -211,7 +211,7 @@ abstract class SFastSerializer protected constructor(val skipping: Boolean) : SS
     }
 
     private fun checkParentClasses() {
-        _id2typeSerializer.forEach { id, typeSerializer ->
+        _id2typeSerializer.forEach { (id, typeSerializer) ->
             if (id < FirstTypeId) return@forEach
             if (typeSerializer is ClassTypeSerializer) {
                 var t = typeSerializer.type

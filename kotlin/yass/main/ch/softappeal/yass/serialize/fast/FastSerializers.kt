@@ -95,7 +95,7 @@ fun taggedFastSerializer(
 fun FastSerializer.print(printer: PrintWriter) {
     printer.println("skipping = $skipping")
     printer.println()
-    id2typeSerializer.forEach { id, typeSerializer ->
+    id2typeSerializer.forEach { (id, typeSerializer) ->
         if (id < FirstTypeId) return@forEach
         with(typeSerializer.type) {
             printer.print("$id: $canonicalName")

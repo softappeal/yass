@@ -49,7 +49,7 @@ open class Reconnector<S : Session> : ProxyDelegate<S>() {
         require(intervalSeconds >= 1)
         require(delaySeconds >= 0)
         val reconnectorSessionFactory = {
-            val session = requireNotNull(sessionFactory())
+            val session = sessionFactory()
             @Suppress("UNCHECKED_CAST") setSession(session as S)
             session
         }

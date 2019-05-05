@@ -33,7 +33,7 @@ abstract class Session : Client(), AutoCloseable {
     private val nextRequestNumber = AtomicInteger(EndRequestNumber)
 
     internal fun iCreated(connection: Connection) {
-        server = requireNotNull(server())
+        server = server()
         _connection = connection
         closed.set(false)
         dispatchOpened {

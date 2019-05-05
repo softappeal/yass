@@ -57,7 +57,7 @@ class TypeScriptGenerator @JvmOverloads constructor(
             val visitedClasses = HashSet<Class<*>>()
 
             init {
-                id2typeSerializer.forEach { id, typeSerializer ->
+                id2typeSerializer.forEach { (id, typeSerializer) ->
                     if (id >= FirstDescId) type2id[typeSerializer.type] = id
                 }
                 includeFile(includeFile)

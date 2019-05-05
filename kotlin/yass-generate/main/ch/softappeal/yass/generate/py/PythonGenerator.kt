@@ -62,7 +62,7 @@ class PythonGenerator(
     init {
         if (module2includeFile != null) this.module2includeFile.putAll(module2includeFile)
         this.externalTypes.putAll(externalTypes)
-        id2typeSerializer.forEach { id, typeSerializer ->
+        id2typeSerializer.forEach { (id, typeSerializer) ->
             if (id >= FirstDescId) {
                 val type = typeSerializer.type
                 type2id[type] = id
@@ -101,7 +101,7 @@ class PythonGenerator(
 
         fun generate(path: Path) {
             ContractPythonOut(path.resolve(InitPy), this)
-            children.forEach { name, namespace -> namespace.generate(path.resolve(name)) }
+            children.forEach { (name, namespace) -> namespace.generate(path.resolve(name)) }
         }
     }
 
