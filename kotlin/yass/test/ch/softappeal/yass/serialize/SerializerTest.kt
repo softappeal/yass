@@ -56,7 +56,9 @@ fun createValues(): AllTypes {
     allTypes.primitiveTypesListField =
         Arrays.asList<PrimitiveTypes>(PrimitiveTypes(999), AllTypes("world"), null)
     allTypes.objectField = "bad"
-    allTypes.objectListField = Arrays.asList<Any>("good", null, 123)
+    allTypes.objectListField = listOf("good", null, 123)
+    allTypes.objectMutableListField = mutableListOf("good", null)
+    allTypes.objectMutableListField!!.add(123)
     allTypes.exception = IntException(123)
     return allTypes
 }
@@ -80,11 +82,10 @@ private fun checkValues(allTypes: AllTypes) {
     assertEquals("world", (primitiveTypesListField[1] as AllTypes).stringField)
     assertNull(primitiveTypesListField[2])
     assertEquals("bad", allTypes.objectField)
-    val objectListField = allTypes.objectListField!!
-    assertEquals(3, objectListField.size)
-    assertEquals("good", objectListField[0])
-    assertNull(objectListField[1])
-    assertEquals(123, objectListField[2])
+    assertEquals(allTypes.objectListField!!, listOf("good", null, 123))
+    assertEquals(allTypes.objectMutableListField!!, listOf("good", null, 123))
+    allTypes.objectMutableListField!!.add(321)
+    assertEquals(321, allTypes.objectMutableListField!![3])
     assertEquals(123, (allTypes.exception as IntException).value)
 }
 

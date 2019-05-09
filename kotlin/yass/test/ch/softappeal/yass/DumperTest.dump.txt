@@ -17,6 +17,11 @@ AllTypes(
         null
         123
     ]
+    objectMutableListField = [
+        "good"
+        null
+        123
+    ]
     primitiveTypesField = AllTypes(
         stringField = "hello"
         booleanField = false
@@ -93,6 +98,11 @@ AllTypes(
         null
         123
     ]
+    objectMutableListField = [
+        "good"
+        null
+        123
+    ]
     primitiveTypesField = AllTypes(
         stringField = "hello"
         booleanField = false
@@ -143,13 +153,13 @@ AllTypes(
 null
 'c'
 AllTypes(booleanField=false,intField=0,longField=0,shortField=0)#0
-AllTypes(colorField=BLUE,exception=IntException(value=123)#1,objectField="bad",objectListField=["good",null,123],primitiveTypesField=AllTypes(stringField="hello",booleanField=false,intField=0,longField=0,shortField=0)#2,primitiveTypesListField=[PrimitiveTypes(booleanField=false,intField=999,longField=0,shortField=0)#3,AllTypes(stringField="world",booleanField=false,intField=0,longField=0,shortField=0)#4,null],stringField="999",booleanField=false,booleanWrapperField=true,byteArrayField=[1,-2],intField=102,intWrapperField=-102,longField=103,longWrapperField=-103,shortField=101,shortWrapperField=-101)#0
+AllTypes(colorField=BLUE,exception=IntException(value=123)#1,objectField="bad",objectListField=["good",null,123],objectMutableListField=["good",null,123],primitiveTypesField=AllTypes(stringField="hello",booleanField=false,intField=0,longField=0,shortField=0)#2,primitiveTypesListField=[PrimitiveTypes(booleanField=false,intField=999,longField=0,shortField=0)#3,AllTypes(stringField="world",booleanField=false,intField=0,longField=0,shortField=0)#4,null],stringField="999",booleanField=false,booleanWrapperField=true,byteArrayField=[1,-2],intField=102,intWrapperField=-102,longField=103,longWrapperField=-103,shortField=101,shortWrapperField=-101)#0
 Node(id=1,link=Node(id=2,link=Node(id=3,link=#1)#2)#1)#0
 ["one","two","three"]
 {1>"one",2>null,3>"three"}
 null
 'c'
 AllTypes(booleanField=false,intField=0,longField=0,shortField=0)
-AllTypes(colorField=BLUE,exception=IntException(value=123),objectField="bad",objectListField=["good",null,123],primitiveTypesField=AllTypes(stringField="hello",booleanField=false,intField=0,longField=0,shortField=0),primitiveTypesListField=[PrimitiveTypes(booleanField=false,intField=999,longField=0,shortField=0),AllTypes(stringField="world",booleanField=false,intField=0,longField=0,shortField=0),null],stringField="999",booleanField=false,booleanWrapperField=true,byteArrayField=[1,-2],intField=102,intWrapperField=-102,longField=103,longWrapperField=-103,shortField=101,shortWrapperField=-101)
+AllTypes(colorField=BLUE,exception=IntException(value=123),objectField="bad",objectListField=["good",null,123],objectMutableListField=["good",null,123],primitiveTypesField=AllTypes(stringField="hello",booleanField=false,intField=0,longField=0,shortField=0),primitiveTypesListField=[PrimitiveTypes(booleanField=false,intField=999,longField=0,shortField=0),AllTypes(stringField="world",booleanField=false,intField=0,longField=0,shortField=0),null],stringField="999",booleanField=false,booleanWrapperField=true,byteArrayField=[1,-2],intField=102,intWrapperField=-102,longField=103,longWrapperField=-103,shortField=101,shortWrapperField=-101)
 ["one","two","three"]
 {1>"one",2>null,3>"three"}

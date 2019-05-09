@@ -45,6 +45,7 @@ skipping = false
     108: private java.lang.Object ch.softappeal.yass.serialize.nested.AllTypes.objectField
     109: private java.util.List<?> ch.softappeal.yass.serialize.nested.AllTypes.objectListField
     110: private java.lang.Exception ch.softappeal.yass.serialize.nested.AllTypes.exception
+    111: private java.util.List<java.lang.Object> ch.softappeal.yass.serialize.nested.AllTypes.objectMutableListField
 
 42: ch.softappeal.yass.serialize.IntException tree
     1: private int ch.softappeal.yass.serialize.IntException.value

@@ -33,18 +33,19 @@ skipping = false
     2: private java.lang.Exception ch.softappeal.yass.serialize.nested.AllTypes.exception
     3: private java.lang.Object ch.softappeal.yass.serialize.nested.AllTypes.objectField
     4: private java.util.List<?> ch.softappeal.yass.serialize.nested.AllTypes.objectListField
-    5: private ch.softappeal.yass.serialize.PrimitiveTypes ch.softappeal.yass.serialize.nested.AllTypes.primitiveTypesField
-    6: private java.util.List<? extends ch.softappeal.yass.serialize.PrimitiveTypes> ch.softappeal.yass.serialize.nested.AllTypes.primitiveTypesListField
-    7: private java.lang.String ch.softappeal.yass.serialize.nested.AllTypes.stringField
-    8: private boolean ch.softappeal.yass.serialize.PrimitiveTypes.booleanField
-    9: private java.lang.Boolean ch.softappeal.yass.serialize.PrimitiveTypes.booleanWrapperField
-    10: private byte[] ch.softappeal.yass.serialize.PrimitiveTypes.byteArrayField
-    11: private int ch.softappeal.yass.serialize.PrimitiveTypes.intField
-    12: private java.lang.Integer ch.softappeal.yass.serialize.PrimitiveTypes.intWrapperField
-    13: private long ch.softappeal.yass.serialize.PrimitiveTypes.longField
-    14: private java.lang.Long ch.softappeal.yass.serialize.PrimitiveTypes.longWrapperField
-    15: private short ch.softappeal.yass.serialize.PrimitiveTypes.shortField
-    16: private java.lang.Short ch.softappeal.yass.serialize.PrimitiveTypes.shortWrapperField
+    5: private java.util.List<java.lang.Object> ch.softappeal.yass.serialize.nested.AllTypes.objectMutableListField
+    6: private ch.softappeal.yass.serialize.PrimitiveTypes ch.softappeal.yass.serialize.nested.AllTypes.primitiveTypesField
+    7: private java.util.List<? extends ch.softappeal.yass.serialize.PrimitiveTypes> ch.softappeal.yass.serialize.nested.AllTypes.primitiveTypesListField
+    8: private java.lang.String ch.softappeal.yass.serialize.nested.AllTypes.stringField
+    9: private boolean ch.softappeal.yass.serialize.PrimitiveTypes.booleanField
+    10: private java.lang.Boolean ch.softappeal.yass.serialize.PrimitiveTypes.booleanWrapperField
+    11: private byte[] ch.softappeal.yass.serialize.PrimitiveTypes.byteArrayField
+    12: private int ch.softappeal.yass.serialize.PrimitiveTypes.intField
+    13: private java.lang.Integer ch.softappeal.yass.serialize.PrimitiveTypes.intWrapperField
+    14: private long ch.softappeal.yass.serialize.PrimitiveTypes.longField
+    15: private java.lang.Long ch.softappeal.yass.serialize.PrimitiveTypes.longWrapperField
+    16: private short ch.softappeal.yass.serialize.PrimitiveTypes.shortField
+    17: private java.lang.Short ch.softappeal.yass.serialize.PrimitiveTypes.shortWrapperField
 
 12: ch.softappeal.yass.serialize.IntException tree
     1: private int ch.softappeal.yass.serialize.IntException.value

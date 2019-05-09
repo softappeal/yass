@@ -19,6 +19,8 @@ class AllTypes : PrimitiveTypes {
     var objectListField: List<Any?>? = null
     @Tag(110)
     var exception: Exception? = null
+    @Tag(111)
+    var objectMutableListField: MutableList<Any?>? = null
 
     constructor(stringField: String) {
         this.stringField = stringField
