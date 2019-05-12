@@ -1,7 +1,7 @@
 # abort script on error
 set -e
 
-pip install mypy==0.641
+pip3 install mypy==0.641
 
 python -m unittest test.all_tests
 

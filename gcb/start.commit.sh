@@ -13,6 +13,7 @@ npm --version
 
 # check python
 python --version
+pip3 --version
 
 # go to project
 cd /project

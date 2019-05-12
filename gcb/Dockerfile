@@ -9,7 +9,7 @@ ENV PATH=/node-${NODE_VERSION}-linux-x64/bin:${PATH}
 ENV JAVA_11_HOME=/amazon-corretto-${JAVA_11_VERSION}-linux-x64
 ENV JAVA_8_HOME=/amazon-corretto-${JAVA_8_VERSION}-linux-x64
 RUN \
-     apt-get update -qq && apt-get install -qq wget xz-utils python${PYTHON_VERSION} \
+     apt-get update -qq && apt-get install -qq wget xz-utils python${PYTHON_VERSION} python3-pip \
   \
   && wget https://d3pxv6yz143wms.cloudfront.net/${JAVA_11_VERSION}/amazon-corretto-${JAVA_11_VERSION}-linux-x64.tar.gz -q -O jdk-11.tar.gz \
   && tar xf jdk-11.tar.gz \
