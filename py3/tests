@@ -1,13 +1,9 @@
 # abort script on error
 set -e
 
-source activate py3
-
 pip install mypy==0.641
 
 python -m unittest test.all_tests
 
 mypy -p tutorial
 mypy -p test
-
-source deactivate

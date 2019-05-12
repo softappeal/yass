@@ -12,9 +12,7 @@ node --version
 npm --version
 
 # check python
-source activate py3
 python --version
-source deactivate
 
 # go to project
 cd /project
