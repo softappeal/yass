@@ -46,7 +46,6 @@ class PythonGenerator(
     serializer: FastSerializer,
     initiator: Services?,
     acceptor: Services?,
-    private val python3: Boolean,
     private val includeFileForEachModule: Path?,
     module2includeFile: Map<String, Path>?,
     externalTypes: Map<Class<*>, ExternalDesc>,
@@ -183,7 +182,7 @@ class PythonGenerator(
             type === Void.TYPE -> "None"
             type === Double::class.javaPrimitiveType || type === Double::class.javaObjectType -> "float"
             type === Boolean::class.javaPrimitiveType || type === Boolean::class.javaObjectType -> "bool"
-            type === String::class.java -> if (python3) "str" else "unicode"
+            type === String::class.java -> "str"
             type === ByteArray::class.java -> "bytes"
             type === Any::class.java -> "Any"
             Throwable::class.java.isAssignableFrom(type as Class<*>) -> "Exception"
@@ -213,7 +212,7 @@ class PythonGenerator(
                 print("(Exception)")
             println(":")
             inc()
-            tabsln("def __init__(self)${if (python3) " -> None:" else ":  # type: () -> None"}")
+            tabsln("def __init__(self) -> None:")
             inc()
             if (hasSuper) tabsln("${getQualifiedName(superClass!!)}.__init__(self)")
             val ownFields = type.ownFields
@@ -222,10 +221,7 @@ class PythonGenerator(
             else {
                 for (field in ownFields) {
                     val t = pythonType(field.genericType)
-                    if (python3)
-                        tabsln("self.${field.name}: $t = cast($t, None)")
-                    else
-                        tabsln("self.${field.name} = cast('$t', None)  # type: $t")
+                    tabsln("self.${field.name}: $t = cast($t, None)")
                 }
             }
             dec()
@@ -240,22 +236,12 @@ class PythonGenerator(
             val methodMapper = methodMapper(type)
             iterate(getMethods(type), { println() }, { method ->
                 tabs("def ${method.name}(self")
-                val parameters = method.parameters
-                if (python3) {
-                    parameters.forEach { parameter ->
-                        print(", ${parameter.name}: ${pythonType(parameter.parameterizedType)}")
-                    }
-                    println(
-                        ") -> ${if (methodMapper.map(method).oneWay) "None" else pythonType(method.genericReturnType)}:"
-                    )
-                } else {
-                    parameters.forEach { parameter -> print(", ${parameter.name}") }
-                    print("):  # type: (")
-                    iterate(parameters.asList(), { print(", ") }, { print(pythonType(it.parameterizedType)) })
-                    println(
-                        ") -> ${if (methodMapper.map(method).oneWay) "None" else pythonType(method.genericReturnType)}"
-                    )
+                method.parameters.forEach { parameter ->
+                    print(", ${parameter.name}: ${pythonType(parameter.parameterizedType)}")
                 }
+                println(
+                    ") -> ${if (methodMapper.map(method).oneWay) "None" else pythonType(method.genericReturnType)}:"
+                )
                 tab()
                 tabsln("raise NotImplementedError()")
             })
@@ -330,10 +316,7 @@ class PythonGenerator(
             for (sd in getServiceDescs(services)) {
                 val qn = getQualifiedName(sd.contractId.contract)
                 tab()
-                if (python3)
-                    tabsln("${sd.name}: yass.ContractId[$qn] = yass.ContractId($qn, ${sd.contractId.id})")
-                else
-                    tabsln("${sd.name} = yass.ContractId($qn, ${sd.contractId.id})  # type: yass.ContractId[$qn]")
+                tabsln("${sd.name}: yass.ContractId[$qn] = yass.ContractId($qn, ${sd.contractId.id})")
             }
         }
 

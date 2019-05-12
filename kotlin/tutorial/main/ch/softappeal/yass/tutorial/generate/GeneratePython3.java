@@ -18,7 +18,6 @@ public final class GeneratePython3 {
             Config.PY_CONTRACT_SERIALIZER,
             Config.INITIATOR,
             Config.PY_ACCEPTOR,
-            true,
             Paths.get("../../py3/tutorial/contract_include_each_module.txt"),
             module2includeFile,
             externalTypes,
