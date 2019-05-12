@@ -3,7 +3,7 @@
 * is a small library for efficient peer-to-peer communication
     * Kotlin/Java
     * TypeScript
-    * Python 2 & 3 (with support for type hints)
+    * Python 3 (with support for type hints)
     * high throughput, low latency, reactive services
 * supports type-safe contracts with DTOs and interfaces
 * supports request/reply and OneWay style method invocations
@@ -16,7 +16,6 @@
     * WebSocket
     * https://ktor.io
 * has a fast and compact binary serializer that can skip unknown/new fields
-* needs no third-party libraries
 * uses https://semver.org
 * is Open Source (BSD-3-Clause license)
     * Kotlin artifacts on https://search.maven.org (GroupId: ch.softappeal.yass)
