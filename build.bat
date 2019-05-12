@@ -1,16 +1,12 @@
 @echo off
 
-call .\gradle
+call .\gradlew
 
 pushd ts
 call .\compile
 popd
 
 pushd py3
-call .\tests
-popd
-
-pushd py2
 call .\tests
 popd
 

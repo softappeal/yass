@@ -1,6 +1,5 @@
 include("ts")
 include("py3")
-include("py2")
 include("kotlin:yass")
 include("kotlin:yass-generate")
 include("kotlin:yass-transport-ws")

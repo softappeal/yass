@@ -24,6 +24,5 @@ RUN \
   && bash /miniconda.sh -b -p /miniconda \
   && conda config --set always_yes yes \
   && conda create --quiet --name py3 python=3.6.7 \
-  && conda create --quiet --name py2 python=2.7.15 \
   \
   && chmod +x /project/gcb/*.sh

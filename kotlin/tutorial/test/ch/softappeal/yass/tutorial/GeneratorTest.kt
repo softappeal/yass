@@ -41,10 +41,4 @@ class GeneratorTest {
         GeneratePython3.main()
         compareGenerated("py3")
     }
-
-    @Test
-    fun generatePython2() {
-        GeneratePython2.main()
-        compareGenerated("py2")
-    }
 }
