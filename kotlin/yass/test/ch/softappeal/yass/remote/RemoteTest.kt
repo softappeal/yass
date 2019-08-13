@@ -1,8 +1,6 @@
 package ch.softappeal.yass.remote
 
 import ch.softappeal.yass.*
-import kotlinx.coroutines.*
-import kotlinx.coroutines.future.*
 import java.util.concurrent.*
 import kotlin.system.*
 import kotlin.test.*
@@ -25,13 +23,6 @@ private interface AsyncCalculator {
     fun echo(value: String?): CompletionStage<String?>
 }
 
-private interface SuspendCalculator {
-    fun oneWay()
-    suspend fun twoWay()
-    suspend fun divide(a: Int, b: Int): Int
-    suspend fun echo(value: String?): String?
-}
-
 private fun asyncCalculator(asyncCalculator: Calculator): AsyncCalculator = object : AsyncCalculator {
     override fun oneWay() {
         asyncCalculator.oneWay()
@@ -47,26 +38,6 @@ private fun asyncCalculator(asyncCalculator: Calculator): AsyncCalculator = obje
 
     override fun echo(value: String?): CompletionStage<String?> {
         return promise { asyncCalculator.echo(value) }
-    }
-}
-
-private fun suspendCalculator(asyncCalculator: Calculator): SuspendCalculator = object : SuspendCalculator {
-    private suspend fun <T> coroutine(execute: () -> T): T = promise(execute).await()
-
-    override fun oneWay() {
-        asyncCalculator.oneWay()
-    }
-
-    override suspend fun twoWay() {
-        return coroutine { asyncCalculator.twoWay() }
-    }
-
-    override suspend fun divide(a: Int, b: Int): Int {
-        return coroutine { asyncCalculator.divide(a, b) }
-    }
-
-    override suspend fun echo(value: String?): String? {
-        return coroutine { asyncCalculator.echo(value) }
     }
 }
 
@@ -142,15 +113,6 @@ private fun useAsyncClient(asyncCalculator: Calculator) {
         "asynchronous request/reply proxy call must be enclosed with 'promise' function",
         assertFailsWith<IllegalStateException> { asyncCalculator.twoWay() }.message
     )
-    val calculator = suspendCalculator(asyncCalculator)
-    runBlocking {
-        assertEquals(4, calculator.divide(12, 3))
-        assertEquals(12, sAssertFailsWith<DivisionByZeroException> { calculator.divide(12, 0) }.a)
-        assertNull(calculator.twoWay())
-        assertNull(calculator.echo(null))
-        assertEquals("hello", calculator.echo("hello"))
-        calculator.oneWay()
-    }
 }
 
 fun useClient(calculator: Calculator, asyncCalculator: Calculator) {

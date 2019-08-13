@@ -5,7 +5,6 @@ set -e
 
 # check java
 $JAVA_11_HOME/bin/java -version
-$JAVA_8_HOME/bin/java -version
 
 # check node
 node --version
@@ -23,11 +22,6 @@ chmod +x ./gradlew
 
 # run gradle
 export JAVA_HOME=$JAVA_11_HOME
-./gradlew --version
-./gradlew
-
-# run gradle
-export JAVA_HOME=$JAVA_8_HOME
 ./gradlew --version
 ./gradlew
 

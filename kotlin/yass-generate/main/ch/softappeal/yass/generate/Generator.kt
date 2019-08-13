@@ -6,8 +6,6 @@ import ch.softappeal.yass.serialize.fast.*
 import java.lang.reflect.*
 import java.util.*
 
-// $todo: add intermediate representation for encapsulating with/without suspend contracts
-
 class ServiceDesc(val name: String, val contractId: ContractId<*>)
 
 fun getServiceDescs(services: Services): List<ServiceDesc> {

@@ -1,7 +1,6 @@
 package ch.softappeal.yass.remote
 
 import ch.softappeal.yass.*
-import ch.softappeal.yass.proxy
 import java.lang.reflect.*
 import java.util.concurrent.*
 

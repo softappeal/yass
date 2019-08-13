@@ -38,43 +38,6 @@ class MethodMapperTest {
         assertFailsWith<IllegalStateException> { SimpleMethodMapperFactory(OneWayException::class.java) }.message
     )
 
-    private interface OneWaySuspendResult {
-        @OneWay
-        suspend fun test(): Int
-    }
-
-    @Test
-    @Ignore // $note: enable oneWaySuspendResult
-    fun oneWaySuspendResult() = assertEquals(
-        "OneWay method 'public abstract java.lang.Object ch.softappeal.yass.remote." +
-            "MethodMapperTest${'$'}OneWaySuspendResult.test(kotlin.coroutines.Continuation)' must return void",
-        assertFailsWith<IllegalStateException> { SimpleMethodMapperFactory(OneWaySuspendResult::class.java) }.message
-    )
-
-    private interface OneWaySuspendException {
-        @OneWay
-        @Throws(RuntimeException::class)
-        suspend fun test()
-    }
-
-    @Test
-    fun oneWaySuspendException() = assertEquals(
-        "OneWay method 'public abstract java.lang.Object " +
-            "ch.softappeal.yass.remote.MethodMapperTest${'$'}OneWaySuspendException.test(kotlin.coroutines.Continuation) " +
-            "throws java.lang.RuntimeException' must not throw exceptions",
-        assertFailsWith<IllegalStateException> { SimpleMethodMapperFactory(OneWaySuspendException::class.java) }.message
-    )
-
-    private interface OneWaySuspend {
-        @OneWay
-        suspend fun test()
-    }
-
-    @Test
-    fun oneWaySuspend() {
-        SimpleMethodMapperFactory(OneWaySuspend::class.java)
-    }
-
     private interface NameOverloading {
         fun test()
         fun test(s: String)

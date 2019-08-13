@@ -15,19 +15,6 @@ val BaseTypes = listOf(
     TypeDesc(12, StringSerializer)
 )
 
-val SBaseTypes = listOf(
-    STypeDesc(3, SBooleanSerializer),
-    STypeDesc(4, SByteSerializer),
-    STypeDesc(5, SShortSerializer),
-    STypeDesc(6, SIntSerializer),
-    STypeDesc(7, SLongSerializer),
-    STypeDesc(8, SCharSerializer),
-    STypeDesc(9, SFloatSerializer),
-    STypeDesc(10, SDoubleSerializer),
-    STypeDesc(11, SBinarySerializer),
-    STypeDesc(12, SStringSerializer)
-)
-
 @Tag(21)
 enum class Enum {
     C1,
@@ -78,19 +65,6 @@ class ObjectTypes(
 
 val Serializer = taggedFastSerializer(
     BaseTypes,
-    listOf(
-        Enum::class,
-        PrimitiveTypes::class,
-        NullablePrimitiveTypes::class,
-        ObjectTypes::class
-    ),
-    listOf(
-        Link::class
-    )
-)
-
-val SSerializer = sTaggedFastSerializer(
-    SBaseTypes,
     listOf(
         Enum::class,
         PrimitiveTypes::class,

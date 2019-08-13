@@ -13,10 +13,7 @@ val Method.isOneWay: Boolean get() = isAnnotationPresent(OneWay::class.java)
 data class MethodMapping(val method: Method, val id: Int, val oneWay: Boolean = method.isOneWay) {
     init {
         if (oneWay) {
-            if (method.isSuspend()) {
-                // $todo: returnType of suspend function is always Object
-            } else
-                check(method.returnType === Void.TYPE) { "OneWay method '$method' must return void" }
+            check(method.returnType === Void.TYPE) { "OneWay method '$method' must return void" }
             check(method.exceptionTypes.isEmpty()) { "OneWay method '$method' must not throw exceptions" }
         }
     }
