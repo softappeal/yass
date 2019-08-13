@@ -154,12 +154,6 @@ val yassGenerate = project(":kotlin:yass-generate") {
     }
 }
 
-project(":kotlin:tutorial-kotlin") {
-    dependencies {
-        compile(yassTransportWs)
-    }
-}
-
 project(":kotlin:tutorial") {
     dependencies {
         compile(yassTransportWs)
