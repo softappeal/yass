@@ -1,7 +1,7 @@
 import org.jetbrains.kotlin.gradle.tasks.*
 
 plugins {
-    id("org.jetbrains.kotlin.jvm") version "1.3.31"
+    id("org.jetbrains.kotlin.jvm") version "1.3.41"
     id("org.jetbrains.dokka") version "0.9.18"
     `maven-publish`
     signing
