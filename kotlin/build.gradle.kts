@@ -13,13 +13,6 @@ val jupiterEngine = "org.junit.jupiter:junit-jupiter-engine:5.0.0"
 val websocketApi = "javax.websocket:javax.websocket-api:1.0"
 val jetty = "org.eclipse.jetty.websocket:javax-websocket-server-impl:9.4.16.v20190411"
 val undertow = "io.undertow:undertow-websockets-jsr:2.0.20.Final"
-val ktorVersion = "1.1.4"
-
-val ktorNetwork = "io.ktor:ktor-network:$ktorVersion"
-val ktorClient = "io.ktor:ktor-client:$ktorVersion"
-val ktorServerCore = "io.ktor:ktor-server-core:$ktorVersion"
-val ktorServerCio = "io.ktor:ktor-server-cio:$ktorVersion"
-val ktorClientCio = "io.ktor:ktor-client-cio:$ktorVersion"
 
 repositories {
     jcenter()
@@ -159,18 +152,6 @@ val yass = project(":kotlin:yass") {
 
 val yassTestRuntime = yass.sourceSets.test.get().runtimeClasspath
 
-val yassTransportKtor = project(":kotlin:yass-transport-ktor") {
-    dependencies {
-        compile(yass)
-        compile(ktorNetwork)
-        compile(ktorClient)
-        compile(ktorServerCore)
-        testCompile(ktorServerCio)
-        testCompile(ktorClientCio)
-        testCompile(yassTestRuntime)
-    }
-}
-
 val yassTransportWs = project(":kotlin:yass-transport-ws") {
     dependencies {
         compile(yass)
@@ -189,10 +170,7 @@ val yassGenerate = project(":kotlin:yass-generate") {
 
 project(":kotlin:tutorial-kotlin") {
     dependencies {
-        compile(yassTransportKtor)
-        // compile("ch.softappeal.yass:yass-transport-ktor:x.y.z")
-        compile(ktorServerCio)
-        compile(ktorClientCio)
+        compile(yassTransportWs)
     }
 }
 
