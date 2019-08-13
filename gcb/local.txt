@@ -1,8 +1,0 @@
-docker build -t yass -f gcb/Dockerfile --build-arg PROJECT_DIR=. .
-
-docker run -it yass /bin/bash
-
-
-docker run yass /project/gcb/start.commit.sh
-
-docker run --env PROJECT_VERSION=0.0.1-dev yass /project/gcb/start.release.sh
